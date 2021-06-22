@@ -783,7 +783,8 @@ page 55 "Purch. Invoice Subform"
                         ApplicationArea = Suite;
                         Caption = 'E&xplode BOM';
                         Image = ExplodeBOM;
-                        ToolTip = 'Insert new lines for the components on the bill of materials, for example to sell the parent item as a kit. CAUTION: The line for the parent item will be deleted and represented by a description only. To undo, you must delete the component lines and add a line the parent item again.';
+                        Enabled = Type = Type::Item;
+                        ToolTip = 'Add a line for each component on the bill of materials for the selected item. For example, this is useful for selling the parent item as a kit. CAUTION: The line for the parent item will be deleted and only its description will display. To undo this action, delete the component lines and add a line for the parent item again. This action is available only for lines that contain an item.';
 
                         trigger OnAction()
                         begin
@@ -823,6 +824,7 @@ page 55 "Purch. Invoice Subform"
                 {
                     Caption = 'Item Availability by';
                     Image = ItemAvailability;
+                    Enabled = Type = Type::Item;
                     action("Event")
                     {
                         ApplicationArea = Basic, Suite;
@@ -921,7 +923,8 @@ page 55 "Purch. Invoice Subform"
                         ApplicationArea = ItemCharges;
                         Caption = 'Item Charge &Assignment';
                         Image = ItemCosts;
-                        ToolTip = 'Assign additional direct costs, for example for freight, to the item on the line.';
+                        Enabled = Type = Type::"Charge (Item)";
+                        ToolTip = 'Record additional direct costs, for example for freight. This action is available only for Charge (Item) line types.';
 
                         trigger OnAction()
                         begin
@@ -935,7 +938,8 @@ page 55 "Purch. Invoice Subform"
                         Caption = 'Item &Tracking Lines';
                         Image = ItemTrackingLines;
                         ShortCutKey = 'Shift+Ctrl+I';
-                        ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                        Enabled = Type = Type::Item;
+                        ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
                         trigger OnAction()
                         begin

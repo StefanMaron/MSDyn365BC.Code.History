@@ -76,7 +76,13 @@ codeunit 5707 "TransferOrder-Post + Print"
     local procedure PrintShipment(DocNo: Code[20])
     var
         TransShptHeader: Record "Transfer Shipment Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintShipment(DocNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if TransShptHeader.Get(DocNo) then begin
             TransShptHeader.SetRecFilter;
             TransShptHeader.PrintRecords(false);
@@ -86,7 +92,13 @@ codeunit 5707 "TransferOrder-Post + Print"
     local procedure PrintReceipt(DocNo: Code[20])
     var
         TransRcptHeader: Record "Transfer Receipt Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintReceipt(DocNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if TransRcptHeader.Get(DocNo) then begin
             TransRcptHeader.SetRecFilter;
             TransRcptHeader.PrintRecords(false);
@@ -100,6 +112,16 @@ codeunit 5707 "TransferOrder-Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePost(var TransHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintReceipt(DocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintShipment(DocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

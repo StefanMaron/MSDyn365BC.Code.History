@@ -2711,6 +2711,39 @@ codeunit 134486 "Check Dimensions On Posting"
         VerifyDimErrors(1, ExpectedErrorMessage, ErrorMessageHandler);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDimValuePostingIdenticalDefaultDimensions()
+    var
+        DefaultDim: Record "Default Dimension";
+        DimValue: Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        DimManagement: Codeunit DimensionManagement;
+        No: array[10] of Code[20];
+        DimSetID: Integer;
+        TableID: array[10] of Integer;
+        Result: Boolean;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 348697] Function CheckDimValuePosting checks Default Dimension for two identical Default Dimensions inputs.
+        Initialize();
+        // [GIVEN] G/L Account with Default Dimension with Dimension Code, Value Posting, Dimension Value Code.
+        LibraryDimension.CreateDimWithDimValue(DimValue);
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateDefaultDimensionWithValuePostingForGLAcc(
+            DefaultDim, DimValue."Dimension Code", DimValue.Code, GLAccount."No.", DefaultDim."Value Posting"::"Code Mandatory");
+        // [GIVEN] Dimension Set with Dimension and Dimension Value Code.
+        DimSetID := LibraryDimension.CreateDimSet(0, DimValue."Dimension Code", DimValue.Code);
+        // [WHEN] CheckDimValuePosting is run for the same G/L Accounts and Dimension set.
+        TableID[1] := DATABASE::"G/L Account";
+        TableID[2] := DATABASE::"G/L Account";
+        No[1] := GLAccount."No.";
+        No[2] := GLAccount."No.";
+        Result := DimManagement.CheckDimValuePosting(TableID, No, DimSetID);
+        // [THEN] CheckDimValuePosting returns True.
+        Assert.IsTrue(Result, '');
+    end;
+
     local procedure Initialize()
     var
         NamedForwardLink: Record "Named Forward Link";

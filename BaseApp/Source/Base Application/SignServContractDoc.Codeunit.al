@@ -879,6 +879,7 @@ codeunit 5944 SignServContractDoc
                 ToServCommentLine."Line No." := FromServCommentLine."Line No.";
                 ToServCommentLine.Comment := FromServCommentLine.Comment;
                 ToServCommentLine.Date := FromServCommentLine.Date;
+                OnCopyServCommentsOnAfterToServCommentLineInsert(FromServCommentLine, ToServCommentLine);
                 ToServCommentLine.Insert();
             until FromServCommentLine.Next = 0;
     end;
@@ -1029,6 +1030,11 @@ codeunit 5944 SignServContractDoc
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteServContractHeader(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyServCommentsOnAfterToServCommentLineInsert(var FromServCommentLine: Record "Service Comment Line"; var ToServCommentLine: Record "Service Comment Line")
     begin
     end;
 }

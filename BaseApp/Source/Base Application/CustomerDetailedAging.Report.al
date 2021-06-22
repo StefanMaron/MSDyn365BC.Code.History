@@ -19,7 +19,7 @@ report 106 "Customer Detailed Aging"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(Customer_TABLECAPTION_CustFilter; TableCaption + ': ' + CustFilter)
+            column(Customer_TABLECAPTION_CustFilter; Customer.TableCaption + ': ' + CustFilter)
             {
             }
             column(CustFilter; CustFilter)

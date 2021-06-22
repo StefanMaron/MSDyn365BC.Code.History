@@ -7934,13 +7934,13 @@
       <Cmt Name="Dev"><![CDATA[%1 = Item Ledger Entry Type]D;]A;(LookupHint=Codeunit SCM Manufacturing - NamedType EntryOfTypeNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1233714583 - NamedType 454538037" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1233714583 - NamedType 444203836" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You have insufficient quantity]]></Val>
+      <Val><![CDATA[You cannot proceed with the posting as it will result in negative inventory]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - NamedType InsufficientQuantityErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - NamedType CannotUnapplyItemLedgEntryErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1233714583 - NamedType 3250309328" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8933,13 +8933,13 @@
       <Cmt Name="Dev"><![CDATA[%1 : Purchase Line, %2 : Quantity (Base), %3 : Value.]D;]A;(LookupHint=Codeunit SCM Order Planning - III - NamedType PurchaseLineQuantityBaseErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2531980374 - NamedType 4216490" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2531980374 - NamedType 1954036108" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No purchase orders are created.]]></Val>
+      <Val><![CDATA[All items on the sales order are available.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType NoPurchOrderCreatedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Order Planning - III - NamedType AllItemsAreAvaialableMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 589420395 - NamedType 816136885" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9759,6 +9759,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders VI - NamedType MissingMandatoryLocationTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 248268497 - NamedType 1967576823" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot reserve from this item ledger entry because the associated special sales order %1 has not been posted yet.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1: Sales Order No.]D;]A;(LookupHint=Codeunit SCM Orders VI - NamedType CannotReserveFromSpecialOrderErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 561188656 - NamedType 951199240" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -16880,13 +16889,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse-V - NamedType WhseJournalLineBinCodeErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 143370325 - NamedType 1342389712" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 143370325 - NamedType 444203836" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You have insufficient quantity]]></Val>
+      <Val><![CDATA[Item ledger entry %1 cannot be left unapplied]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse-V - NamedType InsufficientQtyErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse-V - NamedType CannotUnapplyItemLedgEntryErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 143370325 - NamedType 1965714631" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

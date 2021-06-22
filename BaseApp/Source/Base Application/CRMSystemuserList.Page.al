@@ -1,6 +1,7 @@
 page 5340 "CRM Systemuser List"
 {
     Caption = 'Users - Common Data Service';
+    AdditionalSearchTerms = 'Users CDS';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
@@ -60,7 +61,7 @@ page 5340 "CRM Systemuser List"
                         SalespersonsPurchasers: Page "Salespersons/Purchasers";
                     begin
                         SalespersonsPurchasers.LookupMode(true);
-                        if SalespersonsPurchasers.RunModal = ACTION::LookupOK then begin
+                        if SalespersonsPurchasers.RunModal() = ACTION::LookupOK then begin
                             SalespersonsPurchasers.GetRecord(SalespersonPurchaser);
                             InsertUpdateTempCRMSystemUser(SalespersonPurchaser.Code, true);
                             CleanDuplicateSalespersonRecords(SalespersonPurchaser.Code, SystemUserId);
@@ -81,6 +82,15 @@ page 5340 "CRM Systemuser List"
                                 InsertUpdateTempCRMSystemUser('', true);
                         CurrPage.Update(false);
                     end;
+                }
+                field(TeamMember; TeamMember)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Default Team Member';
+                    OptionCaption = 'No,Yes';
+                    Visible = IsCDSIntegrationEnabled;
+                    Editable = false;
+                    ToolTip = 'Specifies whether the user is associated with the default team in Common Data Service.';
                 }
             }
         }
@@ -108,7 +118,17 @@ page 5340 "CRM Systemuser List"
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
                 begin
                     CurrPage.SetSelectionFilter(CRMSystemuser);
+                    if not HasUncoupled(CRMSystemuser) then
+                        exit;
+
                     CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMSystemuser);
+                    HasCoupled := true;
+
+                    if IsCDSIntegrationEnabled then
+                        exit;
+
+                    if Confirm(AddScheduledCoupledUsersToTeamQst) then
+                        AddUsersToDefaultOwningTeam(CRMSystemuser, false);
                 end;
             }
             action(Couple)
@@ -125,32 +145,37 @@ page 5340 "CRM Systemuser List"
 
                 trigger OnAction()
                 var
-                    SalespersonPurchaser: Record "Salesperson/Purchaser";
-                    CRMIntegrationRecord: Record "CRM Integration Record";
-                    CRMIntegrationManagement: Codeunit "CRM Integration Management";
-                    CRMCouplingManagement: Codeunit "CRM Coupling Management";
-                    OldRecordId: RecordID;
-                    Synchronize: Boolean;
-                    Direction: Option;
+                    TempSelectedCRMSystemuser: Record "CRM Systemuser" temporary;
                 begin
-                    TempCRMSystemuser.Reset();
-                    TempCRMSystemuser.SetRange(IsSyncWithDirectory, true);
-                    if TempCRMSystemuser.FindSet() then begin
-                        HasCoupled := true;
-                        repeat
-                            if TempCRMSystemuser.FirstName <> '' then begin
-                                SalespersonPurchaser.Get(TempCRMSystemuser.FirstName);
-                                CRMIntegrationManagement.CoupleCRMEntity(
-                                  SalespersonPurchaser.RecordId, TempCRMSystemuser.SystemUserId, Synchronize, Direction);
-                            end else begin
-                                CRMIntegrationRecord.FindRecordIDFromID(
-                                  TempCRMSystemuser.SystemUserId, DATABASE::"Salesperson/Purchaser", OldRecordId);
-                                CRMCouplingManagement.RemoveCoupling(OldRecordId);
-                            end;
-                        until TempCRMSystemuser.Next = 0;
-                    end;
-                    TempCRMSystemuser.ModifyAll(IsSyncWithDirectory, false);
-                    TempCRMSystemuser.ModifyAll(IsDisabled, false);
+                    if IsCDSIntegrationEnabled then
+                        GetNotInTeamCoupledUsers(TempSelectedCRMSystemuser, true);
+
+                    LinkUsersToSalespersons();
+
+                    if IsCDSIntegrationEnabled then
+                        if not TempSelectedCRMSystemuser.IsEmpty() then
+                            if Confirm(AddRecentlyCoupledUsersToTeamQst) then
+                                AddUsersToDefaultOwningTeam(TempSelectedCRMSystemuser, true);
+                end;
+            }
+            action(AddCoupledUsersToTeam)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Add coupled users to team';
+                Image = LinkAccount;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                Visible = IsCDSIntegrationEnabled;
+                ToolTip = 'Add the coupled Common Data Service users to the default owning team.';
+
+                trigger OnAction()
+                var
+                    CRMSystemuser: Record "CRM Systemuser";
+                begin
+                    CurrPage.SetSelectionFilter(CRMSystemuser);
+                    AddUsersToDefaultOwningTeam(CRMSystemuser, true);
                 end;
             }
         }
@@ -179,23 +204,54 @@ page 5340 "CRM Systemuser List"
             Coupled := Coupled::No;
             FirstColumnStyle := 'None';
         end;
+        if IsCDSIntegrationEnabled then begin
+            TempCDSTeammembership.SetRange(SystemUserId, SystemUserId);
+            if not TempCDSTeammembership.IsEmpty() then
+                TeamMember := TeamMember::Yes
+            else
+                TeamMember := TeamMember::No;
+        end;
     end;
 
     trigger OnInit()
     begin
         Coupled := Coupled::No;
-    end;
-
-    trigger OnOpenPage()
-    begin
         CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
+
+        if CDSConnectionSetup.Get() then begin
+            IsCDSIntegrationEnabled := CDSConnectionSetup."Is Enabled";
+            if IsCDSIntegrationEnabled then
+                CDSIntegrationImpl.GetDefaultOwningTeamMembership(CDSConnectionSetup, TempCDSTeammembership);
+        end;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        TempSelectedCRMSystemuser: Record "CRM Systemuser" temporary;
+        CloseWithoutAskingAboutUncoupledUsers: Boolean;
     begin
-        if not HasCoupled then
-            if Confirm(ClosePageUncoupledUserTxt, true) then
+        if HasCoupled then
+            CloseWithoutAskingAboutUncoupledUsers := true
+        else
+            CloseWithoutAskingAboutUncoupledUsers := not HasUncoupled();
+
+        if CloseWithoutAskingAboutUncoupledUsers then begin
+            if not IsCDSIntegrationEnabled then
                 exit(true);
+
+            if not HasCoupledNotInTeam() then
+                exit(true);
+
+            if Confirm(ClosePageCoupledUserNotInTeamTxt, true) then begin
+                GetNotInTeamCoupledUsers(TempSelectedCRMSystemuser, false);
+                AddUsersToDefaultOwningTeam(TempSelectedCRMSystemuser, true);
+            end;
+
+            exit(true);
+        end;
+
+        if Confirm(ClosePageUncoupledUserTxt, true) then
+            exit(true);
 
         exit(false);
     end;
@@ -203,8 +259,16 @@ page 5340 "CRM Systemuser List"
     var
         CurrentlyCoupledCRMSystemuser: Record "CRM Systemuser";
         TempCRMSystemuser: Record "CRM Systemuser" temporary;
+        TempCDSTeammembership: Record "CDS Teammembership" temporary;
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        IsCDSIntegrationEnabled: Boolean;
+        TeamMember: Option No,Yes;
         Coupled: Option Yes,No,Current;
         FirstColumnStyle: Text;
+        AddScheduledCoupledUsersToTeamQst: Label 'New salespersons are scheduled to be coupled.\\Do you want to add the users they are coupled with in Common Data Service to the default owning team so that they can access the synchronized data?';
+        AddRecentlyCoupledUsersToTeamQst: Label 'Users in Common Data Service were linked to salespersons.\\ Do you want to add them to the default owning team so that they can access the synchronized data?';
+        ClosePageCoupledUserNotInTeamTxt: Label 'Some coupled users are not added to the default owning team in Common Data Service and might not have access to synchronized data.\\Do you want to add them now?';
         ClosePageUncoupledUserTxt: Label 'No Salespersons were scheduled for coupling.\\Are you sure you would like to exit?';
         ShowCouplingControls: Boolean;
         HasCoupled: Boolean;
@@ -212,6 +276,96 @@ page 5340 "CRM Systemuser List"
     procedure SetCurrentlyCoupledCRMSystemuser(CRMSystemuser: Record "CRM Systemuser")
     begin
         CurrentlyCoupledCRMSystemuser := CRMSystemuser;
+    end;
+
+    local procedure LinkUsersToSalespersons(): Integer
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CRMCouplingManagement: Codeunit "CRM Coupling Management";
+        OldRecordId: RecordID;
+        Synchronize: Boolean;
+        Direction: Option;
+    begin
+        TempCRMSystemuser.Reset();
+        TempCRMSystemuser.SetRange(IsSyncWithDirectory, true);
+        if TempCRMSystemuser.FindSet() then begin
+            HasCoupled := true;
+            repeat
+                if TempCRMSystemuser.FirstName <> '' then begin
+                    SalespersonPurchaser.Get(TempCRMSystemuser.FirstName);
+                    CRMIntegrationManagement.CoupleCRMEntity(
+                      SalespersonPurchaser.RecordId, TempCRMSystemuser.SystemUserId, Synchronize, Direction);
+                end else begin
+                    CRMIntegrationRecord.FindRecordIDFromID(
+                      TempCRMSystemuser.SystemUserId, DATABASE::"Salesperson/Purchaser", OldRecordId);
+                    CRMCouplingManagement.RemoveCoupling(OldRecordId);
+                end;
+            until TempCRMSystemuser.Next() = 0;
+        end;
+        TempCRMSystemuser.ModifyAll(IsSyncWithDirectory, false);
+        TempCRMSystemuser.ModifyAll(IsDisabled, false);
+    end;
+
+    local procedure GetNotInTeamCoupledUsers(var TempSelectedCRMSystemuser: Record "CRM Systemuser" temporary; NewlyCoupledOnly: Boolean)
+    begin
+        TempCRMSystemuser.Reset();
+        if NewlyCoupledOnly then
+            TempCRMSystemuser.SetRange(IsSyncWithDirectory, true);
+        TempCRMSystemuser.SetFilter(FirstName, '<>%1', '');
+        if TempCRMSystemuser.FindSet() then
+            repeat
+                TempCDSTeammembership.SetRange(SystemUserId, TempCRMSystemuser.SystemUserId);
+                if TempCDSTeammembership.IsEmpty() then begin
+                    TempSelectedCRMSystemuser.Init();
+                    TempSelectedCRMSystemuser.TransferFields(TempCRMSystemuser);
+                    TempSelectedCRMSystemuser.Insert();
+                end;
+            until TempCRMSystemuser.Next() = 0;
+    end;
+
+    local procedure AddUsersToDefaultOwningTeam(var CRMSystemuser: Record "CRM Systemuser"; CoupledOnly: Boolean): Integer
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        TempSelectedCRMSystemuser: Record "CRM Systemuser" temporary;
+        UserId: Guid;
+        Selected: Integer;
+        IsCoupled: Boolean;
+        Skip: Boolean;
+    begin
+        if not CDSConnectionSetup.Get() then
+            exit;
+
+        if not CRMSystemuser.FindSet() then
+            exit;
+
+        CRMIntegrationRecord.SetRange("Table ID", Database::"Salesperson/Purchaser");
+
+        repeat
+            UserId := CRMSystemuser.SystemUserId;
+            TempCDSTeammembership.SetRange(SystemUserId, UserId);
+            if TempCDSTeammembership.IsEmpty() then begin
+                if CoupledOnly then begin
+                    CRMIntegrationRecord.SetRange("CRM ID", UserId);
+                    IsCoupled := not CRMIntegrationRecord.IsEmpty();
+                end;
+                Skip := (not CoupledOnly) or (CoupledOnly and (not IsCoupled));
+                if not Skip then begin
+                    TempSelectedCRMSystemuser.Init();
+                    TempSelectedCRMSystemuser.TransferFields(CRMSystemuser);
+                    TempSelectedCRMSystemuser.Insert();
+                    Selected += 1;
+                end;
+            end;
+        until CRMSystemuser.Next() = 0;
+
+        if Selected > 0 then begin
+            CDSIntegrationImpl.AddUsersToDefaultOwningTeam(CDSConnectionSetup, TempSelectedCRMSystemuser);
+            CDSIntegrationImpl.GetDefaultOwningTeamMembership(CDSConnectionSetup, TempCDSTeammembership);
+        end;
+
+        exit(Selected);
     end;
 
     local procedure InsertUpdateTempCRMSystemUser(SalespersonCode: Code[20]; SyncNeeded: Boolean)
@@ -239,11 +393,51 @@ page 5340 "CRM Systemuser List"
         TempCRMSystemuser.Reset();
         TempCRMSystemuser.SetRange(FirstName, SalesPersonCode);
         TempCRMSystemuser.SetFilter(SystemUserId, '<>' + Format(CRMUserId));
-        if TempCRMSystemuser.FindFirst then begin
+        if TempCRMSystemuser.FindFirst() then begin
             TempCRMSystemuser.IsDisabled := true;
             TempCRMSystemuser.FirstName := '';
             TempCRMSystemuser.Modify();
         end;
+    end;
+
+    local procedure HasUncoupled(): Boolean
+    begin
+        exit(HasUncoupled(TempCRMSystemuser));
+    end;
+
+    local procedure HasUncoupled(var SelectedCRMSystemuser: Record "CRM Systemuser"): Boolean
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        RecordID: RecordID;
+    begin
+        SelectedCRMSystemuser.Reset();
+        if SelectedCRMSystemuser.FindSet() then
+            repeat
+                if not CRMIntegrationRecord.FindRecordIDFromID(SelectedCRMSystemuser.SystemUserId, Database::"Salesperson/Purchaser", RecordID) then
+                    exit(true);
+            until SelectedCRMSystemuser.Next() = 0;
+        exit(false);
+    end;
+
+    local procedure HasCoupledNotInTeam(): Boolean
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        UserId: Guid;
+    begin
+        TempCRMSystemuser.Reset();
+        if TempCRMSystemuser.FindSet() then begin
+            CRMIntegrationRecord.SetRange("Table ID", Database::"Salesperson/Purchaser");
+            repeat
+                UserId := TempCRMSystemuser.SystemUserId;
+                TempCDSTeammembership.SetRange(SystemUserId, UserId);
+                if TempCDSTeammembership.IsEmpty() then begin
+                    CRMIntegrationRecord.SetRange("CRM ID", UserId);
+                    if not CRMIntegrationRecord.IsEmpty() then
+                        exit(true);
+                end;
+            until TempCRMSystemuser.Next() = 0;
+        end;
+        exit(false);
     end;
 
     procedure Initialize(NewShowCouplingControls: Boolean)

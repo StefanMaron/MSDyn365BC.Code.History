@@ -1174,8 +1174,18 @@ codeunit 139020 "Test Job Queue SNAP"
     procedure T170_JobQueueDispatcherCanRunIfCodeunitRun()
     var
         JobQueueEntry: Record "Job Queue Entry";
+        MarketingSetup: Record "Marketing Setup";
     begin
         // [SCENARIO 194949] Job Queue Dispatcher should be able to execute a target codeunit, that calls 'IF CODEUNIT.RUN() THEN'
+        // [GIVEN] Email Logging is enabled
+        If not MarketingSetup.Get() then begin
+            MarketingSetup."Email Logging Enabled" := true;
+            MarketingSetup.Insert();
+        end else
+            if not MarketingSetup."Email Logging Enabled" then begin
+                MarketingSetup."Email Logging Enabled" := true;
+                MarketingSetup.Modify();
+            end;
         // [GIVEN] Job Queue Entry, where Status::Ready, "Object ID to Run" = COD5065 (it calls COD5064 conditionally)
         JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;

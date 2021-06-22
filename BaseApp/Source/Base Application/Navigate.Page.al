@@ -699,6 +699,8 @@ page 344 Navigate
                 Error(Text000);
         end;
 
+        OnAfterNavigateFindExtRecords(Rec, ContactType, ContactNo, ExtDocNo, FoundRecords);
+
         if not FoundRecords then begin
             SetSource(0D, '', '', 0, '');
             Message(Text001);
@@ -2025,6 +2027,11 @@ page 344 Navigate
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDocumentCount(var DocCount: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterNavigateFindExtRecords(var DocumentEntry: Record "Document Entry"; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250]; var FoundRecords: Boolean)
     begin
     end;
 

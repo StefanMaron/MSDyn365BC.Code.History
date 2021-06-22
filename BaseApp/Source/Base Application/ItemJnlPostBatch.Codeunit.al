@@ -280,6 +280,8 @@ codeunit 23 "Item Jnl.-Post Batch"
                         end;
                     end;
 
+                OnPostLinesOnAfterPostLine(ItemJnlLine, SuppressCommit);
+
                 if IsPhysInvtCount(ItemJnlTemplate, "Phys Invt Counting Period Code", "Phys Invt Counting Period Type") then begin
                     if not PhysInvtCount then begin
                         PhysInvtCountMgt.InitTempItemSKUList;
@@ -997,6 +999,11 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnItemJnlPostSumLineOnBeforeCalcAppliedAmount(var ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostLinesOnAfterPostLine(var ItemJournalLine: Record "Item Journal Line"; var SuppressCommit: Boolean)
     begin
     end;
 

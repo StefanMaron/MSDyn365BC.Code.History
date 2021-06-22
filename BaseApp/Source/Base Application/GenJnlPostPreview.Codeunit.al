@@ -117,6 +117,8 @@ codeunit 19 "Gen. Jnl.-Post Preview"
             GLPostingPreview.Run
         end else
             Message(NothingToPostMsg);
+
+        OnAfterShowAllEntries();
     end;
 
     procedure ShowDimensions(TableID: Integer; EntryNo: Integer; DimensionSetID: Integer)
@@ -166,6 +168,11 @@ codeunit 19 "Gen. Jnl.-Post Preview"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeThrowError()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowAllEntries()
     begin
     end;
 }

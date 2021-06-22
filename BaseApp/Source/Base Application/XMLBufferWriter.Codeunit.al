@@ -412,7 +412,7 @@ codeunit 1235 "XML Buffer Writer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertElement(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; ElementNumber: Integer; ElementDepth: Integer; ElementNameAndNamespace: Text; ElementValue: Text; var IsHandled: Boolean);
+    local procedure OnBeforeInsertElement(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; ElementNumber: Integer; ElementDepth: Integer; var ElementNameAndNamespace: Text; var ElementValue: Text; var IsHandled: Boolean);
     begin
     end;
 }

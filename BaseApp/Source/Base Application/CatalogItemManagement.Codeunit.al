@@ -63,6 +63,7 @@ codeunit 5703 "Catalog Item Management"
         ItemVend."Item No." := NonStock2."Item No.";
         ItemVend."Vendor No." := NonStock2."Vendor No.";
         ItemVend."Vendor Item No." := NonStock2."Vendor Item No.";
+        OnNonstockItemVendOnBeforeItemVendInsert(ItemVend, NonStock2);
         ItemVend.Insert(true);
     end;
 
@@ -485,6 +486,11 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeNonstockItemCrossRef(var NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNonstockItemVendOnBeforeItemVendInsert(var ItemVend: Record "Item Vendor"; NonStockItem: Record "Nonstock Item")
     begin
     end;
 }

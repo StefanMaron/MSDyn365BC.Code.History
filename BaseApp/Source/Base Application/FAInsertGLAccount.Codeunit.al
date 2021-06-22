@@ -84,6 +84,7 @@ codeunit 5601 "FA Insert G/L Account"
 
     local procedure InsertBufferBalAcc(FAPostingType: Option Acquisition,Depr,WriteDown,Appr,Custom1,Custom2,Disposal,Maintenance,Gain,Loss,"Book Value Gain","Book Value Loss"; AllocAmount: Decimal; DeprBookCode: Code[10]; PostingGrCode: Code[20]; GlobalDim1Code: Code[20]; GlobalDim2Code: Code[20]; DimSetID: Integer; AutomaticEntry: Boolean; Correction: Boolean)
     var
+        SourceCodeSetup: Record "Source Code Setup";
         DimMgt: Codeunit DimensionManagement;
         GLAccNo: Code[20];
         DimensionSetIDArr: array[10] of Integer;
@@ -152,11 +153,13 @@ codeunit 5601 "FA Insert G/L Account"
                 FAGLPostBuf.Amount := NewAmount;
                 FAGLPostBuf."Global Dimension 1 Code" := GlobalDim1Code;
                 FAGLPostBuf."Global Dimension 2 Code" := GlobalDim2Code;
+                SourceCodeSetup.Get();
                 TableID[1] := DATABASE::"G/L Account";
                 No[1] := GLAccNo;
                 FAGLPostBuf."Dimension Set ID" :=
-                    DimMgt.GetDefaultDimID(
-                        TableID, No, '', FAGLPostBuf."Global Dimension 1 Code", FAGLPostBuf."Global Dimension 2 Code", DimSetID, 0);
+                  DimMgt.GetDefaultDimID(
+                      TableID, No, SourceCodeSetup."Fixed Asset G/L Journal", FAGLPostBuf."Global Dimension 1 Code",
+                      FAGLPostBuf."Global Dimension 2 Code", DimSetID, DATABASE::"Fixed Asset");
                 FAGLPostBuf."Automatic Entry" := AutomaticEntry;
                 FAGLPostBuf.Correction := Correction;
                 OnInsertBufferBalAccOnAfterAssignFromFAPostingGrAcc(FAAlloc, FAGLPostBuf);
@@ -174,6 +177,7 @@ codeunit 5601 "FA Insert G/L Account"
             InsertBufferBalAcc(
               GetPostingType(FALedgEntry), -Amount, "Depreciation Book Code",
               "FA Posting Group", "Global Dimension 1 Code", "Global Dimension 2 Code", "Dimension Set ID", "Automatic Entry", Correction);
+        OnAfterInsertBalAcc(FALedgEntry);
     end;
 
     local procedure GetPostingType(var FALedgEntry: Record "FA Ledger Entry"): Integer
@@ -543,6 +547,7 @@ codeunit 5601 "FA Insert G/L Account"
         if FAPostingGr2.GetBookValueAccountOnDisposalGain = FAPostingGr2.GetBookValueAccountOnDisposalLoss then
             exit;
         OrgGenJnlLine := false;
+        OnCorrectBookValueEntryOnBeforeInsertBufferBalAcc(FAGLPostBuf);
         if FADeprBook."Gain/Loss" <= 0 then begin
             InsertBufferBalAcc(
               10,
@@ -613,6 +618,11 @@ codeunit 5601 "FA Insert G/L Account"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertBalAcc(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFillAllocationBuffer(var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary; var NextEntryNo: Integer; var GLEntryNo: Integer; var NumberOfEntries: Integer; var OrgGenJnlLine: Boolean; var NetDisp: Boolean; GLAccNo: Code[20]; FAPostingType: Option Acquisition,Depr,WriteDown,Appr,Custom1,Custom2,Disposal,Maintenance,Gain,Loss,"Book Value Gain","Book Value Loss"; AllocAmount: Decimal; DeprBookCode: Code[10]; PostingGrCode: Code[20]; GlobalDim1Code: Code[20]; GlobalDim2Code: Code[20]; DimSetID: Integer; AutomaticEntry: Boolean; Correction: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -629,6 +639,11 @@ codeunit 5601 "FA Insert G/L Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempFAGLPostBufModify(var FAPostingGroup: Record "FA Posting Group"; var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary; GLAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectBookValueEntryOnBeforeInsertBufferBalAcc(var FAGLPostBuf: Record "FA G/L Posting Buffer")
     begin
     end;
 

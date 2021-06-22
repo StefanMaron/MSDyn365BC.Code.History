@@ -123,26 +123,8 @@ table 27 Item
                     Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption, "No.", ItemLedgEntryTableCaptionTxt);
                 CheckJournalsAndWorksheets(FieldNo(Type));
                 CheckDocuments(FieldNo(Type));
-                if IsNonInventoriableType then begin
-                    CalcFields("Assembly BOM");
-                    TestField("Assembly BOM", false);
-
-                    CalcFields("Stockkeeping Unit Exists");
-                    TestField("Stockkeeping Unit Exists", false);
-
-                    Validate("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
-                    Validate("Replenishment System", "Replenishment System"::Purchase);
-                    Validate(Reserve, Reserve::Never);
-                    Validate("Inventory Posting Group", '');
-                    Validate("Item Tracking Code", '');
-                    Validate("Costing Method", "Costing Method"::FIFO);
-                    Validate("Production BOM No.", '');
-                    Validate("Routing No.", '');
-                    Validate("Reordering Policy", "Reordering Policy"::" ");
-                    Validate("Order Tracking Policy", "Order Tracking Policy"::None);
-                    Validate("Overhead Rate", 0);
-                    Validate("Indirect Cost %", 0);
-                end;
+                if IsNonInventoriableType then
+                    CheckUpdateFieldsForNonInventoriableItem();
             end;
         }
         field(11; "Inventory Posting Group"; Code[20])
@@ -2520,11 +2502,7 @@ table 27 Item
         Text99000001: Label 'If you want to generate %1 for existing entries, you must run a regenerative planning.';
         ItemVend: Record "Item Vendor";
         Text99000002: Label 'tracking,tracking and action messages';
-        SalesPrice: Record "Sales Price";
-        SalesLineDisc: Record "Sales Line Discount";
         SalesPrepmtPct: Record "Sales Prepayment %";
-        PurchPrice: Record "Purchase Price";
-        PurchLineDisc: Record "Purchase Line Discount";
         PurchPrepmtPct: Record "Purchase Prepayment %";
         ItemTranslation: Record "Item Translation";
         BOMComp: Record "BOM Component";
@@ -2617,21 +2595,8 @@ table 27 Item
         ItemVend.SetRange("Item No.", "No.");
         ItemVend.DeleteAll();
 
-        SalesPrice.SetRange("Item No.", "No.");
-        SalesPrice.DeleteAll();
-
-        SalesLineDisc.SetRange(Type, SalesLineDisc.Type::Item);
-        SalesLineDisc.SetRange(Code, "No.");
-        SalesLineDisc.DeleteAll();
-
         SalesPrepmtPct.SetRange("Item No.", "No.");
         SalesPrepmtPct.DeleteAll();
-
-        PurchPrice.SetRange("Item No.", "No.");
-        PurchPrice.DeleteAll();
-
-        PurchLineDisc.SetRange("Item No.", "No.");
-        PurchLineDisc.DeleteAll();
 
         PurchPrepmtPct.SetRange("Item No.", "No.");
         PurchPrepmtPct.DeleteAll();
@@ -3184,6 +3149,35 @@ table 27 Item
         end;
     end;
 
+    local procedure CheckUpdateFieldsForNonInventoriableItem()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckUpdateFieldsForNonInventoriableItem(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        CalcFields("Assembly BOM");
+        TestField("Assembly BOM", false);
+
+        CalcFields("Stockkeeping Unit Exists");
+        TestField("Stockkeeping Unit Exists", false);
+
+        Validate("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
+        Validate("Replenishment System", "Replenishment System"::Purchase);
+        Validate(Reserve, Reserve::Never);
+        Validate("Inventory Posting Group", '');
+        Validate("Item Tracking Code", '');
+        Validate("Costing Method", "Costing Method"::FIFO);
+        Validate("Production BOM No.", '');
+        Validate("Routing No.", '');
+        Validate("Reordering Policy", "Reordering Policy"::" ");
+        Validate("Order Tracking Policy", "Order Tracking Policy"::None);
+        Validate("Overhead Rate", 0);
+        Validate("Indirect Cost %", 0);
+    end;
+
     procedure PreventNegativeInventory(): Boolean
     var
         InventorySetup: Record "Inventory Setup";
@@ -3562,6 +3556,11 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var Item: Record Item; xItem: Record Item; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckUpdateFieldsForNonInventoriableItem(var Item: Record Item; xItem: Record Item; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

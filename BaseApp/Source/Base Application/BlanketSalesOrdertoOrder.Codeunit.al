@@ -44,6 +44,7 @@ codeunit 87 "Blanket Sales Order to Order"
         if BlanketOrderSalesLine.FindSet then begin
             TempSalesLine.DeleteAll();
             repeat
+                OnBeforeHandlingBlanketOrderSalesLine(BlanketOrderSalesLine);
                 if (BlanketOrderSalesLine.Type = BlanketOrderSalesLine.Type::" ") or (BlanketOrderSalesLine."Qty. to Ship" <> 0) then begin
                     SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
                     SalesLine.SetRange("Blanket Order No.", BlanketOrderSalesLine."Document No.");
@@ -387,6 +388,11 @@ codeunit 87 "Blanket Sales Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSalesHeader(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandlingBlanketOrderSalesLine(var BlanketOrderSalesLine: Record "Sales Line")
     begin
     end;
 

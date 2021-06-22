@@ -67,6 +67,8 @@ page 5104 "Contact Picture"
                     if FileName = '' then
                         exit;
 
+                    OnImportPictureOnBeforeStoreFile(Rec, FileName);
+
                     Clear(Image);
                     Image.ImportFile(FileName, ClientFileName);
                     Modify(true);
@@ -142,6 +144,11 @@ page 5104 "Contact Picture"
     local procedure SetEditableOnPictureActions()
     begin
         DeleteExportEnabled := Image.HasValue;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnImportPictureOnBeforeStoreFile(var Contact: Record Contact; FileName: Text)
+    begin
     end;
 }
 

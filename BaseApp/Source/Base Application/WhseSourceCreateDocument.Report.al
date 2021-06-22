@@ -819,7 +819,7 @@
         TrackedQtyInBin: Decimal;
     begin
         with WhseItemTrackingLine do begin
-            SetSourceFilter(DATABASE::"Whse. Worksheet Line", 0, WhseWorksheetLine.Name, -1, false);
+            SetSourceFilter(DATABASE::"Whse. Worksheet Line", 0, WhseWorksheetLine.Name, WhseWorksheetLine."Line No.", false);
             SetRange("Source Batch Name", WhseWorksheetLine."Worksheet Template Name");
             SetRange("Location Code", WhseWorksheetLine."Location Code");
             SetRange("Item No.", WhseWorksheetLine."Item No.");

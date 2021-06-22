@@ -1,12 +1,15 @@
-codeunit 5882 "Phys. Invt. Order-Reopen"
+﻿codeunit 5882 "Phys. Invt. Order-Reopen"
 {
     TableNo = "Phys. Invt. Order Header";
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec);
         PhysInvtOrderHeader.Copy(Rec);
         Code;
         Rec := PhysInvtOrderHeader;
+
+        OnAfterOnRun(Rec);
     end;
 
     var
@@ -61,6 +64,11 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header");
     begin
     end;
 

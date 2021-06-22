@@ -1,4 +1,4 @@
-table 9055 "Purchase Cue"
+﻿table 9055 "Purchase Cue"
 {
     Caption = 'Purchase Cue';
 
@@ -139,6 +139,7 @@ table 9055 "Purchase Cue"
         end;
         FilterGroup(2);
         CountPurchOrders.SetFilter(Responsibility_Center, GetFilter("Responsibility Center Filter"));
+        OnCountOrdersOnAfterCountPurchOrdersSetFilters(CountPurchOrders);
         FilterGroup(0);
 
         CountPurchOrders.Open;
@@ -175,9 +176,20 @@ table 9055 "Purchase Cue"
         end;
         FilterGroup(2);
         PurchHeader.SetFilter("Responsibility Center", GetFilter("Responsibility Center Filter"));
+        OnShowOrdersOnAfterPurchHeaderSetFilters(PurchHeader);
         FilterGroup(0);
 
         PAGE.Run(PAGE::"Purchase Order List", PurchHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCountOrdersOnAfterCountPurchOrdersSetFilters(var CountPurchOrders: Query "Count Purchase Orders")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowOrdersOnAfterPurchHeaderSetFilters(var PurchaseHeader: Record "Purchase Header")
+    begin
     end;
 }
 

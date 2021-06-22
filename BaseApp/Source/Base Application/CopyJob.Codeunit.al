@@ -34,7 +34,7 @@ codeunit 1006 "Copy Job"
         CopyJobTasks(SourceJob, TargetJob);
 
         if CopyPrices then
-            CopyJobPrices(SourceJob, TargetJob);
+            OnBeforeCopyJobPrices(SourceJob, TargetJob);
 
         OnAfterCopyJob(TargetJob, SourceJob);
         TargetJob.Modify();
@@ -150,6 +150,7 @@ codeunit 1006 "Copy Job"
                         Modify;
                     end;
                 end;
+                OnCopyJobPlanningLinesOnAfterCopyTargetJobPlanningLine(TargetJobPlanningLine, SourceJobPlanningLine);
             until SourceJobPlanningLine.Next = 0;
     end;
 
@@ -200,47 +201,6 @@ codeunit 1006 "Copy Job"
                 NextPlanningLineNo += 10000;
                 TargetJobPlanningLine.Modify();
             until JobLedgEntry.Next = 0;
-    end;
-
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
-    local procedure CopyJobPrices(SourceJob: Record Job; TargetJob: Record Job)
-    var
-        SourceJobItemPrice: Record "Job Item Price";
-        SourceJobResourcePrice: Record "Job Resource Price";
-        SourceJobGLAccountPrice: Record "Job G/L Account Price";
-        TargetJobItemPrice: Record "Job Item Price";
-        TargetJobResourcePrice: Record "Job Resource Price";
-        TargetJobGLAccountPrice: Record "Job G/L Account Price";
-    begin
-        OnBeforeCopyJobPrices(SourceJob, TargetJob);
-
-        SourceJobItemPrice.SetRange("Job No.", SourceJob."No.");
-        SourceJobItemPrice.SetRange("Currency Code", SourceJob."Currency Code");
-
-        if SourceJobItemPrice.FindSet then
-            repeat
-                TargetJobItemPrice.TransferFields(SourceJobItemPrice, true);
-                TargetJobItemPrice."Job No." := TargetJob."No.";
-                TargetJobItemPrice.Insert(true);
-            until SourceJobItemPrice.Next = 0;
-
-        SourceJobResourcePrice.SetRange("Job No.", SourceJob."No.");
-        SourceJobResourcePrice.SetRange("Currency Code", SourceJob."Currency Code");
-        if SourceJobResourcePrice.FindSet then
-            repeat
-                TargetJobResourcePrice.TransferFields(SourceJobResourcePrice, true);
-                TargetJobResourcePrice."Job No." := TargetJob."No.";
-                TargetJobResourcePrice.Insert(true);
-            until SourceJobResourcePrice.Next = 0;
-
-        SourceJobGLAccountPrice.SetRange("Job No.", SourceJob."No.");
-        SourceJobGLAccountPrice.SetRange("Currency Code", SourceJob."Currency Code");
-        if SourceJobGLAccountPrice.FindSet then
-            repeat
-                TargetJobGLAccountPrice.TransferFields(SourceJobGLAccountPrice, true);
-                TargetJobGLAccountPrice."Job No." := TargetJob."No.";
-                TargetJobGLAccountPrice.Insert(true);
-            until SourceJobGLAccountPrice.Next = 0;
     end;
 
     local procedure CopyJobDimensions(SourceJob: Record Job; var TargetJob: Record Job)
@@ -395,6 +355,11 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyJobPlanningLinesOnBeforeModifyTargetJobPlanningLine(var TargetJobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyJobPlanningLinesOnAfterCopyTargetJobPlanningLine(var TargetJobPlanningLine: Record "Job Planning Line"; SourceJobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

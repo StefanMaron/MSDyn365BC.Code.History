@@ -616,8 +616,9 @@ codeunit 139169 "CRM Synch. Job Scenarios"
 
     local procedure Initialize()
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
+        ResetDefaultCRMSetupConfiguration();
 
         if IsInitialized then
             exit;
@@ -634,6 +635,10 @@ codeunit 139169 "CRM Synch. Job Scenarios"
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
+        CDSConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;

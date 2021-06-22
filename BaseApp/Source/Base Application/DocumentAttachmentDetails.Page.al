@@ -22,14 +22,12 @@ page 1173 "Document Attachment Details"
                     trigger OnDrillDown()
                     var
                         TempBlob: Codeunit "Temp Blob";
-                        FileManagement: Codeunit "File Management";
                         FileName: Text;
                     begin
                         if "Document Reference ID".HasValue then
                             Export(true)
                         else begin
-                            FileName := FileManagement.BLOBImportWithFilter(
-                                TempBlob, ImportTxt, FileName, StrSubstNo(FileDialogTxt, FilterTxt), FilterTxt);
+                            ImportWithFilter(TempBlob, FileName);
                             if FileName <> '' then
                                 SaveAttachment(FromRecRef, FileName, TempBlob);
                             CurrPage.Update(false);
@@ -251,8 +249,27 @@ page 1173 "Document Attachment Details"
         OnAfterOpenForRecRef(Rec, RecRef);
     end;
 
+    local procedure ImportWithFilter(var TempBlob: Codeunit "Temp Blob"; var FileName: Text)
+    var
+        FileManagement: Codeunit "File Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeImportWithFilter(TempBlob, FileName, IsHandled);
+        if IsHandled then
+            exit;
+
+        FileName := FileManagement.BLOBImportWithFilter(
+            TempBlob, ImportTxt, FileName, StrSubstNo(FileDialogTxt, FilterTxt), FilterTxt);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenForRecRef(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImportWithFilter(var TempBlob: Codeunit "Temp Blob"; var FileName: Text; var IsHandled: Boolean)
     begin
     end;
 }

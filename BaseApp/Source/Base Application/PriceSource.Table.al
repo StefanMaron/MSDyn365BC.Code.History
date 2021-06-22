@@ -7,8 +7,6 @@ table 7005 "Price Source"
             DataClassification = SystemMetadata;
             trigger OnValidate()
             begin
-                if "Source Type" = xRec."Source Type" then
-                    exit;
                 SetGroup();
                 InitSource();
             end;
@@ -18,8 +16,6 @@ table 7005 "Price Source"
             DataClassification = SystemMetadata;
             trigger OnValidate()
             begin
-                if "Source ID" = xRec."Source ID" then
-                    exit;
                 if IsNullGuid("Source ID") then
                     InitSource()
                 else begin
@@ -33,8 +29,6 @@ table 7005 "Price Source"
             DataClassification = SystemMetadata;
             trigger OnValidate()
             begin
-                if "Source No." = xRec."Source No." then
-                    exit;
                 if "Source No." = '' then
                     InitSource()
                 else begin
@@ -48,8 +42,6 @@ table 7005 "Price Source"
             DataClassification = SystemMetadata;
             trigger OnValidate()
             begin
-                if "Parent Source No." = xRec."Parent Source No." then
-                    exit;
                 PriceSourceInterface := "Source Type";
                 PriceSourceInterface.VerifyParent(Rec);
                 "Source No." := '';
@@ -80,10 +72,18 @@ table 7005 "Price Source"
         field(12; "Starting Date"; Date)
         {
             DataClassification = SystemMetadata;
+            trigger OnValidate()
+            begin
+                VerifyDates();
+            end;
         }
         field(13; "Ending Date"; Date)
         {
             DataClassification = SystemMetadata;
+            trigger OnValidate()
+            begin
+                VerifyDates();
+            end;
         }
         field(21; "Allow Line Disc."; Boolean)
         {
@@ -116,6 +116,8 @@ table 7005 "Price Source"
 
     var
         PriceSourceInterface: Interface "Price Source";
+        StartingDateErr: Label 'Starting Date cannot be after Ending Date.';
+        CampaignDateErr: Label 'If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
 
     trigger OnInsert()
     begin
@@ -203,4 +205,17 @@ table 7005 "Price Source"
             PriceListLine.SetRange("Source No.");
     end;
 
+    local procedure VerifyDates()
+    begin
+        PriceSourceInterfaceVerifyDate();
+        if ("Ending Date" <> 0D) and ("Starting Date" <> 0D) and ("Ending Date" < "Starting Date") then
+            Error(StartingDateErr);
+    end;
+
+    // Should be a method in Price Source Interface
+    local procedure PriceSourceInterfaceVerifyDate()
+    begin
+        if "Source Type" = "Source Type"::Campaign then
+            Error(CampaignDateErr);
+    end;
 }

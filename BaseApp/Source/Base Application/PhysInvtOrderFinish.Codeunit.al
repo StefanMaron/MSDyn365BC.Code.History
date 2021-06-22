@@ -1,9 +1,10 @@
-codeunit 5880 "Phys. Invt. Order-Finish"
+﻿codeunit 5880 "Phys. Invt. Order-Finish"
 {
     TableNo = "Phys. Invt. Order Header";
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec);
         PhysInvtOrderHeader.Copy(Rec);
         Code;
         Rec := PhysInvtOrderHeader;
@@ -380,6 +381,11 @@ codeunit 5880 "Phys. Invt. Order-Finish"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
     end;
 

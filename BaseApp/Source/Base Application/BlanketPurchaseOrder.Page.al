@@ -167,6 +167,8 @@ page 509 "Blanket Purchase Order"
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the record is open, waiting to be approved, invoiced for prepayment, or released to the next stage of processing.';
                 }
             }
@@ -891,6 +893,7 @@ page 509 "Blanket Purchase Order"
     begin
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -934,6 +937,8 @@ page 509 "Blanket Purchase Order"
         OpenApprovalEntriesExistForCurrUser: Boolean;
         ShowWorkflowStatus: Boolean;
         CanCancelApprovalForRecord: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
 
     local procedure ApproveCalcInvDisc()
     begin

@@ -761,6 +761,7 @@ codeunit 367 CheckManagement
         end;
         if TransactionBalance <> 0 then
             Error(VoidingCheckErr);
+        OnAfterFinancialVoidCheckPreValidation(CheckLedgEntry, BankAccLedgEntry2);
     end;
 
     local procedure ClearBankLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
@@ -785,6 +786,11 @@ codeunit 367 CheckManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinancialVoidCheck(var CheckLedgerEntry: Record "Check Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFinancialVoidCheckPreValidation(CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 

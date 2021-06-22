@@ -1546,6 +1546,10 @@ codeunit 139165 "Integration Table Synch. Test"
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
+        CDSConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;

@@ -16,6 +16,7 @@ codeunit 5333 "CRM Integration Telemetry"
         NoPermissionTxt: Label '{"READPERMISSION": "No"}', Locked = true;
         UserOpenedSetupPageTxt: Label 'User is attempting to set up the connection via %1 page.', Locked = true;
         UserDisabledConnectionTxt: Label 'User disabled the connection to %1.', Locked = true;
+        UserEnabledConnectionTxt: Label 'User has enabled the connection to D365 Sales', Locked = true;
 
     local procedure GetEnabledConnectionTelemetryData(CRMConnectionSetup: Record "CRM Connection Setup"): Text
     begin
@@ -147,6 +148,14 @@ codeunit 5333 "CRM Integration Telemetry"
     begin
         if CodeUnitMetadata.Get(CODEUNIT::"CRM Integration Telemetry") then
             TelemetryManagement.ScheduleCalEventsForTelemetryAsync(CodeUnitMetadata.RecordId, CODEUNIT::"Create Telemetry Cal. Events", 10);
+    end;
+
+    [Scope('OnPrem')]
+    procedure LogTelemetryWhenConnectionEnabled()
+    begin
+        SendTraceTag(
+          '0000CE2', CRMConnectionCategoryTxt, VERBOSITY::Normal,
+          UserEnabledConnectionTxt, DATACLASSIFICATION::SystemMetadata);
     end;
 
     [Scope('OnPrem')]

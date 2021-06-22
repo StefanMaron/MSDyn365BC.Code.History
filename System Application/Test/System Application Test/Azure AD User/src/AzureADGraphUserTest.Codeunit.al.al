@@ -412,6 +412,102 @@ codeunit 132911 "Azure AD Graph User Test"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
+    procedure TestTryGetUserAuthenticationObjectIdForAnInexistentUser()
+    var
+        AuthenticationObjectID: Text;
+        RandomGUID: Guid;
+        Result: Boolean;
+    begin
+        Initialize();
+        RandomGUID := CreateGuid();
+
+        // [WHEN] Trying to get the user authentication object ID for an inexistent user
+        Result := AzureADGraphUser.TryGetUserAuthenticationObjectId(RandomGUID, AuthenticationObjectID);
+
+        // [THEN] The call should fail
+        LibraryAssert.IsFalse(Result, 'The call to TryGetUserAuthenticationObjectId should fail');
+
+        // [THEN] The var parameter should be unchanged
+        LibraryAssert.AreEqual('', AuthenticationObjectID, 'Authentication Object ID should not be set');
+
+        TearDown();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestTryGetUserAuthenticationObjectIdForAnInexistentUserProperty()
+    var
+        User: Record User;
+        UserId: Guid;
+        UserAuthenticationObjectId: Text;
+        Result: Boolean;
+    begin
+        Initialize();
+
+        // [GIVEN] A user
+        UserId := CreateGuid();
+        InsertUser(User, UserId, false, '', '', 'email@email.com', 'username');
+
+        // [WHEN] Trying to get the user authentication object ID for the user
+        Result := AzureADGraphUser.TryGetUserAuthenticationObjectId(UserId, UserAuthenticationObjectId);
+
+        // [THEN] The call should be successful
+        LibraryAssert.IsTrue(Result, 'The call to TryGetUserAuthenticationObjectId should be successful');
+
+        // [THEN] The authentication object id should be the empty string
+        LibraryAssert.AreEqual('', UserAuthenticationObjectId, 'The user authentication object ID is incorrect');
+
+        TearDown();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestTryGetUserAuthenticationObjectIdForTheCurrentUser()
+    var
+        UserAuthenticationObjectId: Text;
+        Result: Boolean;
+    begin
+        Initialize();
+
+        // [WHEN] Trying to get the user authentication object ID for the current user
+        Result := AzureADGraphUser.TryGetUserAuthenticationObjectId(UserSecurityId(), UserAuthenticationObjectId);
+
+        // [THEN] The call is successful
+        LibraryAssert.IsTrue(Result, 'The call to TryGetUserAuthenticationObjectId should be successful');
+
+        // [THEN] The authentication object ID should be as expected
+        LibraryAssert.AreEqual(CurrentUserObjectIdLbl, UserAuthenticationObjectId, 'The user authentication object ID is incorrect');
+
+        TearDown();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestTryGetUserAuthenticationObjectIdForANewUser()
+    var
+        UserAuthenticationObjectId: Text;
+        Result: Boolean;
+    begin
+        Initialize();
+
+        // [WHEN] Trying to get the user authentication object ID for a new user
+        Result := AzureADGraphUser.TryGetUserAuthenticationObjectId(NewAADUserIdLbl, UserAuthenticationObjectId);
+
+        // [THEN] The call is successful
+        LibraryAssert.IsTrue(Result, 'The call to TryGetUserAuthenticationObjectId should be successful');
+
+        // [THEN] The authentication object ID should as expected
+        LibraryAssert.AreEqual(NewAADUserObjectIdLbl, UserAuthenticationObjectId, 'The user authentication object ID is incorrect');
+
+        TearDown();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
     procedure TestUpdateUserFromAzureGraphForAValidUserWithoutUpdates()
     var
         User: Record User;

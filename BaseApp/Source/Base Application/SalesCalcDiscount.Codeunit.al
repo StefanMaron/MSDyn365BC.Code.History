@@ -132,6 +132,11 @@ codeunit 60 "Sales-Calc. Discount"
                         end;
                     until TempServiceChargeLine.Next = 0;
 
+            IsHandled := false;
+            OnCalculateInvoiceDiscountOnBeforeCustInvDiscRecExists(SalesHeader, SalesLine2, UpdateHeader, InvDiscBase, ChargeBase, TempVATAmountLine, IsHandled);
+            If IsHandled then
+                exit;
+
             if CustInvDiscRecExists(SalesHeader."Invoice Disc. Code") then begin
                 OnAfterCustInvDiscRecExists(SalesHeader);
                 if InvDiscBase <> ChargeBase then
@@ -269,6 +274,11 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSalesLineServiceCharge(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustInvoiceDisc: Record "Cust. Invoice Disc."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeCustInvDiscRecExists(var SalesHeader: Record "Sales Header"; var SalesLine2: Record "Sales Line"; var UpdateHeader: Boolean; var InvDiscBase: Decimal; var ChargeBase: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1590,7 +1590,7 @@
         </trans-unit>
         <trans-unit id="Page 1208606375 - NamedType 3623410792" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reset has been successfully triggered. All migration enabled data will be reset in the next migration run.</source>
-          <target state="translated">Reset byl úspěšně spuštěn. Všechna data povolená pro migraci budou resetována při příštím spuštění migrace.</target>
+          <target state="translated">Resetování bylo úspěšně spuštěno. Všechna data s povolením migrace budou při příští synchronizaci obnovena.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Management - NamedType ResetTriggeredTxt</note>
         </trans-unit>

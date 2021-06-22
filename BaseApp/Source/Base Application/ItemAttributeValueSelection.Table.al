@@ -137,6 +137,7 @@ table 7504 "Item Attribute Value Selection"
     var
         ItemAttributeValue: Record "Item Attribute Value";
         ValDecimal: Decimal;
+        ValDate: Date;
     begin
         if FindSet then
             repeat
@@ -166,6 +167,19 @@ table 7504 "Item Attribute Value Selection"
                                 end;
                             end;
                             TempNewItemAttributeValue.Value := Format(ValDecimal);
+                        end;
+                    "Attribute Type"::Date:
+                        begin
+                            if Value <> '' then begin
+                                Evaluate(ValDate, Value);
+                                ItemAttributeValue.SetRange(Value, Format(ValDate));
+                                if ItemAttributeValue.IsEmpty() then begin
+                                    ItemAttributeValue.SetRange(Value, Format(ValDate));
+                                    if ItemAttributeValue.IsEmpty() then
+                                        ItemAttributeValue.SetRange(Value, Value);
+                                end;
+                            end;
+                            TempNewItemAttributeValue.Value := Format(ValDate);
                         end;
                 end;
                 if not ItemAttributeValue.FindFirst then
@@ -354,15 +368,28 @@ table 7504 "Item Attribute Value Selection"
     procedure GetAttributeValueID(var TempItemAttributeValueToInsert: Record "Item Attribute Value" temporary): Integer
     var
         ItemAttributeValue: Record "Item Attribute Value";
+        ItemAttribute: Record "Item Attribute";
         ValDecimal: Decimal;
+        ValDate: Date;
     begin
         if not FindAttributeValue(ItemAttributeValue) then begin
             ItemAttributeValue."Attribute ID" := "Attribute ID";
-            if IsNotBlankDecimal(Value) then begin
-                Evaluate(ValDecimal, Value);
-                ItemAttributeValue.Validate(Value, Format(ValDecimal));
-            end else
-                ItemAttributeValue.Value := Value;
+            ItemAttribute.Get("Attribute ID");
+            if Value <> '' then
+                case ItemAttribute.Type of
+                    ItemAttribute.Type::Decimal:
+                        begin
+                            Evaluate(ValDecimal, Value);
+                            ItemAttributeValue.Validate(Value, Format(ValDecimal));
+                        end;
+                    ItemAttribute.Type::Date:
+                        begin
+                            Evaluate(ValDate, Value);
+                            ItemAttributeValue.Validate(Value, Format(ValDate));
+                        end;
+                    else
+                        ItemAttributeValue.Value := Value;
+                end;
             ItemAttributeValue.Insert();
         end;
         TempItemAttributeValueToInsert.TransferFields(ItemAttributeValue);

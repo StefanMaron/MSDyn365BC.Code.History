@@ -213,6 +213,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
             "Picked Qty. (Base)" := Maximum("Picked Qty. (Base)" + QtyPickedBase, 0);
             "Picked Qty." := Maximum("Picked Qty." + QtyPicked, 0);
 
+            OnBeforeCrossDockOppInsert(CrossDockOpp);
             Insert;
         end;
     end;
@@ -626,6 +627,11 @@ codeunit 5780 "Whse. Cross-Dock Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateQtyToCrossDock(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCrossDockOppInsert(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity")
     begin
     end;
 

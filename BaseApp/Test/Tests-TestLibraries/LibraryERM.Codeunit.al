@@ -996,6 +996,18 @@ codeunit 131300 "Library - ERM"
         exit(NoSeries.Code);
     end;
 
+    procedure CreateNoSeriesCode(Prefix: Code[3]): Code[20]
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        // Create Number Series and Number Series Line and return the No. Series Code.
+        NoSeries.Code := Prefix;
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+        exit(NoSeries.Code);
+    end;
+
     procedure CreatePaymentMethod(var PaymentMethod: Record "Payment Method")
     begin
         PaymentMethod.Init();

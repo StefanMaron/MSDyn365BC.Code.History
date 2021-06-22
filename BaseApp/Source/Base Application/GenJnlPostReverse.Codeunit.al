@@ -78,7 +78,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         GenJnlLine.Init();
         GenJnlLine."Source Code" := SourceCodeSetup.Reversal;
 
-        OnReverseOnBeforeStartPosting(GenJnlLine, ReversalEntry2);
+        OnReverseOnBeforeStartPosting(GenJnlLine, ReversalEntry2, GLEntry2);
 
         if GenJnlPostLine.GetNextEntryNo = 0 then
             GenJnlPostLine.StartPosting(GenJnlLine)
@@ -138,6 +138,8 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         DeleteReversalEntries(TransactionKey);
 
         UpdateAnalysisView.UpdateAll(0, true);
+
+        OnAfterReverse(GLReg);
     end;
 
     local procedure ReverseGLEntry(var GLEntry2: Record "G/L Entry"; var GenJnlLine: Record "Gen. Journal Line"; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary; var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; var TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary; var TempBankAccLedgEntry: Record "Bank Account Ledger Entry" temporary; var NextDtldCustLedgEntryEntryNo: Integer; var NextDtldVendLedgEntryEntryNo: Integer; var NextDtldEmplLedgEntryNo: Integer; FAInsertLedgerEntry: Codeunit "FA Insert Ledger Entry")
@@ -804,6 +806,11 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterReverse(GLRegister: Record "G/L Register")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterReverseGLEntry(var GLEntry: Record "G/L Entry")
     begin
     end;
@@ -869,7 +876,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseOnBeforeStartPosting(var GenJournalLine: Record "Gen. Journal Line"; var ReversalEntry: Record "Reversal Entry")
+    local procedure OnReverseOnBeforeStartPosting(var GenJournalLine: Record "Gen. Journal Line"; var ReversalEntry: Record "Reversal Entry"; var GLEntry: Record "G/L Entry")
     begin
     end;
 

@@ -11,7 +11,7 @@ codeunit 139160 "CRM Setup Test"
     var
         Assert: Codeunit Assert;
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
-        URLNamePswNeededErr: Label 'A %1 URL, user name and password are required to enable a connection';
+        URLNamePswNeededErr: Label 'A %1 URL and user name are required to enable a connection';
         ConnectionErr: Label 'The connection setup cannot be validated. Verify the settings and try again.';
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPermissions: Codeunit "Library - Permissions";
@@ -341,25 +341,6 @@ codeunit 139160 "CRM Setup Test"
         CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := '@@test@@';
         CRMConnectionSetup.SetPassword('T3sting!');
-        CRMConnectionSetup.Insert();
-
-        asserterror CRMConnectionSetup.Validate("Is Enabled", true);
-        Assert.ExpectedError(StrSubstNo(URLNamePswNeededErr, CRMProductName.SHORT));
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure PasswordRequiredToEnable()
-    var
-        CRMConnectionSetup: Record "CRM Connection Setup";
-    begin
-        // [FEATURE] [UT]
-        Initialize;
-
-        CRMConnectionSetup.Init();
-        CRMConnectionSetup."Server Address" := '@@test@@';
-        CRMConnectionSetup."User Name" := 'tester@domain.net';
         CRMConnectionSetup.Insert();
 
         asserterror CRMConnectionSetup.Validate("Is Enabled", true);
@@ -1106,11 +1087,14 @@ codeunit 139160 "CRM Setup Test"
     begin
         // [FEATURE] [UI]
         Initialize;
+        CDSConnectionSetup.DeleteAll();
         LibraryCRMIntegration.ConfigureCRM;
+        ResetDefaultCRMSetupConfiguration();
+
         if not CRMConnectionSetup.Get then
             LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
 
-        CDSConnectionSetup.DeleteAll();
+        // [GIVEN] CRM Connection Setup with Integration Table Mappings
         CRMConnectionSetup.RegisterConnection();
         CreateTableMapping;
 
@@ -1118,8 +1102,31 @@ codeunit 139160 "CRM Setup Test"
         Assert.IsTrue(CRMConnectionSetupTestPage.SynchronizeNow.Enabled, 'Expected the Synchronize Now action to be enabled');
         CRMConnectionSetupTestPage.SynchronizeNow.Invoke;
 
-        Assert.AreEqual(3, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
+        // [WHEN] The scheduled jobs are finished
+        SimulateIntegrationSyncJobsExecution();
+
+        // [THEN] Jobs are created for each mapping and direction
+        Assert.AreEqual(38, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
+        CRMConnectionSetup.DeleteAll();
         InitializeCDSConnectionSetup();
+    end;
+
+    local procedure ResetDefaultCRMSetupConfiguration()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+    begin
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
+        CDSConnectionSetup.Modify();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
+        CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 
     [Test]
@@ -1626,36 +1633,38 @@ codeunit 139160 "CRM Setup Test"
     [Test]
     [HandlerFunctions('ConfirmYes')]
     [Scope('OnPrem')]
-    procedure ConnectionSetupDefaultSDKVersion9()
+    procedure ConnectionSetupDefaultSDKVersion()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMConnectionSetupPage: TestPage "CRM Connection Setup";
+        LatestSDKVersion: Integer;
     begin
         // [FEATURE] [Multiple SDK]
         // [SCENARIO 234755] Connection Setup has SDK Version 9 by default
         Initialize;
+        LatestSDKVersion := LibraryCRMIntegration.GetLastestSDKVersion();
 
         // [WHEN] Connection Setup page opened first time
         CRMConnectionSetupPage.OpenEdit;
 
-        // [THEN] SDK Version = 9 by default
-        CRMConnectionSetupPage.SDKVersion.AssertEquals(9);
+        // [THEN] The latest SDK proxy version is by default
+        CRMConnectionSetupPage.SDKVersion.AssertEquals(LatestSDKVersion);
 
         // [WHEN] Server address in entered and page closed
         CRMConnectionSetupPage."Server Address".SetValue('https://test.dynamics.com');
         CRMConnectionSetupPage.Close;
 
-        // [THEN] CRM Connection Setup record has Proxy Version = 9
+        // [THEN] CRM Connection Setup record has the latest SDK proxy version
         CRMConnectionSetup.Get();
-        CRMConnectionSetup.TestField("Proxy Version", 9);
+        CRMConnectionSetup.TestField("Proxy Version", LatestSDKVersion);
 
         // [WHEN] CRM Connection Setup record has Proxy Version = 0 and CRM Connection Setup page is opened
         CRMConnectionSetup.Validate("Proxy Version", 0);
         CRMConnectionSetup.Modify();
         CRMConnectionSetupPage.OpenEdit;
 
-        // [THEN] SDK Version = 9 by default
-        CRMConnectionSetupPage.SDKVersion.AssertEquals(9);
+        // [THEN] The latest SDK proxy version is by default
+        CRMConnectionSetupPage.SDKVersion.AssertEquals(LatestSDKVersion);
     end;
 
     [Test]
@@ -1714,45 +1723,6 @@ codeunit 139160 "CRM Setup Test"
         // [THEN] Proxy Version in CRM Connection Setup record is "9"
         CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Proxy Version", 9);
-    end;
-
-    [Test]
-    [HandlerFunctions('SDKVersionListModalHandler')]
-    [Scope('OnPrem')]
-    procedure ConnectionSetupChangeSDKVersionConnectStringUpdate()
-    var
-        CRMConnectionSetup: Record "CRM Connection Setup";
-        CRMConnectionSetupPage: TestPage "CRM Connection Setup";
-    begin
-        // [FEATURE] [Multiple SDK]
-        // [SCENARIO 234755] When CRM Proxy Version is changed in page it is also changed in connection string
-        Initialize;
-
-        // [GIVEN] Connection is not enabled
-        // [GIVEN] Connection Setup page is opened
-        LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
-
-        // [WHEN] Proxy Version is set to "8"
-        CRMConnectionSetupPage.OpenEdit;
-        LibraryVariableStorage.Enqueue(8);
-        CRMConnectionSetupPage.SDKVersion.AssistEdit;
-
-        // [THEN] Proxy Version in Connection String is "8"
-        CRMConnectionSetupPage.SDKVersion.AssertEquals(8);
-        Assert.ExpectedMessage('ProxyVersion=8', CRMConnectionSetupPage."Connection String".Value);
-        CRMConnectionSetup.Get();
-        Assert.ExpectedMessage('ProxyVersion=8', CRMConnectionSetup.GetConnectionString);
-
-        // [WHEN] Proxy Version is set to "9"
-        LibraryVariableStorage.Enqueue(9);
-        CRMConnectionSetupPage.SDKVersion.AssistEdit;
-
-        // [THEN] Proxy Version in Connection String is "9"
-        CRMConnectionSetupPage.SDKVersion.AssertEquals(9);
-        Assert.ExpectedMessage('ProxyVersion=9', CRMConnectionSetupPage."Connection String".Value);
-        CRMConnectionSetup.Get();
-        Assert.ExpectedMessage('ProxyVersion=9', CRMConnectionSetup.GetConnectionString);
-        CRMConnectionSetupPage.Close;
     end;
 
     [Scope('OnPrem')]
@@ -1958,7 +1928,10 @@ codeunit 139160 "CRM Setup Test"
         CDSConnectionSetup."Server Address" := '@@test@@';
         CDSConnectionSetup."User Name" := 'user@test.net';
         CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
-        CDSConnectionSetup.Insert();
+        CDSConnectionSetup."Proxy Version" := LibraryCRMIntegration.GetLastestSDKVersion();
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
     end;
 
     local procedure AssertConnectionNotRegistered(ConnectionName: Code[10])
@@ -2200,6 +2173,17 @@ codeunit 139160 "CRM Setup Test"
         CRMOrganization.FindFirst;
         CRMOrganization.IsSOPIntegrationEnabled := EnabledSalesOrderIntegration;
         CRMOrganization.Modify();
+    end;
+
+    local procedure SimulateIntegrationSyncJobsExecution()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Integration Synch. Job Runner");
+        JobQueueEntry.FindSet();
+        repeat
+            Codeunit.Run(Codeunit::"Integration Synch. Job Runner", JobQueueEntry);
+        until JobQueueEntry.Next() = 0;
     end;
 
     [ConfirmHandler]

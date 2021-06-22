@@ -18,7 +18,7 @@ page 1811 "Setup Email Logging"
                 Visible = TopBannerVisible AND NOT DoneVisible;
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Basic, Suite, RelationshipMgmt;
                     Editable = false;
                     ShowCaption = false;
                 }
@@ -30,7 +30,7 @@ page 1811 "Setup Email Logging"
                 Visible = TopBannerVisible AND DoneVisible;
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Basic, Suite, RelationshipMgmt;
                     Editable = false;
                     ShowCaption = false;
                 }
@@ -45,115 +45,417 @@ page 1811 "Setup Email Logging"
                     group(Control4)
                     {
                         Caption = '';
-                        InstructionalText = 'You can set up Exchange public folders and rules, so that incoming and outgoing email can log Interactions. Organization customization will be enabled for Exchange. Choose Next so you can set up public folders and email rules.';
+                        InstructionalText = 'Choose the following link to learn more about how to set up Exchange public folders and rules, so your organization can track email communication between sales people and external contacts.';
+                    }
+                    field(HelpLink; HelpLinkTxt)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        ShowCaption = false;
+                        Editable = false;
+                        Style = StandardAccent;
+
+                        trigger OnDrillDown()
+                        begin
+                            Hyperlink(HelpLinkUrlTxt);
+                            HelpLinkVisited := true;
+                        end;
+                    }
+                    field(ManualSetupDone; ManualSetupDone)
+                    {
+                        Caption = 'Manual setup done';
+                        ShowCaption = true;
+                        Editable = HelpLinkVisited;
+                        ApplicationArea = RelationshipMgmt;
+
+                        trigger OnValidate()
+                        begin
+                            NextEnabled := ManualSetupDone;
+                        end;
                     }
                 }
             }
             group(Step2)
             {
-                Caption = '';
-                Visible = LoginPassVisible;
-                group(ExchangeCredentialsDesc)
-                {
-                    Caption = 'Provide your Exchange Online administrator credentials.';
-                    field(Email; Email)
-                    {
-                        ApplicationArea = RelationshipMgmt;
-                        Caption = 'Email';
-                        ExtendedDatatype = EMail;
+                Visible = ClientCredentialsVisible;
+                InstructionalText = 'Specify the ID and secret of the Azure Active Directory application that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                ShowCaption = false;
 
-                        trigger OnValidate()
+                group(ClientCredentials)
+                {
+                    Visible = not SoftwareAsAService;
+                    ShowCaption = false;
+
+                    field(ClientCredentialsLink; ClientCredentialsLinkTxt)
+                    {
+                        ShowCaption = false;
+                        Editable = false;
+                        ApplicationArea = RelationshipMgmt;
+
+                        trigger OnDrillDown()
                         begin
-                            NextEnabled := EmailPasswordNotEmpty;
+                            CustomCredentialsSpecified := SetupEmailLogging.PromptClientCredentials(ClientId, ClientSecret, RedirectURL);
+                            NextEnabled := CustomCredentialsSpecified;
                         end;
                     }
+                }
+                group(SpecifiedCustomClientCredentialsGroup)
+                {
+                    Visible = CustomCredentialsSpecified;
+                    ShowCaption = false;
+
+                    field(SpecifiedCustomClientCredentials; SpecifiedCustomClientCredentialsTxt)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Indicates that the custom client credentials are specified and will be used to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+                        Caption = 'Custom client ID and secret are specified and will be used to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Standard;
+                    }
+                }
+                group(ClientCredentialsRequiredGroup)
+                {
+                    Visible = not CustomCredentialsSpecified;
+                    ShowCaption = false;
+
+                    field(ClientCredentialsRequired; ClientCredentialsRequiredTxt)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Indicates that the client ID and secret are required to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+                        Caption = 'Client ID and secret are required to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Standard;
+                    }
+                }
+                group(DefaultClientCredentialsGroup)
+                {
+                    Visible = not CustomCredentialsSpecified;
+                    ShowCaption = false;
+
+                    field(DefaultClientCredentials; DefaultClientCredentialsTxt)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Indicates that the default client credentials will be used to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+                        Caption = 'The default client credentials will be used to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Standard;
+                    }
+                }
+            }
+            group(Step3)
+            {
+                InstructionalText = 'Sign in with an Exhange administrator user account and give consent to the application that will be used to connect to Exchange.', Comment = 'Exhange is a name of a Microsoft Service and should not be translated.';
+                Visible = OAuth2Visible;
+                ShowCaption = false;
+
+                group(AdminSignIn)
+                {
+                    ShowCaption = false;
+
+                    field(SignInAdminLink; SignInAdminLinkTxt)
+                    {
+                        ShowCaption = false;
+                        Editable = false;
+                        ApplicationArea = RelationshipMgmt;
+
+                        trigger OnDrillDown()
+                        begin
+                            HasAdminSignedIn := true;
+                            AreAdminCredentialsCorrect := SignInExchangeAdminUser();
+                            NextEnabled := AreAdminCredentialsCorrect;
+                            CurrPage.Update(false);
+                        end;
+                    }
+                }
+                group(AdminSignInSucceed)
+                {
+                    Visible = HasAdminSignedIn and AreAdminCredentialsCorrect;
+                    ShowCaption = false;
+
+                    field(SuccesfullyLoggedIn; SuccesfullyLoggedInTxt)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Specifies if the Exchange administrator has logged in successfully.';
+                        Caption = 'The administrator is signed in.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Favorable;
+                    }
+                }
+                group(AdminSignInFailed)
+                {
+                    Visible = HasAdminSignedIn and (not AreAdminCredentialsCorrect);
+                    ShowCaption = false;
+
+                    field(UnsuccesfullyLoggedIn; UnsuccesfullyLoggedInTxt)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Tooltip = 'Indicates that the Exhange administrator user has not logged in successfully';
+                        Caption = 'Could not sign in the administrator.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Unfavorable;
+                    }
+                }
+            }
+            group(Step4)
+            {
+                InstructionalText = 'Provide email of user on behalf of whom the scheduled job will connect to Exchange and process emails.', Comment = 'Exchange is a name of a Microsoft Service and should not be translated.';
+                Visible = UserEmailVisible;
+                ShowCaption = false;
+
+                field(Email; UserEmail)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Tooltip = 'Specifies email of user on behalf of whom the scheduled job will connect to Exchange and process emails.', Comment = 'Exchange is a name of a Microsoft Service and should not be translated.';
+                    Caption = 'User Email';
+                    ExtendedDatatype = EMail;
+
+                    trigger OnValidate()
+                    begin
+                        ValidateUserEmailLinkVisited := false;
+                        IsUserEmailValid := false;
+                        NextEnabled := false;
+                    end;
+                }
+                group(ExchangeCredentialsDesc)
+                {
+                    Visible = false;
+                    ShowCaption = false;
                     field(Password; Password)
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Password';
+                        Visible = false;
                         ExtendedDatatype = Masked;
+                    }
+                }
+                group(ValidateUserEmailGroup)
+                {
+                    ShowCaption = false;
 
-                        trigger OnValidate()
+                    field(ValidateUserEmailLink; ValidateUserEmailLinkTxt)
+                    {
+                        ShowCaption = false;
+                        Editable = false;
+                        ApplicationArea = RelationshipMgmt;
+
+                        trigger OnDrillDown()
                         begin
-                            NextEnabled := EmailPasswordNotEmpty;
+                            ValidateUserEmailLinkVisited := true;
+                            IsUserEmailValid := InitializeExchangeWebServicesServer();
+                            if IsUserEmailValid then
+                                IsUserEmailValid := InitializeExchangeWebServicesClient();
+                            NextEnabled := IsUserEmailValid;
                         end;
+                    }
+                }
+                group(ValidUserEmailGroup)
+                {
+                    Visible = ValidateUserEmailLinkVisited and IsUserEmailValid;
+                    ShowCaption = false;
+
+                    field(ValidEmail; ValidEmailTxt)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Indicates that email is successfully validated.';
+                        Caption = 'Email is successfully validated.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Favorable;
+                    }
+                }
+                group(InvalidUserEmailGroup)
+                {
+                    Visible = ValidateUserEmailLinkVisited and (not IsUserEmailValid);
+                    ShowCaption = false;
+
+                    field(InvalidEmail; InvalidEmailTxt)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Indicates that email validation failed.';
+                        Caption = 'Email validation failed.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Unfavorable;
+                    }
+                }
+            }
+            group(Step5)
+            {
+                InstructionalText = 'The following public folders will be used for email logging.';
+                Visible = ValidatePublicFoldersVisible;
+
+                field(DefaultFolderSetup; DefaultFolderSetup)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Default Folder Setup';
+                    trigger OnValidate()
+                    begin
+                        if DefaultFolderSetup then begin
+                            QueueFolderPath := QueueFolderPathTxt;
+                            StorageFolderPath := StorageFolderPath;
+                        end;
+                        ArePublicFoldersValid := false;
+                        NextEnabled := false;
+                    end;
+                }
+                field(QueueFolderPath; QueueFolderPath)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Queue Folder Path';
+                    ToolTip = 'Specifies the name of the queue folder in Outlook.';
+                    Editable = not DefaultFolderSetup;
+
+                    trigger OnAssistEdit()
+                    var
+                        ExchangeFolder: Record "Exchange Folder";
+                    begin
+                        if DefaultFolderSetup then
+                            exit;
+                        ValidatePublicFoldersLinkVisited := false;
+                        ArePublicFoldersValid := false;
+                        NextEnabled := false;
+                        if SetupEmailLogging.GetExchangeFolder(ExchangeWebServicesClient, ExchangeFolder, SelectQueueFolderTxt) then
+                            QueueFolderPath := ExchangeFolder.FullPath;
+                    end;
+                }
+                field(StorageFolderPath; StorageFolderPath)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Storage Folder Path';
+                    ToolTip = 'Specifies the name of the storage folder in Outlook.';
+                    Editable = not DefaultFolderSetup;
+
+                    trigger OnAssistEdit()
+                    var
+                        ExchangeFolder: Record "Exchange Folder";
+                    begin
+                        if DefaultFolderSetup then
+                            exit;
+                        ValidatePublicFoldersLinkVisited := false;
+                        ArePublicFoldersValid := false;
+                        NextEnabled := false;
+                        if SetupEmailLogging.GetExchangeFolder(ExchangeWebServicesClient, ExchangeFolder, SelectStorageFolderTxt) then
+                            StorageFolderPath := ExchangeFolder.FullPath;
+                    end;
+                }
+                group(ValidatePublicFoldersGroup)
+                {
+                    ShowCaption = false;
+
+                    field(ValidatePublicFoldersLink; ValidatePublicFoldersLinkTxt)
+                    {
+                        ShowCaption = false;
+                        Editable = false;
+                        ApplicationArea = RelationshipMgmt;
+
+                        trigger OnDrillDown()
+                        begin
+                            ValidatePublicFoldersLinkVisited := true;
+                            ArePublicFoldersValid := ValidatePublicFolders();
+                            NextEnabled := ArePublicFoldersValid;
+                        end;
+                    }
+                }
+                group(ValidPublicFoldersGroup)
+                {
+                    Visible = ValidatePublicFoldersLinkVisited and ArePublicFoldersValid;
+                    ShowCaption = false;
+
+                    field(ValidPublicFolders; ValidPublicFoldersTxt)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Indicates that the public folders are successfully validated.';
+                        Caption = 'Public folders are successfully validated.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Favorable;
+                    }
+                }
+                group(InvalidPublicFoldersGroup)
+                {
+                    Visible = ValidatePublicFoldersLinkVisited and (not ArePublicFoldersValid);
+                    ShowCaption = false;
+
+                    field(InvalidPublicFolders; InvalidPublicFoldersTxt)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Indicates that the public folders validation failed.';
+                        Caption = 'Public folders validation failed.';
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Unfavorable;
                     }
                 }
             }
             group("Public Folders Creation")
             {
                 InstructionalText = 'The following public mailbox and public folders will be created. (You can rename folders later):';
-                Visible = PublicFoldersVisible;
-                field(DefaultFolderSetup; DefaultFolderSetup)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Default Folder Setup';
-                }
+                Visible = false;
                 field(PublicMailBoxName; PublicMailBoxName)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Public Mail Box Name';
                     Editable = NOT DefaultFolderSetup;
+                    Visible = false;
                 }
                 field(RootQueueStorageFolder; RootQueueStorageFolder)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Root Folder';
                     Editable = NOT DefaultFolderSetup;
+                    Visible = false;
                 }
                 field(QueueFolderName; QueueFolderName)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Queue Folder Name';
                     Editable = NOT DefaultFolderSetup;
+                    Visible = false;
                 }
                 field(StorageFolderName; StorageFolderName)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Storage Folder Name';
                     Editable = NOT DefaultFolderSetup;
+                    Visible = false;
                 }
             }
             group("Email Rules")
             {
                 InstructionalText = 'The following Exchange transport rules will be created, so that incoming email from outside organizations and outgoing mail to outside organization will be copied to queue public folder for later NAV processing. You can disable creation or give specific names for the rules:';
-                Visible = EmailRulesVisible;
+                Visible = false;
                 field(CreateIncomingEmailRule; CreateIncomingEmailRule)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Create Incoming Email Rule';
-
-                    trigger OnValidate()
-                    begin
-                        if not CreateIncomingEmailRule then
-                            Clear(IncomingEmailRuleName);
-                    end;
+                    Visible = false;
                 }
                 field(IncomingEmailRuleName; IncomingEmailRuleName)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Incoming Email Rule Name';
                     Editable = CreateIncomingEmailRule;
+                    Visible = false;
                 }
                 field(CreateOutgoingEmailRule; CreateOutgoingEmailRule)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Create Outgoing Email Rule';
-
-                    trigger OnValidate()
-                    begin
-                        if not CreateOutgoingEmailRule then
-                            Clear(OutgoingEmailRuleName);
-                    end;
+                    Visible = false;
                 }
                 field(OutgoingEmailRuleName; OutgoingEmailRuleName)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Outgoing Email Rule Name';
                     Editable = CreateOutgoingEmailRule;
+                    Visible = false;
                 }
             }
-            group(Step4)
+            group(Step6)
             {
                 Caption = '';
                 Visible = DoneVisible;
@@ -169,35 +471,88 @@ page 1811 "Setup Email Logging"
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Queue Folder';
                             Editable = false;
+                            Visible = false;
                         }
                         field(StorageFolderNameFinal; StorageFolderName)
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Storage Folder';
                             Editable = false;
+                            Visible = false;
                         }
                         field(IncomingEmailRuleNameFinal; IncomingEmailRuleName)
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Incoming Email Rule';
                             Editable = false;
+                            Visible = false;
                         }
                         field(OutgoingEmailRuleNameFinal; OutgoingEmailRuleName)
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Outgoing Email Rule';
                             Editable = false;
+                            Visible = false;
                         }
                         field(CreateEmailLoggingJobQueue; CreateEmailLoggingJobQueue)
                         {
                             ApplicationArea = RelationshipMgmt;
                             Caption = 'Create Email Logging Job Queue';
                         }
+                        group(InvalidInteractionTemplateSetupGroup)
+                        {
+                            Visible = CreateEmailLoggingJobQueue and (not ValidInteractionTemplateSetup);
+                            ShowCaption = false;
+                            InstructionalText = 'Email Logging requires correctly configured Interaction Template Setup.';
+
+                            field(InteractionTemplateSetupLink; InteractionTemplateSetupLinkTxt)
+                            {
+                                ApplicationArea = RelationshipMgmt;
+                                ShowCaption = false;
+                                Editable = false;
+                                Style = StandardAccent;
+
+                                trigger OnDrillDown()
+                                var
+                                    EmailLoggingDispatcher: Codeunit "Email Logging Dispatcher";
+                                    ErrorMsg: Text;
+                                begin
+                                    Commit();
+                                    Page.RunModal(Page::"Interaction Template Setup");
+                                    ValidInteractionTemplateSetup := EmailLoggingDispatcher.CheckInteractionTemplateSetup(ErrorMsg);
+                                end;
+                            }
+                            field(InvalidInteractionTemplateSetup; InvalidInteractionTemplateSetupTxt)
+                            {
+                                ApplicationArea = RelationshipMgmt;
+                                ToolTip = 'Indicates that Interaction Template Setup needs to be configurred.';
+                                Caption = 'Interaction Template Setup needs to be configurred.';
+                                Editable = false;
+                                ShowCaption = false;
+                                Style = Unfavorable;
+                            }
+                        }
+                        group(ValidInteractionTemplateSetupGroup)
+                        {
+                            Visible = CreateEmailLoggingJobQueue and ValidInteractionTemplateSetup;
+                            ShowCaption = false;
+
+                            field(ValidInteractionTemplateSetup; ValidInteractionTemplateSetupTxt)
+                            {
+                                ApplicationArea = RelationshipMgmt;
+                                ToolTip = 'Indicates that Interaction Template Setup is correctly configurred.';
+                                Caption = 'Interaction Template Setup is correctly configurred.';
+                                Editable = false;
+                                ShowCaption = false;
+                                Style = Favorable;
+                            }
+                        }
                     }
                     group(Control34)
                     {
                         InstructionalText = '(Note: The creation of public folders and rules may take some time. When the folders are created, the wizard window will close.)';
                         ShowCaption = false;
+                        Visible = false;
                     }
                 }
             }
@@ -212,6 +567,7 @@ page 1811 "Setup Email Logging"
             {
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Back';
+                ToolTip = 'Back';
                 Enabled = BackEnabled;
                 Image = PreviousRecord;
                 InFooterBar = true;
@@ -225,16 +581,13 @@ page 1811 "Setup Email Logging"
             {
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Next';
+                ToolTip = 'Next';
                 Enabled = NextEnabled;
                 Image = NextRecord;
                 InFooterBar = true;
 
                 trigger OnAction()
-                var
-                    ExchangeAddinSetup: Codeunit "Exchange Add-in Setup";
                 begin
-                    if (Step = Step::LoginPass) and (not SkipDeployment) then
-                        ExchangeAddinSetup.InitializeServiceWithCredentials(Email, Password);
                     NextStep(false);
                 end;
             }
@@ -242,6 +595,7 @@ page 1811 "Setup Email Logging"
             {
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Finish';
+                ToolTip = 'Finish';
                 Enabled = FinishEnabled;
                 Image = Approve;
                 InFooterBar = true;
@@ -251,57 +605,79 @@ page 1811 "Setup Email Logging"
                     MarketingSetup: Record "Marketing Setup";
                     AssistedSetup: Codeunit "Assisted Setup";
                 begin
-                    Window.Open(SetupEmailLogDialogMsg);
-                    if not SkipDeployment then begin
-                        if MarketingSetup.Get then
-                            SetupEmailLogging.ClearEmailLoggingSetup(MarketingSetup);
-
-                        if not CreateExchangePublicFolders then begin
-                            Window.Close;
-                            Error(GetLastErrorText);
-                        end;
-                        UpdateMarketingSetup;
-
-                        CreateMailLoggingRules;
-                        if CreateEmailLoggingJobQueue then begin
-                            UpdateWindow(CreatingEmailLoggingJobQueueTxt, 9000);
-                            SetupEmailLogging.CreateEmailLoggingJobQueueSetup;
-                        end;
-                        SetupEmailLogging.SetupEmailLoggingFolderMarketingSetup(RootQueueStorageFolder, QueueFolderName, StorageFolderName);
+                    if MarketingSetup.Get() then begin
+                        SetupEmailLogging.ClearEmailLoggingSetup(MarketingSetup);
+                        SetupEmailLogging.DeleteEmailLoggingJobQueueSetup();
                     end;
+
+                    UpdateMarketingSetup(MarketingSetup);
+                    MarketingSetup.SetQueueFolder(TempQueueExchangeFolder);
+                    MarketingSetup.SetStorageFolder(TempStorageExchangeFolder);
+
+                    if CreateEmailLoggingJobQueue then begin
+                        SendTraceTag('0000CIK', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateEmailLoggingJobTxt, DataClassification::SystemMetadata);
+                        SetupEmailLogging.CreateEmailLoggingJobQueueSetup();
+                    end else
+                        SendTraceTag('0000CIL', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SkipCreatingEmailLoggingJobTxt, DataClassification::SystemMetadata);
+
                     AssistedSetup.Complete(PAGE::"Setup Email Logging");
-                    OnAfterAssistedSetupEmailLoggingCompleted;
-                    Window.Close;
-                    CurrPage.Close;
+
+                    SendTraceTag('0000CIJ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingSetupCompletedTxt, DataClassification::SystemMetadata);
+
+                    OnAfterAssistedSetupEmailLoggingCompleted();
+                    CurrPage.Close();
                 end;
             }
         }
     }
 
     trigger OnInit()
+    var
+        MarketingSetup: Record "Marketing Setup";
+        EnvrionmentInfo: Codeunit "Environment Information";
+        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+        ClientSecretLocal: Text;
     begin
-        LoadTopBanners;
+        LoadTopBanners();
+        SoftwareAsAService := EnvrionmentInfo.IsSaaS();
+        DefaultFolderSetup := true;
+        QueueFolderPath := QueueFolderPathTxt;
+        StorageFolderPath := StorageFolderPathTxt;
+
+        if MarketingSetup.Get() then begin
+            if not SoftwareAsAService then begin
+                ClientId := MarketingSetup."Exchange Client Id";
+                if not IsNullGuid(MarketingSetup."Exchange Client Secret Key") then
+                    if IsolatedStorageManagement.Get(MarketingSetup."Exchange Client Secret Key", DataScope::Company, ClientSecretLocal) then
+                        ClientSecret := CopyStr(ClientSecretLocal, 1, MaxStrLen(ClientSecret));
+                RedirectURL := MarketingSetup."Exchange Redirect URL";
+                CustomCredentialsSpecified := (ClientId <> '') or (ClientSecret <> '') or (RedirectURL <> '');
+            end;
+            if not IsNullGuid(MarketingSetup."Exchange Tenant Id Key") then
+                IsolatedStorageManagement.Get(MarketingSetup."Exchange Tenant Id Key", DataScope::Company, TenantId);
+
+            UserEmail := CopyStr(MarketingSetup."Exchange Account User Name", 1, MaxStrLen(UserEmail));
+
+            DefaultFolderSetup :=
+                (MarketingSetup."Queue Folder Path" = '') or
+                (MarketingSetup."Storage Folder Path" = '') or
+                ((MarketingSetup."Queue Folder Path" = QueueFolderPathTxt) and (MarketingSetup."Storage Folder Path" = StorageFolderPathTxt));
+            if not DefaultFolderSetup then begin
+                QueueFolderPath := MarketingSetup."Queue Folder Path";
+                StorageFolderPath := MarketingSetup."Storage Folder Path";
+            end;
+        end;
     end;
 
     trigger OnOpenPage()
     begin
-        PublicMailBoxName := PublicMailBoxTxt;
-        RootQueueStorageFolder := EmailLoggingFolderTxt;
-        QueueFolderName := QueueFolderTxt;
-        StorageFolderName := StorageFolderTxt;
-        IncomingEmailRuleName := IncomingEmailRuleTxt;
-        OutgoingEmailRuleName := OutgoingEmailRuleTxt;
-        DefaultFolderSetup := true;
-        CreateIncomingEmailRule := true;
-        CreateOutgoingEmailRule := true;
-        ShowIntroStep;
+        ShowIntroStep();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         AssistedSetup: Codeunit "Assisted Setup";
     begin
-        SetupEmailLogging.ClosePSConnection;
         if CloseAction = ACTION::OK then
             if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Setup Email Logging") then
                 if not Confirm(NAVNotSetUpQst, false) then
@@ -313,51 +689,87 @@ page 1811 "Setup Email Logging"
         MediaRepositoryDone: Record "Media Repository";
         MediaResourcesStandard: Record "Media Resources";
         MediaResourcesDone: Record "Media Resources";
+        TempQueueExchangeFolder: Record "Exchange Folder" temporary;
+        TempStorageExchangeFolder: Record "Exchange Folder" temporary;
         SetupEmailLogging: Codeunit "Setup Email Logging";
         ClientTypeManagement: Codeunit "Client Type Management";
-        Window: Dialog;
-        Step: Option Intro,LoginPass,PublicFolders,EmailRules,Done;
-        Email: Text[80];
+        ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
+        AdminOAuthCredentials: DotNet OAuthCredentials;
+        Step: Option Intro,Client,OAuth2,Email,PublicFolders,Done;
+        UserEmail: Text[80];
         Password: Text[30];
+        ClientId: Text[250];
+        ClientSecret: Text[250];
+        RedirectURL: Text[2048];
         RootQueueStorageFolder: Text;
         QueueFolderName: Text;
         StorageFolderName: Text;
         PublicMailBoxName: Text;
         IncomingEmailRuleName: Text;
         OutgoingEmailRuleName: Text;
+        QueueFolderPath: Text;
+        StorageFolderPath: Text;
         BackEnabled: Boolean;
         NextEnabled: Boolean;
         FinishEnabled: Boolean;
         TopBannerVisible: Boolean;
         IntroVisible: Boolean;
-        LoginPassVisible: Boolean;
+        OAuth2Visible: Boolean;
+        UserEmailVisible: Boolean;
+        ClientCredentialsVisible: Boolean;
+        ManualSetupDone: Boolean;
+        SoftwareAsAService: Boolean;
         DoneVisible: Boolean;
-        PublicFoldersVisible: Boolean;
-        PublicMailBoxTxt: Label 'Public MailBox';
-        EmailLoggingFolderTxt: Label 'Email Logging';
-        QueueFolderTxt: Label 'Queue';
-        StorageFolderTxt: Label 'Storage';
-        EmailRulesVisible: Boolean;
+        HelpLinkVisited: Boolean;
+        ValidatePublicFoldersVisible: Boolean;
+        TenantId: Text;
+        QueueFolderPathTxt: Label '\Email Logging\Queue\', Locked = true;
+        StorageFolderPathTxt: Label '\Email Logging\Storage\', Locked = true;
+        RootFolderPathTemplateTxt: Label '\%1\', Locked = true;
+        PathDelimiterTxt: Label '\', Locked = true;
         DefaultFolderSetup: Boolean;
         CreateIncomingEmailRule: Boolean;
         CreateOutgoingEmailRule: Boolean;
-        IncomingEmailRuleTxt: Label 'Log Email Sent to This Organization';
-        OutgoingEmailRuleTxt: Label 'Log Email Sent from This Organization';
         NAVNotSetUpQst: Label 'Setup of Email Logging was not finished. \\Are you sure that you want to exit?';
         CreateEmailLoggingJobQueue: Boolean;
-        SetupEmailLogDialogMsg: Label 'Setup Email Logging    #1################## @2@@@@@@@@@@@@@@@@@@', Comment = 'This is a message for dialog window. Parameters do not require translation.';
-        InitializingConnectionTxt: Label 'Initializing connection';
-        PublicFoldersCreationTxt: Label 'Public folders creation';
-        EmailRulesCreationTxt: Label 'Email rules creation';
-        UpdatingMarketingSetupTxt: Label 'Updating Marketing Setup';
-        CreatingEmailLoggingJobQueueTxt: Label 'Creating email Logging Job Queue';
         EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
-        InitializeExchangeConnectionTxt: Label 'Initialize Exchange connection.', Locked = true;
-        CreateExchangePublicFoldersTxt: Label 'Create Exchange public folders.', Locked = true;
-        CreateMailLoggingRulesTxt: Label 'Create mail logging rules.', Locked = true;
         UpdateMarketingSetupTxt: Label 'Update marketing setup record.', Locked = true;
-        CannotFindMarketingSetupTxt: Label 'Cannot find marketing setup record.', Locked = true;
-        SkipDeployment: Boolean;
+        ConnectingToExchangeMsg: Label 'Connecting to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+        ValidatePublicFoldersMsg: Label 'Validating public folders.';
+        HelpLinkTxt: Label 'Track Email Message Exchanges';
+        HelpLinkUrlTxt: Label 'https://docs.microsoft.com/en-us/dynamics365/business-central/marketing-set-up-email-logging', Locked = true;
+        SuccesfullyLoggedInTxt: Label 'The administrator is signed in.';
+        UnsuccesfullyLoggedInTxt: Label 'Could not sign in the administrator.';
+        DefaultClientCredentialsTxt: Label 'The default client credentials will be used to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+        SpecifiedCustomClientCredentialsTxt: Label 'Custom client ID and secret are specified and will be used to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+        ClientCredentialsRequiredTxt: Label 'Client ID and secret are required to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+        SignInAdminLinkTxt: Label 'Sign in with administrator user';
+        ClientCredentialsLinkTxt: Label 'Specify custom client ID and secret';
+        CannotConnectToExchangeErr: Label 'Could not connect to Exchange with the specified user.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+        CannotInitializeConnectionToExchangeErr: Label 'Could not initialize connection to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+        EmptyUserEmailErr: Label 'User email is empty.';
+        ValidateUserEmailLinkTxt: Label 'Check connection of behalf of the specified user';
+        ValidEmailTxt: Label 'Connection check is successful.';
+        InvalidEmailTxt: Label 'Connection check failed.';
+        ValidatePublicFoldersLinkTxt: Label 'Validate public folders';
+        ValidPublicFoldersTxt: Label 'Public folders are successfuly validated.';
+        InvalidPublicFoldersTxt: Label 'Public folders validation failed.';
+        SelectQueueFolderTxt: Label 'Select Queue folder';
+        SelectStorageFolderTxt: Label 'Select Storage folder';
+        InteractionTemplateSetupLinkTxt: Label 'Interaction Template Setup';
+        ValidInteractionTemplateSetupTxt: Label 'Interaction Template Setup is correctly configured.';
+        InvalidInteractionTemplateSetupTxt: Label 'Interaction Template Setup needs to be configured.';
+        EmailLoggingSetupCompletedTxt: Label 'Email Logging Setup completed.', Locked = true;
+        CreateEmailLoggingJobTxt: Label 'Create email looging job', Locked = true;
+        SkipCreatingEmailLoggingJobTxt: Label 'Skip creating email looging job', Locked = true;
+        HasAdminSignedIn: Boolean;
+        AreAdminCredentialsCorrect: Boolean;
+        CustomCredentialsSpecified: Boolean;
+        ValidateUserEmailLinkVisited: Boolean;
+        IsUserEmailValid: Boolean;
+        ValidatePublicFoldersLinkVisited: Boolean;
+        ArePublicFoldersValid: Boolean;
+        ValidInteractionTemplateSetup: Boolean;
 
     local procedure NextStep(Backwards: Boolean)
     begin
@@ -366,68 +778,74 @@ page 1811 "Setup Email Logging"
         else
             Step := Step + 1;
 
+        if SoftwareAsAService then
+            if Step = Step::Client then
+                NextStep(Backwards);
+
         case Step of
             Step::Intro:
-                ShowIntroStep;
-            Step::LoginPass:
-                begin
-                    if Backwards then
-                        SetupEmailLogging.ClosePSConnection;
-                    ShowLoginPassStep;
-                end;
+                ShowIntroStep();
+            Step::Client:
+                ShowClientStep();
+            Step::OAuth2:
+                ShowOAuth2Step();
+            Step::Email:
+                ShowEmailStep();
             Step::PublicFolders:
-                if not SkipDeployment then begin
-                    Window.Open(SetupEmailLogDialogMsg);
-                    UpdateWindow(InitializingConnectionTxt, 1000);
-                    if not Backwards then begin
-                        SetupEmailLogging.SetDeployCredentials(Email, Password);
-                        InitializePSExchangeConnection;
-                    end;
-                    ShowPublicFoldersStep;
-                    Window.Close;
-                end;
-            Step::EmailRules:
-                ShowEmailRulesStep;
+                ShowPublicFoldersStep();
             Step::Done:
-                ShowDoneStep;
+                ShowDoneStep();
         end;
         CurrPage.Update(true);
     end;
 
     local procedure ShowIntroStep()
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         IntroVisible := true;
+        NextEnabled := ManualSetupDone;
         BackEnabled := false;
     end;
 
-    local procedure ShowLoginPassStep()
+    local procedure ShowClientStep()
     begin
-        ResetWizardControls;
-        NextEnabled := EmailPasswordNotEmpty;
-        LoginPassVisible := true;
+        ResetWizardControls();
+        ClientCredentialsVisible := true;
+    end;
+
+    local procedure ShowOAuth2Step()
+    begin
+        ResetWizardControls();
+        OAuth2Visible := true;
+        if HasAdminSignedIn and (not AreAdminCredentialsCorrect) then
+            HasAdminSignedIn := false;
+        NextEnabled := AreAdminCredentialsCorrect;
+    end;
+
+    local procedure ShowEmailStep()
+    begin
+        ResetWizardControls();
+        UserEmailVisible := true;
+        NextEnabled := IsUserEmailValid;
     end;
 
     local procedure ShowPublicFoldersStep()
     begin
-        ResetWizardControls;
-        NextEnabled := true;
-        PublicFoldersVisible := true;
-    end;
-
-    local procedure ShowEmailRulesStep()
-    begin
-        ResetWizardControls;
-        NextEnabled := true;
-        EmailRulesVisible := true;
+        ResetWizardControls();
+        ValidatePublicFoldersVisible := true;
+        NextEnabled := ArePublicFoldersValid;
     end;
 
     local procedure ShowDoneStep()
+    var
+        EmailLoggingDispatcher: Codeunit "Email Logging Dispatcher";
+        ErrorMsg: Text;
     begin
-        ResetWizardControls;
+        ResetWizardControls();
         DoneVisible := true;
         NextEnabled := false;
-        FinishEnabled := true;
+        ValidInteractionTemplateSetup := EmailLoggingDispatcher.CheckInteractionTemplateSetup(ErrorMsg);
+        FinishEnabled := ValidInteractionTemplateSetup;
         CreateEmailLoggingJobQueue := true;
     end;
 
@@ -440,72 +858,137 @@ page 1811 "Setup Email Logging"
 
         // Tabs
         IntroVisible := false;
-        LoginPassVisible := false;
+        ClientCredentialsVisible := false;
+        OAuth2Visible := false;
+        UserEmailVisible := false;
+        ValidatePublicFoldersVisible := false;
         DoneVisible := false;
-        PublicFoldersVisible := false;
-        EmailRulesVisible := false;
-    end;
-
-    local procedure InitializePSExchangeConnection()
-    begin
-        SendTraceTag('0000BYM', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializeExchangeConnectionTxt, DataClassification::SystemMetadata);
-        SetupEmailLogging.InitializeExchangePSConnection;
     end;
 
     [TryFunction]
-    local procedure CreateExchangePublicFolders()
-    begin
-        SendTraceTag('0000BYN', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateExchangePublicFoldersTxt, DataClassification::SystemMetadata);
-        UpdateWindow(PublicFoldersCreationTxt, 1000);
-        SetupEmailLogging.CreatePublicFolders(
-          PublicMailBoxName, RootQueueStorageFolder, QueueFolderName, StorageFolderName)
-    end;
-
-    local procedure CreateMailLoggingRules()
+    [NonDebuggable]
+    local procedure SignInExchangeAdminUser()
     var
-        QueueEmailAddress: Text;
+        Token: Text;
     begin
-        SendTraceTag('0000BYO', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateMailLoggingRulesTxt, DataClassification::SystemMetadata);
-        UpdateWindow(EmailRulesCreationTxt, 8000);
-        QueueEmailAddress := QueueFolderName + '@' + SetupEmailLogging.GetDomainFromEmail(Email);
-        SetupEmailLogging.CreateEmailLoggingRules(QueueEmailAddress, IncomingEmailRuleName, OutgoingEmailRuleName);
-    end;
-
-    local procedure EmailPasswordNotEmpty(): Boolean
-    begin
-        exit((Email <> '') and (Password <> ''));
-    end;
-
-    local procedure UpdateMarketingSetup()
-    var
-        MarketingSetup: Record "Marketing Setup";
-    begin
-        SendTraceTag('0000BYP', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, UpdateMarketingSetupTxt, DataClassification::SystemMetadata);
-
-        UpdateWindow(UpdatingMarketingSetupTxt, 6000);
-        if not MarketingSetup.Get then begin
-            SendTraceTag('0000BYQ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CannotFindMarketingSetupTxt, DataClassification::SystemMetadata);
-            exit;
+        if SoftwareAsAService then begin
+            ClientId := '';
+            ClientSecret := '';
+            RedirectURL := '';
         end;
 
-        MarketingSetup.Validate("Exchange Service URL", SetupEmailLogging.GetDomainFromEmail(Email));
-        MarketingSetup.Validate("Autodiscovery E-Mail Address", Email);
-        MarketingSetup.Validate("Email Batch Size", 10);
-        MarketingSetup.Validate("Exchange Account User Name", Email);
-        MarketingSetup.SetExchangeAccountPassword(Password);
-        MarketingSetup.Modify();
+        SetupEmailLogging.PromptAdminConsent(ClientId, ClientSecret, RedirectURL, Token);
+        SetupEmailLogging.ExtractTenantIdFromAccessToken(TenantId, Token);
+        AdminOAuthCredentials := AdminOAuthCredentials.OAuthCredentials(Token);
     end;
 
-    local procedure UpdateWindow(StepText: Text; Progress: Integer)
+    [TryFunction]
+    [NonDebuggable]
+    local procedure InitializeExchangeWebServicesServer()
+    var
+        ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
+        ProgressWindow: Dialog;
+        ServiceUri: Text;
     begin
-        Window.Update(1, StepText);
-        Window.Update(2, Progress);
+        if UserEmail = '' then
+            Error(EmptyUserEmailErr);
+
+        ServiceUri := SetupEmailLogging.GetDomainFromEmail(UserEmail);
+
+        ProgressWindow.Open('#1');
+        ProgressWindow.Update(1, ConnectingToExchangeMsg);
+
+        if not ExchangeWebServicesServer.Initialize(UserEmail, ServiceUri, AdminOAuthCredentials, false) then
+            Error(CannotInitializeConnectionToExchangeErr);
+
+        if not ExchangeWebServicesServer.ValidCredentials() then
+            Error(CannotConnectToExchangeErr);
+
+        ProgressWindow.Close();
+    end;
+
+    [TryFunction]
+    [NonDebuggable]
+    local procedure InitializeExchangeWebServicesClient()
+    var
+        ClientOAuthCredentials: DotNet OAuthCredentials;
+        ProgressWindow: Dialog;
+        ServiceUri: Text;
+        Token: Text;
+    begin
+        if UserEmail = '' then
+            Error(EmptyUserEmailErr);
+
+        ServiceUri := SetupEmailLogging.GetDomainFromEmail(UserEmail);
+
+        ProgressWindow.Open('#1');
+        ProgressWindow.Update(1, ConnectingToExchangeMsg);
+
+        ExchangeWebServicesClient.InvalidateService();
+
+        SetupEmailLogging.GetClientCredentialsAccessToken(ClientId, ClientSecret, RedirectURL, TenantId, Token);
+        ClientOAuthCredentials := ClientOAuthCredentials.OAuthCredentials(Token);
+
+        if not ExchangeWebServicesClient.InitializeOnServerWithImpersonation(UserEmail, ServiceUri, ClientOAuthCredentials) then
+            Error(CannotInitializeConnectionToExchangeErr);
+
+        if not ExchangeWebServicesClient.ValidateCredentialsOnServer() then
+            Error(CannotConnectToExchangeErr);
+
+        ProgressWindow.Close();
+    end;
+
+    [TryFunction]
+    local procedure ValidatePublicFolders()
+    var
+        ProgressWindow: Dialog;
+        PathSegments: List of [Text];
+        RootFolderPath: Text;
+    begin
+        ProgressWindow.Open('#1');
+        ProgressWindow.Update(1, ValidatePublicFoldersMsg);
+
+        PathSegments := QueueFolderPath.Split(PathDelimiterTxt);
+        RootFolderPath := StrSubstNo(RootFolderPathTemplateTxt, PathSegments.Get(2));
+        ExchangeWebServicesClient.GetPublicFolders(TempQueueExchangeFolder);
+        TempQueueExchangeFolder.Get(RootFolderPath);
+        ExchangeWebServicesClient.GetPublicFolders(TempQueueExchangeFolder);
+        TempQueueExchangeFolder.Get(QueueFolderPath);
+        TempQueueExchangeFolder.CalcFields("Unique ID");
+
+        PathSegments := StorageFolderPath.Split(PathDelimiterTxt);
+        RootFolderPath := StrSubstNo(RootFolderPathTemplateTxt, PathSegments.Get(2));
+        ExchangeWebServicesClient.GetPublicFolders(TempStorageExchangeFolder);
+        TempStorageExchangeFolder.Get(RootFolderPath);
+        ExchangeWebServicesClient.GetPublicFolders(TempStorageExchangeFolder);
+        TempStorageExchangeFolder.Get(StorageFolderPath);
+        TempStorageExchangeFolder.CalcFields("Unique ID");
+
+        ProgressWindow.Close();
+    end;
+
+    [NonDebuggable]
+    local procedure UpdateMarketingSetup(var MarketingSetup: Record "Marketing Setup")
+    begin
+        SendTraceTag('0000BYP', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, UpdateMarketingSetupTxt, DataClassification::SystemMetadata);
+        MarketingSetup.Validate("Exchange Service URL", SetupEmailLogging.GetDomainFromEmail(UserEmail));
+        MarketingSetup.Validate("Autodiscovery E-Mail Address", UserEmail);
+        MarketingSetup.Validate("Email Batch Size", 10);
+        MarketingSetup.Validate("Exchange Account User Name", UserEmail);
+        if CustomCredentialsSpecified then begin
+            MarketingSetup.Validate("Exchange Client Id", ClientId);
+            MarketingSetup.SetExchangeClientSecret(ClientSecret);
+            MarketingSetup.Validate("Exchange Redirect URL", RedirectURL);
+        end;
+        MarketingSetup.SetExchangeTenantId(TenantId);
+        MarketingSetup.Validate("Email Logging Enabled", true);
+        MarketingSetup.Modify();
     end;
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
@@ -515,7 +998,6 @@ page 1811 "Setup Email Logging"
 
     procedure SkipDeploymentToExchange(Skip: Boolean)
     begin
-        SkipDeployment := Skip;
     end;
 
     [IntegrationEvent(false, false)]

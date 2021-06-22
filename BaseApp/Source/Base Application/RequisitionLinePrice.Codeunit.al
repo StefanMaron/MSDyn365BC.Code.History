@@ -121,6 +121,7 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
 
     local procedure FillBuffer(var PriceCalculationBuffer: Record "Price Calculation Buffer")
     begin
+        PriceCalculationBuffer."Price Calculation Method" := RequisitionLine."Price Calculation Method";
         PriceCalculationBuffer."Variant Code" := RequisitionLine."Variant Code";
         PriceCalculationBuffer."Location Code" := RequisitionLine."Location Code";
         PriceCalculationBuffer."Is SKU" := IsSKU;

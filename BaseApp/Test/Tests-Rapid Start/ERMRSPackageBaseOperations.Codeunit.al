@@ -990,6 +990,118 @@ codeunit 136610 "ERM RS Package Base Operations"
         Assert.AreEqual('', ActualResult, 'Wrong list of related tables.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyPackageFilter_CrossColumnFilter_False_FirstCustomer()
+    var
+        ConfigPackageTable: Record "Config. Package Table";
+        RecRef: RecordRef;
+        ConfigXMLExchange: Codeunit "Config. XML Exchange";
+        CustomerNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 346990] "Config. XML Exchange".ApplyPackageFilter() in case of "Cross-Column Filter" = False, two customers and filter by the first customer
+        Initialize();
+
+        // [GIVEN] 4 posted sales invoices with the following "Sell-To"\"Bill-To" customers: A\A, B\B, A\B, B\A
+        // [GIVEN] Config. package table "Sales Invoice Header" with "Cross-Column Filter" = False, two filters: "Sell-To" = A, "Bill-To" = A
+        CustomerNo[1] := LibraryUtility.GenerateGUID();
+        CustomerNo[2] := LibraryUtility.GenerateGUID();
+        CreateConfigPackageForSalesInvoiceHeaderWithTwoFilters(ConfigPackageTable, false, CustomerNo, CustomerNo[1]);
+        ConfigPackageTable.TestField("Cross-Column Filter", false);
+
+        // [WHEN] Invoke "Config. XML Exchange".ApplyPackageFilter() for "Sales Invoice Header" RecordRef
+        RecRef.Open(Database::"Sales Invoice Header");
+        ConfigXMLExchange.ApplyPackageFilter(ConfigPackageTable, RecRef);
+
+        // [THEN] RecRef is filtered with one invoice for "Sell-To"\"Bill-To" : A\A
+        VerifyFirstDocAfterApplyPackageFilter(RecRef, 1, CustomerNo[1]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyPackageFilter_CrossColumnFilter_False_SecondCustomer()
+    var
+        ConfigPackageTable: Record "Config. Package Table";
+        RecRef: RecordRef;
+        ConfigXMLExchange: Codeunit "Config. XML Exchange";
+        CustomerNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 346990] "Config. XML Exchange".ApplyPackageFilter() in case of "Cross-Column Filter" = False, two customers and filter by the second customer
+        Initialize();
+
+        // [GIVEN] 4 posted sales invoices with the following "Sell-To"\"Bill-To" customers: A\A, B\B, A\B, B\A
+        // [GIVEN] Config. package table "Sales Invoice Header" with "Cross-Column Filter" = False, two filters: "Sell-To" = B, "Bill-To" = B
+        CustomerNo[1] := LibraryUtility.GenerateGUID();
+        CustomerNo[2] := LibraryUtility.GenerateGUID();
+        CreateConfigPackageForSalesInvoiceHeaderWithTwoFilters(ConfigPackageTable, false, CustomerNo, CustomerNo[2]);
+        ConfigPackageTable.TestField("Cross-Column Filter", false);
+
+        // [WHEN] Invoke "Config. XML Exchange".ApplyPackageFilter() for "Sales Invoice Header" RecordRef
+        RecRef.Open(Database::"Sales Invoice Header");
+        ConfigXMLExchange.ApplyPackageFilter(ConfigPackageTable, RecRef);
+
+        // [THEN] RecRef is filtered with one invoice for "Sell-To"\"Bill-To" : B\B
+        VerifyFirstDocAfterApplyPackageFilter(RecRef, 1, CustomerNo[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyPackageFilter_CrossColumnFilter_True_FirstCustomer()
+    var
+        ConfigPackageTable: Record "Config. Package Table";
+        RecRef: RecordRef;
+        ConfigXMLExchange: Codeunit "Config. XML Exchange";
+        CustomerNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 346990] "Config. XML Exchange".ApplyPackageFilter() in case of "Cross-Column Filter" = True, two customers and filter by the first customer
+        Initialize();
+
+        // [GIVEN] 4 posted sales invoices with the following "Sell-To"\"Bill-To" customers: A\A, B\B, A\B, B\A
+        // [GIVEN] Config. package table "Sales Invoice Header" with "Cross-Column Filter" = True, two filters: "Sell-To" = A, "Bill-To" = A
+        CustomerNo[1] := LibraryUtility.GenerateGUID();
+        CustomerNo[2] := LibraryUtility.GenerateGUID();
+        CreateConfigPackageForSalesInvoiceHeaderWithTwoFilters(ConfigPackageTable, true, CustomerNo, CustomerNo[1]);
+        ConfigPackageTable.TestField("Cross-Column Filter", true);
+
+        // [WHEN] Invoke "Config. XML Exchange".ApplyPackageFilter() for "Sales Invoice Header" RecordRef
+        RecRef.Open(Database::"Sales Invoice Header");
+        ConfigXMLExchange.ApplyPackageFilter(ConfigPackageTable, RecRef);
+
+        // [THEN] RecRef is filtered with 3 invoices for "Sell-To"\"Bill-To" : A\A, A\B, B\A
+        VerifyFirstDocAfterApplyPackageFilter(RecRef, 3, CustomerNo[1]);
+        VerifyNextDocAfterApplyPackageFilter(RecRef, CustomerNo[1], CustomerNo[2]);
+        VerifyNextDocAfterApplyPackageFilter(RecRef, CustomerNo[2], CustomerNo[1]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyPackageFilter_CrossColumnFilter_True_SecondCustomer()
+    var
+        ConfigPackageTable: Record "Config. Package Table";
+        RecRef: RecordRef;
+        ConfigXMLExchange: Codeunit "Config. XML Exchange";
+        CustomerNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 346990] "Config. XML Exchange".ApplyPackageFilter() in case of "Cross-Column Filter" = True, two customers and filter by the second customer
+        Initialize();
+
+        // [GIVEN] 4 posted sales invoices with the following "Sell-To"\"Bill-To" customers: A\A, B\B, A\B, B\A
+        // [GIVEN] Config. package table "Sales Invoice Header" with "Cross-Column Filter" = True, two filters: "Sell-To" = B, "Bill-To" = B
+        CustomerNo[1] := LibraryUtility.GenerateGUID();
+        CustomerNo[2] := LibraryUtility.GenerateGUID();
+        CreateConfigPackageForSalesInvoiceHeaderWithTwoFilters(ConfigPackageTable, true, CustomerNo, CustomerNo[2]);
+        ConfigPackageTable.TestField("Cross-Column Filter", true);
+
+        // [WHEN] Invoke "Config. XML Exchange".ApplyPackageFilter() for "Sales Invoice Header" RecordRef
+        RecRef.Open(Database::"Sales Invoice Header");
+        ConfigXMLExchange.ApplyPackageFilter(ConfigPackageTable, RecRef);
+
+        // [THEN] RecRef is filtered with 3 invoices for "Sell-To"\"Bill-To" : B\B, A\B, B\A
+        VerifyFirstDocAfterApplyPackageFilter(RecRef, 3, CustomerNo[2]);
+        VerifyNextDocAfterApplyPackageFilter(RecRef, CustomerNo[1], CustomerNo[2]);
+        VerifyNextDocAfterApplyPackageFilter(RecRef, CustomerNo[2], CustomerNo[1]);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM RS Package Base Operations");
@@ -1012,6 +1124,23 @@ codeunit 136610 "ERM RS Package Base Operations"
         ConfigPackageMgt: Codeunit "Config. Package Management";
     begin
         ConfigPackageMgt.SetHideDialog(true);
+    end;
+
+    local procedure CreateConfigPackageForSalesInvoiceHeaderWithTwoFilters(var ConfigPackageTable: Record "Config. Package Table"; CrossColumnFilter: Boolean; CustomerNo: array[2] of Code[20]; CustomerNoFilter: Code[20])
+    var
+        ConfigPackage: Record "Config. Package";
+        DummySalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        MockSalesInvoiceHeader(CustomerNo[1], CustomerNo[1]);
+        MockSalesInvoiceHeader(CustomerNo[2], CustomerNo[2]);
+        MockSalesInvoiceHeader(CustomerNo[1], CustomerNo[2]);
+        MockSalesInvoiceHeader(CustomerNo[2], CustomerNo[1]);
+
+        CreatePackageForTable(ConfigPackage, ConfigPackageTable, Database::"Sales Invoice Header");
+        CreateConfigPackageFilter(ConfigPackageTable, DummySalesInvoiceHeader.FieldNo("Sell-to Customer No."), CustomerNoFilter);
+        CreateConfigPackageFilter(ConfigPackageTable, DummySalesInvoiceHeader.FieldNo("Bill-to Customer No."), CustomerNoFilter);
+        ConfigPackageTable."Cross-Column Filter" := CrossColumnFilter;
+        ConfigPackageTable.Modify();
     end;
 
     local procedure CreatePackageDataPairWithPKRelation(var ConfigPackage: Record "Config. Package")
@@ -1238,6 +1367,17 @@ codeunit 136610 "ERM RS Package Base Operations"
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, TableId);
     end;
 
+    local procedure CreateConfigPackageFilter(ConfigPackageTable: Record "Config. Package Table"; FieldId: Integer; FieldFilter: Text[250])
+    var
+        ConfigPackageFilter: Record "Config. Package Filter";
+    begin
+        ConfigPackageFilter."Package Code" := ConfigPackageTable."Package Code";
+        ConfigPackageFilter."Table ID" := ConfigPackageTable."Table ID";
+        ConfigPackageFilter."Field ID" := FieldId;
+        ConfigPackageFilter."Field Filter" := FieldFilter;
+        ConfigPackageFilter.Insert();
+    end;
+
     local procedure CreatePackageOf3Tables(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: array[3] of Record "Config. Package Table")
     var
         "Field": Record "Field";
@@ -1282,6 +1422,16 @@ codeunit 136610 "ERM RS Package Base Operations"
         ConfigPackageData."Field ID" := FieldId;
         ConfigPackageData.Value := Format(NewValue);
         ConfigPackageData.Insert();
+    end;
+
+    local procedure MockSalesInvoiceHeader(SellToCustomerNo: Code[20]; BillToCustomerNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader."Sell-to Customer No." := SellToCustomerNo;
+        SalesInvoiceHeader."Bill-to Customer No." := BillToCustomerNo;
+        SalesInvoiceHeader.Insert();
     end;
 
     local procedure FindTableWithRelatedSystemTable(var TableID: Integer; var ReleatedTableID: Integer)
@@ -1332,6 +1482,27 @@ codeunit 136610 "ERM RS Package Base Operations"
     begin
         ConfigPackageData.Get(ConfigPackageCode, TableID, No, FieldID);
         ConfigPackageData.TestField(Value, ExpectedValue);
+    end;
+
+    local procedure VerifyFirstDocAfterApplyPackageFilter(var RecRef: RecordRef; ExpectedCount: Integer; ExpectedCustomerNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        Assert.RecordCount(RecRef, ExpectedCount);
+        RecRef.FindSet();
+        RecRef.SetTable(SalesInvoiceHeader);
+        SalesInvoiceHeader.TestField("Sell-to Customer No.", ExpectedCustomerNo);
+        SalesInvoiceHeader.TestField("Bill-to Customer No.", ExpectedCustomerNo);
+    end;
+
+    local procedure VerifyNextDocAfterApplyPackageFilter(var RecRef: RecordRef; SellToCustomerNo: Code[20]; BillToCustomerNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        RecRef.Next();
+        RecRef.SetTable(SalesInvoiceHeader);
+        SalesInvoiceHeader.TestField("Sell-to Customer No.", SellToCustomerNo);
+        SalesInvoiceHeader.TestField("Bill-to Customer No.", BillToCustomerNo);
     end;
 
     [RequestPageHandler]

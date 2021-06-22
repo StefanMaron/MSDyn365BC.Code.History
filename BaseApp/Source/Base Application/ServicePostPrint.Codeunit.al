@@ -22,6 +22,7 @@
     var
         DummyServLine: Record "Service Line" temporary;
     begin
+        OnBeforePostDocument(Rec);
         ServiceHeader.Copy(Rec);
         Code(DummyServLine);
         Rec := ServiceHeader;
@@ -145,6 +146,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceShipmentHeaderPrintRecords(var ServiceShipmentHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostDocument(var ServiceHeader: Record "Service Header")
     begin
     end;
 }

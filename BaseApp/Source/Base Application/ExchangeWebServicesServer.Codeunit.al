@@ -10,9 +10,10 @@ codeunit 5321 "Exchange Web Services Server"
         ProdEndpointTxt: Label 'https://outlook.office365.com/EWS/Exchange.asmx', Locked = true;
         ExpiredTokenErr: Label 'Trying to reconnect. Please close and reopen the add-in.';
 
-    local procedure InitializeForVersion(AutodiscoveryEmail: Text[250]; var ServiceUri: Text; Credentials: DotNet ExchangeCredentials; Rediscover: Boolean; ExchangeVersion: DotNet ExchangeVersion) Result: Boolean
+    local procedure InitializeForVersion(AutodiscoveryEmail: Text[250]; var ServiceUri: Text; Credentials: DotNet ExchangeCredentials; Rediscover: Boolean; ExchangeVersion: DotNet ExchangeVersion; Impersonation: Boolean) Result: Boolean
     var
         ServiceFactory: DotNet ServiceWrapperFactory;
+
     begin
         if IsNull(Service) then
             Service := ServiceFactory.CreateServiceWrapperForVersion(ExchangeVersion);
@@ -21,8 +22,11 @@ codeunit 5321 "Exchange Web Services Server"
             ServiceUri := GetEndpoint;
         Service.ExchangeServiceUrl := ServiceUri;
 
-        if not IsNull(Credentials) then
+        if not IsNull(Credentials) then begin
             Service.SetNetworkCredential(Credentials);
+            if Impersonation then
+                SetImpersonatedIdentity(AutodiscoveryEmail);
+        end;
 
         if (Service.ExchangeServiceUrl = '') or Rediscover then begin
             Result := Service.AutodiscoverServiceUrl(AutodiscoveryEmail);
@@ -31,12 +35,13 @@ codeunit 5321 "Exchange Web Services Server"
             Result := true;
     end;
 
+
     [Scope('OnPrem')]
     procedure Initialize(AutodiscoveryEmail: Text[250]; ServiceUri: Text; Credentials: DotNet ExchangeCredentials; Rediscover: Boolean) Result: Boolean
     var
         ExchangeVersion: DotNet ExchangeVersion;
     begin
-        Result := InitializeForVersion(AutodiscoveryEmail, ServiceUri, Credentials, Rediscover, ExchangeVersion.Exchange2013);
+        Result := InitializeForVersion(AutodiscoveryEmail, ServiceUri, Credentials, Rediscover, ExchangeVersion.Exchange2013, false);
     end;
 
     [Scope('OnPrem')]
@@ -47,12 +52,12 @@ codeunit 5321 "Exchange Web Services Server"
         if ServiceUri = '' then
             ServiceUri := GetEndpoint;
 
-        if InitializeForVersion(AutodiscoveryEmail, ServiceUri, Credentials, false, ExchangeVersion.Exchange2013) then begin
+        if InitializeForVersion(AutodiscoveryEmail, ServiceUri, Credentials, false, ExchangeVersion.Exchange2013, false) then begin
             Result := ValidCredentials;
 
             // If the email address was not found in the exchange server (404 error) then attempt to discover the exchange service endpoint.
             if not Result and (StrPos(GetLastErrorText, '404') > 0) then
-                if InitializeForVersion(AutodiscoveryEmail, ServiceUri, Credentials, true, ExchangeVersion.Exchange2013) and
+                if InitializeForVersion(AutodiscoveryEmail, ServiceUri, Credentials, true, ExchangeVersion.Exchange2013, false) and
                    ValidCredentials
                 then begin
                     Result := true;
@@ -66,7 +71,15 @@ codeunit 5321 "Exchange Web Services Server"
     var
         ExchangeVersion: DotNet ExchangeVersion;
     begin
-        Result := InitializeForVersion(AutodiscoveryEmail, ServiceUri, Credentials, Rediscover, ExchangeVersion.Exchange2010);
+        Result := InitializeForVersion(AutodiscoveryEmail, ServiceUri, Credentials, Rediscover, ExchangeVersion.Exchange2010, false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure Initialize2010WithUserImpersonation(AutodiscoveryEmail: Text[250]; ServiceUri: Text; Credentials: DotNet ExchangeCredentials; Rediscover: Boolean) Result: Boolean
+    var
+        ExchangeVersion: DotNet ExchangeVersion;
+    begin
+        Result := InitializeForVersion(AutodiscoveryEmail, ServiceUri, Credentials, Rediscover, ExchangeVersion.Exchange2010, true);
     end;
 
     [Scope('OnPrem')]

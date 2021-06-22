@@ -182,6 +182,8 @@ codeunit 4001 "Hybrid Cloud Management"
         HybridDeployment.GetVersionInformation(DeployedVersion, LatestVersion);
         IntelligentCloudSetup.SetDeployedVersion(DeployedVersion);
         IntelligentCloudSetup.SetLatestVersion(LatestVersion);
+
+        OnAfterEnableMigration(HybridProductType);
     end;
 
     procedure HandleShowIRInstructionsStep(var HybridProductType: Record "Hybrid Product Type"; var IRName: Text; var PrimaryKey: Text)
@@ -328,6 +330,11 @@ codeunit 4001 "Hybrid Cloud Management"
 
     [IntegrationEvent(false, false)]
     procedure OnShowDoneStep(var HybridProductType: Record "Hybrid Product Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterEnableMigration(HybridProductType: Record "Hybrid Product Type")
     begin
     end;
 

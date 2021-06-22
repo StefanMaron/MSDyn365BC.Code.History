@@ -404,7 +404,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType TermsOfServiceURLTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 396223260" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?LinkID=730654&amp;clcid=0x409</source>
+          <source>https://cdn-bc.dynamics.com/common/images/extensionslogos/paypal_colour_v1.png</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType LogoURLTxt</note>
         </trans-unit>

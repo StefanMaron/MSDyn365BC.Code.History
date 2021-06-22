@@ -1,11 +1,13 @@
 codeunit 9173 "Profile Helper"
 {
     var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         NavDesignerALProfileImporter: DotNet NavDesignerALProfileImporter;
         ProfileConfigurationInputStream: InStream;
         TempFile: File;
         ImportProfileTxt: Label 'Importing profile %1 of %2\Profile: %3', Comment = '%1 and %2 are numbers, %3 is the name of a profile';
         ImportSuccessTxt: Label 'The profile was successfully imported.';
+        ShowDiagnosticsTxt: Label 'Show diagnostics';
 
     procedure ImportProfileConfigurationPackage(ServerFileName: Text)
     begin
@@ -78,9 +80,17 @@ codeunit 9173 "Profile Helper"
     procedure ShowProfileDiagnostics(DiagnosticsNotification: Notification)
     var
         DesignerDiagnostic: Record "Designer Diagnostic";
+        NewDiagnosticsNotification: Notification;
         ImportID: Guid;
     begin
         ImportID := DiagnosticsNotification.GetData('ImportID');
+
+        NewDiagnosticsNotification.Id := CreateGuid();
+        NewDiagnosticsNotification.Message := DiagnosticsNotification.Message;
+        NewDiagnosticsNotification.AddAction(ShowDiagnosticsTxt, Codeunit::"Profile Helper", 'ShowProfileDiagnostics');
+        NewDiagnosticsNotification.SetData('ImportID', ImportID);
+        NotificationLifecycleMgt.SendNotification(NewDiagnosticsNotification, DesignerDiagnostic.RecordId());
+
         DesignerDiagnostic.SetRange("Operation ID", ImportID);
         DesignerDiagnostic.SetFilter(Severity, '<>%1', Severity::Hidden);
         Page.Run(Page::"Profile Import Diagnostics", DesignerDiagnostic);

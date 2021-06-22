@@ -22,6 +22,7 @@ codeunit 134154 "ERM Intercompany III"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryXMLRead: Codeunit "Library - XML Read";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
@@ -468,6 +469,68 @@ codeunit 134154 "ERM Intercompany III"
             PostedDocumentNo, PurchaseHeader."Document Type"::Invoice, PurchaseLine."IC Partner Code", ICPartner.Name);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyShipmentFieldsInOutboxExportFile()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICOutboxSalesHeader: Record "IC Outbox Sales Header";
+        ICOutboxSalesLine: Record "IC Outbox Sales Line";
+        CompanyInformation: Record "Company Information";
+        FileManagement: Codeunit "File Management";
+        ICOutboxImpExp: XMLport "IC Outbox Imp/Exp";
+        OutStream: OutStream;
+        TempFile: File;
+        FileName: Text;
+    begin
+        // [FEATURE] [XML] [Export]
+        // [SCENARIO 352224] When exporting IC Outbox transaction to file Order No. field of header and shipment fields of line are exported
+        Initialize();
+
+        // [GIVEN] Company information has intercompany code
+        CompanyInformation.Get();
+        CompanyInformation.Validate("IC Partner Code", LibraryUtility.GenerateGUID());
+        CompanyInformation.Modify();
+
+        // [GIVEN] IC Outbox Transaction
+        MockICOutboxTrans(ICOutboxTransaction);
+
+        // [GIVEN] IC Outbox sales header linked to transaction
+        MockICOutboxSalesHeader(ICOutboxSalesHeader, ICOutboxTransaction);
+
+        // [GIVEN] IC Outbox sales line linked to IC Outbox Sales Header
+        MockICOutboxSalesLine(ICOutboxSalesLine, ICOutboxSalesHeader);
+
+        // [WHEN] Export Outbox transaction with header and line
+        FileName := FileManagement.ServerTempFileName('.xml');
+        TempFile.Create(FileName);
+        TempFile.CreateOutStream(OutStream);
+        ICOutboxTransaction.SetRange("Transaction No.", ICOutboxTransaction."Transaction No.");
+        ICOutboxImpExp.SetICOutboxTrans(ICOutboxTransaction);
+        ICOutboxImpExp.SetDestination(OutStream);
+        ICOutboxImpExp.Export();
+        TempFile.Close();
+
+        LibraryXMLRead.Initialize(FileName);
+        // [THEN] OrderNo field is exported for header
+        Assert.AreEqual(
+          ICOutboxSalesHeader."Order No.",
+          LibraryXMLRead.GetAttributeValueInSubtree('ICTransactions', 'ICOutBoxSalesHdr', 'OrderNo'), 'Order No must have a value');
+
+        // [THEN] Shipment fields are exported for line
+        Assert.AreEqual(
+          ICOutboxSalesLine."Shipment No.",
+          LibraryXMLRead.GetAttributeValueInSubtree('ICTransactions', 'ICOutBoxSalesLine', 'ShipmentNo'),
+          'Shipment No must have a value');
+        Assert.AreEqual(
+          Format(ICOutboxSalesLine."Shipment Line No."),
+          LibraryXMLRead.GetAttributeValueInSubtree('ICTransactions', 'ICOutBoxSalesLine', 'ShipmentLineNo'),
+          'Shipment Line No must have a value');
+
+        // Clean-up
+        FileManagement.DeleteServerFile(FileName);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -571,6 +634,17 @@ codeunit 134154 "ERM Intercompany III"
           DimensionValue[6], Dimension.Code, LibraryUtility.GenerateGUID,
           DimensionValue[6]."Dimension Value Type"::"End-Total", '', false, 0);
         ExpectedIndentation[6] := 0;  // decremented by 1 due to "End-Total" type
+    end;
+
+    local procedure CreateICPartnerCode(): Code[20]
+    var
+        ICPartner: Record "IC Partner";
+    begin
+        LibraryERM.CreateICPartner(ICPartner);
+        ICPartner.Validate("Receivables Account", LibraryERM.CreateGLAccountNo());
+        ICPartner.Validate("Payables Account", LibraryERM.CreateGLAccountNo());
+        ICPartner.Modify(true);
+        exit(ICPartner.Code);
     end;
 
     local procedure CreateCustomerWithDefaultDimensions(DimensionValue: array[5] of Record "Dimension Value") CustomerNo: Code[20]
@@ -754,6 +828,51 @@ codeunit 134154 "ERM Intercompany III"
         ICDocumentDimension."Dimension Value Code" := ICDimensionValue.Code;
         ICDocumentDimension."Line No." := LineNo;
         ICDocumentDimension.Insert();
+    end;
+
+    local procedure MockICOutboxTrans(var ICOutboxTransaction: Record "IC Outbox Transaction")
+    begin
+        with ICOutboxTransaction do begin
+            Init();
+            "Transaction No." := LibraryUtility.GetNewRecNo(ICOutboxTransaction, FieldNo("Transaction No."));
+            "IC Partner Code" := CreateICPartnerCode();
+            "Transaction Source" := "Transaction Source"::"Created by Current Company";
+            "Document Type" := "Document Type"::Invoice;
+            "Source Type" := "Source Type"::"Journal Line";
+            "Document No." := LibraryUtility.GenerateGUID();
+            "Posting Date" := LibraryRandom.RandDate(10);
+            "Document Date" := LibraryRandom.RandDate(10);
+            "IC Partner G/L Acc. No." := LibraryUtility.GenerateGUID();
+            "Source Line No." := LibraryRandom.RandInt(100);
+            Insert();
+        end;
+    end;
+
+    local procedure MockICOutboxSalesHeader(var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; ICOutboxTransaction: Record "IC Outbox Transaction")
+    begin
+        with ICOutboxSalesHeader do begin
+            Init();
+            "IC Transaction No." := ICOutboxTransaction."Transaction No.";
+            "IC Partner Code" := ICOutboxTransaction."IC Partner Code";
+            "Transaction Source" := ICOutboxTransaction."Transaction Source";
+            "No." := LibraryUtility.GenerateGUID();
+            "Order No." := LibraryUtility.GenerateGUID();
+            Insert();
+        end;
+    end;
+
+    local procedure MockICOutboxSalesLine(var ICOutboxSalesLine: Record "IC Outbox Sales Line"; ICOutboxSalesHeader: Record "IC Outbox Sales Header")
+    begin
+        with ICOutboxSalesLine do begin
+            Init();
+            "Document No." := ICOutboxSalesHeader."No.";
+            "IC Transaction No." := ICOutboxSalesHeader."IC Transaction No.";
+            "IC Partner Code" := ICOutboxSalesHeader."IC Partner Code";
+            "Transaction Source" := ICOutboxSalesHeader."Transaction Source";
+            "Shipment Line No." := LibraryRandom.RandInt(1000);
+            "Shipment No." := LibraryUtility.GenerateGUID();
+            Insert();
+        end;
     end;
 
     local procedure RunCopyICDimensionsFromDimensions()

@@ -4086,6 +4086,66 @@ codeunit 134387 "ERM Sales Documents III"
 
     [Test]
     [Scope('OnPrem')]
+    procedure SalespersonCodeUpdatedFromUserSetupWhenCustomerWithoutSalesperson()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        UserSetup: Record "User Setup";
+    begin
+        // [FEATURE] [Salesperson Code]
+        // [SCENARIO 297510] Customer with blank "Salesperson Code" and Salesperson Code empty - use Salesperson from UserSetup
+        Initialize;
+
+        // [GIVEN] Salesperson "SP01"
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+
+        // [GIVEN] Customer "CU01" with blank "Salesperson Code"
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] User Setup with Salesperson Code
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser.Code);
+        UserSetup.Modify(true);
+
+        // [GIVEN] Sales Order Created for Customer with Salesperson Code "SP01"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.TestField("Salesperson Code", SalespersonPurchaser.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalespersonCodeUpdatedFromCustomerWithSalesperson()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        UserSetup: Record "User Setup";
+    begin
+        // [FEATURE] [Salesperson Code]
+        // [SCENARIO 297510] Customer with "Salesperson Code" but UserSetup Salesperson code empty - updated from Customer
+        Initialize;
+
+        // [GIVEN] Salesperson "SP01"
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+
+        // [GIVEN] Customer "CU01" with "Salesperson Code" = "SP01"
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] User Setup without Salesperson Code
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup.Validate("Salespers./Purch. Code", '');
+        UserSetup.Modify(true);
+
+        // [GIVEN] Sales Order Created for Customer with Salesperson Code "SP01"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.TestField("Salesperson Code", SalespersonPurchaser.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure SalesOrderInvalidTaxAreaCode()
     var
         SalesHeader: Record "Sales Header";
@@ -4462,6 +4522,34 @@ codeunit 134387 "ERM Sales Documents III"
 
         LibraryApplicationArea.DisableApplicationAreaSetup();
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetStatusStyleTextFavorable()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 342484] GetStatusStyleText = 'Favorable' when Status = Open
+        Initialize();
+
+        // [WHEN] Function GetStatusStyleText is being run for Status = Open
+        // [THEN] Return value is 'Favorable'
+        Assert.AreEqual('Favorable', GetStatusStyleText("Sales Document Status"::Open), 'Unexpected style text');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetStatusStyleTextStrong()
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 342484] GetStatusStyleText = 'Strong' when Status <> Open
+        // [WHEN] Function GetStatusStyleText is being run for Status <> Open
+        // [THEN] Return value is 'Strong'
+        Assert.AreEqual('Strong', GetStatusStyleText("Sales Document Status"::"Pending Approval"), 'Unexpected style text');
+        Assert.AreEqual('Strong', GetStatusStyleText("Sales Document Status"::"Pending Prepayment"), 'Unexpected style text');
+        Assert.AreEqual('Strong', GetStatusStyleText("Sales Document Status"::Released), 'Unexpected style text');
     end;
 
     [Test]
@@ -5194,6 +5282,15 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine.Validate(Quantity, 0);
         SalesLine.Modify(true);
         SalesHeader.SetRecFilter;
+    end;
+
+    local procedure GetStatusStyleText(Status: Enum "Sales Document Status"): Text
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.Init();
+        SalesHeader.Status := Status;
+        exit(SalesHeader.GetStatusStyleText());
     end;
 
     local procedure MockSalesInvoiceLine(DocumentNo: Code[20])

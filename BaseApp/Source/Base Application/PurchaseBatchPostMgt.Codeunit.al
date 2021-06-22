@@ -55,6 +55,8 @@ codeunit 1372 "Purchase Batch Post Mgt."
                 ErrorMessages.Run;
             end;
         end;
+
+        OnAfterRunBatch(PurchaseHeader, TempErrorMessage);
     end;
 
     procedure RunWithUI(var PurchaseHeader: Record "Purchase Header"; TotalCount: Integer; Question: Text)
@@ -217,6 +219,11 @@ codeunit 1372 "Purchase Batch Post Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPreparePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRunBatch(var PurchaseHeader: Record "Purchase Header"; var TempErrorMessage: Record "Error Message" temporary)
     begin
     end;
 }

@@ -17,6 +17,7 @@ codeunit 136903 "Employee Reports"
         LibraryService: Codeunit "Library - Service";
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -1145,6 +1146,44 @@ codeunit 136903 "Employee Reports"
         Assert.AreEqual(County, CountyText, CountyTextErr);
     end;
 
+    [Test]
+    [HandlerFunctions('EmployeeAbsencesByCausesToExcelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure EmployeeAbsenceByCauseTotalAbsence()
+    var
+        Employee: Record Employee;
+        EmployeeAbsence: Record "Employee Absence";
+        CauseOfAbsence: Record "Cause of Absence";
+        CauseOfAbsenceDescription: array[3] of Text[100];
+        TotalAbsence: array[3] of Decimal;
+        i: Integer;
+        j: Integer;
+    begin
+        // [SCENARIO 352774] Total Absence calcualtion for groups of "Cause of Absence" of "Employee - Absences by Causes" report.
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Employee. Three Causes of Absence, each one have several "Employee Absence".
+        LibraryHumanResource.CreateEmployee(Employee);
+
+        for i := 1 to ArrayLen(TotalAbsence) do begin
+            LibraryTimeSheet.CreateCauseOfAbsence(CauseOfAbsence);
+            CauseOfAbsenceDescription[i] := CauseOfAbsence.Description;
+            for j := 1 to LibraryRandom.RandIntInRange(5, 10) do begin
+                CreateEmployeeAbsenceWithCause(EmployeeAbsence, Employee."No.", LibraryRandom.RandDate(50), CauseOfAbsence.Code);
+                TotalAbsence[i] += EmployeeAbsence."Quantity (Base)";
+            end;
+        end;
+        Commit();
+
+        // [WHEN] Run report "Employee - Absences by Causes" for Employee.
+        EmployeeAbsence.SetRange("Employee No.", Employee."No.");
+        Report.Run(Report::"Employee - Absences by Causes", true, false, EmployeeAbsence);
+
+        // [THEN] Total Absence for each "Cause of Absence" is equal to summ of "Quantity (Base)" of corresponding "Employee Absence" records.
+        VerifyTotalAbsenceEmployeeAbsencesByCauses(CauseOfAbsenceDescription, TotalAbsence);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Employee Reports");
@@ -1216,16 +1255,21 @@ codeunit 136903 "Employee Reports"
     end;
 
     local procedure CreateEmployeeAbsence(var EmployeeAbsence: Record "Employee Absence"; EmployeeNo: Code[20]; FromDate: Date)
+    var
+        CauseOfAbsence: Record "Cause of Absence";
+    begin
+        LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
+        CreateEmployeeAbsenceWithCause(EmployeeAbsence, EmployeeNo, FromDate, CauseOfAbsence.Code);
+    end;
+
+    local procedure CreateEmployeeAbsenceWithCause(var EmployeeAbsence: Record "Employee Absence"; EmployeeNo: Code[20]; FromDate: Date; CauseOfAbsenceCode: Code[10])
     begin
         LibraryHumanResource.CreateEmployeeAbsence(EmployeeAbsence);
         EmployeeAbsence.Validate("Employee No.", EmployeeNo);
         EmployeeAbsence.Validate("From Date", FromDate);
-
-        // Using Random Value for date.Value is not important for test.
         EmployeeAbsence.Validate("To Date", FromDate);
-        EmployeeAbsence.Validate("Cause of Absence Code", GetCauseOfAbsenceCode);
-        EmployeeAbsence.Validate(
-          Quantity, LibraryRandom.RandDec(100, 2));  // Required field - value is not important to test case.
+        EmployeeAbsence.Validate("Cause of Absence Code", CauseOfAbsenceCode);
+        EmployeeAbsence.Validate(Quantity, LibraryRandom.RandDecInRange(100, 200, 2));
         EmployeeAbsence.Modify(true);
     end;
 
@@ -1281,22 +1325,6 @@ codeunit 136903 "Employee Reports"
         CountryRegion.Code := LibraryUtility.GenerateRandomCode(CountryRegion.FieldNo(Code), DATABASE::"Country/Region");
         CountryRegion."Address Format" := AddressFormat;
         CountryRegion.Insert();
-    end;
-
-    local procedure GetCauseOfAbsenceCode(): Code[10]
-    var
-        CauseOfAbsence: Record "Cause of Absence";
-        HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
-    begin
-        LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
-        with CauseOfAbsence do begin
-            if "Unit of Measure Code" = '' then begin
-                HumanResourceUnitOfMeasure.FindFirst;
-                Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
-                Modify(true);
-            end;
-            exit(Code);
-        end;
     end;
 
     local procedure UpdateGLSetupAddressFormat(AddressFormat: Option)
@@ -1502,6 +1530,24 @@ codeunit 136903 "Employee Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Employee_Absence_Quantity', EmployeeAbsence.Quantity);
     end;
 
+    local procedure VerifyTotalAbsenceEmployeeAbsencesByCauses(CauseOfAbsenceDescription: array[3] of Text[100]; TotalAbsence: array[3] of Decimal)
+    var
+        RowNo: Integer;
+        ColumnNo: Integer;
+        i: Integer;
+    begin
+        LibraryReportValidation.OpenExcelFile();
+
+        for i := 1 to ArrayLen(TotalAbsence) do begin
+            LibraryReportValidation.FindRowNoColumnNoByValueOnWorksheet(CauseOfAbsenceDescription[i], 1, RowNo, ColumnNo);
+            RowNo :=
+              LibraryReportValidation.FindRowNoFromColumnNoAndValueInsideArea(
+                ColumnNo, CauseOfAbsenceDescription[i], StrSubstNo('>%1', Format(RowNo)));
+            ColumnNo := LibraryReportValidation.FindColumnNoFromColumnCaption('Base Unit of Measure');
+            LibraryReportValidation.VerifyCellValue(RowNo, ColumnNo, LibraryReportValidation.FormatDecimalValue(TotalAbsence[i]));
+        end;
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeRelativeReportHandler(var EmployeeRelatives: TestRequestPage "Employee - Relatives")
@@ -1591,6 +1637,13 @@ codeunit 136903 "Employee Reports"
     procedure EmployeeStaffAbsencesReportHandler(var EmployeeStaffAbsences: TestRequestPage "Employee - Staff Absences")
     begin
         EmployeeStaffAbsences.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure EmployeeAbsencesByCausesToExcelRequestPageHandler(var EmployeeAbsencesByCauses: TestRequestPage "Employee - Absences by Causes")
+    begin
+        EmployeeAbsencesByCauses.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

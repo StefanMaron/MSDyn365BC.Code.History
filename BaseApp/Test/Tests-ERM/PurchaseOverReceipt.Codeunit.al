@@ -18,6 +18,7 @@ codeunit 134851 "Purchase Over Receipt"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         OverReceiptFeatureIsEnabled: Boolean;
+        IsInitialized: Boolean;
         QuantityAfterOverReceiptErr: Label 'Quantity is wrong after over receipt.';
         OverReceiptNotificationTxt: Label 'An over-receipt quantity is recorded on purchase order %1.';
         QtyToReceiveOverReceiptErr: Label 'Validation error for Field: Qty. to Receive,  Message = ''You cannot enter more than 10 in the Over-Receipt Quantity field.''';
@@ -29,6 +30,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseOrder: testPage "Purchase Order";
     begin
+        Initialize();
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
         BindSubscription(PurchaseOverReceipt);
@@ -49,6 +51,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseOrder: testPage "Purchase Order";
     begin
+        Initialize();
         // [GIVEN] "Over Receipt" feature is disabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(false);
         BindSubscription(PurchaseOverReceipt);
@@ -70,6 +73,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
+        Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
@@ -91,6 +95,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
+        Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
@@ -114,6 +119,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
+        Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
@@ -137,6 +143,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
+        Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
@@ -158,6 +165,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
+        Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
@@ -181,6 +189,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
+        Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
@@ -204,6 +213,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
+        Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
@@ -227,6 +237,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
+        Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
@@ -252,6 +263,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchRcptLine: Record "Purch. Rcpt. Line";
         PstdRcptDocNo: Code[20];
     begin
+        Initialize();
         // [GIVEN] "Quantity" - "Q"; "Over Receipt Qunatity" - "ORQ"
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
@@ -282,6 +294,7 @@ codeunit 134851 "Purchase Over Receipt"
         OverReceiptCode: Record "Over-Receipt Code";
         PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
+        Initialize();
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
         BindSubscription(PurchaseOverReceipt);
@@ -308,6 +321,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseOrder: TestPage "Purchase Order";
     begin
+        Initialize();
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
         BindSubscription(PurchaseOverReceipt);
@@ -333,6 +347,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseOrder: TestPage "Purchase Order";
     begin
+        Initialize();
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
         BindSubscription(PurchaseOverReceipt);
@@ -358,6 +373,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseOrder: TestPage "Purchase Order";
     begin
+        Initialize();
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
         BindSubscription(PurchaseOverReceipt);
@@ -385,6 +401,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         PurchaseOrder: TestPage "Purchase Order";
     begin
+        Initialize();
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
         BindSubscription(PurchaseOverReceipt);
@@ -410,6 +427,7 @@ codeunit 134851 "Purchase Over Receipt"
         OverReceiptCodes: TestPage "Over-Receipt Codes";
         OverReceiptCodeTxt: Code[10];
     begin
+        Initialize();
         // [GIVEN] Three over-receipt codes
         CreateThreeOverReceiptCodes();
 
@@ -455,6 +473,7 @@ codeunit 134851 "Purchase Over Receipt"
         PurchRcptLine: Record "Purch. Rcpt. Line";
         DocNo: Code[20];
     begin
+        Initialize();
         // [FEATURE] [Undo Receipt]
         // [SCENARIO 344787] "Over-Receipt Quantity" returned back to it's value before posting after undo receipt
 
@@ -479,6 +498,66 @@ codeunit 134851 "Purchase Over Receipt"
         Assert.IsTrue(PurchaseLine.Quantity = 13, 'Wrong quantity after undo receipt');
         Assert.IsTrue(PurchaseLine."Over-Receipt Quantity" = 3, 'Wrong over-receipt quantity after undo receipt');
         NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('OverReceiptNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderOverReceiptQtyClearsAfterClearOverReceiptCode()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+        PurchaseOrder: TestPage "Purchase Order";
+        OverReceiptApprovalStatus: Enum "Over-Receipt Approval Status";
+        OldQtyValue: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Released Purchase Order with Quantity = X
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+        OldQtyValue := PurchaseLine.Quantity;
+
+        // [GIVEN] Make Over-Receipt for Purchase Order, increase = Y., Over-Receipt Status = Pending
+        PurchaseLine.Validate("Over-Receipt Quantity", 7);
+        PurchaseLine.Validate("Over-Receipt Approval Status", OverReceiptApprovalStatus::Pending);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Open purchase order page
+        PurchaseHeader.Find();
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        // [WHEN] Clear 'Over-Receipt Code' on Purchase Line
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines."Over-Receipt Code".SetValue('');
+
+        // [THEN] 'Over-Receipt Quantity' = 0, Quantity = Qty. to Receive = Qty. To Invoice = Y. 
+        PurchaseOrder.PurchLines."Over-Receipt Quantity".AssertEquals(0);
+        PurchaseOrder.PurchLines.Quantity.AssertEquals(OldQtyValue);
+        PurchaseOrder.PurchLines."Qty. to Receive".AssertEquals(OldQtyValue);
+        PurchaseOrder.PurchLines."Qty. to Invoice".AssertEquals(OldQtyValue);
+        PurchaseOrder.Close();
+
+        // [THEN] 'Over Receipt Approval Status' = " ";
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Over-Receipt Approval Status", OverReceiptApprovalStatus::" ");
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryVariableStorage.Clear();
+
+        if IsInitialized then
+            exit;
+
+        IsInitialized := true;
     end;
 
     procedure SetOverReceiptFeatureEnabled(Enabled: Boolean)

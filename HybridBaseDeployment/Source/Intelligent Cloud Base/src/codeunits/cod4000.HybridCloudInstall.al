@@ -12,12 +12,12 @@ codeunit 4000 "Hybrid Cloud Install"
         HybridCueSetupManagement: Codeunit "Hybrid Cue Setup Management";
     begin
         HybridCueSetupManagement.InsertDataForReplicationSuccessRateCue();
-        UpdateHybridReplicationSummaryRecords();
         UpdateHybridReplicationDetailRecords();
     end;
 
     // This upgrade logic is to address moving the value of the "Replication Type" field
     // into the "Trigger Type" field, which is more accurate to what the values represented.
+    [Obsolete('No longer needed.', '16.2')]
     procedure UpdateHybridReplicationSummaryRecords()
     var
         HybridReplicationSummary: Record "Hybrid Replication Summary";

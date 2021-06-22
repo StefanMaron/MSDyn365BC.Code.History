@@ -12,6 +12,7 @@ codeunit 135155 "Data Privacy Tests"
     var
         DataPrivacyMgmt: Codeunit "Data Privacy Mgmt";
         Assert: Codeunit Assert;
+        LibraryUtility: Codeunit "Library - Utility";
         InexistentTableId: Integer;
         InexistentFieldId: Integer;
         ExistentTableId: Integer;
@@ -91,13 +92,13 @@ codeunit 135155 "Data Privacy Tests"
         ConfigPackageTable.Reset();
         Assert.AreEqual(1, ConfigPackageTable.Count, 'The Config. Package Table table should contain exactly one entry');
 
-        if ConfigPackageTable.FindFirst then begin
-            // [THEN] The Config. Package Table's Package Code is PackageCode
-            Assert.AreEqual(PackageCode, ConfigPackageTable."Package Code", 'The Package Code of the Config. Package Table is incorrect');
-
-            // [THEN] The Config. Package Table's Table ID is TableId
-            Assert.AreEqual(TableId, ConfigPackageTable."Table ID", 'The Table ID of the Config. Package Table is incorrect');
-        end;
+        ConfigPackageTable.FindFirst();
+        // [THEN] The Config. Package Table's Package Code is PackageCode
+        Assert.AreEqual(PackageCode, ConfigPackageTable."Package Code", 'The Package Code of the Config. Package Table is incorrect');
+        // [THEN] The Config. Package Table's Table ID is TableId
+        Assert.AreEqual(TableId, ConfigPackageTable."Table ID", 'The Table ID of the Config. Package Table is incorrect');
+        // [THEN] ConfigPackageTable."Cross-Column Filter" = true (TFS 346990)
+        Assert.AreEqual(true, ConfigPackageTable."Cross-Column Filter", '"Cross-Column Filter" is expected to be TRUE');
     end;
 
     [Test]
@@ -668,6 +669,7 @@ codeunit 135155 "Data Privacy Tests"
         Customer: Record Customer;
         DataSensitivity: Record "Data Sensitivity";
         ChangeLogEntry: Record "Change Log Entry";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
         DataPrivacyMgmt: Codeunit "Data Privacy Mgmt";
         TableNo: Integer;
@@ -801,6 +803,18 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(1, ConfigPackageTable.Count, StrSubstNo('%1%2',
             'There must be oen entry in the Config. Package Filter table for the Primary Key Field 1 ',
             'Value field of the Change Log Entry table'));
+
+        // [THEN] The Config. Package Table table should contain an entry for the Sales Invoice Header table
+        ConfigPackageTable.Reset();
+        ConfigPackageTable.SetRange("Table ID", Database::"Sales Invoice Header");
+        Assert.AreEqual(1, ConfigPackageTable.Count(),
+          'There must be an entry in the Config. Package Table table for the Sales Invoice Header table');
+        // [THEN] There must be 2 entries in the Config. Package Filter table for Sales Invoice Header table  (TFS 346990)
+        ConfigPackageFilter.Reset();
+        ConfigPackageFilter.SetRange("Package Code", ConfigPackage.Code);
+        ConfigPackageFilter.SetRange("Table ID", Database::"Sales Invoice Header");
+        Assert.AreEqual(2, ConfigPackageFilter.Count(),
+          'There must be 2 entries in the Config. Package Filter table for the Sales Invoice Header table.');
     end;
 
     [Test]
@@ -904,6 +918,28 @@ codeunit 135155 "Data Privacy Tests"
 
         // [THEN] The Data Sensitivity table should contain 1 entry
         Assert.AreEqual(1, DataSensitivity.Count, 'The Data Sensitivity table contains 1 unclassified entry');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InsertPackageTable()
+    var
+        ConfigPackageTable: Record "Config. Package Table";
+        DummyConfigPackage: Record "Config. Package";
+        PackageCode: Code[20];
+        TableId: Integer;
+    begin
+        // [SCENARIO 346990] DataPrivacyMgmt.InsertPackageTable() sets ConfigPackageTable."Cross-Column Filter" = true
+        PackageCode := LibraryUtility.GenerateGUID();
+        TableId := 27;
+        DataPrivacyMgmt.CreateConfigPackage(DummyConfigPackage, PackageCode, LibraryUtility.GenerateGUID());
+        DataPrivacyMgmt.CreatePackageTable(PackageCode, TableId);
+
+        DataPrivacyMgmt.InsertPackageTable(PackageCode, TableId, false);
+
+        ConfigPackageTable.SetRange("Package Code", PackageCode);
+        ConfigPackageTable.FindFirst();
+        Assert.AreEqual(true, ConfigPackageTable."Cross-Column Filter", '"Cross-Column Filter" is expected to be TRUE');
     end;
 }
 

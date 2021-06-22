@@ -491,7 +491,7 @@ codeunit 408 DimensionManagement
                                     if PriorityGreaterThan(Priority[2], Priority[1]) then
                                         TempDefaultDim.DeleteAll();
                                     TempDefaultDim := DefaultDim;
-                                    TempDefaultDim.Insert();
+                                    if TempDefaultDim.Insert() then;
                                 end;
                             end;
                         until DefaultDim.Next = 0;

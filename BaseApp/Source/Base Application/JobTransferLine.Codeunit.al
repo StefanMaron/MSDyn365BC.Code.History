@@ -453,6 +453,8 @@ codeunit 1004 "Job Transfer Line"
             exit;
 
         with PurchLine do begin
+            Validate("Job Planning Line No.");
+
             JobJnlLine.DontCheckStdCost;
             JobJnlLine.Validate("Job No.", "Job No.");
             JobJnlLine.Validate("Job Task No.", "Job Task No.");

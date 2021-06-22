@@ -200,6 +200,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                     Sign := WhseJnlLine."Qty. (Base)" / WhseJnlLine."Qty. (Absolute, Base)";
                     WhseJnlLine."Qty. (Base)" := "Qty. (Base)" * Sign;
                     WhseJnlLine."Qty. (Absolute, Base)" := Abs("Qty. (Base)");
+                    OnDeleteFromBinContenOnAfterQtyUpdate(FromBinContent, WhseEntry, WhseJnlLine, Sign);
                 end else
                     if FromBinContent."Quantity (Base)" + "Qty. (Base)" < 0 then begin
                         IsHandled := false;
@@ -223,6 +224,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             GetBin(WhseJnlLine2."Location Code", Location."Adjustment Bin Code");
             WhseJnlLine2.Quantity := 0;
             WhseJnlLine2."Qty. (Base)" := WhseEntry2."Qty. (Base)" + "Qty. (Base)";
+            RegisterRoundResidualOnAfterGetBin(WhseJnlLine2, WhseEntry, WhseEntry2);
             if WhseEntry2."Qty. (Base)" > Abs("Qty. (Base)") then begin
                 WhseJnlLine2."To Zone Code" := Bin."Zone Code";
                 WhseJnlLine2."To Bin Code" := Bin.Code;
@@ -532,6 +534,16 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateDefaultBinContentOnBeforeBinContentModify(var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure RegisterRoundResidualOnAfterGetBin(var WhseJnlLine2: Record "Warehouse Journal Line"; WhseEntry: Record "Warehouse Entry"; WhseEntry2: Record "Warehouse Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteFromBinContenOnAfterQtyUpdate(var FromBinContent: Record "Bin Content"; var WhseEntry: Record "Warehouse Entry"; var WhseJnlLine: Record "Warehouse Journal Line"; Sign: Integer)
     begin
     end;
 }

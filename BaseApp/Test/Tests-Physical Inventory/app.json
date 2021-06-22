@@ -2,18 +2,18 @@
     "id":  "e94328f1-bf57-43d3-a862-93d54f83a9d7",
     "name":  "Tests-Physical Inventory",
     "publisher":  "Microsoft",
-    "version":  "16.1.12629.12805",
+    "version":  "16.2.13509.13779",
     "platform":  "16.0.0.0",
     "dependencies":  [
                          {
                              "id":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
                              "name":  "Tests-TestLibraries",
                              "publisher":  "Microsoft",
-                             "version":  "16.1.0.0"
+                             "version":  "16.2.0.0"
                          }
                      ],
     "target":  "OnPrem",
     "showMyCode":  true,
-    "application":  "16.1.0.0",
+    "application":  "16.2.0.0",
     "brief":  "Tests-Physical Inventory (W1)"
 }

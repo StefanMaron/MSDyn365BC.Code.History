@@ -35,15 +35,15 @@ codeunit 132500 "Error Message Handling"
         // [GIVEN] Run posting with the error
         PostWithHandledError(HandledErr);
 
-        // [WHEN] ShowErrors of the first subscriber
-        Result := FindFirstLineOnErrorMessagePage(ErrorMessageHandler[1]);
-        // [THEN] Page "Error Messages" is open
-        Assert.IsTrue(Result, 'page is not open');
+        // [WHEN] HasErrors() of the first subscriber
+        Result := ErrorMessageHandler[1].HasErrors();
+        // [THEN] There is error message
+        Assert.IsTrue(Result, 'first subscriber has no error');
 
-        // [WHEN] ShowErrors of the second subscriber
-        asserterror FindFirstLineOnErrorMessagePage(ErrorMessageHandler[2]);
-        // [THEN] Page "Error Messages" is not open
-        Assert.ExpectedError(TestPageIsNotOpenErr);
+        // [WHEN] HasErrors() of the second subscriber
+        Result := ErrorMessageHandler[2].HasErrors();
+        // [THEN] There is no error message
+        Assert.IsFalse(Result, 'second subscriber has an error');
     end;
 
     [Test]
@@ -63,15 +63,15 @@ codeunit 132500 "Error Message Handling"
         // [GIVEN] Run posting with the error
         PostWithHandledError(HandledErr);
 
-        // [WHEN] ShowErrors of the first subscriber
-        asserterror FindFirstLineOnErrorMessagePage(ErrorMessageHandler[1]);
-        // [THEN] Page "Error Messages" is not open
-        Assert.ExpectedError(TestPageIsNotOpenErr);
+        // [WHEN] HasErrors() of the first subscriber
+        Result := ErrorMessageHandler[1].HasErrors();
+        // [THEN] There is no error message
+        Assert.IsFalse(Result, 'first subscriber has an error');
 
-        // [WHEN] ShowErrors of the second subscriber
-        Result := FindFirstLineOnErrorMessagePage(ErrorMessageHandler[2]);
-        // [THEN] Page "Error Messages" is open
-        Assert.IsTrue(Result, 'page is not open');
+        // [WHEN] HasErrors() of the second subscriber
+        Result := ErrorMessageHandler[2].HasErrors();
+        // [THEN] There is error message
+        Assert.IsTrue(Result, 'second subscriber has no error');
     end;
 
     [Test]
@@ -91,15 +91,15 @@ codeunit 132500 "Error Message Handling"
         // [GIVEN] Run posting with the error
         PostWithHandledError(HandledErr);
 
-        // [WHEN] ShowErrors of the first subscriber
-        Result := FindFirstLineOnErrorMessagePage(ErrorMessageHandler[1]);
-        // [THEN] Page "Error Messages" is open
-        Assert.IsTrue(Result, 'page is not open');
+        // [WHEN] HasErrors() of the first subscriber
+        Result := ErrorMessageHandler[1].HasErrors();
+        // [THEN] There is error message
+        Assert.IsTrue(Result, 'first subscriber has no error');
 
-        // [WHEN] ShowErrors of the second subscriber
-        asserterror FindFirstLineOnErrorMessagePage(ErrorMessageHandler[2]);
-        // [THEN] Page "Error Messages" is not open
-        Assert.ExpectedError(TestPageIsNotOpenErr);
+        // [WHEN] HasErrors() of the second subscriber
+        Result := ErrorMessageHandler[2].HasErrors();
+        // [THEN] There is no error message
+        Assert.IsFalse(Result, 'second subscriber has an error');
     end;
 
     [Test]
@@ -148,10 +148,10 @@ codeunit 132500 "Error Message Handling"
         // [GIVEN] Error is logged and called 'B'.ShowErrors
         ActivateAndShowErrors(ErrorMessageHandler[2]);
 
-        // [WHEN] Call 'A'.ShowErrors
-        Result := FindFirstLineOnErrorMessagePage(ErrorMessageHandler[1]);
-        // [THEN] Page "Error Messages" is open once
-        Assert.IsTrue(Result, 'page is not open');
+        // [WHEN] HasErrors() of the 'A' subscriber
+        Result := ErrorMessageHandler[1].HasErrors();
+        // [THEN] There is error message
+        Assert.IsTrue(Result, 'first subscriber has no error');
     end;
 
     [Test]
@@ -1237,16 +1237,6 @@ codeunit 132500 "Error Message Handling"
     local procedure AddUnhandledError(var TempErrorMessage: Record "Error Message" temporary; ErrorMessage: Text[250])
     begin
         TempErrorMessage.LogMessage(700, 0, TempErrorMessage."Message Type"::Error, ErrorMessage);
-    end;
-
-    local procedure FindFirstLineOnErrorMessagePage(var ErrorMessageHandler: Codeunit "Error Message Handler"): Boolean
-    var
-        ErrorMessagesPage: TestPage "Error Messages";
-    begin
-        LibraryErrorMessage.TrapErrorMessages;
-        ErrorMessageHandler.ShowErrors;
-        LibraryErrorMessage.GetTestPage(ErrorMessagesPage);
-        exit(ErrorMessagesPage.First);
     end;
 
     local procedure GetNotExistingTableNo() TableNo: Integer

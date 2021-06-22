@@ -351,6 +351,7 @@ page 6306 "Power BI Report FactBox"
 
     var
         NoReportsAvailableErr: Label 'There are no reports available from Power BI.';
+        PowerBIReportLoadTelemetryMsg: Label 'Loading Power BI report for user', Locked = true;
         GettingStartedTxt: Label 'Get started with Power BI';
         GetReportsTxt: Label 'Get reports';
         PowerBIUserConfiguration: Record "Power BI User Configuration";
@@ -407,6 +408,9 @@ page 6306 "Power BI Report FactBox"
         end else begin
             // update last loaded report
             SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
+
+            SendTraceTag('0000C36', PowerBiServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Normal,
+                PowerBIReportLoadTelemetryMsg, DataClassification::SystemMetadata);
             // Hides both filters and tabs for embedding in small spaces where navigation is unnecessary.
             exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false&navContentPaneEnabled=false');
         end;

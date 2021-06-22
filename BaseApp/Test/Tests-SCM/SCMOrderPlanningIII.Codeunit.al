@@ -46,7 +46,7 @@ codeunit 137088 "SCM Order Planning - III"
         ReserveError: Label 'Reserve must be equal to ''%1''  in Requisition Line';
         LineExistErr: Label 'Requistion line in %1 worksheet should exist for item %2';
         PurchaseLineQuantityBaseErr: Label '%1.%2 must be nearly equal to %3.', Comment = '%1 : Purchase Line, %2 : Quantity (Base), %3 : Value.';
-        NoPurchOrderCreatedErr: Label 'No purchase orders are created.';
+        AllItemsAreAvaialableMsg: Label 'All items on the sales order are available.';
 
     [Test]
     [HandlerFunctions('MakeSupplyOrdersPageHandler')]
@@ -1333,7 +1333,7 @@ codeunit 137088 "SCM Order Planning - III"
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler')]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,SentNotificationHandler')]
     [Scope('OnPrem')]
     procedure PlanningTwoSalesOrdersOneSupplyCoversBoth()
     var
@@ -1376,14 +1376,62 @@ codeunit 137088 "SCM Order Planning - III"
         UpdateSalesLine(SalesLine, SalesLine.FieldNo("Shipment Date"), LibraryRandom.RandDateFrom(SalesLine."Shipment Date", 10));
 
         // [WHEN] Plan a purchase from the first sales again.
-        LibraryVariableStorage.Enqueue(true);
-        PurchaseOrder.Trap;
+        LibraryVariableStorage.Enqueue(false);
         SalesOrder.FILTER.SetFilter("No.", SalesHeader[1]."No.");
-        asserterror SalesOrder.CreatePurchaseOrder.Invoke;
+        SalesOrder.CreatePurchaseOrder.Invoke;
 
         // [THEN] No purchase order is suggested as the first sales order is considered supplied.
-        Assert.ExpectedError(NoPurchOrderCreatedErr);
-        Assert.ExpectedErrorCode('Dialog');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), AllItemsAreAvaialableMsg, 'Expected notification was not sent.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderOfLineIsKeptOnPurchaseOrderFromSalesOrder()
+    var
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+        VendorNo: Code[20];
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Sales] [Purchase] [Order]
+        // [SCENARIO 353546] Line order is the same in sales order and purchase order created from it with "Purchase Order from Sales Order" functionality.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Two items with vendor - "I1" and "I2".
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            Item[i].Validate("Vendor No.", VendorNo);
+            Item[i].Modify(true);
+        end;
+
+        // [GIVEN] Sales order with two lines. The first line is for item "I1" on location "BLUE", the second one is for item "I2" on blank location.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item[1]."No.", Qty, LocationBlue.Code, WorkDate);
+        CreateSalesLine(SalesHeader, Item[2]."No.", '', WorkDate, Qty, Qty);
+
+        // [WHEN] Create purchase order from the sales order.
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        LibraryVariableStorage.Enqueue(true);
+        SalesOrder.CreatePurchaseOrder.Invoke();
+
+        // [THEN] The line order in the purchase order ("I1", "I2") matches the sales order.
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines."No.".AssertEquals(Item[1]."No.");
+        PurchaseOrder.PurchLines.Next();
+        PurchaseOrder.PurchLines."No.".AssertEquals(Item[2]."No.");
+        PurchaseOrder.Close();
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -2116,6 +2164,13 @@ codeunit 137088 "SCM Order Planning - III"
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SentNotificationHandler(var Notification: Notification): Boolean;
+    begin
+        LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 }
 
