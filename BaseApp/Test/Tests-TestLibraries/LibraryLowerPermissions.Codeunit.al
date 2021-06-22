@@ -36,7 +36,10 @@ codeunit 132217 "Library - Lower Permissions"
         XTestPermissionSetTxt: Label 'Test Tables';
         XLOCALTxt: Label 'LOCAL';
         XDYNCRMMGTTxt: Label 'D365 Dyn CRM Mgt';
-        XRMCONTEDITTxt: Label 'RM-CONT, Edit';
+        XRMCONTTxt: Label 'RM-CONT';
+        XRMCONTEDITTxt: Label 'RM-CONT, EDIT';
+        XRMTODOTxt: Label 'RM-TODO';
+        XRMTODOEDITTxt: Label 'RM-TODO, EDIT';
         XFIXEDASSETSSETUPTxt: Label 'D365 FA, Setup';
         XFIXEDASSETSVIEWTxt: Label 'D365 FA, View';
         XFIXEDASSETSEDITTxt: Label 'D365 FA, Edit';
@@ -361,9 +364,44 @@ codeunit 132217 "Library - Lower Permissions"
         AddPermissionSet(XDYNCRMMGTTxt);
     end;
 
+    procedure AddRMCont()
+    begin
+        AddPermissionSet(XRMCONTTxt);
+    end;
+
+    procedure SetRMCont()
+    begin
+        PushPermissionSet(XRMCONTTxt);
+    end;
+
     procedure AddRMContEdit()
     begin
         AddPermissionSet(XRMCONTEDITTxt);
+    end;
+
+    procedure SetRMContEdit()
+    begin
+        PushPermissionSet(XRMCONTEDITTxt);
+    end;
+
+    procedure AddRMTodo()
+    begin
+        AddPermissionSet(XRMTODOTxt);
+    end;
+
+    procedure SetRMTodo()
+    begin
+        PushPermissionSet(XRMTODOTxt);
+    end;
+
+    procedure AddRMTodoEdit()
+    begin
+        AddPermissionSet(XRMTODOEDITTxt);
+    end;
+
+    procedure SetRMTodoEdit()
+    begin
+        PushPermissionSet(XRMTODOEDITTxt);
     end;
 
     procedure PushPermissionSet(PermissionSetRoleID: Code[20])

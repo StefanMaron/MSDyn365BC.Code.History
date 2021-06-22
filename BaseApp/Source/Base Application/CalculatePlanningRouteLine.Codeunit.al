@@ -1008,7 +1008,7 @@ codeunit 99000810 "Calculate Planning Route Line"
 
         PlanningRoutingLine."Input Quantity" := MaxLotSize;
 
-        OnBeforeCalculateRouteLine(PlanningRoutingLine);
+        OnBeforeCalculateRouteLine(PlanningRoutingLine, CalcStartEndDate);
         if Direction = Direction::Backward then
             CalcRoutingLineBack(CalcStartEndDate)
         else
@@ -1466,7 +1466,7 @@ codeunit 99000810 "Calculate Planning Route Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateRouteLine(var PlanningRoutingLine: Record "Planning Routing Line")
+    local procedure OnBeforeCalculateRouteLine(var PlanningRoutingLine: Record "Planning Routing Line"; var CalcStartEndDate: Boolean)
     begin
     end;
 

@@ -11,6 +11,7 @@ codeunit 29 "Error Message Handler"
         Active: Boolean;
         NotificationMsg: Label 'An error or warning occured during operation %1.', Comment = '%1 - decription of operation';
         DetailsMsg: Label 'Details';
+        LastErrorCallStack: Text;
 
     procedure AppendTo(var TempErrorMessageBuf: Record "Error Message" temporary): Boolean
     var
@@ -88,6 +89,7 @@ codeunit 29 "Error Message Handler"
         ErrorMessage: Record "Error Message";
         ErrorMessageRegister: Record "Error Message Register";
     begin
+        FillErrorCallStack();
         TempErrorMessage.LogLastError;
 
         TempErrorMessage.SetRange(Context, false);
@@ -143,6 +145,19 @@ codeunit 29 "Error Message Handler"
                 LogFile.Close();
             end;
         end;
+    end;
+
+    local procedure FillErrorCallStack()
+    begin
+        if (GetLastErrorCode <> '') and (GetLastErrorText <> '') then
+            LastErrorCallStack := GetLastErrorCallStack
+        else
+            LastErrorCallStack := '';
+    end;
+
+    procedure GetErrorCallStack(): Text
+    begin
+        exit(LastErrorCallStack);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 28, 'OnGetFirstContextID', '', false, false)]

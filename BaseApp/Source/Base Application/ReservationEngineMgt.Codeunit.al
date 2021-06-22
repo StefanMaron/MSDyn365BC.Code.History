@@ -1329,7 +1329,7 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCancelReservation(ReservEntry: Record "Reservation Entry")
+    local procedure OnBeforeCancelReservation(var ReservEntry: Record "Reservation Entry")
     begin
     end;
 

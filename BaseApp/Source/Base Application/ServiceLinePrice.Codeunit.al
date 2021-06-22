@@ -167,6 +167,7 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         PriceCalculationBuffer."Line Discount %" := ServiceLine."Line Discount %";
         PriceCalculationBuffer."Allow Line Disc." := IsDiscountAllowed();
         PriceCalculationBuffer."Allow Invoice Disc." := ServiceLine."Allow Invoice Disc.";
+        OnAfterFillBuffer(PriceCalculationBuffer, ServiceHeader, ServiceLine);
     end;
 
     local procedure AddSources()
@@ -221,6 +222,7 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
                         end;
                 end;
         end;
+        OnAfterSetPrice(ServiceLine, PriceListLine, AmountType);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
@@ -240,5 +242,16 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
     begin
         if not ServiceLine."Allow Line Disc." then
             ServiceLine."Line Discount %" := 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillBuffer(
+        var PriceCalculationBuffer: Record "Price Calculation Buffer"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPrice(var ServiceLine: Record "Service Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
     end;
 }

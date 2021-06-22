@@ -80,7 +80,7 @@ codeunit 7203 "CDS Environment"
         Token: Text;
         Err: Text;
     begin
-        OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), '', Token);
+        OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), ResourceUrlTxt, Token);
 
         if Token = '' then begin
             SendTraceTag('0000BRA', GlobalDiscoOauthCategoryLbl, Verbosity::Error, ReceivedEmptyOnBehalfOfTokenErr, DataClassification::SystemMetadata);

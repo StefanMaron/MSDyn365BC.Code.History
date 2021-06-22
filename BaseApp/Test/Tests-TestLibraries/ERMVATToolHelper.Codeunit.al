@@ -1227,6 +1227,9 @@ codeunit 131334 "ERM VAT Tool - Helper"
             "Update Finance Charge Memos" := "Update Finance Charge Memos"::No;
             "Ignore Status on Sales Docs." := false;
             "Ignore Status on Purch. Docs." := false;
+            "Update Unit Price For G/L Acc." := false;
+            "Upd. Unit Price For Item Chrg." := false;
+            "Upd. Unit Price For FA" := false;
             Modify(true);
         end;
     end;
@@ -1641,6 +1644,18 @@ codeunit 131334 "ERM VAT Tool - Helper"
     end;
 
     [Scope('OnPrem')]
+    procedure UpdateUnitPricesInclVATSetup(UpdateForGLAccount: Boolean; UpdateForItemCharge: Boolean; UpdateForFixedAsset: Boolean)
+    var
+        VATRateChangeSetup: Record "VAT Rate Change Setup";
+    begin
+        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Validate("Update Unit Price For G/L Acc.", UpdateForGLAccount);
+        VATRateChangeSetup.Validate("Upd. Unit Price For Item Chrg.", UpdateForItemCharge);
+        VATRateChangeSetup.Validate("Upd. Unit Price For FA", UpdateForFixedAsset);
+        VATRateChangeSetup.Modify(true);
+    end;
+
+    [Scope('OnPrem')]
     procedure VerifyDataUpdate(DataToUpdateRecRef: RecordRef; DataAfterUpdateRecRef: RecordRef)
     begin
         Assert.AreEqual(DataToUpdateRecRef.Count, DataAfterUpdateRecRef.Count,
@@ -1771,21 +1786,8 @@ codeunit 131334 "ERM VAT Tool - Helper"
     procedure VerifyLogEntries(TempRecRef: RecordRef)
     var
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
-        VATProdPostingGroup: Code[20];
-        GenProdPostingGroup: Code[20];
-        VATProdPostingGroup2: Code[20];
-        GenProdPostingGroup2: Code[20];
     begin
-        GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
-        GetGroupsAfter(VATProdPostingGroup2, GenProdPostingGroup2, TempRecRef.Number);
-
-        if (VATProdPostingGroup = VATProdPostingGroup2) and (GenProdPostingGroup = GenProdPostingGroup2) then begin
-            Assert.IsTrue(VATRateChangeLogEntry.IsEmpty, LogEntryErrorCount);
-            exit;
-        end;
-
-        Assert.AreEqual(TempRecRef.Count, VATRateChangeLogEntry.Count, LogEntryErrorCount);
-
+        VerifyRecordsHandled(TempRecRef);
         if TempRecRef.FindSet then
             repeat
                 with VATRateChangeLogEntry do begin
@@ -1800,6 +1802,26 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     VerifyGroupsInLogEntry(VATRateChangeLogEntry, TempRecRef.Number);
                 end;
             until TempRecRef.Next = 0;
+    end;
+
+    [Scope('OnPrem')]
+    procedure VerifyRecordsHandled(TempRecRef: RecordRef)
+    var
+        VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
+        VATProdPostingGroup: Code[20];
+        GenProdPostingGroup: Code[20];
+        VATProdPostingGroup2: Code[20];
+        GenProdPostingGroup2: Code[20];
+    begin
+        GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
+        GetGroupsAfter(VATProdPostingGroup2, GenProdPostingGroup2, TempRecRef.Number);
+
+        if (VATProdPostingGroup = VATProdPostingGroup2) and (GenProdPostingGroup = GenProdPostingGroup2) then begin
+            Assert.IsTrue(VATRateChangeLogEntry.IsEmpty, LogEntryErrorCount);
+            exit;
+        end;
+
+        Assert.AreEqual(TempRecRef.Count, VATRateChangeLogEntry.Count, LogEntryErrorCount);
     end;
 
     [Scope('OnPrem')]

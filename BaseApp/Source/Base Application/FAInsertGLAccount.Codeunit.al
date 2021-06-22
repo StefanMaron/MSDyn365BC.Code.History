@@ -77,6 +77,7 @@ codeunit 5601 "FA Insert G/L Account"
             FAGLPostBuf."FA Entry No." := "Entry No.";
             FAGLPostBuf."FA Entry Type" := FAGLPostBuf."FA Entry Type"::Maintenance;
             GLEntryNo := "G/L Entry No.";
+            OnInsertMaintenanceAccNoOnBeforeInsertBufferEntry(FAGLPostBuf, MaintenanceLedgEntry);
             InsertBufferEntry;
             "G/L Entry No." := TempFAGLPostBuf."Entry No.";
         end;
@@ -636,7 +637,10 @@ codeunit 5601 "FA Insert G/L Account"
     local procedure OnBeforeInsertBalAcc(var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
-
+  [IntegrationEvent(false, false)]
+    local procedure OnInsertMaintenanceAccNoOnBeforeInsertBufferEntry(var  FAGLPostBuf: Record "FA G/L Posting Buffer" ; var MaintenanceLedgEntry: Record "Maintenance Ledger Entry")
+    begin
+    end;
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempFAGLPostBufModify(var FAPostingGroup: Record "FA Posting Group"; var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary; GLAmount: Decimal)
     begin

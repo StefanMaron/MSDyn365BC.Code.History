@@ -1452,7 +1452,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntryCard."Run on Tuesdays".SetValue(true);
         JobQueueEntryCard."Job Queue Category Code".SetValue('');
         JobQueueEntryCard."Maximum No. of Attempts to Run".SetValue(1);
-        JobQueueEntryCard."Inactivity Timeout Period".SetValue(1);
+        JobQueueEntryCard."Inactivity Timeout Period".SetValue(5);
         JobQueueEntryCard."Earliest Start Date/Time".SetValue(Today);
         JobQueueEntryCard."Expiration Date/Time".SetValue(Today + 1);
         JobQueueEntryCard.Close;

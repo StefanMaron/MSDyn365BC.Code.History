@@ -251,7 +251,7 @@ report 5899 "Calculate Inventory Value"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Update Standard Cost';
                         Enabled = UpdStdCostEnable;
-                        ToolTip = 'Specifies if you want the items'' standard cost to be updated according to the calculated inventory value.';
+                        ToolTip = 'Specifies if you want the items'' standard cost to be updated according to the calculated inventory value. This option is available only if Item is chosen in the Calculate Per field.';
                     }
                     field(CalcBase; CalcBase)
                     {
@@ -603,11 +603,13 @@ report 5899 "Calculate Inventory Value"
 
     local procedure PageValidateCalcLevel()
     begin
+        UpdStdCostEnable := true;
         if CalculatePer = CalculatePer::"Item Ledger Entry" then begin
             ByLocation := false;
             ByVariant := false;
             CalcBase := CalcBase::" ";
             UpdStdCost := false;
+            UpdStdCostEnable := false;
         end;
     end;
 

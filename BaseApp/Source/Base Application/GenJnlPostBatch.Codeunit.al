@@ -41,6 +41,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         Text026: Label '%5 %2 is out of balance by %1 %7. ';
         Text027: Label 'The lines in %1 are out of balance by %2 %5. ';
         Text028: Label 'The Balance and Reversing Balance recurring methods can be used only with Allocations.';
+        ConfirmManualCheckTxt: Label 'A balancing account is not specified for one or more lines. If you print checks without specifying balancing accounts you will not be able to void the checks, if needed. Do you want to continue?';
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine2: Record "Gen. Journal Line";
@@ -1118,6 +1119,24 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             end;
             MarkedGenJnlLine := GenJournalLine;
         end;
+    end;
+
+    procedure ConfirmPostingUnvoidableChecks(JournalBatchName: Code[20]; JournalTemplateName: Code[20]): Boolean
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        ConfirmManagement: Codeunit "Confirm Management";
+        BankPaymentType: Enum "Bank Payment Type";
+    begin
+        with GenJournalLine do begin
+            SetRange("Journal Batch Name", JournalBatchName);
+            SetRange("Journal Template Name", JournalTemplateName);
+            SetRange("Bal. Account No.", '');
+            SetRange("Bank Payment Type", BankPaymentType::"Manual Check");
+            if FindFirst() then
+                if "Bal. Account Type" in ["Account Type"::"Bank Account", "Account Type"::"G/L Account"] then
+                    exit(ConfirmManagement.GetResponseOrDefault(ConfirmManualCheckTxt, true));
+        end;
+        exit(true);
     end;
 
     local procedure IsNotExpired(GenJournalLine: Record "Gen. Journal Line"): Boolean

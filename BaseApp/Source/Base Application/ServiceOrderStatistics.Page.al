@@ -1270,7 +1270,7 @@ page 5914 "Service Order Statistics"
         else
             AdjProfitPct[IndexNo] := Round(100 * AdjProfitLCY[IndexNo] / TotalServLineLCY[IndexNo].Amount, 0.1);
 
-        OnAfterUpdateHeaderInfo();
+        OnAfterUpdateHeaderInfo(TotalServLineLCY, IndexNo);
     end;
 
     local procedure GetVATSpecification(QtyType: Option General,Details,Shipping)
@@ -1470,7 +1470,7 @@ page 5914 "Service Order Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateHeaderInfo()
+    local procedure OnAfterUpdateHeaderInfo(var TotalServLineLCY: array[7] of Record "Service Line"; var IndexNo: Integer)
     begin
     end;
 }

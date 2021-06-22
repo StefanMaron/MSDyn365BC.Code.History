@@ -1280,6 +1280,45 @@ codeunit 135000 "Error Message Tests"
         ErrorMessagesPage."Field Name".AssertEquals(GLBVendorContext.FieldCaption("VAT Registration No."));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('HasErrorsMessageHandler')]
+    procedure ErrorCallStackFromErrorOutsideOfErrorProcessingViaJobQueue()
+    var
+        SalesHeader: Record "Sales Header";
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        SalesPostviaJobQueue: Codeunit "Sales Post via Job Queue";
+    begin
+        // [FEATURE] [Job Queue]
+        // [SCENARIO 361491] "Error Call Stack" should be filled in while posting a document via job queue and the error is outside of the error processing feature
+        Initialize;
+
+        // [GIVEN] Setup to post sales document via job queue
+        LibrarySales.SetPostWithJobQueue(true);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Sales invoice with empty "Posting Date" in order to get error from testfield
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesHeader."Posting Date" := 0D;
+        SalesHeader.Modify(false);
+
+        // [WHEN] Post sales invoice via job queue
+        JobQueueEntry.DeleteAll();
+        SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader);
+        JobQueueEntry.FindFirst();
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
+
+        // [THEN] Job queue log entry has Status = "Eror"
+        // [THEN] Job queue log entry has non-empty "Error Call Stack"
+        JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
+        JobQueueLogEntry.FindFirst();
+        Assert.IsTrue(JobQueueLogEntry.Status = JobQueueLogEntry.Status::Error, 'Job Queue status should be "Error"');
+        Assert.IsTrue(JobQueueLogEntry.GetErrorCallStack() <> '', '"Error Call Stack" should not be empty');
+    end;
+
     local procedure Initialize()
     var
         DataTypeBuffer: Record "Data Type Buffer";

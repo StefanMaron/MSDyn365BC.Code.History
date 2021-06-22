@@ -376,6 +376,7 @@ codeunit 8800 "Custom Layout Reporting"
             DataRecRef, ReportID, CustomReportSelection, EmailPrintIfEmailIsMissing, TempBlobIndicesNameValueBuffer, TempBlobList,
             OutputType, AnyOutputExists, IsHandled);
         if IsHandled then begin
+            CustomReportSelection.Validate("Report ID", ReportID);
             LogAndClearLastError(CustomReportSelection."Report Caption", DataRecRef.RecordId);
             exit;
         end;
@@ -414,6 +415,7 @@ codeunit 8800 "Custom Layout Reporting"
         if CustomReportLayoutCode <> '' then
             ReportLayoutSelection.SetTempLayoutSelected('');
 
+        CustomReportSelection.Validate("Report ID", ReportID);
         LogAndClearLastError(CustomReportSelection."Report Caption", DataRecRef.RecordId);
     end;
 

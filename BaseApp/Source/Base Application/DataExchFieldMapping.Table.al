@@ -110,6 +110,11 @@ table 1225 "Data Exch. Field Mapping"
         {
             Caption = 'Overwrite Value';
         }
+        field(30; Priority; Integer)
+        {
+            Caption = 'Priority';	
+        }
+
     }
 
     keys
@@ -117,6 +122,9 @@ table 1225 "Data Exch. Field Mapping"
         key(Key1; "Data Exch. Def Code", "Data Exch. Line Def Code", "Table ID", "Column No.", "Field ID")
         {
             Clustered = true;
+        }
+        key(Key2; "Data Exch. Def Code", "Data Exch. Line Def Code", "Table ID", Priority)
+        {
         }
     }
 

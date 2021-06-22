@@ -1,4 +1,4 @@
-codeunit 426 "Payment Tolerance Management"
+﻿codeunit 426 "Payment Tolerance Management"
 {
     Permissions = TableData Currency = r,
                   TableData "Cust. Ledger Entry" = rim,
@@ -776,10 +776,16 @@ codeunit 426 "Payment Tolerance Management"
             end;
     end;
 
-    local procedure CheckPmtDiscTolCust(NewPostingdate: Date; NewDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; NewAmount: Decimal; OldCustLedgEntry: Record "Cust. Ledger Entry"; ApplnRoundingPrecision: Decimal; MaxPmtTolAmount: Decimal): Boolean
+    local procedure CheckPmtDiscTolCust(NewPostingdate: Date; NewDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; NewAmount: Decimal; OldCustLedgEntry: Record "Cust. Ledger Entry"; ApplnRoundingPrecision: Decimal; MaxPmtTolAmount: Decimal) Result: Boolean
     var
         ToleranceAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPmtDiscTolCust(NewPostingdate, NewDocType, NewAmount, OldCustLedgEntry, ApplnRoundingPrecision, MaxPmtTolAmount, IsHandled, Result);
+        if IsHandled then
+            exit;
+
         if ((NewDocType = NewDocType::Payment) and
             ((OldCustLedgEntry."Document Type" in [OldCustLedgEntry."Document Type"::Invoice,
                                                    OldCustLedgEntry."Document Type"::"Credit Memo"]) and
@@ -2171,6 +2177,11 @@ codeunit 426 "Payment Tolerance Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCalcPmtDisc(NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; ApplnRoundingPrecision: Decimal; CheckFilter: Boolean; CheckAmount: Boolean; var Handled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPmtDiscTolCust(NewPostingdate: Date; NewDocType: Enum "Gen. Journal Document Type"; NewAmount: Decimal; OldCustLedgEntry: Record "Cust. Ledger Entry"; ApplnRoundingPrecision: Decimal; MaxPmtTolAmount: Decimal; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 

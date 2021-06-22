@@ -112,9 +112,9 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Posting Date OnLastML - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - NamedType 2058625442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cannot use the model to make predictions. The quality of the model is below the specified quality threshold, which means that its predictions are unlikely to meet your requirements for accuracy. To use the model anyway, enter a lower value in the Model Quality Threshold field.</source>
-          <target state="translated">Det går inte att använda modellen för att göra prediktioner. Kvaliteten på modellen är lägre än det angivna gränsvärdet, vilket innebär att prediktionerna förmodligen inte uppfyller dina precisionskrav. Ange ett lägre värde i fältet Gränsvärde för modellkvalitet om du ändå vill använda modellen.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>You cannot use the model because its quality of %1 is below the value in the Model Quality Threshold field. That means its predictions are unlikely to meet your accuracy requirements. You can evaluate the model again to confirm its quality. To use the model anyway, enter a value that is less than or equal to %1 in the Model Quality Threshold field.</source>
+          <target state="translated">Du kan inte använda modellen eftersom dess kvalitet på %1 ligger under värdet i fältet Gränsvärde för modellkvalitet. Det innebär att prediktionerna inte stämmer överens med dina noggrannhetskrav. Du kan utvärdera modellen igen för att bekräfta kvaliteten. Om du vill använda modellen ändå anger du ett värde som är mindre än eller lika med %1 i fältet Gränsvärde för modellkvalitet.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = current model quality (decimal)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - NamedType CurrentModelLowerQualityThanDesiredErr</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - NamedType 358560748" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">

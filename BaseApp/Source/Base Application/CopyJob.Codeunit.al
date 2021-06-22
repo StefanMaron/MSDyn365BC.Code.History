@@ -112,6 +112,7 @@ codeunit 1006 "Copy Job"
         if not SourceJobPlanningLine.FindLast then
             exit;
         SourceJobPlanningLine.SetRange("Line No.", 0, SourceJobPlanningLine."Line No.");
+        OnCopyJobPlanningLinesOnAfterSourceJobPlanningLineSetFilters(SourceJobPlanningLine);
         if SourceJobPlanningLine.FindSet then
             repeat
                 with TargetJobPlanningLine do begin
@@ -360,6 +361,11 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyJobPlanningLinesOnAfterCopyTargetJobPlanningLine(var TargetJobPlanningLine: Record "Job Planning Line"; SourceJobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyJobPlanningLinesOnAfterSourceJobPlanningLineSetFilters(var SourceJobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

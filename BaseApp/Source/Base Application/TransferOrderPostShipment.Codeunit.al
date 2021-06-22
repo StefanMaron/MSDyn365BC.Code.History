@@ -644,7 +644,7 @@
         NewTransferLine.ResetPostedQty;
         NewTransferLine."Outstanding Quantity" := NewTransferLine.Quantity;
         NewTransferLine."Outstanding Qty. (Base)" := NewTransferLine."Quantity (Base)";
-        OnBeforeNewTransferLineInsert(NewTransferLine, TransferLine);
+        OnBeforeNewTransferLineInsert(NewTransferLine, TransferLine, NextLineNo);
         NewTransferLine.Insert();
         OnAfterCopyTransLine(NewTransferLine, TransferLine);
     end;
@@ -759,7 +759,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewTransferLineInsert(var NewTransferLine: Record "Transfer Line"; TransferLine: Record "Transfer Line")
+    local procedure OnBeforeNewTransferLineInsert(var NewTransferLine: Record "Transfer Line"; TransferLine: Record "Transfer Line"; var NextLineNo: Integer)
     begin
     end;
 

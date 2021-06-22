@@ -138,6 +138,7 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
         // Discounts
         PriceCalculationBuffer."Allow Line Disc." := IsDiscountAllowed();
         PriceCalculationBuffer."Allow Invoice Disc." := false;
+        OnAfterFillBuffer(PriceCalculationBuffer, ItemJournalLine);
     end;
 
     local procedure AddSources()
@@ -175,9 +176,20 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
             AmountType::Cost:
                 ItemJournalLine."Unit Amount" := PriceListLine."Unit Cost";
         end;
+        OnAfterSetPrice(ItemJournalLine, PriceListLine, AmountType);
     end;
 
     procedure Update(AmountType: enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillBuffer(var PriceCalculationBuffer: Record "Price Calculation Buffer"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPrice(var ItemJournalLine: Record "Item Journal Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
     begin
     end;
 }

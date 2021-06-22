@@ -170,6 +170,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         PriceCalculationBuffer."Line Discount %" := PurchaseLine."Line Discount %";
         PriceCalculationBuffer."Allow Line Disc." := IsDiscountAllowed();
         PriceCalculationBuffer."Allow Invoice Disc." := PurchaseLine."Allow Invoice Disc.";
+        OnAfterFillBuffer(PriceCalculationBuffer, PurchaseHeader, PurchaseLine);
     end;
 
     local procedure AddSources()
@@ -207,6 +208,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
             AmountType::Discount:
                 PurchaseLine."Line Discount %" := PriceListLine."Line Discount %";
         end;
+        OnAfterSetPrice(PurchaseLine, PriceListLine, AmountType);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
@@ -223,5 +225,16 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     begin
         if not DiscountIsAllowed then
             PurchaseLine."Line Discount %" := 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillBuffer(
+        var PriceCalculationBuffer: Record "Price Calculation Buffer"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPrice(var PurchaseLine: Record "Purchase Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
     end;
 }

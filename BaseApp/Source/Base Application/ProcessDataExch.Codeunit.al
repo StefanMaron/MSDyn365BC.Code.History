@@ -33,6 +33,12 @@ codeunit 1201 "Process Data Exch."
         DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchFieldMapping.SetRange("Table ID", RecRefTemplate.Number);
+        DataExchFieldMapping.SetFilter(Priority, '<>%1', 0);
+        if not DataExchFieldMapping.IsEmpty then begin
+            DataExchFieldMapping.SetCurrentKey("Data Exch. Def Code", "Data Exch. Line Def Code", "Table ID", Priority);
+            DataExchFieldMapping.Ascending(false);
+        end;
+        DataExchFieldMapping.SetRange(Priority);
 
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         DataExchField.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);

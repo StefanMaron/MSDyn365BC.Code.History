@@ -713,6 +713,128 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         VerifyPurchasePostedPrepmtAndInvAmounts(PrepmtDocNo, InvoiceDocNo, Amount, 0, VATAmount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPrepmtWithLineDiscountAndAmountRountingPrecision()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Currency: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        PrepmtGLAccount: Code[20];
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Currency] [Prices Incl. VAT] [Line Discount]
+        // [SCENARIO 358986] Post partial sales invoice with Line discount and specific Amount Rounding Precision
+        Initialize;
+
+        // [GIVEN] VAT Posting Setup with 5% VAT
+        CreateVATPostingSetupWithVATPct(VATPostingSetup, 5);
+        // [GIVEN] Amount Rounding Precision = 0.01 in G/L Setup is more sharp than in Currency (0.1)
+        GeneralLedgerSetup.Get;
+        Currency.Get(CreateCurrencyExchRate(1));
+        Currency.Validate("Amount Rounding Precision", GeneralLedgerSetup."Amount Rounding Precision" * 10);
+        Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)" * 10);
+        Currency.Modify(true);
+
+        // [GIVEN] Sales Order with Prices Including VAT and Prepayment = 50%
+        CreateSalesOrderSetCompressPrepmt(SalesHeader, VATPostingSetup."VAT Bus. Posting Group", Currency.Code, true, true);
+        SalesHeader.Validate("Prepayment %", 50);
+        SalesHeader.Modify(true);
+
+        Item.Get(CreateItemWithVATProdPostGroup(VATPostingSetup."VAT Prod. Posting Group"));
+        PrepmtGLAccount := CreateGLAccount(Item."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        UpdateSalesPrepmtAccount(PrepmtGLAccount, SalesHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+
+        // [GIVEN] Three Sales lines: 1st with Unit Price = 120, Quantity = 7, Line Discount % = 20.5, Qty. to Ship = 1
+        // [GIVEN] 2nd line has Unit Price = 56, Quantity = 6, Line Discount % = 16.071, Qty. to Ship = 6
+        // [GIVEN] 3rd line has Unit Price = 135, Quantity = 1, Line Discount % = 37.48148, Qty. to Ship = 1
+        // [GIVEN] Total Amount Including VAT for partial invoice = 461.8 = 95.4 + 282 + 84.4
+        // [GIVEN] VAT Amount = 11
+        CreateSalesLineWithQtyPriceLineDiscount(SalesHeader, Item."No.", 120, 7, 1, 20.5); // Line Amount = 667.8 (95.4 per 1)
+        CreateSalesLineWithQtyPriceLineDiscount(SalesHeader, Item."No.", 56, 6, 6, 16.071); // Line Amount = 282
+        CreateSalesLineWithQtyPriceLineDiscount(SalesHeader, Item."No.", 135, 1, 1, 37.48148); // Line Amount = 84.4
+
+        // [GIVEN] Prepayment invoice is posted for the sales order
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [WHEN] Post the sales invoice
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] All G/L entries are balanced with rounding amount posted as realized gain = -0.03
+        // [THEN] Amount 461.8 consists of amounts posted on prepayment G/l Account, payables account, VAT Amount and rounding gain amount
+        Customer.Get(SalesHeader."Bill-to Customer No.");
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        VerifyGLAccountBalance(PrepmtGLAccount, InvoiceNo, 219.93);
+        VerifyGLAccountBalance(CustomerPostingGroup."Receivables Account", InvoiceNo, 230.9);
+        VerifyGLAccountBalance(Currency."Realized Gains Acc.", InvoiceNo, -0.03);
+        Assert.AreEqual(461.8, 219.93 + 230.9 + 11 - 0.03, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchPrepmtWithLineDiscountAndAmountRountingPrecision()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Currency: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        PrepmtGLAccount: Code[20];
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Currency] [Prices Incl. VAT] [Line Discount]
+        // [SCENARIO 358986] Post partial purchase invoice with Line discount and specific Amount Rounding Precision
+        Initialize;
+
+        // [GIVEN] VAT Posting Setup with 5% VAT
+        CreateVATPostingSetupWithVATPct(VATPostingSetup, 5);
+        // [GIVEN] Amount Rounding Precision = 0.01 in G/L Setup is more sharp than in Currency (0.1)
+        GeneralLedgerSetup.Get;
+        Currency.Get(CreateCurrencyExchRate(1));
+        Currency.Validate("Amount Rounding Precision", GeneralLedgerSetup."Amount Rounding Precision" * 10);
+        Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)" * 10);
+        Currency.Modify(true);
+
+        // [GIVEN] Purchase Order with Prices Including VAT and Prepayment = 50%
+        CreatePurchOrderSetCompressPrepmt(PurchaseHeader, VATPostingSetup."VAT Bus. Posting Group", Currency.Code, true, true);
+        PurchaseHeader.Validate("Prepayment %", 50);
+        PurchaseHeader.Modify(true);
+
+        Item.Get(CreateItemWithVATProdPostGroup(VATPostingSetup."VAT Prod. Posting Group"));
+        PrepmtGLAccount := CreateGLAccount(Item."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        UpdatePurchasePrepmtAccount(PrepmtGLAccount, PurchaseHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+
+        // [GIVEN] Three purchase lines: 1st with Unit Price = 120, Quantity = 7, Line Discount % = 20.5, Qty. to Ship = 1
+        // [GIVEN] 2nd line has Unit Price = 56, Quantity = 6, Line Discount % = 16.071, Qty. to Ship = 6
+        // [GIVEN] 3rd line has Unit Price = 135, Quantity = 1, Line Discount % = 37.48148, Qty. to Ship = 1
+        // [GIVEN] Total Amount Including VAT for partial invoice = 461.8 = 95.4 + 282 + 84.4
+        // [GIVEN] VAT Amount = 11
+        CreatePurchLineWithQtyPriceLineDiscount(PurchaseHeader, Item."No.", 120, 7, 1, 20.5); // Line Amount = 667.8 (95.4 per 1)
+        CreatePurchLineWithQtyPriceLineDiscount(PurchaseHeader, Item."No.", 56, 6, 6, 16.071); // Line Amount = 282
+        CreatePurchLineWithQtyPriceLineDiscount(PurchaseHeader, Item."No.", 135, 1, 1, 37.48148); // Line Amount = 84.4
+
+        // [GIVEN] Prepayment invoice is posted for the purchase order
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [WHEN] Post the purchase invoice
+        InvoiceNo := InvoicePurchOrder(PurchaseHeader);
+
+        // [THEN] All G/L entries are balanced with rounding amount posted as realized loss = 0.03
+        // [THEN] Amount 461.8 consists of amounts posted on prepayment G/l Account, payables account, VAT Amount and rounding losses amount
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        VerifyGLAccountBalance(PrepmtGLAccount, InvoiceNo, -219.93);
+        VerifyGLAccountBalance(VendorPostingGroup."Payables Account", InvoiceNo, -230.9);
+        VerifyGLAccountBalance(Currency."Realized Losses Acc.", InvoiceNo, 0.03);
+        Assert.AreEqual(461.8, 219.93 + 230.9 + 11 - 0.03, '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -930,6 +1052,19 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         end;
     end;
 
+    local procedure CreateSalesLineWithQtyPriceLineDiscount(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; UnitPrice: Decimal; Qty: Decimal; QtyToShip: Decimal; LineDiscount: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        with SalesLine do begin
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::Item, ItemNo, Qty);
+            Validate("Unit Price", UnitPrice);
+            Validate("Qty. to Ship", QtyToShip);
+            Validate("Line Discount %", LineDiscount);
+            Modify(true);
+        end;
+    end;
+
     local procedure CreateSalesOrder_TFS229419_ExclVAT(var SalesHeader: Record "Sales Header"; DiscountPct: Decimal; PrepaymentPct: Decimal)
     var
         ItemNo: array[3] of Code[20];
@@ -1032,6 +1167,19 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
             LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::Item, ItemNo, 1);
             Validate("Direct Unit Cost", UnitPrice);
             Validate("Prepayment %", 100);
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreatePurchLineWithQtyPriceLineDiscount(PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; UnitCost: Decimal; Qty: Decimal; QtyToReceive: Decimal; LineDiscount: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        with PurchaseLine do begin
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::Item, ItemNo, Qty);
+            Validate("Direct Unit Cost", UnitCost);
+            Validate("Qty. to Receive", QtyToReceive);
+            Validate("Line Discount %", LineDiscount);
             Modify(true);
         end;
     end;

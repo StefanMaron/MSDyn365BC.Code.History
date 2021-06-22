@@ -53,35 +53,35 @@ page 6059 "Contract Statistics"
                             AutoFormatType = 1;
                             Caption = 'Profit %';
                             DecimalPlaces = 1 : 1;
-                            ToolTip = 'Specifies the amount of profit as percentage of the invoiced amount.';
+                            ToolTip = 'Specifies the amount of profit as a percentage of the invoiced amount.';
                         }
-                        field(Placeholder; Text000)
+                        field(Placeholder; '')
                         {
                             ApplicationArea = Prepayments;
                             Caption = 'Prepaid Amount';
                             ToolTip = 'Specifies the sum of all amounts that have been prepaid.';
-                            Visible = false;
+
                         }
-                        field("Total Amount"; Text000)
+                        field("Total Amount"; '')
                         {
                             ApplicationArea = Service;
                             Caption = 'Total Amount';
                             ToolTip = 'Specifies the sum of the invoiced amount and the prepaid amount.';
-                            Visible = false;
+
                         }
-                        field("Profit Amount"; Text000)
+                        field("Profit Amount"; '')
                         {
                             ApplicationArea = Service;
                             Caption = 'Profit Amount';
                             ToolTip = 'Specifies the amount of profit, after the cost amount has been subtracted from the total amount.';
-                            Visible = false;
+
                         }
-                        field("Profit %"; Text000)
+                        field("Profit %"; '')
                         {
                             ApplicationArea = Service;
                             Caption = 'Profit %';
-                            ToolTip = 'Specifies the amount of profit as a percentage of the invoiced amount.';
-                            Visible = false;
+                            ToolTip = 'Specifies the amount of profit as a percentage of the total amount.';
+
                         }
                     }
                     group(Items)

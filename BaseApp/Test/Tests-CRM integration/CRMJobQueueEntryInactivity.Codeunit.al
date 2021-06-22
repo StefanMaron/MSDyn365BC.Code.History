@@ -113,11 +113,11 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         Item."No." := LibraryUtility.GenerateGUID;
         Item.Insert();
         // [GIVEN] Job 'ITEM', where Status "On Hold with Inactivity period"
-        FindJobQueueEntryForMapping(JobQueueEntry[1], DATABASE::Item, JobQueueEntry[1].Status::"On Hold with Inactivity Timeout", 1);
+        FindJobQueueEntryForMapping(JobQueueEntry[1], DATABASE::Item, JobQueueEntry[1].Status::"On Hold with Inactivity Timeout", 5);
         JobQueueEntry[1]."Last Ready State" := CurrentDateTime - 60000 * JobQueueEntry[1]."No. of Minutes between Runs";
         JobQueueEntry[1].Modify();
         // [GIVEN] Job 'CUSTOMER', where Status "On Hold with Inactivity period"
-        FindJobQueueEntryForMapping(JobQueueEntry[2], DATABASE::Customer, JobQueueEntry[2].Status::"On Hold with Inactivity Timeout", 1);
+        FindJobQueueEntryForMapping(JobQueueEntry[2], DATABASE::Customer, JobQueueEntry[2].Status::"On Hold with Inactivity Timeout", 5);
 
         // [WHEN] Item is modified.
         CurrDT := CurrentDateTime;

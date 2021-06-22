@@ -379,14 +379,14 @@ codeunit 9852 "Effective Permissions Mgt."
                         Permission.SetRange("Role ID", AccessControl."Role ID");
                         if Permission.FindFirst then begin
                             FillPermissionBufferFromPermission(PermissionBuffer, Permission);
-                            PermissionBuffer.Insert();
+                            if PermissionBuffer.Insert() then; // avoid errors in case the user was assigned same role both a specific company and globally
                         end;
                     end else begin
                         TenantPermission.SetRange("App ID", AccessControl."App ID");
                         TenantPermission.SetRange("Role ID", AccessControl."Role ID");
                         if TenantPermission.FindFirst then begin
                             FillPermissionBufferFromTenantPermission(PermissionBuffer, TenantPermission);
-                            PermissionBuffer.Insert();
+                            if PermissionBuffer.Insert() then; // avoid errors in case the user was assigned same role both a specific company and globally
                         end;
                     end;
                 end;
@@ -438,6 +438,9 @@ codeunit 9852 "Effective Permissions Mgt."
                 TotalCount := AllObj.Count();
                 // Only update every 10 %
                 TimesToUpdate := TotalCount div 10;
+                if TimesToUpdate = 0 then
+                    TimesToUpdate := 1;
+
                 repeat
                     InsertEffectivePermissionForObject(Permission, PassedUserID, PassedCompanyName,
                       AllObj."Object Type", AllObj."Object ID");

@@ -881,8 +881,11 @@ codeunit 8617 "Config. Validate Management"
     local procedure OADateToDateTime(DateTimeDecimal: Decimal): DateTime
     var
         DotNetDateTime: DotNet DateTime;
+        ALDateTime: DateTime;
     begin
-        exit(DotNetDateTime.FromOADate(DateTimeDecimal));
+        DotNetDateTime := DotNetDateTime.FromOADate(DateTimeDecimal);
+        Evaluate(ALDateTime, DotNetDateTime.ToString());
+        exit(ALDateTime);
     end;
 }
 

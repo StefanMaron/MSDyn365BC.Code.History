@@ -118,7 +118,7 @@ table 472 "Job Queue Entry"
         }
         field(9; "Object Caption to Run"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = FIELD("Object Type to Run"),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = FIELD("Object Type to Run"),
                                                                            "Object ID" = FIELD("Object ID to Run")));
             Caption = 'Object Caption to Run';
             Editable = false;
@@ -201,6 +201,7 @@ table 472 "Job Queue Entry"
             trigger OnValidate()
             begin
                 SetRecurringField;
+                Clear("Next Run Date Formula");
             end;
         }
         field(19; "Run on Mondays"; Boolean)
@@ -314,6 +315,7 @@ table 472 "Job Queue Entry"
             var
                 JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
             begin
+                Clear("No. of Minutes between Runs");
                 ClearRunOnWeekdays;
                 SetRecurringField;
                 if IsNextRunDateFormulaSet and ("Earliest Start Date/Time" = 0DT) then
@@ -443,7 +445,7 @@ table 472 "Job Queue Entry"
         }
         field(49; Scheduled; Boolean)
         {
-            CalcFormula = Exist ("Scheduled Task" WHERE(ID = FIELD("System Task ID")));
+            CalcFormula = Exist("Scheduled Task" WHERE(ID = FIELD("System Task ID")));
             Caption = 'Scheduled';
             FieldClass = FlowField;
         }
@@ -461,6 +463,8 @@ table 472 "Job Queue Entry"
         field(52; "Inactivity Timeout Period"; Integer)
         {
             Caption = 'Inactivity Timeout Period';
+            MinValue = 5;
+            InitValue = 5;
         }
         field(53; "Error Message Register Id"; Guid)
         {
@@ -655,10 +659,18 @@ table 472 "Job Queue Entry"
 
     procedure FinalizeLogEntry(JobQueueLogEntry: Record "Job Queue Log Entry")
     begin
+        FinalizeLogEntry(JobQueueLogEntry, '');
+    end;
+
+    procedure FinalizeLogEntry(JobQueueLogEntry: Record "Job Queue Log Entry"; LastErrorCallStack: Text)
+    begin
         if Status = Status::Error then begin
             JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
             JobQueueLogEntry."Error Message" := "Error Message";
-            JobQueueLogEntry.SetErrorCallStack(GetLastErrorCallstack);
+            if LastErrorCallStack <> '' then
+                JobQueueLogEntry.SetErrorCallStack(LastErrorCallstack)
+            else
+                JobQueueLogEntry.SetErrorCallStack(GetLastErrorCallstack);
             JobQueueLogEntry."Error Message Register Id" := "Error Message Register Id";
         end else
             JobQueueLogEntry.Status := JobQueueLogEntry.Status::Success;

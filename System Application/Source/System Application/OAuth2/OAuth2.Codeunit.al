@@ -17,7 +17,7 @@ codeunit 501 OAuth2
     /// Gets the authorization token based on the authorization code via the OAuth2.0 code grant flow. 
     /// </summary>
     /// <param name="ClientId">The Application (client) ID that the "Azure portal – App registrations" experience assigned to your app.</param>
-    /// <param name="ClientSecret">The Application (client) secret configured in the "Azure Portal - Certificates & Secrets".</param>
+    /// <param name="ClientSecret">The Application (client) secret configured in the "Azure Portal - Certificates &amp; Secrets".</param>
     /// <param name="OAuthAuthorityUrl">The identity authorization provider URL.</param>
     /// <param name="RedirectURL">The redirectURL of your app, where authentication responses can be sent and received by your app. It must exactly match one of the redirectURLs you registered in the portal. If this parameter is empty, the default Business Central URL will be used.</param>
     /// <param name="ResourceURL">The Application ID of the resource the application is requesting access to. This parameter can be empty.</param>
@@ -48,7 +48,7 @@ codeunit 501 OAuth2
     /// Gets the access token via the Client Credentials grant flow. 
     /// </summary>
     /// <param name="ClientId">The Application (client) ID that the Azure portal – App registrations experience assigned to your app.</param>
-    /// <param name="ClientSecret">The Application (client) secret configured in the Azure Portal - Certificates & Secrets.</param>
+    /// <param name="ClientSecret">The Application (client) secret configured in the Azure Portal - Certificates &amp; Secrets.</param>
     /// <param name="OAuthAuthorityUrl">The identity authorization provider URL.</param>
     /// <param name="RedirectURL">The redirectURL of your app, where authentication responses can be sent and received by your app. It must exactly match one of the redirectURLs you registered in the portal. If this parameter is empty, the default Business Central URL will be used.</param>
     /// <param name="ResourceURL">The Application ID of the resource the application is requesting access to. This parameter can be empty.</param>
@@ -64,7 +64,7 @@ codeunit 501 OAuth2
     /// Gets the access token from the cache. 
     /// </summary>
     /// <param name="ClientId">The Application (client) ID that the Azure portal – App registrations experience assigned to your app.</param>
-    /// <param name="ClientSecret">The Application (client) secret configured in the Azure Portal - Certificates & Secrets.</param>
+    /// <param name="ClientSecret">The Application (client) secret configured in the Azure Portal - Certificates &amp; Secrets.</param>
     /// <param name="RedirectURL">The redirectURL of your app, where authentication responses can be sent and received by your app. It must exactly match one of the redirectURLs you registered in the portal. If this parameter is empty, the default Business Central URL will be used.</param>
     /// <param name="ResourceURL">The Application ID of the resource the application is requesting access to. This parameter can be empty.</param>
     /// <param name="AccessToken">Exit parameter containing the access token.</param>

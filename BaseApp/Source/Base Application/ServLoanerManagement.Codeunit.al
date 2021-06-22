@@ -83,6 +83,8 @@ codeunit 5901 ServLoanerManagement
                   Format(ServItemLine."Document Type"), ServItemLine."Document No.");
         end else
             Error(Text003, Loaner.TableCaption);
+
+        OnAfterReceiveLoaner(LoanerEntry, ServItemLine);
     end;
 
     procedure ReceiveLoanerShipment(ServShipmentItemLine: Record "Service Shipment Item Line")
@@ -186,6 +188,11 @@ codeunit 5901 ServLoanerManagement
                     end;
             end else
                 Error(Text001, "No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReceiveLoaner(LoanerEntry: Record "Loaner Entry"; ServItemLine: Record "Service Item Line")
+    begin
     end;
 }
 

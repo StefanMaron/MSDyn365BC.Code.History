@@ -70,7 +70,13 @@ codeunit 1105 "Transfer GL Entries to CA"
         CostCenterCode: Code[20];
         CostObjectCode: Code[20];
         CombinedEntryText: Text[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetGLEntries(IsHandled);
+        if IsHandled then
+            exit;
+
         GetCostAccSetup;
         SourceCodeSetup.Get();
         SourceCodeSetup.TestField("G/L Entry to CA");
@@ -298,6 +304,11 @@ codeunit 1105 "Transfer GL Entries to CA"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareCostJournalLines(var TempCostJnlLine: Record "Cost Journal Line" temporary; var TotalDebit: Decimal; var TotalCredit: Decimal; var NoOfJnlLines: Integer; var BatchRun: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetGLEntries(var IsHandled: Boolean)
     begin
     end;
 

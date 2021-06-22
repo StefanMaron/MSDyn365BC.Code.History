@@ -906,7 +906,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateAnalysisViews(var ItemRegister: Record "Item Register")
     begin
     end;

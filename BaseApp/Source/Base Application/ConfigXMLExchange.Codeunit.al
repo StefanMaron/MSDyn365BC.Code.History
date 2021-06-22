@@ -37,6 +37,8 @@ codeunit 8614 "Config. XML Exchange"
         WorkingFolder: Text;
         PackageCodesMustMatchErr: Label 'The package code specified on the configuration package must be the same as the package name in the imported package.';
         ProgressStatusTxt: Label '%1: %2 records out of %3', Comment = '%1 = table name; %2 = number of processed records (integer); %3 = total number records (integer).';
+        ImportedTableContentTxt: Label 'Table: %1, records: %2, total table fields: %3, imported fields: %4.', Locked = true;
+        ExportedTableContentTxt: Label 'Table: %1, records: %2, exported fields: %3.', Locked = true;
 
     local procedure AddXMLComment(var PackageXML: DotNet XmlDocument; var Node: DotNet XmlNode; Comment: Text[250])
     var
@@ -280,6 +282,8 @@ codeunit 8614 "Config. XML Exchange"
                 if ShowDialog then
                     ConfigProgressBarRecord.Update(StrSubstNo(ProgressStatusTxt, ConfigPackageTable."Table Name", ProcessedRecordCount, RecordCount));
             until RecRef.Next = 0;
+            // Tag used for analytics - DO NOT MODIFY
+            SendTraceTag('0000BV0', RapidStartTxt, Verbosity::Normal, StrSubstNo(ExportedTableContentTxt, RecRef.Name, RecordCount, ConfigPackageField.Count()), DataClassification::SystemMetadata);
             if ShowDialog then
                 ConfigProgressBarRecord.Close();
         end else begin
@@ -328,7 +332,7 @@ codeunit 8614 "Config. XML Exchange"
         ToFile: Text[50];
         CompressedFileName: Text;
         PackageExportStartMsg: Label 'Export of RS package started.', Locked = true;
-        PackageExportFinishMsg: Label 'Export of RS package finished; duration: %1', Locked = true;
+        PackageExportFinishMsg: Label 'Export of RS package finished. Duration: %1 milliseconds.', Locked = true;
         DurationAsInt: BigInteger;
         StartTime: DateTime;
     begin
@@ -355,6 +359,7 @@ codeunit 8614 "Config. XML Exchange"
         PackageXML.Save(XMLDataFile);
 
         DurationAsInt := CurrentDateTime() - StartTime;
+        // Tag used for analytics - DO NOT MODIFY
         SendTraceTag('00009Q5', RapidStartTxt, Verbosity::Normal, StrSubstNo(PackageExportFinishMsg, DurationAsInt), DataClassification::SystemMetadata);
 
         if not CalledFromCode then begin
@@ -437,17 +442,25 @@ codeunit 8614 "Config. XML Exchange"
     [Scope('OnPrem')]
     procedure ImportPackageXMLFromClient(): Boolean
     var
+        FileMgmt: Codeunit "File Management";
+        ConfigPackageManagement: Codeunit "Config. Package Management";
         ServerFileName: Text;
         DecompressedFileName: Text;
+        DummyModifyDate: Date;
+        DummyModifyTime: Time;
+        FileSize: BigInteger;
     begin
         ServerFileName := FileManagement.ServerTempFileName('.xml');
-        if UploadXMLPackage(ServerFileName) then begin
-            DecompressedFileName := DecompressPackage(ServerFileName);
+        if not UploadXMLPackage(ServerFileName) then
+            exit(false);
 
-            exit(ImportPackageXML(DecompressedFileName));
-        end;
+        if FileMgmt.GetServerFileProperties(ServerFileName, DummyModifyDate, DummyModifyTime, FileSize) then;
+        if GuiAllowed() then
+            if ConfigPackageManagement.ShowWarningOnImportingBigConfPackageFromRapidStart(FileSize) = Action::Cancel then
+                exit(false);
+        DecompressedFileName := DecompressPackage(ServerFileName);
 
-        exit(false);
+        exit(ImportPackageXML(DecompressedFileName));
     end;
 
     [Scope('OnPrem')]
@@ -490,23 +503,29 @@ codeunit 8614 "Config. XML Exchange"
         ConfigPackageData: Record "Config. Package Data";
         TempBlob: Codeunit "Temp Blob";
         ParallelSessionManagement: Codeunit "Parallel Session Management";
+        DurationAsInt: BigInteger;
         DocumentElement: DotNet XmlElement;
         TableNodes: DotNet XmlNodeList;
         TableNode: DotNet XmlNode;
         OutStream: OutStream;
         Value: Text;
         PackageImportStartMsg: Label 'Import of RS package started.', Locked = true;
-        PackageImportFinishMsg: Label 'Import of RS package finished; duration: %1', Locked = true;
-        DurationAsInt: BigInteger;
+        PackageImportFinishMsg: Label 'Import of RS package finished. Duration: %1 milliseconds. File size: %2.', Locked = true;
         StartTime: DateTime;
         TableID: Integer;
         NodeCount: Integer;
         Confirmed: Boolean;
         NoOfChildNodes: Integer;
+        FileSize: Integer;
+        CurrTableName: Text;
+        CurrRecordCount: Integer;
+        TotalTableFields: Integer;
+        ImportedTableFields: Integer;
     begin
         StartTime := CurrentDateTime();
         SendTraceTag('00009Q6', RapidStartTxt, Verbosity::Normal, PackageImportStartMsg, DataClassification::SystemMetadata);
 
+        FileSize := PackageXML.OuterXml.Length() * 2; // due to UTF-16 encoding
         DocumentElement := PackageXML.DocumentElement;
 
         if not ExcelMode then begin
@@ -560,6 +579,10 @@ codeunit 8614 "Config. XML Exchange"
         for NodeCount := 0 to (TableNodes.Count - 1) do begin
             TableNode := TableNodes.Item(NodeCount);
             if Evaluate(TableID, Format(TableNode.FirstChild.InnerText)) then begin
+                if GetTableStatisticsForTelemetry(TableNode, CurrTableName, CurrRecordCount, TotalTableFields, ImportedTableFields) then
+                    // Tag used for analytics - DO NOT MODIFY
+                    SendTraceTag('0000BV1', RapidStartTxt, Verbosity::Normal, StrSubstNo(ImportedTableContentTxt, CurrTableName, CurrRecordCount, TotalTableFields, ImportedTableFields), DataClassification::SystemMetadata);
+
                 NoOfChildNodes := TableNode.ChildNodes.Count();
                 if (NoOfChildNodes < ConfigPackage."Min. Count For Async Import") or ExcelMode then
                     ImportTableFromXMLNode(TableNode, PackageCode)
@@ -604,12 +627,46 @@ codeunit 8614 "Config. XML Exchange"
 
         ConfigPackageMgt.UpdateConfigLinePackageData(ConfigPackage.Code);
         DurationAsInt := CurrentDateTime() - StartTime;
-        SendTraceTag('00009Q7', RapidStartTxt, Verbosity::Normal, StrSubstNo(PackageImportFinishMsg, DurationAsInt), DataClassification::SystemMetadata);
+        SendTraceTag('00009Q7', RapidStartTxt, Verbosity::Normal, StrSubstNo(PackageImportFinishMsg, DurationAsInt, FileSize), DataClassification::SystemMetadata);
 
         // autoapply configuration lines
         ConfigPackageMgt.ApplyConfigTables(ConfigPackage);
 
         exit(true);
+    end;
+
+    [TryFunction]
+    internal procedure GetTableStatisticsForTelemetry(TableNode: DotNet XmlNode; var TableName: Text; var RecordCount: Integer; var TotalTableFields: Integer; var ImportedTableFields: Integer)
+    var
+        CurrTableRecordRef: RecordRef;
+        TableNodeList: DotNet XmlNodeList;
+        TableChildNode: DotNet XmlNode;
+        NoOfChildNodes: Integer;
+        TableID: Integer;
+        NonRecordNodeCount: Integer;
+        TableElementName: Text;
+    begin
+        Evaluate(TableID, Format(TableNode.FirstChild().InnerText()));
+        CurrTableRecordRef.Open(TableID);
+        TableName := CurrTableRecordRef.Name();
+        TotalTableFields := CurrTableRecordRef.FieldCount();
+        CurrTableRecordRef.Close();
+
+        TableNodeList := TableNode.ChildNodes();
+        NoOfChildNodes := TableNodeList.Count();
+
+        // ignore TableID, PageID, SkipTableTriggers etc child nodes for the table
+        TableElementName := GetElementName(CopyStr(TableName, 1, 250));
+        NonRecordNodeCount := 0;
+        foreach TableChildNode in TableNodeList do begin
+            if TableChildNode.Name().Contains(TableElementName) then
+                break;
+            NonRecordNodeCount += 1;
+        end;
+
+        RecordCount := NoOfChildNodes - NonRecordNodeCount;
+        if RecordCount > 0 then
+            ImportedTableFields := TableNode.LastChild().ChildNodes().Count();
     end;
 
     [Scope('OnPrem')]

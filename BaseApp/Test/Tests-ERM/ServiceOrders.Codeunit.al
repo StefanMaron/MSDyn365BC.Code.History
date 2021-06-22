@@ -4018,6 +4018,8 @@ codeunit 136101 "Service Orders"
             ServiceHeader."Document Type", ServiceHeader."No.", ServiceCommentLine.Type::General, ServiceLine."Line No.");
 
         ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+        // [SCENARIO 360476] No duplicate Comment Lines inserted
+        Commit();
 
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
         ServiceCommentLine.SetRange("Table Subtype", ServiceHeader."Document Type");

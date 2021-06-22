@@ -90,5 +90,19 @@ table 5392 "CRM Annotation Coupling"
         SetRange("CRM Annotation ID", CRMId);
         exit(FindFirst)
     end;
+
+    [Scope('OnPrem')]
+    procedure ExtractNoteText(AnnotationText: Text): Text
+    var
+        LastIndexOfDiv: Integer;
+        FirstIndexOfSlashDiv: Integer;
+    begin
+        LastIndexOfDiv := AnnotationText.LastIndexOf('<div>');
+        if LastIndexOfDiv = 0 then
+            exit(AnnotationText);
+
+        FirstIndexOfSlashDiv := AnnotationText.IndexOf('</div>');
+        exit(CopyStr(AnnotationText, LastIndexOfDiv + 5, FirstIndexOfSlashDiv - LastIndexOfDiv - 5))
+    end;
 }
 

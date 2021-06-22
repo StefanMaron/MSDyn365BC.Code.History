@@ -250,6 +250,9 @@ report 5911 "Service - Invoice"
                         column(No_ServInvLine; "No.")
                         {
                         }
+                        column(SerialNo_ServiceItem; ServiceItemSerialNo)
+                        {
+                        }
                         column(Quantity_ServInvLine; Quantity)
                         {
                         }
@@ -259,10 +262,13 @@ report 5911 "Service - Invoice"
                         column(No_ServInvLineCaption; FieldCaption("No."))
                         {
                         }
+                        column(SerialNo_ServiceItemCaption; SerialNoCaptionLbl)
+                        {
+                        }
                         column(Description_ServInvLineCaption; FieldCaption(Description))
                         {
                         }
-                        column(Quantity_ServInvLineCaption; FieldCaption(Quantity))
+                        column(Quantity_ServInvLineCaption; QuantityCaptionLbl)
                         {
                         }
                         column(UOM_ServInvLineCaption; FieldCaption("Unit of Measure"))
@@ -401,6 +407,9 @@ report 5911 "Service - Invoice"
                         trigger OnAfterGetRecord()
                         begin
                             PostedShipmentDate := 0D;
+                            AccNo := '';
+                            ServiceItemSerialNo := '';
+
                             if Quantity <> 0 then
                                 PostedShipmentDate := FindPostedShipmentDate;
 
@@ -408,6 +417,7 @@ report 5911 "Service - Invoice"
                             if IsServiceContractLine then begin
                                 AccNo := "No.";
                                 "No." := "Service Item No.";
+                                ServiceItemSerialNo := GetServiceItemSerialNo("Service Item No.");
                             end;
 
                             VATAmountLine.Init();
@@ -811,7 +821,10 @@ report 5911 "Service - Invoice"
         PaymentTermsDescriptionCaptionLbl: Label 'Payment Terms';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
         InvDiscountAmountCaptionLbl: Label 'Invoice Discount Amount';
+        ServiceItemSerialNo: Code[50];
         DisplayAdditionalFeeNote: Boolean;
+        QuantityCaptionLbl: Label 'Qty';
+        SerialNoCaptionLbl: Label 'Serial No.';
 
     procedure FindPostedShipmentDate(): Date
     var
@@ -1037,6 +1050,14 @@ report 5911 "Service - Invoice"
                     TempLineFeeNoteOnReportHist.Insert();
                 until LineFeeNoteOnReportHist.Next = 0;
         end;
+    end;
+
+    local procedure GetServiceItemSerialNo(ServiceItemNo: Code[20]): Code[50]
+    var
+        ServiceItem: Record "Service Item";
+    begin
+        if ServiceItem.Get(ServiceItemNo) then
+            exit(ServiceItem."Serial No.");
     end;
 
     local procedure IsReportInPreviewMode(): Boolean

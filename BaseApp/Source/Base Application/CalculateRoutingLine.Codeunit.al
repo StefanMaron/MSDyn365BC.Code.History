@@ -1278,8 +1278,8 @@ codeunit 99000774 "Calculate Routing Line"
                         AvailTime := Min(CalendarMgt.CalcTimeDelta(EndTime, CalendarEntry."Starting Time"), AvailCap);
                         if AvailTime > 0 then begin
                             UpdateTimesBack(AvailTime, AvailCap, TimetoProgram, StartTime, EndTime);
-                            if StartTime < CalendarEntry."Starting Time" then
-                                StartTime := CalendarEntry."Starting Time";
+                            AdjustStartingTime(CalendarEntry, StartTime);
+
                             if TimetoProgram <> 0 then
                                 CreateCapNeed(CalendarEntry.Date, StartTime, EndTime, TimetoProgram, TimeType, 1);
                             if FirstInBatch and FirstEntry then begin
@@ -1402,8 +1402,7 @@ codeunit 99000774 "Calculate Routing Line"
                         AvailTime := Min(CalendarMgt.CalcTimeDelta(CalendarEntry."Ending Time", StartTime), AvailCap);
                         if AvailTime > 0 then begin
                             UpdateTimesForward(AvailTime, AvailCap, TimetoProgram, StartTime, EndTime);
-                            if EndTime > CalendarEntry."Ending Time" then
-                                EndTime := CalendarEntry."Ending Time";
+                            AdjustEndingTime(CalendarEntry, EndTime);
                             if TimetoProgram <> 0 then
                                 CreateCapNeed(CalendarEntry.Date, StartTime, EndTime, TimetoProgram, TimeType, 0);
                             if FirstInBatch and FirstEntry then begin
@@ -1433,6 +1432,32 @@ codeunit 99000774 "Calculate Routing Line"
                     exit;
                 end;
             until false;
+    end;
+
+    local procedure AdjustEndingTime(CalendarEntry: Record "Calendar Entry"; var EndingTime: Time)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAdjustEndingTime(IsHandled);
+        if IsHandled then
+            exit;
+
+        if EndingTime > CalendarEntry."Ending Time" then
+            EndingTime := CalendarEntry."Ending Time";
+    end;
+
+    local procedure AdjustStartingTime(CalendarEntry: Record "Calendar Entry"; var StartingTime: Time)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAdjustStartingTime(IsHandled);
+        if IsHandled then
+            exit;
+
+        if StartingTime < CalendarEntry."Starting Time" then
+            StartingTime := CalendarEntry."Starting Time";
     end;
 
     local procedure CalculateDailyLoad(var AvailCap: Decimal; var DampTime: Decimal; ConstrainedCapacity: Record "Capacity Constrained Resource"; IsResourceConstrained: Boolean; ParentWorkCenter: Record "Capacity Constrained Resource"; IsParentConstrained: Boolean)
@@ -1857,6 +1882,16 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitProdOrderCapNeed(ProdOrder: Record "Production Order"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; var NeedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAdjustEndingTime(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAdjustStartingTime(var IsHandled: Boolean)
     begin
     end;
 

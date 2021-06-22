@@ -445,6 +445,7 @@ page 99000883 "Sales Order Planning"
         SKU: Record "Stockkeeping Unit";
         CreateProdOrder: Boolean;
         EndLoop: Boolean;
+        IsHandled: Boolean;
     begin
         xSalesPlanLine := Rec;
 
@@ -455,7 +456,12 @@ page 99000883 "Sales Order Planning"
             SalesLine.Get(SalesLine."Document Type"::Order, "Sales Order No.", "Sales Order Line No.");
             SalesLine.TestField("Shipment Date");
             SalesLine.CalcFields("Reserved Qty. (Base)");
-            OnCreateOrdersOnBeforeCreateProdOrder(Rec, SalesLine);
+
+            IsHandled := false;
+            OnCreateOrdersOnBeforeCreateProdOrder(Rec, SalesLine, IsHandled);
+            if IsHandled then
+                exit;
+
             if SalesLine."Outstanding Qty. (Base)" > SalesLine."Reserved Qty. (Base)" then begin
                 if SKU.Get(SalesLine."Location Code", SalesLine."No.", SalesLine."Variant Code") then
                     CreateProdOrder := SKU."Replenishment System" = SKU."Replenishment System"::"Prod. Order"
@@ -548,7 +554,7 @@ page 99000883 "Sales Order Planning"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateOrdersOnBeforeCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line"; var SalesLine: Record "Sales Line")
+    local procedure OnCreateOrdersOnBeforeCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

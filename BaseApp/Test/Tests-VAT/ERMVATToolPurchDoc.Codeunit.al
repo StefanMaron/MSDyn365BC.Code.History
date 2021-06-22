@@ -20,6 +20,8 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         isInitialized: Boolean;
         GroupFilter: Label '%1|%2';
 
@@ -811,6 +813,172 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.VerifyValueOnZeroOutstandingQty(VatProdPostingGroup, DATABASE::"Purchase Line");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnitPriceUpdateForGLAccLineWhenPricesIncludingVATEnabled()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ExpectedUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Prices Including VAT]
+        // [SCENARIO 361066] A unit price of purchase line with "Prices Including VAT" and type "G/L Account" updates on "VAT Product Posting Group" change
+        // [SCENARIO 361066] if "Update Unit Price For G/L Acc." is enabled in VAT Rate Change Setup
+
+        Initialize();
+
+        ERMVATToolHelper.CreatePostingGroups(false);
+        ERMVATToolHelper.UpdateUnitPricesInclVATSetup(true, false, false);
+        SetupToolPurch(VATRateChangeSetup2."Update Purchase Documents"::"VAT Prod. Posting Group", true, true);
+        CreatePurchInvoiceWithPricesIncludingVAT(PurchaseLine, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup());
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        ExpectedUnitPrice := CalcChangedUnitPriceGivenDiffVATPostingSetup(PurchaseLine);
+        PurchaseLine.Find;
+        PurchaseLine.TestField("Direct Unit Cost", ExpectedUnitPrice);
+
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnitPriceDoesNotUpdateForGLAccLineWhenPricesIncludingVATEnabled()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ExpectedUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Prices Including VAT]
+        // [SCENARIO 361066] A unit price of purchase line with "Prices Including VAT" and type "G/L Account" does not update on "VAT Product Posting Group" change
+        // [SCENARIO 361066] if "Update Unit Price For G/L Acc." is disabled in VAT Rate Change Setup
+
+        Initialize();
+
+        ERMVATToolHelper.CreatePostingGroups(false);
+        ERMVATToolHelper.UpdateUnitPricesInclVATSetup(false, false, false);
+        SetupToolPurch(VATRateChangeSetup2."Update Purchase Documents"::"VAT Prod. Posting Group", true, true);
+        CreatePurchInvoiceWithPricesIncludingVAT(PurchaseLine, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup());
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        ExpectedUnitPrice := PurchaseLine."Direct Unit Cost";
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Direct Unit Cost", ExpectedUnitPrice);
+
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnitPriceUpdateForItemChargeLineWhenPricesIncludingVATEnabled()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ExpectedUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Prices Including VAT]
+        // [SCENARIO 361066] A unit price of purchase line with "Prices Including VAT" and type "Charge (Item)" updates on "VAT Product Posting Group" change
+        // [SCENARIO 361066] if "Update Unit Price For G/L Acc." is enabled in VAT Rate Change Setup
+
+        Initialize();
+
+        ERMVATToolHelper.CreatePostingGroups(false);
+        ERMVATToolHelper.UpdateUnitPricesInclVATSetup(false, true, false);
+        SetupToolPurch(VATRateChangeSetup2."Update Purchase Documents"::"VAT Prod. Posting Group", true, true);
+        CreatePurchInvoiceWithPricesIncludingVAT(PurchaseLine, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo());
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        ExpectedUnitPrice := CalcChangedUnitPriceGivenDiffVATPostingSetup(PurchaseLine);
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Direct Unit Cost", ExpectedUnitPrice);
+
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnitPriceDoesNotUpdateForItemChargeLineWhenPricesIncludingVATEnabled()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ExpectedUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Prices Including VAT]
+        // [SCENARIO 361066] A unit price of purchase line with "Prices Including VAT" and type "Charge (Item)" does not update on "VAT Product Posting Group" change
+        // [SCENARIO 361066] if "Update Unit Price For G/L Acc." is disabled in VAT Rate Change Setup
+
+        Initialize();
+
+        ERMVATToolHelper.CreatePostingGroups(false);
+        ERMVATToolHelper.UpdateUnitPricesInclVATSetup(false, false, false);
+        SetupToolPurch(VATRateChangeSetup2."Update Purchase Documents"::"VAT Prod. Posting Group", true, true);
+        CreatePurchInvoiceWithPricesIncludingVAT(PurchaseLine, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo());
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        ExpectedUnitPrice := PurchaseLine."Direct Unit Cost";
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Direct Unit Cost", ExpectedUnitPrice);
+
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnitPriceUpdateForFixedAssetLineWhenPricesIncludingVATEnabled()
+    var
+        FixedAsset: Record "Fixed Asset";
+        PurchaseLine: Record "Purchase Line";
+        ExpectedUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Prices Including VAT] [Fixed Asset]
+        // [SCENARIO 361066] A unit price of purchase line with "Prices Including VAT" and type "Fixed Asset" updates on "VAT Product Posting Group" change
+        // [SCENARIO 361066] if "Update Unit Price For G/L Acc." is enabled in VAT Rate Change Setup
+
+        Initialize();
+
+        ERMVATToolHelper.CreatePostingGroups(false);
+        ERMVATToolHelper.UpdateUnitPricesInclVATSetup(false, false, true);
+        SetupToolPurch(VATRateChangeSetup2."Update Purchase Documents"::"VAT Prod. Posting Group", true, true);
+        LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset);
+        CreatePurchInvoiceWithPricesIncludingVAT(PurchaseLine, PurchaseLine.Type::"Fixed Asset", FixedAsset."No.");
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        ExpectedUnitPrice := CalcChangedUnitPriceGivenDiffVATPostingSetup(PurchaseLine);
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Direct Unit Cost", ExpectedUnitPrice);
+
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnitPriceDoesNotUpdateForFixedAssetLineWhenPricesIncludingVATEnabled()
+    var
+        FixedAsset: Record "Fixed Asset";
+        PurchaseLine: Record "Purchase Line";
+        ExpectedUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Prices Including VAT] [Fixed Asset]
+        // [SCENARIO 361066] A unit price of purchase line with "Prices Including VAT" and type "Fixed Asset" does not update on "VAT Product Posting Group" change
+        // [SCENARIO 361066] if "Update Unit Price For G/L Acc." is disabled in VAT Rate Change Setup
+
+        Initialize();
+
+        ERMVATToolHelper.CreatePostingGroups(false);
+        ERMVATToolHelper.UpdateUnitPricesInclVATSetup(false, false, false);
+        SetupToolPurch(VATRateChangeSetup2."Update Purchase Documents"::"VAT Prod. Posting Group", true, true);
+        LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset);
+        CreatePurchInvoiceWithPricesIncludingVAT(PurchaseLine, PurchaseLine.Type::"Fixed Asset", FixedAsset."No.");
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        ExpectedUnitPrice := PurchaseLine."Direct Unit Cost";
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Direct Unit Cost", ExpectedUnitPrice);
+
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
     local procedure VATToolMakePurchOrder(FieldOption: Option; DocumentType: Option; Partial: Boolean; MultipleLines: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1305,6 +1473,24 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure CreatePurchInvoiceWithPricesIncludingVAT(var PurchaseLine: Record "Purchase Line"; Type: Option; No: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATProdPostingGroup: Code[20];
+        GenProdPostingGroup: Code[20];
+    begin
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandInt(10));
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
+        PurchaseLine.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure GetLineCount(MultipleLines: Boolean) "Count": Integer
     begin
         if MultipleLines then
@@ -1348,6 +1534,20 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst;
         exit(PurchaseLine."VAT Prod. Posting Group");
+    end;
+
+    local procedure CalcChangedUnitPriceGivenDiffVATPostingSetup(PurchaseLine: Record "Purchase Line"): Decimal
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenProdPostingGroup: Code[20];
+        VATProdPostingGroup: Code[20];
+    begin
+        ERMVATToolHelper.GetGroupsAfter(VATProdPostingGroup, GenProdPostingGroup, DATABASE::"Purchase Line");
+        VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", VATProdPostingGroup);
+        exit(
+          Round(
+            PurchaseLine."Direct Unit Cost" * (100 + VATPostingSetup."VAT %") / (100 + PurchaseLine."VAT %"),
+            LibraryERM.GetUnitAmountRoundingPrecision));
     end;
 
     local procedure ExpectLogEntries(DocumentType: Option; Release: Boolean; IgnoreStatus: Boolean): Boolean

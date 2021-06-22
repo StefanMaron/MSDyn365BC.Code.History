@@ -115,13 +115,8 @@ report 106 "Customer Detailed Aging"
                     begin
                         if "Due Date" = 0D then
                             OverDueMonths := 0
-                        else begin
-                            OverDueMonths :=
-                              (Date2DMY(EndDate, 3) - Date2DMY("Due Date", 3)) * 12 +
-                              Date2DMY(EndDate, 2) - Date2DMY("Due Date", 2);
-                            if Date2DMY(EndDate, 1) < Date2DMY("Due Date", 1) then
-                                OverDueMonths := OverDueMonths - 1;
-                        end;
+                        else
+                            OverDueMonths := CalcFullMonthsBetweenDates("Due Date", EndDate);
                         if "Remaining Amount" = 0 then
                             CurrReport.Skip();
                         TempCurrencyTotalBuffer.UpdateTotal(
@@ -304,6 +299,24 @@ report 106 "Customer Detailed Aging"
     begin
         EndDate := SetEndDate;
         OnlyOpen := SetOnlyOpen;
+    end;
+
+    local procedure CalcFullMonthsBetweenDates(FromDate: Date; ToDate: Date): Integer
+    var
+        FullMonths: Integer;
+        LeftOverDays: Integer;
+    begin
+        FullMonths := (Date2DMY(ToDate, 3) - Date2DMY(FromDate, 3)) * 12 + Date2DMY(ToDate, 2) - Date2DMY(FromDate, 2) - 1;
+
+        if Date2DMY(ToDate, 1) = Date2DMY(CalcDate('<CM>', ToDate), 1) then
+            FullMonths += 1
+        else
+            LeftOverDays := Date2DMY(ToDate, 1);
+
+        if Date2DMY(FromDate, 1) - LeftOverDays <= 1 then
+            FullMonths += 1;
+
+        exit(FullMonths);
     end;
 }
 

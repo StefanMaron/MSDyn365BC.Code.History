@@ -33,6 +33,7 @@ codeunit 6303 "Azure AD Auth Flow"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceName: Text) AccessToken: Text
     begin
         CheckProvider;
@@ -43,6 +44,7 @@ codeunit 6303 "Azure AD Auth Flow"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AcquireTokenByAuthorizationCodeWithCredentials(AuthorizationCode: Text; ClientID: Text; ApplicationKey: Text; ResourceName: Text) AccessToken: Text
     begin
         CheckProvider;
@@ -53,6 +55,7 @@ codeunit 6303 "Azure AD Auth Flow"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AcquireTokenFromCache(ResourceName: Text) AccessToken: Text
     begin
         CheckProvider;
@@ -74,6 +77,7 @@ codeunit 6303 "Azure AD Auth Flow"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AcquireGuestToken(ResourceName: Text; GuestTenantId: Text) AccessToken: Text
     begin
         CheckProvider;
@@ -84,6 +88,7 @@ codeunit 6303 "Azure AD Auth Flow"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AcquireOnBehalfOfToken(ResourceName: Text) AccessToken: Text
     begin
         CheckProvider;
@@ -105,6 +110,7 @@ codeunit 6303 "Azure AD Auth Flow"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure AcquireTokenFromCacheWithCredentials(ClientID: Text; AppKey: Text; ResourceName: Text) AccessToken: Text
     begin
         CheckProvider;
@@ -140,6 +146,7 @@ codeunit 6303 "Azure AD Auth Flow"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure CreateExchangeServiceWrapperWithToken(Token: Text; var Service: DotNet ExchangeServiceWrapper)
     var
         ServiceFactory: DotNet ServiceWrapperFactory;

@@ -15,6 +15,7 @@ codeunit 138941 "BC O365 Test Quotes"
         Assert: Codeunit Assert;
         LibraryJobQueue: Codeunit "Library - Job Queue";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Initialized: Boolean;
 
     [Test]
@@ -233,6 +234,7 @@ codeunit 138941 "BC O365 Test Quotes"
         SMTPMailSetup: Record "SMTP Mail Setup";
         ReportSelections: Record "Report Selections";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"BC O365 Test Quotes");
         EnvironmentInfoTestLibrary.SetAppId('INV');
         BindSubscription(EnvironmentInfoTestLibrary);
         BindSubscription(LibraryJobQueue);

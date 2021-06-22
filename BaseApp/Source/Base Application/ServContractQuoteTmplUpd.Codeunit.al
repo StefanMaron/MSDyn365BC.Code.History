@@ -10,12 +10,24 @@ codeunit 5942 "ServContractQuote-Tmpl. Upd."
 
         TestField("Contract No.");
 
-        if PAGE.RunModal(PAGE::"Service Contract Template List", ServiceContractTemplate) = ACTION::LookupOK then
-            ApplyTemplate(Rec, ServiceContractTemplate);
+        PickAndApplyTemplate(Rec);
     end;
 
     var
         ServiceContractTemplate: Record "Service Contract Template";
+
+    local procedure PickAndApplyTemplate(var ServiceContractHeader: Record "Service Contract Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePickAndApplyTemplate(ServiceContractHeader, ServiceContractTemplate, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Page.RunModal(Page::"Service Contract Template List", ServiceContractTemplate) = Action::LookupOK then
+            ApplyTemplate(ServiceContractHeader, ServiceContractTemplate);
+    end;
 
     procedure ApplyTemplate(var ServiceContractHeader: Record "Service Contract Header"; ServiceContractTemplate: Record "Service Contract Template")
     var
@@ -78,6 +90,11 @@ codeunit 5942 "ServContractQuote-Tmpl. Upd."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApplyTemplate(var ServiceContractHeader: Record "Service Contract Header"; ServiceContractTemplate: Record "Service Contract Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePickAndApplyTemplate(var ServiceContractHeader: Record "Service Contract Header"; ServiceContractTemplate: Record "Service Contract Template"; var IsHandled: Boolean)
     begin
     end;
 }

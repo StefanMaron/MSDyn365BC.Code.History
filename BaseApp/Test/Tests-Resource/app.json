@@ -2,18 +2,18 @@
     "id":  "0243a4ea-21b3-4fa8-ad70-9915a4400be0",
     "name":  "Tests-Resource",
     "publisher":  "Microsoft",
-    "version":  "16.2.13509.13779",
+    "version":  "16.3.14085.14238",
     "platform":  "16.0.0.0",
     "dependencies":  [
                          {
                              "id":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
                              "name":  "Tests-TestLibraries",
                              "publisher":  "Microsoft",
-                             "version":  "16.2.0.0"
+                             "version":  "16.3.0.0"
                          }
                      ],
     "target":  "OnPrem",
     "showMyCode":  true,
-    "application":  "16.2.0.0",
+    "application":  "16.3.0.0",
     "brief":  "Tests-Resource (W1)"
 }

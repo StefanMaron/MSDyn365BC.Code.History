@@ -146,9 +146,10 @@ table 83 "Item Journal Line"
                                 Validate("Prod. Order Comp. Line No.", 0);
                             end;
                         end;
-                    else
-                        "Unit of Measure Code" := Item."Base Unit of Measure";
                 end;
+
+                if "Unit of Measure Code" = '' then
+                    "Unit of Measure Code" := Item."Base Unit of Measure";
 
                 if "Value Entry Type" = "Value Entry Type"::Revaluation then
                     "Unit of Measure Code" := Item."Base Unit of Measure";

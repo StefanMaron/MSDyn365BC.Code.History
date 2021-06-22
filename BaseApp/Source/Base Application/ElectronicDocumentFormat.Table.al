@@ -209,7 +209,13 @@ table 61 "Electronic Document Format"
     procedure GetDocumentUsage(var DocumentUsage: Option; DocumentVariant: Variant)
     var
         DocumentRecordRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDocumentUsage(Rec, DocumentVariant, DocumentUsage, IsHandled);
+        if IsHandled then
+            exit;
+
         DocumentRecordRef.GetTable(DocumentVariant);
         case DocumentRecordRef.Number of
             DATABASE::"Sales Invoice Header":
@@ -417,6 +423,11 @@ table 61 "Electronic Document Format"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnDiscoverElectronicFormat()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDocumentUsage(ElectronicDocumentFormat: Record "Electronic Document Format"; DocumentVariant: Variant; var DocumentUsage: Option; var IsHandled: Boolean)
     begin
     end;
 

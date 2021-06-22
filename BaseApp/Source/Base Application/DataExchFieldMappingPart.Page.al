@@ -82,6 +82,11 @@ page 1217 "Data Exch Field Mapping Part"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the current value will be overwritten by a new value.';
                 }
+                field(Priority; Priority)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the order that the field mappings must be processed. The field mapping with the highest number will be processed first.';
+                }
             }
         }
     }

@@ -13,6 +13,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryRapidStart: Codeunit "Library - Rapid Start";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryJournals: Codeunit "Library - Journals";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -1654,6 +1655,129 @@ codeunit 136608 "ERM RS Validate and Apply"
         Customer.TestField("Post Code", PostCode.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyValidatePackageCodeunit()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Validate the "Config. Validate Package" sets the validation state when validatin is done
+        Initialize();
+
+        // [GIVEN] A ConfigPackageTable
+        LibraryRapidStart.CreatePackage(ConfigPackage);
+        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::Item);
+
+        // [WHEN] Validating the package
+        ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
+        CODEUNIT.Run(CODEUNIT::"Config. Validate Package", ConfigPackageTable);
+
+        // [THEN] Validation is set
+        ConfigPackageTable.SetRange(Validated, true);
+        Assert.RecordCount(ConfigPackageTable, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyValidatePackageCodeunitFailed()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        ObjectMetadata: Record "Object Metadata";
+        NonExistingTableId: Integer;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO] Validate the "Config. Validate Package" sets the validation state on the tables that passed validation
+        Initialize();
+
+        // [GIVEN] Two Config. Package Tables in the Package, where the first Table is inconsistent
+        LibraryRapidStart.CreatePackage(ConfigPackage);
+        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::Item);
+        ObjectMetadata.SetRange("Object Type", ObjectMetadata."Object Type"::Table);
+        ObjectMetadata.FindLast();
+        NonExistingTableId := ObjectMetadata."Object ID" + 1000;
+        ConfigPackageTable.Init();
+        ConfigPackageTable.Validate("Package Code", ConfigPackage.Code);
+        ConfigPackageTable."Table ID" := NonExistingTableId;
+        ConfigPackageTable.Insert(true);
+        Commit();
+
+        // [WHEN] Validating the package
+        ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
+        asserterror CODEUNIT.Run(CODEUNIT::"Config. Validate Package", ConfigPackageTable);
+
+        // [THEN] The first Table sould NOT be marked validated
+        ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::Item);
+        ConfigPackageTable.TestField(Validated, false);
+
+        // [THEN] The second Table sould NOT be marked validated
+        ConfigPackageTable.Get(ConfigPackage.Code, NonExistingTableId);
+        ConfigPackageTable.TestField(Validated, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ValidateRelatedField()
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        TempConfigPackageTable: Record "Config. Package Table" temporary;
+        ConfigPackageError: Record "Config. Package Error";
+        ConfigPackageMgt: Codeunit "Config. Package Management";
+        TableID: Integer;
+    begin
+        // [FEATURE] [Config Package] [Relation Table]
+        // [SCENARIO 358118] Stan can validate "Configuration Package" reflecting "Gen. Journal Line" with specified "Account Type" = "Bank Account" and "Account No.".
+        Initialize();
+
+        TableID := DATABASE::"Gen. Journal Line";
+
+        // [GIVEN] Bank Account with "No." = "XXX"
+        // [GIVEN] Configuration package for "Gen. Journal Line" table
+        // [GIVEN] Configuration package data reflecting "Gen. Journal Line" with "Account Type" = "Bank Account" and "Account No." = "XXX"
+        // [GIVEN] There is no G/L Account with "No." = "XXX" in database.
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), LibraryRandom.RandIntInRange(10, 20));
+
+        LibraryRapidStart.CreatePackage(ConfigPackage);
+        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, TableID);
+
+        LibraryRapidStart.CreatePackageData(
+          ConfigPackage.Code, TableID, 1, GenJournalLine.FieldNo("Journal Template Name"), GenJournalLine."Journal Template Name");
+        LibraryRapidStart.CreatePackageData(
+          ConfigPackage.Code, TableID, 1, GenJournalLine.FieldNo("Journal Batch Name"), GenJournalLine."Journal Batch Name");
+        LibraryRapidStart.CreatePackageData(
+          ConfigPackage.Code, TableID, 1, GenJournalLine.FieldNo("Line No."), Format(GenJournalLine."Line No."));
+        LibraryRapidStart.CreatePackageData(
+          ConfigPackage.Code, TableID, 1, GenJournalLine.FieldNo("Account Type"), Format(GenJournalLine."Account Type"));
+        LibraryRapidStart.CreatePackageData(
+          ConfigPackage.Code, TableID, 1, GenJournalLine.FieldNo("Account No."), GenJournalLine."Account No.");
+
+        GLAccount.SetRange("No.", GenJournalLine."Account No.");
+        GLAccount.DeleteAll();
+
+        GenJournalLine.Delete();
+        Commit();
+
+        // [WHEN] Validate package.
+        ConfigPackageMgt.ValidatePackageRelations(ConfigPackageTable, TempConfigPackageTable, false);
+
+        // [THEN] Package validation has not produced any error
+        Assert.RecordCount(TempConfigPackageTable, 1);
+        TempConfigPackageTable.SetRange("Table ID", TableID);
+        Assert.RecordCount(TempConfigPackageTable, 1);
+
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        ConfigPackageError.SetRange("Table ID", TableID);
+        Assert.RecordIsEmpty(ConfigPackageError);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2115,70 +2239,6 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageCard.GotoRecord(ConfigPackage);
         ConfigPackageCard.Control10.GotoKey(ConfigPackage.Code, DATABASE::"Gen. Journal Batch");
         ConfigPackageCard.Control10.PackageErrors.Invoke;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyValidatePackageCodeunit()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO] Validate the "Config. Validate Package" sets the validation state when validatin is done
-        Initialize;
-
-        // [GIVEN] A ConfigPackageTable
-        LibraryRapidStart.CreatePackage(ConfigPackage);
-        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::Item);
-
-        // [WHEN] Validating the package
-        ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
-        CODEUNIT.Run(CODEUNIT::"Config. Validate Package", ConfigPackageTable);
-
-        // [THEN] Validation is set
-        ConfigPackageTable.SetRange(Validated, true);
-        Assert.RecordCount(ConfigPackageTable, 1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyValidatePackageCodeunitFailed()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        AppObjectMetadata: Record "Application Object Metadata";
-        NonExistingTableId: Integer;
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO] Validate the "Config. Validate Package" sets the validation state on the tables that passed validation
-        Initialize;
-
-        // [GIVEN] Two Config. Package Tables in the Package, where the first Table is inconsistent
-        LibraryRapidStart.CreatePackage(ConfigPackage);
-        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::Item);
-        AppObjectMetadata.SetRange("Object Type", AppObjectMetadata."Object Type"::Table);
-        if AppObjectMetadata.FindLast then
-            NonExistingTableId := AppObjectMetadata."Object ID" + 1000
-        else
-            NonExistingTableId := 1000;
-        ConfigPackageTable.Init();
-        ConfigPackageTable.Validate("Package Code", ConfigPackage.Code);
-        ConfigPackageTable."Table ID" := NonExistingTableId;
-        ConfigPackageTable.Insert(true);
-        Commit();
-
-        // [WHEN] Validating the package
-        ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
-        asserterror CODEUNIT.Run(CODEUNIT::"Config. Validate Package", ConfigPackageTable);
-
-        // [THEN] The first Table sould NOT be marked validated
-        ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::Item);
-        ConfigPackageTable.TestField(Validated, false);
-
-        // [THEN] The second Table sould NOT be marked validated
-        ConfigPackageTable.Get(ConfigPackage.Code, NonExistingTableId);
-        ConfigPackageTable.TestField(Validated, false);
     end;
 
     local procedure CreateAdditionalPackageData(RecRef: RecordRef; ConfigPackageCode: Code[20]; FromRecordNo: Integer; NewRecordNo: Integer)

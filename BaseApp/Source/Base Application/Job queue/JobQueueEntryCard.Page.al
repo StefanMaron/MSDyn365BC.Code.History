@@ -160,7 +160,7 @@ page 673 "Job Queue Entry Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the date formula that is used to calculate the next time the recurring job queue entry will run.';
+                    ToolTip = 'Specifies the date formula that is used to calculate the next time the recurring job queue entry will run. If you use a date formula, all other recurrence settings are cleared.';
                 }
                 field("Starting Time"; "Starting Time")
                 {
@@ -181,13 +181,13 @@ page 673 "Job Queue Entry Card"
                     ApplicationArea = Basic, Suite;
                     Editable = "Recurring Job" = TRUE;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the minimum number of minutes that are to elapse between runs of a job queue entry. This field only has meaning if the job queue entry is set to be a recurring job.';
+                    ToolTip = 'Specifies the minimum number of minutes that are to elapse between runs of a job queue entry. This field only has meaning if the job queue entry is set to be a recurring job. If you use a no. of minutes between runs, the date formula setting is cleared.';
                 }
                 field("Inactivity Timeout Period"; "Inactivity Timeout Period")
                 {
                     ApplicationArea = Basic, Suite;
-                    MinValue = 0;
-                    ToolTip = 'Specifies how many minutes can pass before a recurring job that has the status On Hold is automatically restarted.';
+                    MinValue = 5;
+                    ToolTip = 'Specifies the number of minutes that pass before a recurring job that has the status On Hold With Inactivity Timeout is automatically restated. The value cannot be less than five minutes.';
                 }
                 label(Control33)
                 {

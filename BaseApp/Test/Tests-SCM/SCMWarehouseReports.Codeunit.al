@@ -1533,7 +1533,7 @@ codeunit 137305 "SCM Warehouse Reports"
         CreateAndPrintWhsePickFromShipment(SalesHeader);
 
         // [THEN] The printing is maintained by "Warehouse Document-Print" codeunit that takes a report set up in Report Selection for Usage = Pick.
-        Assert.IsTrue(LibraryReportSelection.GetEventHandled(), '');
+        Assert.AreEqual('HandleOnBeforePrintPickHeader', LibraryReportSelection.GetEventHandledName(), '');
 
         UnbindSubscription(LibraryReportSelection);
         LibraryVariableStorage.AssertEmpty();
@@ -1586,7 +1586,141 @@ codeunit 137305 "SCM Warehouse Reports"
           Location.Code, '', 0, 0, 0, false, false, false, false, false, false, true);
 
         // [THEN] The printing is maintained by "Warehouse Document-Print" codeunit that takes a report set up in Report Selection for Usage = Pick.
-        Assert.IsTrue(LibraryReportSelection.GetEventHandled(), '');
+        Assert.AreEqual('HandleOnBeforePrintPickHeader', LibraryReportSelection.GetEventHandledName(), '');
+
+        UnbindSubscription(LibraryReportSelection);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UsingReportSelectionForPrintingPickFromWhseSourceCreateDoc()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        Bin: Record Bin;
+        WhseInternalPickHeader: Record "Whse. Internal Pick Header";
+        WhseInternalPickLine: Record "Whse. Internal Pick Line";
+        WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
+        LibraryReportSelection: Codeunit "Library - Report Selection";
+    begin
+        // [FEATURE] [Report Selection] [Pick]
+        // [SCENARIO 358365] A report from Report Selection is used when you choose to print pick being created from warehouse internal pick.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
+
+        // [GIVEN] Post inventory to bin "B2" at location with directed put-away and pick.
+        Bin.Get(Location.Code, Location."Cross-Dock Bin Code");
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, Item."No.", LibraryRandom.RandIntInRange(50, 100), false);
+
+        // [GIVEN] Create internal pick from bin "B2" to "B1".
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+        LibraryWarehouse.CreateWhseInternalPickHeader(WhseInternalPickHeader, Location.Code);
+        WhseInternalPickHeader.Validate("To Bin Code", Bin.Code);
+        WhseInternalPickHeader.Modify(true);
+        LibraryWarehouse.CreateWhseInternalPickLine(
+          WhseInternalPickHeader, WhseInternalPickLine, Item."No.", LibraryRandom.RandInt(50));
+        LibraryWarehouse.ReleaseWarehouseInternalPick(WhseInternalPickHeader);
+
+        // [WHEN] Create pick from the internal pick with "Print document" = TRUE.
+        BindSubscription(LibraryReportSelection);
+        WhseSourceCreateDocument.SetWhseInternalPickLine(WhseInternalPickLine, '');
+        WhseSourceCreateDocument.SetHideValidationDialog(true);
+        WhseSourceCreateDocument.Initialize('', 0, true, false, false);
+        WhseSourceCreateDocument.UseRequestPage(false);
+        WhseSourceCreateDocument.Run();
+
+        // [THEN] The printing is maintained by "Warehouse Document-Print" codeunit that takes a report set up in Report Selection for Usage = Pick.
+        Assert.AreEqual('HandleOnBeforePrintPickHeader', LibraryReportSelection.GetEventHandledName(), '');
+
+        UnbindSubscription(LibraryReportSelection);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UsingReportSelectionForPrintingPutawayFromWhseSourceCreateDoc()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Bin: Record Bin;
+        WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header";
+        WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
+        WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
+        LibraryReportSelection: Codeunit "Library - Report Selection";
+    begin
+        // [FEATURE] [Report Selection] [Put-away]
+        // [SCENARIO 358365] A report from Report Selection is used when you choose to print movement being created from movement worksheet.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
+
+        // [GIVEN] Post inventory to bin "B2" at location with directed put-away and pick.
+        Bin.Get(Location.Code, Location."Cross-Dock Bin Code");
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, Item."No.", LibraryRandom.RandIntInRange(50, 100), false);
+
+        // [GIVEN] Create internal put-away from bin "B2" to "B1".
+        LibraryWarehouse.CreateWhseInternalPutawayHdr(WhseInternalPutAwayHeader, Location.Code);
+        WhseInternalPutAwayHeader.Validate("From Bin Code", Bin.Code);
+        WhseInternalPutAwayHeader.Modify(true);
+        LibraryWarehouse.CreateWhseInternalPutawayLine(
+          WhseInternalPutAwayHeader, WhseInternalPutAwayLine, Item."No.", LibraryRandom.RandInt(50));
+        LibraryWarehouse.ReleaseWarehouseInternalPutAway(WhseInternalPutAwayHeader);
+
+        // [WHEN] Create put-away from the internal put-away with "Print document" = TRUE.
+        BindSubscription(LibraryReportSelection);
+        WhseSourceCreateDocument.SetWhseInternalPutAway(WhseInternalPutAwayHeader);
+        WhseSourceCreateDocument.SetHideValidationDialog(true);
+        WhseSourceCreateDocument.Initialize('', 0, true, false, false);
+        WhseSourceCreateDocument.UseRequestPage(false);
+        WhseSourceCreateDocument.Run();
+
+        // [THEN] The printing is maintained by "Warehouse Document-Print" codeunit that takes a report set up in Report Selection for Usage = Put-away.
+        Assert.AreEqual('HandleOnBeforePrintPutAwayHeader', LibraryReportSelection.GetEventHandledName(), '');
+
+        UnbindSubscription(LibraryReportSelection);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UsingReportSelectionForPrintingMovementFromWhseSourceCreateDoc()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        BinFrom: Record Bin;
+        BinTo: Record Bin;
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        LibraryReportSelection: Codeunit "Library - Report Selection";
+    begin
+        // [FEATURE] [Report Selection] [Movement]
+        // [SCENARIO 358365] A report from Report Selection is used when you choose to print put-away being created from warehouse internal put-away.
+        Initialize;
+
+        LibraryInventory.CreateItem(Item);
+        CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
+
+        // [GIVEN] Post inventory to bin "B2" at location with directed put-away and pick.
+        BinFrom.Get(Location.Code, Location."Cross-Dock Bin Code");
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(BinFrom, Item."No.", LibraryRandom.RandIntInRange(50, 100), false);
+
+        // [GIVEN] Create movement worksheet line from bin "B2" to "B1".
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(BinTo, Location.Code, Zone.Code, 1);
+        LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, BinFrom, BinTo, Item."No.", '', LibraryRandom.RandInt(50));
+
+        // [WHEN] Create movement from movement worksheet with "Print document" = TRUE.
+        BindSubscription(LibraryReportSelection);
+        LibraryWarehouse.WhseSourceCreateDocument(WhseWorksheetLine, 0, true, false, false);
+
+        // [THEN] The printing is maintained by "Warehouse Document-Print" codeunit that takes a report set up in Report Selection for Usage = Movement.
+        Assert.AreEqual('HandleOnBeforePrintMovementHeader', LibraryReportSelection.GetEventHandledName(), '');
 
         UnbindSubscription(LibraryReportSelection);
     end;

@@ -402,7 +402,7 @@ codeunit 136102 "Service Contracts"
 
         // 1. Setup: Create Service Contract Template.
         Initialize;
-        CreateServiceContractTemplate(ServiceContractTemplate);
+        CreatePrepaidServiceContractTemplate(ServiceContractTemplate);
 
         // 2. Exercise: Delete newly created Service Contract Template.
         ServiceContractTemplate.Delete(true);
@@ -428,7 +428,7 @@ codeunit 136102 "Service Contracts"
 
         // 1. Setup: Create New Service Contract Template.
         Initialize;
-        CreateServiceContractTemplate(ServiceContractTemplate);
+        CreatePrepaidServiceContractTemplate(ServiceContractTemplate);
 
         // 2. Exercise: Create and Modify Service Contract Header and Service Contract Line.
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
@@ -3406,10 +3406,14 @@ codeunit 136102 "Service Contracts"
         LibraryERMCountryData.UpdateAccountsInServiceContractAccountGroups;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        isInitialized := true;
+        InitializeServiceContractTemplates();
+
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+
+        isInitialized := true;
         Commit();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Contracts");
     end;
 
@@ -3417,6 +3421,18 @@ codeunit 136102 "Service Contracts"
     begin
         LibraryVariableStorage.Clear;
         Clear(SignServContractDoc);
+    end;
+
+    local procedure InitializeServiceContractTemplates()
+    var
+        ServiceContractTemplate: Record "Service Contract Template";
+    begin
+        ServiceContractTemplate.DeleteAll();
+        CreateServiceContractTemplate(
+          ServiceContractTemplate, '<3M>', ServiceContractTemplate."Invoice Period"::Month, true, true, false, true);
+        Clear(ServiceContractTemplate);
+        CreateServiceContractTemplate(
+          ServiceContractTemplate, '<3M>', ServiceContractTemplate."Invoice Period"::Month, true, true, true, false);
     end;
 
     local procedure CopyDefaultHoursFromSetup(ServiceContractNo: Code[20])
@@ -3695,7 +3711,22 @@ codeunit 136102 "Service Contracts"
         CreateContractInvoices.Run;
     end;
 
-    local procedure CreateServiceContractTemplate(var ServiceContractTemplate: Record "Service Contract Template")
+    local procedure CreateServiceContractTemplate(var ServiceContractTemplate: Record "Service Contract Template"; ServicePeriodTxt: Text; InvoicePeriod: Option; CombineInvoices: Boolean; ContractLinesOnInvoice: Boolean; InvoiceAfterService: Boolean; IsPrepaid: Boolean)
+    var
+        DefaultServicePeriod: DateFormula;
+    begin
+        Evaluate(DefaultServicePeriod, ServicePeriodTxt);
+
+        LibraryService.CreateServiceContractTemplate(ServiceContractTemplate, DefaultServicePeriod);
+        ServiceContractTemplate.Validate("Invoice Period", InvoicePeriod);
+        ServiceContractTemplate.Validate(Prepaid, IsPrepaid);
+        ServiceContractTemplate.Validate("Combine Invoices", CombineInvoices);
+        ServiceContractTemplate.Validate("Contract Lines on Invoice", ContractLinesOnInvoice);
+        ServiceContractTemplate.Validate("Invoice after Service", InvoiceAfterService);
+        ServiceContractTemplate.Modify(true);
+    end;
+
+    local procedure CreatePrepaidServiceContractTemplate(var ServiceContractTemplate: Record "Service Contract Template")
     var
         DefaultServicePeriod: DateFormula;
     begin

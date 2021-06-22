@@ -21,7 +21,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         isInitialized: Boolean;
         UnknownErr: Label 'Unknown error.';
         AllowPostingToMainAssetsMsg: Label '%1 %2 = %3 is a %4. %5 must be %6 in %7.', Comment = '.';
-        DisposalMustNotBePositiveMsg: Label 'Disposal must not be positive on %1 for %2 %3 = %4 in %5 = %6.', Comment = '.';
+        DisposalMustNotBePositiveMsg: Label 'Disposal must not be negative on %1 for %2 %3 = %4 in %5 = %6.', Comment = '.';
         AmountErr: Label '%1 must be %2 in %3.', Comment = '.';
         ReverseErr: Label 'You can only reverse entries that were posted from a journal.';
         EndingDateErr: Label 'You must specify an Ending Date that is later than the Starting Date.';
@@ -625,7 +625,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
 
         // 3. Verify: Verify that the Amount is Posted in FA Ledger Entry and G/L Entry correctly.
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal");
-        VerifyAmountInFALedgerEntry(FALedgerEntry, FixedAsset."No.", GenJournalLine.Amount);
+        VerifyAmountInFALedgerEntry(FALedgerEntry, FixedAsset."No.", -GenJournalLine.Amount);
         VerifyAmountInGLEntry(FixedAsset."No.", GenJournalLine.Amount);
     end;
 

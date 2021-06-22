@@ -115,7 +115,7 @@ page 7208 "CDS Full Synch. Review"
         GetBCPageName();
     end;
 
-    trigger OnOpenPage()
+    trigger OnInit()
     begin
         Codeunit.Run(Codeunit::"CRM Integration Management");
     end;

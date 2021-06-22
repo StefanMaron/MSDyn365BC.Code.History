@@ -35,8 +35,7 @@ table 305 "Issued Fin. Charge Memo Line"
                 if Type <> Type::"Customer Ledger Entry" then
                     exit;
                 IssuedFinChrgMemoHeader.Get("Finance Charge Memo No.");
-                CustLedgEntry.SetCurrentKey("Customer No.");
-                CustLedgEntry.SetRange("Customer No.", IssuedFinChrgMemoHeader."Customer No.");
+                SetCustLedgEntryFilter(CustLedgEntry, IssuedFinChrgMemoHeader, FieldNo("Entry No."));
                 if CustLedgEntry.Get("Entry No.") then;
                 PAGE.RunModal(0, CustLedgEntry);
             end;
@@ -66,8 +65,7 @@ table 305 "Issued Fin. Charge Memo Line"
                 if Type <> Type::"Customer Ledger Entry" then
                     exit;
                 IssuedFinChrgMemoHeader.Get("Finance Charge Memo No.");
-                CustLedgEntry.SetCurrentKey("Customer No.");
-                CustLedgEntry.SetRange("Customer No.", IssuedFinChrgMemoHeader."Customer No.");
+                SetCustLedgEntryFilter(CustLedgEntry, IssuedFinChrgMemoHeader, FieldNo("Document No."));
                 if CustLedgEntry.Get("Entry No.") then;
                 PAGE.RunModal(0, CustLedgEntry);
             end;
@@ -199,6 +197,19 @@ table 305 "Issued Fin. Charge Memo Line"
             exit(IssuedFinChrgMemoHeader."Currency Code");
 
         exit('');
+    end;
+
+    local procedure SetCustLedgEntryFilter(var CustLedgEntry: Record "Cust. Ledger Entry"; IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header"; CalledByFieldNo: Integer)
+    begin
+        CustLedgEntry.SetCurrentKey("Customer No.");
+        CustLedgEntry.SetRange("Customer No.", IssuedFinChrgMemoHeader."Customer No.");
+
+        OnAfterSetCustLedgEntryFilter(CustLedgEntry, Rec, CalledByFieldNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCustLedgEntryFilter(var CustLedgEntry: Record "Cust. Ledger Entry"; var IssuedFinChrgMemoLine: Record "Issued Fin. Charge Memo Line"; CalledByFieldNo: Integer)
+    begin
     end;
 }
 

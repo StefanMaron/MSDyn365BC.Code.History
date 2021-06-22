@@ -1683,6 +1683,8 @@ table 5901 "Service Item Line"
         WarrantyParts := (Date >= "Warranty Starting Date (Parts)") and (Date <= "Warranty Ending Date (Parts)");
         WarrantyLabor := (Date >= "Warranty Starting Date (Labor)") and (Date <= "Warranty Ending Date (Labor)");
 
+        OnCheckWarrantyOnAfterSetWarrantyPartsLabor(Rec, Date, WarrantyParts, WarrantyLabor);
+
         ServLine.Reset();
         ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
         ServLine.SetRange("Document Type", "Document Type");
@@ -2486,6 +2488,11 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckWarrantyOnAfterSetWarranty(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckWarrantyOnAfterSetWarrantyPartsLabor(var ServiceItemLine: Record "Service Item Line"; Date: Date; var WarrantyParts: Boolean; var WarrantyLabor: Boolean)
     begin
     end;
 

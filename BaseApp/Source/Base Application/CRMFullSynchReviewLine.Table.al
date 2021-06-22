@@ -126,7 +126,9 @@ table 5373 "CRM Full Synch. Review Line"
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
-            IntegrationTableMapping.SetFilter(Name, '<>SALESPEOPLE');
+            IntegrationTableMapping.SetFilter(Name, '<>SALESPEOPLE&<>SALESORDER-ORDER')
+        else
+            IntegrationTableMapping.SetFilter(Name, '<>SALESORDER-ORDER');
         if IntegrationTableMapping.FindSet() then
             repeat
                 InsertOrModifyCRMFullSynchReviewLines(IntegrationTableMapping, SkipNotFullSyncReady)

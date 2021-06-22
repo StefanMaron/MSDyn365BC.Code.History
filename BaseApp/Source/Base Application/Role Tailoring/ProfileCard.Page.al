@@ -121,10 +121,16 @@ page 9170 "Profile Card"
                             ConfPersonalizationMgt.ValidateDisableProfile(Rec);
                     end;
                 }
+                field(PromotedField; Promoted)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show in Role Explorer';
+                    ToolTip = 'Specifies whether the display name and available business features of this profile are shown in the Role Explorer. The profile must also be enabled.';
+                }
             }
             group(ProfileSettings)
             {
-                Caption = 'Profile Settings';
+                Caption = 'Additional Settings';
                 Editable = IsProfileEditable;
 
                 field(DefaultRoleCenterField; "Default Role Center")
@@ -148,12 +154,6 @@ page 9170 "Profile Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Disable personalization';
                     ToolTip = 'Specifies whether personalization is disabled for users of the profile.';
-                }
-                field(PromotedField; Promoted)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Show in Role Explorer';
-                    ToolTip = 'Specifies whether the display name and available business features of this profile are shown in the Role Explorer. The profile must also be enabled.';
                 }
             }
         }

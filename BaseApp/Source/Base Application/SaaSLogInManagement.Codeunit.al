@@ -18,25 +18,48 @@ codeunit 50 "SaaS Log In Management"
         Company: Record Company;
         TenantLicenseState: Codeunit "Tenant License State";
         EnvironmentInfo: Codeunit "Environment Information";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
+        ClientTypeManagement: Codeunit "Client Type Management";
+        SuppressApprovalForTrial: Boolean;
     begin
+        if GetCurrentModuleExecutionContext() = ExecutionContext::Upgrade then
+            exit(false);
+
+        if not EnvironmentInfo.IsSaaS() then
+            exit(false);
+
+        if EnvironmentInfo.IsSandbox() then
+            exit(false);
+
+        if not TenantLicenseState.IsEvaluationMode() then
+            exit;
+
         if not Company.Get(NewCompanyName) then
-            exit(false);
-
-        if EnvInfoProxy.IsInvoicing then
-            exit(false);
-
-        if not EnvironmentInfo.IsSaaS then
-            exit(false);
-
-        if EnvironmentInfo.IsSandbox then
             exit(false);
 
         if Company."Evaluation Company" then
             exit(false);
 
-        if not TenantLicenseState.IsEvaluationMode() then
+        if not GuiAllowed then begin
+            if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::OData, CLIENTTYPE::ODataV4] then begin
+                SuppressApprovalForTrial := false;
+                OnSuppressApprovalForTrial(SuppressApprovalForTrial);
+                if not SuppressApprovalForTrial then
+                    Error(RequireUserApprovalForTrialErr, Company.Name);
+            end;
             exit;
+        end;
+
+        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then begin
+            Message(CanNotOpenCompanyFromDevicelMsg, Company.Name);
+            ChangeToEvaluationCompany;
+            // Just to be sure that we do not save the Trial License State on the server side
+            Error('');
+        end;
+
+        if not Company.WritePermission then
+            Error(NoPermissionToEnterTrialErr, Company.Name);
+
+        Commit();
 
         exit(true);
     end;
@@ -65,36 +88,11 @@ codeunit 50 "SaaS Log In Management"
 
     local procedure ShowTermsAndConditionsOnOpenCompany()
     var
-        Company: Record Company;
         ThirtyDayTrialDialog: Page "Thirty Day Trial Dialog";
-        ClientTypeManagement: Codeunit "Client Type Management";
         RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
-        SuppressApprovalForTrial: Boolean;
     begin
-        if not (Company.Get(CompanyName) and ShouldShowTermsAndConditions(CompanyName)) then
+        if not ShouldShowTermsAndConditions(CompanyName) then
             exit;
-
-        if not GuiAllowed then begin
-            if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::OData, CLIENTTYPE::ODataV4] then begin
-                SuppressApprovalForTrial := false;
-                OnSuppressApprovalForTrial(SuppressApprovalForTrial);
-                if not SuppressApprovalForTrial then
-                    Error(RequireUserApprovalForTrialErr, Company.Name);
-            end;
-            exit;
-        end;
-
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then begin
-            Message(CanNotOpenCompanyFromDevicelMsg, Company.Name);
-            ChangeToEvaluationCompany;
-            // Just to be sure that we do not save the Trial License State on the server side
-            Error('');
-        end;
-
-        if not Company.WritePermission then
-            Error(NoPermissionToEnterTrialErr, Company.Name);
-
-        Commit();
 
         ThirtyDayTrialDialog.RunModal;
 

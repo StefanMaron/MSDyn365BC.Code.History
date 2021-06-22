@@ -12,6 +12,7 @@ codeunit 6502 "Late Binding Management"
         TempReservEntryDelete: Record "Reservation Entry" temporary;
         TempReservEntryModify: Record "Reservation Entry" temporary;
         TempReservEntryInsert: Record "Reservation Entry" temporary;
+        TempReservEntryOrderTrackingSurplus: Record "Reservation Entry" temporary;
         ReservMgt: Codeunit "Reservation Management";
         LastEntryNo: Integer;
         Text001: Label 'Not enough free supply available for reallocation.';
@@ -108,7 +109,7 @@ codeunit 6502 "Late Binding Management"
     local procedure PrepareTempDataSet(var TempTrackingSpecification: Record "Tracking Specification" temporary; QtyToPrepare: Decimal): Boolean
     var
         ItemLedgEntry: Record "Item Ledger Entry";
-        ReservEntry2: Record "Reservation Entry";
+        TempReservEntry: Record "Reservation Entry" temporary;
     begin
         if QtyToPrepare <= 0 then
             exit(true);
@@ -122,8 +123,6 @@ codeunit 6502 "Late Binding Management"
         ItemLedgEntry.SetRange(Positive, true);
         ItemLedgEntry.SetRange(Open, true);
 
-        ReservEntry2.SetSourceFilter(DATABASE::"Item Ledger Entry", 0, '', -1, true);
-        ReservEntry2.SetRange("Untracked Surplus", false);
         if ItemLedgEntry.FindSet then
             repeat
                 TempTrackingSpecification.SetTrackingFilterFromItemLedgEntry(ItemLedgEntry);
@@ -132,21 +131,24 @@ codeunit 6502 "Late Binding Management"
                     // GET record
                     QtyToPrepare -= ItemLedgEntry."Remaining Quantity";
                     TempSupplyReservEntry.Get(-ItemLedgEntry."Entry No.", true);
-                    ReservEntry2.SetRange("Source Ref. No.", ItemLedgEntry."Entry No.");
-                    if ReservEntry2.FindSet then
+
+                    GetReservEntriesForItemLedgEntry(TempReservEntry, ItemLedgEntry."Entry No.");
+                    if TempReservEntry.FindSet() then
                         repeat
-                            TempSupplyReservEntry."Quantity (Base)" -= ReservEntry2."Quantity (Base)";
+                            TempSupplyReservEntry."Quantity (Base)" -= TempReservEntry."Quantity (Base)";
                             TempSupplyReservEntry.Modify();
 
-                            if ReservEntry2."Reservation Status" = ReservEntry2."Reservation Status"::Surplus then begin
-                                TempSupplyReservEntry := ReservEntry2;
+                            if TempReservEntry."Reservation Status" = TempReservEntry."Reservation Status"::Surplus then begin
+                                TempSupplyReservEntry := TempReservEntry;
                                 TempSupplyReservEntry.Insert();
                             end else
-                                QtyToPrepare += ReservEntry2."Quantity (Base)";
-                        until ReservEntry2.Next = 0;
+                                QtyToPrepare += TempReservEntry."Quantity (Base)";
+                        until TempReservEntry.Next() = 0;
                     if TempSupplyReservEntry."Quantity (Base)" = 0 then
                         TempSupplyReservEntry.Delete
                 end;
+
+                DeleteOrderTrackingSurplusEntryForItemLedgEntry(ItemLedgEntry."Entry No.");
             until (ItemLedgEntry.Next = 0) or (QtyToPrepare <= 0);
 
         TempTrackingSpecification.Reset();
@@ -617,6 +619,7 @@ codeunit 6502 "Late Binding Management"
             exit;
 
         ReservMgt.SetCalcReservEntry(TrackingSpecification, ReservEntry);
+        ReservMgt.SetOrderTrackingSurplusEntries(TempReservEntryOrderTrackingSurplus);
 
         if ReservEntry."Quantity (Base)" < 0 then
             AvailabilityDate := ReservEntry."Shipment Date"
@@ -624,6 +627,44 @@ codeunit 6502 "Late Binding Management"
             AvailabilityDate := ReservEntry."Expected Receipt Date";
 
         ReservMgt.AutoReserveOneLine(1, QtyToReserve, QtyToReserveBase, '', AvailabilityDate);
+    end;
+
+    procedure SetOrderTrackingSurplusEntries(var TempReservEntry: Record "Reservation Entry" temporary)
+    begin
+        TempReservEntryOrderTrackingSurplus.DeleteAll();
+
+        if TempReservEntry.FindSet() then
+            repeat
+                TempReservEntryOrderTrackingSurplus := TempReservEntry;
+                TempReservEntryOrderTrackingSurplus.Insert();
+            until TempReservEntry.Next() = 0;
+    end;
+
+    local procedure GetReservEntriesForItemLedgEntry(var TempReservationEntry: Record "Reservation Entry" temporary; ItemLedgEntryNo: Integer)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetSourceFilter(DATABASE::"Item Ledger Entry", 0, '', ItemLedgEntryNo, true);
+        ReservationEntry.SetRange("Untracked Surplus", false);
+        if ReservationEntry.FindSet() then
+            repeat
+                if not TempReservEntryOrderTrackingSurplus.Get(ReservationEntry."Entry No.", ReservationEntry.Positive)
+                then begin
+                    TempReservationEntry := ReservationEntry;
+                    TempReservationEntry.Insert();
+                end;
+            until ReservationEntry.Next() = 0;
+    end;
+
+    local procedure DeleteOrderTrackingSurplusEntryForItemLedgEntry(ItemLedgEntryNo: Integer)
+    begin
+        TempReservEntryOrderTrackingSurplus.Reset();
+        TempReservEntryOrderTrackingSurplus.SetSourceFilter(DATABASE::"Item Ledger Entry", 0, '', ItemLedgEntryNo, true);
+        if TempReservEntryOrderTrackingSurplus.FindSet() then
+            repeat
+                TempReservEntryDelete := TempReservEntryOrderTrackingSurplus;
+                TempReservEntryDelete.Insert();
+            until TempReservEntryOrderTrackingSurplus.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

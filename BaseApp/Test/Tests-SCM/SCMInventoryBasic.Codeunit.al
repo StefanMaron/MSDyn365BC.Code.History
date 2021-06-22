@@ -1248,29 +1248,6 @@ codeunit 137280 "SCM Inventory Basic"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SalesUOMForBlankItemIsTakenFromUnitOfMeasureTable()
-    var
-        Item: Record Item;
-        UnitOfMeasure: Record "Unit of Measure";
-    begin
-        // [FEATURE] [Sales] [Unit of Measure]
-        // [SCENARIO] "Sales Unit of Measure" of Item with blank "No." is taken from Unit of Measure table
-
-        // [GIVEN] Item with blank "No."
-        Item.Init();
-
-        // [GIVEN] "Unit of Measure" - "X"
-        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-
-        // [WHEN] Set "Sales Unit of Measure" on Item to "X"
-        Item.Validate("Sales Unit of Measure", UnitOfMeasure.Code);
-
-        // [THEN] "Sales Unit of Measure" is "X"
-        Assert.AreEqual(UnitOfMeasure.Code, Item."Sales Unit of Measure", StrSubstNo(UOMErr, Item.FieldName("Sales Unit of Measure")));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure SalesUOMForNotBlankItemIsTakenFromItemUnitOfMeasureTable()
     var
         Item: Record Item;
@@ -1294,29 +1271,6 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [THEN] "Sales Unit of Measure" is "X"
         Assert.AreEqual(UnitOfMeasure.Code, Item."Sales Unit of Measure", StrSubstNo(UOMErr, Item.FieldName("Sales Unit of Measure")));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchUOMForBlankItemIsTakenFromUnitOfMeasureTable()
-    var
-        Item: Record Item;
-        UnitOfMeasure: Record "Unit of Measure";
-    begin
-        // [FEATURE] [Purchase] [Unit of Measure]
-        // [SCENARIO] "Purch. Unit of Measure" of Item with blank "No." is taken from Unit of Measure table
-
-        // [GIVEN] Item with blank "No."
-        Item.Init();
-
-        // [GIVEN] "Unit of Measure" - "X"
-        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-
-        // [WHEN] Set "Purch. Unit of Measure" on Item to "X"
-        Item.Validate("Purch. Unit of Measure", UnitOfMeasure.Code);
-
-        // [THEN] "Purch. Unit of Measure" is "X"
-        Assert.AreEqual(UnitOfMeasure.Code, Item."Purch. Unit of Measure", StrSubstNo(UOMErr, Item.FieldName("Purch. Unit of Measure")));
     end;
 
     [Test]

@@ -673,6 +673,7 @@ report 1305 "Standard Sales - Order Conf."
             }
             dataitem(VATClauseLine; "VAT Amount Line")
             {
+                DataItemTableView = SORTING("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", Positive);
                 UseTemporary = true;
                 column(VATIdentifier_VATClauseLine; "VAT Identifier")
                 {
