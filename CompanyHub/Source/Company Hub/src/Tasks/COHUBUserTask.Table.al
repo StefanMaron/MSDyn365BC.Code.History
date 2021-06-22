@@ -98,9 +98,9 @@ table 1154 "COHUB User Task"
 
     procedure GetUserTaskCounts(EnviromentNumber: Code[20]; CompanyName: Text[50]; var TaskCount: Text[5]; var OverDueTaskCount: Text[5])
     begin
-        SetFilter("Enviroment No.", EnviromentNumber);
-        SetFilter("Company Name", CompanyName);
-        SetFilter("Assigned To", UserSecurityId());
+        SetRange("Enviroment No.", EnviromentNumber);
+        SetRange("Company Name", CompanyName);
+        SetRange("Assigned To", UserSecurityId());
         SetFilter("Percent Complete", '<%1', 100);
         TaskCount := CopyStr(Format(Count()), 1, MaxStrLen(TaskCount));
 

@@ -2135,6 +2135,68 @@ codeunit 137077 "SCM Supply Planning -IV"
             Item, InventoryQty - SalesLine.Quantity);
     end;
 
+    [Scope('OnPrem')]
+    procedure PlanningComponentIsNotReservedFromReqLineOnDifferentLocation()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+        PlngComponentReserve: Codeunit "Plng. Component-Reserve";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Reservation] [Planning Component] [Requisition Line] [Location]
+        // [SCENARIO 375636] Planning component cannot be reserved from requisition line at different location.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Set up "Components at Location" = "Blue" on the Manufacturing Setup.
+        UpdManufSetupComponentsAtLocation(LocationBlue.Code);
+
+        // [GIVEN] Component item "C".
+        CreateOrderItem(CompItem);
+
+        // [GIVEN] Production BOM that includes component "C".
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, CompItem."No.");
+
+        // [GIVEN] Manufacturing item "P", select just created production BOM.
+        CreateOrderItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and refresh planning line for "P".
+        CreateRequisitionLine(RequisitionLine, ProdItem."No.", ReqWkshTemplate.Type::Planning);
+        RequisitionLine.Validate("Starting Date", WorkDate);
+        RequisitionLine.Validate(Quantity, Qty);
+        RequisitionLine.Modify(true);
+        LibraryPlanning.RefreshPlanningLine(RequisitionLine, 0, false, true);
+
+        // [GIVEN] The planning component "C" is at location "Blue".
+        PlanningComponent.SetRange("Item No.", CompItem."No.");
+        PlanningComponent.FindFirst();
+        PlanningComponent.TestField("Location Code", LocationBlue.Code);
+
+        // [GIVEN] Create a new planning line on location "Red" to supply component "C".
+        LibraryPlanning.CreateRequisitionLine(
+          RequisitionLine, RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name");
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", CompItem."No.");
+        RequisitionLine.Validate("Location Code", LocationRed.Code);
+        RequisitionLine.Validate(Quantity, Qty);
+        RequisitionLine.Modify(true);
+
+        // [WHEN] Reserve the planning component from the planning line.
+        PlngComponentReserve.BindToRequisition(PlanningComponent, RequisitionLine, Qty, Qty);
+
+        // [THEN] The planning component is not reserved.
+        // [THEN] No error is thrown.
+        PlanningComponent.CalcFields("Reserved Quantity");
+        PlanningComponent.TestField("Reserved Quantity", 0);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";

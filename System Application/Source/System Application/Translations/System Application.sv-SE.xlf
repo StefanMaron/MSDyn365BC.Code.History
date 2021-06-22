@@ -3647,6 +3647,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Activities - NamedType ParsePastDateErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3158499545 - NamedType 3716788505" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not parse parameter Admin.</source>
+          <target state="translated">Det gick inte att parsa parametern Admin.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Activities - NamedType ParseAdminErr</note>
+        </trans-unit>
         <trans-unit id="Page 3158499545 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Status</source>
           <target state="translated">Status för senast skickade e-postmeddelande</target>
@@ -4662,16 +4668,34 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NoteGroup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 1673237505 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>It can take up to 72 hours for a change in Office 365 to become available to Business Central. If a change within that period does not appear in Business Central after you update users, try again later.</source>
-          <target state="translated">Det kan ta upp till 72 timmar innan en ändring i Office 365 blir tillgänglig för Business Central. Försök igen senare om ändringen inte visas i Business Central inom den tidsperioden.</target>
+          <source>It can take up to 72 hours for a change in Office 365 to become available to Business Central.</source>
+          <target state="translated">Det kan ta upp till 72 timmar innan en ändring i Office 365 blir tillgänglig för Business Central.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NoteGroup - Property InstructionalText</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - Control 4116649837 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Available Updates</source>
+        <trans-unit id="Page 523480673 - Control 1154908253 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No updates</source>
+          <target state="translated">Inga uppdateringar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control No Updates - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 1154908253 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There are no updates from Office 365. You can exit this guide.</source>
+          <target state="translated">Det finns inga uppdateringar från Office 365. Du kan avsluta den här guiden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control No Updates - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 2163221867 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>License updates to confirm</source>
+          <target state="translated">Licensuppdateringar att bekräfta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Total Updates To Confirm - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Control 4161565824 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Available updates</source>
           <target state="translated">Tillgängliga uppdateringar</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control AvailableUpdates - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Total Updates Ready To Apply - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 3491181912 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Confirm permission changes</source>
@@ -4680,8 +4704,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ConfirmPermissionChanges - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 3491181912 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Apply the permissions from the new license or keep the current permissions.</source>
-          <target state="translated">Tillämpa behörigheterna från den nya licensen eller behåll nuvarande behörigheter.</target>
+          <source>For each update with Select in the Action column, you must either choose Keep current to disregard the updated permissions, or Append to update the user permissions.</source>
+          <target state="translated">För varje uppdatering med Välj i kolumnen Åtgärd måste du antingen välja Behåll aktuell för att bortse från de uppdaterade behörigheterna, eller Lägg till om du vill uppdatera användarbehörigheterna.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ConfirmPermissionChanges - Property InstructionalText</note>
         </trans-unit>
@@ -4734,8 +4758,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ListOfChanges - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 3616446514 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>These changes will be applied when you choose Finish.</source>
-          <target state="translated">Ändringarna kommer att tillämpas när du väljer Slutför.</target>
+          <source>To apply the changes, choose Finish.</source>
+          <target state="translated">Välj Slutför om du vill tillämpa ändringarna.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ListOfChanges - Property InstructionalText</note>
         </trans-unit>
@@ -4811,6 +4835,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action Back - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 523480673 - Action 119972692 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Nästa</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action DoneSelectingPermissions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - Action 119972692 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Proceed to applying the user updates</source>
+          <target state="translated">Fortsätt koppla användaruppdateringarna</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action DoneSelectingPermissions - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 523480673 - Action 1235620153 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Next</source>
           <target state="translated">Nästa</target>
@@ -4824,8 +4860,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action Next - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Action 3283000508 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Manage permission updates</source>
-          <target state="translated">Hantera behörighetsuppdateringar</target>
+          <source>Next</source>
+          <target state="translated">Nästa</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action ManagePermissionUpdates - Property Caption</note>
         </trans-unit>
@@ -4883,21 +4919,21 @@
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates applied; %2 = total count of updates</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType NumberOfUpdatesAppliedTxt</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - NamedType 2315222883" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Number of available updates: %1.</source>
-          <target state="translated">Antal tillgängliga uppdateringar: %1</target>
-          <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to apply</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesAvailableTxt</note>
-        </trans-unit>
-        <trans-unit id="Page 523480673 - NamedType 2085817347" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Number of license updates for users who have customized permissions: %1. The default permissions from the new license will replace the custom permissions. You must either apply the new permissions now or keep the current permissions. To do that, choose Manage permission updates.</source>
-          <target state="translated">Antal licensuppdateringar för användare med anpassade behörigheter: %1. Standardbehörigheterna från den nya licensen ersätter de anpassade behörigheterna. Du måste antingen tillämpa de nya behörigheterna nu eller behålla de nuvarande behörigheterna. Om du vill göra detta väljer du Hantera behörighetsuppdateringar.</target>
+        <trans-unit id="Page 523480673 - NamedType 3177497220" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We found %1 license update for a user who has customized permissions. Before continuing, you must either keep the current permissions or add the permissions associated with the new license for the user.</source>
+          <target state="translated">Vi hittade %1 licensuppdatering för en användare som har anpassade behörigheter. Innan du fortsätter måste du antingen behålla den nuvarande behörigheten eller lägga till behörigheterna som hör till den nya licensen för användaren.</target>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to get confirmation on</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesToConfirmTxt</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesToConfirmSingularTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 523480673 - NamedType 3386275873" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We found %1 license updates for users who have customized permissions. Before continuing, you must either keep the current permissions or add the permissions associated with the new license for those users.</source>
+          <target state="translated">Vi hittade %1 licensuppdateringar för användare som har anpassade behörigheter. Innan du fortsätter måste du antingen behålla den nuvarande behörigheten eller lägga till behörigheterna som hör till den nya licensen för användarna.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to get confirmation on</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesToConfirmPluralTxt</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 2580697080" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Number of available changes: %1. These can be name, email address, preferred language, and user access changes. Choose View changes to see the list.</source>
-          <target state="translated">Antal tillgängliga ändringar: %1. Dessa kan vara namn, e-postadress, prioriterade språk och ändringar av användaråtkomsten. Välj Visa ändringar om du vill visa listan.</target>
+          <source>Number of updates ready to be applied: %1. These can be name, email address, preferred language, and user access changes. Choose View changes to see the list.</source>
+          <target state="translated">Antal uppdateringar som är klara att tillämpas: %1. Dessa kan vara namn, e-postadress, prioriterade språk och ändringar av användaråtkomsten. Välj Visa ändringar om du vill visa listan.</target>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates ready to apply</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesReadyToApplyTxt</note>
         </trans-unit>

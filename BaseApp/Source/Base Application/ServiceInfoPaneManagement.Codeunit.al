@@ -52,14 +52,12 @@ codeunit 5972 "Service Info-Pane Management"
 
     procedure CalcNoOfSalesPrices(var ServLine: Record "Service Line"): Integer
     begin
-        if GetItem(ServLine) then
-            exit(ServLine.CountPrice(true));
+        exit(ServLine.CountPrice(true));
     end;
 
     procedure CalcNoOfSalesLineDisc(var ServLine: Record "Service Line"): Integer
     begin
-        if GetItem(ServLine) then
-            exit(ServLine.CountDiscount(true));
+        exit(ServLine.CountDiscount(true));
     end;
 
     local procedure GetItem(var ServLine: Record "Service Line"): Boolean

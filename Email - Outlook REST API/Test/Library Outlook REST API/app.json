@@ -2,7 +2,7 @@
     "id":  "b5034210-b258-4983-8858-f5cbfd54cb35",
     "name":  "Library Outlook REST API",
     "publisher":  "Microsoft",
-    "version":  "17.1.18256.18474",
+    "version":  "17.1.18256.18792",
     "brief":  "Test library for the Outlook REST API.",
     "description":  "This extension provides mock functionality for creating email messages that can be used to test email capabilities in other extensions.",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",

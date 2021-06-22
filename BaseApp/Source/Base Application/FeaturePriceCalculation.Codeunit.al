@@ -111,14 +111,17 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         CRMIntegrationRecord.SetFilter("Table ID", '%1|%2', Database::"Customer Price Group", Database::"Sales Price");
         if not CRMIntegrationRecord.IsEmpty() then
             CRMIntegrationRecord.DeleteAll();
         if RemoveIntegrationTableMapping(Database::"Customer Price Group", Database::"CRM Pricelevel") or
             RemoveIntegrationTableMapping(Database::"Sales Price", Database::"CRM ProductPricelevel")
-        then
+        then begin
+            CRMIntegrationManagement.IsCRMIntegrationEnabled();
             CRMSetupDefaults.ResetExtendedPriceListConfiguration();
+        end;
     end;
 
     local procedure CountRecords()

@@ -263,7 +263,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         Assert.RecordCount(IntegrationSynchJob[1], 2);
         IntegrationSynchJob[1].SetRange(Message, CRMStatisticsJob.GetAccStatsUpdateFinalMessage);
         IntegrationSynchJob[1].FindFirst;
-        IntegrationSynchJob[1].TestField(Unchanged, 1);
+        IntegrationSynchJob[1].TestField(Unchanged, 0);
         IntegrationSynchJob[1].TestField(Inserted, 0);
         // [THEN] CRM Synch. Log Entry for Invoice Status update, where "Modified" = 0
         IntegrationSynchJob[2].SetRange(Message, CRMStatisticsJob.GetInvStatusUpdateFinalMessage);

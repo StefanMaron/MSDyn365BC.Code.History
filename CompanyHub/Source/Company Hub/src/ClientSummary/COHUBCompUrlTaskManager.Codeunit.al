@@ -405,9 +405,9 @@ codeunit 1155 "COHUB Comp. Url Task Manager"
         Commit();
         COHUBUserTask.Reset();
         COHUBUserTask.SetFilter("Last Refreshed", '<%1', LastRefreshedOn);
-        COHUBUserTask.SetFilter("Assigned To", UserSecurityId());
-        COHUBUserTask.SetFilter("Enviroment No.", EnviromentNo);
-        COHUBUserTask.SetFilter("Company Display Name", CompanyDisplayName);
+        COHUBUserTask.SetRange("Assigned To", UserSecurityId());
+        COHUBUserTask.SetRange("Enviroment No.", EnviromentNo);
+        COHUBUserTask.SetRange("Company Display Name", CompanyDisplayName);
         if COHUBUserTask.FindSet() then
             repeat
                 COHUBUserTask."Percent Complete" := 100;

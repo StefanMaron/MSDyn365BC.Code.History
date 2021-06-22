@@ -1073,5 +1073,20 @@ codeunit 5529 "Purch. Inv. Aggregator"
 
         exit(false);
     end;
+
+    procedure FixInvoicesCreatedFromOrders()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        NullGuid: Guid;
+    begin
+        PurchInvHeader.SetFilter("Order No.", '<>''''');
+        PurchInvHeader.SetFilter("Draft Invoice SystemId", '<>%1', NullGuid);
+        PurchInvHeader.ModifyAll("Draft Invoice SystemId", NullGuid, true);
+
+        if not (UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetFixAPIPurchaseInvoicesCreatedFromOrders())) then
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetFixAPIPurchaseInvoicesCreatedFromOrders());
+    end;
 }
 
