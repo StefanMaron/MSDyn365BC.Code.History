@@ -52,6 +52,9 @@ table 5151 "Integration Record"
         key(Key5; "Table ID", "Record ID")
         {
         }
+        key(Key6; "Table ID", "Modified On")
+        {
+        }
     }
 
     fieldgroups

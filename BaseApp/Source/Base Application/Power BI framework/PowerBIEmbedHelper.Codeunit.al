@@ -18,7 +18,7 @@ codeunit 6299 "Power BI Embed Helper"
         GetPagesWebRequestJsonTxt: Label '{"method":"GET","url":"/report/pages","headers":{"id":"getpagesfromreport"}}', Locked = true;
         PutActivePageWebRequestJsonTxt: Label '{"method":"PUT","url":"/report/pages/active","headers":{"id":"setpage,%1"},"body": {"name":"%1","displayName": null}}', Comment = '%1=The name of the page to be set as active', Locked = true;
         GetReportFilterWebRequestJsonTxt: Label '{"method":"GET","url":"/report/filters","headers": {"id":"getfilters,%1"}}', Locked = true;
-        PutReportFilterWebRequestJsonTxt: Label '{"method":"PUT","url":"/report/filters","headers": {}, "body": [{"$schema":%1,"target":{"table":%2,"column":%3},"operator":"In","values":[%4]}]}', Comment = '%1,%2,%3=the schema, table and column where the filter applies, as communicated to us by Power BI; %4=the value to set the filter to', Locked = true;
+        PutReportFilterWebRequestJsonTxt: Label '{"method":"PUT","url":"/report/filters","headers": {}, "body": [{"$schema":%1,"target":{"table":%2,"column":%3},"operator":%4,"values":[%5]}]}', Comment = '%1,%2,%3=the schema, table and column where the filter applies, as communicated to us by Power BI; %4=the operator to handle the Power BI filter, e.g. "In" or "All"; %5=the value to set the filter to', Locked = true;
         // Other labels
         FailedToHandleCallbackTelemetryMsg: Label 'Failed to handle callback message. Message: %1, LastError: %2.', Locked = true;
         EmptyAccessTokenForPBITelemetryMsg: Label 'Empty access token generated for Power BI.', Locked = true;
@@ -121,6 +121,7 @@ codeunit 6299 "Power BI Embed Helper"
         SchemaJsonToken: JsonToken;
         TableJsonToken: JsonToken;
         ColumnJsonToken: JsonToken;
+        FilterOperatorToken: JsonValue;
     begin
         // Note: do not catch these errors. If those tokens do not exist, it means PowerBI changed their schema, or simply we cannot apply the filtering,
         // so this error needs to be thrown and propagated up to the TryFunction.
@@ -128,10 +129,16 @@ codeunit 6299 "Power BI Embed Helper"
         DataToken.SelectToken('$.body[0].target.table', TableJsonToken);
         DataToken.SelectToken('$.body[0].target.column', ColumnJsonToken);
 
+        if CurrentListSelection = '' then
+            FilterOperatorToken.SetValue('All')
+        else
+            FilterOperatorToken.SetValue('In');
+
         exit(StrSubstNo(PutReportFilterWebRequestJsonTxt,
             SchemaJsonToken,
             TableJsonToken,
             ColumnJsonToken,
+            FilterOperatorToken,
             CurrentListSelection
             ));
     end;

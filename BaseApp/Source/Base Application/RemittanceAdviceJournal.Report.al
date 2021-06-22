@@ -334,6 +334,7 @@ report 399 "Remittance Advice - Journal"
                             if JnlLineRemainingAmount < 0 then begin
                                 TempAppliedVendLedgEntry."Remaining Amount" := TempAppliedVendLedgEntry."Remaining Amount" + JnlLineRemainingAmount;
                                 PaidAmount := PaidAmount + TempAppliedVendLedgEntry."Remaining Amount";
+                                JnlLineRemainingAmount := 0;
                             end;
                         end;
 

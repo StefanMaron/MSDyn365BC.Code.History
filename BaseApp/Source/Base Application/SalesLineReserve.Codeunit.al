@@ -31,6 +31,11 @@ codeunit 99000832 "Sales Line-Reserve"
         SignFactor: Integer;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateReservation(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if FromTrackingSpecification."Source Type" = 0 then
             Error(CodeunitInitErr);
 
@@ -195,7 +200,13 @@ codeunit 99000832 "Sales Line-Reserve"
     procedure VerifyQuantity(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line")
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyQuantity(NewSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if Blocked then
             exit;
 
@@ -230,6 +241,11 @@ codeunit 99000832 "Sales Line-Reserve"
         NotFullyReserved: Boolean;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferSalesLineToItemJnlLine(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FindReservEntry(SalesLine, OldReservEntry) then
             exit(TransferQty);
         OldReservEntry.Lock;
@@ -284,7 +300,10 @@ codeunit 99000832 "Sales Line-Reserve"
                         NotFullyReserved := true;
 
                     if OldReservEntry."Item Tracking" <> OldReservEntry."Item Tracking"::None then begin
-                        OldReservEntry.TestField("Appl.-from Item Entry");
+                        IsHandled := false;
+                        OnTransferSalesLineToItemJnlLineOnBeforeApplFromItemEntryTestField(SalesLine, OldReservEntry, IsHandled);
+                        if not IsHandled then
+                            OldReservEntry.TestField("Appl.-from Item Entry");
                         CreateReservEntry.SetApplyFromEntryNo(OldReservEntry."Appl.-from Item Entry");
                         CheckApplFromItemEntry := false;
                     end;
@@ -411,6 +430,7 @@ codeunit 99000832 "Sales Line-Reserve"
         end;
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, SalesLine."Shipment Date");
         ItemTrackingLines.SetInbound(SalesLine.IsInbound);
+        OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(SalesLine, ItemTrackingLines);
         ItemTrackingLines.RunModal;
     end;
 
@@ -1051,6 +1071,31 @@ codeunit 99000832 "Sales Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewSalesLine: Record "Sales Line"; OldSalesLine: Record "Sales Line"; var HasError: Boolean; var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferSalesLineToItemJnlLineOnBeforeApplFromItemEntryTestField(SalesLine: Record "Sales Line"; OldReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateReservation(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyQuantity(var NewSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferSalesLineToItemJnlLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var SalesLine: Record "Sales Line"; var ItemTrackingLines: Page "Item Tracking Lines")
     begin
     end;
 }

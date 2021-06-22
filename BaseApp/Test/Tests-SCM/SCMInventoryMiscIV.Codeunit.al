@@ -1778,6 +1778,52 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Assert.AreEqual(Location.Code, RequisitionLine."Location Code", LocCodeIsModifiedErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShipToCodeUpdatedOnPurchaseCreatedFromReqWorksheet()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Drop Shipment] [Ship-to Address] [Planning] [Requisition Worksheet] [Sales] [Purchase]
+        // [SCENARIO 370342] "Ship-to Code" is updated in purchase order created from drop shipment sales order via requisition worksheet.
+        Initialize(false);
+
+        // [GIVEN] Item "I" with vendor no.
+        CreateItemWithVendor(Item);
+
+        // [GIVEN] Customer with ship-to address.
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+
+        // [GIVEN] Drop shipment sales order for item "I". Set "Ship-to Code" = "X".
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        SalesHeader.Modify(true);
+        SalesLine.Validate("Drop Shipment", true);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Open requisition worksheet and plan the sales order using "Get Sales Orders".
+        GetSalesOrdersInRequisitionWorksheet(SalesLine);
+
+        // [WHEN] Carry out action message to create a supplying purchase order.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
+
+        // [THEN] "Ship-to Code" on the purchase order = "X".
+        PurchaseHeader.SetRange("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.TestField("Ship-to Code", SalesHeader."Ship-to Code");
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

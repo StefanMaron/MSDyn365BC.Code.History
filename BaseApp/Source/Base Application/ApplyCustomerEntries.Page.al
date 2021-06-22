@@ -21,7 +21,7 @@ page 232 "Apply Customer Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posting Date';
                     Editable = false;
-                    ToolTip = 'Specifies the posting date of the entry to be applied.';
+                    ToolTip = 'Specifies the posting date of the entry to be applied. This date is used to find the correct exchange rate when applying entries in different currencies.';
                 }
                 field("ApplyingCustLedgEntry.""Document Type"""; ApplyingCustLedgEntry."Document Type")
                 {

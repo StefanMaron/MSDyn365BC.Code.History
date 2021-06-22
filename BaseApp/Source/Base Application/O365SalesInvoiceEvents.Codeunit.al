@@ -284,13 +284,7 @@ codeunit 2162 "O365 Sales Invoice Events"
         if not SalesInvoiceHeader.FindFirst then
             exit;
 
-        if SalesInvoiceHeader.Cancelled then
-            exit;
-
-        if SalesInvoiceHeader.Corrective then
-            exit;
-
-        if not SalesInvoiceHeader.Closed then
+        if not CheckSalesInvoiceHeader(SalesInvoiceHeader) then
             exit;
 
         // Verify paid
@@ -311,6 +305,25 @@ codeunit 2162 "O365 Sales Invoice Events"
         if CalendarEvent.FindFirst then
             if not CalendarEvent.Archived then
                 CalendarEvent.Delete(true);
+    end;
+
+    local procedure CheckSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesInvoiceHeader(SalesInvoiceHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if SalesInvoiceHeader.Cancelled then
+            exit(false);
+
+        if SalesInvoiceHeader.Corrective then
+            exit(false);
+
+        if not SalesInvoiceHeader.Closed then
+            exit(false);
     end;
 
     [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
@@ -406,6 +419,11 @@ codeunit 2162 "O365 Sales Invoice Events"
 
                 CreateEmailFailedEventEstimate(O365DocumentSentHistory."Document No.");
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

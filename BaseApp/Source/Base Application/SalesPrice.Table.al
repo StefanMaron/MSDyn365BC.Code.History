@@ -15,7 +15,14 @@ table 7002 "Sales Price"
             TableRelation = Item;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeItemNoOnValidate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Item No." <> xRec."Item No." then begin
                     Item.Get("Item No.");
                     "Unit of Measure Code" := Item."Sales Unit of Measure";
@@ -235,6 +242,11 @@ table 7002 "Sales Price"
                 OnBeforeNewSalesPriceInsert(NewSalesPrice, SalesPrice);
                 if NewSalesPrice.Insert() then;
             until SalesPrice.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemNoOnValidate(var SalesPrice: Record "Sales Price"; var xSalesPrice: Record "Sales Price"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -15,6 +15,9 @@
                         "path":  ".\\APIV2\\Test\\_Exclude_APIV2_ Tests"
                     },
                     {
+                        "path":  ".\\BaseApp\\Source\\Base Application\\Test Framework"
+                    },
+                    {
                         "path":  ".\\BaseApp\\Test\\Tests-Bank"
                     },
                     {
@@ -61,6 +64,9 @@
                     },
                     {
                         "path":  ".\\BaseApp\\Test\\Tests-Misc"
+                    },
+                    {
+                        "path":  ".\\BaseApp\\Test\\Tests-Monitor Sensitive Fields"
                     },
                     {
                         "path":  ".\\BaseApp\\Test\\Tests-Permissions"
@@ -111,6 +117,18 @@
                         "path":  ".\\BaseApp\\Test\\Tests-Workflow"
                     },
                     {
+                        "path":  ".\\Email - Current User Connector\\Test\\Email - Current User Connector Tests"
+                    },
+                    {
+                        "path":  ".\\Email - Microsoft 365 Connector\\Test\\Email - Microsoft 365 Connector Tests"
+                    },
+                    {
+                        "path":  ".\\Email - Outlook REST API\\Test"
+                    },
+                    {
+                        "path":  ".\\Email - SMTP Connector\\Test\\Email - SMTP Connector Tests"
+                    },
+                    {
                         "path":  ".\\EssentialBusinessHeadlines\\Test\\Essential Business Headlines Test"
                     },
                     {
@@ -135,10 +153,10 @@
                         "path":  ".\\system application\\test\\System Application Test\\Extension Management\\testArtifacts"
                     },
                     {
-                        "path":  ".\\TestFramework\\TestLibraries"
+                        "path":  ".\\testframework\\TestLibraries"
                     },
                     {
-                        "path":  ".\\TestFramework\\TestRunner\\Test Runner"
+                        "path":  ".\\testframework\\TestRunner\\Test Runner"
                     }
                 ]
 }

@@ -27,6 +27,92 @@ codeunit 134119 "Price Asset UT"
         IsInitialized: Boolean;
 
     [Test]
+    procedure T010_UnitPriceForItemSale()
+    var
+        Item: Record Item;
+        PriceAsset: Record "Price Asset";
+    begin
+        // [FEATURE] [Item] [Sale]
+        Initialize();
+        // [GIVEN] Item 'I', where "Unit Price" is 'X'
+        LibraryInventory.CreateItem(Item);
+        Item."Unit Price" := LibraryRandom.RandDec(100, 2);
+        Item.Modify();
+        // [GIVEN] Asset, where "Price Type" 'Sale'
+        PriceAsset."Price Type" := "Price Type"::Sale;
+        PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::Item);
+        // [WHEN] Validate Item "Asset ID" as SystemId of 'I'
+        PriceAsset.Validate("Asset ID", Item.SystemId);
+        // [THEN] Asset, where "Unit Price" is 'X'
+        PriceAsset.TestField("Unit Price", Item."Unit Price");
+    end;
+
+    [Test]
+    procedure T011_UnitPriceForItemPurchase()
+    var
+        Item: Record Item;
+        PriceAsset: Record "Price Asset";
+    begin
+        // [FEATURE] [Item] [Purchase]
+        Initialize();
+        // [GIVEN] Item 'I', where "Last Direct Cost" is 'X'
+        LibraryInventory.CreateItem(Item);
+        Item."Last Direct Cost" := LibraryRandom.RandDec(100, 2);
+        Item.Modify();
+        // [GIVEN] Asset, where "Price Type" 'Purchase'
+        PriceAsset."Price Type" := "Price Type"::Purchase;
+        PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::Item);
+        // [WHEN] Validate Item "Asset ID" as SystemId of 'I'
+        PriceAsset.Validate("Asset ID", Item.SystemId);
+        // [THEN] Asset, where "Unit Price" is 'X'
+        PriceAsset.TestField("Unit Price", Item."Last Direct Cost");
+    end;
+
+    [Test]
+    procedure T012_UnitPriceForResourceSale()
+    var
+        Resource: Record Resource;
+        PriceAsset: Record "Price Asset";
+    begin
+        // [FEATURE] [Resource] [Sale]
+        Initialize();
+        // [GIVEN] Resource 'R', where "Unit Price" is 'X'
+        LibraryResource.CreateResource(Resource, '');
+        Resource."Unit Price" := LibraryRandom.RandDec(100, 2);
+        Resource.Modify();
+        // [GIVEN] Asset, where "Price Type" 'Sale'
+        PriceAsset."Price Type" := "Price Type"::Sale;
+        PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::Resource);
+        // [WHEN] Validate Resource "Asset ID" as SystemId of 'R'
+        PriceAsset.Validate("Asset ID", Resource.SystemId);
+        // [THEN] Asset, where "Unit Price" is 'X'
+        PriceAsset.TestField("Unit Price", Resource."Unit Price");
+    end;
+
+    [Test]
+    procedure T013_UnitPriceForResourcePurchase()
+    var
+        Resource: Record Resource;
+        PriceAsset: Record "Price Asset";
+    begin
+        // [FEATURE] [Resource] [Purchase]
+        Initialize();
+        // [GIVEN] Resource 'R', where "Direct Unit Cost" is 'X', "Unit Cost" is 'Y'
+        LibraryResource.CreateResource(Resource, '');
+        Resource."Direct Unit Cost" := LibraryRandom.RandDec(100, 2);
+        Resource."Unit Cost" := LibraryRandom.RandDec(100, 2);
+        Resource.Modify();
+        // [GIVEN] Asset, where "Price Type" 'Purchase'
+        PriceAsset."Price Type" := "Price Type"::Purchase;
+        PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::Resource);
+        // [WHEN] Validate Resource "Asset ID" as SystemId of 'R'
+        PriceAsset.Validate("Asset ID", Resource.SystemId);
+        // [THEN] Asset, where "Unit Price" is 'X', "Unit Price 2" is 'Y'
+        PriceAsset.TestField("Unit Price", Resource."Direct Unit Cost");
+        PriceAsset.TestField("Unit Price 2", Resource."Unit Cost");
+    end;
+
+    [Test]
     procedure T020_DescriptionForItem()
     var
         Item: Record Item;
@@ -40,6 +126,7 @@ codeunit 134119 "Price Asset UT"
         Item.Modify();
         // [WHEN] Validate Item "Asset No." as 'I'
         PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::Item);
+        PriceAsset.TestField("Table Id", Database::Item);
         PriceAsset.Validate("Asset No.", Item."No.");
         // [THEN] Asset, where Description is 'X'
         PriceAsset.TestField(Description, Item.Description);
@@ -65,9 +152,11 @@ codeunit 134119 "Price Asset UT"
         // [WHEN] Validate Item "Asset No." as 'I', "Variant Code" as 'IV'
         PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::Item);
         PriceAsset.Validate("Asset No.", Item."No.");
+        PriceAsset.TestField("Table Id", Database::Item);
         PriceAsset.Validate("Variant Code", ItemVariant.Code);
-        // [THEN] Asset, where Description is 'X'
+        // [THEN] Asset, where Description is 'X', "Table Id" is 'Item Variant'
         PriceAsset.TestField(Description, ItemVariant.Description);
+        PriceAsset.TestField("Table Id", Database::"Item Variant");
     end;
 
     [Test]
@@ -84,6 +173,7 @@ codeunit 134119 "Price Asset UT"
         Resource.Modify();
         // [WHEN] Validate Resource "Asset No." as 'R'
         PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::Resource);
+        PriceAsset.TestField("Table Id", Database::Resource);
         PriceAsset.Validate("Asset No.", Resource."No.");
         // [THEN] Asset, where Description is 'X'
         PriceAsset.TestField(Description, Resource.Name);
@@ -103,6 +193,7 @@ codeunit 134119 "Price Asset UT"
         ResourceGroup.Modify();
         // [WHEN] Validate ResourceGroup "Asset No." as 'RG'
         PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::"Resource Group");
+        PriceAsset.TestField("Table Id", Database::"Resource Group");
         PriceAsset.Validate("Asset No.", ResourceGroup."No.");
         // [THEN] Asset, where Description is 'X'
         PriceAsset.TestField(Description, ResourceGroup.Name);
@@ -122,6 +213,7 @@ codeunit 134119 "Price Asset UT"
         ItemDiscountGroup.Modify();
         // [WHEN] Validate ItemDiscountGroup "Asset No." as 'IGD'
         PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::"Item Discount Group");
+        PriceAsset.TestField("Table Id", Database::"Item Discount Group");
         PriceAsset.Validate("Asset No.", ItemDiscountGroup.Code);
         // [THEN] Asset, where Description is 'X'
         PriceAsset.TestField(Description, ItemDiscountGroup.Description);
@@ -141,6 +233,7 @@ codeunit 134119 "Price Asset UT"
         ServiceCost.Modify();
         // [WHEN] Validate ServiceCost "Asset No." as 'SC'
         PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::"Service Cost");
+        PriceAsset.TestField("Table Id", Database::"Service Cost");
         PriceAsset.Validate("Asset No.", ServiceCost.Code);
         // [THEN] Asset, where Description is 'X'
         PriceAsset.TestField(Description, ServiceCost.Description);
@@ -160,6 +253,7 @@ codeunit 134119 "Price Asset UT"
         GLAccount.Modify();
         // [WHEN] Validate GLAccount "Asset No." as 'A'
         PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::"G/L Account");
+        PriceAsset.TestField("Table Id", Database::"G/L Account");
         PriceAsset.Validate("Asset No.", GLAccount."No.");
         // [THEN] Asset, where Description is 'X'
         PriceAsset.TestField(Description, GLAccount.Name);

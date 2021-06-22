@@ -1,4 +1,4 @@
-table 900 "Assembly Header"
+﻿table 900 "Assembly Header"
 {
     Caption = 'Assembly Header';
     DataCaptionFields = "No.", Description;
@@ -282,12 +282,12 @@ table 900 "Assembly Header"
                     Error(Text002, FieldCaption(Quantity), FieldCaption("Assembled Quantity"), "Assembled Quantity");
 
                 "Quantity (Base)" := CalcBaseQty(Quantity);
+                OnValiateQuantityOnAfterCalcBaseQty(Rec, CurrFieldNo);
                 InitRemainingQty;
                 InitQtyToAssemble;
                 Validate("Quantity to Assemble");
 
-                AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo(Quantity), ReplaceLinesFromBOM, CurrFieldNo, CurrentFieldNum);
-                AssemblyHeaderReserve.VerifyQuantity(Rec, xRec);
+                UpdateAssemblyLinesAndVerifyReserveQuantity();
 
                 ClearCurrentFieldNum(FieldNo(Quantity));
             end;
@@ -676,11 +676,13 @@ table 900 "Assembly Header"
         HideValidationDialog: Boolean;
 
 
+#pragma warning disable AS0022 // False positive due to a compiler bug fix
     [Scope('OnPrem')]
     procedure RefreshBOM()
     begin
         AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, 0, true, CurrFieldNo, 0);
     end;
+#pragma warning restore AS0022
 
     procedure InitRecord()
     var
@@ -1105,7 +1107,7 @@ table 900 "Assembly Header"
         Qty := UOMMgt.RoundQty(Qty);
     end;
 
-    local procedure GetSKU(): Boolean
+    local procedure GetSKU() Result: Boolean
     begin
         if (StockkeepingUnit."Location Code" = "Location Code") and
            (StockkeepingUnit."Item No." = "Item No.") and
@@ -1115,7 +1117,8 @@ table 900 "Assembly Header"
         if StockkeepingUnit.Get("Location Code", "Item No.", "Variant Code") then
             exit(true);
 
-        exit(false);
+        Result := false;
+        OnAfterGetSKU(Rec, Result);
     end;
 
     local procedure GetUnitCost(): Decimal
@@ -1200,6 +1203,19 @@ table 900 "Assembly Header"
         exit(
           LeadTimeMgt.PlannedDueDate(
             "Item No.", "Location Code", "Variant Code", EndingDate, '', ReqLine."Ref. Order Type"::Assembly));
+    end;
+
+    local procedure UpdateAssemblyLinesAndVerifyReserveQuantity()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateAssemblyLinesAndVerifyReserveQuantity(Rec, xRec, CurrFieldNo, CurrentFieldNum, IsHandled);
+        if IsHandled then
+            exit;
+
+        AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo(Quantity), ReplaceLinesFromBOM, CurrFieldNo, CurrentFieldNum);
+        AssemblyHeaderReserve.VerifyQuantity(Rec, xRec);
     end;
 
     [Scope('OnPrem')]
@@ -1399,8 +1415,6 @@ table 900 "Assembly Header"
     end;
 
     procedure CreatePick(ShowRequestPage: Boolean; AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
-    var
-        WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
     begin
         AssemblyLineMgt.CreateWhseItemTrkgForAsmLines(Rec);
         Commit();
@@ -1409,12 +1423,25 @@ table 900 "Assembly Header"
         if CompletelyPicked then
             Error(Text007);
 
+        RunWhseSourceCreateDocument(ShowRequestPage, AssignedUserID, SortingMethod, SetBreakBulkFilter, DoNotFillQtyToHandle, PrintDocument);
+    end;
+
+    local procedure RunWhseSourceCreateDocument(ShowRequestPage: Boolean; AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
+    var
+        WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunWhseSourceCreateDocument(Rec, ShowRequestPage, AssignedUserID, SortingMethod, SetBreakBulkFilter, DoNotFillQtyToHandle, PrintDocument, IsHandled);
+        if IsHandled then
+            exit;
+
         WhseSourceCreateDocument.SetAssemblyOrder(Rec);
         if not ShowRequestPage then
             WhseSourceCreateDocument.Initialize(
                 AssignedUserID, "Whse. Activity Sorting Method".FromInteger(SortingMethod), PrintDocument, DoNotFillQtyToHandle, SetBreakBulkFilter);
         WhseSourceCreateDocument.UseRequestPage(ShowRequestPage);
-        WhseSourceCreateDocument.RunModal;
+        WhseSourceCreateDocument.RunModal();
         WhseSourceCreateDocument.GetResultMessage(2);
         Clear(WhseSourceCreateDocument);
     end;
@@ -1656,6 +1683,11 @@ table 900 "Assembly Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSKU(AssemblyHeader: Record "Assembly Header"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitQtyToAssemble(var AssemblyHeader: Record "Assembly Header"; CallingFieldNo: Integer)
     begin
     end;
@@ -1686,12 +1718,22 @@ table 900 "Assembly Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunWhseSourceCreateDocument(var AssemblyHeader: Record "Assembly Header"; ShowRequestPage: Boolean; AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterGetDefaultBin(var AssemblyHeader: Record "Assembly Header"; Item: Record Item)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeValidateDates(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValiateQuantityOnAfterCalcBaseQty(var AssemblyHeader: Record "Assembly Header"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -1707,6 +1749,11 @@ table 900 "Assembly Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnBeforeValidateDates(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAssemblyLinesAndVerifyReserveQuantity(var AssemblyHeader: Record "Assembly Header"; var xAssemblyHeader: Record "Assembly Header"; CallingFieldNo: Integer; CurrentFieldNum: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -100,6 +100,8 @@ xmlport 1230 "Export Generic CSV"
         LastLineNo := 1;
         PrevColumnNo := 0;
         QuitLoop := false;
+
+        OnAfterInitializeGlobals(DataExchEntryNo);
     end;
 
     procedure CheckColumnSequence()
@@ -110,6 +112,11 @@ xmlport 1230 "Export Generic CSV"
         end;
 
         PrevColumnNo := "Data Exch. Field"."Column No.";
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitializeGlobals(DataExchEntryNo: Integer)
+    begin
     end;
 }
 

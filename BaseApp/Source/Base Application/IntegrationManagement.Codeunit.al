@@ -387,6 +387,8 @@ codeunit 5150 "Integration Management"
            DATABASE::"Country/Region",
            DATABASE::"Customer Price Group",
            DATABASE::"Sales Price",
+           DATABASE::"Price List Header",
+           DATABASE::"Price List Line",
            DATABASE::"Payment Terms",
            DATABASE::"Shipment Method",
            DATABASE::Opportunity,

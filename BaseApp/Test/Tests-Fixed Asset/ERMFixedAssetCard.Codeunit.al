@@ -14,6 +14,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        FoundFALedgerEntriesErr: Label 'You cannot change the FA posting group because posted FA ledger entries use the existing posting group.';
 
     [Test]
     [Scope('OnPrem')]
@@ -926,37 +927,161 @@ codeunit 134456 "ERM Fixed Asset Card"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestFACardFAPostingGroupValidationWhenChangeFASubclass()
+    procedure TestFACardFAPostingGroupValidationWhenChangeFASubclassToEmpty()
     var
         FixedAsset: Record "Fixed Asset";
         FAClass: Record "FA Class";
         FASubclass: Record "FA Subclass";
         FAPostingGroup: Record "FA Posting Group";
-        FixedAssetCard: TestPage "Fixed Asset Card";
     begin
         // [FEATURE] [Posting Group]
         // [SCENARIO 367323] System reset the FA Posting Group, when the FA Subclass is changed to empty
 
         // [GIVEN] Created related FA Class, FA Subclass and FA Posting Group
-        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
-        LibraryFixedAsset.CreateFAClass(FAClass);
-        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         FixedAsset.Validate("FA Class Code", FAClass.Code);
         FixedAsset.Validate("FA Subclass Code", FASubclass.Code);
+        FixedAsset.Modify(true);
 
-        // [GIVEN] Created new FA with FA Subclass and FA Posting Group using form
-        FixedAssetCard.OpenEdit();
-        FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
-        FixedAssetCard.First();
+        // [GIVEN] Change FA Subclass Code to ''
+        FixedAsset.Validate("FA Subclass Code", '');
 
-        // [WHEN] Changed FA Subclass to empty
-        FixedAssetCard."FA Subclass Code".SetValue('');
-        FixedAssetCard.Close();
-
-        // [THEN] FA Posting group reset to ''.
-        FixedAsset.Get(FixedAsset."No.");
+        // [THEN] FA Posting group reset too.
         FixedAsset.TestField("FA Posting Group", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFAUpdateFASubclassToEmptyWhenDefaultFAPostingGroupIsDefined()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 367323] System reset the FA Posting Group, when the FA Subclass is changed to empty when there is a "Default FA Posting Group" for FA Subclass
+
+        // [GIVEN] Created related FA Class, FA Subclass and FA Posting Group
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+
+        // [GIVEN] Set up the "Default FA Posting Group" for FA Subclass
+        FASubclass.Validate("Default FA Posting Group", FAPostingGroup.Code);
+        FASubclass.Modify(true);
+
+        FixedAsset.Validate("FA Class Code", FAClass.Code);
+        FixedAsset.Validate("FA Subclass Code", FASubclass.Code);
+        FixedAsset.Modify(true);
+
+        // [GIVEN] Change FA Subclass Code to ''
+        FixedAsset.Validate("FA Subclass Code", '');
+
+        // [THEN] FA Posting group reset too.
+        FixedAsset.TestField("FA Posting Group", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFACardFAPostingGroupValidationWhenChangeFASubclassToEmptyAndThereAreFALedgerEntry()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        DepreciationBook: Record "Depreciation Book";
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 367323] System did not change the FA Posting Group, when the FA Subclass is changed to empty when there are FA Ledger Entries
+
+        // [GIVEN] Created related FA Class, FA Subclass and FA Posting Group
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        FixedAsset.Validate("FA Class Code", FAClass.Code);
+        FixedAsset.Validate("FA Subclass Code", FASubclass.Code);
+        FixedAsset.Modify(true);
+
+        // [GIVEN] Mock FA Ledger Entry for created Fixed Asset
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        MockFALedgerEntryBookValue(FixedAsset."No.", DepreciationBook.Code, WorkDate, LibraryRandom.RandInt(100));
+
+        // [GIVEN] Change FA Subclass Code to ''
+        asserterror FixedAsset.Validate("FA Subclass Code", '');
+
+        // [THEN] FA Posting Group did not changed
+        // [THEN] The Error "You cannot change the FA Posting Group, when there is FA Ledger Entries." was shown
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(FoundFALedgerEntriesErr);
+        FixedAsset.TestField("FA Posting Group", FAPostingGroup.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFACardFAPostingGroupValidationWhenChangeFASubclass()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: array[2] of Record "FA Subclass";
+        FAPostingGroup: array[2] of Record "FA Posting Group";
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 367323] System did not change the FA Posting Group, when the FA Subclass is changed to new value
+
+        // [GIVEN] Created related FA Class, FA Subclass and FA Posting Group
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass[1], FAPostingGroup[1]);
+
+        // [GIVEN] Created related FA Class, FA Subclass and FA Posting Group
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[2]);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[2], FAClass.Code, FAPostingGroup[2].Code);
+
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        FixedAsset.Validate("FA Class Code", FAClass.Code);
+        FixedAsset.Validate("FA Subclass Code", FASubclass[1].Code);
+        FixedAsset.Modify(true);
+
+        // [WHEN] Changed FA Subclass to FA Subclass 2
+        FixedAsset.Validate("FA Subclass Code", FASubclass[2].Code);
+
+        // [THEN] FA Posting group did not change
+        FixedAsset.TestField("FA Posting Group", FAPostingGroup[1].Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFACardFAPostingGroupValidationWhenChangeFASubclassWithFALedgerEntry()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: array[2] of Record "FA Subclass";
+        FAPostingGroup: array[2] of Record "FA Posting Group";
+        DepreciationBook: Record "Depreciation Book";
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 367323]  System did not change the FA Posting Group, when the FA Subclass is changed to new value, when there are FA Ledger Entries
+
+        // [GIVEN] Created related FA Class 1, FA Subclass 1 and FA Posting Group 1
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass[1], FAPostingGroup[1]);
+
+        // [GIVEN] Created related FA Class 2, FA Subclass 2 and FA Posting Group 2
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup[2]);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass[2], FAClass.Code, FAPostingGroup[2].Code);
+
+        // [GIVEN] Created Fixed Asset
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        FixedAsset.Validate("FA Class Code", FAClass.Code);
+        FixedAsset.Validate("FA Subclass Code", FASubclass[1].Code);
+        FixedAsset.Modify(true);
+
+        // [GIVEN] Mock FA Ledger Entry for created Fixed Asset
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        MockFALedgerEntryBookValue(FixedAsset."No.", DepreciationBook.Code, WorkDate, LibraryRandom.RandInt(100));
+
+        // [WHEN] Changed FA Subclass to FA Subclass 2
+        FixedAsset.Validate("FA Subclass Code", FASubclass[2].Code);
+
+        // [THEN] FA Posting group did not change
+        FixedAsset.TestField("FA Posting Group", FAPostingGroup[1].Code);
     end;
 
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")
@@ -1079,6 +1204,13 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         DepreciationBook.Validate("Allow Changes in Depr. Fields", AllowChangesInDeprFields);
         DepreciationBook.Modify(true);
+    end;
+
+    local procedure CreateRelatedFAClassFASubclassFAPostingGroup(var FAClass: Record "FA Class"; var FASubclass: Record "FA Subclass"; var FAPostingGroup: Record "FA Posting Group")
+    begin
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+        LibraryFixedAsset.CreateFAClass(FAClass);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
     end;
 
     [ModalPageHandler]

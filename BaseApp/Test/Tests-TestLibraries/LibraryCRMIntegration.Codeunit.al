@@ -14,6 +14,7 @@ codeunit 139164 "Library - CRM Integration"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
@@ -244,6 +245,61 @@ codeunit 139164 "Library - CRM Integration"
         CRMPricelevel.Get(CRMIntegrationRecord."CRM ID");
         CreateCRMPricelistLine(CRMProductpricelevel, CRMPricelevel, CRMProduct);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesPrice.RecordId, CRMProductpricelevel.ProductPriceLevelId);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateCoupledPriceListHeaderAndPricelevel(var PriceListHeader: Record "Price List Header"; var CRMPricelevel: Record "CRM Pricelevel")
+    var
+        Currency: Record Currency;
+        CRMTransactioncurrency: Record "CRM Transactioncurrency";
+    begin
+        // Create prerequisites: currency
+        CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
+        // Create the NAV PriceListHeader
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader."Currency Code" := Currency.Code;
+        PriceListHeader.Modify();
+
+        CreateCoupledPriceListHeaderAndPricelevelWithTransactionCurrency(PriceListHeader, CRMPricelevel, CRMTransactioncurrency);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreatePricelevelAndCoupleWithPriceListHeader(var PriceListHeader: Record "Price List Header"; var CRMPricelevel: Record "CRM Pricelevel"; CurrencyCode: Code[20])
+    var
+        CRMTransactioncurrency: Record "CRM Transactioncurrency";
+    begin
+        // Get CRM Transaction Currency for the PriceListHeader
+        CRMTransactioncurrency.Get(CRMSynchHelper.GetCRMTransactioncurrency(CurrencyCode));
+
+        CreateCoupledPriceListHeaderAndPricelevelWithTransactionCurrency(PriceListHeader, CRMPricelevel, CRMTransactioncurrency);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateCoupledPriceListHeaderAndPricelevelWithTransactionCurrency(var PriceListHeader: Record "Price List Header"; var CRMPricelevel: Record "CRM Pricelevel"; CRMTransactioncurrency: Record "CRM Transactioncurrency")
+    begin
+        // Create the CRM Pricelevel
+        CreateCRMPriceList(CRMPricelevel, CRMTransactioncurrency);
+
+        // Couple NAV PriceListHeader and CRM Pricelevel
+        CoupleRecordIdToCRMId(PriceListHeader.RecordId, CRMPricelevel.PriceLevelId);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateCoupledPriceListLineAndCRMPricelistLine(PriceListHeader: Record "Price List Header"; var PriceListLine: Record "Price List Line"; var CRMProductpricelevel: Record "CRM Productpricelevel")
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMPricelevel: Record "CRM Pricelevel";
+        CRMProduct: Record "CRM Product";
+        Item: Record Item;
+    begin
+        // requires a coupled PriceListHeader and CRMPricelevel
+        CRMIntegrationRecord.FindByRecordID(PriceListHeader.RecordId);
+        CreateCoupledItemAndProduct(Item, CRMProduct);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
+        CRMPricelevel.Get(CRMIntegrationRecord."CRM ID");
+        CreateCRMPricelistLine(CRMProductpricelevel, CRMPricelevel, CRMProduct);
+        CRMIntegrationRecord.CoupleRecordIdToCRMID(PriceListLine.RecordId, CRMProductpricelevel.ProductPriceLevelId);
     end;
 
     [Scope('OnPrem')]
@@ -1562,14 +1618,10 @@ codeunit 139164 "Library - CRM Integration"
     procedure PrepareWriteInProductItem(var Item: Record Item)
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        CRMProduct: Record "CRM Product";
-        CRMSynchHelper: Codeunit "CRM Synch. Helper";
     begin
-        CreateCoupledItemAndProduct(Item, CRMProduct);
+        LibraryInventory.CreateItem(Item);
         Item.Validate(Type, Item.Type::Service);
         Item.Modify();
-        CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
-        CRMProduct.Modify();
         SetSalesSetupWriteInProduct(SalesSetup."Write-in Product Type"::Item, Item."No.");
     end;
 
@@ -1577,12 +1629,8 @@ codeunit 139164 "Library - CRM Integration"
     procedure PrepareWriteInProductResource(var Resource: Record Resource)
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        CRMProduct: Record "CRM Product";
-        CRMSynchHelper: Codeunit "CRM Synch. Helper";
     begin
-        CreateCoupledResourceAndProduct(Resource, CRMProduct);
-        CRMSynchHelper.SetCRMProductStateToActive(CRMProduct);
-        CRMProduct.Modify();
+        LibraryResource.CreateResourceNew(Resource);
         SetSalesSetupWriteInProduct(SalesSetup."Write-in Product Type"::Resource, Resource."No.");
     end;
 
@@ -1638,8 +1686,9 @@ codeunit 139164 "Library - CRM Integration"
         IntegrationTableMapping.DeleteAll(true);
 
         IntTableSynchSubscriber.Reset();
-        CRMIntegrationManagement.ClearState;
-        CRMIntTableSubscriber.ClearCache;
+        CRMIntegrationManagement.ClearState();
+        CRMIntTableSubscriber.ClearCache();
+        CRMSynchHelper.ClearCache();
         Clear(CRMIntTableSubscriber);
         Clear(CRMBusLogicSimulator);
         Assert.IsTrue(BindSubscription(CRMBusLogicSimulator), 'CRMBusLogicSimulator should be bind.');

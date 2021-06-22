@@ -10,7 +10,14 @@ codeunit 99000817 "Manu. Print Report"
         ProductionOrder: Record "Production Order";
 
     procedure PrintProductionOrder(NewProductionOrder: Record "Production Order"; Usage: Option)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintProductionOrder(NewProductionOrder, Usage, IsHandled);
+        if IsHandled then
+            exit;
+
         ProductionOrder := NewProductionOrder;
         ProductionOrder.SetRecFilter;
 
@@ -29,6 +36,11 @@ codeunit 99000817 "Manu. Print Report"
             Usage::M4:
                 exit(ReportSelection.Usage::M4);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintProductionOrder(NewProductionOrder: Record "Production Order"; Usage: Option; var IsHandled: Boolean)
+    begin
     end;
 }
 

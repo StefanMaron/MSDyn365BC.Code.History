@@ -13,16 +13,19 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         CannotModifyALineThatDoesntExistErr: Label 'You cannot modify a line that does not exist.';
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesHeader(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         InsertOrModifyFromSalesHeader(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifySalesHeader(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
@@ -31,10 +34,13 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         if IsBackgroundPosting(Rec) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         InsertOrModifyFromSalesHeader(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteSalesHeader(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
@@ -42,46 +48,61 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(Rec.SystemId) then
+            exit;
+
         if not SalesOrderEntityBuffer.Get(Rec."No.") then
             exit;
         SalesOrderEntityBuffer.Delete();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 56, 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales - Calc Discount By Type", 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
     local procedure OnAfterResetRecalculateInvoiceDisc(var SalesHeader: Record "Sales Header")
     begin
         if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if CheckUpdatesDisabled(SalesHeader.SystemId) then
+            exit;
+
         InsertOrModifyFromSalesHeader(SalesHeader);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSalesLine(var Rec: Record "Sales Line"; RunTrigger: Boolean)
     begin
         if not CheckValidLineRecord(Rec) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         UpdateCompletelyShipped(Rec);
         ModifyTotalsSalesLine(Rec, true);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifySalesLine(var Rec: Record "Sales Line"; var xRec: Record "Sales Line"; RunTrigger: Boolean)
     begin
         if not CheckValidLineRecord(Rec) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         UpdateCompletelyShipped(Rec);
         ModifyTotalsSalesLine(Rec, Rec."Recalculate Invoice Disc.");
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteSalesLine(var Rec: Record "Sales Line"; RunTrigger: Boolean)
     var
         SalesLine: Record "Sales Line";
     begin
         if not CheckValidLineRecord(Rec) then
+            exit;
+
+        if CheckUpdatesDisabled(Rec.SystemId) then
             exit;
 
         UpdateCompletelyShipped(Rec);
@@ -101,10 +122,13 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
             BlankTotals(Rec."Document No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 60, 'OnAfterCalcSalesDiscount', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Calc. Discount", 'OnAfterCalcSalesDiscount', '', false, false)]
     local procedure OnAfterCalculateSalesDiscountOnSalesHeader(var SalesHeader: Record "Sales Header")
     begin
         if not CheckValidRecord(SalesHeader) or (not GraphMgtGeneralTools.IsApiEnabled) then
+            exit;
+
+        if CheckUpdatesDisabled(SalesHeader.SystemId) then
             exit;
 
         InsertOrModifyFromSalesHeader(SalesHeader);
@@ -276,6 +300,9 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         if not SalesOrderEntityBuffer.Get(DocumentNo) then
             exit;
 
+        if CheckUpdatesDisabled(SalesOrderEntityBuffer.Id) then
+            exit;
+
         SalesOrderEntityBuffer."Invoice Discount Amount" := 0;
         SalesOrderEntityBuffer."Total Tax Amount" := 0;
 
@@ -318,6 +345,9 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
             exit;
 
         if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
+            exit;
+
+        if CheckUpdatesDisabled(SalesHeader.SystemId) then
             exit;
 
         AssignTotalsFromSalesLine(SalesLine, SalesOrderEntityBuffer, SalesHeader);
@@ -506,6 +536,10 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
 
         if not SalesOrderEntityBuffer.Get(SalesLine."Document No.") then
             exit;
+
+        if CheckUpdatesDisabled(SalesOrderEntityBuffer.Id) then
+            exit;
+
         if SalesOrderEntityBuffer."Completely Shipped" <> CompletelyShipped then begin
             SalesOrderEntityBuffer."Completely Shipped" := CompletelyShipped;
             SalesOrderEntityBuffer.Modify(true);
@@ -536,6 +570,19 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
             exit(false);
 
         exit(SalesHeader."Job Queue Status" in [SalesHeader."Job Queue Status"::"Scheduled for Posting", SalesHeader."Job Queue Status"::Posting]);
+    end;
+
+    local procedure CheckUpdatesDisabled(RecSystemId: Guid): Boolean
+    var
+        DisableAggregateTableUpgrade: Codeunit "Disable Aggregate Table Update";
+        UpdatesDisabled: Boolean;
+    begin
+        DisableAggregateTableUpgrade.OnGetAggregateTablesUpdateEnabled(UpdatesDisabled, Database::"Sales Order Entity Buffer", RecSystemId);
+
+        if UpdatesDisabled then
+            exit(true);
+
+        exit(false);
     end;
 }
 

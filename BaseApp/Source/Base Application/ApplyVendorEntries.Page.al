@@ -1,4 +1,4 @@
-page 233 "Apply Vendor Entries"
+﻿page 233 "Apply Vendor Entries"
 {
     Caption = 'Apply Vendor Entries';
     DataCaptionFields = "Vendor No.";
@@ -21,7 +21,7 @@ page 233 "Apply Vendor Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posting Date';
                     Editable = false;
-                    ToolTip = 'Specifies the posting date of the entry to be applied.';
+                    ToolTip = 'Specifies the posting date of the entry to be applied. This date is used to find the correct exchange rate when applying entries in different currencies.';
                 }
                 field("ApplyingVendLedgEntry.""Document Type"""; ApplyingVendLedgEntry."Document Type")
                 {
@@ -864,6 +864,7 @@ page 233 "Apply Vendor Entries"
         if ApplyingVendLedgEntry."Entry No." <> 0 then
             GenJnlApply.CheckAgainstApplnCurrency(
               ApplnCurrencyCode, "Currency Code", GenJnlLine."Account Type"::Vendor, true);
+        OnSetVendApplIdOnAfterCheckAgainstApplnCurrency(Rec, CalcType, GenJnlLine);
 
         VendLedgEntry.Copy(Rec);
         if CurrentRec then
@@ -1101,6 +1102,7 @@ page 233 "Apply Vendor Entries"
                 VendLedgEntry.SetRange("Applies-to ID", AppliesToID);
             VendLedgEntry.SetRange(Open, true);
             VendLedgEntry.SetRange("Applying Entry", true);
+            OnFindApplyingEntryOnAfterSetFilters(Rec, VendLedgEntry);
             if VendLedgEntry.FindFirst then begin
                 VendLedgEntry.CalcFields(Amount, "Remaining Amount");
                 ApplyingVendLedgEntry := VendLedgEntry;
@@ -1406,12 +1408,22 @@ page 233 "Apply Vendor Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFindApplyingEntryOnAfterSetFilters(ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostDirectApplicationBeforeSetValues(var ApplicationDate: Date)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDirectApplicationBeforeApply()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetVendApplIdOnAfterCheckAgainstApplnCurrency(var VendorLedgerEntry: Record "Vendor Ledger Entry"; CalcType: Option Direct,GenJnlLine,PurchHeader; GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

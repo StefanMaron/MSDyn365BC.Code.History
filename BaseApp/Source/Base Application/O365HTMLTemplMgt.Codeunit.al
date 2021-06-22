@@ -97,8 +97,7 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         FillParameterValueEncoded(HTMLText, 'TotalAmount', Format(SalesInvoiceHeader."Amount Including VAT"));
 
-        SalesInvoiceHeader.CalcFields(Cancelled);
-        if not SalesInvoiceHeader.Cancelled then
+        if not IsSalesInvoiceCanceled(SalesInvoiceHeader) then
             FillSalesInvoicePaymentServices(HTMLText, PaymentServicesSectionHTMLText, PaymentServiceRowHTMLText, SalesInvoiceHeader);
     end;
 
@@ -509,6 +508,17 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         if ImageHandlerManagement.GetImageSizeBlob(TempBlob, ImageWidth, ImageHeight) then
             if ImageHeight > AdvisedImageHeightPixels then
                 if ImageHandlerManagement.ScaleDownFromBlob(TempBlob, ImageWidth, AdvisedImageHeightPixels) then;
+    end;
+
+    local procedure IsSalesInvoiceCanceled(var SalesInvoiceHeader: Record "Sales Invoice Header") Result: Boolean
+    begin
+        Result := SalesInvoiceHeader.CalcFields(Cancelled);
+        OnAfterIsSalesInvoiceCanceled(SalesInvoiceHeader, Result);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsSalesInvoiceCanceled(var SalesInvoiceHeader: Record "Sales Invoice Header"; var Result: Boolean)
+    begin
     end;
 }
 

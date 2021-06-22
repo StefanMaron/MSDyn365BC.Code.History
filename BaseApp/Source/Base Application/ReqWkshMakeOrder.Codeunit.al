@@ -1,10 +1,17 @@
-codeunit 333 "Req. Wksh.-Make Order"
+﻿codeunit 333 "Req. Wksh.-Make Order"
 {
     Permissions = TableData "Sales Line" = m;
     TableNo = "Requisition Line";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if PlanningResiliency then
             LockTable();
 
@@ -46,7 +53,6 @@ codeunit 333 "Req. Wksh.-Make Order"
         PostingDateReq: Date;
         ReceiveDateReq: Date;
         EndOrderDate: Date;
-        PlanningResiliency: Boolean;
         PrintPurchOrders: Boolean;
         ReferenceReq: Text[35];
         MonthText: Text[30];
@@ -67,14 +73,22 @@ codeunit 333 "Req. Wksh.-Make Order"
         PrevLocationCode: Code[10];
         NameAddressDetails: Text;
         SuppressCommit: Boolean;
+        HideProgressWindow: Boolean;
+
+    protected var
+        PlanningResiliency: Boolean;
 
     procedure CarryOutBatchAction(var ReqLine2: Record "Requisition Line")
     var
         ReqLine: Record "Requisition Line";
+        IsHandled: Boolean;
     begin
         ReqLine.Copy(ReqLine2);
         ReqLine.SetRange("Accept Action Message", true);
-        OnBeforeCarryOutBatchActionCode(ReqLine);
+        IsHandled := false;
+        OnBeforeCarryOutBatchActionCode(ReqLine, ReqLine2, IsHandled);
+        if IsHandled then
+            exit;
         Code(ReqLine);
         ReqLine2 := ReqLine;
     end;
@@ -124,22 +138,12 @@ codeunit 333 "Req. Wksh.-Make Order"
                 exit;
             end;
 
-            if ReqTemplate.Recurring then
-                Window.Open(
-                  Text000 +
-                  Text001 +
-                  Text002 +
-                  Text003 +
-                  Text004)
-            else
-                Window.Open(
-                  Text000 +
-                  Text001 +
-                  Text002 +
-                  Text003 +
-                  Text005);
+            OnCodeOnBeforeInitProgressWindow(ReqTemplate, HideProgressWindow);
+            if not HideProgressWindow then
+                InitProgressWindow();
 
-            Window.Update(1, "Journal Batch Name");
+            if not HideProgressWindow then
+                Window.Update(1, "Journal Batch Name");
 
             // Check lines
             CheckRequisitionLines(ReqLine);
@@ -180,7 +184,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                     if ReqLine2.FindFirst then; // Remember the last line
 
                     IsHandled := false;
-                    OnBeforeDeleteReqLines(ReqLine, TempFailedReqLine, IsHandled);
+                    OnBeforeDeleteReqLines(ReqLine, TempFailedReqLine, IsHandled, ReqLine2);
                     if not IsHandled then
                         if Find('-') then
                             repeat
@@ -223,7 +227,8 @@ codeunit 333 "Req. Wksh.-Make Order"
         StartLineNo := ReqLine."Line No.";
         repeat
             LineCount := LineCount + 1;
-            Window.Update(2, LineCount);
+            if not HideProgressWindow then
+                Window.Update(2, LineCount);
             CheckRecurringReqLine(ReqLine);
             CheckRequisitionLine(ReqLine);
             if ReqLine.Next = 0 then
@@ -456,9 +461,11 @@ codeunit 333 "Req. Wksh.-Make Order"
                   OrderCounter,
                   OrderLineCounter);
 
-                Window.Update(3, OrderCounter);
-                Window.Update(4, LineCount);
-                Window.Update(5, OrderLineCounter);
+                if not HideProgressWindow then begin
+                    Window.Update(3, OrderCounter);
+                    Window.Update(4, LineCount);
+                    Window.Update(5, OrderLineCounter);
+                end;
                 exit(true);
             end;
             exit(false)
@@ -546,7 +553,8 @@ codeunit 333 "Req. Wksh.-Make Order"
 
             LineCount := LineCount + 1;
             if not PlanningResiliency then
-                Window.Update(4, LineCount);
+                if not HideProgressWindow then
+                    Window.Update(4, LineCount);
 
             TestField("Currency Code", PurchOrderHeader."Currency Code");
 
@@ -611,6 +619,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                 TestField("Bin Code", SalesOrderLine."Bin Code");
                 TestField("Prod. Order No.", '');
                 TestField("Qty. per Unit of Measure", "Qty. per Unit of Measure");
+                OnInsertPurchOrderLineOnBeforeSalesOrderLineValidateUnitCostLCY(PurchOrderLine, SalesOrderLine);
                 SalesOrderLine.Validate("Unit Cost (LCY)");
 
                 if SalesOrderLine."Special Order" then begin
@@ -659,7 +668,8 @@ codeunit 333 "Req. Wksh.-Make Order"
         with ReqLine2 do begin
             OrderCounter := OrderCounter + 1;
             if not PlanningResiliency then
-                Window.Update(3, OrderCounter);
+                if not HideProgressWindow then
+                    Window.Update(3, OrderCounter);
 
             PurchSetup.Get();
             PurchSetup.TestField("Order Nos.");
@@ -731,7 +741,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             PurchOrderHeader.Validate("Buy-from Vendor No.", RequisitionLine."Vendor No.");
     end;
 
-    local procedure UpdateShipToOrLocationCode(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header")
+    local procedure UpdateShipToOrLocationCode(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header")
     var
         IsHandled: Boolean;
     begin
@@ -744,6 +754,11 @@ codeunit 333 "Req. Wksh.-Make Order"
             PurchaseHeader.Validate("Ship-to Code", RequisitionLine."Ship-to Code")
         else
             PurchaseHeader.Validate("Location Code", RequisitionLine."Location Code");
+    end;
+
+    procedure RunFinalizeOrderHeader(PurchOrderHeader: Record "Purchase Header"; var ReqLine: Record "Requisition Line")
+    begin
+        FinalizeOrderHeader(PurchOrderHeader, ReqLine);
     end;
 
     local procedure FinalizeOrderHeader(PurchOrderHeader: Record "Purchase Header"; var ReqLine: Record "Requisition Line")
@@ -766,7 +781,8 @@ codeunit 333 "Req. Wksh.-Make Order"
                 repeat
                     OrderLineCounter := OrderLineCounter + 1;
                     if not PlanningResiliency then
-                        Window.Update(5, OrderLineCounter);
+                        if not HideProgressWindow then
+                            Window.Update(5, OrderLineCounter);
                     if ReqLine2."Order Date" <> 0D then begin
                         ReqLine2.Validate(
                         "Order Date",
@@ -786,7 +802,8 @@ codeunit 333 "Req. Wksh.-Make Order"
             // Not a recurring journal
             OrderLineCounter := OrderLineCounter + LineCount;
             if not PlanningResiliency then
-                Window.Update(5, OrderLineCounter);
+                if not HideProgressWindow then
+                    Window.Update(5, OrderLineCounter);
 
             ReqLine2.Copy(ReqLine);
             ReqLine2.SetRange("Vendor No.", PurchOrderHeader."Buy-from Vendor No.");
@@ -1222,13 +1239,31 @@ codeunit 333 "Req. Wksh.-Make Order"
         if TempTransHeader.Insert() then;
     end;
 
+    local procedure InitProgressWindow()
+    begin
+        if ReqTemplate.Recurring then
+            Window.Open(
+              Text000 +
+              Text001 +
+              Text002 +
+              Text003 +
+              Text004)
+        else
+            Window.Open(
+              Text000 +
+              Text001 +
+              Text002 +
+              Text003 +
+              Text005);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var ReqLine: Record "Requisition Line"; PlanningResiliency: Boolean; SuppressCommit: Boolean; PrintPurchOrders: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCarryOutBatchActionCode(var RequisitionLine: Record "Requisition Line")
+    local procedure OnBeforeCarryOutBatchActionCode(var RequisitionLine: Record "Requisition Line"; var ReqLine2: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1243,7 +1278,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteReqLines(var ReqLine: Record "Requisition Line"; var TempFailedReqLine: Record "Requisition Line" temporary; var IsHandled: Boolean);
+    local procedure OnBeforeDeleteReqLines(var ReqLine: Record "Requisition Line"; var TempFailedReqLine: Record "Requisition Line" temporary; var IsHandled: Boolean; var ReqLine2: Record "Requisition Line");
     begin
     end;
 
@@ -1372,6 +1407,11 @@ codeunit 333 "Req. Wksh.-Make Order"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnRun(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBuyFromVendorNo(var PurchOrderHeader: Record "Purchase Header"; var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
@@ -1402,7 +1442,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCodeOnBeforeFinalizeOrderHeader(PurchOrderHeader: Record "Purchase Header"; var ReqLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1412,7 +1452,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -1434,6 +1474,16 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertPurchOrderLineOnBeforeInsertHeader(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var LineCount: Integer; var NextLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPurchOrderLineOnBeforeSalesOrderLineValidateUnitCostLCY(var PurchOrderLine: Record "Purchase Line"; var SalesOrderLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeInitProgressWindow(ReqTemplate: Record "Req. Wksh. Template"; var HideProgressWindow: Boolean)
     begin
     end;
 }

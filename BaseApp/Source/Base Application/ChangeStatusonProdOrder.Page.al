@@ -1,4 +1,4 @@
-page 99000882 "Change Status on Prod. Order"
+﻿page 99000882 "Change Status on Prod. Order"
 {
     Caption = 'Change Status on Prod. Order';
     DataCaptionExpression = '';
@@ -87,7 +87,14 @@ page 99000882 "Change Status on Prod. Order"
     end;
 
     procedure ReturnPostingInfo(var Status: Enum "Production Order Status"; var PostingDate2: Date; var UpdUnitCost: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReturnPostingInfo(Status, PostingDate2, UpdUnitCost, IsHandled);
+        if IsHandled then
+            exit;
+
         Status := ProdOrderStatus.Status;
         PostingDate2 := PostingDate;
         UpdUnitCost := ReqUpdUnitCost;
@@ -101,6 +108,11 @@ page 99000882 "Change Status on Prod. Order"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterSet(ProdOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReturnPostingInfo(var Status: Enum "Production Order Status"; var PostingDate2: Date; var UpdUnitCost: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

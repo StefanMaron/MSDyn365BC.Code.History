@@ -98,11 +98,18 @@ codeunit 6113 "Item Data Migration Facade"
         GlobalItem.Modify(RunTrigger);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
-    procedure CreateSalesLineDiscountIfNeeded(SalesTypeToSet: Option Customer,"Customer Disc. Group","All Customers",Campaign; SalesCodeToSet: Code[10]; TypeToSet: Option Item,"Item Disc. Group"; CodeToSet: Code[20]; LineDiscountPercentToSet: Decimal): Boolean
+    [Obsolete('Replaced by the CreateSalesLineDiscountIfNeeded(SourceType: Enum "Price Source Type"; ...)', '17.0')]
+    procedure CreateSalesLineDiscountIfNeeded(SalesTypeToSet: Option Customer,"Customer Disc. Group","All Customers",Campaign; SalesCodeToSet: Code[20]; TypeToSet: Option Item,"Item Disc. Group"; CodeToSet: Code[20]; LineDiscountPercentToSet: Decimal): Boolean
     var
         SalesLineDiscount: Record "Sales Line Discount";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
+        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
+            exit(
+                CreateSalesLineDiscountIfNeeded(
+                    SalesDiscTypeToSourceType(SalesTypeToSet), SalesCodeToSet,
+                    DiscTypeToAssetType(TypeToSet), CodeToSet, 0, LineDiscountPercentToSet));
+
         SalesLineDiscount.SetRange("Sales Type", SalesTypeToSet);
         SalesLineDiscount.SetRange("Sales Code", SalesCodeToSet);
         SalesLineDiscount.SetRange(Type, TypeToSet);
@@ -119,6 +126,30 @@ codeunit 6113 "Item Data Migration Facade"
         SalesLineDiscount.Validate(Code, CodeToSet);
         SalesLineDiscount.Validate("Line Discount %", LineDiscountPercentToSet);
         SalesLineDiscount.Insert(true);
+        exit(true);
+    end;
+
+    local procedure DiscTypeToAssetType(DiscType: Option Item,"Item Disc. Group"): Enum "Price Asset Type";
+    begin
+        case DiscType of
+            DiscType::Item:
+                exit("Price Asset Type"::Item);
+            DiscType::"Item Disc. Group":
+                exit("Price Asset Type"::"Item Discount Group");
+        end;
+    end;
+
+    procedure CreateSalesLineDiscountIfNeeded(SourceType: Enum "Price Source Type"; SourceNo: Code[20]; AssetType: Enum "Price Asset Type"; AssetNo: Code[20]; MinimumQuantity: Decimal; LineDiscountPercent: Decimal): Boolean
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        InitSalesPriceListLine(
+            PriceListLine, SourceType, SourceNo, '', 0D, AssetType, AssetNo, '', '', MinimumQuantity);
+        PriceListLine."Amount Type" := "Price Amount Type"::Discount;
+        PriceListLine."Line Discount %" := LineDiscountPercent;
+        if FindPriceListLine(PriceListLine) then
+            exit(false);
+        InsertPriceListLine(PriceListLine);
         exit(true);
     end;
 
@@ -150,11 +181,18 @@ codeunit 6113 "Item Data Migration Facade"
         exit(true);
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the CreateSalesPriceIfNeeded(SourceType: Enum "Price Source Type"; ...)', '16.0')]
     procedure CreateSalesPriceIfNeeded(SalesTypeToSet: Option Customer,"Customer Price Group","All Customers",Campaign; SalesCodeToSet: Code[20]; ItemNoToSet: Code[20]; UnitPriceToSet: Decimal; CurrencyCodeToSet: Code[10]; StartingDateToSet: Date; UnitOfMeasureToSet: Code[10]; MinimumQuantityToSet: Decimal; VariantCodeToSet: Code[10]): Boolean
     var
         SalesPrice: Record "Sales Price";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
+        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
+            exit(
+                CreateSalesPriceIfNeeded(
+                    SalesPriceTypeToSourceType(SalesTypeToSet), SalesCodeToSet, CurrencyCodeToSet, StartingDateToSet,
+                    ItemNoToSet, VariantCodeToSet, UnitOfMeasureToSet, MinimumQuantityToSet, UnitPriceToSet));
+
         if SalesPrice.Get(ItemNoToSet, SalesTypeToSet, SalesCodeToSet, StartingDateToSet, CurrencyCodeToSet,
              VariantCodeToSet, UnitOfMeasureToSet, MinimumQuantityToSet)
         then
@@ -173,6 +211,88 @@ codeunit 6113 "Item Data Migration Facade"
 
         SalesPrice.Insert(true);
         exit(true);
+    end;
+
+    local procedure SalesPriceTypeToSourceType(SalesType: Option Customer,"Customer Price Group","All Customers",Campaign): Enum "Price Source Type";
+    begin
+        case SalesType of
+            SalesType::Customer:
+                exit("Price Source Type"::Customer);
+            SalesType::"Customer Price Group":
+                exit("Price Source Type"::"Customer Price Group");
+            SalesType::"All Customers":
+                exit("Price Source Type"::"All Customers");
+            SalesType::Campaign:
+                exit("Price Source Type"::Campaign);
+        end;
+    end;
+
+    local procedure SalesDiscTypeToSourceType(SalesType: Option Customer,"Customer Disc. Group","All Customers",Campaign): Enum "Price Source Type";
+    begin
+        case SalesType of
+            SalesType::Customer:
+                exit("Price Source Type"::Customer);
+            SalesType::"Customer Disc. Group":
+                exit("Price Source Type"::"Customer Disc. Group");
+            SalesType::"All Customers":
+                exit("Price Source Type"::"All Customers");
+            SalesType::Campaign:
+                exit("Price Source Type"::Campaign);
+        end;
+    end;
+
+    procedure CreateSalesPriceIfNeeded(SourceType: Enum "Price Source Type"; SourceNo: Code[20]; CurrencyCode: Code[10]; StartingDate: Date; AssetNo: Code[20]; VariantCode: Code[10]; UnitOfMeasure: Code[10]; MinimumQuantity: Decimal; UnitPrice: Decimal): Boolean
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        InitSalesPriceListLine(
+            PriceListLine, SourceType, SourceNo, CurrencyCode, StartingDate,
+            "Price Asset Type"::Item, AssetNo, VariantCode, UnitOfMeasure, MinimumQuantity);
+        PriceListLine."Amount Type" := "Price Amount Type"::Price;
+        PriceListLine."Unit Price" := UnitPrice;
+        if FindPriceListLine(PriceListLine) then
+            exit(false);
+        InsertPriceListLine(PriceListLine);
+        exit(true);
+    end;
+
+    local procedure InitSalesPriceListLine(var PriceListLine: Record "Price List Line"; SourceType: Enum "Price Source Type"; SourceNo: Code[20]; CurrencyCode: Code[10]; StartingDate: Date; AssetType: Enum "Price Asset Type"; AssetNo: Code[20]; VariantCode: Code[10]; UnitOfMeasure: Code[10]; MinimumQuantity: Decimal)
+    begin
+        PriceListLine.Init();
+        PriceListLine.Validate("Price Type", "Price Type"::Sale);
+        PriceListLine.Validate("Source Type", SourceType);
+        PriceListLine.Validate("Source No.", SourceNo);
+        PriceListLine.Validate("Currency Code", DataMigrationFacadeHelper.FixIfLcyCode(CurrencyCode));
+        PriceListLine.Validate("Starting Date", StartingDate);
+        PriceListLine.Validate("Asset Type", AssetType);
+        PriceListLine.Validate("Asset No.", AssetNo);
+        PriceListLine.Validate("Variant Code", VariantCode);
+        PriceListLine.Validate("Unit of Measure Code", UnitOfMeasure);
+        PriceListLine.Validate("Minimum Quantity", MinimumQuantity);
+        PriceListLine.Status := PriceListLine.Status::Active;
+    end;
+
+    local procedure FindPriceListLine(PriceListLine: Record "Price List Line"): Boolean;
+    begin
+        PriceListLine.SetRange("Source Type", PriceListLine."Source Type");
+        PriceListLine.SetRange("Source No.", PriceListLine."Source No.");
+        PriceListLine.SetRange("Currency Code", PriceListLine."Currency Code");
+        PriceListLine.SetRange("Starting Date", PriceListLine."Starting Date");
+        PriceListLine.SetRange("Asset Type", PriceListLine."Asset Type");
+        PriceListLine.SetRange("Asset No.", PriceListLine."Asset No.");
+        PriceListLine.SetRange("Variant Code", PriceListLine."Variant Code");
+        PriceListLine.SetRange("Unit of Measure Code", PriceListLine."Unit of Measure Code");
+        PriceListLine.SetRange("Minimum Quantity", PriceListLine."Minimum Quantity");
+        exit(not PriceListLine.IsEmpty);
+    end;
+
+    local procedure InsertPriceListLine(var PriceListLine: Record "Price List Line")
+    var
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+    begin
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.InitLineNo(PriceListLine);
+        PriceListLine.Insert(true);
     end;
 
     procedure CreateTariffNumberIfNeeded(NoToSet: Code[20]; DescriptionToSet: Text[50]; SupplementaryUnitToSet: Boolean): Boolean

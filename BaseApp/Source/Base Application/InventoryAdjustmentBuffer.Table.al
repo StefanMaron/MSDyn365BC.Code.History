@@ -204,6 +204,7 @@ table 5895 "Inventory Adjustment Buffer"
                 if CostCalcIsChanged then
                     QtyFactor := ValueEntry.CalcQtyFactor(FromDate, ToDate);
 
+            OnSumCostsTillValuationDateOnBeforeCalcSums(Rec, QtyFactor, FromDate, ToDate, ValueEntry);
             CalcSums(
               "Item Ledger Entry Quantity",
               "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)",
@@ -325,6 +326,11 @@ table 5895 "Inventory Adjustment Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnSumCostsTillValuationDateGetItem(var Item: Record Item; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumCostsTillValuationDateOnBeforeCalcSums(var Rec: Record "Inventory Adjustment Buffer"; var QtyFactor: decimal; FromDate: Date; ToDate: Date; ValueEntry: Record "Value Entry")
     begin
     end;
 }

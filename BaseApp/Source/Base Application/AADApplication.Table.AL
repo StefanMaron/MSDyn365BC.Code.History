@@ -106,6 +106,7 @@ table 9012 "AAD Application"
             User.Get("User Id");
             User.State := User.State::Enabled;
             User.Modify();
+            exit;
         end;
 
         User.SetRange("License Type", User."License Type"::"Full User");
@@ -126,7 +127,19 @@ table 9012 "AAD Application"
         User: Record User;
     begin
         User.SetRange("User Security ID", "User ID");
-        exit(not User.IsEmpty());
+        if not User.IsEmpty then
+            exit(true);
+
+        User.SetRange("User Security ID");
+        user.SetRange("Application ID", "Client Id");
+        User.SetRange("License Type", User."License Type"::Application);
+        if User.FindFirst() then begin
+            Rec."User ID" := User."User Security ID";
+            Rec.Modify();
+            exit(true);
+        end;
+
+        exit(false);
     end;
 
 

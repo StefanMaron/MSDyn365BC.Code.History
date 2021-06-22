@@ -1,4 +1,4 @@
-codeunit 5899 "Calc. Inventory Value-Check"
+﻿codeunit 5899 "Calc. Inventory Value-Check"
 {
     Permissions = TableData "Avg. Cost Adjmt. Entry Point" = r;
 
@@ -142,13 +142,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
                                         Text014,
                                         "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
                             end else
-                                if ((GetFilter("Location Filter") = '') and (not ByLocation)) or
-                                   ((GetFilter("Variant Filter") = '') and (not ByVariant))
-                                then
-                                    AddError(
-                                      StrSubstNo(
-                                        Text015,
-                                        "Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, "No.", 0);
+                                CheckItemLocationVariantFilters(Item2);
                         end;
                 end;
         end;
@@ -197,6 +191,21 @@ codeunit 5899 "Calc. Inventory Value-Check"
             Error(Text);
     end;
 
+    local procedure CheckItemLocationVariantFilters(var Item: Record Item)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckItemLocationVariantFilters(Item, TempErrorBuf, ErrorCounter, TestMode, ByLocation, ByVariant, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ((Item.GetFilter("Location Filter") = '') and (not ByLocation)) or
+           ((Item.GetFilter("Variant Filter") = '') and (not ByVariant))
+        then
+            AddError(StrSubstNo(Text015, Item."Costing Method", InvtSetup."Average Cost Calc. Type"), DATABASE::Item, Item."No.", 0);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckCalculatePer(var Item: Record Item)
     begin
@@ -214,6 +223,11 @@ codeunit 5899 "Calc. Inventory Value-Check"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckCalculatePerOnAfterSetFilters(var Item2: Record Item; var Item: Record Item; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemLocationVariantFilters(var Item: Record Item; var TempErrorBuf: Record "Error Buffer" temporary; var ErrorCounter: Integer; TestMode: Boolean; ByLocation: Boolean; ByVariant: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

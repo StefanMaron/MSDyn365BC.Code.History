@@ -5,15 +5,6 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 3056278879 - NamedType 3568547346" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SALES 17Q1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Budgets & Analysis Reports E2E - NamedType Sales17Q1Tok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3056278879 - NamedType 2195677311" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Sales Budget 2017,Q1]]></Val>
@@ -21,15 +12,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Budgets & Analysis Reports E2E - NamedType SalesBudgetQ1Txt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3056278879 - NamedType 141335343" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PURCH 17Q1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Budgets & Analysis Reports E2E - NamedType Purchase17Q1Tok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3056278879 - NamedType 946419490" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -41,15 +23,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Budgets & Analysis Reports E2E - NamedType PurchaseBudgetQ1Txt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3056278879 - NamedType 3925794419" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SELECTED]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Budgets & Analysis Reports E2E - NamedType SelectedTok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3056278879 - NamedType 2488100643" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Selected]]></Val>
@@ -57,24 +30,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Budgets & Analysis Reports E2E - NamedType SelectedTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3056278879 - NamedType 1204798487" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BUDGET]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Budgets & Analysis Reports E2E - NamedType BudgetTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3056278879 - NamedType 2559566916" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SALES]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Budgets & Analysis Reports E2E - NamedType SalesTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3056278879 - NamedType 3922049689" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -140,78 +95,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Budgets & Analysis Reports E2E - NamedType InsertNotAllowedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1655018729 - NamedType 164775172" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ADM]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType AdmTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1655018729 - NamedType 2559566916" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SALES]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType SalesTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1655018729 - NamedType 1288234851" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PROD]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType ProdTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1655018729 - NamedType 3305468238" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[MAIN1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType Main1Tok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1655018729 - NamedType 1785209675" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[MAIN2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType Main2Tok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1655018729 - NamedType 2941729352" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ALLOC1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType Alloc1Tok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1655018729 - NamedType 2347694281" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ALLOC2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType Alloc2Tok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1655018729 - NamedType 2302316874" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ALLOC3]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType Alloc3Tok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1655018729 - NamedType 3381748491" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[REVENUE]]></Val>
@@ -255,24 +138,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType AllocationAccountCostTypeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1655018729 - NamedType 2115797368" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DEPARTMENT]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType DepartmentTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1655018729 - NamedType 625158669" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CUSTOMERGROUP]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Cost Accounting Plan-based E2E - NamedType CustomerGroupTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1655018729 - NamedType 988286292" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -608,6 +473,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Editing Permissions - NamedType CannotEditPermissionSetMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1853180782 - NamedType 1287549821" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot rename a tenant permission set until it is used elsewhere, for example, in permission settings for a user or user group.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Editing Permissions - NamedType CannotRenameTenantPermissionSetHavingUsageErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3543016557 - NamedType 3455024197" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Table %1 %2 does not exist in any permission set (read test for resolution). Please add it to a permission set.]]></Val>
@@ -833,15 +707,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Granules - NamedType XVENDOREDITTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3543016557 - NamedType 3845801186" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SECURITY]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Granules - NamedType XSECURITYTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3543016557 - NamedType 2159803628" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[D365 PURCH DOC, EDIT]]></Val>
@@ -858,15 +723,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Granules - NamedType XPURCHDOCPOSTTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3543016557 - NamedType 3939792892" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[D365 PROFILE MGT]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Granules - NamedType ProfileManagementTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3543016557 - NamedType 4204286879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -941,15 +797,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Granules - NamedType D365PermissionSetPrefixFilterTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3543016557 - NamedType 3999873198" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[D365 READ]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Granules - NamedType ReadTok)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3543016557 - NamedType 837465789" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[<>D365PREM*&D365*]]></Val>
@@ -957,33 +804,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Granules - NamedType D365EssentialPermissionSetFilterTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3543016557 - NamedType 975981754" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[D365 BASIC ISV]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Granules - NamedType BasicISVTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3543016557 - NamedType 928426331" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[D365 Monitor Fields]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Granules - NamedType D365MonitorFields)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3543016557 - NamedType 2787175300" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[RETENTION POL. SETUP]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test Granules - NamedType XRetentionPolSetupTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3543016557 - NamedType 3835584975" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

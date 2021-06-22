@@ -121,6 +121,8 @@ report 698 "Get Sales Orders"
     end;
 
     local procedure InsertReqWkshLine(SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
         ReqLine.Reset();
         ReqLine.SetCurrentKey(Type, "No.");
@@ -151,12 +153,16 @@ report 698 "Get Sales Orders"
             then
                 Validate("Replenishment System", "Replenishment System"::Purchase);
 
+            OnInsertReqWkshLineOnBeforeValidateUoM(ReqLine, SalesLine, SpecOrder);
             if SpecOrder <> 1 then
                 Validate("Unit of Measure Code", SalesLine."Unit of Measure Code");
             ValidateRequisitionLineQuantity(ReqLine, SalesLine);
             "Sales Order No." := SalesLine."Document No.";
             "Sales Order Line No." := SalesLine."Line No.";
-            "Sell-to Customer No." := SalesLine."Sell-to Customer No.";
+            IsHandled := false;
+            OnInsertReqWkshLineOnBeforeSetSellToCustomerNo(ReqLine, SalesLine, SpecOrder, IsHandled);
+            if not IsHandled then
+                "Sell-to Customer No." := SalesLine."Sell-to Customer No.";
             SalesHeader.Get(1, SalesLine."Document No.");
             if SpecOrder <> 1 then
                 "Ship-to Code" := SalesHeader."Ship-to Code";
@@ -224,6 +230,16 @@ report 698 "Get Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateRequisitionLineQuantity(var ReqLine: Record "Requisition Line"; SalesLine: Record "Sales Line"; SpecOrder: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReqWkshLineOnBeforeValidateUoM(var ReqLine: Record "Requisition Line"; SalesLine: Record "Sales Line"; SpecOrder: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReqWkshLineOnBeforeSetSellToCustomerNo(var ReqLine: Record "Requisition Line"; SalesLine: Record "Sales Line"; SpecOrder: Integer; var IsHandled: Boolean)
     begin
     end;
 }

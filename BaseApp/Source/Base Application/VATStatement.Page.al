@@ -1,6 +1,6 @@
 page 317 "VAT Statement"
 {
-    ApplicationArea = VAT;
+    ApplicationArea = Basic, Suite;
     AutoSplitKey = true;
     Caption = 'VAT Statements';
     MultipleNewLines = true;
@@ -15,7 +15,7 @@ page 317 "VAT Statement"
         {
             field(CurrentStmtName; CurrentStmtName)
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'Name';
                 Lookup = true;
                 ToolTip = 'Specifies the name of the VAT statement.';
@@ -36,27 +36,27 @@ page 317 "VAT Statement"
                 ShowCaption = false;
                 field("Row No."; "Row No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement line.';
                 }
                 field("Box No."; "Box No.")
                 {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the number on the packaging box that the VAT statement applies to.';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number on the box that the VAT statement applies to.';
                 }
                 field(Type; Type)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies what the VAT statement line will include.';
                 }
                 field("Account Totaling"; "Account Totaling")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an account interval or a series of account numbers.';
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -72,47 +72,47 @@ page 317 "VAT Statement"
                 }
                 field("Gen. Posting Type"; "Gen. Posting Type")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of transaction.';
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("Amount Type"; "Amount Type")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the VAT statement line shows the VAT amounts or the base amounts on which the VAT is calculated.';
                 }
                 field("Row Totaling"; "Row Totaling")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a row-number interval or a series of row numbers.';
                 }
                 field("Calculate with"; "Calculate with")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether amounts on the VAT statement will be calculated with their original sign or with the sign reversed.';
                 }
                 field(Control22; Print)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the VAT statement line will be printed on the report that contains the finished VAT statement.';
                 }
                 field("Print with"; "Print with")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether amounts on the VAT statement will be printed with their original sign or with the sign reversed.';
                 }
                 field("New Page"; "New Page")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether a new page should begin immediately after this line when the VAT statement is printed. To start a new page after this line, place a check mark in the field.';
                 }
             }
@@ -142,7 +142,7 @@ page 317 "VAT Statement"
                 Image = Suggest;
                 action("P&review")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'P&review';
                     Image = View;
                     Promoted = true;
@@ -162,7 +162,7 @@ page 317 "VAT Statement"
                 Image = "Action";
                 action(Print)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Print';
                     Ellipsis = true;
                     Image = Print;
@@ -177,7 +177,7 @@ page 317 "VAT Statement"
                 }
                 action("Calc. and Post VAT Settlement")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Calculate and Post VAT Settlement';
                     Ellipsis = true;
                     Image = SettleOpenTransactions;

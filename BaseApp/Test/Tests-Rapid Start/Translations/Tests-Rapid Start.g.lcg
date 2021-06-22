@@ -500,40 +500,40 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Base Operations - NamedType ParentTableNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 3756161750" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3444400497 - NamedType 3225378089" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There are errors in Package Data Error.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType PackageDataError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType PackageDataErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 569957936" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3444400497 - NamedType 3876054955" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There are errors in Apply Migration Data.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ApplyError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ApplyErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 3031896719" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3444400497 - NamedType 1104536508" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Package Card page shows incorrect data.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType Text101)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType Text101Err)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 12322657" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3444400497 - NamedType 1570144638" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Gen. Journal Line is not posted.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType Text103)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType Text103Err)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3444400497 - NamedType 360653831" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -545,85 +545,58 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType NoDataAfterImportErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 805038380" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3444400497 - NamedType 362445271" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Data is not applied in case validation flag for field is set to false.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ErrorInApplyingWithoutValidationFlag)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ErrorInApplyingWithoutValidationFlagErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 3821584483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3444400497 - NamedType 1295075816" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Only normal fields should be available after import.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType FlowFieldAppearedInData)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType FlowFieldAppearedInDataErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 2293130969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Error on evaluating %1 datatype.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ErrorOnEvaluating)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 2835731402" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Must be error on evaluating %1 datatype.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType NoErrorOnEvaluating)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 1999936142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 is incorrect.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType FieldValueIsIncorrect)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 2200283451" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3444400497 - NamedType 2640486416" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[XML Package Data Export/Import change existing package data.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ExportImportInterfereError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ExportImportInterfereErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 159735276" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3444400497 - NamedType 605896847" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[XML Package Data Export/Import process wrong package.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ExportImportWrongPackageError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ExportImportWrongPackageErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 3880091619" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3444400497 - NamedType 2748058984" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Table ID was validated incorrectly.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType TableNotValidated)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType TableNotValidatedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 2682544118" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3444400497 - NamedType 4186067537" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Localization information in the XML document was generated incorrectly.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType XMLGeneratedIncorrectly)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType XMLGeneratedIncorrectlyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3444400497 - NamedType 3440115406" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -662,24 +635,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType DecompressWrongResultErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 3111952567" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 value is incorrect.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ValueIsIncorrectErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 2083853449" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are errors in Package %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType PackageErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3444400497 - NamedType 334607494" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unhandled UI: Confirm]]></Val>
@@ -687,15 +642,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType UnhandledConfirmErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 2431531758" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[An error occurred while importing the %1 table. The table does not exist in the database.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[An error occurred while importing the -452 table. The table does not exist in the database.]D;]A;(LookupHint=Codeunit ERM RS Package Operations - NamedType PackageImportErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3444400497 - NamedType 3220713264" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -716,24 +662,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType MustBeIntegersErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 666514337" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Line %1 does not exist in preview page.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType MissingLineErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3444400497 - NamedType 2370489084" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Line %1 must not exist in preview page.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ExistingLineErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3444400497 - NamedType 1370433386" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The package code in all sheets of the Excel file must match the selected package code, %1. Modify the package code in the Excel file or import this file from the Configuration Packages page to create a new package.]]></Val>
@@ -750,6 +678,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = The name of the table.]D;]A;(LookupHint=Codeunit ERM RS Package Operations - NamedType ImportNotAllowedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3444400497 - NamedType 3038109066" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[External tables cannot be added in Configuration Packages.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Package Operations - NamedType ExternalTablesAreNotAllowedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3940433180 - NamedType 2776329861" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

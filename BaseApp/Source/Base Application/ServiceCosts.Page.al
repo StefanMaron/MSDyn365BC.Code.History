@@ -82,7 +82,7 @@ page 5910 "Service Costs"
             action(SalesPriceLists)
             {
                 ApplicationArea = Service;
-                Caption = 'Prices';
+                Caption = 'Sales Prices';
                 Image = SalesPrices;
                 Promoted = true;
                 PromotedCategory = Process;

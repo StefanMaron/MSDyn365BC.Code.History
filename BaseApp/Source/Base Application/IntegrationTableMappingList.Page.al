@@ -250,6 +250,29 @@ page 5335 "Integration Table Mapping List"
                     Message(FullSynchronizationScheduledMsg, IntegrationSynchJobList.Caption);
                 end;
             }
+            action(UnconditionalSynchronizeAll)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Run Unconditional Full Synchronization';
+                Enabled = HasRecords AND ("Parent Name" = '') AND (Direction <> Direction::Bidirectional);
+                Image = RefreshLines;
+                Promoted = true;
+                PromotedCategory = Category4;
+                ToolTip = 'Start the default integration job for synchronizing this Business Central record type and Dynamics 365 Sales entity, unconditionally for all records.';
+
+                trigger OnAction()
+                var
+                    IntegrationSynchJobList: Page "Integration Synch. Job List";
+                begin
+                    if IsEmpty then
+                        exit;
+
+                    if not Confirm(StartUnconditionalFullSynchronizationQst) then
+                        exit;
+                    SynchronizeNow(true, true);
+                    Message(FullSynchronizationScheduledMsg, IntegrationSynchJobList.Caption);
+                end;
+            }
             action("View Integration Uncouple Job Log")
             {
                 ApplicationArea = Suite;
@@ -284,22 +307,42 @@ page 5335 "Integration Table Mapping List"
                 trigger OnAction()
                 var
                     IntegrationTableMapping: Record "Integration Table Mapping";
+                    FilteredIntegrationTableMapping: Record "Integration Table Mapping";
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
                     IntegrationSynchJobList: Page "Integration Synch. Job List";
+                    ForegroundCount: Integer;
                     JobCount: Integer;
+                    ConfirmMsg: Text;
+                    ResultMsg: Text;
                 begin
                     CurrPage.SetSelectionFilter(IntegrationTableMapping);
                     if not IntegrationTableMapping.FindSet() then
                         exit;
 
-                    if not Confirm(StartUncouplingQst) then
+                    CurrPage.SetSelectionFilter(FilteredIntegrationTableMapping);
+                    FilteredIntegrationTableMapping.SetRange("Uncouple Codeunit ID", Codeunit::"CDS Int. Table Uncouple");
+                    if not FilteredIntegrationTableMapping.IsEmpty() then begin
+                        ConfirmMsg := StartUncouplingQst;
+                        ResultMsg := RemoveCouplingsScheduledMsg;
+                    end else begin
+                        ConfirmMsg := StartUncouplingForegroundQst;
+                        ResultMsg := UncouplingCompletedMsg;
+                    end;
+                    if not Confirm(ConfirmMsg) then
                         exit;
 
                     repeat
                         CRMIntegrationManagement.RemoveCoupling(IntegrationTableMapping."Table ID", IntegrationTableMapping."Integration Table ID");
-                        JobCount += 1;
+                        if IntegrationTableMapping."Uncouple Codeunit ID" = Codeunit::"CDS Int. Table Uncouple" then
+                            JobCount += 1
+                        else
+                            ForegroundCount += 1;
                     until IntegrationTableMapping.Next() = 0;
-                    Message(RemoveCouplingsScheduledMsg, IntegrationSynchJobList.Caption, JobCount)
+
+                    if ForegroundCount > 0 then
+                        Message(ResultMsg, IntegrationSynchJobList.Caption, JobCount, StrSubstNo(RemoveCouplingsForegroundMsg, ForegroundCount))
+                    else
+                        Message(ResultMsg, IntegrationSynchJobList.Caption, JobCount, '');
                 end;
             }
         }
@@ -333,11 +376,15 @@ page 5335 "Integration Table Mapping List"
         IntegrationTableCaptionValue: Text[250];
         TableFilter: Text;
         IntegrationTableFilter: Text;
-        StartFullSynchronizationQst: Label 'You are about synchronize all data within the mapping.\The synchronization will run in the background, so you can continue with other tasks.\\Do you want to continue?';
+        StartFullSynchronizationQst: Label 'You are about to synchronize all data within the mapping.\The synchronization will run in the background, so you can continue with other tasks.\\Do you want to continue?';
+        StartUnconditionalFullSynchronizationQst: Label 'You are about to synchronize all data within the mapping, regardless of whether they were modified since last synchronization or not.\The synchronization will run in the background, so you can continue with other tasks.\\Do you want to continue?';
         StartUncouplingQst: Label 'You are about to uncouple the selected mappings, which means data for the records will no longer synchronize.\The uncoupling will run in the background, so you can continue with other tasks.\\Do you want to continue?';
+        StartUncouplingForegroundQst: Label 'You are about to uncouple the selected mappings, which means data for the records will no longer synchronize.\\Do you want to continue?';
+        UncouplingCompletedMsg: Label 'Uncoupling completed.';
         SynchronizeModifiedScheduledMsg: Label 'Synchronization is scheduled for Modified Records.\Details are available on the %1 page.', Comment = '%1 caption from page Integration Synch. Job List';
         FullSynchronizationScheduledMsg: Label 'Full Synchronization is scheduled.\Details are available on the %1 page.', Comment = '%1 caption from page Integration Synch. Job List';
-        RemoveCouplingsScheduledMsg: Label 'Uncoupling is scheduled for %2 mappings.\Details are available on the %1 page.', Comment = '%1 - caption from page 5344, %2 - scheduled job count';
+        RemoveCouplingsScheduledMsg: Label 'Uncoupling is scheduled for %2 mappings. %3\Details are available on the %1 page.', Comment = '%1 - caption from page 5344, %2 - scheduled job count, %3 - additional foreground job message';
+        RemoveCouplingsForegroundMsg: Label '%1 mappings are uncoupled.', Comment = '%1 - foreground uncoupling count';
         NoRecSelectedErr: Label 'You must choose at least one integration table mapping.';
         HasRecords: Boolean;
         CRMIntegrationEnabled: Boolean;

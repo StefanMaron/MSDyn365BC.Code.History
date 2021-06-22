@@ -2296,6 +2296,31 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         CreatePayment.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsUseDueDateAsPostingDateRPH')]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentUseDueDateActivityOnRequestPage()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        SuggestVendorPayments: Report "Suggest Vendor Payments";
+    begin
+        // [FEATURE] [UI] [REPORT]
+        // [SCENARIO 370135] Switching UseDueDateAsPostingDate to TRUE enables DueDateOffset field and disables PostingDate field
+        Initialize();
+
+        // [GIVEN] Created and posted Gen. Journal Line
+        CreateAndPostGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          GenJournalLine."Document Type"::Invoice, -1);
+
+        // [WHEN] Run Report "Suggest Vendor Payment" for this Gen. Journal Line
+        // [THEN] PostingDate is not editable, DueDateOffset is enabled and editable on RPH
+        SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Account No.");
+        SuggestVendorPayments.Run();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+    
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -3598,6 +3623,17 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SuggestVendorPayments.SummarizePerVendor.SetValue(LibraryVariableStorage.DequeueBoolean());
         SuggestVendorPayments.NewDocNoPerLine.SetValue(LibraryVariableStorage.DequeueBoolean());
         SuggestVendorPayments.OK.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentsUseDueDateAsPostingDateRPH(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
+    begin
+        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SuggestVendorPayments.UseDueDateAsPostingDate.SetValue(true);
+        Assert.IsFalse(SuggestVendorPayments.PostingDate.Editable, '');
+        Assert.IsTrue(SuggestVendorPayments.DueDateOffset.Enabled, '');
+        Assert.IsTrue(SuggestVendorPayments.DueDateOffset.Editable, '');
     end;
 
     [ModalPageHandler]

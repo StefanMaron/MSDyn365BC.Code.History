@@ -27,6 +27,7 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryService: Codeunit "Library - Service";
         LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryJob: Codeunit "Library - Job";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
@@ -1823,6 +1824,187 @@ codeunit 137088 "SCM Order Planning - III"
           DATABASE::"Requisition Line");
     end;
 
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReserveOrderPlanningDemandJobSupplyProdOrder()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        RequisitionLine: Record "Requisition Line";
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+    begin
+        // [FEATURE] [Order Planning] [Reservation] [Binding] [Job Planning Line] [Production Order]
+        // [SCENARIO 371276] Order-to-Order reservation is established when production order supplying job planning line is created from Order Planning.
+        Initialize();
+
+        // [GIVEN] Item "I" that is replenished by production order.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Modify(true);
+
+        // [GIVEN] Job, Job Task and Job Planning Line for item "I".
+        CreateJobPlanningLine(JobPlanningLine, Item."No.", '');
+
+        // [GIVEN] Calculate Order Planning for job planning lines.
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
+
+        // [GIVEN] Find a planning line for item "I" and set "Reserve" = TRUE on it.
+        FindRequisitionLine(RequisitionLine, JobPlanningLine."Job No.", Item."No.", '');
+        RequisitionLine.Validate(Reserve, true);
+        RequisitionLine.Modify(true);
+
+        // [WHEN] Make a production order to supply the job planning line.
+        MakeSupplyOrders(
+          RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
+          ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
+
+        // [THEN] The job planning line is now reserved from production order with "Order-to-Order" binding.
+        VerifyOrderToOrderBindingOnReservEntry(
+          DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
+          DATABASE::"Prod. Order Line");
+    end;
+
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReserveOrderPlanningDemandJobSupplyTransfer()
+    var
+        Item: Record Item;
+        Location: array[3] of Record Location;
+        TransferRoute: Record "Transfer Route";
+        JobPlanningLine: Record "Job Planning Line";
+        RequisitionLine: Record "Requisition Line";
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+    begin
+        // [FEATURE] [Order Planning] [Reservation] [Binding] [Job Planning Line] [Transfer Order]
+        // [SCENARIO 371276] Order-to-Order reservation is established when transfer order supplying job planning line is created from Order Planning.
+        Initialize();
+
+        // [GIVEN] Item "I".
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Locations "From", "To" with a transfer route between them.
+        LibraryWarehouse.CreateTransferLocations(Location[1], Location[2], Location[3]);
+        LibraryWarehouse.CreateAndUpdateTransferRoute(TransferRoute, Location[1].Code, Location[2].Code, Location[3].Code, '', '');
+
+        // [GIVEN] Job, Job Task and Job Planning Line for item "I" at location "To".
+        CreateJobPlanningLine(JobPlanningLine, Item."No.", Location[2].Code);
+
+        // [GIVEN] Calculate Order Planning for job planning lines.
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
+
+        // [GIVEN] Find a planning line for item "I" and set "Reserve" = TRUE on it.
+        // [GIVEN] Set replenishment system on the planning line to "Transfer" and select a source location "From".
+        FindRequisitionLine(RequisitionLine, JobPlanningLine."Job No.", Item."No.", Location[2].Code);
+        RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::Transfer);
+        RequisitionLine.Validate("Supply From", Location[1].Code);
+        RequisitionLine.Validate("Starting Date", WorkDate());
+        RequisitionLine.Validate(Reserve, true);
+        RequisitionLine.Modify(true);
+
+        // [WHEN] Make a transfer order to supply the job planning line.
+        MakeSupplyOrders(
+          RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
+          ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
+
+        // [THEN] The job planning line is now reserved from transfer order with "Order-to-Order" binding.
+        VerifyOrderToOrderBindingOnReservEntry(
+          DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
+          DATABASE::"Transfer Line");
+    end;
+
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReserveOrderPlanningDemandJobSupplyAssembly()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        RequisitionLine: Record "Requisition Line";
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+    begin
+        // [FEATURE] [Order Planning] [Reservation] [Binding] [Job Planning Line] [Assembly Order]
+        // [SCENARIO 371276] Order-to-Order reservation is established when assembly order supplying job planning line is created from Order Planning.
+        Initialize();
+
+        // [GIVEN] Item "I" that is replenished by assembly order.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Modify(true);
+
+        // [GIVEN] Job, Job Task and Job Planning Line for item "I".
+        CreateJobPlanningLine(JobPlanningLine, Item."No.", '');
+
+        // [GIVEN] Calculate Order Planning for job planning lines.
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
+
+        // [GIVEN] Find a planning line for item "I" and set "Reserve" = TRUE on it.
+        FindRequisitionLine(RequisitionLine, JobPlanningLine."Job No.", Item."No.", '');
+        RequisitionLine.Validate(Reserve, true);
+        RequisitionLine.Modify(true);
+
+        // [WHEN] Make an assembly order to supply the job planning line.
+        GetManufacturingUserTemplate(
+          ManufacturingUserTemplate, ManufacturingUserTemplate."Make Orders"::"The Active Order", 0);
+        ManufacturingUserTemplate.Validate(
+          "Create Assembly Order", ManufacturingUserTemplate."Create Assembly Order"::"Make Assembly Orders");
+        ManufacturingUserTemplate.Modify(true);
+        LibraryPlanning.MakeSupplyOrders(ManufacturingUserTemplate, RequisitionLine);
+
+        // [THEN] The job planning line is now reserved from assembly order with "Order-to-Order" binding.
+        VerifyOrderToOrderBindingOnReservEntry(
+          DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
+          DATABASE::"Assembly Header");
+    end;
+
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReserveOrderPlanningDemandJobSupplyRequisitionLine()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+    begin
+        // [FEATURE] [Order Planning] [Reservation] [Binding] [Job Planning Line] [Requisition Line]
+        // [SCENARIO 371276] Order-to-Order reservation is established when requisition line supplying job planning line is created from Order Planning.
+        Initialize();
+
+        // [GIVEN] Item "I" that is replenished by production order.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Modify(true);
+
+        // [GIVEN] Job, Job Task and Job Planning Line for item "I".
+        CreateJobPlanningLine(JobPlanningLine, Item."No.", '');
+
+        // [GIVEN] Calculate Order Planning for job planning lines.
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
+
+        // [GIVEN] Find a planning line for item "I" and set "Reserve" = TRUE on it.
+        FindRequisitionLine(RequisitionLine, JobPlanningLine."Job No.", Item."No.", '');
+        RequisitionLine.Validate(Reserve, true);
+        RequisitionLine.Modify(true);
+
+        // [WHEN] Make a line in requisition worksheet to supply the job planning line.
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::"Req.");
+        GetManufacturingUserTemplate(
+          ManufacturingUserTemplate, ManufacturingUserTemplate."Make Orders"::"The Active Order",
+          ManufacturingUserTemplate."Create Production Order"::"Copy to Req. Wksh");
+        ManufacturingUserTemplate.Validate("Prod. Req. Wksh. Template", RequisitionWkshName."Worksheet Template Name");
+        ManufacturingUserTemplate.Validate("Prod. Wksh. Name", RequisitionWkshName.Name);
+        ManufacturingUserTemplate.Modify(true);
+        LibraryPlanning.MakeSupplyOrders(ManufacturingUserTemplate, RequisitionLine);
+
+        // [THEN] The job planning line is now reserved from requisition worksheet line with "Order-to-Order" binding.
+        VerifyOrderToOrderBindingOnReservEntry(
+          DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
+          DATABASE::"Requisition Line");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2113,6 +2295,22 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         LibraryService.CreateServiceLineWithQuantity(
           ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
+    end;
+
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; ItemNo: Code[20]; LocationCode: Code[10])
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+    begin
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", ItemNo);
+        JobPlanningLine.Validate("Location Code", LocationCode);
+        JobPlanningLine.Validate("Planning Date", WorkDate());
+        JobPlanningLine.Validate("Usage Link", true);
+        JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        JobPlanningLine.Modify(true);
     end;
 
     local procedure ChangeDataOnSalesLine(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; FieldNo: Integer; Value: Variant)

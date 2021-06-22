@@ -33,13 +33,15 @@ codeunit 7034 "Price Source - Cust. Disc. Gr." implements "Price Source"
     end;
 
     procedure IsLookupOK(var PriceSource: Record "Price Source"): Boolean
+    var
+        xPriceSource: Record "Price Source";
     begin
-        with PriceSource do begin
-            if CustomerDiscountGroup.Get("Source No.") then;
-            if Page.RunModal(Page::"Customer Disc. Groups", CustomerDiscountGroup) = ACTION::LookupOK then begin
-                Validate("Source No.", CustomerDiscountGroup.Code);
-                exit(true);
-            end;
+        xPriceSource := PriceSource;
+        if CustomerDiscountGroup.Get(xPriceSource."Source No.") then;
+        if Page.RunModal(Page::"Customer Disc. Groups", CustomerDiscountGroup) = ACTION::LookupOK then begin
+            xPriceSource.Validate("Source No.", CustomerDiscountGroup.Code);
+            PriceSource := xPriceSource;
+            exit(true);
         end;
     end;
 

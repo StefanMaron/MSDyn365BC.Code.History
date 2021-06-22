@@ -22,6 +22,10 @@ page 9022 "Business Manager Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Emails"; "Email Activities")
+            {
+                ApplicationArea = Basic, Suite;
+            }
             part(ApprovalsActivities; "Approvals Activities")
             {
                 ApplicationArea = Suite;

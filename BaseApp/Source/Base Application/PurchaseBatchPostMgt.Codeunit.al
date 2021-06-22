@@ -25,6 +25,8 @@ codeunit 1372 "Purchase Batch Post Mgt."
         PostingCodeunitId: Integer;
         PostingDateIsNotSetErr: Label 'Enter the posting date.';
         BatchPostingMsg: Label 'Bacth posting of purchase documents.';
+        ApprovalPendingErr: Label 'Cannot post purchase document no. %1 of type %2 because it is pending approval.', Comment = '%1 = Document No.; %2 = Document Type';
+        ApprovalWorkflowErr: Label 'Cannot post purchase document no. %1 of type %2 due to the approval workflow.', Comment = '%1 = Document No.; %2 = Document Type';
 
     procedure RunBatch(var PurchaseHeader: Record "Purchase Header"; ReplacePostingDate: Boolean; PostingDate: Date; ReplaceDocumentDate: Boolean; CalcInvoiceDiscount: Boolean; Receive: Boolean; Invoice: Boolean)
     var
@@ -148,19 +150,26 @@ codeunit 1372 "Purchase Batch Post Mgt."
     end;
 
     local procedure CanPostDocument(var PurchaseHeader: Record "Purchase Header"): Boolean
-    var
-        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        if ApprovalsMgmt.IsPurchaseApprovalsWorkflowEnabled(PurchaseHeader) then
-            exit(false);
-
-        if PurchaseHeader.Status = PurchaseHeader.Status::"Pending Approval" then
+        if not CheckApprovalWorkflow(PurchaseHeader) then
             exit(false);
 
         if not PurchaseHeader.IsApprovedForPostingBatch then
             exit(false);
 
         exit(true);
+    end;
+
+    [TryFunction]
+    local procedure CheckApprovalWorkflow(var PurchaseHeader: Record "Purchase Header")
+    var
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+    begin
+        if ApprovalsMgmt.IsPurchaseApprovalsWorkflowEnabled(PurchaseHeader) then
+            Error(ApprovalWorkflowErr, PurchaseHeader."No.", PurchaseHeader."Document Type");
+
+        if PurchaseHeader.Status = PurchaseHeader.Status::"Pending Approval" then
+            Error(ApprovalPendingErr, PurchaseHeader."No.", PurchaseHeader."Document Type");
     end;
 
     [Obsolete('Replaced by SetParameter().', '17.0')]

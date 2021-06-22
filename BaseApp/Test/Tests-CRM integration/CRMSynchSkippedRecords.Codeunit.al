@@ -156,8 +156,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMIntegrationRecord.TestField(Skipped, true);
     end;
 
-    //[Test]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure T107_FailedOnceRecordShouldBePickedForSyncUnchanged()
     var
@@ -198,7 +197,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Clear(IntegrationSynchJob);
         IntegrationSynchJob.Failed := 2;
         IntegrationSynchJob.Modified := 1;
-        IntegrationSynchJob.Unchanged := 1;
+        IntegrationSynchJob.Unchanged := 0;
         VerifyIntSynchJobs(JobQueueEntryID, IntegrationSynchJob);
 
         // [GIVEN] Customer 10000 is not skipped
@@ -216,10 +215,10 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMIntegrationRecord.FindByRecordID(Customer[2].RecordId);
         CRMIntegrationRecord.TestField(Skipped, false);
 
-        // [THEN] Sync Job: one record is failed, the second - unchanged
+        // [THEN] Sync Job: one record is skipped, the second - unchanged
         Clear(IntegrationSynchJob);
-        IntegrationSynchJob.Skipped := 1;
-        IntegrationSynchJob.Failed := 1;
+        IntegrationSynchJob.Skipped := 2;
+        IntegrationSynchJob.Failed := 0;
         IntegrationSynchJob.Unchanged := 2;
         VerifyIntSynchJobs(JobQueueEntryID, IntegrationSynchJob);
     end;
@@ -617,9 +616,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Assert.AreEqual(SalespersonPurchaser[2].Name, LibraryVariableStorage.DequeueText, 'wrong NAV name for coupling.'); // by CRMCouplingRecordModalPageHandler
     end;
 
-    //[Test]
-    //[TransactionModel(TransactionModel::AutoRollback)]
-    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
+    [Test]
     [Scope('OnPrem')]
     procedure T126_DeleteCouplingActionDeletesCouplingRecord()
     var
@@ -640,6 +637,8 @@ codeunit 139186 "CRM Synch. Skipped Records"
 
         // [WHEN] run action "Delete Coupling"
         CRMSkippedRecords.DeleteCRMCoupling.Invoke;
+        VerifyUncouplingJobQueueEntryExists();
+        SimulateUncouplingJobsExecution();
         // [THEN] the Item 'X' is not coupled and not in the list of skipped records
         Assert.IsFalse(CRMIntegrationRecord.FindByRecordID(Item[1].RecordId), 'the coupling should be removed.');
         Assert.IsFalse(
@@ -649,9 +648,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
           CRMSkippedRecords.FindFirstField(Description, Item[2]."No."), 'the second record should be in the list');
     end;
 
-    //[Test]
-    //[TransactionModel(TransactionModel::AutoRollback)]
-    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure T127_DeleteCouplingActionDeletesCouplingForRemovedNAVRecord()
     var
@@ -675,11 +672,12 @@ codeunit 139186 "CRM Synch. Skipped Records"
 
         // [WHEN] run action "Delete Coupling"
         CRMSkippedRecords.DeleteCRMCoupling.Invoke;
-
+        VerifyUncouplingJobQueueEntryExists();
+        SimulateUncouplingJobsExecution();
         // [THEN] the Salesperson 'X' is not coupled and not in the list of skipped records
         Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMProduct[1].ProductId), 'the coupling should be removed.');
         Assert.IsFalse(
-          CRMSkippedRecords.FindFirstField(Description, Item[1]."No."), 'the record should dissapear from the page');
+        CRMSkippedRecords.FindFirstField(Description, Item[1]."No."), 'the record should dissapear from the page');
     end;
 
     [Test]
@@ -1134,8 +1132,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Assert.IsTrue(CRMAccount[1].Find, 'CRM Account does not exist');
     end;
 
-    [EventSubscriber(ObjectType::Table, 5341, 'OnBeforeDeleteEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"CRM Account", 'OnBeforeDeleteEvent', '', false, false)]
     procedure OnBeforeDeleteCRMAccount(var Rec: Record "CRM Account"; RunTrigger: Boolean)
     begin
         Error(DeleteAccountPrivilegeErr);
@@ -1285,20 +1282,21 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Assert.AreEqual(CopyStr(CRMAccount[3].Name, 1, MaxStrLen(Customer[3].Name)), Customer[3].Name, 'new Customer Name');
     end;
 
-    //[Test]
-    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
+    [Test]
     [Scope('OnPrem')]
     procedure T170_RestoreSyncLogActionsDisabledIfNAVRecordDeleted()
     var
         CRMAccount: Record "CRM Account";
         Customer: Record Customer;
+        CRMIntegrationRecord: Record "CRM Integration Record";
         CRMSkippedRecords: TestPage "CRM Skipped Records";
     begin
         // [FEATURE] [UI] [Deleted Couplings]
         // [SCENARIO] Action "Delete Coupling" is only that is enabled if the coupled NAV record is deleted
         Init;
-        // [GIVEN] The Customer '10000' is coupled, but was deleted.
-        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        // [GIVEN] Customer, coupled to CRM Account, is skipped, customer is deleted
+        MockSkippedCustomer(Customer, CRMAccount);
+        CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
         Customer.Delete();
 
         // [WHEN] Open "CRM Skipped Records" page
@@ -1458,9 +1456,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMSkippedRecords.Description.AssertEquals(Item."No.");
     end;
 
-    //[Test]
-    //[TransactionModel(TransactionModel::AutoRollback)]
-    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
+    [Test]
     [Scope('OnPrem')]
     procedure T180_CouplingDeletedOnOpenIfBothRecsDeleted()
     var
@@ -1473,8 +1469,8 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [SCENARIO] "Delete Coupled Record" and "Restore Deleted Records" actions should be disabled if both coupled records were deleted.
         Init;
         CRMIntegrationRecord.DeleteAll();
-        // [GIVEN] Customer, coupled to CRM Account, skipped for synchronization.
-        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        // [GIVEN] Customer, coupled to CRM Account, is skipped, both deleted
+        MockSkippedCustomer(Customer, CRMAccount);
         CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
         Customer.Delete();
         CRMAccount.Delete();
@@ -1842,6 +1838,26 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Assert.AreEqual(ActionsAreEnabled, CRMSkippedRecords.ManageCRMCoupling.Enabled, 'action Manage Coupling');
     end;
 
+    local procedure SimulateUncouplingJobsExecution()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Int. Uncouple Job Runner");
+        JobQueueEntry.FindSet();
+        repeat
+            Codeunit.Run(Codeunit::"Int. Uncouple Job Runner", JobQueueEntry);
+        until JobQueueEntry.Next() = 0;
+    end;
+
+    local procedure VerifyUncouplingJobQueueEntryExists()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Int. Uncouple Job Runner");
+        Assert.RecordIsNotEmpty(JobQueueEntry);
+    end;
+
     [StrMenuHandler]
     [Scope('OnPrem')]
     procedure PickDirectionToCRMHandler(Options: Text; var Choice: Integer; Instruction: Text)
@@ -1954,4 +1970,3 @@ codeunit 139186 "CRM Synch. Skipped Records"
           Format(CRMIntegrationMgt.GetSkippedNotificationID), Format(Notification.Id), UnexpectedNotificationIdErr);
     end;
 }
-

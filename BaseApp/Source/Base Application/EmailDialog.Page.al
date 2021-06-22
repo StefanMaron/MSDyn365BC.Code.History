@@ -214,6 +214,8 @@ page 9700 "Email Dialog"
         else
             ShownFromEmail := '';
 
+        OnOnOpenPageOnAfterSetShownFromEmail(Rec, xRec, OrigEmailItem, EmailItem, ShownFromEmail, OriginalFromEmail);
+
         EmailItem.Subject := OrigEmailItem.Subject;
         EmailItem."Attachment Name" := OrigEmailItem."Attachment Name";
 
@@ -301,6 +303,11 @@ page 9700 "Email Dialog"
     begin
         BccText := '';
         CcText := '';
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnOpenPageOnAfterSetShownFromEmail(var RecEmailItem: Record "Email Item"; xRecEmailItem: Record "Email Item"; var OrigEmailItem: Record "Email Item"; var EmailItem: Record "Email Item"; var ShownFromEmail: Text; var OriginalFromEmail: Text[250])
+    begin
     end;
 }
 

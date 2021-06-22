@@ -407,8 +407,16 @@ table 5079 "Marketing Setup"
     begin
         Session.LogMessage('0000BY0', SetExchangeAccountPasswordTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
-        if IsNullGuid("Exchange Account Password Key") then
+        if Password = '' then
+            if not IsNullGuid("Exchange Account Password Key") then begin
+                IsolatedStorageManagement.Delete("Exchange Account Password Key", DATASCOPE::Company);
+                exit;
+            end;
+
+        if IsNullGuid("Exchange Account Password Key") then begin
             "Exchange Account Password Key" := CreateGuid();
+            Modify();
+        end;
 
         IsolatedStorageManagement.Set("Exchange Account Password Key", Password, DATASCOPE::Company);
     end;
@@ -505,28 +513,29 @@ table 5079 "Marketing Setup"
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure ResetExchangeTenantId()
-    var
-        EmptyGuid: Guid;
     begin
-        SetExchangeTenantId(EmptyGuid);
+        SetExchangeTenantId('');
     end;
 
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure SetExchangeTenantId(TenantId: Text)
     begin
+        if TenantId = '' then
+            if not IsNullGuid("Exchange Tenant Id Key") then begin
+                IsolatedStorageManagement.Delete("Exchange Tenant Id Key", DATASCOPE::Company);
+                Session.LogMessage('0000D9K', ExchangeTenantIdClearedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+                exit;
+            end;
+
         if IsNullGuid("Exchange Tenant Id Key") then begin
             "Exchange Tenant Id Key" := CreateGuid();
             Modify();
         end;
 
         IsolatedStorageManagement.Set("Exchange Tenant Id Key", TenantId, DATASCOPE::Company);
-        if TenantId <> '' then
-            Session.LogMessage('0000D9J', ExchangeTenantIdSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
-        else
-            Session.LogMessage('0000D9K', ExchangeTenantIdClearedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+        Session.LogMessage('0000D9J', ExchangeTenantIdSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
     end;
-
 
     [Scope('OnPrem')]
     [NonDebuggable]
@@ -536,10 +545,8 @@ table 5079 "Marketing Setup"
     begin
         if IsNullGuid("Exchange Tenant Id Key") or
            not IsolatedStorage.Contains("Exchange Tenant Id Key", DATASCOPE::Company)
-        then begin
-            Session.LogMessage('0000CF8', ExchangeAccountNotConfiguredTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
-            Error(ExchangeAccountNotConfiguredErr);
-        end;
+        then
+            exit('');
 
         IsolatedStorageManagement.Get("Exchange Tenant Id Key", DATASCOPE::Company, TenantId);
         exit(TenantId);

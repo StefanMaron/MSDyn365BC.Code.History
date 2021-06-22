@@ -241,6 +241,7 @@ codeunit 9510 "Document Service Management"
     local procedure GetAccessToken(Location: Text; var AccessToken: Text; GetTokenFromCache: Boolean)
     var
         OAuth2: Codeunit OAuth2;
+        EnvironmentInformation: Codeunit "Environment Information";
         PromptInteraction: Enum "Prompt Interaction";
         ClientId: Text;
         ClientSecret: Text;
@@ -249,6 +250,11 @@ codeunit 9510 "Document Service Management"
         AuthError: Text;
     begin
         ResourceURL := GetResourceUrl(Location);
+
+        if EnvironmentInformation.IsSaaSInfrastructure() then begin
+            OAuth2.AcquireOnBehalfOfToken('', ResourceURL, AccessToken);
+            exit;
+        end;
 
         ClientId := GetClientId();
         ClientSecret := GetClientSecret();
@@ -286,7 +292,7 @@ codeunit 9510 "Document Service Management"
         EnvironmentInformation: Codeunit "Environment Information";
         ClientId: Text;
     begin
-        if EnvironmentInformation.IsSaaS() then
+        if EnvironmentInformation.IsSaaSInfrastructure() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(SharePointClientIdAKVSecretNameLbl, ClientId) then
                 Session.LogMessage('0000DB9', MissingClientIdTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt)
             else begin
@@ -314,7 +320,7 @@ codeunit 9510 "Document Service Management"
         EnvironmentInformation: Codeunit "Environment Information";
         ClientSecret: Text;
     begin
-        if EnvironmentInformation.IsSaaS() then
+        if EnvironmentInformation.IsSaaSInfrastructure() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(SharePointClientSecretAKVSecretNameLbl, ClientSecret) then
                 Session.LogMessage('0000DBC', MissingClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt)
             else begin
@@ -347,7 +353,7 @@ codeunit 9510 "Document Service Management"
         EnvironmentInformation: Codeunit "Environment Information";
         RedirectURL: Text;
     begin
-        if EnvironmentInformation.IsSaaS() then
+        if EnvironmentInformation.IsSaaSInfrastructure() then
             exit(RedirectURL);
 
         if DocumentServiceRec.FindFirst() then

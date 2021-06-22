@@ -111,6 +111,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     end;
 
     local procedure CopyBillToInformationIfNotEmpty(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
         // If the Bill-To fields in CRM are all empty, then let NAV keep its standard behavior (takes Bill-To from the Customer information)
         if ((CRMSalesorder.BillTo_Line1 = '') and
@@ -126,12 +128,17 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         SalesHeader.Validate("Bill-to Address 2", CopyStr(CRMSalesorder.BillTo_Line2, 1, MaxStrLen(SalesHeader."Bill-to Address 2")));
         SalesHeader.Validate("Bill-to City", CopyStr(CRMSalesorder.BillTo_City, 1, MaxStrLen(SalesHeader."Bill-to City")));
         SalesHeader.Validate("Bill-to Post Code", CopyStr(CRMSalesorder.BillTo_PostalCode, 1, MaxStrLen(SalesHeader."Bill-to Post Code")));
-        SalesHeader.Validate(
-          "Bill-to Country/Region Code", CopyStr(CRMSalesorder.BillTo_Country, 1, MaxStrLen(SalesHeader."Bill-to Country/Region Code")));
+        IsHandled := false;
+        OnCopyBillToInformationIfNotEmptyOnBeforeValidateBillToCountryRegionCode(SalesHeader, CRMSalesorder, IsHandled);
+        if not IsHandled then
+            SalesHeader.Validate(
+              "Bill-to Country/Region Code", CopyStr(CRMSalesorder.BillTo_Country, 1, MaxStrLen(SalesHeader."Bill-to Country/Region Code")));
         SalesHeader.Validate("Bill-to County", CopyStr(CRMSalesorder.BillTo_StateOrProvince, 1, MaxStrLen(SalesHeader."Bill-to County")));
     end;
 
     local procedure CopyShipToInformationIfNotEmpty(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
         // If the Ship-To fields in CRM are all empty, then let NAV keep its standard behavior (takes Bill-To from the Customer information)
         if ((CRMSalesorder.ShipTo_Line1 = '') and
@@ -147,8 +154,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         SalesHeader.Validate("Ship-to Address 2", CopyStr(CRMSalesorder.ShipTo_Line2, 1, MaxStrLen(SalesHeader."Ship-to Address 2")));
         SalesHeader.Validate("Ship-to City", CopyStr(CRMSalesorder.ShipTo_City, 1, MaxStrLen(SalesHeader."Ship-to City")));
         SalesHeader.Validate("Ship-to Post Code", CopyStr(CRMSalesorder.ShipTo_PostalCode, 1, MaxStrLen(SalesHeader."Ship-to Post Code")));
-        SalesHeader.Validate(
-          "Ship-to Country/Region Code", CopyStr(CRMSalesorder.ShipTo_Country, 1, MaxStrLen(SalesHeader."Ship-to Country/Region Code")));
+        IsHandled := false;
+        OnCopyShipToInformationIfNotEmptyOnBeforeValidateShipToCountryRegionCode(SalesHeader, CRMSalesorder, IsHandled);
+        if not IsHandled then
+            SalesHeader.Validate(
+              "Ship-to Country/Region Code", CopyStr(CRMSalesorder.ShipTo_Country, 1, MaxStrLen(SalesHeader."Ship-to Country/Region Code")));
         SalesHeader.Validate("Ship-to County", CopyStr(CRMSalesorder.ShipTo_StateOrProvince, 1, MaxStrLen(SalesHeader."Ship-to County")));
     end;
 
@@ -278,9 +288,17 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             exit;
         end;
 
-        if CRMIntegrationManagement.RemoveCoupling(Rec.RecordId(), false) then
-            Session.LogMessage('0000DEY', StrSubstNo(SuccessfullyUncoupledSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok)
-        else
+        if CRMIntegrationManagement.RemoveCoupling(Rec.RecordId(), false) then begin
+            Session.LogMessage('0000DEY', StrSubstNo(SuccessfullyUncoupledSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            CRMSalesOrder.SetAutoCalcFields(CreatedByName, ModifiedByName, TransactionCurrencyIdName);
+            if CRMSalesOrder.Get(CRMSalesorder.SalesOrderId) then begin
+                CRMSalesorder.StateCode := CRMSalesOrder.StateCode::Active;
+                CRMSalesorder.StatusCode := CRMSalesorder.StatusCode::Pending;
+                CRMSalesOrder.Modify();
+                CRMSalesOrder.LastBackofficeSubmit := 0D;
+                CRMSalesOrder.Modify();
+            end
+        end else
             Session.LogMessage('0000DEZ', StrSubstNo(FailedToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
     end;
 
@@ -649,6 +667,16 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnHideSalesOrderDiscountsDialog(var Hide: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyBillToInformationIfNotEmptyOnBeforeValidateBillToCountryRegionCode(var SalesHeader: Record "Sales Header"; CRMSalesorder: Record "CRM Salesorder"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyShipToInformationIfNotEmptyOnBeforeValidateShipToCountryRegionCode(var SalesHeader: Record "Sales Header"; CRMSalesorder: Record "CRM Salesorder"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -19,8 +19,13 @@ codeunit 5521 "Make Supply Orders (Yes/No)"
     local procedure "Code"()
     var
         ReqLine2: Record "Requisition Line";
+        IsHandled: Boolean;
     begin
         CarriedOut := false;
+        IsHandled := false;
+        OnBeforeCode(ReqLine, MfgUserTempl, CarriedOut, BlockForm, IsHandled);
+        if IsHandled then
+            exit;
 
         with ReqLine do begin
             if not BlockForm then
@@ -74,6 +79,11 @@ codeunit 5521 "Make Supply Orders (Yes/No)"
     procedure ActionMsgCarriedOut(): Boolean
     begin
         exit(CarriedOut);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var ReqLine: Record "Requisition Line"; var MfgUserTempl: Record "Manufacturing User Template"; var CarriedOut: Boolean; var BlockForm: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

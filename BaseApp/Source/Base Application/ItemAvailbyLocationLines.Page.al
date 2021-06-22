@@ -329,7 +329,13 @@ page 515 "Item Avail. by Location Lines"
         PeriodEnd: Date;
         LocationCode: Code[10];
 
+    [Obsolete('Replaced by SetItem().', '18.0')]
     procedure Set(var NewItem: Record Item; NewAmountType: Option "Net Change","Balance at Date")
+    begin
+        SetItem(NewItem, NewAmountType);
+    end;
+
+    procedure SetItem(var NewItem: Record Item; NewAmountType: Option "Net Change","Balance at Date")
     begin
         OnBeforeSet(Rec, NewItem, NewAmountType);
         Item.Copy(NewItem);
@@ -341,7 +347,13 @@ page 515 "Item Avail. by Location Lines"
         OnAfterSet(Item, AmountType);
     end;
 
+    [Obsolete('Replaced by GetItem().', '18.0')]
     procedure Get(var ItemOut: Record Item)
+    begin
+        GetItem(ItemOut);
+    end;
+
+    procedure GetItem(var ItemOut: Record Item)
     begin
         ItemOut.Copy(Item);
     end;
@@ -364,13 +376,15 @@ page 515 "Item Avail. by Location Lines"
         ItemAvailFormsMgt.ShowItemAvailLineList(Item, What);
     end;
 
-    local procedure CalcAvailQuantities(var GrossRequirement: Decimal; var PlannedOrderRcpt: Decimal; var ScheduledRcpt: Decimal; var PlannedOrderReleases: Decimal; var ProjAvailableBalance: Decimal; var ExpectedInventory: Decimal; var QtyAvailable: Decimal)
+    local procedure CalcAvailQuantities(var GrossRequirement: Decimal; var PlannedOrderRcpt: Decimal; var ScheduledRcpt: Decimal; var PlannedOrderReleases: Decimal; var ProjAvailableBalance: Decimal; var ExpectedInventory: Decimal; var AvailableInventory: Decimal)
+    var
+        DummyQtyAvailable: Decimal;
     begin
         SetItemFilter;
         ItemAvailFormsMgt.CalcAvailQuantities(
           Item, AmountType = AmountType::"Balance at Date",
           GrossRequirement, PlannedOrderRcpt, ScheduledRcpt,
-          PlannedOrderReleases, ProjAvailableBalance, ExpectedInventory, QtyAvailable);
+          PlannedOrderReleases, ProjAvailableBalance, ExpectedInventory, DummyQtyAvailable, AvailableInventory);
     end;
 
     [IntegrationEvent(false, false)]

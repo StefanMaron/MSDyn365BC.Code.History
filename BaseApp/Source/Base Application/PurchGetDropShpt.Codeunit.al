@@ -72,6 +72,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
             SalesLine.SetRange(Type, SalesLine.Type::Item);
             SalesLine.SetFilter("No.", '<>%1', '');
             SalesLine.SetRange("Purch. Order Line No.", 0);
+            OnCodeOnAfterSalesLineSetFilters(SalesLine);
 
             if SalesLine.Find('-') then
                 repeat
@@ -84,43 +85,46 @@ codeunit 76 "Purch.-Get Drop Shpt."
                               SalesLine."Qty. per Unit of Measure",
                               ItemUnitofMeasure."Qty. per Unit of Measure",
                               SalesLine.FieldCaption(Quantity));
+                    IsHandled := false;
+                    OnCodeOnBeforeProcessPurchaseLine(SalesLine, IsHandled);
+                    if not IsHandled then begin
+                        PurchLine.Init();
+                        PurchLine."Document Type" := PurchLine."Document Type"::Order;
+                        PurchLine."Document No." := "No.";
+                        PurchLine."Line No." := NextLineNo;
+                        CopyDocMgt.TransfldsFromSalesToPurchLine(SalesLine, PurchLine);
+                        GetDescription(PurchLine, SalesLine);
+                        PurchLine."Sales Order No." := SalesLine."Document No.";
+                        PurchLine."Sales Order Line No." := SalesLine."Line No.";
+                        PurchLine."Drop Shipment" := true;
+                        PurchLine."Purchasing Code" := SalesLine."Purchasing Code";
+                        Evaluate(PurchLine."Inbound Whse. Handling Time", '<0D>');
+                        PurchLine.Validate("Inbound Whse. Handling Time");
+                        OnBeforePurchaseLineInsert(PurchLine, SalesLine);
+                        PurchLine.Insert();
+                        OnAfterPurchaseLineInsert(PurchLine, SalesLine, NextLineNo);
 
-                    PurchLine.Init();
-                    PurchLine."Document Type" := PurchLine."Document Type"::Order;
-                    PurchLine."Document No." := "No.";
-                    PurchLine."Line No." := NextLineNo;
-                    CopyDocMgt.TransfldsFromSalesToPurchLine(SalesLine, PurchLine);
-                    GetDescription(PurchLine, SalesLine);
-                    PurchLine."Sales Order No." := SalesLine."Document No.";
-                    PurchLine."Sales Order Line No." := SalesLine."Line No.";
-                    PurchLine."Drop Shipment" := true;
-                    PurchLine."Purchasing Code" := SalesLine."Purchasing Code";
-                    Evaluate(PurchLine."Inbound Whse. Handling Time", '<0D>');
-                    PurchLine.Validate("Inbound Whse. Handling Time");
-                    OnBeforePurchaseLineInsert(PurchLine, SalesLine);
-                    PurchLine.Insert();
-                    OnAfterPurchaseLineInsert(PurchLine, SalesLine, NextLineNo);
-
-                    NextLineNo := NextLineNo + 10000;
-
-                    SalesLine."Unit Cost (LCY)" := PurchLine."Unit Cost (LCY)";
-                    SalesLine.Validate("Unit Cost (LCY)");
-                    SalesLine."Purchase Order No." := PurchLine."Document No.";
-                    SalesLine."Purch. Order Line No." := PurchLine."Line No.";
-                    OnBeforeSalesLineModify(SalesLine, PurchLine);
-                    SalesLine.Modify();
-                    OnAfterSalesLineModify(SalesLine, PurchLine);
-                    ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, PurchLine.RowID1, true);
-
-                    if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, true) then begin
-                        TransferExtendedText.InsertPurchExtText(PurchLine);
-                        PurchLine2.SetRange("Document Type", "Document Type");
-                        PurchLine2.SetRange("Document No.", "No.");
-                        if PurchLine2.FindLast then
-                            NextLineNo := PurchLine2."Line No.";
                         NextLineNo := NextLineNo + 10000;
+
+                        SalesLine."Unit Cost (LCY)" := PurchLine."Unit Cost (LCY)";
+                        SalesLine.Validate("Unit Cost (LCY)");
+                        SalesLine."Purchase Order No." := PurchLine."Document No.";
+                        SalesLine."Purch. Order Line No." := PurchLine."Line No.";
+                        OnBeforeSalesLineModify(SalesLine, PurchLine);
+                        SalesLine.Modify();
+                        OnAfterSalesLineModify(SalesLine, PurchLine);
+                        ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, PurchLine.RowID1, true);
+
+                        if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, true) then begin
+                            TransferExtendedText.InsertPurchExtText(PurchLine);
+                            PurchLine2.SetRange("Document Type", "Document Type");
+                            PurchLine2.SetRange("Document No.", "No.");
+                            if PurchLine2.FindLast then
+                                NextLineNo := PurchLine2."Line No.";
+                            NextLineNo := NextLineNo + 10000;
+                        end;
+                        OnCodeOnAfterInsertPurchExtText(SalesLine, PurchHeader, NextLineNo);
                     end;
-                    OnCodeOnAfterInsertPurchExtText(SalesLine, PurchHeader, NextLineNo);
                 until SalesLine.Next = 0
             else
                 Error(
@@ -261,6 +265,11 @@ codeunit 76 "Purch.-Get Drop Shpt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterInsertPurchExtText(SalesLine: Record "Sales Line"; PurchaseHeader: Record "Purchase Header"; var NextLineNo: Integer)
     begin
     end;
@@ -292,6 +301,11 @@ codeunit 76 "Purch.-Get Drop Shpt."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDescriptionFromSalesLine(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeProcessPurchaseLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

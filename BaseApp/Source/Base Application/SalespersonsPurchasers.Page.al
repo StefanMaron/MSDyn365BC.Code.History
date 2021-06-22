@@ -209,14 +209,14 @@ page 14 "Salespersons/Purchasers"
             }
             group(ActionGroupCRM)
             {
-                Caption = 'Dynamics 365 Sales';
+                Caption = 'Common Data Service';
                 Visible = CDSIntegrationEnabled or CRMIntegrationEnabled;
                 action(CRMGotoSystemUser)
                 {
                     ApplicationArea = Suite;
                     Caption = 'User';
                     Image = CoupledUser;
-                    ToolTip = 'Open the coupled Dynamics 365 Sales system user.';
+                    ToolTip = 'Open the coupled Common Data Service system user.';
 
                     trigger OnAction()
                     var
@@ -231,7 +231,7 @@ page 14 "Salespersons/Purchasers"
                     ApplicationArea = Suite;
                     Caption = 'Synchronize';
                     Image = Refresh;
-                    ToolTip = 'Send or get updated data to or from Dynamics 365 Sales.';
+                    ToolTip = 'Send or get updated data to or from Common Data Service.';
 
                     trigger OnAction()
                     var
@@ -254,14 +254,14 @@ page 14 "Salespersons/Purchasers"
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Sales record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
                         ApplicationArea = Suite;
                         Caption = 'Set Up Coupling';
                         Image = LinkAccount;
-                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales user.';
+                        ToolTip = 'Create or modify the coupling to a Common Data Service user.';
 
                         trigger OnAction()
                         var
@@ -277,7 +277,7 @@ page 14 "Salespersons/Purchasers"
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Dynamics 365 Sales user.';
+                        ToolTip = 'Delete the coupling to a Common Data Service user.';
 
                         trigger OnAction()
                         var

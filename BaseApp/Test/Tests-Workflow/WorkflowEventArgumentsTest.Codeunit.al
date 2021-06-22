@@ -73,6 +73,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         NullArgumentErr: Label 'The workflow step should have a null workflow step argument.';
         ParametersTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Purchase Invoice Step" id="50000"><Options><Field name="&quot;Purchase Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Purchase Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Purchase Line&quot;.Description">Hello, World!</Field><Field name="&quot;Purchase Line&quot;.Quantity">100</Field></Options><DataItems><DataItem name="Table38">SORTING(Document Type,No.) WHERE(Buy-from Vendor No.=FILTER(10000),Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem><DataItem name="Table39">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem></DataItems></ReportParameters>', Locked = true;
         SalesParametersTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Sales Invoice Step" id="50000"><Options><Field name="&quot;Sales Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Sales Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Sales Line&quot;.Description">Hello, World!</Field><Field name="&quot;Sales Line&quot;.Quantity">100</Field></Options><DataItems><DataItem name="Header">SORTING(Document Type,No.) WHERE(Document Date=FILTER(%1),Amount=FILTER(&gt;%2))</DataItem><DataItem name="Table37">SORTING(Document Type,Document No.,Line No.) WHERE(Type=FILTER(Item),No.=FILTER(1000),Unit Cost=FILTER(&gt;500))</DataItem></DataItems></ReportParameters>', Locked = true;
+        IncomingDocumentTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Incoming Document">VERSION(1) SORTING(Field1) WHERE(Field18=1(6))</DataItem><DataItem name="Incoming Document Attachment">VERSION(1) SORTING(Field1,Field2)</DataItem></DataItems></ReportParameters>', Locked = true;
         ParametersWithoutDataItemsTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Purchase Invoice Step" id="50000"><Options><Field name="&quot;Purchase Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Purchase Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Purchase Line&quot;.Description">Hello, World!</Field><Field name="&quot;Purchase Line&quot;.Quantity">100</Field></Options></ReportParameters>', Locked = true;
         PurchaseHeaderBlankParametersTxt: Label 'VERSION(1) SORTING(Document Type,No.)', Locked = true;
         PurchaseHeaderParametersTxt: Label 'VERSION(1) SORTING(Document Type,No.) WHERE(Buy-from Vendor No.=FILTER(10000),Document Date=FILTER(%1),Amount=FILTER(>%2))', Locked = true;
@@ -187,6 +188,42 @@ codeunit 134304 "Workflow Event Arguments Test"
         // Verify
         Assert.AreEqual(SalesHeader.GetFilters, SalesHeaderRecRef.GetFilters, FilterMismatchErr);
         Assert.AreEqual(SalesLine.GetFilters, SalesLineRecRef.GetFilters, FilterMismatchErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ConvertParamsToFiltersTablesSubstringsOfOtherTables()
+    var
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        WorkflowStep: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        IncomingDocumentRecRef: RecordRef;
+        IncomingDocumentAttachmentRecRef: RecordRef;
+    begin
+        // Bug 373821. Verify that the filters will be applied to the correct table when the table name
+        // is a substring of other table name and they are both part of report parameters.
+        Initialize;
+
+        // Setup
+        // <DataItem name="Incoming Document">VERSION(1) SORTING(Field1) WHERE(Field18=1(6))</DataItem>
+        IncomingDocument.SetRange(Status, IncomingDocument.Status::"Pending Approval");
+
+        // <DataItem name="Incoming Document Attachment">VERSION(1) SORTING(Field1,Field2)</DataItem>
+        // no need to set filters on IncomingDocumentAttachment, as the xml only describes sorting on the primary key
+
+        CreateWorkflowWithStepAndArgument(WorkflowStep, WorkflowStepArgument);
+        WorkflowStepArgument.SetEventFilters(StrSubstNo(IncomingDocumentTxt, WorkDate, 1000));
+
+        // Exercise
+        IncomingDocumentRecRef.Open(DATABASE::"Incoming Document");
+        IncomingDocumentAttachmentRecRef.Open(DATABASE::"Incoming Document Attachment");
+        WorkflowStep.ConvertEventConditionsToFilters(IncomingDocumentRecRef);
+        WorkflowStep.ConvertEventConditionsToFilters(IncomingDocumentAttachmentRecRef);
+
+        // Verify
+        Assert.AreEqual(IncomingDocument.GetFilters, IncomingDocumentRecRef.GetFilters, FilterMismatchErr);
+        Assert.AreEqual(IncomingDocumentAttachment.GetFilters, IncomingDocumentAttachmentRecRef.GetFilters, FilterMismatchErr);
     end;
 
     [Test]

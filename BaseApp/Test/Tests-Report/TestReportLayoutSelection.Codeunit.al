@@ -247,7 +247,7 @@ codeunit 134605 "Test Report Layout Selection"
     end;
 
     [HandlerFunctions('SelectSendingOptionModalPageHandler')]
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure SendTwoSalesInvoicesInJobQueue()
     var
@@ -313,7 +313,7 @@ codeunit 134605 "Test Report Layout Selection"
     end;
 
     [HandlerFunctions('SelectSendingOptionModalPageHandler')]
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure SendTwoPurchaseInvoicesInJobQueue()
     var

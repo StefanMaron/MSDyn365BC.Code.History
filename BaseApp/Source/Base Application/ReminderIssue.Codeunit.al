@@ -1,4 +1,4 @@
-codeunit 393 "Reminder-Issue"
+﻿codeunit 393 "Reminder-Issue"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Issued Reminder Header" = rimd,
@@ -68,6 +68,7 @@ codeunit 393 "Reminder-Issue"
                 InitGenJnlLine(GenJnlLine."Account Type"::"G/L Account", CustPostingGr.GetInterestAccount, true);
                 GenJnlLine.Validate("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                 GenJnlLine.Validate(Amount, -ReminderInterestAmount - ReminderInterestVATAmount);
+                OnRunOnBeforeGenJnlLineUpdateLineBalance(GenJnlLine, ReminderInterestVATAmount, TotalAmount);
                 GenJnlLine.UpdateLineBalance;
                 TotalAmount := TotalAmount - GenJnlLine.Amount;
                 TotalAmountLCY := TotalAmountLCY - GenJnlLine."Balance (LCY)";
@@ -278,6 +279,7 @@ codeunit 393 "Reminder-Issue"
                 IssuedReminderLine."Reminder No." := "No.";
                 IssuedReminderLine."Line No." := 10000;
                 IssuedReminderLine.Description := SourceCode.Description;
+                OnDeleteHeaderOnBeforeIssuedReminderLineInsert(IssuedReminderLine, IssuedReminderHeader);
                 IssuedReminderLine.Insert();
             end;
         end;
@@ -556,6 +558,16 @@ codeunit 393 "Reminder-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCustomerIsBlocked(Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeGenJnlLineUpdateLineBalance(var GenJnlLine: Record "Gen. Journal Line"; ReminderInterestVATAmount: Decimal; var TotalAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteHeaderOnBeforeIssuedReminderLineInsert(var IssuedReminderLine: Record "Issued Reminder Line"; IssuedReminderHeader: Record "Issued Reminder Header")
     begin
     end;
 }

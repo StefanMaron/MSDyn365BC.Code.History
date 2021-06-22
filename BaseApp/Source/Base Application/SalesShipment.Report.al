@@ -690,6 +690,8 @@ report 208 "Sales - Shipment"
         if not CurrReport.UseRequestPage then
             InitLogInteraction;
         AsmHeaderExists := false;
+
+        OnAfterOnPreReport("Sales Shipment Header");
     end;
 
     var
@@ -822,6 +824,11 @@ report 208 "Sales - Shipment"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterPostDataItem(var SalesShipmentHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnPreReport(var SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;
 }

@@ -359,6 +359,7 @@ codeunit 5870 "Calculate BOM Tree"
                                   UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code") / LotSize);
                                 BOMBuffer.Modify();
                             end;
+                            OnGenerateProdCompSubTreeOnAfterBOMBufferModify(BOMBuffer, RoutingLine, LotSize);
                         end;
                     until Next = 0;
                     FoundSubTree := true;
@@ -1015,6 +1016,11 @@ codeunit 5870 "Calculate BOM Tree"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcRoutingLineCostsOnBeforeBOMBufferAdd(RoutingLine: Record "Routing Line"; LotSize: Decimal; ScrapPct: Decimal; var CapCost: Decimal; var SubcontractedCapCost: Decimal; var CapOverhead: Decimal; var BOMBuffer: Record "BOM Buffer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateProdCompSubTreeOnAfterBOMBufferModify(var BOMBuffer: Record "BOM Buffer"; RoutingLine: Record "Routing Line"; LotSize: Decimal)
     begin
     end;
 }

@@ -6,8 +6,6 @@ page 5353 "CRM Sales Order List"
     Editable = false;
     PageType = List;
     SourceTable = "CRM Salesorder";
-    SourceTableView = WHERE(StateCode = FILTER(Submitted),
-                            LastBackofficeSubmit = FILTER(0D));
     UsageCategory = Lists;
 
     layout
@@ -208,6 +206,8 @@ page 5353 "CRM Sales Order List"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
+        SetRange(StateCode, StateCode::Submitted);
+        SetFilter(LastBackofficeSubmit, '%1|%2', 0D, DMY2Date(1, 1, 1900));
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
     end;
 

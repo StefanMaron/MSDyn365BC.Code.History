@@ -3884,6 +3884,161 @@ codeunit 137074 "SCM Capacity Requirements"
         VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 180, 40);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NeededTimeNotChangedWhenRecalculateRoutingAfterOutputPosted()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        Qty: Decimal;
+        SetupTime: Decimal;
+        RunTime: Decimal;
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output]
+        // [SCENARIO 367806] Needed Time on Capacity Need does not change when a user posts output and recalculates routing.
+        // [SCENARIO 367806] Allocated Time on Capacity Need is recalculated with the consideration of posted output.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+        SetupTime := LibraryRandom.RandIntInRange(10, 20);
+        RunTime := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Production item with routing. "Setup Time" = 10, "Run Time" = 20.
+        // [GIVEN] Released production order for 150 pcs. Refresh.
+        // [GIVEN] Check capacity need for setup time: "Allocated Time" = 10, "Needed Time" = 10.
+        // [GIVEN] Check capacity need for run time: "Allocated Time" = 3000 (150 * 20), "Needed Time" = 3000.
+        CreateProductionItemWithOneLineRouting(Item, SetupTime, RunTime, 0, 0, 080000T, 160000T, WorkDate());
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", Qty, WorkDate(), 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedTime(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", SetupTime, SetupTime);
+        VerifyCapacityNeedTime(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", RunTime * Qty, RunTime * Qty);
+
+        // [GIVEN] Post output for 75 pcs, setup time = 5, run time = 1500.
+        CreateAndPostOutputJnlLine(ProdOrderRoutingLine, Item."No.", Qty / 2, SetupTime / 2, RunTime * Qty / 2);
+
+        // [WHEN] Change "Due Date" on the production order to recalculate routing.
+        ProductionOrder.Find();
+        ProductionOrder.SetUpdateEndDate();
+        ProductionOrder.Validate("Due Date", CalcDate('<-1M>', ProductionOrder."Due Date"));
+        ProductionOrder.Modify(true);
+
+        // [THEN] "Input Quantity" on the prod. order routing line = 150.
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        ProdOrderRoutingLine.TestField("Input Quantity", Qty);
+
+        // [THEN] Verify capacity need for setup time: "Allocated Time" = 5, "Needed Time" = 10.
+        // [THEN] Verify capacity need for run time: "Allocated Time" = 1500, "Needed Time" = 3000.
+        VerifyCapacityNeedTime(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", SetupTime / 2, SetupTime);
+        VerifyCapacityNeedTime(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", RunTime * Qty / 2, RunTime * Qty);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AllocatedTimeRestoredAfterNegativeOutputPostedAndRoutingRecalcd()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJournalLine: Record "Item Journal Line";
+        Qty: Decimal;
+        SetupTime: Decimal;
+        RunTime: Decimal;
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output]
+        // [SCENARIO 367806] Allocated Time on Capacity Need is restored when a user posts output and reverses it back.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+        SetupTime := LibraryRandom.RandIntInRange(10, 20);
+        RunTime := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Production item with routing. "Setup Time" = 10, "Run Time" = 20.
+        // [GIVEN] Released production order for 150 pcs. Refresh.
+        CreateProductionItemWithOneLineRouting(Item, SetupTime, RunTime, 0, 0, 080000T, 160000T, WorkDate());
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", Qty, WorkDate(), 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+
+        // [GIVEN] Post output for 75 pcs, setup time = 5, run time = 1500.
+        CreateAndPostOutputJnlLine(ProdOrderRoutingLine, Item."No.", Qty / 2, SetupTime / 2, RunTime * Qty / 2);
+
+        // [GIVEN] Change "Due Date" on the production order to recalculate routing.
+        ProductionOrder.Find();
+        ProductionOrder.SetUpdateEndDate();
+        ProductionOrder.Validate("Due Date", CalcDate('<-1M>', ProductionOrder."Due Date"));
+        ProductionOrder.Modify(true);
+
+        // [WHEN] Post a reversed output for -75 pcs, setup time = -5, run time = -1500.
+        CreateOutputJnlLineWithSetupRunTime(
+          ItemJournalLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", -SetupTime / 2, -RunTime * Qty / 2);
+        ItemJournalLine.Validate("Output Quantity", -Qty / 2);
+        ItemJournalLine.Validate("Applies-to Entry", FindLastItemLedgEntryForOutput(Item."No.", true));
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [THEN] "Input Quantity" on the prod. order routing line = 150.
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        ProdOrderRoutingLine.TestField("Input Quantity", Qty);
+
+        // [THEN] Verify capacity need for setup time: "Allocated Time" = 10, "Needed Time" = 10.
+        // [THEN] Verify capacity need for run time: "Allocated Time" = 3000, "Needed Time" = 3000.
+        VerifyCapacityNeedTime(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", SetupTime, SetupTime);
+        VerifyCapacityNeedTime(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", RunTime * Qty, RunTime * Qty);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AllocatedTimeRestoreAfterPartiallyReversedOutput()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJournalLine: Record "Item Journal Line";
+        Qty: Decimal;
+        SetupTime: Decimal;
+        RunTime: Decimal;
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output]
+        // [SCENARIO 367806] Restore allocated Time on Capacity Need when a user posts output and partially reverses it.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+        SetupTime := LibraryRandom.RandIntInRange(10, 20);
+        RunTime := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Production item with routing. "Setup Time" = 10, "Run Time" = 20.
+        // [GIVEN] Released production order for 150 pcs. Refresh.
+        CreateProductionItemWithOneLineRouting(Item, SetupTime, RunTime, 0, 0, 080000T, 160000T, WorkDate());
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", Qty, WorkDate(), 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+
+        // [GIVEN] Post output for 150 pcs, setup time = 10, run time = 3000.
+        CreateAndPostOutputJnlLine(ProdOrderRoutingLine, Item."No.", Qty, SetupTime, RunTime * Qty);
+
+        // [GIVEN] Change "Due Date" on the production order to recalculate routing.
+        ProductionOrder.Find();
+        ProductionOrder.SetUpdateEndDate();
+        ProductionOrder.Validate("Due Date", CalcDate('<-1M>', ProductionOrder."Due Date"));
+        ProductionOrder.Modify(true);
+
+        // [WHEN] Post a reversed output for -75 pcs, setup time = -5, run time = -1500.
+        CreateOutputJnlLineWithSetupRunTime(
+          ItemJournalLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", -SetupTime / 2, -RunTime * Qty / 2);
+        ItemJournalLine.Validate("Output Quantity", -Qty / 2);
+        ItemJournalLine.Validate("Applies-to Entry", FindLastItemLedgEntryForOutput(Item."No.", true));
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [THEN] "Input Quantity" on the prod. order routing line = 150.
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        ProdOrderRoutingLine.TestField("Input Quantity", Qty);
+
+        // [THEN] Verify capacity need for setup time: "Allocated Time" = 5, "Needed Time" = 10.
+        // [THEN] Verify capacity need for run time: "Allocated Time" = 1500, "Needed Time" = 3000.
+        VerifyCapacityNeedTime(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", SetupTime / 2, SetupTime);
+        VerifyCapacityNeedTime(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", RunTime * Qty / 2, RunTime * Qty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4300,6 +4455,17 @@ codeunit 137074 "SCM Capacity Requirements"
         exit('');
     end;
 
+    local procedure FindLastItemLedgEntryForOutput(ItemNo: Code[20]; IsPositive: Boolean): Integer
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.SetRange(Positive, IsPositive);
+        ItemLedgerEntry.FindLast();
+        exit(ItemLedgerEntry."Entry No.");
+    end;
+
     local procedure CreateAndRefreshBackwardFirmPlannedProductionOrder(var ProductionOrder: Record "Production Order"; SourceNo: Code[20]; Quantity: Decimal; DueDate: Date)
     begin
         LibraryManufacturing.CreateProductionOrder(
@@ -4410,6 +4576,17 @@ codeunit 137074 "SCM Capacity Requirements"
         ItemJournalLine.Validate("Setup Time", SetupTime);
         ItemJournalLine.Validate("Run Time", RunTime);
         ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateAndPostOutputJnlLine(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ItemNo: Code[20]; Qty: Decimal; SetupTime: Decimal; RunTime: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateOutputJnlLineWithSetupRunTime(
+          ItemJournalLine, ProdOrderRoutingLine."Prod. Order No.", ItemNo, ProdOrderRoutingLine."Operation No.", SetupTime, RunTime);
+        ItemJournalLine.Validate("Output Quantity", Qty);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure OpenWorkCenterLoadPage(var WorkCenterLoad: TestPage "Work Center Load"; WorkCenterNo: Code[20])
@@ -4898,6 +5075,16 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderCapacityNeed.SetRange(Date, ProdOrderCapacityNeed.Date + 1);
         ProdOrderCapacityNeed.FindFirst();  // find next line
         ProdOrderCapacityNeed.TestField("Allocated Time", ExpectedAllocatedTime2);
+    end;
+
+    local procedure VerifyCapacityNeedTime(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Option; AllocatedTime: Decimal; NeededTime: Decimal)
+    var
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+    begin
+        FindFirstProdOrderCapacityNeedWithTimeType(ProdOrderCapacityNeed, ProdOrderRoutingLine, TimeType);
+        ProdOrderCapacityNeed.CalcSums("Allocated Time", "Needed Time");
+        ProdOrderCapacityNeed.TestField("Allocated Time", AllocatedTime);
+        ProdOrderCapacityNeed.TestField("Needed Time", NeededTime);
     end;
 
     local procedure VerifyProdOrderStartEndDateTime(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ExpectedStartingDateTime: DateTime; ExpectedEndingDateTime: DateTime)

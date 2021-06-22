@@ -42,6 +42,11 @@ table 5331 "CRM Integration Record"
             Caption = 'Table ID';
             Editable = false;
             FieldClass = Normal;
+
+            trigger OnValidate()
+            begin
+                CheckTableID();
+            end;
         }
         field(7; "Last Synch. Result"; Option)
         {
@@ -93,17 +98,134 @@ table 5331 "CRM Integration Record"
         key(Key5; Skipped, "Table ID")
         {
         }
+        key(Key6; "Table ID")
+        {
+        }
     }
 
     fieldgroups
     {
     }
 
+    trigger OnInsert()
+    begin
+        CheckTableID();
+    end;
+
     var
         IntegrationRecordNotFoundErr: Label 'The integration record for entity %1 was not found.';
         CRMIdAlreadyMappedErr: Label 'Cannot couple %1 to this %3 record, because the %3 record is already coupled to %2.', Comment = '%1 ID of the record, %2 ID of the already mapped record, %3 = CDS service name';
         RecordIdAlreadyMappedErr: Label 'Cannot couple the %2 record to %1, because %1 is already coupled to another %2 record.', Comment = '%1 ID from the record, %2 ID of the already mapped record';
+        ZeroTableIdErr: Label 'Table ID must be specified.';
+        ZeroTableIdTxt: Label 'Table ID is zero in CRM Integration Record. System ID: %1, CRM ID: %2', Locked = true;
+        FixedTableIdTxt: Label 'Table ID has been fixed in CRM Integration Record. New Table ID: %1, System ID: %2, CRM ID: %3', Locked = true;
+        CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
         CRMProductName: Codeunit "CRM Product Name";
+
+    local procedure CheckTableID()
+    begin
+        if "Table ID" = 0 then
+            if not IsNullGuid("Integration ID") then
+                if not IsTemporary() then
+                    Error(ZeroTableIdErr);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetTableID(): Integer
+    begin
+        if "Table ID" <> 0 then
+            exit("Table ID");
+
+        if IsNullGuid("Integration ID") then
+            exit(0);
+
+        if RepairTableIdByLocalRecord() then
+            exit("Table ID");
+
+        Session.LogMessage('0000DQ9', StrSubstNo(ZeroTableIdTxt, "Integration ID", "CRM ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+        exit(0);
+    end;
+
+    internal procedure RepairTableIdByLocalRecord(): Boolean
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        if "Table ID" <> 0 then
+            exit(true);
+
+        if IsNullGuid("Integration ID") then
+            exit(true);
+
+        if FindMappingByLocalRecordId(IntegrationTableMapping) then begin
+            "Table ID" := IntegrationTableMapping."Table ID";
+            Modify();
+            Session.LogMessage('0000DQ7', StrSubstNo(FixedTableIdTxt, "Table ID", "Integration ID", "CRM ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            exit(true);
+        end;
+
+        exit(false);
+    end;
+
+    internal procedure RepairTableIdByCRMRecord(): Boolean
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        if "Table ID" <> 0 then
+            exit(true);
+
+        if IsNullGuid("Integration ID") then
+            exit(true);
+
+        if FindMappingByCRMRecordId(IntegrationTableMapping) then
+            if IntegrationTableMapping."Table ID" <> 0 then begin
+                "Table ID" := IntegrationTableMapping."Table ID";
+                Modify();
+                Session.LogMessage('0000DQ8', StrSubstNo(FixedTableIdTxt, "Table ID", "Integration ID", "CRM ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+                exit(true);
+            end;
+
+        exit(false);
+    end;
+
+    local procedure FindMappingByLocalRecordId(var IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
+    var
+        LocalRecordRef: RecordRef;
+    begin
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.SetFilter("Table ID", '<>0');
+        if IntegrationTableMapping.FindSet() then
+            repeat
+                LocalRecordRef.Close();
+                LocalRecordRef.Open(IntegrationTableMapping."Table ID");
+                if LocalRecordRef.GetBySystemId("Integration ID") then
+                    exit(true);
+            until IntegrationTableMapping.Next() = 0;
+        exit(false);
+    end;
+
+    local procedure FindMappingByCRMRecordId(var IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
+    var
+        CRMRecordRef: RecordRef;
+        CRMIdFieldRef: FieldRef;
+        PrimaryKeyRef: KeyRef;
+        CRMTableView: Text;
+    begin
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.SetFilter("Integration Table ID", '<>0');
+        if IntegrationTableMapping.FindSet() then
+            repeat
+                CRMRecordRef.Close();
+                CRMTableView := IntegrationTableMapping.GetIntegrationTableFilter();
+                CRMRecordRef.Open(IntegrationTableMapping."Integration Table ID");
+                PrimaryKeyRef := CRMRecordRef.KeyIndex(1);
+                CRMIdFieldRef := PrimaryKeyRef.FieldIndex(1);
+                CRMRecordRef.SetView(CRMTableView);
+                CRMIdFieldRef.SetRange("CRM ID");
+                if not CRMRecordRef.IsEmpty() then
+                    exit(true);
+            until IntegrationTableMapping.Next() = 0;
+        exit(false);
+    end;
 
     local procedure GetCRMIdFromRecRef(CRMRecordRef: RecordRef): Guid
     var
@@ -242,8 +364,13 @@ table 5331 "CRM Integration Record"
         FldRef: FieldRef;
         EmptyRecId: RecordId;
         FoundRecId: RecordId;
+        TableId: Integer;
     begin
-        RecRef.Open("Table ID");
+        TableId := GetTableID();
+        if TableId = 0 then
+            exit(false);
+
+        RecRef.Open(TableId);
         FldRef := RecRef.FIELD(RecRef.SystemIdNo());
         FldRef.SetRange("Integration ID");
         If RecRef.FindFirst() then
@@ -584,15 +711,24 @@ table 5331 "CRM Integration Record"
     local procedure FindRowFromRecordID(SourceRecordID: RecordID; var CRMIntegrationRecord: Record "CRM Integration Record"): Boolean
     var
         SysId: Guid;
+        Found: Boolean;
     begin
-        if FindSystemIdByRecordId(SysId, SourceRecordID) then
-            exit(FindRowFromIntegrationID(SysId, CRMIntegrationRecord));
+        if FindSystemIdByRecordId(SysId, SourceRecordID) then begin
+            Found := FindRowFromIntegrationID(SysId, CRMIntegrationRecord);
+            if Found then
+                if CRMIntegrationRecord."Table ID" = 0 then begin
+                    CRMIntegrationRecord."Table ID" := SourceRecordID.TableNo();
+                    CRMIntegrationRecord.Modify();
+                end;
+        end;
+        exit(Found);
     end;
 
     local procedure FindRowFromCRMID(CRMID: Guid; DestinationTableID: Integer; var CRMIntegrationRecord: Record "CRM Integration Record"): Boolean
     begin
         CRMIntegrationRecord.SetRange("CRM ID", CRMID);
-        CRMIntegrationRecord.SetFilter("Table ID", Format(DestinationTableID));
+        if DestinationTableID <> 0 then
+            CRMIntegrationRecord.SetFilter("Table ID", Format(DestinationTableID));
         exit(CRMIntegrationRecord.FindFirst);
     end;
 

@@ -757,12 +757,15 @@ codeunit 1002 "Job Create-Invoice"
         SalesHeader."Sell-to City" := Job."Bill-to City";
         SalesHeader."Sell-to Post Code" := Job."Bill-to Post Code";
 
-        SalesHeader."Ship-to Contact" := Job."Bill-to Contact";
-        SalesHeader."Ship-to Name" := Job."Bill-to Name";
-        SalesHeader."Ship-to Address" := Job."Bill-to Address";
-        SalesHeader."Ship-to Address 2" := Job."Bill-to Address 2";
-        SalesHeader."Ship-to City" := Job."Bill-to City";
-        SalesHeader."Ship-to Post Code" := Job."Bill-to Post Code";
+        if SalesHeader."Ship-to Code" = '' then begin
+            SalesHeader."Ship-to Contact" := Job."Bill-to Contact";
+            SalesHeader."Ship-to Name" := Job."Bill-to Name";
+            SalesHeader."Ship-to Address" := Job."Bill-to Address";
+            SalesHeader."Ship-to Address 2" := Job."Bill-to Address 2";
+            SalesHeader."Ship-to City" := Job."Bill-to City";
+            SalesHeader."Ship-to Post Code" := Job."Bill-to Post Code";
+        end;
+
     end;
 
     local procedure TestSalesHeader(var SalesHeader: Record "Sales Header"; var Job: Record Job)

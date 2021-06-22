@@ -14,12 +14,14 @@ codeunit 5334 "CRM Setup Defaults"
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         AutoCreateSalesOrdersTxt: Label 'Automatically create sales orders from sales orders that are submitted in %1.', Comment = '%1 = CRM product name';
         AutoProcessQuotesTxt: Label 'Automatically process sales quotes from sales quotes that are activated in %1.', Comment = '%1 = CRM product name';
+        OrTok: Label '%1|%2', Locked = true, Comment = '%1 and %2 - some filters';
 
     procedure ResetConfiguration(CRMConnectionSetup: Record "CRM Connection Setup")
     var
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         ConnectionName: Text;
         EnqueueJobQueEntries: Boolean;
         IsHandled: Boolean;
@@ -40,8 +42,13 @@ codeunit 5334 "CRM Setup Defaults"
         ResetUnitOfMeasureUoMScheduleMapping('UNIT OF MEASURE', EnqueueJobQueEntries);
         ResetItemProductMapping('ITEM-PRODUCT', EnqueueJobQueEntries);
         ResetResourceProductMapping('RESOURCE-PRODUCT', EnqueueJobQueEntries);
-        ResetCustomerPriceGroupPricelevelMapping('CUSTPRCGRP-PRICE', EnqueueJobQueEntries);
-        ResetSalesPriceProductPricelevelMapping('SALESPRC-PRODPRICE', EnqueueJobQueEntries);
+        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then begin
+            ResetPriceListHeaderPricelevelMapping('PLHEADER-PRICE', EnqueueJobQueEntries);
+            ResetPriceListLineProductPricelevelMapping('PLLINE-PRODPRICE', EnqueueJobQueEntries);
+        end else begin
+            ResetCustomerPriceGroupPricelevelMapping('CUSTPRCGRP-PRICE', EnqueueJobQueEntries);
+            ResetSalesPriceProductPricelevelMapping('SALESPRC-PRODPRICE', EnqueueJobQueEntries);
+        end;
         ResetSalesInvoiceHeaderInvoiceMapping('POSTEDSALESINV-INV', IsTeamOwnershipModel, EnqueueJobQueEntries);
         ResetSalesInvoiceLineInvoiceMapping('POSTEDSALESLINE-INV');
         ResetOpportunityMapping('OPPORTUNITY', IsTeamOwnershipModel);
@@ -70,6 +77,27 @@ codeunit 5334 "CRM Setup Defaults"
             TempCRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);
     end;
 
+    procedure ResetExtendedPriceListConfiguration()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
+        ConnectionName: Text;
+        EnqueueJobQueEntries: Boolean;
+    begin
+        if not CRMConnectionSetup.Get() then
+            exit;
+        EnqueueJobQueEntries := CRMConnectionSetup.DoReadCRMData;
+        ConnectionName := RegisterTempConnectionIfNeeded(CRMConnectionSetup, TempCRMConnectionSetup);
+        if ConnectionName <> '' then
+            SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName, true);
+
+        ResetPriceListHeaderPricelevelMapping('PLHEADER-PRICE', EnqueueJobQueEntries);
+        ResetPriceListLineProductPricelevelMapping('PLLINE-PRODPRICE', EnqueueJobQueEntries);
+
+        if ConnectionName <> '' then
+            TempCRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);
+    end;
+
     [Scope('OnPrem')]
     procedure ResetItemProductMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
     var
@@ -87,6 +115,9 @@ codeunit 5334 "CRM Setup Defaults"
           DATABASE::Item, DATABASE::"CRM Product",
           CRMProduct.FieldNo(ProductId), CRMProduct.FieldNo(ModifiedOn),
           '', '', true);
+
+        Item.SetRange(Blocked, false);
+        IntegrationTableMapping.SetTableFilter(GetTableFilterFromView(DATABASE::Item, Item.TableCaption(), Item.GetView()));
 
         IntegrationTableMapping."Dependency Filter" := 'UNIT OF MEASURE';
         SetIntegrationTableFilterForCRMProduct(IntegrationTableMapping, CRMProduct, CRMProduct.ProductTypeCode::SalesInventory);
@@ -201,6 +232,9 @@ codeunit 5334 "CRM Setup Defaults"
           CRMProduct.FieldNo(ProductId), CRMProduct.FieldNo(ModifiedOn),
           '', '', true);
 
+        Resource.SetRange(Blocked, false);
+        IntegrationTableMapping.SetTableFilter(GetTableFilterFromView(DATABASE::Resource, Resource.TableCaption(), Resource.GetView()));
+
         IntegrationTableMapping."Dependency Filter" := 'UNIT OF MEASURE';
         SetIntegrationTableFilterForCRMProduct(IntegrationTableMapping, CRMProduct, CRMProduct.ProductTypeCode::Services);
 
@@ -286,7 +320,7 @@ codeunit 5334 "CRM Setup Defaults"
         IntegrationTableMapping.Modify();
 
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
-            CRMInvoice.SetFilter(CompanyId, StrSubstno('%1|%2', CDSCompany.CompanyId, EmptyGuid));
+            CRMInvoice.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
             IntegrationTableMapping.SetIntegrationTableFilter(
               GetTableFilterFromView(DATABASE::"CRM Invoice", CRMInvoice.TableCaption, CRMInvoice.GetView));
             IntegrationTableMapping.Modify();
@@ -596,7 +630,7 @@ codeunit 5334 "CRM Setup Defaults"
         IntegrationTableMapping.Modify();
 
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
-            CRMSalesorder.SetFilter(CompanyId, StrSubstno('%1|%2', CDSCompany.CompanyId, EmptyGuid));
+            CRMSalesorder.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
             IntegrationTableMapping.SetIntegrationTableFilter(
               GetTableFilterFromView(DATABASE::"CRM Salesorder", CRMSalesorder.TableCaption, CRMSalesorder.GetView));
             IntegrationTableMapping.Modify();
@@ -824,6 +858,7 @@ codeunit 5334 "CRM Setup Defaults"
             DeleteSalesOrderSyncMappingAndJobQueueEntries('SALESORDER-ORDER');
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '18.0')]
     [Scope('OnPrem')]
     procedure ResetCustomerPriceGroupPricelevelMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
     var
@@ -848,7 +883,7 @@ codeunit 5334 "CRM Setup Defaults"
         IntegrationTableMapping.Modify();
 
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
-            CRMPricelevel.SetFilter(CompanyId, StrSubstno('%1|%2', CDSCompany.CompanyId, EmptyGuid));
+            CRMPricelevel.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
             IntegrationTableMapping.SetIntegrationTableFilter(
               GetTableFilterFromView(DATABASE::"CRM Pricelevel", CRMPricelevel.TableCaption, CRMPricelevel.GetView));
             IntegrationTableMapping.Modify();
@@ -942,6 +977,170 @@ codeunit 5334 "CRM Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
 
+    procedure ResetPriceListHeaderPricelevelMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        PriceListHeader: Record "Price List Header";
+        CRMPricelevel: Record "CRM Pricelevel";
+        CDSCompany: Record "CDS Company";
+        EmptyGuid: Guid;
+        IsHandled: Boolean;
+    begin
+        OnBeforeResetPriceListHeaderPricelevelMapping(IntegrationTableMappingName, EnqueueJobQueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        InsertIntegrationTableMapping(
+          IntegrationTableMapping, IntegrationTableMappingName,
+          DATABASE::"Price List Header", DATABASE::"CRM Pricelevel",
+          CRMPricelevel.FieldNo(PriceLevelId), CRMPricelevel.FieldNo(ModifiedOn),
+          '', '', true);
+
+        PriceListHeader.Reset();
+        PriceListHeader.SetRange("Price Type", "Price Type"::Sale);
+        PriceListHeader.SetRange("Amount Type", "Price Amount Type"::Price);
+        IntegrationTableMapping.SetTableFilter(
+            GetTableFilterFromView(DATABASE::"Price List Header", PriceListHeader.TableCaption, PriceListHeader.GetView));
+        IntegrationTableMapping."Dependency Filter" := 'CURRENCY';
+        IntegrationTableMapping.Modify();
+
+        if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
+            CRMPricelevel.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
+            IntegrationTableMapping.SetIntegrationTableFilter(
+                GetTableFilterFromView(DATABASE::"CRM Pricelevel", CRMPricelevel.TableCaption, CRMPricelevel.GetView));
+            IntegrationTableMapping.Modify();
+        end;
+
+        // Code > Name
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          PriceListHeader.FieldNo(Code),
+          CRMPricelevel.FieldNo(Name),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // Description > Description
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          PriceListHeader.FieldNo(Description),
+          CRMPricelevel.FieldNo(Description),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // "Currency Code" > TransactionCurrencyId
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          PriceListHeader.FieldNo("Currency Code"),
+          CRMPricelevel.FieldNo(TransactionCurrencyId),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // "Starting Date" > BeginDate
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          PriceListHeader.FieldNo("Starting Date"),
+          CRMPricelevel.FieldNo(BeginDate),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // "Ending Date" > EndDate
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          PriceListHeader.FieldNo("Ending Date"),
+          CRMPricelevel.FieldNo(EndDate),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
+    end;
+
+    local procedure ResetPriceListLineProductPricelevelMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        PriceListLine: Record "Price List Line";
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+        IsHandled: Boolean;
+    begin
+        OnBeforeResetPriceListLineProductPricelevelMapping(IntegrationTableMappingName, EnqueueJobQueEntry, IsHandled);
+        if IsHandled then
+            exit;
+        InsertIntegrationTableMapping(
+          IntegrationTableMapping, IntegrationTableMappingName,
+          DATABASE::"Price List Line", DATABASE::"CRM Productpricelevel",
+          CRMProductpricelevel.FieldNo(ProductPriceLevelId), CRMProductpricelevel.FieldNo(ModifiedOn),
+          '', '', false);
+
+        PriceListLine.Reset();
+        PriceListLine.SetRange("Price Type", "Price Type"::Sale);
+        PriceListLine.SetRange("Amount Type", "Price Amount Type"::Price);
+        PriceListLine.SetFilter("Asset Type", OrTok, "Price Asset Type"::Item, "Price Asset Type"::Resource);
+        PriceListLine.SetRange("Minimum Quantity", 0);
+        IntegrationTableMapping.SetTableFilter(
+          GetTableFilterFromView(DATABASE::"Price List Line", PriceListLine.TableCaption, PriceListLine.GetView));
+
+        IntegrationTableMapping."Dependency Filter" := 'PLHEADER-PRICE|ITEM-PRODUCT';
+        IntegrationTableMapping.Modify();
+
+        // "Price List Code" > PriceLevelId
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          PriceListLine.FieldNo("Price List Code"),
+          CRMProductpricelevel.FieldNo(PriceLevelId),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // "Asset No." > ProductId
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          PriceListLine.FieldNo("Asset No."),
+          CRMProductpricelevel.FieldNo(ProductId),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // "Asset No." > ProductNumber
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          PriceListLine.FieldNo("Asset No."),
+          CRMProductpricelevel.FieldNo(ProductNumber),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // "Currency Code" > TransactionCurrencyId
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          PriceListLine.FieldNo("Currency Code"),
+          CRMProductpricelevel.FieldNo(TransactionCurrencyId),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // >> PricingMethodCode = CurrencyAmount
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          0, CRMProductpricelevel.FieldNo(PricingMethodCode),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          Format(CRMProductpricelevel.PricingMethodCode::CurrencyAmount), false, false);
+
+        // "Unit Of Measure" > UoMScheduleId
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          PriceListLine.FieldNo("Unit of Measure Code"),
+          CRMProductpricelevel.FieldNo(UoMScheduleId),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // "Unit Price" > Amount
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          PriceListLine.FieldNo("Unit Price"),
+          CRMProductpricelevel.FieldNo(Amount),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
+    end;
+
     [Scope('OnPrem')]
     procedure ResetUnitOfMeasureUoMScheduleMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
     var
@@ -995,7 +1194,7 @@ codeunit 5334 "CRM Setup Defaults"
         IntegrationTableMapping.Modify();
 
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
-            CRMOpportunity.SetFilter(CompanyId, StrSubstno('%1|%2', CDSCompany.CompanyId, EmptyGuid));
+            CRMOpportunity.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
             IntegrationTableMapping.SetIntegrationTableFilter(
               GetTableFilterFromView(DATABASE::"CRM Opportunity", CRMOpportunity.TableCaption, CRMOpportunity.GetView));
             IntegrationTableMapping.Modify();
@@ -1240,7 +1439,7 @@ codeunit 5334 "CRM Setup Defaults"
 
         if IntegrationTableMapping.Get(IntegrationTableMappingName) then begin
             JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-            JobQueueEntry.SetFilter("Object ID to Run", '%1|%2', Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner");
+            JobQueueEntry.SetFilter("Object ID to Run", OrTok, Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner");
             JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
             JobQueueEntry.DeleteTasks;
             IntegrationTableMapping.Delete();
@@ -1287,15 +1486,17 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(DATABASE::"CRM Transactioncurrency");
             DATABASE::Customer:
                 exit(DATABASE::"CRM Account");
+            DATABASE::"Price List Header",
             DATABASE::"Customer Price Group":
                 exit(DATABASE::"CRM Pricelevel");
             DATABASE::Item,
-          DATABASE::Resource:
+            DATABASE::Resource:
                 exit(DATABASE::"CRM Product");
             DATABASE::"Sales Invoice Header":
                 exit(DATABASE::"CRM Invoice");
             DATABASE::"Sales Invoice Line":
                 exit(DATABASE::"CRM Invoicedetail");
+            DATABASE::"Price List Line",
             DATABASE::"Sales Price":
                 exit(DATABASE::"CRM Productpricelevel");
             DATABASE::"Salesperson/Purchaser":
@@ -1329,6 +1530,8 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(IntegrationTableMapping.Direction::Bidirectional);
             DATABASE::Currency,
           DATABASE::"Customer Price Group",
+          DATABASE::"Price List Header",
+          DATABASE::"Price List Line",
           DATABASE::"Sales Invoice Header",
           DATABASE::"Sales Invoice Line",
           DATABASE::"Sales Price",
@@ -1563,8 +1766,9 @@ codeunit 5334 "CRM Setup Defaults"
         EmptyGuid: Guid;
     begin
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then
-            CRMProduct.SetFilter(CompanyId, StrSubstno('%1|%2', CDSCompany.CompanyId, EmptyGuid));
+            CRMProduct.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
         CRMProduct.SetRange(ProductTypeCode, ProductTypeCode);
+        CRMProduct.SetRange(StateCode, CRMProduct.StateCode::Active);
         IntegrationTableMapping.SetIntegrationTableFilter(
           GetTableFilterFromView(DATABASE::"CRM Product", CRMProduct.TableCaption, CRMProduct.GetView));
         IntegrationTableMapping.Modify();
@@ -1621,11 +1825,23 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
+    [Obsolete('Subscribe to OnBeforeResetPriceListHeaderPricelevelMapping.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResetCustomerPriceGroupPricelevelMapping(var IntegrationTableMappingName: Code[20]; var EnqueueJobQueEntry: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetPriceListHeaderPricelevelMapping(var IntegrationTableMappingName: Code[20]; var EnqueueJobQueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetPriceListLineProductPricelevelMapping(var IntegrationTableMappingName: Code[20]; var EnqueueJobQueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('Subscribe to OnBeforeResetPriceListLineProductPricelevelMapping.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResetSalesPriceProductPricelevelMapping(var IntegrationTableMappingName: Code[20]; var EnqueueJobQueEntry: Boolean; var IsHandled: Boolean)
     begin

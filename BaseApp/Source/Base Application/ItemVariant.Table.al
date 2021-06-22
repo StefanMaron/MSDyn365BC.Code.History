@@ -15,6 +15,17 @@ table 5401 "Item Variant"
         {
             Caption = 'Item No.';
             TableRelation = Item;
+
+            trigger OnValidate()
+            var
+                Item: Record Item;
+            begin
+                if "Item No." = '' then
+                    Clear("Item Id")
+                else
+                    if Item.Get("Item No.") then
+                        "Item Id" := Item.SystemId;
+            end;
         }
         field(3; Description; Text[100])
         {
@@ -28,6 +39,17 @@ table 5401 "Item Variant"
         {
             Caption = 'Item Id';
             TableRelation = Item.SystemId;
+
+            trigger OnValidate()
+            var
+                Item: Record Item;
+            begin
+                if IsNullGuid("Item Id") then
+                    "Item No." := ''
+                else
+                    if Item.GetBySystemId("Item Id") then
+                        "Item No." := Item."No.";
+            end;
         }
     }
 
@@ -51,39 +73,6 @@ table 5401 "Item Variant"
     fieldgroups
     {
     }
-
-    trigger OnInsert()
-    var
-        Item: Record Item;
-    begin
-        if "Item No." <> '' then
-            if Item.Get("Item No.") then begin
-                "Item Id" := Item.SystemId;
-                exit;
-            end;
-
-        if not IsNullGuid("Item Id") then
-            if Item.GetBySystemId("Item Id") then
-                "Item No." := Item."No.";
-    end;
-
-    trigger OnRename()
-    var
-        Item: Record Item;
-    begin
-        if "Item No." <> '' then
-            if Item.Get("Item No.") then
-                "Item Id" := Item.SystemId;
-    end;
-
-    trigger OnModify()
-    var
-        Item: Record Item;
-    begin
-        if not IsNullGuid("Item Id") then
-            if Item.GetBySystemId("Item Id") then
-                Rename(Item."No.", Code);
-    end;
 
     trigger OnDelete()
     var
@@ -295,6 +284,21 @@ table 5401 "Item Variant"
             exit(true);
 
         exit(false);
+    end;
+
+    procedure UpdateReferencedIds()
+    var
+        Item: Record Item;
+    begin
+        if "Item No." = '' then begin
+            Clear("Item Id");
+            exit;
+        end;
+
+        if not Item.Get("Item No.") then
+            exit;
+
+        "Item Id" := Item.SystemId;
     end;
 }
 

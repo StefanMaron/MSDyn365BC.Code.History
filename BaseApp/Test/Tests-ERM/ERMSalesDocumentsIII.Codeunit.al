@@ -4989,6 +4989,67 @@ codeunit 134387 "ERM Sales Documents III"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('CustomerLookupSelectCustomerPageHandler')]
+    [Scope('OnPrem')]
+    procedure ShippingTimeIsPopulatedFromCustomerOnLookupSellToCustomerName()
+    var
+        Customer: Record Customer;
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 372368] Shipping Time is populated with a value from Customer when Sell-to Customer Name is validated on Sales Order by LookUp.
+        Initialize();
+
+        // [GIVEN] New customer. "No." = "X", "Shipping Time" = "T".
+        CreateCustomerWithShippingTime(Customer);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+
+        // [WHEN] Create new Sales Order and select "X" in "Sell-to Customer Name" field.
+        SalesOrder.OpenNew();
+        SalesOrder."Sell-to Customer Name".Lookup();
+
+        // [THEN] Shipping Time in the Sales Order is equal to "T".
+        SalesOrder."Shipping Time".AssertEquals(Customer."Shipping Time");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerLookupSelectCustomerPageHandler')]
+    [Scope('OnPrem')]
+    procedure ShippingTimeIsPopulatedFromShippingAgentServiceOnLookupSellToCustomerName()
+    var
+        Customer: Record Customer;
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        SalesOrder: TestPage "Sales Order";
+        ShippingTime: DateFormula;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 372368] Shipping Time is populated with a value from Sipping Agent Service when Sell-to Customer No. is validated on Sales Order by LookUp.
+        Initialize();
+
+        // [GIVEN] Created Shipping Agent and Shipping Agent Service with "Shipping Time" = "T"
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        Evaluate(ShippingTime, StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, ShippingTime);
+
+        // [GIVEN] Created Customer and validate "Shipping Agent Code" and "Shipping Agent Service Code" by created value
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Shipping Agent Code", ShippingAgent.Code);
+        Customer.Validate("Shipping Agent Service Code", ShippingAgentServices.Code);
+        Customer.Modify(true);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+
+        // [WHEN] Create new Sales Order and select "X" in "Sell-to Customer Name" field.
+        SalesOrder.OpenNew();
+        SalesOrder."Sell-to Customer Name".Lookup();
+
+        // [THEN] Shipping Time in the Sales Order is equal to "T".
+        SalesOrder."Shipping Time".AssertEquals(ShippingAgentServices."Shipping Time");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -6323,6 +6384,14 @@ codeunit 134387 "ERM Sales Documents III"
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
         Response := LibraryVariableStorage.DequeueBoolean();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomerLookupSelectCustomerPageHandler(var CustomerLookup: TestPage "Customer Lookup")
+    begin
+        CustomerLookup.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        CustomerLookup.OK.Invoke();
     end;
 }
 

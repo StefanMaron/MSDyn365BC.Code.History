@@ -5,7 +5,7 @@ page 22 "Customer List"
     CardPageID = "Customer Card";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Approve,New Document,Request Approval,Customer,Navigate';
+    PromotedActionCategories = 'New,Process,Report,Approve,New Document,Request Approval,Customer,Navigate,Prices & Discounts';
     QueryCategory = 'Customer List';
     RefreshOnActivate = true;
     SourceTable = Customer;
@@ -510,6 +510,7 @@ page 22 "Customer List"
             {
                 Caption = 'Common Data Service';
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                Enabled = (BlockedFilterApplied and (Blocked = Blocked::" ")) or not BlockedFilterApplied;
                 action(CRMGotoAccount)
                 {
                     ApplicationArea = Suite;
@@ -764,6 +765,10 @@ page 22 "Customer List"
                     Caption = 'Prices';
                     Image = Price;
                     ToolTip = 'View or set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    Visible = not ExtendedPriceEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     begin
@@ -776,6 +781,10 @@ page 22 "Customer List"
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    Visible = not ExtendedPriceEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     begin
@@ -1091,19 +1100,20 @@ page 22 "Customer List"
                 }
                 action(PriceLists)
                 {
-                    ApplicationArea = Advanced;
-                    Caption = 'Price Lists (Prices)';
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Price Lists';
                     Image = Price;
                     Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category8;
                     Visible = ExtendedPriceEnabled;
-                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
                     trigger OnAction()
                     var
                         PriceUXManagement: Codeunit "Price UX Management";
-                        AmountType: Enum "Price Amount Type";
                     begin
-                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Price);
+                        PriceUXManagement.ShowPriceLists(Rec, "Price Amount Type"::Any);
                     end;
                 }
                 action(PriceListsDiscounts)
@@ -1111,8 +1121,11 @@ page 22 "Customer List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Price Lists (Discounts)';
                     Image = LineDiscount;
-                    Visible = ExtendedPriceEnabled;
+                    Visible = false;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action PriceLists shows all sales price lists with prices and discounts';
+                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var
@@ -1124,10 +1137,12 @@ page 22 "Customer List"
                 }
                 action(Prices_Prices)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Prices';
                     Image = Price;
                     Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category9;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different prices for items that you sell to the selected customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     ObsoleteState = Pending;
@@ -1141,10 +1156,12 @@ page 22 "Customer List"
                 }
                 action(Prices_LineDiscounts)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
                     Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category9;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View or set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     ObsoleteState = Pending;
@@ -1265,10 +1282,10 @@ page 22 "Customer List"
                 trigger OnAction()
                 var
                     Customer: Record Customer;
-                    MiniCustomerTemplate: Record "Mini Customer Template";
+                    CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
                 begin
                     CurrPage.SetSelectionFilter(Customer);
-                    MiniCustomerTemplate.UpdateCustomersFromTemplate(Customer);
+                    CustomerTemplMgt.UpdateCustomersFromTemplate(Customer);
                 end;
             }
             action(PaymentRegistration)
@@ -1543,12 +1560,16 @@ page 22 "Customer List"
     trigger OnOpenPage()
     var
         SocialListeningSetup: Record "Social Listening Setup";
+        IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ItemReferenceMgt: Codeunit "Item Reference Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        if CRMIntegrationEnabled or CDSIntegrationEnabled then
+            if IntegrationTableMapping.Get('CUSTOMER') then
+                BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field39=1(0)');
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         with SocialListeningSetup do
             SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
@@ -1564,6 +1585,7 @@ page 22 "Customer List"
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        BlockedFilterApplied: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
         EnabledApprovalWorkflowsExist: Boolean;

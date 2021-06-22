@@ -31,10 +31,14 @@ codeunit 7038 "Price Source - Contact" implements "Price Source"
     end;
 
     procedure IsLookupOK(var PriceSource: Record "Price Source"): Boolean
+    var
+        xPriceSource: Record "Price Source";
     begin
-        if Contact.Get(PriceSource."Source No.") then;
+        xPriceSource := PriceSource;
+        if Contact.Get(xPriceSource."Source No.") then;
         if Page.RunModal(Page::"Contact List", Contact) = ACTION::LookupOK then begin
-            PriceSource.Validate("Source No.", Contact."No.");
+            xPriceSource.Validate("Source No.", Contact."No.");
+            PriceSource := xPriceSource;
             exit(true);
         end;
     end;

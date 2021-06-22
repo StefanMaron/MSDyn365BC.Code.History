@@ -74,6 +74,14 @@ codeunit 7007 "Price Asset List"
         InsertAsset();
     end;
 
+    procedure Add(PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset.Level := CurrentLevel;
+        TempPriceAsset.TransferFields(PriceAsset);
+        AppendRelatedAssets();
+        InsertAsset();
+    end;
+
     procedure Add(PriceCalculationBuffer: Record "Price Calculation Buffer")
     begin
         TempPriceAsset.Level := CurrentLevel;

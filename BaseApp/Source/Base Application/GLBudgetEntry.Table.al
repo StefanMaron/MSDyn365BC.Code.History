@@ -479,6 +479,7 @@ table 96 "G/L Budget Entry"
     var
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
     begin
+        OnBeforeVerifyNoRelatedAnalysisViewBudgetEntries(Rec, xRec);
         AnalysisViewBudgetEntry.SetRange("Budget Name", GLBudgetEntry."Budget Name");
         AnalysisViewBudgetEntry.SetRange("G/L Account No.", GLBudgetEntry."G/L Account No.");
         AnalysisViewBudgetEntry.SetRange("Posting Date", GLBudgetEntry.Date);
@@ -499,6 +500,11 @@ table 96 "G/L Budget Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertOnAfterUpdateDimSets(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary; var GLBudgetEntry: Record "G/L Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyNoRelatedAnalysisViewBudgetEntries(var GLBudgetEntry: Record "G/L Budget Entry"; xGLBudgetEntry: Record "G/L Budget Entry")
     begin
     end;
 }

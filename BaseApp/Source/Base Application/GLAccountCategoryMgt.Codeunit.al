@@ -64,6 +64,7 @@ codeunit 570 "G/L Account Category Mgt."
         CreateAccountScheduleForIncomeStatement: Boolean;
         CreateAccountScheduleForCashFlowStatement: Boolean;
         CreateAccountScheduleForRetainedEarnings: Boolean;
+        ForceCreateAccountSchedule: Boolean;
 
     procedure InitializeAccountCategories()
     var
@@ -192,6 +193,12 @@ codeunit 570 "G/L Account Category Mgt."
         exit(GLAccountCategory."Entry No.");
     end;
 
+    procedure ForceInitializeStandardAccountSchedules()
+    begin
+        ForceCreateAccountSchedule := true;
+        InitializeStandardAccountSchedules();
+    end;
+
     procedure InitializeStandardAccountSchedules()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -202,22 +209,22 @@ codeunit 570 "G/L Account Category Mgt."
         AddColumnLayout(BalanceColumnNameTxt, BalanceColumnDescTxt, true);
         AddColumnLayout(NetChangeColumnNameTxt, NetChangeColumnDescTxt, false);
 
-        if GeneralLedgerSetup."Acc. Sched. for Balance Sheet" = '' then begin
+        if (GeneralLedgerSetup."Acc. Sched. for Balance Sheet" = '') or ForceCreateAccountSchedule then begin
             GeneralLedgerSetup."Acc. Sched. for Balance Sheet" := CreateUniqueAccSchedName(BalanceSheetCodeTxt);
             CreateAccountScheduleForBalanceSheet := true;
         end;
 
-        if GeneralLedgerSetup."Acc. Sched. for Income Stmt." = '' then begin
+        if (GeneralLedgerSetup."Acc. Sched. for Income Stmt." = '') or ForceCreateAccountSchedule then begin
             GeneralLedgerSetup."Acc. Sched. for Income Stmt." := CreateUniqueAccSchedName(IncomeStmdCodeTxt);
             CreateAccountScheduleForIncomeStatement := true;
         end;
 
-        if GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt" = '' then begin
+        if (GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt" = '') or ForceCreateAccountSchedule then begin
             GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt" := CreateUniqueAccSchedName(CashFlowCodeTxt);
             CreateAccountScheduleForCashFlowStatement := true;
         end;
 
-        if GeneralLedgerSetup."Acc. Sched. for Retained Earn." = '' then begin
+        if (GeneralLedgerSetup."Acc. Sched. for Retained Earn." = '') or ForceCreateAccountSchedule then begin
             GeneralLedgerSetup."Acc. Sched. for Retained Earn." := CreateUniqueAccSchedName(RetainedEarnCodeTxt);
             CreateAccountScheduleForRetainedEarnings := true;
         end;
@@ -354,6 +361,18 @@ codeunit 570 "G/L Account Category Mgt."
         if not AccScheduleName.Get(GeneralLedgerSetup."Acc. Sched. for Retained Earn.") then
             exit(true);
         exit(false);
+    end;
+
+    procedure GLSetupAllAccScheduleNamesNotDefined(): Boolean
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        exit(
+            (GeneralLedgerSetup."Acc. Sched. for Balance Sheet" = '') and
+           (GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt" = '') and
+           (GeneralLedgerSetup."Acc. Sched. for Income Stmt." = '') and
+           (GeneralLedgerSetup."Acc. Sched. for Retained Earn." = ''));
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 2, 'OnCompanyInitialize', '', false, false)]
@@ -653,6 +672,9 @@ codeunit 570 "G/L Account Category Mgt."
         end;
         GLAccountList.SetTableView(GLAccount);
         GLAccountList.LookupMode(true);
+        if AccountNo <> '' then
+            if GLAccount.Get(AccountNo) then
+                GLAccountList.SetRecord(GLAccount);
         if GLAccountList.RunModal = ACTION::LookupOK then begin
             GLAccountList.GetRecord(GLAccount);
             AccountNo := GLAccount."No.";
@@ -668,6 +690,9 @@ codeunit 570 "G/L Account Category Mgt."
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccountList.SetTableView(GLAccount);
         GLAccountList.LookupMode(true);
+        if AccountNo <> '' then
+            if GLAccount.Get(AccountNo) then
+                GLAccountList.SetRecord(GLAccount);
         if GLAccountList.RunModal = ACTION::LookupOK then begin
             GLAccountList.GetRecord(GLAccount);
             AccountNo := GLAccount."No.";

@@ -1344,6 +1344,39 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemVendorUpdatesItemCrossRefEntryAfterModifyVendorItemNo()
+    var
+        ItemVendor: Record "Item Vendor";
+        ItemCrossReference: Record "Item Cross Reference";
+        ItemNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 374879] "Item Cross Reference" must be updated after update "Item Vendor"."Vendor Item No."
+        Initialize();
+
+        // [GIVEN] Item = "I", Vendor = "V"
+        ItemNo := LibraryInventory.CreateItemNo();
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] "Item Vendor" - "Vendor No." = "V", "Item No." = "I"
+        ItemVendor.Init();
+        ItemVendor.Validate("Item No.", ItemNo);
+        ItemVendor.Validate("Vendor No.", VendorNo);
+        ItemVendor.Insert(true);
+
+        // [WHEN] Validate "Item Vendor"."Vendor Item No." = "VI"
+        ItemVendor.Validate("Vendor Item No.", LibraryUtility.GenerateGUID());
+
+        // [THEN] "Item Cross Reference"."Cross-Reference No." = "VI"
+        ItemCrossReference.SetRange("Item No.", ItemNo);
+        ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
+        ItemCrossReference.SetRange("Cross-Reference Type No.", VendorNo);
+        ItemCrossReference.FindFirst();
+        ItemCrossReference.TestField("Cross-Reference No.", ItemVendor."Vendor Item No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Item Cross Reference Purch");

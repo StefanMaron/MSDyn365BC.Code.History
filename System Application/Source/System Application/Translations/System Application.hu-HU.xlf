@@ -968,11 +968,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Net Promoter Score Setup - Field Expire Time - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 1850560024 - Field 3748435583 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Time Between Requests</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Net Promoter Score Setup - Field Time Between Requests - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 1850560024 - Field 4294444582 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Request Timeout</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1092,16 +1087,6 @@
           <source>Video Url</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Buffer - Field Video Url - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4140863310 - Field 2997031112 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Assisted Setup ID</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Buffer - Field Assisted Setup ID - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4140863310 - Field 2200046723 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Indentation</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Buffer - Field Indentation - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 4140863310 - Field 1615752660 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Table Num</source>
@@ -1313,145 +1298,10 @@
           <note from="Developer" annotates="general" priority="2">%1 = The ID of the assisted setup guide page</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Assisted Setup Impl. - NamedType BadPageErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 3503770226" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User Setup</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType UserSetupCategoryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 4222478628" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Dynamics 365 Business Central Device Users</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType DeviceGroupNameTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 2601883344" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Device plan %1 found for user %2</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType DevicePlanFoundMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 2860253744" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User %1 is not a Business Central user</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType NotBCUserMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 404590781" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User %1 is assigned plan %2</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType UserPlanAssignedMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 1950853901" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User %1 has no Business Central plans assigned</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType UserHasNoPlansMsg</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1645891195 - NamedType 2557192627" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The device user cannot be the first user to log into the system.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType DeviceUserCannotBeFirstUserErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 840260618" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The Graph User with the authentication email %1 has a plan with ID %2 named %3.</source>
-          <note from="Developer" annotates="general" priority="2">%1 = Authentication email (email); %2 = subscription plan ID (guid); %3 = Plan name (tex1t)</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType UserGotPlanTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 3896672853" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Checking if plans different for graph user with authentication email %1 and BC user with security ID %2.</source>
-          <note from="Developer" annotates="general" priority="2">%1 = Authentication email (email); %2 = user security ID (guid)</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType PlansDifferentCheckTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 460590303" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The count of plans in BC is %1 and count of plans in Graph is %2.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType PlanCountDifferentTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 2773834018" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Graph user has plan with ID %1 and named %2 that BC user does not have.</source>
-          <note from="Developer" annotates="general" priority="2">%1 = Plan ID (guid); %2 = Plan name</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType GraphUserHasExtraPlanTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 3474771115" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{d9a6391b-8970-4976-bd94-5f205007c8d8}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType TeamMemberPlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 3924950958" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{920656a2-7dd8-4c83-97b6-a356414dbd36}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType EssentialPlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 1778924833" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{8e9002c0-a1d8-4465-b952-817d2948e6e2}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType PremiumPlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 2988219004" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{39b5c996-467e-4e60-bd62-46066f572726}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType InvoicingPlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 542299366" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{3F2AFEED-6FB5-4BF9-998F-F2912133AEAD}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType ViralSignupPlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 3341845565" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{170991d7-b98e-41c5-83d4-db2052e1795f}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType ExternalAccountantPlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 800773213" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{00000000-0000-0000-0000-000000000007}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType DelegatedAdminGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 1725290377" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{62e90394-69f5-4237-9190-012177145e10}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType InternalAdminGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 1224248647" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{fd1441b8-116b-4fa7-836e-d7956700e0fa}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType TeamMemberISVPlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 1328575442" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{8bb56cea-3f11-4647-854a-212e2b05306a}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType EssentialISVPlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 1318428229" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{4c52d56d-5121-425a-91a5-dd0de136ca17}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType PremiumISVPlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 257712300" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{a98d0c4a-a52f-4771-a609-e20366102d2a}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType DeviceISVPlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 1097065280" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{100e1865-35d4-4463-aaff-d38eee3a1116}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType DevicePlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 2578034098" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{2ec8b6ca-ab13-4753-a479-8c2ffe4c323b}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType BasicPlanGUIDTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 279142075" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{5d60ea51-0053-458f-80a8-b6f426a1a0c1}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType AccountantHubPlanGuidTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 4016854944" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{00000000-0000-0000-0000-000000000008}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType HelpDeskPlanGuidTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1916930039 - NamedType 245021261" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>{996DEF3D-B36C-4153-8607-A6FD3C01B89F}</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Plan Ids - NamedType InfrastructurePlanGuidTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4205038922 - NamedType 2705830830" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to retrieve the Azure Active Directory tenant domain name.</source>
@@ -1488,41 +1338,6 @@
           <note from="Developer" annotates="general" priority="2">%1=integer number</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType NoOfUsersRetrievedMsg</note>
         </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 1687181955" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AL User</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserCategoryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 2108591434" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Could not get a user.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType CouldNotGetUserErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 3458367573" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User is a tenant admin.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserTenantAdminMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 2438081314" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User is not a tenant admin.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserNotTenantAdminMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 1855590955" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>62e90394-69f5-4237-9190-012177145e10</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType CompanyAdminRoleTemplateIdTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 3503770226" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User Setup</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserSetupCategoryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 3928259220" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User %1 has been created</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserCreatedMsg</note>
-        </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 1532988062" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Authentication email should be the first entity to update.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1533,25 +1348,10 @@
           <note from="Developer" annotates="general" priority="2">%1 = Secret Name.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure Key Vault Impl. - NamedType SecretNotFoundErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4215518646 - NamedType 3165082674" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AllowedApplicationSecrets</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure Key Vault Impl. - NamedType AllowedApplicationSecretsSecretNameTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 4215518646 - NamedType 2846165259" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The key vault did not have any secrets that are allowed to be fetched.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure Key Vault Impl. - NamedType NoSecretsErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4215518646 - NamedType 3491598156" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The list of allowed secret names could not be fetched.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure Key Vault Impl. - NamedType AllowedApplicationSecretsSecretNotFetchedMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4215518646 - NamedType 2531455216" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Azure Key Vault</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure Key Vault Impl. - NamedType AzureKeyVaultTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4215518646 - NamedType 3975998961" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Initialization of allowed secret names failed.</source>
@@ -1672,16 +1472,6 @@
           <source>Classify Similar Fields for %1</source>
           <note from="Developer" annotates="general" priority="2">%1=Table Caption</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Privacy Entities Mgt. - NamedType SimilarFieldsLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4281438209 - NamedType 4261331632" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Sandbox</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Environment Information Impl. - NamedType DefaultSandboxEnvironmentNameTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4281438209 - NamedType 1482757046" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Production</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Environment Information Impl. - NamedType DefaultProductionEnvironmentNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1128445799 - NamedType 361688596" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Installed</source>
@@ -1928,11 +1718,6 @@
           <note from="Developer" annotates="general" priority="2">%1 = name of extension</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - NamedType CannotUnpublishIfInstalledMsg</note>
         </trans-unit>
-        <trans-unit id="Page 2005578726 - NamedType 247304475" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>v. %1 - %2</source>
-          <note from="Developer" annotates="general" priority="2">%1=formatted version string, %2=not installed constant</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - NamedType VersionPerTenantTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3666029466 - NamedType 3628777348" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to extract '%1' property from JSON object.</source>
           <note from="Developer" annotates="general" priority="2">JSON parsing error. %1=target property name</note>
@@ -1948,11 +1733,6 @@
           <note from="Developer" annotates="general" priority="2">%1=Name of token that we expected   </note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType ParseApplicationIdErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3666029466 - NamedType 3833308691" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>extmgmt-marketplace-disable</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType MarketplaceDisabledSecretTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3666029466 - NamedType 1706207420" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension was successfully installed.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1967,11 +1747,6 @@
           <source>The extension %1 is already installed.</source>
           <note from="Developer" annotates="general" priority="2">%1=name of app</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType AlreadyInstalledMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4126082712 - NamedType 4148403172" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>%1_%2_%3.zip</source>
-          <note from="Developer" annotates="general" priority="2">%1=Name, %2=Publisher, %3=Version</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Operation Impl - NamedType ExtensionFileNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4126082712 - NamedType 3784204251" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We are installing the extension. You can view the progress on the Status page.</source>
@@ -2012,16 +1787,6 @@
           <source>You must sign out and then sign in again to make the changes take effect.</source>
           <note from="Developer" annotates="general" priority="2">"sign out" and "sign in" are the same terms as shown in the Business Central client.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Management Impl. - NamedType SignInAgainMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1384518899 - NamedType 3002837442" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>63b6f5ec-6db4-4e87-b103-c4bcb539f09e</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Management Impl. - NamedType SignInAgainNotificationGuidTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1384518899 - NamedType 1632209273" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>previewfeatures=%1</source>
-          <note from="Developer" annotates="general" priority="2">%1 = the feature ID for the feature to be previewed</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Management Impl. - NamedType PreviewFeatureParameterTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 162089418 - NamedType 1388208873" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>TODAY</source>
@@ -2153,11 +1918,6 @@
           <note from="Developer" annotates="general" priority="2">%1 = the number of characters</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Handler Impl. - NamedType InsufficientPassLengthErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 464205905 - NamedType 3970488100" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Network Printer</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Printer Setup Impl. - NamedType NetworkPrinterTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 464205905 - NamedType 1281559381" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No configuration is available for this printer.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2208,280 +1968,15 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recurrence Schedule Impl. - NamedType RecurrenceMaximumCalculateLimitTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1642983353" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>financials</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType FinancialsUriSegmentTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 3343006054" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>display/%1/?puid=%2</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType DisplayDataTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1458115318" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>render/%1/?culture=%2&amp;puid=%3</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType RenderDataTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 3305780607" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AL NPS Prompt</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType NpsCategoryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1449969094" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Request failed without status code.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType RequestFailedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 3918646016" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>API URL is empty.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType NPSApiUrlEmptyTelemetryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 886055478" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>No permission.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType NoPermissionTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 2458705485" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Survey is not supported.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType NotSupportedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 848331221" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType HttpsTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 333362184" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Check URL is invalid.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType InvalidCheckUrlTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 453337293" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Check URL is valid.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType ValidCheckUrlTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 567038846" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Survey is already deactivated.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType AlreadyDeactivatedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1383952613" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Survey is already activated.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType AlreadyActivatedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 2088045768" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Survey is deactivated.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType DeactivatedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 294415951" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Survey is activated.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType ActivatedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1278707481" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Activating survey for PUID %1.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType ActivatingForPuidTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 3777213907" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Request failed with status code %1.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType RequestFailedWithStatusCodeTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1811426483" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot use default credentials.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotUseDefaultCredentialsTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 3471817832" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot set request URI.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotSetRequestUriTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 942788454" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot get request headers.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotGetRequestHeadersTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 3267370818" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot add request header %1: %2.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotAddRequestHeaderTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1540975795" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot read response content.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotReadResponseContentTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 670215878" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>display</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType DisplayTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 327632405" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>msgType</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType MessageTypeTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 317164015" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PUID is empty.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType EmptyPuidTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1120066567" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>No NPS prompt.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType NoPromptTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1155048572" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Positive response.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType PositiveResponseTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 3188269988" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Negative response.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType NegativeResponseTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1628614756" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot get property %1.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotGetPropertyTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 2340325455" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Request is successful.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType RequestSuccessfulTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1617640218" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Cannot parse parameters.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotParseParametersTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 3494327091" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>NPS prompt is displayed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType NPSPageTelemetryTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1355842562" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>NpsApiUrl</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType NpsApiUrlTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 845501505" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>NpsRequestTimeout</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType NpsRequestTimeoutTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 289392910" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>NpsCacheLifeTime</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType NpsCacheLifeTimeTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 1683207697" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>NpsParameters</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType NpsParametersTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 2162526991" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Secret %1 is not found.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType SecretNotFoundTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 2738690446" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Parameter %1 is not found.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType ParameterNotFoundTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 712392923" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Inserting of the setup record has failed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CouldNotInsertSetupRecordTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 4198370474" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Modification of the setup record has failed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CouldNotModifySetupRecordTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1499095144 - NamedType 167498497" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Too short time since last activation try.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType TooEarlyTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2754547862 - NamedType 1988577321" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Satisfaction Survey control add-in was not registered.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Upgrade - NamedType ControlNotRegisteredErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1663752260 - NamedType 412603913" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft.Dynamics.Nav.Client.SatisfactionSurvey</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType NameTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1663752260 - NamedType 3052575935" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>31bf3856ad364e35</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType PublicKeyTokenTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1663752260 - NamedType 470250014" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType VersionTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1663752260 - NamedType 1427565258" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Microsoft Satisfaction Survey control add-in</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType DescriptionTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1663752260 - NamedType 2802114950" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Add-ins\SatisfactionSurvey\Microsoft.Dynamics.Nav.Client.SatisfactionSurvey.zip</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType ResourceTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1663752260 - NamedType 1744609273" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Satisfaction Survey control add-in resource file was not found.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType ResourceFileNotFoundTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1663752260 - NamedType 2805555118" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Satisfaction Survey control add-in was not registered.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType ControlNotRegisteredTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1663752260 - NamedType 1352036769" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Satisfaction Survey control add-in was registered.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType ControlRegisteredTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1663752260 - NamedType 414971332" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>AL SaaS Upgrade</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Viewer - NamedType CategoryTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1516646291 - NamedType 1424434736" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The variant passed is not a record.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Translation Implementation - NamedType NoRecordIdErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1726821529 - NamedType 1200477291" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>SUPER</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Permissions Impl. - NamedType SUPERTok</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1726821529 - NamedType 1418745497" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>There should be at least one enabled 'SUPER' user.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Permissions Impl. - NamedType SUPERPermissionErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1726821529 - NamedType 3564394649" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>SECURITY</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Permissions Impl. - NamedType SECURITYPermissionSetTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3866175241 - NamedType 142027412" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The user name %1 does not exist.</source>
@@ -2497,16 +1992,6 @@
           <source>The service name is not valid.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Web Service Management Impl. - NamedType WebServiceNameNotValidErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2984775356 - NamedType 1791144416" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>[\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Lm}\p{Nl}]</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Web Service Management Impl. - NamedType StartCharacterExpTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2984775356 - NamedType 43355164" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>[\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Lm}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}\p{Cf}]</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Web Service Management Impl. - NamedType OtherCharacterExpTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2984775356 - NamedType 2614872682" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The web service name %1 already exists.  Enter a different service name.</source>
@@ -3273,11 +2758,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - Action ActionFinish - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3970971575 - NamedType 3247921854" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?linkid=869249</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - NamedType HelpUrlTxt</note>
-        </trans-unit>
         <trans-unit id="Page 3970971575 - NamedType 1052459003" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3708,26 +3188,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Details - NamedType HelpLbl</note>
         </trans-unit>
-        <trans-unit id="Page 2252665413 - NamedType 2440875321" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source> https://go.microsoft.com/fwlink/?linkid=834880</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Details - NamedType SaaSEULALbl</note>
-        </trans-unit>
-        <trans-unit id="Page 2252665413 - NamedType 2351510072" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?linkid=834881</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Details - NamedType SaaSPrivacyLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 2252665413 - NamedType 2874646976" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?linkid=2009120</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Details - NamedType OnPremEULALbl</note>
-        </trans-unit>
-        <trans-unit id="Page 2252665413 - NamedType 3052190489" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?LinkId=724009</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Details - NamedType OnPremPrivacyLbl</note>
-        </trans-unit>
         <trans-unit id="Page 4047916792 - Control 1123305005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Logo</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3993,11 +3453,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType DialogTitleTxt</note>
         </trans-unit>
-        <trans-unit id="Page 367479046 - NamedType 1805307793" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Extension Files|*.app</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - NamedType AppFileFilterTxt</note>
-        </trans-unit>
         <trans-unit id="Page 367479046 - NamedType 118939017" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please upload an extension file before clicking "Deploy" button.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4102,16 +3557,6 @@
           <source>See the Release Plan</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - NamedType ReleasePlanLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 2927108320 - NamedType 660930570" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?linkid=2112707</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - NamedType LearnMoreAboutPreviewProcessUrlTxt</note>
-        </trans-unit>
-        <trans-unit id="Page 2927108320 - NamedType 1960454275" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?linkid=2047422</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - NamedType ReleasePlanUrlTxt</note>
         </trans-unit>
         <trans-unit id="Page 2536897829 - Control 103915345 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Table No.</source>
@@ -4902,31 +4347,6 @@
           <source>Uncategorized</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Manual Setup Category - EnumValue Uncategorized - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 1379843859 - EnumValue 3259251506 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>GET</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue GET - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 1379843859 - EnumValue 1280774356 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>POST</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue POST - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 1379843859 - EnumValue 731819298 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PATCH</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue PATCH - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 1379843859 - EnumValue 2677525307 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>PUT</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue PUT - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 1379843859 - EnumValue 2824216035 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>DELETE</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue DELETE - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 2435677820 - EnumValue 1547124741 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A2 paper (420 mm by 594 mm).</source>

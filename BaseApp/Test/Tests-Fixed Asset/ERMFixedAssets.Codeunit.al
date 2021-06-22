@@ -2341,6 +2341,61 @@ codeunit 134451 "ERM Fixed Assets"
           DocumentNo, FixedAsset."No.", FALedgerEntry."FA Posting Type"::"Gain/Loss", GainLossAmount, GainLossAmount, 0);
     end;
 
+    [Test]
+    [HandlerFunctions('CancelFALedgerEntryRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CancelDisposalDepreciationNoIntegration()
+    var
+        FAJournalLineDepreciation: Record "FA Journal Line";
+        FAJournalLineAcqCost: Record "FA Journal Line";
+        FAJournalLineDisposal: Record "FA Journal Line";
+        FAJournalLineCanceled: Record "FA Journal Line";
+        FAJournalBatch: Record "FA Journal Batch";
+        FALedgerEntry: Record "FA Ledger Entry";
+        FAJournalSetup: Record "FA Journal Setup";
+        FANo: Code[20];
+        Amount: Decimal;
+        DepBookCode: Code[10];
+    begin
+        // [FEATURE] [Proceeds on Disposal]
+        // [SCENARIO 370047] Posting Fixed Asset Journal Line after canceling the Fixed Assed Ledger Entry with type Proceeds on Disposal without G/L Integration
+        Initialize();
+
+        // [GIVEN] Fixed Asset, Depreciantion Book, FA Depreciation Book with FA Posting Group and disable G/L Integration
+        Amount := CreateFixedAssetWithoutIntegration(FAJournalLineDepreciation."FA Posting Type"::Depreciation, -1, FAJournalLineDepreciation);
+        FANo := FAJournalLineDepreciation."FA No.";
+        DepBookCode := FAJournalLineDepreciation."Depreciation Book Code";
+        FAJournalBatch.Get(FAJournalLineDepreciation."Journal Template Name", FAJournalLineDepreciation."Journal Batch Name");
+        CreateFAJournalLine(FAJournalLineAcqCost, FAJournalBatch, FAJournalLineAcqCost."FA Posting Type"::"Acquisition Cost",
+            FANo, DepBookCode, -Amount * 3);
+
+        // [GIVEN] Post Acquisition Cost, Depreciation and Disposal
+        LibraryLowerPermissions.SetJournalsPost();
+        LibraryLowerPermissions.AddO365FAEdit();
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLineDepreciation);
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLineAcqCost);
+        CreateFAJournalLine(FAJournalLineDisposal, FAJournalBatch, FAJournalLineAcqCost."FA Posting Type"::Disposal,
+            FANo, DepBookCode, Amount * 2);
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLineDisposal);
+
+        // [GIVEN] Cancel Proceeds on Disposal
+        CancelFALedgerEntry(DepBookCode, FALedgerEntry."FA Posting Type"::"Proceeds on Disposal", FANo);
+
+        // [WHEN] Post created Fixed Asset Journal Line
+        FAJournalLineCanceled.SetRange("FA No.", FANo);
+        FAJournalLineCanceled.SetRange("FA Posting Type", FAJournalLineCanceled."FA Posting Type"::Disposal);
+        FAJournalLineCanceled.FindFirst();
+        FAJournalLineCanceled."Document No." := LibraryUtility.GenerateGUID();
+        FAJournalLineCanceled.Modify(true);
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLineCanceled);
+
+        // [THEN] There is no Fixed Asset Ledger Entry with type "Proceeds on Disposal"
+        FALedgerEntry.SetRange("FA No.", FANo);
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal");
+        Assert.RecordIsEmpty(FALedgerEntry);
+        VerifyFALedgerEntry(FANo, DepBookCode);
+    end;
+
     local procedure Initialize()
     var
         DimValue: Record "Dimension Value";
@@ -3171,6 +3226,21 @@ codeunit 134451 "ERM Fixed Assets"
         LibraryFixedAsset.CreateFASubclassDetailed(FASubclass2, FAClass2.Code, '');
     end;
 
+    local procedure CancelFALedgerEntry(DepreciationBookCode: Code[10]; FAPostingType: Option; FANo: Code[20])
+    var
+        FALedgerEntry: Record "FA Ledger Entry";
+        FALedgerEntries: TestPage "FA Ledger Entries";
+    begin
+        FALedgerEntries.OpenEdit();
+        FALedgerEntry.SetFilter("Depreciation Book Code", DepreciationBookCode);
+        FALedgerEntry.SetFilter("FA Posting Type", Format(FAPostingType));
+        FALedgerEntry.SetFilter("FA No.", FANo);
+        FALedgerEntry.FindLast();
+        FALedgerEntries.FILTER.SetFilter("Entry No.", Format(FALedgerEntry."Entry No."));
+        FALedgerEntries.CancelEntries.Invoke();  // Open handler - CancelFAEntriesRequestPageHandler.
+        FALedgerEntries.OK.Invoke();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FADepreciationBooksHandler(var CreateFADepreciationBooks: TestRequestPage "Create FA Depreciation Books")
@@ -3243,6 +3313,19 @@ codeunit 134451 "ERM Fixed Assets"
     procedure DepreciationCalcMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(CompletionStatsMsg, Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text)
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CancelFALedgerEntryRequestPageHandler(var CancelFAEntries: TestRequestPage "Cancel FA Entries")
+    begin
+        CancelFAEntries.OK.Invoke();
     end;
 }
 

@@ -63,12 +63,14 @@ codeunit 5701 "Item Subst."
         ItemSubstitution.SetRange("No.", TempSalesLine."No.");
         ItemSubstitution.SetRange("Variant Code", TempSalesLine."Variant Code");
         ItemSubstitution.SetRange("Location Filter", TempSalesLine."Location Code");
+        OnItemSubstGetOnAfterItemSubstitutionSetFilters(ItemSubstitution);
         if ItemSubstitution.Find('-') then begin
             CalcCustPrice;
             TempItemSubstitution.Reset();
             TempItemSubstitution.SetRange("No.", TempSalesLine."No.");
             TempItemSubstitution.SetRange("Variant Code", TempSalesLine."Variant Code");
             TempItemSubstitution.SetRange("Location Filter", TempSalesLine."Location Code");
+            OnItemSubstGetOnAfterTempItemSubstitutionSetFilters(TempItemSubstitution);
             if PAGE.RunModal(PAGE::"Item Substitution Entries", TempItemSubstitution) =
                ACTION::LookupOK
             then begin
@@ -102,7 +104,7 @@ codeunit 5701 "Item Subst."
                   DATABASE::Job, TempSalesLine."Job No.",
                   DATABASE::"Responsibility Center", TempSalesLine."Responsibility Center");
 
-                OnItemSubstGetOnAfterSubstSalesLineItem(TempSalesLine);
+                OnItemSubstGetOnAfterSubstSalesLineItem(TempSalesLine, SalesLine, TempItemSubstitution);
 
                 Commit();
                 if ItemCheckAvail.SalesLineCheck(TempSalesLine) then
@@ -115,6 +117,7 @@ codeunit 5701 "Item Subst."
             SalesLineReserve.DeleteLine(SalesLine);
 
         SalesLine := TempSalesLine;
+        OnAfterItemSubstGet(SalesLine, TempSalesLine);
     end;
 
     local procedure CalcCustPrice()
@@ -144,7 +147,7 @@ codeunit 5701 "Item Subst."
                     Item.Get(ItemSubstitution."Substitute No.");
                     if not SetupDataIsPresent then
                         GetSetupData;
-                    OnCalcCustPriceOnBeforeCalcQtyAvail(Item, TempSalesLine, TempItemSubstitution);
+                    OnCalcCustPriceOnBeforeCalcQtyAvail(Item, TempSalesLine, TempItemSubstitution, ItemSubstitution);
                     TempItemSubstitution."Quantity Avail. on Shpt. Date" :=
                       AvailToPromise.QtyAvailabletoPromise(
                         Item, GrossReq, SchedRcpt,
@@ -612,6 +615,11 @@ codeunit 5701 "Item Subst."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterItemSubstGet(var SalesLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateComponentBeforeAssign(var ProdOrderComp: Record "Prod. Order Component"; var TempProdOrderComp: Record "Prod. Order Component" temporary)
     begin
     end;
@@ -627,7 +635,7 @@ codeunit 5701 "Item Subst."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcCustPriceOnBeforeCalcQtyAvail(var Item: Record Item; SalesLine: Record "Sales Line"; var TempItemSubstitution: Record "Item Substitution" temporary)
+    local procedure OnCalcCustPriceOnBeforeCalcQtyAvail(var Item: Record Item; SalesLine: Record "Sales Line"; var TempItemSubstitution: Record "Item Substitution" temporary; ItemSubstitution: Record "Item Substitution")
     begin
     end;
 
@@ -667,7 +675,17 @@ codeunit 5701 "Item Subst."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnItemSubstGetOnAfterSubstSalesLineItem(var SalesLine: Record "Sales Line")
+    local procedure OnItemSubstGetOnAfterSubstSalesLineItem(var SalesLine: Record "Sales Line"; var SourceSalesLine: Record "Sales Line"; var TempItemSubstitution: Record "Item Substitution" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemSubstGetOnAfterItemSubstitutionSetFilters(var ItemSubstitution: Record "Item Substitution")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemSubstGetOnAfterTempItemSubstitutionSetFilters(var TempItemSubstitution: Record "Item Substitution" temporary)
     begin
     end;
 

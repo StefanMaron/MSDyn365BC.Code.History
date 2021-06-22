@@ -702,6 +702,87 @@ codeunit 137928 "SCM Assembly UT"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CapacityVarianceAccountOnInvPostingSetupWithEssentialUX()
+    var
+        InventoryPostingSetup: TestPage "Inventory Posting Setup";
+        InventoryPostingSetupCard: TestPage "Inventory Posting Setup Card";
+    begin
+        // [FEATURE] [Inventory Posting Setup] [UI]
+        // [SCENARIO 372199] Capacity Variance Account is available on Inventory Posting Setup pages with Essential user experience, as it is required for posting an assembly of standard cost item.
+        Initialize();
+
+        // [GIVEN] Essentials setup is enabled.
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [WHEN] Open Inventory Posting Setup list.
+        // [THEN] "Capacity Variance Account" field is visible.
+        InventoryPostingSetup.OpenView();
+        Assert.IsTrue(InventoryPostingSetup."Capacity Variance Account".Visible(), '');
+
+        // [WHEN] Open Inventory Posting Setup card.
+        // [THEN] "Capacity Variance Account" field is visible.
+        InventoryPostingSetupCard.OpenView();
+        Assert.IsTrue(InventoryPostingSetupCard."Capacity Variance Account".Visible(), '');
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MfgOverheadVarianceAccountOnInvPostingSetupWithEssentialUX()
+    var
+        InventoryPostingSetup: TestPage "Inventory Posting Setup";
+        InventoryPostingSetupCard: TestPage "Inventory Posting Setup Card";
+    begin
+        // [FEATURE] [Inventory Posting Setup] [UI]
+        // [SCENARIO 372199] Mfg. Overhead Variance Account is available on Inventory Posting Setup pages with Essential user experience, as it is required for posting an assembly of standard cost item.
+        Initialize();
+
+        // [GIVEN] Essentials setup is enabled.
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [WHEN] Open Inventory Posting Setup list.
+        // [THEN] "Mfg. Overhead Variance Account" field is visible.
+        InventoryPostingSetup.OpenView();
+        Assert.IsTrue(InventoryPostingSetup."Mfg. Overhead Variance Account".Visible(), '');
+
+        // [WHEN] Open Inventory Posting Setup card.
+        // [THEN] "Mfg. Overhead Variance Account" field is visible.
+        InventoryPostingSetupCard.OpenView();
+        Assert.IsTrue(InventoryPostingSetupCard."Mfg. Overhead Variance Account".Visible(), '');
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CapOverheadVarianceAccountOnInvPostingSetupWithEssentialUX()
+    var
+        InventoryPostingSetup: TestPage "Inventory Posting Setup";
+        InventoryPostingSetupCard: TestPage "Inventory Posting Setup Card";
+    begin
+        // [FEATURE] [Inventory Posting Setup] [UI]
+        // [SCENARIO 372199] Cap. Overhead Variance Account is available on Inventory Posting Setup pages with Essential user experience, as it is required for posting an assembly of standard cost item.
+        Initialize();
+
+        // [GIVEN] Essentials setup is enabled.
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [WHEN] Open Inventory Posting Setup list.
+        // [THEN] "Cap. Overhead Variance Account" field is visible.
+        InventoryPostingSetup.OpenView();
+        Assert.IsTrue(InventoryPostingSetup."Cap. Overhead Variance Account".Visible(), '');
+
+        // [WHEN] Open Inventory Posting Setup card.
+        // [THEN] "Cap. Overhead Variance Account" field is visible.
+        InventoryPostingSetupCard.OpenView();
+        Assert.IsTrue(InventoryPostingSetupCard."Cap. Overhead Variance Account".Visible(), '');
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure DeleteWhseItemTrackingOnDeleteAssemblyLine()
     var
         AssemblyHeader: Record "Assembly Header";

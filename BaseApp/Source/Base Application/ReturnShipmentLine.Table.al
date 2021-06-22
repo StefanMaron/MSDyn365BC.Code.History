@@ -1,4 +1,4 @@
-table 6651 "Return Shipment Line"
+﻿table 6651 "Return Shipment Line"
 {
     Caption = 'Return Shipment Line';
     LookupPageID = "Posted Return Shipment Lines";
@@ -614,6 +614,7 @@ table 6651 "Return Shipment Line"
             NextLineNo := NextLineNo + 10000;
         end;
 
+        OnInsertInvLineFromRetShptLineOnBeforeClearLineNumbers(Rec, PurchLine, NextLineNo, TempPurchLine);
         TransferOldExtLines.ClearLineNumbers;
         PurchSetup.Get();
         repeat
@@ -862,6 +863,11 @@ table 6651 "Return Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRetShptLineOnBeforePurchLineInsert(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseLine: Record "Purchase Line"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetShptLineOnBeforeClearLineNumbers(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchLine: Record "Purchase Line"; var NextLineNo: Integer; var TempPurchLine: Record "Purchase Line" temporary)
     begin
     end;
 }

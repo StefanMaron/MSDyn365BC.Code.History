@@ -1,4 +1,4 @@
-table 904 "Assemble-to-Order Link"
+﻿table 904 "Assemble-to-Order Link"
 {
     Caption = 'Assemble-to-Order Link';
     Permissions = TableData "Assembly Header" = imd,
@@ -6,12 +6,12 @@ table 904 "Assemble-to-Order Link"
 
     fields
     {
-        #pragma warning disable AS0004 // required fix
+#pragma warning disable AS0004 // required fix
         field(1; "Assembly Document Type"; Enum "Assembly Document Type")
         {
             Caption = 'Assembly Document Type';
         }
-        #pragma warning restore AS0004
+#pragma warning restore AS0004
         field(2; "Assembly Document No."; Code[20])
         {
             Caption = 'Assembly Document No.';
@@ -322,6 +322,7 @@ table 904 "Assemble-to-Order Link"
         ChangePostingDate(SalesHeader."Posting Date");
         ChangeDim(NewSalesLine."Dimension Set ID");
         ChangePlanningFlexibility;
+        OnSynchronizeAsmFromSalesLineOnBeforeChangeQty(AsmHeader, NewSalesLine);
         ChangeQty(NewSalesLine."Qty. to Assemble to Order");
         if NewSalesLine."Document Type" <> NewSalesLine."Document Type"::Quote then
             ChangeQtyToAsm(MaxQtyToAsm(NewSalesLine, AsmHeader));
@@ -369,8 +370,14 @@ table 904 "Assemble-to-Order Link"
         end;
     end;
 
-    local procedure NeedsSynchronization(SalesLine: Record "Sales Line"): Boolean
+    local procedure NeedsSynchronization(SalesLine: Record "Sales Line") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNeedsSynchronization(AsmHeader, SalesLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
         GetAsmHeader;
         AsmHeader.CalcFields("Reserved Qty. (Base)");
         exit(
@@ -429,7 +436,14 @@ table 904 "Assemble-to-Order Link"
     end;
 
     local procedure ChangeUOM(NewUOMCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeChangeUOM(AsmHeader, NewUOMCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if AsmHeader."Unit of Measure Code" = NewUOMCode then
             exit;
 
@@ -500,6 +514,8 @@ table 904 "Assemble-to-Order Link"
 
             if SalesLine.Reserve = SalesLine.Reserve::Never then
                 SalesLine.Reserve := SalesLine.Reserve::Optional;
+
+            OnAfterReserveAsmToSale(Rec, AsmHeader, SalesLine, TrackingSpecification, QtyToReserve, QtyToReserveBase);
         end;
     end;
 
@@ -1283,7 +1299,17 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeUOM(var AssemblyHeader: Record "Assembly Header"; NewUOMCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertAsmHeader(var AssemblyHeader: Record "Assembly Header"; NewDocType: Option; NewDocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNeedsSynchronization(AssemblyHeader: Record "Assembly Header"; SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1323,6 +1349,11 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeAsmFromSalesLineOnBeforeChangeQty(var AssemblyHeader: Record "Assembly Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateAsmOnBeforeSynchronizeAsmFromSalesLine(var AssembleToOrderLink: Record "Assemble-to-Order Link"; AssemblyHeader: Record "Assembly Header"; SalesLine: Record "Sales Line")
     begin
     end;
@@ -1334,6 +1365,11 @@ table 904 "Assemble-to-Order Link"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransAvailSalesLineToAsmHeaderOnBeforeNewAsmHeaderInitRemainingQty(var NewAsmHeader: Record "Assembly Header"; SalesLine: Record "Sales Line"; AsmHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReserveAsmToSale(var AssembletoOrderLink: Record "Assemble-to-Order Link"; var AsmHeader: Record "Assembly Header"; var SalesLine: Record "Sales Line"; var TrackingSpecification: Record "Tracking Specification"; QtyToReserve: Decimal; QtyToReserveBase: Decimal)
     begin
     end;
 }

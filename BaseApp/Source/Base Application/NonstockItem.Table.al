@@ -313,11 +313,17 @@ table 5718 "Nonstock Item"
             Error(Text001);
     end;
 
+    trigger OnRename()
+    begin
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::"Nonstock Item", xRec."Entry No.", "Entry No.");
+    end;
+
     var
         Text001: Label 'Modification not allowed, item record already exists.';
         NonStockItem: Record "Nonstock Item";
         NonStockItemSetup: Record "Nonstock Item Setup";
         InvtSetup: Record "Inventory Setup";
+        CommentLine: Record "Comment Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ItemNo: Code[20];
         TempItemNo: Code[20];

@@ -23,10 +23,6 @@ dotnet
         {
         }
 
-        type("System.Random"; "System.Random")
-        {
-        }
-
         type("System.Reflection.BindingFlags"; "System.Reflection.BindingFlags")
         {
         }

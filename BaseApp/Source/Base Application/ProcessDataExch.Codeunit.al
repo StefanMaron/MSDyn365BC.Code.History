@@ -28,7 +28,7 @@ codeunit 1201 "Process Data Exch."
 
         DataExchMapping.Get(DataExch."Data Exch. Def Code", DataExchLineDef.Code, RecRefTemplate.Number);
 
-        OnBeforeDataExchFieldMappingSetFilters(DataExchFieldMapping);
+        OnBeforeDataExchFieldMappingSetFilters(DataExchFieldMapping, DataExch);
 
         DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
@@ -79,6 +79,8 @@ codeunit 1201 "Process Data Exch."
                 RecRef.Insert();
             end;
         until DataExchFieldGroupByLineNo.Next = 0;
+
+        OnAfterProcessColumnMapping(DataExch);
     end;
 
     procedure ProcessAllLinesColumnMapping(DataExch: Record "Data Exch."; RecRef: RecordRef)
@@ -299,7 +301,7 @@ codeunit 1201 "Process Data Exch."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDataExchFieldMappingSetFilters(var DataExchFieldMapping: Record "Data Exch. Field Mapping");
+    local procedure OnBeforeDataExchFieldMappingSetFilters(var DataExchFieldMapping: Record "Data Exch. Field Mapping"; var DataExch: Record "Data Exch.");
     begin
     end;
 
@@ -310,6 +312,11 @@ codeunit 1201 "Process Data Exch."
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessColumnMappingOnBeforeCreateBankAccReconciliationLine(var RecRefTemplate: RecordRef; var DataExchangeField: Record "Data Exch. Field"; var DataExch: Record "Data Exch."; CurrLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProcessColumnMapping(var DataExch: Record "Data Exch.")
     begin
     end;
 }

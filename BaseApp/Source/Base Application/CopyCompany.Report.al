@@ -98,6 +98,7 @@ report 357 "Copy Company"
                         trigger OnValidate()
                         begin
                             NewCompanyName := DelChr(NewCompanyName, '<>');
+                            OnValidateNewCompanyName(NewCompanyName);
                         end;
                     }
 
@@ -251,5 +252,10 @@ report 357 "Copy Company"
                 JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
                 JobQueueEntry.Modify();
             until JobQueueEntry.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNewCompanyName(var NewCompanyName: Text[30])
+    begin
     end;
 }

@@ -112,7 +112,14 @@ table 5878 "Phys. Invt. Record Line"
             TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBinCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Bin Code" <> '' then begin
                     TestField("Location Code");
                     Location.Get("Location Code");
@@ -433,6 +440,11 @@ table 5878 "Phys. Invt. Record Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTrackingBufferLocationIsBinMandatory(var WarehouseEntry: Record "Warehouse Entry"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBinCode(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var IsHandled: Boolean)
     begin
     end;
 

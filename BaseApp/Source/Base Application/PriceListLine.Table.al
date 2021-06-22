@@ -251,6 +251,7 @@ table 7001 "Price List Line"
         }
         field(17; "Unit Price"; Decimal)
         {
+            AccessByPermission = tabledata "Sales Price Access" = R;
             DataClassification = CustomerContent;
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 2;
@@ -267,6 +268,7 @@ table 7001 "Price List Line"
         }
         field(18; "Cost Factor"; Decimal)
         {
+            AccessByPermission = tabledata "Sales Price Access" = R;
             DataClassification = CustomerContent;
             Caption = 'Cost Factor';
 
@@ -280,6 +282,7 @@ table 7001 "Price List Line"
         }
         field(19; "Unit Cost"; Decimal)
         {
+            AccessByPermission = tabledata "Purchase Price Access" = R;
             DataClassification = CustomerContent;
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 2;
@@ -396,6 +399,15 @@ table 7001 "Price List Line"
                 TestHeadersValue(FieldNo(Status));
             end;
         }
+        field(31; "Direct Unit Cost"; Decimal)
+        {
+            AccessByPermission = tabledata "Purchase Price Access" = R;
+            DataClassification = CustomerContent;
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 2;
+            Caption = 'Direct Unit Cost';
+            MinValue = 0;
+        }
     }
 
     keys
@@ -485,15 +497,14 @@ table 7001 "Price List Line"
 
     procedure CopyFrom(PriceListHeader: Record "Price List Header")
     begin
-        if PriceListHeader."Source Type" <> PriceListHeader."Source Type"::All then
-            "Source Type" := PriceListHeader."Source Type";
-        if PriceListHeader."Source No." <> '' then begin
-            "Parent Source No." := PriceListHeader."Parent Source No.";
-            "Source No." := PriceListHeader."Source No.";
-            "Source ID" := PriceListHeader."Source ID";
-        end;
-        if PriceListHeader."Price Type" <> PriceListHeader."Price Type"::Any then
-            "Price Type" := PriceListHeader."Price Type";
+        "Price Type" := PriceListHeader."Price Type";
+        Status := PriceListHeader.Status;
+        "Source Type" := PriceListHeader."Source Type";
+        "Parent Source No." := PriceListHeader."Parent Source No.";
+        "Source No." := PriceListHeader."Source No.";
+        "Source ID" := PriceListHeader."Source ID";
+        if PriceListHeader."Amount Type" <> "Price Amount Type"::Any then
+            Validate("Amount Type", PriceListHeader."Amount Type");
 
         "Starting Date" := PriceListHeader."Starting Date";
         "Ending Date" := PriceListHeader."Ending Date";
@@ -523,7 +534,7 @@ table 7001 "Price List Line"
         OnAfterCopyFromPriceSource(PriceSource);
     end;
 
-    local procedure CopyFrom(PriceAsset: Record "Price Asset")
+    procedure CopyFrom(PriceAsset: Record "Price Asset")
     begin
         "Price Type" := PriceAsset."Price Type";
         "Asset Type" := PriceAsset."Asset Type";

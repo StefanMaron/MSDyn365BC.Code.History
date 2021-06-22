@@ -1,4 +1,4 @@
-codeunit 7301 "Whse. Jnl.-Register Line"
+﻿codeunit 7301 "Whse. Jnl.-Register Line"
 {
     Permissions = TableData "Warehouse Entry" = imd,
                   TableData "Warehouse Register" = imd;
@@ -37,6 +37,9 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                 GlobalWhseEntry.LockTable();
                 WhseEntryNo := GlobalWhseEntry.GetLastEntryNo();
             end;
+
+            OnCodeOnAfterGetLastEntryNo(WhseJnlLine);
+
             OnMovement := false;
             if "From Bin Code" <> '' then begin
                 InitWhseEntry(GlobalWhseEntry, "From Zone Code", "From Bin Code", -1);
@@ -133,6 +136,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                 else
                     if Location."Default Bin Selection" = Location."Default Bin Selection"::"Last-Used Bin" then
                         UpdateDefaultBinContent(WhseJnlLine."Item No.", WhseJnlLine."Variant Code", WhseJnlLine."Location Code", BinCode);
+                OnInitWhseEntryOnAfterGetToBinContent(WhseEntry, ItemTrackingMgt, WhseJnlLine, WhseReg, WhseEntryNo, Bin);
             end
         end else begin
             if BinCode <> Location."Adjustment Bin Code" then
@@ -154,7 +158,10 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         ItemTrackingMgt.GetWhseItemTrkgSetup(FromBinContent."Item No.", WhseItemTrackingSetup);
         WhseItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
         FromBinContent.SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup);
-        OnDeleteFromBinContentOnAfterSetFiltersForBinContent(FromBinContent, WhseEntry);
+        IsHandled := false;
+        OnDeleteFromBinContentOnAfterSetFiltersForBinContent(FromBinContent, WhseEntry, WhseJnlLine, WhseReg, WhseEntryNo, IsHandled);
+        if IsHandled then
+            exit;
         FromBinContent.CalcFields("Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)");
         if FromBinContent."Quantity (Base)" + WhseEntry."Qty. (Base)" = 0 then begin
             WhseEntry2.SetCurrentKey(
@@ -296,6 +303,8 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
     local procedure ModifyBinEmpty(NewEmpty: Boolean)
     begin
+        OnBeforeModifyBinEmpty(Bin, NewEmpty);
+
         if Bin.Empty <> NewEmpty then begin
             Bin.Empty := NewEmpty;
             Bin.Modify();
@@ -307,6 +316,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         BinContent: Record "Bin Content";
         WhseIntegrationMgt: Codeunit "Whse. Integration Management";
     begin
+        OnBeforeInsertToBinContent(WhseEntry);
         with WhseEntry do begin
             GetBin("Location Code", "Bin Code");
             BinContent.Init();
@@ -497,7 +507,17 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertToBinContent(var WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateBinEmpty(WarehouseEntry: Record "Warehouse Entry"; var Bin: Record Bin; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterGetLastEntryNo(var WhseJnlLine: Record "Warehouse Journal Line")
     begin
     end;
 
@@ -507,7 +527,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteFromBinContentOnAfterSetFiltersForBinContent(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry")
+    local procedure OnDeleteFromBinContentOnAfterSetFiltersForBinContent(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry"; var WhseJnlLine: Record "Warehouse Journal Line"; var WhseReg: Record "Warehouse Register"; var WhseEntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -523,6 +543,11 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteFromBinContentOnBeforeCheckQuantity(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitWhseEntryOnAfterGetToBinContent(var WhseEntry: Record "Warehouse Entry"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var WhseJnlLine: Record "Warehouse Journal Line"; var WhseReg: Record "Warehouse Register"; var WhseEntryNo: Integer; var Bin: Record Bin)
     begin
     end;
 
@@ -543,6 +568,11 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteFromBinContenOnAfterQtyUpdate(var FromBinContent: Record "Bin Content"; var WhseEntry: Record "Warehouse Entry"; var WhseJnlLine: Record "Warehouse Journal Line"; Sign: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyBinEmpty(var Bin: Record Bin; NewEmpty: Boolean)
     begin
     end;
 }

@@ -29,6 +29,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         CancelledDocExistsErr: Label 'Cancelled document exists.';
         AmountPurchInvErr: Label 'Amount must have a value in Purch. Inv. Header';
         CannotAssignNumbersAutoErr: Label 'It is not possible to assign numbers automatically. If you want the program to assign numbers automatically, please activate Default Nos.';
+        CorrectPostedInvoiceFromSingleOrderQst: Label 'The invoice was posted from an order. The invoice will be cancelled, and the order will open so that you can make the correction.\ \Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -151,44 +152,54 @@ codeunit 137025 "SCM Purchase Correct Invoice"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerVerify')]
     procedure TestGetShptInvoiceFromOrder()
     var
-        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
         Vendor: Record Vendor;
         Item: Record Item;
         PurchaseLine: Record "Purchase Line";
         PurchRcptLine: Record "Purch. Rcpt. Line";
         PurchInvHeader: Record "Purch. Inv. Header";
-        PurchaseHeaderTmp: Record "Purchase Header";
         GLEntry: Record "G/L Entry";
-        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        CorrectPstdPurchInvYesNo: Codeunit "Correct PstdPurchInv (Yes/No)";
         PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+        PurchaseOrderPage: TestPage "Purchase Order";
     begin
-        Initialize;
+        // [SCENARIO] It is be possible to cancel a get shipment invoice that is associated to an order
+        Initialize();
 
         CreateItemWithCost(Item, 1);
         LibraryPurchase.CreateVendor(Vendor);
 
-        // It should not be possible to cancel a get shipment invoice that is associated to an order
-        CreatePurchaseOrderForItem(Vendor, Item, 1, PurchaseHeader, PurchaseLine);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        CreatePurchaseOrderForItem(Vendor, Item, 1, PurchaseHeaderOrder, PurchaseLine);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
 
         PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
         PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
         PurchRcptLine.FindFirst;
 
-        Clear(PurchaseHeader);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
-        PurchGetReceipt.SetPurchHeader(PurchaseHeader);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, Vendor."No.");
+        PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
-        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true));
         Commit();
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
-        // EXERCISE
-        asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderTmp);
-        CheckNothingIsCreated(Vendor, GLEntry);
+        LibraryVariableStorage.Enqueue(CorrectPostedInvoiceFromSingleOrderQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        PurchaseOrderPage.Trap();
+
+        CorrectPstdPurchInvYesNo.CorrectInvoice(PurchInvHeader);
+
+        PurchaseOrderPage."No.".AssertEquals(PurchaseHeaderOrder."No.");
+        PurchaseOrderPage.Close();
+
+        CheckEverythingIsReverted(Item, Vendor, GLEntry);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1120,6 +1131,13 @@ codeunit 137025 "SCM Purchase Correct Invoice"
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerVerify(Question: Text; var Reply: Boolean)
+    begin
+        Assert.ExpectedConfirm(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ModalPageHandler]

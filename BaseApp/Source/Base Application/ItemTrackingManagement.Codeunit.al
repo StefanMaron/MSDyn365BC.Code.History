@@ -1,4 +1,4 @@
-codeunit 6500 "Item Tracking Management"
+﻿codeunit 6500 "Item Tracking Management"
 {
     Permissions = TableData "Item Entry Relation" = rd,
                   TableData "Value Entry Relation" = rd,
@@ -584,6 +584,8 @@ codeunit 6500 "Item Tracking Management"
         ReservEntry1: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
     begin
+        OnBeforeCopyItemTracking3(ReservEntry, ToRowID, SwapSign, SkipReservation);
+
         if SkipReservation then
             ReservEntry.SetFilter("Reservation Status", '<>%1', ReservEntry."Reservation Status"::Reservation);
         if ReservEntry.FindSet then begin
@@ -881,6 +883,7 @@ codeunit 6500 "Item Tracking Management"
                         SetWhseSerialLotNo(TempWhseJnlLine2."Lot No.", "Lot No.", WhseItemTrackingSetup."Lot No. Required");
                         TempWhseJnlLine2."Expiration Date" := "Expiration Date";
                     end;
+                    OnSplitWhseJnlLineOnAfterCopyTrackingByToTransfer(TempWhseSplitTrackingSpec, TempWhseJnlLine2, ToTransfer);
                     SetWhseSerialLotNo(TempWhseJnlLine2."New Serial No.", "New Serial No.", WhseItemTrackingSetup."Serial No. Required");
                     SetWhseSerialLotNo(TempWhseJnlLine2."New Lot No.", "New Lot No.", WhseItemTrackingSetup."Lot No. Required");
                     TempWhseJnlLine2."New Expiration Date" := "New Expiration Date";
@@ -2052,7 +2055,7 @@ codeunit 6500 "Item Tracking Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeExistingExpirationDate(ItemNo, Variant, LotNo, SerialNo, TestMultiple, EntriesExist, ExpDate, IsHandled);
+        OnBeforeExistingExpirationDate(ItemNo, Variant, LotNo, SerialNo, TestMultiple, EntriesExist, ExpDate, IsHandled, ItemLedgEntry);
         if IsHandled then
             exit;
 
@@ -2195,7 +2198,7 @@ codeunit 6500 "Item Tracking Management"
         EntriesExist := SumOfEntries < 0;
     end;
 
-    procedure GetWhseExpirationDate(ItemNo: Code[20]; VariantCode: Code[20]; Location: Record Location; LotNo: Code[50]; SerialNo: Code[50]; var ExpDate: Date): Boolean
+    procedure GetWhseExpirationDate(ItemNo: Code[20]; VariantCode: Code[20]; Location: Record Location; LotNo: Code[50]; SerialNo: Code[50]; var ExpDate: Date) ExpDateFound: Boolean
     var
         EntriesExist: Boolean;
     begin
@@ -2208,7 +2211,9 @@ codeunit 6500 "Item Tracking Management"
             exit(true);
 
         ExpDate := 0D;
-        exit(false);
+        ExpDateFound := false;
+
+        OnAfterGetWhseExpirationDate(ItemNo, VariantCode, Location, LotNo, SerialNo, ExpDate, ExpDateFound);
     end;
 
     procedure GetWhseWarrantyDate(ItemNo: Code[20]; VariantCode: Code[20]; Location: Record Location; LotNo: Code[50]; SerialNo: Code[50]; var Wardate: Date): Boolean
@@ -2630,6 +2635,7 @@ codeunit 6500 "Item Tracking Management"
                 OnBeforeRegisterItemTrackingLinesLoop(TrackingSpec, TempTrackingSpec);
 
                 Clear(ItemTrackingLines);
+                OnRegisterNewItemTrackingLinesOnAfterClearItemTrackingLines(ItemTrackingLines);
                 ItemTrackingLines.SetCalledFromSynchWhseItemTrkg(true);
                 ItemTrackingLines.RegisterItemTrackingLines(TrackingSpec, TrackingSpec."Creation Date", TempTrackingSpec);
                 TempTrackingSpec.ClearSourceFilter;
@@ -2691,8 +2697,8 @@ codeunit 6500 "Item Tracking Management"
 
             ReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Source ID", "Source Ref. No.", false);
             ReservEntry.SetSourceFilter('', "Source Prod. Order Line");
-            ReservEntry.CalcSums("Qty. to Handle (Base)");
-            Qty += ReservEntry."Qty. to Handle (Base)";
+            ReservEntry.CalcSums("Quantity (Base)");
+            Qty += ReservEntry."Quantity (Base)";
 
             if "Source Type" = DATABASE::"Transfer Line" then begin
                 TransferLine.Get("Source ID", "Source Ref. No.");
@@ -2791,6 +2797,7 @@ codeunit 6500 "Item Tracking Management"
             SetRange("Item No.", WhseJnlLine."Item No.");
             SetRange("Variant Code", WhseJnlLine."Variant Code");
             SetRange("Qty. per Unit of Measure", WhseJnlLine."Qty. per Unit of Measure");
+            OnCollectItemTrkgInfWhseJnlLineOnAfterSetFilters(WhseItemTrackingLine, WhseJnlLine);
             if FindSet then
                 repeat
                     Clear(TempGlobalWhseItemTrkgLine);
@@ -3057,6 +3064,7 @@ codeunit 6500 "Item Tracking Management"
             "Location Code" := ItemLedgEntryBuf."Location Code";
             "Variant Code" := ItemLedgEntryBuf."Variant Code";
             "Qty. per Unit of Measure" := ItemLedgEntryBuf."Qty. per Unit of Measure";
+            OnInitReservEntryOnBeforeCopyTrackingFromItemLedgEntry(ReservEntry, ItemLedgEntryBuf, EntriesExist);
             CopyTrackingFromItemLedgEntry(ItemLedgEntryBuf);
             "Quantity Invoiced (Base)" := 0;
             Validate("Quantity (Base)", QtyBase);
@@ -3259,6 +3267,11 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetWhseExpirationDate(ItemNo: Code[20]; VariantCode: Code[20]; Location: Record Location; LotNo: Code[50]; SerialNo: Code[50]; var ExpDate: Date; var ExpDateFound: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertWhseItemTrkgLinesLoop(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var WhseItemEntryRelation: Record "Whse. Item Entry Relation"; var WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
     end;
@@ -3294,7 +3307,7 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeExistingExpirationDate(ItemNo: Code[20]; Variant: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; TestMultiple: Boolean; var EntriesExist: Boolean; var ExpDate: Date; var IsHandled: Boolean)
+    local procedure OnBeforeExistingExpirationDate(ItemNo: Code[20]; Variant: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; TestMultiple: Boolean; var EntriesExist: Boolean; var ExpDate: Date; var IsHandled: Boolean; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -3439,6 +3452,11 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitReservEntryOnBeforeCopyTrackingFromItemLedgEntry(var ReservEntry: Record "Reservation Entry"; var ItemLedgEntryBuf: Record "Item Ledger Entry"; var EntriesExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetItemTrackingSettings(var ItemTrackingCode: Record "Item Tracking Code")
     begin
     end;
@@ -3520,6 +3538,26 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSplitWhseJnlLineOnAfterSetFilters(var TempWhseSplitTrackingSpec: Record "Tracking Specification" temporary; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyItemTracking3(var ReservEntry: Record "Reservation Entry"; ToRowID: Text[250]; SwapSign: Boolean; SkipReservation: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterNewItemTrackingLinesOnAfterClearItemTrackingLines(var ItemTrackingLines: Page "Item Tracking Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitWhseJnlLineOnAfterCopyTrackingByToTransfer(var TempWhseSplitTrackingSpec: Record "Tracking Specification"; var TempWhseJnlLine2: Record "Warehouse Journal Line"; ToTransfer: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectItemTrkgInfWhseJnlLineOnAfterSetFilters(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseJnlLine: Record "Warehouse Journal Line")
     begin
     end;
 }

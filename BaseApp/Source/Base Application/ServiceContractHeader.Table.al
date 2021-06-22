@@ -1,4 +1,4 @@
-table 5965 "Service Contract Header"
+﻿table 5965 "Service Contract Header"
 {
     Caption = 'Service Contract Header';
     DataCaptionFields = "Contract No.", Description;
@@ -2142,6 +2142,18 @@ table 5965 "Service Contract Header"
                 DaysInFullInvPeriod := CalculateEndPeriodDate(true, TempDate) - TempDate + 1;
         end;
 
+        SetAmountPerPeriod(InvFrom, InvTo);
+    end;
+
+    local procedure SetAmountPerPeriod(InvFrom: Date; InvTo: Date)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetAmountPerPeriod(Rec, InvFrom, InvTo, DaysInFullInvPeriod, DaysInThisInvPeriod, IsHandled);
+        if IsHandled then
+            exit;
+
         if DaysInFullInvPeriod = DaysInThisInvPeriod then
             "Amount per Period" :=
               Round("Annual Amount" / ReturnNoOfPer("Invoice Period"), Currency."Amount Rounding Precision")
@@ -2500,7 +2512,14 @@ table 5965 "Service Contract Header"
     end;
 
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSalespersonCode(Rec, SalesPersonCodeToCheck, SalesPersonCodeToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesPersonCodeToCheck <> '' then
             if Salesperson.Get(SalesPersonCodeToCheck) then
                 if Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then
@@ -2605,6 +2624,16 @@ table 5965 "Service Contract Header"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterContractLinesExist(var ServContractLine: Record "Service Contract Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSalespersonCode(var ServiceContractHeader: Record "Service Contract Header"; SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetAmountPerPeriod(var ServiceContractHeader: Record "Service Contract Header"; InvFrom: Date; InvTo: Date; DaysInFullInvPeriod: Integer; DaysInThisInvPeriod: Integer; var IsHandled: Boolean)
     begin
     end;
 }

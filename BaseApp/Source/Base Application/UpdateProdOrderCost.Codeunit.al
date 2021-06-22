@@ -297,7 +297,13 @@ codeunit 99000757 "Update Prod. Order Cost"
         TotalCostQty: Decimal;
         TotalUnitCost: Decimal;
         UnitCost: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateUnitCostOnProdOrder(ProdOrderLine, MultipleLevels, UpdateReservation, IsHandled);
+        if IsHandled then
+            exit;
+
         if not Item.Get(ProdOrderLine."Item No.") then
             exit;
 
@@ -371,6 +377,11 @@ codeunit 99000757 "Update Prod. Order Cost"
                     ModifyFor(ReservEntry, UnitCost);
                 until ReservEntry.Next = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUnitCostOnProdOrder(var ProdOrderLine: Record "Prod. Order Line"; MultipleLevels: Boolean; UpdateReservation: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

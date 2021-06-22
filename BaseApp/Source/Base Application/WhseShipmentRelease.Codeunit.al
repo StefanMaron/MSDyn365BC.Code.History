@@ -1,4 +1,4 @@
-codeunit 7310 "Whse.-Shipment Release"
+﻿codeunit 7310 "Whse.-Shipment Release"
 {
 
     trigger OnRun()
@@ -81,12 +81,16 @@ codeunit 7310 "Whse.-Shipment Release"
         WhsePickRqst: Record "Whse. Pick Request";
         PickWkshLine: Record "Whse. Worksheet Line";
         WhseActivLine: Record "Warehouse Activity Line";
+        IsHandled: Boolean;
     begin
         with WhseShptHeader do begin
             if Status = Status::Open then
                 exit;
 
-            OnBeforeReopen(WhseShptHeader);
+            IsHandled := false;
+            OnBeforeReopen(WhseShptHeader, IsHandled);
+            if IsHandled then
+                exit;
 
             PickWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.");
             PickWkshLine.SetRange("Whse. Document Type", PickWkshLine."Whse. Document Type"::Shipment);
@@ -129,11 +133,22 @@ codeunit 7310 "Whse.-Shipment Release"
                 WhsePickRequest."Bin Code" := "Bin Code";
                 CalcFields("Completely Picked");
                 WhsePickRequest."Completely Picked" := "Completely Picked";
-                OnBeforeWhsePickRequestInsert(WhsePickRequest, WhseShptHeader);
-                if not WhsePickRequest.Insert() then
-                    WhsePickRequest.Modify();
-                OnAfterWhsePickRequestInsert(WhsePickRequest);
+                WhsePickRequestInsert(WhsePickRequest, WhseShptHeader);
             end;
+    end;
+
+    local procedure WhsePickRequestInsert(var WhsePickRequest: Record "Whse. Pick Request"; var WhseShptHeader: Record "Warehouse Shipment Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeWhsePickRequestInsert(WhsePickRequest, WhseShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not WhsePickRequest.Insert() then
+            WhsePickRequest.Modify();
+        OnAfterWhsePickRequestInsert(WhsePickRequest);
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
@@ -172,12 +187,12 @@ codeunit 7310 "Whse.-Shipment Release"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReopen(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    local procedure OnBeforeReopen(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhsePickRequestInsert(var WhsePickRequest: Record "Whse. Pick Request"; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    local procedure OnBeforeWhsePickRequestInsert(var WhsePickRequest: Record "Whse. Pick Request"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 }

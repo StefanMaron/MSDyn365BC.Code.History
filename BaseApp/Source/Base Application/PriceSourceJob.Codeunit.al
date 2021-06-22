@@ -33,10 +33,14 @@ codeunit 7036 "Price Source - Job" implements "Price Source"
     end;
 
     procedure IsLookupOK(var PriceSource: Record "Price Source"): Boolean
+    var
+        xPriceSource: Record "Price Source";
     begin
-        if Job.Get(PriceSource."Source No.") then;
+        xPriceSource := PriceSource;
+        if Job.Get(xPriceSource."Source No.") then;
         if Page.RunModal(Page::"Job List", Job) = ACTION::LookupOK then begin
-            PriceSource.Validate("Source No.", Job."No.");
+            xPriceSource.Validate("Source No.", Job."No.");
+            PriceSource := xPriceSource;
             exit(true);
         end;
     end;

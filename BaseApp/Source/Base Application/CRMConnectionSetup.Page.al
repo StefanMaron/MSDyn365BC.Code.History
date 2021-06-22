@@ -564,12 +564,12 @@ page 5330 "CRM Connection Setup"
 
     trigger OnInit()
     var
-        EnvironmentInfo: Codeunit "Environment Information";
+        EnvironmentInformation: Codeunit "Environment Information";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic;
-        SoftwareAsAService := EnvironmentInfo.IsSaaS;
+        SoftwareAsAService := EnvironmentInformation.IsSaaSInfrastructure();
         CRMIntegrationManagement.RegisterAssistedSetup();
         SetVisibilityFlags();
     end;

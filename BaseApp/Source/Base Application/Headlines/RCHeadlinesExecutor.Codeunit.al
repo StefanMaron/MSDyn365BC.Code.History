@@ -39,14 +39,19 @@ codeunit 1441 "RC Headlines Executor"
             JQE."Parameter String" := Format(RoleCenterPageID);
         end;
 
-        if not TaskScheduler.CanCreateTask or not JQE.WritePermission then
-            Codeunit.Run(Codeunit::"RC Headlines Executor", JQE) // e. g. in tests
+        if TaskScheduler.CanCreateTask and JQE.WritePermission then
+            Codeunit.Run(Codeunit::"Job Queue - Enqueue", JQE)
         else
-            Codeunit.Run(Codeunit::"Job Queue - Enqueue", JQE);
+            OnTaskSchedulerUnavailable(JQE);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnComputeHeadlines(RoleCenterPageID: Integer)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnTaskSchedulerUnavailable(JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }

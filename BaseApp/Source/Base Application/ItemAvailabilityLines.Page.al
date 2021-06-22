@@ -362,12 +362,14 @@ page 353 "Item Availability Lines"
     end;
 
     local procedure CalcAvailQuantities(var Item: Record Item)
+    var
+        DummyQtyAvailable: Decimal;
     begin
         SetItemFilter();
         ItemAvailFormsMgt.CalcAvailQuantities(
           Item, AmountType = AmountType::"Balance at Date",
           "Gross Requirement", "Planned Order Receipt", "Scheduled Receipt",
-          "Planned Order Releases", "Projected Available Balance", "Expected Inventory", "Available Inventory");
+          "Planned Order Releases", "Projected Available Balance", "Expected Inventory", DummyQtyAvailable, "Available Inventory");
 
         Inventory := Item.Inventory;
         "Qty. on Purch. Order" := Item."Qty. on Purch. Order";

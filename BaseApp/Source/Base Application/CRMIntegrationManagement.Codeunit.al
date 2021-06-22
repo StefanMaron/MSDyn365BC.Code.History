@@ -91,6 +91,7 @@ codeunit 5330 "CRM Integration Management"
         DeletionConflictHandledRestoreRecordTxt: Label 'Deletion conflict handled by restoring the deleted record.', Locked = true;
         ResetAllCustomIntegrationTableMappingsLbl: Label 'One or more of the selected integration table mappings is custom.\\Restoring the default table mapping for a custom table mapping will restore all custom table mappings to their default.\\Do you want to continue?';
         OptionMappingFailedNotificationTxt: Label 'No match in the option mapping was found in the last synchronization. For more information, see https://go.microsoft.com/fwlink/?linkid=2139110.';
+        DeletedRecordWithZeroTableIdTxt: Label 'CRM Integration Record with zero Table ID has been deleted. Integration ID: %1, CRM ID: %2', Locked = true;
 
     procedure IsCRMIntegrationEnabled(): Boolean
     var
@@ -613,6 +614,31 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     [Scope('OnPrem')]
+    procedure RepairBrokenCouplings()
+    begin
+        RepairBrokenCouplings(false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RepairBrokenCouplings(UseLocalRecordsOnly: Boolean)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        BlankGuid: Guid;
+    begin
+        CRMIntegrationRecord.SetRange("Table ID", 0);
+        CRMIntegrationRecord.SetFilter("Integration ID", '<>%1', BlankGuid);
+        if CRMIntegrationRecord.FindSet() then
+            repeat
+                if not CRMIntegrationRecord.RepairTableIdByLocalRecord() then
+                    if not UseLocalRecordsOnly then
+                        if not CRMIntegrationRecord.RepairTableIdByCRMRecord() then begin
+                            CRMIntegrationRecord.Delete();
+                            Session.LogMessage('0000DQD', StrSubstNo(DeletedRecordWithZeroTableIdTxt, CRMIntegrationRecord."Integration ID", CRMIntegrationRecord."CRM ID"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                        end;
+            until CRMIntegrationRecord.Next() = 0;
+    end;
+
+    [Scope('OnPrem')]
     procedure RemoveCoupling(TableID: Integer; CRMTableID: Integer)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -621,6 +647,7 @@ codeunit 5330 "CRM Integration Management"
         if GetIntegrationTableMappingForUncoupling(IntegrationTableMapping, TableID, CRMTableID) then
             ScheduleUncoupling(IntegrationTableMapping, '', '')
         else begin
+            RepairBrokenCouplings();
             CRMIntegrationRecord.SetRange("Table ID", TableID);
             CRMIntegrationRecord.DeleteAll();
         end;
@@ -1657,24 +1684,26 @@ codeunit 5330 "CRM Integration Management"
         exit(-1); // user canceled the process
     end;
 
-    local procedure RestoreDeletedRecordInCRM(var BCRecordRef: RecordRef)
+    local procedure DeleteIntegrationRecordByBCID(var BCRecordRef: RecordRef)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        if CRMIntegrationRecord.FindByRecordID(BCRecordRef.RecordId()) then
+        if CRMIntegrationRecord.FindByRecordID(BCRecordRef.RecordId()) then begin
             CRMIntegrationRecord.Delete();
-        CreateNewRecordsInCRM(BCRecordRef);
+            Commit();
+        end;
     end;
 
-    local procedure RestoreDeletedRecordInBC(var CRMRecordRef: RecordRef; var IntegrationTableMapping: Record "Integration Table Mapping")
+    local procedure DeleteIntegrationRecordByCRMID(var CRMRecordRef: RecordRef; var IntegrationTableMapping: Record "Integration Table Mapping")
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMID: Guid;
     begin
         CRMID := CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value();
-        if CRMIntegrationRecord.FindByCRMID(CRMID) then
+        if CRMIntegrationRecord.FindByCRMID(CRMID) then begin
             CRMIntegrationRecord.Delete();
-        CreateNewRecordsFromCRM(CRMRecordRef);
+            Commit();
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnUpdateConflictDetected', '', false, false)]
@@ -1739,9 +1768,9 @@ codeunit 5330 "CRM Integration Management"
             IntegrationTableMapping."Deletion-Conflict Resolution"::"Restore Records":
                 begin
                     if SourceRecordRef.Number = IntegrationTableMapping."Table ID" then
-                        RestoreDeletedRecordInCRM(SourceRecordRef)
+                        DeleteIntegrationRecordByBCID(SourceRecordRef)
                     else
-                        RestoreDeletedRecordInBC(SourceRecordRef, IntegrationTableMapping);
+                        DeleteIntegrationRecordByCRMID(SourceRecordRef, IntegrationTableMapping);
 
                     DeletionConflictHandled := true;
                     Session.LogMessage('0000CUF', DeletionConflictHandledRestoreRecordTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
@@ -1836,6 +1865,8 @@ codeunit 5330 "CRM Integration Management"
         IntegrationUserRoleGUID: Guid;
         DefaultOwningTeamGUID: Guid;
         TempConnectionString: Text;
+        SolutionInstalled: Boolean;
+        SolutionOutdated: Boolean;
         ImportSolution: Boolean;
     begin
         CheckConnectRequiredFields(ServerAddress, IntegrationUserEmail);
@@ -1853,10 +1884,14 @@ codeunit 5330 "CRM Integration Management"
         if IsNullGuid(UserGUID) then
             Error(UserDoesNotExistCRMErr, IntegrationUserEmail, CRMProductName.CDSServiceName());
 
+        SolutionInstalled := CRMHelper.CheckSolutionPresence(MicrosoftDynamicsNavIntegrationTxt);
+        if SolutionInstalled then
+            SolutionOutdated := IsSolutionOutdated(TempConnectionString);
+
         if ForceRedeploy then
-            ImportSolution := true
+            ImportSolution := (not SolutionInstalled) or SolutionOutdated
         else
-            ImportSolution := not CRMHelper.CheckSolutionPresence(MicrosoftDynamicsNavIntegrationTxt);
+            ImportSolution := not SolutionInstalled;
 
         if ImportSolution then
             if not ImportDefaultCRMSolution(CRMHelper) then
@@ -1895,6 +1930,30 @@ codeunit 5330 "CRM Integration Management"
                 Error(CannotAssignRoleToTeamErr, DefaultOwningTeamGUID, CDSIntegrationImpl.GetDefaultBusinessUnitName(), CRMRole.Name);
             end;
         end;
+    end;
+
+    [NonDebuggable]
+    local procedure IsSolutionOutdated(TempConnectionString: Text): Boolean
+    var
+        CDSSolution: Record "CDS Solution";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        NavTenantSettingsHelper: DotNet NavTenantSettingsHelper;
+        Version: DotNet Version;
+        TempConnectionName: Text;
+        SolutionOutdated: Boolean;
+    begin
+        TempConnectionName := CDSIntegrationImpl.GetTempConnectionName();
+        if HasTableConnection(TableConnectionType::CRM, TempConnectionName) then
+            UnregisterTableConnection(TableConnectionType::CRM, TempConnectionName);
+        RegisterTableConnection(TableConnectionType::CRM, TempConnectionName, TempConnectionString);
+        SetDefaultTableConnection(TableConnectionType::CRM, TempConnectionName, true);
+        SolutionOutdated := true;
+        CDSSolution.SetRange(UniqueName, MicrosoftDynamicsNavIntegrationTxt);
+        if CDSSolution.FindFirst() then
+            if Version.TryParse(CDSSolution.Version, Version) then
+                SolutionOutdated := Version.CompareTo(NavTenantSettingsHelper.GetPlatformVersion()) < 0;
+        UnregisterTableConnection(TableConnectionType::CRM, TempConnectionName);
+        exit(SolutionOutdated);
     end;
 
     [TryFunction]

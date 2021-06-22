@@ -159,6 +159,12 @@ codeunit 9080 "Journal Errors Mgt."
         SetRecXRecOnModify(xRec, Rec);
     end;
 
+    [EventSubscriber(ObjectType::Page, 39, 'OnInsertRecordEvent', '', false, false)]
+    local procedure OnInsertRecordEventGeneralJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
+    begin
+        SetRecXRecOnModify(xRec, Rec);
+    end;
+
     [EventSubscriber(ObjectType::Page, 253, 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventSalesJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
@@ -167,6 +173,12 @@ codeunit 9080 "Journal Errors Mgt."
 
     [EventSubscriber(ObjectType::Page, 253, 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventSalesJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
+    begin
+        SetRecXRecOnModify(xRec, Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 253, 'OnInsertRecordEvent', '', false, false)]
+    local procedure OnInsertRecordEventSalesJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
@@ -183,6 +195,12 @@ codeunit 9080 "Journal Errors Mgt."
         SetRecXRecOnModify(xRec, Rec);
     end;
 
+    [EventSubscriber(ObjectType::Page, 254, 'OnInsertRecordEvent', '', false, false)]
+    local procedure OnInsertRecordEventPurchaseJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
+    begin
+        SetRecXRecOnModify(xRec, Rec);
+    end;
+
     [EventSubscriber(ObjectType::Page, 255, 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventCashReceiptJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
@@ -191,6 +209,12 @@ codeunit 9080 "Journal Errors Mgt."
 
     [EventSubscriber(ObjectType::Page, 255, 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventCashReceiptJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
+    begin
+        SetRecXRecOnModify(xRec, Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 255, 'OnInsertRecordEvent', '', false, false)]
+    local procedure OnInsertRecordEventCashReceiptJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
@@ -207,6 +231,12 @@ codeunit 9080 "Journal Errors Mgt."
         SetRecXRecOnModify(xRec, Rec);
     end;
 
+    [EventSubscriber(ObjectType::Page, 256, 'OnInsertRecordEvent', '', false, false)]
+    local procedure OnInsertRecordEventPaymentJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
+    begin
+        SetRecXRecOnModify(xRec, Rec);
+    end;
+
     [EventSubscriber(ObjectType::Page, 610, 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventICGeneralJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
@@ -215,6 +245,12 @@ codeunit 9080 "Journal Errors Mgt."
 
     [EventSubscriber(ObjectType::Page, 610, 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventICGeneralJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
+    begin
+        SetRecXRecOnModify(xRec, Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 610, 'OnInsertRecordEvent', '', false, false)]
+    local procedure OnInsertRecordEventICGeneralJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
@@ -231,6 +267,12 @@ codeunit 9080 "Journal Errors Mgt."
         SetRecXRecOnModify(xRec, Rec);
     end;
 
+    [EventSubscriber(ObjectType::Page, 1020, 'OnInsertRecordEvent', '', false, false)]
+    local procedure OnInsertRecordEventJobJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
+    begin
+        SetRecXRecOnModify(xRec, Rec);
+    end;
+
     [EventSubscriber(ObjectType::Page, 5628, 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventFixedAssetGLJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
@@ -239,6 +281,12 @@ codeunit 9080 "Journal Errors Mgt."
 
     [EventSubscriber(ObjectType::Page, 5628, 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventFixedAssetGLJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
+    begin
+        SetRecXRecOnModify(xRec, Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 5628, 'OnInsertRecordEvent', '', false, false)]
+    local procedure OnInsertRecordEventFixedAssetGLJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;

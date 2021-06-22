@@ -20,7 +20,6 @@ codeunit 136603 "ERM RS Package Operations"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryMarketing: Codeunit "Library - Marketing";
         LibraryReportValidation: Codeunit "Library - Report Validation";
         ConfigValidateMgt: Codeunit "Config. Validate Management";
         ConfigPackageMgt: Codeunit "Config. Package Management";
@@ -30,35 +29,57 @@ codeunit 136603 "ERM RS Package Operations"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
-        PackageDataError: Label 'There are errors in Package Data Error.';
-        ApplyError: Label 'There are errors in Apply Migration Data.';
-        Text101: Label 'Package Card page shows incorrect data.';
-        Text103: Label 'Gen. Journal Line is not posted.';
+        PackageDataErr: Label 'There are errors in Package Data Error.';
+        ApplyErr: Label 'There are errors in Apply Migration Data.';
+        Text101Err: Label 'Package Card page shows incorrect data.';
+        Text103Err: Label 'Gen. Journal Line is not posted.';
         NoDataAfterImportErr: Label 'No Data In Package.';
-        ErrorInApplyingWithoutValidationFlag: Label 'Data is not applied in case validation flag for field is set to false.';
-        FlowFieldAppearedInData: Label 'Only normal fields should be available after import.';
-        ErrorOnEvaluating: Label 'Error on evaluating %1 datatype.';
-        NoErrorOnEvaluating: Label 'Must be error on evaluating %1 datatype.';
-        FieldValueIsIncorrect: Label '%1 is incorrect.';
-        ExportImportInterfereError: Label 'XML Package Data Export/Import change existing package data.';
-        ExportImportWrongPackageError: Label 'XML Package Data Export/Import process wrong package.';
-        TableNotValidated: Label 'Table ID was validated incorrectly.';
-        XMLGeneratedIncorrectly: Label 'Localization information in the XML document was generated incorrectly.';
+        ErrorInApplyingWithoutValidationFlagErr: Label 'Data is not applied in case validation flag for field is set to false.';
+        FlowFieldAppearedInDataErr: Label 'Only normal fields should be available after import.';
+        ErrorOnEvaluatingErr: Label 'Error on evaluating %1 datatype.', Locked=true;
+        NoErrorOnEvaluatingErr: Label 'Must be error on evaluating %1 datatype.', Locked=true;
+        FieldValueIsIncorrectErr: Label '%1 is incorrect.', Locked=true;
+        ExportImportInterfereErr: Label 'XML Package Data Export/Import change existing package data.';
+        ExportImportWrongPackageErr: Label 'XML Package Data Export/Import process wrong package.';
+        TableNotValidatedErr: Label 'Table ID was validated incorrectly.';
+        XMLGeneratedIncorrectlyErr: Label 'Localization information in the XML document was generated incorrectly.';
         FileTextMsg: Label 'FileText';
         NotGZIPFormatErr: Label 'Generated file is not in GZIP format.';
         FileContentMismatchErr: Label 'File content mismatch after GZIP compression.';
         DecompressWrongResultErr: Label 'Decompress returns true for non GZip file.';
-        ValueIsIncorrectErr: Label '%1 value is incorrect.';
-        PackageErr: Label 'There are errors in Package %1.';
+        ValueIsIncorrectErr: Label '%1 value is incorrect.', Locked=true;
+        PackageErr: Label 'There are errors in Package %1.', Locked=true;
         UnhandledConfirmErr: Label 'Unhandled UI: Confirm';
-        PackageImportErr: Label 'An error occurred while importing the %1 table. The table does not exist in the database.', Comment = 'An error occurred while importing the -452 table. The table does not exist in the database.';
+        PackageImportErr: Label 'An error occurred while importing the %1 table. The table does not exist in the database.', Comment = 'An error occurred while importing the -452 table. The table does not exist in the database.', Locked=true;
         RedundancyInTheShopCalendarErr: Label 'There is redundancy in the Shop Calendar.';
         MustBeIntegersErr: Label 'must be Integer or BigInteger';
         FileNameForHandler: Text;
-        MissingLineErr: Label 'Line %1 does not exist in preview page.';
-        ExistingLineErr: Label 'Line %1 must not exist in preview page.';
+        MissingLineErr: Label 'Line %1 does not exist in preview page.', Locked=true;
+        ExistingLineErr: Label 'Line %1 must not exist in preview page.', Locked=true;
         PackageCodeMustMatchErr: Label 'The package code in all sheets of the Excel file must match the selected package code, %1. Modify the package code in the Excel file or import this file from the Configuration Packages page to create a new package.', Comment = '%1 - package code';
         ImportNotAllowedErr: Label 'Cannot import table %1 through a Configuration Package.', Comment = '%1 = The name of the table.';
+        ExternalTablesAreNotAllowedErr: Label 'External tables cannot be added in Configuration Packages.';
+        
+
+
+    [Test]
+    procedure AddingExternalTablesToConfigPackagesTest()
+    var
+        ConfigPackageTable: Record "Config. Package Table";
+    begin
+        // Exercise, Verify
+        ConfigPackageTable."Table ID" := Database::"CRM Account";
+        asserterror ConfigPackageTable.Insert();
+        Assert.ExpectedError(ExternalTablesAreNotAllowedErr);
+
+        // Setup
+        ConfigPackageTable."Table ID" := Database::Customer;
+        ConfigPackageTable.Insert();
+
+        // Exercise, Verify
+        asserterror ConfigPackageTable.Rename('', Database::"CRM Account");
+        Assert.ExpectedError(ExternalTablesAreNotAllowedErr);
+    end;
 
 
     [Test]
@@ -124,7 +145,7 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageField: Record "Config. Package Field";
         ConfigPackageTable: Record "Config. Package Table";
         ConfigPackageRecord: Record "Config. Package Record";
-        ConfigPackageMgt: Codeunit "Config. Package Management";
+        ConfigPackageManagement: Codeunit "Config. Package Management";
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         LastID: Integer;
     begin
@@ -156,8 +177,8 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageField.Modify(true);
 
         // [WHEN] Insert package record
-        ConfigPackageMgt.SetHideDialog(true);
-        ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, false);
+        ConfigPackageManagement.SetHideDialog(true);
+        ConfigPackageManagement.ApplyPackage(ConfigPackage, ConfigPackageTable, false);
 
         // [THEN] Record is inserted, where ID = '4'
         TableAutoIncrementOutOfPK.Get(AssistedSetupTestLibrary.FirstPageID(), TableAutoIncrementOutOfPK.Category::"2");
@@ -176,7 +197,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Config Package]
         // [SCENARIO 158249] Dependent table with empty 'Parent Table ID' should not be applied due to a confirmation request
-        Initialize;
+        Initialize();
         // [GIVEN] Imported a package with 3 tables: Customer, Sales Header, Sales Line
         // [GIVEN] The dependent table Sales Line has 'Parent Table ID' = 0
         CustomerNo := CreateSalesInvPackage(ConfigPackage, 0);
@@ -204,7 +225,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Config Package]
         // [SCENARIO 158249] Dependent table with filled 'Parent Table ID' should be applied without errors
-        Initialize;
+        Initialize();
         // [GIVEN] Imported a package with 3 tables: Customer, Sales Header, Sales Line
         // [GIVEN] The dependent table Sales Line has 'Parent Table ID' = 36
         CustomerNo := CreateSalesInvPackage(ConfigPackage, DATABASE::"Sales Header");
@@ -231,7 +252,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Config Package]
         // [SCENARIO 122575] a new Package can be created and applied for Master Records.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created a new package table record for Customer.
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
@@ -242,8 +263,8 @@ codeunit 136603 "ERM RS Package Operations"
         // [THEN] Table name is "Customer"
         // [THEN] Count of records in package table equal to count in DB
         ConfigPackageTable.CalcFields("Table Name");
-        Assert.AreEqual(ConfigPackageTable.GetNoOfDatabaseRecords, Customer.Count, 'Wrong number of Database Records in the package');
-        ConfigPackageTable.TestField("Table Name", Customer.TableName);
+        Assert.AreEqual(ConfigPackageTable.GetNoOfDatabaseRecords(), Customer.Count(), 'Wrong number of Database Records in the package');
+        ConfigPackageTable.TestField("Table Name", Customer.TableName());
     end;
 
     [Test]
@@ -256,7 +277,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO 122577] The new Package can be exported to XML.
-        Initialize;
+        Initialize();
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         ExportToXML(ConfigPackage.Code, ConfigPackageTable, FilePath);
 
@@ -274,7 +295,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO 122579] The new Package can be imported from XML.
-        Initialize;
+        Initialize();
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
 
         ExportImportXML(ConfigPackage.Code);
@@ -290,12 +311,11 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageTable: Record "Config. Package Table";
         IntegrationRecord: Record "Integration Record";
         ConfigPackageError: Record "Config. Package Error";
-        ConfigPackageManagement: Codeunit "Config. Package Management";
         IntegrationRecordCount: Integer;
     begin
         // [FEATURE] [XML]
         // [SCENARIO] A package can be created, exported and imported with integration records, but not applied.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A package containing Customer integration records that is exported and then imported
         IntegrationRecord.SetFilter("Table ID", '<>%1', DATABASE::Customer);
@@ -334,13 +354,12 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageTable: Record "Config. Package Table";
         IntegrationTableMapping: Record "Integration Table Mapping";
         ConfigPackageError: Record "Config. Package Error";
-        ConfigPackageManagement: Codeunit "Config. Package Management";
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         IntegrationTableMappingRecordCount: Integer;
     begin
         // [FEATURE] [XML]
         // [SCENARIO] A package can be created, exported and imported with integration table mappings, but not applied.
-        Initialize;
+        Initialize();
         InitializeCRM();
 
         // [GIVEN] Integration table mappings
@@ -371,16 +390,13 @@ codeunit 136603 "ERM RS Package Operations"
     var
         ConfigPackage: Record "Config. Package";
         ConfigPackageTable: Record "Config. Package Table";
-        IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
         ConfigPackageError: Record "Config. Package Error";
-        ConfigPackageManagement: Codeunit "Config. Package Management";
-        LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         IntegrationFieldMappingRecordCount: Integer;
     begin
         // [FEATURE] [XML]
         // [SCENARIO] A package can be created, exported and imported with integration field mappings, but not applied.
-        Initialize;
+        Initialize();
         InitializeCRM();
 
         // [GIVEN] Integration field mappings
@@ -416,18 +432,18 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO] localization attributes are exported to XML
-        Initialize;
+        Initialize();
 
         // [GIVEN] Generated a localized package
         CreateConfigPackage(ConfigPackage);
-        ConfigPackage.Validate("Language ID", FindFirstLanguage);
+        ConfigPackage.Validate("Language ID", FindFirstLanguage());
         ConfigPackage.Modify(true);
 
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, FindRandomTableID(100));
         SetLocalizeFields(ConfigPackage.Code, ConfigPackageTable."Table ID");
 
         // [WHEN] Export Package to XML
-        PackageXML := PackageXML.XmlDocument;
+        PackageXML := PackageXML.XmlDocument();
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
         ConfigXMLExchange.ExportPackageXMLDocument(PackageXML, ConfigPackageTable, ConfigPackage, true);
 
@@ -435,7 +451,7 @@ codeunit 136603 "ERM RS Package Operations"
         XMLNode := PackageXML.SelectSingleNode('//_locDefinition');
         XMLAttributes := PackageXML.SelectNodes('//@_loc');
 
-        Assert.IsTrue((XMLNode.InnerXml <> '') and (XMLAttributes.Count <> 0), XMLGeneratedIncorrectly);
+        Assert.IsTrue((XMLNode.InnerXml <> '') and (XMLAttributes.Count <> 0), XMLGeneratedIncorrectlyErr);
     end;
 
     [Test]
@@ -448,7 +464,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO] 'Page ID' field can be stored to and restored from XML
-        Initialize;
+        Initialize();
         // [GIVEN] Package with Table, where 'Page ID' = "X"
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         RandomPageId := LibraryRandom.RandInt(1000);
@@ -474,7 +490,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO] 'Package Processing Order' field can be stored to and restored from XML
-        Initialize;
+        Initialize();
         // [GIVEN] Package with Table, where 'Package Processing Order' = "X"
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         RandomId := LibraryRandom.RandInt(1000);
@@ -499,7 +515,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO 158249] Filled 'Parent Table ID' field can be stored to and restored from XML
-        Initialize;
+        Initialize();
         // [GIVEN] Package with Table, where 'Table ID' = 37, 'Parent Table ID' = 36
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"Sales Line");
 
@@ -523,7 +539,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO] Filled 'Delete Recs Before Processing' field can be stored to and restored from XML
-        Initialize;
+        Initialize();
         // [GIVEN] Package with Table, where 'Delete Recs Before Processing' = "Yes"
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         ConfigPackageTable."Delete Recs Before Processing" := true;
@@ -548,7 +564,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO 158249] Filled 'Processing Order' field can be stored to and restored from XML
-        Initialize;
+        Initialize();
         // [GIVEN] Package with Table, where 'Processing Order' = "X"
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         RandomId := LibraryRandom.RandInt(1000);
@@ -574,7 +590,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO] Filled 'Data Template' field can be stored to and restored from XML
-        Initialize;
+        Initialize();
         // [GIVEN] Package with Table, where 'Data Template' = "X"
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         RandomCode := LibraryUtility.GenerateRandomCode(ConfigPackageTable.FieldNo("Data Template"), DATABASE::"Config. Package Table");
@@ -600,7 +616,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO] Filled 'Comments' field can be stored to and restored from XML
-        Initialize;
+        Initialize();
         // [GIVEN] Package with Table, where 'Comments' = "X"
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         RandomCode := LibraryUtility.GenerateRandomCode(ConfigPackageTable.FieldNo(Comments), DATABASE::"Config. Package Table");
@@ -626,7 +642,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO] Filled 'Created by User ID' field can be stored to and restored from XML
-        Initialize;
+        Initialize();
         // [GIVEN] Package with Table, where 'Created by User ID' = "X"
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         RandomCode :=
@@ -652,7 +668,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO] Filled 'Skip Table Triggers' field can be stored to and restored from XML
-        Initialize;
+        Initialize();
         // [GIVEN] Package with Table, where 'Skip Table Triggers' = "Yes"
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         ConfigPackageTable."Skip Table Triggers" := true;
@@ -676,7 +692,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Dimension] [XML]
         // [SCENARIO] Filled 'Dimensions as Columns' field can be stored to and restored from XML
-        Initialize;
+        Initialize();
         // [GIVEN] Package with Table, where 'Dimensions as Columns' = "Yes"
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         ConfigPackageTable."Dimensions as Columns" := true;
@@ -700,7 +716,7 @@ codeunit 136603 "ERM RS Package Operations"
         GLAccFilter: Text[250];
     begin
         // [SCENARIO] Pass BLOB (binary files) via RapidStart package
-        Initialize;
+        Initialize();
         // [GIVEN] Two G/L Accounts, first one has a picture (BLOB value)
         CreateTwoGLAccountsFirstWithBLOB(GLAccFilter);
         // [GIVEN] Config. Package with 'G/L Account' table
@@ -727,7 +743,7 @@ codeunit 136603 "ERM RS Package Operations"
         FilePath: Text;
     begin
         // [SCENARIO] Pass MediaSet (binary files) via RapidStart package
-        Initialize;
+        Initialize();
         // [GIVEN] Two Items, first item has a picture (MediaSet value)
         CreateTwoItemsFirstWithMediaSet(ItemFilter);
         // [GIVEN] Config. Package with Item table
@@ -762,7 +778,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO] Imported package should not affect existing equal package
-        Initialize;
+        Initialize();
         // [GIVEN] Two equal packages: "A" and "B"
         CreateSimplePackage(ConfigPackage1);
         CreateSimplePackage(ConfigPackage2);
@@ -772,7 +788,7 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigXMLExchange.ImportPackageXML(FilePath);
         Erase(FilePath);
         // [THEN] Package "B" is not affected
-        Assert.IsTrue(IsPackageDataExists(ConfigPackage2.Code, false), ExportImportWrongPackageError);
+        Assert.IsTrue(IsPackageDataExists(ConfigPackage2.Code, false), ExportImportWrongPackageErr);
     end;
 
     [Test]
@@ -784,7 +800,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO] Deleted package should not contains data, while there is equal package
-        Initialize;
+        Initialize();
         // [GIVEN] Two equal packages: "A" and "B"
         CreateSimplePackage(ConfigPackage1);
         CreateSimplePackage(ConfigPackage2);
@@ -797,7 +813,7 @@ codeunit 136603 "ERM RS Package Operations"
         // [THEN] Package "A" contains data, Package "B" does not.
         Assert.IsTrue(
           IsPackageDataExists(ConfigPackage1.Code, false) and not IsPackageDataExists(ConfigPackage2.Code, true),
-          ExportImportInterfereError);
+          ExportImportInterfereErr);
     end;
 
     [Test]
@@ -809,7 +825,7 @@ codeunit 136603 "ERM RS Package Operations"
         // [FEATURE] [GZIP] [UT]
         // [SCENARIO] 'ServersideCompress' method compresses data to GZIP file
         // [WHEN] Create compressed file "F" (by ServersideCompress)
-        CompressedServerFileName := CreateCompressedFile;
+        CompressedServerFileName := CreateCompressedFile();
         // [THEN] File "F" is GZIP file
         VerifyGZIPHeader(CompressedServerFileName);
     end;
@@ -825,7 +841,7 @@ codeunit 136603 "ERM RS Package Operations"
         // [FEATURE] [GZIP] [UT]
         // [SCENARIO] 'ServersideDecompress' method decompresses GZIP file
         // [GIVEN] Compressed file "F" (by ServersideCompress)
-        CompressedServerFileName := CreateCompressedFile;
+        CompressedServerFileName := CreateCompressedFile();
         // [WHEN] Decompress file "F" (by ServersideDecompress)
         DecompressedServerFileName := FileMgt.ServerTempFileName('');
         ConfigPckgCompressionMgt.ServersideDecompress(CompressedServerFileName, DecompressedServerFileName);
@@ -865,7 +881,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [XML]
         // [SCENARIO] the new Package can be imported from XML for related tables.
-        Initialize;
+        Initialize();
         // [GIVEN] Package with 7 tables
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"VAT Product Posting Group");
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::"VAT Business Posting Group");
@@ -877,10 +893,10 @@ codeunit 136603 "ERM RS Package Operations"
         // [GIVEN] Package exported to XML
         FilePath := FileMgt.ServerTempFileName('xml');
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
-        if ConfigPackageTable.FindSet then
+        if ConfigPackageTable.FindSet() then
             repeat
                 ConfigXMLExchange.ExportPackageXML(ConfigPackageTable, FilePath);
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
 
         PackageCode := ConfigPackage.Code;
         LibraryRapidStart.CleanUp(PackageCode);
@@ -897,7 +913,7 @@ codeunit 136603 "ERM RS Package Operations"
           ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::"Gen. Product Posting Group") and
           ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::"General Posting Setup") and
           ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::"G/L Account"),
-          PackageDataError);
+          PackageDataErr);
 
         Erase(FilePath);
     end;
@@ -917,7 +933,7 @@ codeunit 136603 "ERM RS Package Operations"
         DocumentElement: DotNet XmlNode;
     begin
         // [SCENARIO] the new Package can be validated with function Validate Table Relation.
-        Initialize;
+        Initialize();
         // [GIVEN] XML file contains Customer data
         XMLDOMManagement.LoadXMLNodeFromText(
           '<?xml version="1.0" encoding="UTF-16" standalone="yes"?><DataList></DataList>', DocumentElement);
@@ -936,7 +952,7 @@ codeunit 136603 "ERM RS Package Operations"
         // [WHEN] Validate table relation
         LibraryRapidStart.ValidatePackage(ConfigPackage, false);
         // [THEN] Config Package Error table is empty
-        Assert.IsTrue(ConfigPackageError.IsEmpty, PackageDataError);
+        Assert.IsTrue(ConfigPackageError.IsEmpty, PackageDataErr);
     end;
 
     [Test]
@@ -950,7 +966,7 @@ codeunit 136603 "ERM RS Package Operations"
         LocationCode: Code[10];
     begin
         // [SCENARIO] Records of package tables imported from XML should be inserted by Apply package
-        Initialize;
+        Initialize();
         // [GIVEN] Import Package from XML, that contains records: Country "C", and Location "L" linked to "C"
         ImportFromXML(ConfigPackage, CountryCode, LocationCode);
 
@@ -958,7 +974,7 @@ codeunit 136603 "ERM RS Package Operations"
         LibraryRapidStart.ApplyPackage(ConfigPackage, true);
 
         // [THEN] Country 'C' and Location 'L' exist in database
-        Assert.IsTrue(Country.Get(CountryCode) and Location.Get(LocationCode), ApplyError);
+        Assert.IsTrue(Country.Get(CountryCode) and Location.Get(LocationCode), ApplyErr);
     end;
 
     [Test]
@@ -969,12 +985,11 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageTable: Record "Config. Package Table";
         PaymentMethod: Record "Payment Method";
         ConfigPackageImport: Codeunit "Config. Package - Import";
-        ConfigPckgCompressionMgt: Codeunit "Config. Pckg. Compression Mgt.";
         PaymentMethodCode: Code[10];
         FilePath: Text;
         CompressedServerFileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         CreatePaymentMethod(PaymentMethod);
         PaymentMethodCode := PaymentMethod.Code;
@@ -1011,7 +1026,7 @@ codeunit 136603 "ERM RS Package Operations"
         GenProductPostingGroupCode: Code[20];
         GenBusPostingGroupCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         ImportFromXMLKey(ConfigPackage, GenProductPostingGroupCode, GenBusPostingGroupCode);
 
         LibraryRapidStart.ApplyPackage(ConfigPackage, true);
@@ -1022,7 +1037,7 @@ codeunit 136603 "ERM RS Package Operations"
           GenBusPostingGroup.Get(GenBusPostingGroupCode) and
           GenProductPostingGroup.Get(GenProductPostingGroupCode) and
           GeneralPostingSetup.Get(GenBusPostingGroupCode, GenProductPostingGroupCode),
-          ApplyError);
+          ApplyErr);
     end;
 
     [Test]
@@ -1038,7 +1053,7 @@ codeunit 136603 "ERM RS Package Operations"
         City2: Text[30];
         FilePath: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Create new location
         LibraryWarehouse.CreateLocation(Location);
@@ -1071,7 +1086,7 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.IsTrue(
           (City2 = Location.City) and
           (PostCode2 = Location."Post Code"),
-          ErrorInApplyingWithoutValidationFlag);
+          ErrorInApplyingWithoutValidationFlagErr);
 
         Erase(FilePath);
     end;
@@ -1086,7 +1101,7 @@ codeunit 136603 "ERM RS Package Operations"
         AvailableFields: Integer;
     begin
         // [SCENARIO] no FlowFields or FlowFilters are created after import
-        Initialize;
+        Initialize();
 
         // Package Table Fields are automatically initialized here and contain only normal field class fields and no blobs
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
@@ -1100,7 +1115,7 @@ codeunit 136603 "ERM RS Package Operations"
 
         // Check number of available fields after import
         ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::Customer);
-        Assert.AreEqual(AvailableFields, GetNoOfAvailableFields(ConfigPackageTable), FlowFieldAppearedInData);
+        Assert.AreEqual(AvailableFields, GetNoOfAvailableFields(ConfigPackageTable), FlowFieldAppearedInDataErr);
     end;
 
     [Test]
@@ -1122,7 +1137,7 @@ codeunit 136603 "ERM RS Package Operations"
         Amount: Decimal;
         FilePath: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Init general setup
         CreateGenJnlLineSetup(
@@ -1174,7 +1189,7 @@ codeunit 136603 "ERM RS Package Operations"
         NoOfFields: Integer;
     begin
         // [SCENARIO] The field "No of Fields Included" in Package Table represents the actual data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Add table Vendor to Package
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Vendor);
@@ -1194,7 +1209,7 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageTable.CalcFields("No. of Fields Included");
 
         // [THEN] Validate field show correct data
-        Assert.AreEqual(NoOfFields, ConfigPackageTable."No. of Fields Included", Text101);
+        Assert.AreEqual(NoOfFields, ConfigPackageTable."No. of Fields Included", Text101Err);
     end;
 
     [Test]
@@ -1205,13 +1220,13 @@ codeunit 136603 "ERM RS Package Operations"
         VendorList: TestPage "Vendor List";
     begin
         // Preparation
-        Initialize;
+        Initialize();
         InitializePackageCard(ConfigPackageCard, false);
 
         // [THEN] Check page Vendor List is opened by Database Records
-        VendorList.Trap;
-        ConfigPackageCard.Control10.DatabaseRecords.Invoke;
-        VendorList.Close;
+        VendorList.Trap();
+        ConfigPackageCard.Control10.DatabaseRecords.Invoke();
+        VendorList.Close();
     end;
 
     [Test]
@@ -1221,11 +1236,11 @@ codeunit 136603 "ERM RS Package Operations"
     var
         ConfigPackageCard: TestPage "Config. Package Card";
     begin
-        Initialize;
+        Initialize();
         InitializePackageCard(ConfigPackageCard, true);
 
         // [WHEN] Package Records page open
-        ConfigPackageCard.Control10.PackageRecords.Invoke;
+        ConfigPackageCard.Control10.PackageRecords.Invoke();
     end;
 
     [Test]
@@ -1235,11 +1250,11 @@ codeunit 136603 "ERM RS Package Operations"
     var
         ConfigPackageCard: TestPage "Config. Package Card";
     begin
-        Initialize;
+        Initialize();
         InitializePackageCard(ConfigPackageCard, true);
 
         // [WHEN] Package Fields page open
-        ConfigPackageCard.Control10.PackageFields.Invoke;
+        ConfigPackageCard.Control10.PackageFields.Invoke();
     end;
 
     [Test]
@@ -1249,11 +1264,11 @@ codeunit 136603 "ERM RS Package Operations"
     var
         ConfigPackageCard: TestPage "Config. Package Card";
     begin
-        Initialize;
+        Initialize();
         InitializePackageCard(ConfigPackageCard, true);
 
         // [WHEN] Validate relations
-        ConfigPackageCard.Control10.ValidateRelations.Invoke;
+        ConfigPackageCard.Control10.ValidateRelations.Invoke();
     end;
 
     [Test]
@@ -1265,11 +1280,11 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.IsTrue(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Local Address Format"),
             Format(GLSetup."Local Address Format"::"City+Post Code")) = '',
-          StrSubstNo(ErrorOnEvaluating, 'Option'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'Option'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Local Address Format"),
             Format(GLSetup."Inv. Rounding Type (LCY)"::Nearest)) = '',
-          StrSubstNo(NoErrorOnEvaluating, 'Option'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'Option'));
     end;
 
     [Test]
@@ -1280,10 +1295,10 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         Assert.IsTrue(
           EvaluateValue(DATABASE::"G/L Entry", GLEntry.FieldNo("Entry No."), Format(LibraryRandom.RandInt(1000))) = '',
-          StrSubstNo(ErrorOnEvaluating, 'Integer'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'Integer'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"G/L Entry", GLEntry.FieldNo("Entry No."), Format(LibraryRandom.RandDec(1000, 5))) = '',
-          StrSubstNo(NoErrorOnEvaluating, 'Integer'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'Integer'));
     end;
 
     [Test]
@@ -1295,10 +1310,10 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.IsTrue(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Inv. Rounding Precision (LCY)"),
             Format(LibraryRandom.RandDec(1000, 5))) = '',
-          StrSubstNo(ErrorOnEvaluating, 'Decimal'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'Decimal'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Inv. Rounding Precision (LCY)"), 'WrongDecimal') = '',
-          StrSubstNo(NoErrorOnEvaluating, 'Decimal'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'Decimal'));
     end;
 
     [Test]
@@ -1308,11 +1323,11 @@ codeunit 136603 "ERM RS Package Operations"
         GLSetup: Record "General Ledger Setup";
     begin
         Assert.IsTrue(
-          EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Allow Posting From"), Format(WorkDate)) = '',
-          StrSubstNo(ErrorOnEvaluating, 'Date'));
+          EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Allow Posting From"), Format(WorkDate())) = '',
+          StrSubstNo(ErrorOnEvaluatingErr, 'Date'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Allow Posting From"), 'WrongDate') = '',
-          StrSubstNo(NoErrorOnEvaluating, 'Date'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'Date'));
     end;
 
     [Test]
@@ -1323,10 +1338,10 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         Assert.IsTrue(
           EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo(Time), Format(Time)) = '',
-          StrSubstNo(ErrorOnEvaluating, 'Time'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'Time'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo(Time), 'WrongTime') = '',
-          StrSubstNo(NoErrorOnEvaluating, 'Time'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'Time'));
     end;
 
     [Test]
@@ -1337,10 +1352,10 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         Assert.IsTrue(
           EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo("Date and Time"), Format(CurrentDateTime)) = '',
-          StrSubstNo(ErrorOnEvaluating, 'DateTime'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'DateTime'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo("Date and Time"), 'WrongDateTime') = '',
-          StrSubstNo(NoErrorOnEvaluating, 'DateTime'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'DateTime'));
     end;
 
     [Test]
@@ -1351,13 +1366,13 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         Assert.IsTrue(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Register Time"), Format(false)) = '',
-          StrSubstNo(ErrorOnEvaluating, 'Boolean'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'Boolean'));
         Assert.IsTrue(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Register Time"), Format(true)) = '',
-          StrSubstNo(ErrorOnEvaluating, 'Boolean'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'Boolean'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Register Time"), 'Maybe') = '',
-          StrSubstNo(NoErrorOnEvaluating, 'Boolean'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'Boolean'));
     end;
 
     [Test]
@@ -1369,10 +1384,10 @@ codeunit 136603 "ERM RS Package Operations"
         Assert.IsTrue(
           EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo("Entry No."),
             Format(LibraryRandom.RandInt(1000))) = '',
-          StrSubstNo(ErrorOnEvaluating, 'BigInteger'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'BigInteger'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo("Entry No."), 'WrongBigInteger') = '',
-          StrSubstNo(NoErrorOnEvaluating, 'BigInteger'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'BigInteger'));
     end;
 
     [Test]
@@ -1382,11 +1397,11 @@ codeunit 136603 "ERM RS Package Operations"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         Assert.IsTrue(
-          EvaluateValue(DATABASE::"Job Queue Entry", JobQueueEntry.FieldNo(ID), Format(CreateGuid)) = '',
-          StrSubstNo(ErrorOnEvaluating, 'GUID'));
+          EvaluateValue(DATABASE::"Job Queue Entry", JobQueueEntry.FieldNo(ID), Format(CreateGuid())) = '',
+          StrSubstNo(ErrorOnEvaluatingErr, 'GUID'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"Job Queue Entry", JobQueueEntry.FieldNo(ID), 'WrongGuid') = '',
-          StrSubstNo(NoErrorOnEvaluating, 'GUID'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'GUID'));
     end;
 
     [Test]
@@ -1397,10 +1412,10 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         Assert.IsTrue(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Bank Account Nos."), GLSetup."Bank Account Nos.") = '',
-          StrSubstNo(ErrorOnEvaluating, 'Code'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'Code'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Bank Account Nos."), 'TooLongCode0123456789') = '',
-          StrSubstNo(NoErrorOnEvaluating, 'Code'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'Code'));
     end;
 
     [Test]
@@ -1412,12 +1427,12 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         Assert.IsTrue(
           EvaluateValue(DATABASE::"G/L Entry", GLEntry.FieldNo(Description), 'Test text') = '',
-          StrSubstNo(ErrorOnEvaluating, 'Text'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'Text'));
 
         LongText := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GLEntry.Description) + 1), 1, MaxStrLen(LongText));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"G/L Entry", GLEntry.FieldNo(Description), LongText) = '',
-          StrSubstNo(NoErrorOnEvaluating, 'Text'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'Text'));
     end;
 
     [Test]
@@ -1428,11 +1443,11 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         Assert.IsTrue(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Payment Discount Grace Period"), '+1Y') = '',
-          StrSubstNo(ErrorOnEvaluating, 'DateFormula'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'DateFormula'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"General Ledger Setup", GLSetup.FieldNo("Payment Discount Grace Period"),
             'Long Long Time Ago In a galaxy far away') = '',
-          StrSubstNo(NoErrorOnEvaluating, 'DateFormula'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'DateFormula'));
     end;
 
     [Test]
@@ -1442,11 +1457,11 @@ codeunit 136603 "ERM RS Package Operations"
         ToDo: Record "To-do";
     begin
         Assert.IsTrue(
-          EvaluateValue(DATABASE::"To-do", ToDo.FieldNo(Duration), Format(CurrentDateTime - CreateDateTime(WorkDate - 1, Time))) = '',
-          StrSubstNo(ErrorOnEvaluating, 'Duration'));
+          EvaluateValue(DATABASE::"To-do", ToDo.FieldNo(Duration), Format(CurrentDateTime - CreateDateTime(WorkDate() - 1, Time))) = '',
+          StrSubstNo(ErrorOnEvaluatingErr, 'Duration'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"To-do", ToDo.FieldNo(Duration), 'WrongDuration') = '',
-          StrSubstNo(NoErrorOnEvaluating, 'Duration'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'Duration'));
     end;
 
     [Test]
@@ -1458,10 +1473,10 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         Assert.IsTrue(
           EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo("Record ID"), Format(GLSetup.RECORDID)) = '',
-          StrSubstNo(ErrorOnEvaluating, 'RecordID'));
+          StrSubstNo(ErrorOnEvaluatingErr, 'RecordID'));
         Assert.IsFalse(
           EvaluateValue(DATABASE::"Change Log Entry", ChangeLogEntry.FieldNo("Record ID"), 'WrongRecordID') = '',
-          StrSubstNo(NoErrorOnEvaluating, 'RecordID'));
+          StrSubstNo(NoErrorOnEvaluatingErr, 'RecordID'));
     end;
 
 
@@ -1475,7 +1490,7 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageCard: TestPage "Config. Package Card";
         I: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Create several database records
         for I := 1 to 3 do
@@ -1484,14 +1499,14 @@ codeunit 136603 "ERM RS Package Operations"
         Commit();
 
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"Payment Method");
-        ConfigPackageCard.OpenView;
+        ConfigPackageCard.OpenView();
         ConfigPackageCard.GotoRecord(ConfigPackage);
-        ConfigPackageCard.Control10.First;
+        ConfigPackageCard.Control10.First();
 
         Assert.AreEqual(
           Format(PaymentMethod.Count),
           ConfigPackageCard.Control10.NoOfDatabaseRecords.Value,
-          StrSubstNo(FieldValueIsIncorrect, ConfigPackageCard.Control10.NoOfDatabaseRecords.Caption));
+          StrSubstNo(FieldValueIsIncorrectErr, ConfigPackageCard.Control10.NoOfDatabaseRecords.Caption));
     end;
 
     [Test]
@@ -1503,16 +1518,16 @@ codeunit 136603 "ERM RS Package Operations"
         TableID: Integer;
     begin
         // [SCENARIO] package can be created from the package card page
-        ConfigPackageCard.OpenNew;
+        ConfigPackageCard.OpenNew();
         ConfigPackageCard.Code.SetValue(LibraryUtility.GenerateRandomCode(ConfigPackage.FieldNo(Code), DATABASE::"Config. Package"));
         ConfigPackageCard."Package Name".SetValue(ConfigPackageCard.Code);
-        ConfigPackageCard."Language ID".SetValue(FindFirstLanguage);
+        ConfigPackageCard."Language ID".SetValue(FindFirstLanguage());
 
         TableID := FindRandomTableID(100);
-        ConfigPackageCard.Control10.New;
+        ConfigPackageCard.Control10.New();
         ConfigPackageCard.Control10."Table ID".SetValue(TableID);
         // Verify that the table ID is validated
-        Assert.AreEqual(GetTableName(TableID), ConfigPackageCard.Control10."Table Name".Value, TableNotValidated);
+        Assert.AreEqual(GetTableName(TableID), ConfigPackageCard.Control10."Table Name".Value, TableNotValidatedErr);
     end;
 
     [Test]
@@ -1525,7 +1540,7 @@ codeunit 136603 "ERM RS Package Operations"
         PackageCode: Code[20];
     begin
         // [SCENARIO 333276] Export/Import package with structured config. lines with Dim As Columns in additional area
-        HideDialog;
+        HideDialog();
 
         CreateConfigPackage(ConfigPackage);
         PackageCode := ConfigPackage.Code;
@@ -1537,7 +1552,7 @@ codeunit 136603 "ERM RS Package Operations"
 
         // VERIFY that last config line has correct Table ID value
         ConfigLine.SetRange("Package Code", PackageCode);
-        ConfigLine.FindLast;
+        ConfigLine.FindLast();
         Assert.AreEqual(DATABASE::Customer, ConfigLine."Table ID", StrSubstNo(ValueIsIncorrectErr, ConfigLine.FieldName("Table ID")));
     end;
 
@@ -1552,9 +1567,9 @@ codeunit 136603 "ERM RS Package Operations"
         // [SCENARIO 101422] TestHierarchy function of Config Template should work successfully when importing multiple lines from package.
 
         // [GIVEN] Create package with multiline configuration template.
-        Initialize;
+        Initialize();
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"Config. Template Line");
-        ConfigTemplateHeaderCode := CreateConfigTemplateWithMultipleLines;
+        ConfigTemplateHeaderCode := CreateConfigTemplateWithMultipleLines();
 
         // [WHEN] Export package, cleanup all packages and templates and import package?
         ExportImportXMLWithPackageAndTemplateCleanup(ConfigPackage.Code, ConfigTemplateHeaderCode);
@@ -1575,7 +1590,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Apply] [Primary Key] [AutoIncrement]
         // [SCENARIO] The exported AutoIncrement field marked as "Primary Key" member should be imported and applied
-        Initialize;
+        Initialize();
         // [GIVEN] Dimension Set Tree Node, where (AutoIncrement) "Dimension Set ID"  = 3
         DimensionSetTreeNode[1].DeleteAll();
         DimensionSetTreeNode[1].Init();
@@ -1605,7 +1620,7 @@ codeunit 136603 "ERM RS Package Operations"
 
         // [THEN] Dimension Set Tree Node is restored, without errors
         Assert.RecordCount(DimensionSetTreeNode[2], 1);
-        DimensionSetTreeNode[2].FindFirst;
+        DimensionSetTreeNode[2].FindFirst();
         DimensionSetTreeNode[2].TestField("Parent Dimension Set ID", DimensionSetTreeNode[1]."Parent Dimension Set ID");
         DimensionSetTreeNode[2].TestField("Dimension Value ID", DimensionSetTreeNode[1]."Dimension Value ID");
         DimensionSetTreeNode[2].TestField("Dimension Set ID", DimensionSetTreeNode[1]."Dimension Set ID");
@@ -1623,7 +1638,7 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageCard: TestPage "Config. Package Card";
     begin
         // [SCENARIO 371875] Config. Package Fields Processing Order after adding a Field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config Package with Table "X" and "Z" fields
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"Payment Method");
@@ -1633,14 +1648,14 @@ codeunit 136603 "ERM RS Package Operations"
         // [GIVEN] New field added to the Table "X"
         ConfigPackageField.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageField.SetRange("Table ID", DATABASE::"Payment Method");
-        ConfigPackageField.FindLast;
+        ConfigPackageField.FindLast();
         ConfigPackageField.Delete();
 
         // [WHEN] Package Fields page is opened
-        ConfigPackageCard.OpenView;
+        ConfigPackageCard.OpenView();
         ConfigPackageCard.GotoRecord(ConfigPackage);
-        ConfigPackageCard.Control10.First;
-        ConfigPackageCard.Control10.PackageFields.Invoke;
+        ConfigPackageCard.Control10.First();
+        ConfigPackageCard.Control10.PackageFields.Invoke();
 
         // [THEN] Processing Order for all fields begins from 1 and ends with "Z" + 1
     end;
@@ -1686,7 +1701,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Excel] [UI]
         // [SCENARIO 379003] Import from Excel (ran from the list page) creates not existing package and table lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config package "A" for table 'Currency'
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Currency);
@@ -1696,30 +1711,30 @@ codeunit 136603 "ERM RS Package Operations"
         PackageCode := ConfigPackage.Code;
         ConfigPackage.Rename('X' + ConfigPackage.Code);
         // [GIVEN] Open "Config. Packages" list page on 'XA'
-        ConfigPackages.OpenView;
+        ConfigPackages.OpenView();
         ConfigPackages.FILTER.SetFilter(Code, ConfigPackage.Code);
 
         // [WHEN] Run action "Import From Excel" on package list page
         BindSubscription(ERMRSPackageOperations);
-        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName); // for OnImportExcelToBLOBHandler
+        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
         LibraryVariableStorage.Enqueue(1); // expected numer of sheets in Excel for ExcelImportPreviewHandler
-        ConfigPackages.ImportFromExcel.Invoke;
+        ConfigPackages.ImportFromExcel.Invoke();
 
         // [THEN] Page "Config. Package Import Preview" is open, where is one line: "Package Code" is 'A', "Table ID" is 4, "Table Name" is 'Currency'
-        Assert.AreEqual(PackageCode, LibraryVariableStorage.DequeueText, 'wrong package code in preview'); // from ExcelImportPreviewHandler
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'new package');
-        Assert.AreEqual(DATABASE::Currency, LibraryVariableStorage.DequeueInteger, 'wrong package code in preview');
-        Assert.AreEqual(Currency.TableCaption, LibraryVariableStorage.DequeueText, 'wrong table name in preview');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'new table');
+        Assert.AreEqual(PackageCode, LibraryVariableStorage.DequeueText(), 'wrong package code in preview'); // from ExcelImportPreviewHandler
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'new package');
+        Assert.AreEqual(DATABASE::Currency, LibraryVariableStorage.DequeueInteger(), 'wrong package code in preview');
+        Assert.AreEqual(Currency.TableCaption, LibraryVariableStorage.DequeueText(), 'wrong table name in preview');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'new table');
         // [WHEN] Run "Import" action
         // [THEN] Config. Package 'XA' does exist with table 'Currency'
-        Assert.IsTrue(ConfigPackage.Find, 'renamed package is not found');
+        Assert.IsTrue(ConfigPackage.FindFirst(), 'renamed package is not found');
         Assert.IsTrue(ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::Currency), 'renamed package does not include Currency table');
         // [THEN] Config. Package 'A' does exist, where is table 'Currency'
         Assert.IsTrue(ConfigPackage.Get(PackageCode), 'new package is not created');
         Assert.IsTrue(ConfigPackageTable.Get(PackageCode, DATABASE::Currency), 'new package does not include Currency table');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1736,7 +1751,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Excel] [UI]
         // [SCENARIO 379003] Import from Excel (ran from the card page) updates an existing package and creates missing table lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config package "A" for tables 'Currency', 'Country\Region'
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Currency);
@@ -1748,36 +1763,36 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageTable.Delete();
 
         // [GIVEN] Open "Config. Package Card" page on 'A'
-        ConfigPackageCard.OpenView;
+        ConfigPackageCard.OpenView();
         ConfigPackageCard.FILTER.SetFilter(Code, ConfigPackage.Code);
 
         // [WHEN] Run action "Import From Excel" on package card page
         BindSubscription(ERMRSPackageOperations);
-        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName); // for OnImportExcelToBLOBHandler
+        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
         LibraryVariableStorage.Enqueue(2); // expected numer of sheets in Excel for ExcelImportPreviewHandler
-        ConfigPackageCard.ImportFromExcel.Invoke;
+        ConfigPackageCard.ImportFromExcel.Invoke();
 
         // [THEN] Page "Config. Package Import Preview" is open, where are two lines:
         // [THEN] The first one, where "Package Code" is 'A', "Table ID" is 4, "Table Name" is 'Currency','New Package' and 'New Table' are 'No'
-        Assert.AreEqual(ConfigPackage.Code, LibraryVariableStorage.DequeueText, 'wrong package code in preview #1'); // from ExcelImportPreviewHandler
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'new package #1');
-        Assert.AreEqual(DATABASE::Currency, LibraryVariableStorage.DequeueInteger, 'wrong package code in preview #1');
-        Assert.AreEqual(Currency.TableCaption, LibraryVariableStorage.DequeueText, 'wrong table name in preview #1');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'new table #1');
+        Assert.AreEqual(ConfigPackage.Code, LibraryVariableStorage.DequeueText(), 'wrong package code in preview #1'); // from ExcelImportPreviewHandler
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'new package #1');
+        Assert.AreEqual(DATABASE::Currency, LibraryVariableStorage.DequeueInteger(), 'wrong package code in preview #1');
+        Assert.AreEqual(Currency.TableCaption, LibraryVariableStorage.DequeueText(), 'wrong table name in preview #1');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'new table #1');
         // [THEN] The first one, where "Package Code" is 'A', "Table ID" is 9, "Table Name" is 'Country\Region','New Package' is 'No','New Table' is 'Yes'
-        Assert.AreEqual(ConfigPackage.Code, LibraryVariableStorage.DequeueText, 'wrong package code in preview #2'); // from ExcelImportPreviewHandler
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'new package #2');
-        Assert.AreEqual(DATABASE::"Country/Region", LibraryVariableStorage.DequeueInteger, 'wrong package code in preview #2');
-        Assert.AreEqual(CountryRegion.TableCaption, LibraryVariableStorage.DequeueText, 'wrong table name in preview #2');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'new table #2');
+        Assert.AreEqual(ConfigPackage.Code, LibraryVariableStorage.DequeueText(), 'wrong package code in preview #2'); // from ExcelImportPreviewHandler
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'new package #2');
+        Assert.AreEqual(DATABASE::"Country/Region", LibraryVariableStorage.DequeueInteger(), 'wrong package code in preview #2');
+        Assert.AreEqual(CountryRegion.TableCaption, LibraryVariableStorage.DequeueText(), 'wrong table name in preview #2');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'new table #2');
         // [WHEN] Run "Import" action
         // [THEN] Config. Package 'A' does exist, where are tables 'Currency', 'Country\Region'
-        Assert.IsTrue(ConfigPackage.Find, 'package does not exist');
+        Assert.IsTrue(ConfigPackage.FindFirst(), 'package does not exist');
         Assert.IsTrue(ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::Currency), 'package does not include Currency table');
         Assert.IsTrue(
           ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::"Country/Region"), 'package does not include Country\Region table');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1793,7 +1808,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Excel] [UI]
         // [SCENARIO 379003] Import from Excel (ran from the card page) should fail if package code does not match the code in the excel file.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config package "A" for tables 'Currency'
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Currency);
@@ -1806,17 +1821,17 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackage.Rename(PackageCode[2]);
 
         // [GIVEN] Open "Config. Package Card" page on 'XA'
-        ConfigPackageCard.OpenView;
-        ConfigPackageCard.FILTER.SetFilter(Code, PackageCode[2]);
+        ConfigPackageCard.OpenView();
+        ConfigPackageCard.Filter.SetFilter(Code, PackageCode[2]);
 
         // [WHEN] Run action "Import From Excel" on package card page
         BindSubscription(ERMRSPackageOperations);
-        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName); // for OnImportExcelToBLOBHandler
-        asserterror ConfigPackageCard.ImportFromExcel.Invoke;
+        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
+        asserterror ConfigPackageCard.ImportFromExcel.Invoke();
 
         // [THEN] Error message: 'The package code in all sheets of the excel file must match the selected package code XA'
         Assert.ExpectedError(StrSubstNo(PackageCodeMustMatchErr, PackageCode[2]));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1834,7 +1849,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Excel] [UI]
         // [SCENARIO 379003] Import from Excel (ran from the table subpage) updates the selected table lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config package "A" for tables 'Payment Terms', 'Country\Region'
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"Payment Terms");
@@ -1849,23 +1864,23 @@ codeunit 136603 "ERM RS Package Operations"
         PaymentTerms.DeleteAll();
 
         // [GIVEN] Open "Config. Packages" list page on 'A'
-        ConfigPackageCard.OpenView;
+        ConfigPackageCard.OpenView();
         ConfigPackageCard.FILTER.SetFilter(Code, ConfigPackage.Code);
 
         // [WHEN] Run action "Import From Excel" on table subpage for the table 9.
         BindSubscription(ERMRSPackageOperations);
-        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName); // for OnImportExcelToBLOBHandler
+        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
         LibraryVariableStorage.Enqueue(1); // expected numer of sheets in Excel for ExcelImportPreviewHandler
-        ConfigPackageCard.Control10.Last;
-        ConfigPackageCard.Control10.ImportFromExcel.Invoke;
+        ConfigPackageCard.Control10.Last();
+        ConfigPackageCard.Control10.ImportFromExcel.Invoke();
 
         // [THEN] Page "Config. Package Import Preview" is open, where is one line,
         // [THEN] where "Package Code" is 'A', "Table ID" is 9, "Table Name" is 'Country\Region','New Package' is 'No','New Table' is 'No'
-        Assert.AreEqual(ConfigPackage.Code, LibraryVariableStorage.DequeueText, 'wrong package code in preview'); // from ExcelImportPreviewHandler
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'new package');
-        Assert.AreEqual(DATABASE::"Country/Region", LibraryVariableStorage.DequeueInteger, 'wrong package code in preview');
-        Assert.AreEqual(CountryRegion.TableCaption, LibraryVariableStorage.DequeueText, 'wrong table name in preview');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'new table');
+        Assert.AreEqual(ConfigPackage.Code, LibraryVariableStorage.DequeueText(), 'wrong package code in preview'); // from ExcelImportPreviewHandler
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'new package');
+        Assert.AreEqual(DATABASE::"Country/Region", LibraryVariableStorage.DequeueInteger(), 'wrong package code in preview');
+        Assert.AreEqual(CountryRegion.TableCaption, LibraryVariableStorage.DequeueText(), 'wrong table name in preview');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'new table');
         // [WHEN] Run "Import" action
         // [THEN] 'Country/Region' table data is imported, 'Payment Terms' table is empty
         ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::"Payment Terms");
@@ -1875,7 +1890,7 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageTable.CalcFields("No. of Package Records");
         ConfigPackageTable.TestField("No. of Package Records", ExpectedCountryRegionCount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1893,17 +1908,17 @@ codeunit 136603 "ERM RS Package Operations"
         TempConfigPackageTable."Table ID" := DATABASE::"G/L Entry";
         TempConfigPackageTable.Insert();
         // [WHEN] Open ConfigPackageImportPreview page, where are 2 table lines
-        ConfigPackageImportPreviewPage.Trap;
+        ConfigPackageImportPreviewPage.Trap();
         ConfigPackageImportPreview.SetData('', TempConfigPackageTable);
-        ConfigPackageImportPreview.Run;
+        ConfigPackageImportPreview.Run();
 
         // [THEN] Action "Import" is enabled
-        Assert.IsTrue(ConfigPackageImportPreviewPage.Import.Enabled, 'Import should be enabled');
-        ConfigPackageImportPreviewPage.First;
+        Assert.IsTrue(ConfigPackageImportPreviewPage.Import.Enabled(), 'Import should be enabled');
+        ConfigPackageImportPreviewPage.First();
         ConfigPackageImportPreviewPage."Table ID".AssertEquals(3);
-        ConfigPackageImportPreviewPage.Next;
+        ConfigPackageImportPreviewPage.Next();
         ConfigPackageImportPreviewPage."Table ID".AssertEquals(17);
-        Assert.IsFalse(ConfigPackageImportPreviewPage.Next, 'must be 2 lines');
+        Assert.IsFalse(ConfigPackageImportPreviewPage.Next(), 'must be 2 lines');
     end;
 
     [Test]
@@ -1917,13 +1932,13 @@ codeunit 136603 "ERM RS Package Operations"
         // [FEATURE] [Excel] [UI] [UT]
         TempConfigPackageTable.DeleteAll();
         // [WHEN] Open ConfigPackageImportPreview page, where are no table lines
-        ConfigPackageImportPreviewPage.Trap;
+        ConfigPackageImportPreviewPage.Trap();
         ConfigPackageImportPreview.SetData('', TempConfigPackageTable);
-        ConfigPackageImportPreview.Run;
+        ConfigPackageImportPreview.Run();
 
         // [THEN] Action "Import" is disabled
-        Assert.IsFalse(ConfigPackageImportPreviewPage.Import.Enabled, 'Import should be disabled');
-        Assert.IsFalse(ConfigPackageImportPreviewPage.First, 'must be empty list');
+        Assert.IsFalse(ConfigPackageImportPreviewPage.Import.Enabled(), 'Import should be disabled');
+        Assert.IsFalse(ConfigPackageImportPreviewPage.First(), 'must be empty list');
     end;
 
     [Test]
@@ -1937,8 +1952,8 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Excel]
         // [SCENARIO 379003] Configuration package table takes into account settings of "Processing Order" value of related configuration package fields on exporting to excel.
-        Initialize;
-        Currency.FindFirst;
+        Initialize();
+        Currency.FindFirst();
 
         // [GIVEN] Config package "A" for table "Currency"
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Currency);
@@ -1958,7 +1973,7 @@ codeunit 136603 "ERM RS Package Operations"
 
         // [THEN] Field "Description" exported into first ('A') column
         // [THEN] Field "Code" exported into 12th ('L') column
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueByRef('A', 3, 1, Currency.FieldCaption(Description));
         LibraryReportValidation.VerifyCellValueByRef('L', 3, 1, Currency.FieldCaption(Code));
         LibraryReportValidation.VerifyCellValueByRef('A', 4, 1, Currency.Description);
@@ -1999,7 +2014,7 @@ codeunit 136603 "ERM RS Package Operations"
 
         // [THEN] A config. package error is created for "PACK01" informing that table "-452" does not exists
         ConfigPackageError.SetRange("Package Code", PackageCode);
-        ConfigPackageError.FindFirst;
+        ConfigPackageError.FindFirst();
         ConfigPackageError.TestField("Table ID", TableID);
         ConfigPackageError.TestField("Error Text", StrSubstNo(PackageImportErr, TableID));
     end;
@@ -2019,7 +2034,7 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageTable.Init();
         ConfigPackageTable."Package Code" := DummyConfigPackage.Code;
         ConfigPackageTable."Table ID" := 0;
-        ProcedureResult := ConfigPackageTable.GetNoOfDatabaseRecords;
+        ProcedureResult := ConfigPackageTable.GetNoOfDatabaseRecords();
         Assert.AreEqual(0, ProcedureResult, 'GetNoOfDatabaseRecords result must be 0');
     end;
 
@@ -2041,8 +2056,8 @@ codeunit 136603 "ERM RS Package Operations"
         Area.Insert();
 
         CreatePackageWithTable(DummyConfigPackage, ConfigPackageTable, DATABASE::Area);
-        ProcedureResult := ConfigPackageTable.GetNoOfDatabaseRecords;
-        Assert.AreEqual(1, ProcedureResult, StrSubstNo('GetNoOfDatabaseRecords result must be %1', 1));
+        ProcedureResult := ConfigPackageTable.GetNoOfDatabaseRecords();
+        Assert.AreEqual(1, ProcedureResult, 'GetNoOfDatabaseRecords result must be 1');
     end;
 
     [Test]
@@ -2060,7 +2075,7 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageTable.Init();
         ConfigPackageTable."Package Code" := DummyConfigPackage.Code;
         ConfigPackageTable."Table ID" := -452;
-        ProcedureResult := ConfigPackageTable.GetNoOfDatabaseRecords;
+        ProcedureResult := ConfigPackageTable.GetNoOfDatabaseRecords();
         Assert.AreEqual(0, ProcedureResult, 'GetNoOfDatabaseRecords result must be 0');
     end;
 
@@ -2077,7 +2092,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 382272] Import Config Package should save the "Create Missing Codes" package field value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config Package for Customer
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
@@ -2114,7 +2129,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Shop Calendar]
         // [SCENARIO 234987] When import the same "Shop Calendar Working Days" as existing no errors occur.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Populated "Shop Calendar Working Days" table "T"
         CreateShopCalendarWithWorkingDays(ShopCalendarWorkingDays, 080000T, 160000T);
@@ -2139,7 +2154,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Shop Calendar]
         // [SCENARIO 234987] When import the same "Shop Calendar Working Days" with redundancy the import error occurs.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Populated "Shop Calendar Working Days" table "T"
         CreateShopCalendarWithWorkingDays(ShopCalendarWorkingDays, 080000T, 160000T);
@@ -2166,7 +2181,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [Shop Calendar]
         // [SCENARIO 234987] When import the same "Shop Calendar Working Days" and target table does not contain overlapping data no errors occur.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Shop Calendar Working Days" table "T" with "Shop Calendar Code" "S" and "Work Shift Code" "W" and Days from Monday to Friday
         CreateShopCalendarWithWorkingDays(ShopCalendarWorkingDays, 080000T, 160000T);
@@ -2194,7 +2209,7 @@ codeunit 136603 "ERM RS Package Operations"
         DummyFilePath: Text;
     begin
         // [SCENARIO 272396] "Config. XML Exchange".ExportPackageXMLDocument doesn't add "Config. Media Buffer" to RapidStart package if Media folder is empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] RapidStart package with "Config. Package Table"
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, FindRandomTableID(100));
@@ -2219,8 +2234,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 275495] Blank option value assigned to a table field from a Rapid Start package is evaluated to the default option value
-
-        Initialize;
+        Initialize();
 
         // [GIVEN] Field "Object Type to Run" in the "Job Queue Entry" has several blanked option values: ,,,Report,,Codeunit. "InitValue" value is "Report"
         RecRef.Open(DATABASE::"Job Queue Entry");
@@ -2243,7 +2257,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 309494] "Tenant Permission" and "Tenant Permission Set" can be added to Config. Package
-        Initialize;
+        Initialize();
 
         // [GIVEN] RapidStart package
         CreateConfigPackage(ConfigPackage);
@@ -2256,7 +2270,6 @@ codeunit 136603 "ERM RS Package Operations"
         Clear(ConfigPackageTable);
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageTable.SetFilter("Table ID", '%1|%2', DATABASE::"Tenant Permission", DATABASE::"Tenant Permission Set");
-        ConfigPackageTable.FindSet;
         Assert.RecordCount(ConfigPackageTable, 2);
     end;
 
@@ -2342,16 +2355,16 @@ codeunit 136603 "ERM RS Package Operations"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM RS Package Operations");
         Clear(LibraryReportValidation);
         LibraryRapidStart.CleanUp('');
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         FileNameForHandler := '';
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM RS Package Operations");
 
-        HideDialog;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        HideDialog();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryRapidStart.SetAPIServicesEnabled(false);
-        RemoveSalesData;
+        RemoveSalesData();
 
         isInitialized := true;
         Commit();
@@ -2410,7 +2423,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         Assert.IsTrue(Evaluate(Field.Type, TypeName), TypeName);
         Field.SetRange(Type, Field.Type);
-        Assert.IsTrue(Field.FindFirst, 'cannot find the field');
+        Assert.IsTrue(Field.FindFirst(), 'cannot find the field');
         ConfigPackageField."Table ID" := Field.TableNo;
         ConfigPackageField."Field ID" := Field."No.";
     end;
@@ -2530,13 +2543,13 @@ codeunit 136603 "ERM RS Package Operations"
         FieldNode: DotNet XmlNode;
     begin
         ConfigPackageTable.CalcFields("Table Name");
-        TableNode := XMLDocument.CreateElement(ConfigXMLExchange.GetElementName(ConfigPackageTable."Table Name" + 'List'));
+        TableNode := XMLDocument.CreateElement(ConfigXMLExchange.GetElementName(CopyStr(ConfigPackageTable."Table Name" + 'List', 1, 250)));
         DocumentElement.AppendChild(TableNode);
 
-        AddXMLNode(XMLDocument, TableNode, TableIDNode, ConfigPackageTable.FieldName("Table ID"), Format(ConfigPackageTable."Table ID"));
-        AddXMLNode(XMLDocument, TableNode, FormIDNode, ConfigPackageTable.FieldName("Page ID"), Format(ConfigPackageTable."Page ID"));
+        AddXMLNode(XMLDocument, TableNode, TableIDNode, CopyStr(ConfigPackageTable.FieldName("Table ID"), 1, 250), Format(ConfigPackageTable."Table ID"));
+        AddXMLNode(XMLDocument, TableNode, FormIDNode, CopyStr(ConfigPackageTable.FieldName("Page ID"), 1, 250), Format(ConfigPackageTable."Page ID"));
         AddXMLNode(
-          XMLDocument, TableNode, FormIDNode, ConfigPackageTable.FieldName("Processing Order"),
+          XMLDocument, TableNode, FormIDNode, CopyStr(ConfigPackageTable.FieldName("Processing Order"), 1, 250),
           Format(ConfigPackageTable."Processing Order"));
         AddXMLNode(XMLDocument, TableNode, RecordNode, ConfigPackageTable."Table Name", '');
 
@@ -2544,12 +2557,11 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageField.SetRange("Package Code", ConfigPackageTable."Package Code");
         ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
         ConfigPackageField.SetRange("Include Field", true);
-        if ConfigPackageField.FindSet then begin
+        if ConfigPackageField.FindSet() then
             repeat
                 FieldRef := RecRef.Field(ConfigPackageField."Field ID");
-                AddXMLNode(XMLDocument, RecordNode, FieldNode, FieldRef.Name, Format(FieldRef.Value));
-            until ConfigPackageField.Next = 0;
-        end;
+                AddXMLNode(XMLDocument, RecordNode, FieldNode, CopyStr(FieldRef.Name(), 1, 250), Format(FieldRef.Value()));
+            until ConfigPackageField.Next() = 0;
     end;
 
     local procedure VerifyGenJnlLineAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal)
@@ -2560,9 +2572,9 @@ codeunit 136603 "ERM RS Package Operations"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
 
-        Assert.AreEqual(-Amount, GLEntry.Amount, Text103);
+        Assert.AreEqual(-Amount, GLEntry.Amount, Text103Err);
     end;
 
     local procedure GetNoOfAvailableFields(var ConfigPackageTable: Record "Config. Package Table"): Integer
@@ -2628,7 +2640,7 @@ codeunit 136603 "ERM RS Package Operations"
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        if not PurchSetup.Get then begin
+        if not PurchSetup.Get() then begin
             PurchSetup.Init();
             PurchSetup.Insert(true);
         end;
@@ -2654,7 +2666,7 @@ codeunit 136603 "ERM RS Package Operations"
 
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          CustomerNo, LibraryInventory.CreateItemNo, 3, '', WorkDate);
+          CustomerNo, LibraryInventory.CreateItemNo(), 3, '', WorkDate());
 
         CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         IncludeField(ConfigPackageTable, 0, false);
@@ -2745,7 +2757,7 @@ codeunit 136603 "ERM RS Package Operations"
         RecordsCount: Integer;
         T: Time;
     begin
-        if ShopCalendarWorkingDays.FindFirst then
+        if ShopCalendarWorkingDays.FindFirst() then
             repeat
                 RecordsCount += 1;
                 with ShopCalendarWorkingDays do begin
@@ -2764,7 +2776,7 @@ codeunit 136603 "ERM RS Package Operations"
                     LibraryRapidStart.CreatePackageData(
                       ConfigPackageCode, DATABASE::"Shop Calendar Working Days", RecordsCount, FieldNo("Ending Time"), Format(T));
                 end;
-            until ShopCalendarWorkingDays.Next = 0;
+            until ShopCalendarWorkingDays.Next() = 0;
     end;
 
     local procedure CreateVendorPostingGroup(var VendorPostingGroup: Record "Vendor Posting Group")
@@ -2784,10 +2796,10 @@ codeunit 136603 "ERM RS Package Operations"
         Date: Record Date;
     begin
         AccountingPeriod.SetRange(Closed, false);
-        if not AccountingPeriod.FindFirst then begin
+        if not AccountingPeriod.FindFirst() then begin
             Date.SetRange("Period Type", Date."Period Type"::Month);
-            Date.SetRange("Period Start", 0D, WorkDate);
-            Date.FindLast;
+            Date.SetRange("Period Start", 0D, WorkDate());
+            Date.FindLast();
 
             AccountingPeriod.Init();
             AccountingPeriod.Validate("Starting Date", Date."Period Start");
@@ -2811,10 +2823,10 @@ codeunit 136603 "ERM RS Package Operations"
         CreateVendorPostingGroup(VendorPostingGroup);
         VendorPostingGroup."Payables Account" := GLAccount."No.";
         VendorPostingGroup.Modify(true);
-        CreatePurchSetup;
+        CreatePurchSetup();
         CreatePaymentMethod(PaymentMethod);
 
-        CreateAccountingPeriod;
+        CreateAccountingPeriod();
     end;
 
     local procedure CreateGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; var Amount: Decimal; GLAccountNo: Code[20]; var DocumentNo: Code[20])
@@ -2857,11 +2869,11 @@ codeunit 136603 "ERM RS Package Operations"
             Modify(true);
 
             CreateConfigTemplateLine(
-              Code, Item.FieldNo("Inventory Posting Group"), Item.FieldName("Inventory Posting Group"));
+              Code, Item.FieldNo("Inventory Posting Group"), CopyStr(Item.FieldName("Inventory Posting Group"), 1, 30));
             CreateConfigTemplateLine(
-              Code, Item.FieldNo("Gen. Prod. Posting Group"), Item.FieldName("Gen. Prod. Posting Group"));
+              Code, Item.FieldNo("Gen. Prod. Posting Group"), CopyStr(Item.FieldName("Gen. Prod. Posting Group"), 1, 30));
             CreateConfigTemplateLine(
-              Code, Item.FieldNo("Allow Invoice Disc."), Item.FieldName("Allow Invoice Disc."));
+              Code, Item.FieldNo("Allow Invoice Disc."), CopyStr(Item.FieldName("Allow Invoice Disc."), 1, 30));
             exit(Code);
         end;
     end;
@@ -2938,10 +2950,9 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         GenJnlLine.Reset();
         GenJnlLine.SetRange("Bal. Account No.", GLAccountNo);
-        if GenJnlLine.FindFirst then begin
+        if GenJnlLine.FindFirst() then
             if GenJnlLine."Document No." = DocumentNo then
                 LibraryERM.PostGeneralJnlLine(GenJnlLine);
-        end;
     end;
 
     local procedure ExportImportXML(PackageCode: Code[20])
@@ -2975,7 +2986,7 @@ codeunit 136603 "ERM RS Package Operations"
 
     local procedure ExportToExcel(var ConfigPackageTable: Record "Config. Package Table")
     begin
-        ConfigPackageTable.SetRecFilter;
+        ConfigPackageTable.SetRecFilter();
         ExportToExcelFullPackage(ConfigPackageTable);
     end;
 
@@ -2998,7 +3009,7 @@ codeunit 136603 "ERM RS Package Operations"
         AllObj: Record AllObj;
     begin
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
-        AllObj.FindSet;
+        AllObj.FindSet();
         if MaxID <= AllObj."Object ID" then
             exit(AllObj."Object ID");
 
@@ -3018,7 +3029,7 @@ codeunit 136603 "ERM RS Package Operations"
     var
         WinLanguage: Record "Windows Language";
     begin
-        WinLanguage.FindFirst;
+        WinLanguage.FindFirst();
         exit(WinLanguage."Language ID");
     end;
 
@@ -3074,7 +3085,7 @@ codeunit 136603 "ERM RS Package Operations"
         File.TextMode := true;
         File.Create(FileName);
         File.Write(FileTextMsg);
-        File.Close;
+        File.Close();
     end;
 
     local procedure ReadTextFromFile(FileName: Text) Text: Text[1024]
@@ -3126,7 +3137,7 @@ codeunit 136603 "ERM RS Package Operations"
             ExportImportXML(ConfigPackage.Code);
 
         // Open Package Card page and add table
-        ConfigPackageCard.OpenEdit;
+        ConfigPackageCard.OpenEdit();
         ConfigPackageCard.GotoRecord(ConfigPackage);
     end;
 
@@ -3135,7 +3146,7 @@ codeunit 136603 "ERM RS Package Operations"
         AllObj: Record AllObj;
     begin
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
 
         exit(AllObj."Object ID");
     end;
@@ -3146,7 +3157,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
         AllObj.SetFilter("Object ID", '>%1', TableID);
-        AllObj.FindFirst;
+        AllObj.FindFirst();
 
         exit(AllObj."Object ID");
     end;
@@ -3156,7 +3167,7 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigLine: Record "Config. Line";
         TableID: Integer;
     begin
-        TableID := FindTableID;
+        TableID := FindTableID();
         LibraryRapidStart.CreateConfigLine(ConfigLine, ConfigLine."Line Type"::Area, 0, 'main area', PackageCode, false);
         LibraryRapidStart.CreateConfigLine(ConfigLine, ConfigLine."Line Type"::Group, 0, '', PackageCode, false);
         LibraryRapidStart.CreateConfigLine(ConfigLine, ConfigLine."Line Type"::Table, TableID, '', PackageCode, false);
@@ -3191,7 +3202,7 @@ codeunit 136603 "ERM RS Package Operations"
             Date2DMY(Date, 3), Date2DMY(Date, 2), Date2DMY(Date, 1),
             Hours, Minutes, Seconds);
 
-        OADateTime := DotNetDateTime.ToOADate;
+        OADateTime := DotNetDateTime.ToOADate();
         OADate := OADateTime div 1;
         OATime := OADateTime - OADate;
     end;
@@ -3229,7 +3240,7 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageField.SetRange("Table ID", DATABASE::"G/L Account");
         ConfigPackageMgt.SelectAllPackageFields(ConfigPackageField, false);
         ConfigPackageField.SetRange("Field ID", GLAccount.FieldNo(Picture));
-        ConfigPackageField.FindFirst;
+        ConfigPackageField.FindFirst();
         ConfigPackageField.Validate("Include Field", true);
         ConfigPackageField.Modify(true);
     end;
@@ -3241,7 +3252,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Picture.CreateOutStream(OStream);
-        OStream.WriteText(LibraryUtility.GenerateGUID);
+        OStream.WriteText(LibraryUtility.GenerateGUID());
         GLAccount.Modify(true);
         GLAccFilter := GLAccount."No.";
 
@@ -3274,14 +3285,14 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageData.SetRange("Field ID", GLAccount.FieldNo("No."));
         GLAccount.SetAutoCalcFields(Picture);
         GLAccount.SetFilter("No.", GLAccFilter);
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         repeat
             ConfigPackageData.SetRange(Value, GLAccount."No.");
-            ConfigPackageData.FindFirst;
+            ConfigPackageData.FindFirst();
             ConfigPackageDataBLOB.Get(ConfigPackageCode, DATABASE::"G/L Account", ConfigPackageData."No.", GLAccount.FieldNo(Picture));
             ConfigPackageDataBLOB.CalcFields("BLOB Value");
             ConfigPackageDataBLOB.TestField("BLOB Value", GLAccount.Picture);
-        until GLAccount.Next = 0;
+        until GLAccount.Next() = 0;
     end;
 
     local procedure IncludeItemPictureConfigPackageField(ConfigPackageCode: Code[20])
@@ -3293,7 +3304,7 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageField.SetRange("Table ID", DATABASE::Item);
         ConfigPackageMgt.SelectAllPackageFields(ConfigPackageField, false);
         ConfigPackageField.SetRange("Field ID", DummyItem.FieldNo(Picture));
-        ConfigPackageField.FindFirst;
+        ConfigPackageField.FindFirst();
         ConfigPackageField.Validate("Include Field", true);
         ConfigPackageField.Modify(true);
     end;
@@ -3308,7 +3319,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         LibraryInventory.CreateItem(Item);
         TempBlob.CreateOutStream(OutStream);
-        Base64Convert.FromBase64(GetImageBase64Text, OutStream);
+        Base64Convert.FromBase64(GetImageBase64Text(), OutStream);
         TempBlob.CreateInStream(InStream);
         Item.Picture.ImportStream(InStream, Item.Description + '.jpg');
         Item.Modify(true);
@@ -3335,7 +3346,7 @@ codeunit 136603 "ERM RS Package Operations"
     local procedure SetConfigPackageFieldProcessingOrder(var ConfigPackageField: Record "Config. Package Field"; FieldId: Integer; ProcessingOrder: Integer)
     begin
         ConfigPackageField.SetRange("Field ID", FieldId);
-        ConfigPackageField.FindFirst;
+        ConfigPackageField.FindFirst();
         ConfigPackageField."Processing Order" := ProcessingOrder;
         ConfigPackageField.Modify();
     end;
@@ -3350,15 +3361,15 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackageData.SetRange("Field ID", Item.FieldNo("No."));
 
         Item.SetFilter("No.", ItemFilter);
-        Item.FindSet;
+        Item.FindSet();
         repeat
             ConfigPackageData.SetRange(Value, Item."No.");
-            ConfigPackageData.FindFirst;
+            ConfigPackageData.FindFirst();
             ConfigMediaBuffer.SetRange("Package Code", ConfigPackageCode);
             ConfigMediaBuffer.SetRange("Media Set ID", Format(Item.Picture));
             Assert.AreEqual(
               Item.Picture.Count, ConfigMediaBuffer.Count, StrSubstNo('There should be %1 records for config data', Item.Picture.Count));
-        until Item.Next = 0;
+        until Item.Next() = 0;
     end;
 
     local procedure VerifyConfigPackageError(ConfigPackageCode: Code[20]; TableID: Integer; FieldID: Integer; ErrorText: Text)
@@ -3367,7 +3378,7 @@ codeunit 136603 "ERM RS Package Operations"
     begin
         ConfigPackageError.SetRange("Package Code", ConfigPackageCode);
         ConfigPackageError.SetRange("Table ID", TableID);
-        ConfigPackageError.FindFirst;
+        ConfigPackageError.FindFirst();
         ConfigPackageError.TestField("Field ID", FieldID);
         Assert.ExpectedMessage(ErrorText, ConfigPackageError."Error Text");
     end;
@@ -3391,7 +3402,7 @@ codeunit 136603 "ERM RS Package Operations"
             SetRange("Ending Time", ToTime);
             for D := Day::Monday to Day::Friday do begin
                 SetRange(Day, D);
-                FindFirst;
+                FindFirst();
             end;
         end;
     end;
@@ -3427,14 +3438,14 @@ codeunit 136603 "ERM RS Package Operations"
     [Scope('OnPrem')]
     procedure PackageRecordsPageHandler(var ConfigPackageRecords: TestPage "Config. Package Records")
     begin
-        ConfigPackageRecords.OK.Invoke;
+        ConfigPackageRecords.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PackageFieldsPageHandler(var ConfigPackageFields: TestPage "Config. Package Fields")
     begin
-        ConfigPackageFields.OK.Invoke;
+        ConfigPackageFields.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3444,13 +3455,13 @@ codeunit 136603 "ERM RS Package Operations"
         NoOfFields: Integer;
         I: Integer;
     begin
-        NoOfFields := LibraryVariableStorage.DequeueInteger;
-        ConfigPackageFields.First;
+        NoOfFields := LibraryVariableStorage.DequeueInteger();
+        ConfigPackageFields.First();
         for I := 1 to NoOfFields do begin
             ConfigPackageFields."Processing Order".AssertEquals(I);
-            ConfigPackageFields.Next;
+            ConfigPackageFields.Next();
         end;
-        ConfigPackageFields.OK.Invoke;
+        ConfigPackageFields.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -3479,20 +3490,19 @@ codeunit 136603 "ERM RS Package Operations"
         TmpConfigMediaBuffer.Reset();
         TmpConfigMediaBuffer.DeleteAll();
 
-        if not ConfigMediaBuffer.FindSet then
+        if not ConfigMediaBuffer.FindSet() then
             exit;
 
         repeat
             TmpConfigMediaBuffer.TransferFields(ConfigMediaBuffer, true);
             TmpConfigMediaBuffer.Insert();
-        until ConfigMediaBuffer.Next = 0;
+        until ConfigMediaBuffer.Next() = 0;
     end;
 
     local procedure InitializeCRM()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CDSConnectionSetup: Record "CDS Connection Setup";
-        IntegrationTableMapping: Record "Integration Table Mapping";
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
@@ -3521,7 +3531,7 @@ codeunit 136603 "ERM RS Package Operations"
     local procedure OnImportExcelToBLOBHandler(var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean)
     begin
         FileMgt.BLOBImportFromServerFile(TempBlob, FileNameForHandler);
-        IsHandled := TempBlob.HasValue;
+        IsHandled := TempBlob.HasValue();
     end;
 
     [ModalPageHandler]
@@ -3532,27 +3542,27 @@ codeunit 136603 "ERM RS Package Operations"
         SheetCount: Integer;
     begin
         // gets Int as input - number of expected lines, puts lines content to VariableStorage; Runs Import action.
-        Assert.IsTrue(ConfigPackageImportPreview.First, 'there must be lines in preview page');
-        SheetCount := LibraryVariableStorage.DequeueInteger;
+        Assert.IsTrue(ConfigPackageImportPreview.First(), 'there must be lines in preview page');
+        SheetCount := LibraryVariableStorage.DequeueInteger();
         for i := 1 to SheetCount do begin
-            LibraryVariableStorage.Enqueue(ConfigPackageImportPreview."Package Code".Value);
-            LibraryVariableStorage.Enqueue(ConfigPackageImportPreview."New Package".AsBoolean);
-            LibraryVariableStorage.Enqueue(ConfigPackageImportPreview."Table ID".AsInteger);
-            LibraryVariableStorage.Enqueue(ConfigPackageImportPreview."Table Name".Value);
-            LibraryVariableStorage.Enqueue(ConfigPackageImportPreview."New Table".AsBoolean);
+            LibraryVariableStorage.Enqueue(ConfigPackageImportPreview."Package Code".Value());
+            LibraryVariableStorage.Enqueue(ConfigPackageImportPreview."New Package".AsBoolean());
+            LibraryVariableStorage.Enqueue(ConfigPackageImportPreview."Table ID".AsInteger());
+            LibraryVariableStorage.Enqueue(ConfigPackageImportPreview."Table Name".Value());
+            LibraryVariableStorage.Enqueue(ConfigPackageImportPreview."New Table".AsBoolean());
             if SheetCount > i then
-                Assert.IsTrue(ConfigPackageImportPreview.Next, StrSubstNo(MissingLineErr, i + 1))
+                Assert.IsTrue(ConfigPackageImportPreview.Next(), StrSubstNo(MissingLineErr, i + 1))
             else
-                Assert.IsFalse(ConfigPackageImportPreview.Next, StrSubstNo(ExistingLineErr, i + 1));
+                Assert.IsFalse(ConfigPackageImportPreview.Next(), StrSubstNo(ExistingLineErr, i + 1));
         end;
-        ConfigPackageImportPreview.Import.Invoke;
+        ConfigPackageImportPreview.Import.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ExcelImportPreviewSimpleHandler(var ConfigPackageImportPreview: TestPage "Config. Package Import Preview")
     begin
-        ConfigPackageImportPreview.Import.Invoke;
+        ConfigPackageImportPreview.Import.Invoke();
     end;
 }
 

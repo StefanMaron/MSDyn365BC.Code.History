@@ -45,7 +45,7 @@ table 2103 "O365 Sales Document"
         }
         field(166; "Last Email Sent Time"; DateTime)
         {
-            CalcFormula = Max ("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = FIELD("Document Type"),
                                                                                       "Document No." = FIELD("No."),
                                                                                       Posted = FIELD(Posted)));
             Caption = 'Last Email Sent Time';
@@ -53,7 +53,7 @@ table 2103 "O365 Sales Document"
         }
         field(167; "Last Email Sent Status"; Option)
         {
-            CalcFormula = Lookup ("O365 Document Sent History"."Job Last Status" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("O365 Document Sent History"."Job Last Status" WHERE("Document Type" = FIELD("Document Type"),
                                                                                        "Document No." = FIELD("No."),
                                                                                        Posted = FIELD(Posted),
                                                                                        "Created Date-Time" = FIELD("Last Email Sent Time")));
@@ -64,7 +64,7 @@ table 2103 "O365 Sales Document"
         }
         field(168; "Sent as Email"; Boolean)
         {
-            CalcFormula = Exist ("O365 Document Sent History" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("O365 Document Sent History" WHERE("Document Type" = FIELD("Document Type"),
                                                                     "Document No." = FIELD("No."),
                                                                     Posted = FIELD(Posted),
                                                                     "Job Last Status" = CONST(Finished)));
@@ -73,7 +73,7 @@ table 2103 "O365 Sales Document"
         }
         field(169; "Last Email Notif Cleared"; Boolean)
         {
-            CalcFormula = Lookup ("O365 Document Sent History".NotificationCleared WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("O365 Document Sent History".NotificationCleared WHERE("Document Type" = FIELD("Document Type"),
                                                                                          "Document No." = FIELD("No."),
                                                                                          Posted = FIELD(Posted),
                                                                                          "Created Date-Time" = FIELD("Last Email Sent Time")));
@@ -92,7 +92,7 @@ table 2103 "O365 Sales Document"
         }
         field(2101; Canceled; Boolean)
         {
-            CalcFormula = Exist ("Cancelled Document" WHERE("Source ID" = CONST(112),
+            CalcFormula = Exist("Cancelled Document" WHERE("Source ID" = CONST(112),
                                                             "Cancelled Doc. No." = FIELD("No.")));
             Caption = 'Canceled';
             FieldClass = FlowField;
@@ -141,28 +141,28 @@ table 2103 "O365 Sales Document"
         }
         field(2111; "Quote Valid Until Date"; Date)
         {
-            CalcFormula = Lookup ("Sales Header"."Quote Valid Until Date" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("Sales Header"."Quote Valid Until Date" WHERE("Document Type" = FIELD("Document Type"),
                                                                                 "No." = FIELD("No.")));
             Caption = 'Quote Valid Until Date';
             FieldClass = FlowField;
         }
         field(2112; "Quote Accepted"; Boolean)
         {
-            CalcFormula = Lookup ("Sales Header"."Quote Accepted" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("Sales Header"."Quote Accepted" WHERE("Document Type" = FIELD("Document Type"),
                                                                         "No." = FIELD("No.")));
             Caption = 'Quote Accepted';
             FieldClass = FlowField;
         }
         field(2113; "Quote Sent to Customer"; DateTime)
         {
-            CalcFormula = Lookup ("Sales Header"."Quote Sent to Customer" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("Sales Header"."Quote Sent to Customer" WHERE("Document Type" = FIELD("Document Type"),
                                                                                 "No." = FIELD("No.")));
             Caption = 'Quote Sent to Customer';
             FieldClass = FlowField;
         }
         field(2114; "Quote Accepted Date"; Date)
         {
-            CalcFormula = Lookup ("Sales Header"."Quote Accepted Date" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("Sales Header"."Quote Accepted Date" WHERE("Document Type" = FIELD("Document Type"),
                                                                              "No." = FIELD("No.")));
             Caption = 'Quote Accepted Date';
             FieldClass = FlowField;
@@ -516,6 +516,7 @@ table 2103 "O365 Sales Document"
         CopyFilter("Last Email Sent Status", SalesInvoiceHeader."Last Email Sent Status");
         CopyFilter("Last Email Notif Cleared", SalesInvoiceHeader."Last Email Notif Cleared");
         CopyFilter(Canceled, SalesInvoiceHeader.Cancelled);
+        OnAfterCopySalesInvoiceHeaderFilters(Rec, SalesInvoiceHeader);
     end;
 
     local procedure SetSalesHeaderAsRec(var SalesHeader: Record "Sales Header")
@@ -722,6 +723,11 @@ table 2103 "O365 Sales Document"
     procedure IgnoreInvoices()
     begin
         HideInvoices := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterCopySalesInvoiceHeaderFilters(var O365SalesDocument: Record "O365 Sales Document"; SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
     end;
 }
 

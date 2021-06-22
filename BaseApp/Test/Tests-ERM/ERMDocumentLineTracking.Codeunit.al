@@ -13,6 +13,7 @@ codeunit 134347 "ERM Document Line Tracking"
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         SalesOrderLinesTxt: Label 'Sales Order Lines';
         ArchivedSalesOrderLinesTxt: Label 'Archived Sales Order Lines';
@@ -35,6 +36,7 @@ codeunit 134347 "ERM Document Line Tracking"
         PostedReturnShipmentLinesTxt: Label 'Posted Return Shipment Lines';
         PostedPurchaseCreditMemoLinesTxt: Label 'Posted Purchase Credit Memo Lines';
         VerifyDocumentRef: Option SalesOrder,PurchaseOrder,BlanketSalesOrder,BlanketPurchaseOrder,SalesShipment,PurchaseReceipt,SalesInvoice,PurchaseInvoice,SalesReturnOrder,PurchaseReturnOrder,SalesCreditMemo,PurchaseCreditMemo,ReturnReceipt,ReturnShipment;
+        IsInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('DocumentLineTrackingPageHandler,ConfirmHandlerYes,MessageHandler')]
@@ -48,6 +50,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Purchase] [Purchase Order] [Order]
         // [SCENARIO 315523] Document Line Tracking opened from Purchase Order
+        Initialize();
 
         // [GIVEN] Create Blanket Purchase Order with two lines with two items "Itme1" and "Item2" and archive
         // [GIVEN] Create Purchase Order from Blanket Purchase Order, archive and post Purchase Order partially
@@ -76,6 +79,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Purchase] [Blanket Purchase Order] [Blanket Order]
         // [SCENARIO 315523] Document Line Tracking opened from Blanked Purchase Order
+        Initialize();
 
         // [GIVEN] Create Blanket Purchase Order with two lines with two items "Itme1" and "Item2" and archive
         // [GIVEN] Create Purchase Order from Blanket Purchase Order, archive and post Purchase Order partially
@@ -103,6 +107,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Purchase] [Posted Purchase Receipt] [Posted Receipt]
         // [SCENARIO 315523] Document Line Tracking opened from Posted Purchase Release
+        Initialize();
 
         // [GIVEN] Create Blanket Purchase Order with two lines with two items "Itme1" and "Item2" and archive
         // [GIVEN] Create Purchase Order from Blanket Purchase Order, archive and post Purchase Order partially
@@ -130,6 +135,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Purchase] [Posted Purchase Invoice] [Posted Invoice]
         // [SCENARIO 315523] Document Line Tracking opened from Posted Purchase Invoice
+        Initialize();
 
         // [GIVEN] Create Blanket Purchase Order with two lines with two items "Itme1" and "Item2" and archive
         // [GIVEN] Create Purchase Order "PO" from Blanket Purchase Order, archive and post Purchase Order partially
@@ -157,6 +163,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Purchase] [Purchase Retun Order] [Return Order]
         // [SCENARIO 315523] Document Line Tracking opened from Purchase Return Order
+        Initialize();
 
         // [GIVEN] Create Purchase Return Order with two lines with two items "Item1" and "Item2" and archive
         // [GIVEN] Post Purchase Return partially
@@ -183,6 +190,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Purchase] [Posted Return Shipment] [Return Shipment]
         // [SCENARIO 315523] Document Line Tracking opened from Purchase Return Shipment
+        Initialize();
 
         // [GIVEN] Create Purchase Return Order with two lines with two items "Item1" and "Item2" and archive
         // [GIVEN] Post Purchase Return partially
@@ -209,6 +217,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Purchase] [Posted Purchase Credit Memo] [Posted Credit Memo]
         // [SCENARIO 315523] Document Line Tracking opened from Posted Purchase Credit Memo
+        Initialize();
 
         // [GIVEN] Create Purchase Return Order with two lines with two items "Item1" and "Item2" and archive
         // [GIVEN] Post Purchase Return partially
@@ -236,6 +245,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Purchase] [Purchase Invoice] [Posted Purchase Invoice] [Invoice] [Posted Invoice]
         // [SCENARIO 315523] Open Document Line Tracking from standalone Posted Purchase Invoice showing blank page
+        Initialize();
 
         // [GIVEN] Purchase Invoice "PI" with two lines for "Item1" and "Item2" with different quantity of 10 and 20
         CreatePurchaseHeaderWithTwoLines(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -264,6 +274,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Sales] [Sales Order] [Order]
         // [SCENARIO 315523] Document Line Tracking opened from Sales Order
+        Initialize();
 
         // [GIVEN] Create Blanket Sales Order with two lines with two items "Itme1" and "Item2" and archive
         // [GIVEN] Create Sales Order from Blanket Sales Order, archive and post Sales Order partially
@@ -294,6 +305,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Sales] [Blanket Sales Order] [Blanket Order]
         // [SCENARIO 315523] Document Line Tracking opened from Blanket Sales Order
+        Initialize();
 
         // [GIVEN] Create Blanket Sales Order with two lines with two items "Itme1" and "Item2" and archive
         // [GIVEN] Create Sales Order from Blanket Sales Order, archive and post Sales Order partially
@@ -323,6 +335,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Sales] [Posted Sales Invoice] [Invoice] [Posted Invoice]
         // [SCENARIO 315523] Document Line Tracking opened from Posted Sales Invoice
+        Initialize();
 
         // [GIVEN] Create Blanket Sales Order with two lines with two items "Itme1" and "Item2" and archive
         // [GIVEN] Create Sales Order from Blanket Sales Order, archive and post Sales Order partially
@@ -352,6 +365,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Sales] [Posted Sales Shipment] [Posted Shipment]
         // [SCENARIO 315523] Document Line Tracking opened from Posted Sales Shipment
+        Initialize();
 
         // [GIVEN] Create Blanket Sales Order with two lines with two items "Itme1" and "Item2" and archive
         // [GIVEN] Create Sales Order from Blanket Sales Order, archive and post Sales Order partially
@@ -380,6 +394,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Sales] [Sales Retun Order] [Return Order]
         // [SCENARIO 315523] Document Line Tracking opened from Sales Return Order
+        Initialize();
 
         // [GIVEN] Create Sales Return Order with two lines with two items "Item1" and "Item2" and archive
         // [GIVEN] Post Sales Return partially
@@ -405,6 +420,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Sales] [Posted Return Receipt] [Return Receipt]
         // [SCENARIO 315523] Document Line Tracking opened from Posted Return Receipt
+        Initialize();
 
         // [GIVEN] Create Sales Return Order with two lines with two items "Item1" and "Item2" and archive
         // [GIVEN] Post Sales Return partially
@@ -430,6 +446,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Sales] [Posted Sales Credit Memo] [Posted Credit Memo]
         // [SCENARIO 315523] Show Document Line Tracking from partially posted Sales Return Order showing all line related information
+        Initialize();
 
         // [GIVEN] Create Sales Return Order with two lines with two items "Item1" and "Item2" and archive
         // [GIVEN] Post Sales Return partially
@@ -456,6 +473,7 @@ codeunit 134347 "ERM Document Line Tracking"
     begin
         // [FEATURE] [Sales] [Sales Invoice] [Posted Sales Invoice] [Invoice] [Posted Invoice]
         // [SCENARIO 315523] Open Document Line Tracking from standalone Posted Sales Invoice showing blank page
+        Initialize();
 
         // [GIVEN] Sales Invoice "SI" with two lines for "Item1" and "Item2"
         CreateSalesHeaderWithTwoLines(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -469,6 +487,17 @@ codeunit 134347 "ERM Document Line Tracking"
 
         // [THEN] Verify "Page" is blank with no header and no lines
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Document Line Tracking");
+
+        if IsInitialized then
+            exit;
+
+        IsInitialized := true;
+        Commit();
     end;
 
     local procedure CreateArchivePostPurchaseOrder(var BlanketOrderNo: Code[20]; var OrderNo: Code[20])

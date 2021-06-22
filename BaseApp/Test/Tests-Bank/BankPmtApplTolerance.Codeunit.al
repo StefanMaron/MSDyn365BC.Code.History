@@ -30,6 +30,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" includes "Payment Tolerance Amount" when automatically match "Bank Acc. Recon. Line" to Sales Invoice and confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -64,6 +65,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" does not include "Payment Tolerance Amount" when automatically match "Bank Acc. Recon. Line" to Sales Invoice and do not confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -98,6 +100,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" includes "Payment Tolerance Amount" when manually match "Bank Acc. Recon. Line" to Sales Invoice and confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -132,6 +135,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" does not include "Payment Tolerance Amount" when manually match "Bank Acc. Recon. Line" to Sales Invoice and do not confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -165,6 +169,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Discount Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" includes "Payment Dis. Tolerance Amount" when automatically match "Bank Acc. Recon. Line" to Sales Invoice and confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -197,6 +202,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Discount Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" does not include "Payment Dis. Tolerance Amount" when automatically match "Bank Acc. Recon. Line" to Sales Invoice and do not confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -229,6 +235,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Discount Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" includes "Payment Dis. Tolerance Amount" when manually match "Bank Acc. Recon. Line" to Sales Invoice and confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -261,6 +268,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Discount Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" includes "Payment Dis. Tolerance Amount" when manually match "Bank Acc. Recon. Line" to Sales Invoice but do not confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -294,6 +302,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 380951] "Payment Tolerance" detailed ledger entry is created when automatically match "Bank Acc. Recon. Line" to Sales Invoice and confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -331,6 +340,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 380951] "Payment Tolerance" detailed ledger entries are not created when automatically match "Bank Acc. Recon. Line" to Sales Invoice but do not confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -366,6 +376,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 380951] "Payment Tolerance" detailed ledger entry is created when manually match "Bank Acc. Recon. Line" to Sales Invoice and confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -403,6 +414,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 380951] "Payment Tolerance" detailed ledger entry is created when manually match "Bank Acc. Recon. Line" to Sales Invoice but do not confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -437,6 +449,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Discount Tolerance]
         // [SCENARIO 380920] "Pmt. Discout Tolerance" detailed ledger entry is created when automatically match "Bank Acc. Recon. Line" to Sales Invoice and confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -472,6 +485,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Discount Tolerance]
         // [SCENARIO 380920] "Pmt. Discout Tolerance" detailed ledger entries are not created when automatically match "Bank Acc. Recon. Line" to Sales Invoice but do not confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -506,6 +520,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Discount Tolerance]
         // [SCENARIO 380920] "Pmt. Discout Tolerance" detailed ledger entry is created when manually match "Bank Acc. Recon. Line" to Sales Invoice and confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -541,6 +556,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Discount Tolerance]
         // [SCENARIO 380920] "Pmt. Discout Tolerance" detailed ledger entry is created when manually match "Bank Acc. Recon. Line" to Sales Invoice but do not confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -575,6 +591,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Discount Tolerance]
         // [SCENARIO 380951] "Accepted Pmt. Disc. Tolerance" and "Amount to Apply" clears out when remove Bank Account Reconciliation previously applied to Sales Invoice with Payment Discount Tolerance
+        Initialize();
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -606,6 +623,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 380951] "Accepted Payment Tolerance" and "Amount to Apply" clears out when remove Bank Account Reconciliation previously applied to Sales Invoice with Payment Discount Tolerance
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -638,6 +656,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" includes "Payment Tolerance Amount" when automatically match "Bank Acc. Recon. Line" to Purchase Invoice and confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -672,6 +691,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" does not include "Payment Tolerance Amount" when automatically match "Bank Acc. Recon. Line" to Purchase Invoice and do not confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -705,6 +725,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" includes "Payment Tolerance Amount" when manually match "Bank Acc. Recon. Line" to Purchase Invoice and confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -738,6 +759,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" does not include "Payment Tolerance Amount" when manually match "Bank Acc. Recon. Line" to Purchase Invoice and do not confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -770,6 +792,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Discount Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" includes "Payment Dis. Tolerance Amount" when automatically match "Bank Acc. Recon. Line" to Purchase Invoice and confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -802,6 +825,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Discount Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" does not include "Payment Dis. Tolerance Amount" when automatically match "Bank Acc. Recon. Line" to Purchase Invoice and do not confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -833,6 +857,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Discount Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" includes "Payment Dis. Tolerance Amount" when manually match "Bank Acc. Recon. Line" to Purchase Invoice and confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -865,6 +890,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Discount Tolerance]
         // [SCENARIO 380951] "Applied Payment Entry" includes "Payment Dis. Tolerance Amount" when manually match "Bank Acc. Recon. Line" to Purchase Invoice but do not confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -899,6 +925,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 380951] "Payment Tolerance" detailed ledger entry is created when automatically match "Bank Acc. Recon. Line" to Purchase Invoice and confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -936,6 +963,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 380951] "Payment Tolerance" detailed ledger entries are not created when automatically match "Bank Acc. Recon. Line" to Purchase Invoice but do not confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -971,6 +999,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 380951] "Payment Tolerance" detailed ledger entry is created when manually match "Bank Acc. Recon. Line" to Purchase Invoice and confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -1008,6 +1037,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 380951] "Payment Tolerance" detailed ledger entry is created when manually match "Bank Acc. Recon. Line" to Purchase Invoice but do not confirm discount in "Payment Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -1042,6 +1072,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Discount Tolerance]
         // [SCENARIO 380920] "Pmt. Discout Tolerance" detailed ledger entry is created when automatically match "Bank Acc. Recon. Line" to Purchase Invoice and confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -1077,6 +1108,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Discount Tolerance]
         // [SCENARIO 380920] "Pmt. Discout Tolerance" detailed ledger entries are not created when automatically match "Bank Acc. Recon. Line" to Purchase Invoice but do not confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -1111,6 +1143,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Discount Tolerance]
         // [SCENARIO 380920] "Pmt. Discout Tolerance" detailed ledger entry is created when manually match "Bank Acc. Recon. Line" to Purchase Invoice and confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -1146,6 +1179,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Discount Tolerance]
         // [SCENARIO 380920] "Pmt. Discout Tolerance" detailed ledger entry is created when manually match "Bank Acc. Recon. Line" to Purchase Invoice but do not confirm discount in "Payment Discount Tolerance Warning" page
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -1179,6 +1213,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Discount Tolerance]
         // [SCENARIO 380951] "Accepted Pmt. Disc. Tolerance" and "Amount to Apply" clears out when remove Bank Account Reconciliation previously applied to Purchase Invoice with Payment Discount Tolerance
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -1210,6 +1245,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 380951] "Accepted Payment Tolerance" and "Amount to Apply" clears out when remove Bank Account Reconciliation previously applied to Purchase Invoice with Payment Discount Tolerance
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
@@ -1244,6 +1280,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 211312] "Accepted Payment Tolerance" is reverted from Customer Ledger Entry when difference after application of Bank Acc. Recon. Line is transferred to a new line with G/L Account
+        Initialize();
 
         // [GIVEN] Posted Invoice with Amount = 100 and Max. Tolerance Amount = 2.1
         // [GIVEN] Bank Acc. Recon. Line with Statement Amount = 102.1 applied to Posted Invoice and accepted Payment Tolerance
@@ -1275,6 +1312,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 211312] "Accepted Payment Tolerance" is decreased from Customer Ledger Entry when modified difference after application of Bank Acc. Recon. Line is transferred to a new line with G/L Account
+        Initialize();
 
         // [GIVEN] Posted Invoice with Amount = 100 and Max. Tolerance Amount = 2.1
         // [GIVEN] Bank Acc. Recon. Line with Statement Amount = 102.1 applied to Posted Invoice and accepted Payment Tolerance
@@ -1311,6 +1349,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 211312] "Accepted Payment Tolerance" is reverted from Vendor Ledger Entry when difference after application of Bank Acc. Recon. Line is transferred to a new line with G/L Account
+        Initialize();
 
         // [GIVEN] Posted Invoice with Amount = 100 and Max. Tolerance Amount = 2.1
         // [GIVEN] Bank Acc. Recon. Line with Statement Amount = 102.1 applied to Posted Invoice and accepted Payment Tolerance
@@ -1343,6 +1382,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 211312] "Accepted Payment Tolerance" is decreased from Vendor Ledger Entry when modified difference after application of Bank Acc. Recon. Line is transferred to a new line with G/L Account
+        Initialize();
 
         // [GIVEN] Posted Invoice with Amount = 100 and Max. Tolerance Amount = 2.1
         // [GIVEN] Bank Acc. Recon. Line with Statement Amount = 102.1 applied to Posted Invoice and accepted Payment Tolerance

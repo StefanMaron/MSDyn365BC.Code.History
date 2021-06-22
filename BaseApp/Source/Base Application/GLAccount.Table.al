@@ -690,7 +690,6 @@ table 15 "G/L Account"
     trigger OnDelete()
     var
         GLBudgetEntry: Record "G/L Budget Entry";
-        CommentLine: Record "Comment Line";
         ExtTextHeader: Record "Extended Text Header";
         AnalysisViewEntry: Record "Analysis View Entry";
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
@@ -760,6 +759,7 @@ table 15 "G/L Account"
         SalesLine.RenameNo(SalesLine.Type::"G/L Account", xRec."No.", "No.");
         PurchaseLine.RenameNo(PurchaseLine.Type::"G/L Account", xRec."No.", "No.");
         DimMgt.RenameDefaultDim(DATABASE::"G/L Account", xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::"G/L Account", xRec."No.", "No.");
 
         SetLastModifiedDateTime;
 
@@ -772,6 +772,7 @@ table 15 "G/L Account"
         Text001: Label 'You cannot change %1 because this account is part of one or more budgets.';
         GLSetup: Record "General Ledger Setup";
         CostAccSetup: Record "Cost Accounting Setup";
+        CommentLine: Record "Comment Line";
         DimMgt: Codeunit DimensionManagement;
         CostAccMgt: Codeunit "Cost Account Mgt";
         GLSetupRead: Boolean;

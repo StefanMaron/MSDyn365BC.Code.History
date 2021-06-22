@@ -1,4 +1,4 @@
-codeunit 379 "Transfer Old Ext. Text Lines"
+﻿codeunit 379 "Transfer Old Ext. Text Lines"
 {
 
     trigger OnRun()
@@ -35,6 +35,11 @@ codeunit 379 "Transfer Old Ext. Text Lines"
             exit(GetNewLineNumber(AttachedLineNo));
 
         exit(0);
+    end;
+
+    procedure GetLineNoBuffer(var TempLineNoBuffer: Record "Line Number Buffer" temporary)
+    begin
+        TempLineNoBuffer.Copy(LineNoBuffer, true);
     end;
 }
 

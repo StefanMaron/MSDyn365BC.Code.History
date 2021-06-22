@@ -3,6 +3,9 @@ report 127 "Finance Charge Memo Nos."
     DefaultLayout = RDLC;
     RDLCLayout = './FinanceChargeMemoNos.rdlc';
     Caption = 'Finance Charge Memo Nos.';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Infrequently used report.';
+    ObsoleteTag = '18.0';
 
     dataset
     {

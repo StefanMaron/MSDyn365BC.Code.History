@@ -144,6 +144,7 @@ codeunit 5944 SignServContractDoc
 
         ToServContractHeader.Status := ToServContractHeader.Status::Signed;
         ToServContractHeader."Change Status" := ToServContractHeader."Change Status"::Locked;
+        OnSignContractQuoteOnChangeStatusOnBeforeToServContractHeaderModify(ToServContractHeader);
         ToServContractHeader.Modify();
         RecordLinkManagement.CopyLinks(FromServContractHeader, ToServContractHeader);
 
@@ -1069,6 +1070,11 @@ codeunit 5944 SignServContractDoc
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyServCommentsOnAfterToServCommentLineInsert(var FromServCommentLine: Record "Service Comment Line"; var ToServCommentLine: Record "Service Comment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSignContractQuoteOnChangeStatusOnBeforeToServContractHeaderModify(var ToServContractHeader: Record "Service Contract Header")
     begin
     end;
 }

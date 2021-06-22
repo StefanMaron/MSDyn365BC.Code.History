@@ -28,10 +28,16 @@ codeunit 455 "Job Queue User Handler"
         end;
     end;
 
-    local procedure JobShouldBeRescheduled(JobQueueEntry: Record "Job Queue Entry"): Boolean
+    local procedure JobShouldBeRescheduled(JobQueueEntry: Record "Job Queue Entry") Result: Boolean
     var
         User: Record User;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeJobShouldBeRescheduled(JobQueueEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if JobQueueEntry."User ID" = UserId then begin
             JobQueueEntry.CalcFields(Scheduled);
             exit(not JobQueueEntry.Scheduled);
@@ -60,6 +66,11 @@ codeunit 455 "Job Queue User Handler"
             exit;
 
         TASKSCHEDULER.CreateTask(CODEUNIT::"Job Queue User Handler", 0, true, CompanyName, CurrentDateTime + 15000); // Add 15s
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeJobShouldBeRescheduled(var JobQueueEntry: Record "Job Queue Entry"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

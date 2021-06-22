@@ -1,4 +1,4 @@
-page 42 "Sales Order"
+﻿page 42 "Sales Order"
 {
     Caption = 'Sales Order';
     PageType = Document;
@@ -478,8 +478,12 @@ page 42 "Sales Order"
                             var
                                 ShipToAddress: Record "Ship-to Address";
                                 ShipToAddressList: Page "Ship-to Address List";
+                                IsHandled: Boolean;
                             begin
-                                OnBeforeValidateShipToOptions(Rec, ShipToOptions);
+                                IsHandled := false;
+                                OnBeforeValidateShipToOptions(Rec, ShipToOptions, IsHandled);
+                                if IsHandled then
+                                    exit;
 
                                 case ShipToOptions of
                                     ShipToOptions::"Default (Sell-to Address)":
@@ -2458,7 +2462,7 @@ page 42 "Sales Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address")
+    local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address"; var IsHandled: Boolean)
     begin
     end;
 

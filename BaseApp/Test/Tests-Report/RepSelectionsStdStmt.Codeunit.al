@@ -2692,7 +2692,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Email_Background_SingleCustomer_DataEmail();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('StandardStatementOKRequestPageHandler,StartJobQueueNoConfirmHandler')]
     [Scope('OnPrem')]
     procedure Test_Email_Background_SingleCustomer_DataEmail()
@@ -2760,7 +2760,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         Email_Background_TwoCustomer_A_DataEmail_B_DataEmail();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('StandardStatementOKRequestPageHandler,StartJobQueueNoConfirmHandler')]
     [Scope('OnPrem')]
     procedure Test_Email_Background_TwoCustomer_A_DataEmail_B_DataEmail()

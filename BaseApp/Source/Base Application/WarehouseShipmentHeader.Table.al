@@ -1,4 +1,4 @@
-table 7320 "Warehouse Shipment Header"
+﻿table 7320 "Warehouse Shipment Header"
 {
     Caption = 'Warehouse Shipment Header';
     DataCaptionFields = "No.";
@@ -98,7 +98,7 @@ table 7320 "Warehouse Shipment Header"
         }
         field(11; Comment; Boolean)
         {
-            CalcFormula = Exist ("Warehouse Comment Line" WHERE("Table Name" = CONST("Whse. Shipment"),
+            CalcFormula = Exist("Warehouse Comment Line" WHERE("Table Name" = CONST("Whse. Shipment"),
                                                                 Type = CONST(" "),
                                                                 "No." = FIELD("No.")));
             Caption = 'Comment';
@@ -221,7 +221,7 @@ table 7320 "Warehouse Shipment Header"
         }
         field(46; "Completely Picked"; Boolean)
         {
-            CalcFormula = Min ("Warehouse Shipment Line"."Completely Picked" WHERE("No." = FIELD("No.")));
+            CalcFormula = Min("Warehouse Shipment Line"."Completely Picked" WHERE("No." = FIELD("No.")));
             Caption = 'Completely Picked';
             Editable = false;
             FieldClass = FlowField;
@@ -369,7 +369,13 @@ table 7320 "Warehouse Shipment Header"
     var
         WhseShptLine: Record "Warehouse Shipment Line";
         SequenceNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSortWhseDoc(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         WhseShptLine.SetRange("No.", "No.");
         case "Sorting Method" of
             "Sorting Method"::Item:
@@ -388,6 +394,8 @@ table 7320 "Warehouse Shipment Header"
                 WhseShptLine.SetCurrentKey("No.", "Due Date");
             "Sorting Method"::Destination:
                 WhseShptLine.SetCurrentKey("No.", "Destination Type", "Destination No.");
+            else
+                OnSortWhseDocCaseElse(Rec, WhseShptLine);
         end;
 
         if WhseShptLine.Find('-') then begin
@@ -468,6 +476,18 @@ table 7320 "Warehouse Shipment Header"
             WhseShptHeader.SetRange("Location Code");
         end;
         if PAGE.RunModal(0, WhseShptHeader) = ACTION::LookupOK then;
+        SetUserIDLocationCodeFilter(WhseShptHeader);
+    end;
+
+    local procedure SetUserIDLocationCodeFilter(var WhseShptHeader: Record "Warehouse Shipment Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetUserIDLocationCodeFilter(WhseShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if UserId <> '' then begin
             WhseShptHeader.FilterGroup := 2;
             WhseShptHeader.SetRange("Location Code", WhseShptHeader."Location Code");
@@ -625,7 +645,22 @@ table 7320 "Warehouse Shipment Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetUserIDLocationCodeFilter(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDeleteWarehouseShipmentLinesOnBeforeConfirm(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Confirmed: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSortWhseDoc(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSortWhseDocCaseElse(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

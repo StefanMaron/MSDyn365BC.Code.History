@@ -2714,6 +2714,86 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesModalPageHandler,ItemTrackingLotPageHandler')]
+    [Scope('OnPrem')]
+    procedure PartialPickWithItemTrackingDefinedInBothSourceDocAndPick()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemNo: Code[20];
+        LotNos: array[2] of Code[20];
+        LotQty: array[2] of Decimal;
+        TotalQty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Warehouse Pick]
+        // [SCENARIO 373704] Posting pick of some lots inherited from the source document and others suggested by the picking engine.
+        Initialize();
+
+        // [GIVEN] Lot-tracked item.
+        ItemNo := CreateItemWithLotTracking();
+
+        // [GIVEN] Post 10 pcs of lot "L1" and 15 pcs of lot "L2" to inventory.
+        for i := 1 to ArrayLen(LotNos) do begin
+            LotNos[i] := LibraryUtility.GenerateGUID();
+            LotQty[i] := LibraryRandom.RandIntInRange(10, 20);
+            TotalQty += LotQty[i];
+            UpdateInventoryWithLotViaWhseJournal(ItemNo, LocationWhite.Code, LotNos[i], LotQty[i]);
+        end;
+
+        // [GIVEN] Sales order for 25 pcs.
+        // [GIVEN] Open item tracking lines and assign only 10 pcs of lot "L1".
+        CreateSalesDocument(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, SalesLine.Type::Item, '', ItemNo, TotalQty, LocationWhite.Code);
+        LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
+        LibraryVariableStorage.Enqueue(LotNos[1]);
+        LibraryVariableStorage.Enqueue(LotQty[1]);
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Release the sales order, create shipment and pick.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseActivityLine."Source Document"::"Sales Order");
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [GIVEN] Zoom to the pick line with lot "L1" and set "Qty. to Handle" = 5.
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, SalesHeader."No.", WarehouseActivityLine."Source Document"::"Sales Order", LocationWhite.Code,
+          ItemNo, LotNos[1], WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.ModifyAll("Qty. to Handle (Base)", LotQty[1] / 2);
+
+        // [GIVEN] Assign lot "L2" to another pick line for 15 pcs.
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, SalesHeader."No.", WarehouseActivityLine."Source Document"::"Sales Order", LocationWhite.Code,
+          ItemNo, '''''', WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.ModifyAll("Lot No.", LotNos[2]);
+
+        // [WHEN] Register the pick.
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] 20 pcs have been picked.
+        RegisteredWhseActivityLine.SetRange("Action Type", RegisteredWhseActivityLine."Action Type"::Take);
+        RegisteredWhseActivityLine.SetRange("Item No.", ItemNo);
+        RegisteredWhseActivityLine.CalcSums("Qty. (Base)");
+        RegisteredWhseActivityLine.TestField("Qty. (Base)", TotalQty - LotQty[1] / 2);
+
+        // [THEN] Item tracking lines show 25 pcs for the sales line.
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", true);
+        ReservationEntry.CalcSums(Quantity, "Qty. to Handle (Base)");
+        ReservationEntry.TestField(Quantity, -TotalQty);
+        ReservationEntry.TestField("Qty. to Handle (Base)", -TotalQty);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4023,6 +4103,13 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         ItemJournalLine.Modify(true);
     end;
 
+    local procedure UpdateInventoryWithLotViaWhseJournal(ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[20]; Qty: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(ItemNo, LocationCode, Qty, true);
+    end;
+
     local procedure VerifyPurchaseLineReceived(var PurchaseLine: Record "Purchase Line")
     begin
         with PurchaseLine do begin
@@ -4446,6 +4533,15 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
             end;
         end;
         Commit();  // Commit required for Test Cases.
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesModalPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueInteger());
+        WhseItemTrackingLines.OK.Invoke();
     end;
 
     [ModalPageHandler]

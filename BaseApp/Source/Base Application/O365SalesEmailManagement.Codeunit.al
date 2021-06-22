@@ -221,8 +221,7 @@ codeunit 2151 "O365 Sales Email Management"
             SalesInvoiceHeader.GetBySystemId(DocumentId);
             if not SalesInvoiceHeader.FindFirst then
                 Error(CannotFindDocumentErr, DocumentId);
-            SalesInvoiceHeader.CalcFields(Cancelled);
-            Cancelled := SalesInvoiceHeader.Cancelled;
+            Cancelled := IsSalesInvoiceHeaderCancelled(SalesInvoiceHeader);
             if not Cancelled then begin
                 DocumentName := SalesInvoiceHeader.GetDefaultEmailDocumentName;
                 RecordVariant := SalesInvoiceHeader;
@@ -245,6 +244,18 @@ codeunit 2151 "O365 Sales Email Management"
             EmailAddress := O365SalesCancelInvoice.GetEmailAddress(SalesInvoiceHeader);
             EmailSubject := O365SalesCancelInvoice.GetEmailSubject(SalesInvoiceHeader);
         end;
+    end;
+
+    local procedure IsSalesInvoiceHeaderCancelled(var SalesInvoiceHeader: Record "Sales Invoice Header") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeIsSalesInvoiceHeaderCancelled(SalesInvoiceHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        SalesInvoiceHeader.CalcFields(Cancelled);
+        Result := SalesInvoiceHeader.Cancelled;
     end;
 
     local procedure NativeAPIGetEmailBody(FilePath: Text[250]): Text
@@ -306,6 +317,11 @@ codeunit 2151 "O365 Sales Email Management"
     procedure GetBodyTextEncoding(): TextEncoding
     begin
         exit(TEXTENCODING::UTF8);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsSalesInvoiceHeaderCancelled(var SalesInvoiceHeader: Record "Sales Invoice Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

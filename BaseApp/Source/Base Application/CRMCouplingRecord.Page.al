@@ -58,8 +58,26 @@ page 5336 "CRM Coupling Record"
                             end;
 
                             trigger OnValidate()
+                            var
+                                IntegrationTableMapping: Record "Integration Table Mapping";
+                                IntegrationRecordRef: RecordRef;
+                                IDFieldRef: FieldRef;
+                                IntTableFilter: Text;
                             begin
-                                RefreshFields
+                                IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
+                                IntegrationTableMapping.SetRange("Table ID", "NAV Table ID");
+                                IntegrationTableMapping.SetRange("Integration Table ID", "CRM Table ID");
+                                IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+                                if IntegrationTableMapping.FindFirst() then begin
+                                    IntTableFilter := IntegrationTableMapping.GetIntegrationTableFilter();
+                                    IntegrationRecordRef.Open("CRM Table ID");
+                                    IntegrationRecordRef.SetView(IntTableFilter);
+                                    IDFieldRef := IntegrationRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
+                                    IDFieldRef.SetFilter("CRM ID");
+                                    if IntegrationRecordRef.IsEmpty() then
+                                        Error(IntegrationRecordFilteredOutErr, CRMProductName.CDSServiceName(), "CRM Name", IntegrationTableMapping.Name);
+                                end;
+                                RefreshFields();
                             end;
                         }
                         group(Control15)
@@ -95,7 +113,9 @@ page 5336 "CRM Coupling Record"
     end;
 
     var
+        CRMProductName: Codeunit "CRM Product Name";
         EnableCreateNew: Boolean;
+        IntegrationRecordFilteredOutErr: Label 'The filters applied to table mapping %3 are preventing %1 record %2, from displaying.', Comment = '%1 = CDS service name, %2 = The record name entered by the user, %3 = Integration Table Mapping name';
 
     procedure GetCRMId(): Guid
     begin

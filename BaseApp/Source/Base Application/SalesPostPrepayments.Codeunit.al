@@ -774,6 +774,7 @@
         TransferExtText: Codeunit "Transfer Extended Text";
         NextLineNo: Integer;
     begin
+        OnBeforeInsertExtendedText(TabNo, DocNo, GLAccNo, DocDate, LanguageCode, PrevLineNo);
         TransferExtText.PrepmtGetAnyExtText(GLAccNo, TabNo, DocDate, LanguageCode, TempExtTextLine);
         if TempExtTextLine.Find('-') then begin
             NextLineNo := PrevLineNo + 10000;
@@ -1649,6 +1650,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFillInvLineBuffer(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertExtendedText(TabNo: Integer; DocNo: Code[20]; GLAccNo: Code[20]; DocDate: Date; LanguageCode: Code[10]; var PrevLineNo: Integer);
     begin
     end;
 

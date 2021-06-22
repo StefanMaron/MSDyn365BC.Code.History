@@ -789,8 +789,10 @@ table 111 "Sales Shipment Line"
             SalesLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
             SalesLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
             SalesLine."Dimension Set ID" := "Dimension Set ID";
-            OnBeforeInsertInvLineFromShptLine(Rec, SalesLine, SalesOrderLine);
-            SalesLine.Insert();
+            IsHandled := false;
+            OnBeforeInsertInvLineFromShptLine(Rec, SalesLine, SalesOrderLine, IsHandled);
+            if not IsHandled then
+                SalesLine.Insert();
             OnAfterInsertInvLineFromShptLine(SalesLine, SalesOrderLine, NextLineNo, Rec);
 
             ItemTrackingMgt.CopyHandledItemTrkgToInvLine(SalesOrderLine, SalesLine);
@@ -844,7 +846,13 @@ table 111 "Sales Shipment Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         TotalCostLCY: Decimal;
         TotalQtyBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcShippedSaleNotReturned(Rec, ShippedQtyNotReturned, RevUnitCostLCY, ExactCostReverse, IsHandled);
+        if IsHandled then
+            exit;
+
         ShippedQtyNotReturned := 0;
         if (Type <> Type::Item) or (Quantity <= 0) then begin
             RevUnitCostLCY := "Unit Cost (LCY)";
@@ -1063,7 +1071,12 @@ table 111 "Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertInvLineFromShptLine(var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line")
+    local procedure OnBeforeCalcShippedSaleNotReturned(var SalesShipmentLine: Record "Sales Shipment Line"; var ShippedQtyNotReturned: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertInvLineFromShptLine(var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

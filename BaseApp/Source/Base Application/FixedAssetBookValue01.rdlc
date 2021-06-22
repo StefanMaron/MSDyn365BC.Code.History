@@ -18,40 +18,40 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>46.64619pt</Width>
+                  <Width>42.58369pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>74.45763pt</Width>
+                  <Width>70.39513pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>71.59275pt</Width>
+                  <Width>67.53025pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>60.25419pt</Width>
+                  <Width>56.19169pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>60.25419pt</Width>
+                  <Width>56.19169pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>71.59275pt</Width>
+                  <Width>67.53025pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>65.92347pt</Width>
+                  <Width>61.86097pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>65.92347pt</Width>
+                  <Width>61.86097pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>65.92347pt</Width>
+                  <Width>61.86097pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>65.92347pt</Width>
+                  <Width>61.86097pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>60.25419pt</Width>
+                  <Width>56.19169pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>60.25419pt</Width>
+                  <Width>56.19169pt</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -3267,14 +3267,14 @@
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
             <Height>7.72583cm</Height>
-            <Width>768.99996pt</Width>
+            <Width>720.24996pt</Width>
             <Style />
           </Tablix>
         </ReportItems>
         <Height>3.04167in</Height>
         <Style />
       </Body>
-      <Width>10.68886in</Width>
+      <Width>10.00347in</Width>
       <Page>
         <PageHeader>
           <Height>1in</Height>
@@ -3302,7 +3302,7 @@
                 </Paragraph>
               </Paragraphs>
               <Top>0.45861cm</Top>
-              <Left>20.47193cm</Left>
+              <Left>18.73104cm</Left>
               <Height>11pt</Height>
               <Width>6.67778cm</Width>
               <Style>
@@ -3404,7 +3404,7 @@
                 </Paragraph>
               </Paragraphs>
               <Top>0.07056cm</Top>
-              <Left>20.47193cm</Left>
+              <Left>18.73104cm</Left>
               <Height>11pt</Height>
               <Width>6.67778cm</Width>
               <ZIndex>4</ZIndex>
@@ -3433,7 +3433,7 @@
                 </Paragraph>
               </Paragraphs>
               <Top>0.84667cm</Top>
-              <Left>20.47193cm</Left>
+              <Left>18.73104cm</Left>
               <Height>11pt</Height>
               <Width>6.67778cm</Width>
               <ZIndex>5</ZIndex>
@@ -3458,7 +3458,7 @@
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Left>20.47193cm</Left>
+              <Left>18.73104cm</Left>
               <Height>2pt</Height>
               <Width>6.67778cm</Width>
               <ZIndex>6</ZIndex>
@@ -3533,8 +3533,8 @@
         </PageHeader>
         <PageHeight>21cm</PageHeight>
         <PageWidth>29.7cm</PageWidth>
-        <InteractiveHeight>11in</InteractiveHeight>
-        <InteractiveWidth>8.5in</InteractiveWidth>
+        <InteractiveHeight>8.5in</InteractiveHeight>
+        <InteractiveWidth>11in</InteractiveWidth>
         <LeftMargin>1.5cm</LeftMargin>
         <RightMargin>1cm</RightMargin>
         <TopMargin>1cm</TopMargin>

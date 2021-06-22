@@ -183,7 +183,14 @@ table 5875 "Phys. Invt. Order Header"
             TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBinCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Bin Code" <> '' then begin
                     TestField("Location Code");
                     Location.Get("Location Code");
@@ -514,6 +521,11 @@ table 5875 "Phys. Invt. Order Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var xPhysInvtOrderHeader: Record "Phys. Invt. Order Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBinCode(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean)
     begin
     end;
 

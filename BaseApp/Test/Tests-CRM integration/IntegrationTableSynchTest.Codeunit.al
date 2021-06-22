@@ -393,8 +393,7 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.AreEqual(1, IntegrationSynchJob.Unchanged, 'Expected the Job Info to record 1 unchanged item');
     end;
 
-    //[Test]
-    //TODO: Reenable in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368273
+    [Test]
     [Scope('OnPrem')]
     procedure FailedRecordedOnDeletedRecord()
     var
@@ -428,12 +427,19 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
         IntegrationTableMapping.FindFirst;
 
-        // [WHEN] Running the Table Sync
+        // [WHEN] Running the Table Sync once
         IntegrationTableSynch.BeginIntegrationSynchJob(
           TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, SourceRecordRef.Number);
         IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, false);
 
-        // [THEN] 1 record is skipped in a sync job
+        // [THEN] 0 record is skipped in a sync job
+        IntegrationSynchJob.FindFirst;
+        Assert.AreEqual(0, IntegrationSynchJob.Skipped, 'Expected 0 record to skip');
+
+        // [WHEN] Running the Table Sync another time
+        IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, false);
+
+        // [THEN] 1 record is skipped in the sync job
         IntegrationSynchJob.FindFirst;
         Assert.AreEqual(1, IntegrationSynchJob.Skipped, 'Expected 1 record to skip');
 
@@ -537,13 +543,8 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationSynchJob.FindFirst();
         Assert.AreEqual(0, IntegrationSynchJob.Skipped, 'Expected 0 record to skip');
 
-        // [THEN] the synchronization job is scheduled and executed
-        CRMAccount.SetRecFilter();
-        JobID :=
-          LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::"CRM Account", CRMAccount.GetView, IntegrationTableMapping);
-
         // [THEN] CRM Account is not deleted
+        CRMAccount.SetRecFilter();
         Assert.IsTrue(CRMAccount.Find, 'CRM Account should not be deleted');
 
         // [THEN] The coupling and the deleted record are restored
@@ -877,8 +878,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationSynchJob.TestField(Failed, 0);
     end;
 
-    //[Test]
-    //TODO: Reenable in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure OneWaySynchIgnoresDestinationChanges()
     var
@@ -996,8 +996,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntTableSynchSubscriber.VerifyCallbackCounters(1, 1, 1, 1, 0, 0);
     end;
 
-    //[Test]
-    //TODO: Reenable in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure SynchCoupledIntegrationTableRecord()
     var
@@ -1072,8 +1071,7 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.AreEqual(CRMAccount.RecordId, DestinationRecordRef.RecordId, 'Expected the Destination to be the coupled CRMAccount');
     end;
 
-    //[Test]
-    //TODO: Reenable in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure ForceSynchCoupledIntegrationTableRecord()
     var
@@ -1173,9 +1171,8 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.AreEqual(CRMAccount.RecordId, DestinationRecordRef.RecordId, 'Expected the Destination to be the coupled CRMAccount');
     end;
 
-    //[Test]
-    //[HandlerFunctions('HandleConfirmYes,HandleMessageOk')]
-    //TODO: Reenable in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
+    [HandlerFunctions('HandleConfirmYes,HandleMessageOk')]
     [Scope('OnPrem')]
     procedure MappingPageInvokeSynchonizeAllClearsModifiedOnDateTimes()
     var
@@ -1334,9 +1331,8 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.AreEqual(1, IntegrationSynchJob.Failed, 'Expected 1 failed row');
     end;
 
-    //[Test]
-    //[HandlerFunctions('SelectDirection2,SyncStartedNotificationHandler,RecallNotificationHandler')]
-    //TODO: Reenable in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
+    [HandlerFunctions('SelectDirection2,SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestSynchronizeContactAfterSyncCustomer()
     var
@@ -1879,7 +1875,6 @@ codeunit 139165 "Integration Table Synch. Test"
         CustomerHomePage: Text;
         AccountHomePage: Text;
     begin
-        // TODO
         // [FEATURE] [Avoid false positive sync conflicts]
         // [SCENARIO] False positive conflict when syncing after bidirectional field change
         Initialize();
@@ -2009,8 +2004,7 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.AreNotEqual(Customer."Fax No.", CRMAccount.Fax, 'Expected the fax number to be different on both sides');
     end;
 
-    //[Test]
-    //TODO: Reenable in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure AutomaticConflictResolutionToIntegrationTableAfterBidirectionalFieldChange()
     var
@@ -2073,7 +2067,6 @@ codeunit 139165 "Integration Table Synch. Test"
 
         // [THEN] the synchronization job is scheduled and executed
         Customer.SetRecFilter();
-        LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
 
         // [THEN] Fax number is correct on both sides
         Customer.Find();
@@ -2082,8 +2075,7 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.AreEqual(CustomerFaxNo, CRMAccount.Fax, 'Expected the account fax number to be transferred from coupled customer');
     end;
 
-    //[Test]
-    //TODO: Reenable in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
+    [Test]
     [Scope('OnPrem')]
     procedure AutomaticConflictResolutionFromIntegrationTableAfterBidirectionalFieldChange()
     var
@@ -2130,8 +2122,8 @@ codeunit 139165 "Integration Table Synch. Test"
         // [GIVEN] Both Customer and CRM Account are considered newer
         VerifyBothCustomerAndCRMAccountModifiedAfterLastSync(Customer, CRMAccount);
 
-        // [WHEN] Performing sync to integration table
-        SyncToIntegrationTable(Customer, CRMAccount, IntegrationTableMapping);
+        // [WHEN] Performing sync from integration table
+        SyncFromIntegrationTable(Customer, CRMAccount, IntegrationTableMapping);
 
         // [THEN] No sync conflict
         IntegrationSynchJob.Reset();
@@ -2146,7 +2138,6 @@ codeunit 139165 "Integration Table Synch. Test"
 
         // [THEN] the synchronization job is scheduled and executed
         CRMAccount.SetRecFilter();
-        LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Account", CRMAccount.GetView, IntegrationTableMapping);
 
         // [THEN] Fax number is correct on both sides
         Customer.Find();

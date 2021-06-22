@@ -671,6 +671,292 @@ codeunit 134155 "ERM Table Fields UT"
         Assert.RecordIsEmpty(GeneralPostingSetup);
     end;
 
+    [Test]
+    procedure RenamingVendorWithComments()
+    var
+        Vendor: Record Vendor;
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [Vendor] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming Vendor with comment lines.
+
+        Vendor.Init();
+        Vendor."No." := LibraryUtility.GenerateGUID();
+        Vendor.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::Vendor, Vendor."No.");
+
+        Vendor.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::Vendor);
+        CommentLine.SetRange("No.", Vendor."No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingResourceGroupWithComments()
+    var
+        ResourceGroup: Record "Resource Group";
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [Resource Group] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming Resource Group with comment lines.
+
+        ResourceGroup.Init();
+        ResourceGroup."No." := LibraryUtility.GenerateGUID();
+        ResourceGroup.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::"Resource Group", ResourceGroup."No.");
+
+        ResourceGroup.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::"Resource Group");
+        CommentLine.SetRange("No.", ResourceGroup."No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingResourceWithComments()
+    var
+        Resource: Record Resource;
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [Resource] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming Resource with comment lines.
+
+        Resource.Init();
+        Resource."No." := LibraryUtility.GenerateGUID();
+        Resource.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::Resource, Resource."No.");
+
+        Resource.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::Resource);
+        CommentLine.SetRange("No.", Resource."No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingNonstockItemWithComments()
+    var
+        NonstockItem: Record "Nonstock Item";
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [Nonstock Item] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming Nonstock Item with comment lines.
+
+        NonstockItem.Init();
+        NonstockItem."Entry No." := LibraryUtility.GenerateGUID();
+        NonstockItem.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::"Nonstock Item", NonstockItem."Entry No.");
+
+        NonstockItem.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::"Nonstock Item");
+        CommentLine.SetRange("No.", NonstockItem."Entry No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingJobWithComments()
+    var
+        Job: Record Job;
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [Job] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming Job with comment lines.
+
+        Job.Init();
+        Job."No." := LibraryUtility.GenerateGUID();
+        Job.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::Job, Job."No.");
+
+        Job.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::Job);
+        CommentLine.SetRange("No.", Job."No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingItemWithComments()
+    var
+        Item: Record Item;
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [Item] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming Item with comment lines.
+
+        Item.Init();
+        Item."No." := LibraryUtility.GenerateGUID();
+        Item.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::Item, Item."No.");
+
+        Item.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::Item);
+        CommentLine.SetRange("No.", Item."No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingInsuranceWithComments()
+    var
+        Insurance: Record Insurance;
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [Insurance] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming Insurance with comment lines.
+
+        Insurance.Init();
+        Insurance."No." := LibraryUtility.GenerateGUID();
+        Insurance.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::Insurance, Insurance."No.");
+
+        Insurance.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::Insurance);
+        CommentLine.SetRange("No.", Insurance."No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingICPartnerWithComments()
+    var
+        ICPartner: Record "IC Partner";
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [IC Partner] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming IC Partner with comment lines.
+
+        ICPartner.Init();
+        ICPartner.Code := LibraryUtility.GenerateGUID();
+        ICPartner.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::"IC Partner", ICPartner.Code);
+
+        ICPartner.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::"IC Partner");
+        CommentLine.SetRange("No.", ICPartner.Code);
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingGLAccountWithComments()
+    var
+        GLAccount: Record "G/L Account";
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [G/L Account] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming G/L Account with comment lines.
+
+        GLAccount.Init();
+        GLAccount."No." := LibraryUtility.GenerateGUID();
+        GLAccount.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::"G/L Account", GLAccount."No.");
+
+        GLAccount.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::"G/L Account");
+        CommentLine.SetRange("No.", GLAccount."No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingFixedAssetWithComments()
+    var
+        FixedAsset: Record "Fixed Asset";
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [Fixed Asset] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming Fixed Asset] with comment lines.
+
+        FixedAsset.Init();
+        FixedAsset."No." := LibraryUtility.GenerateGUID();
+        FixedAsset.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::"Fixed Asset", FixedAsset."No.");
+
+        FixedAsset.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::"Fixed Asset");
+        CommentLine.SetRange("No.", FixedAsset."No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingCustomerWithComments()
+    var
+        Customer: Record Customer;
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [Customer] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming Customer with comment lines.
+
+        Customer.Init();
+        Customer."No." := LibraryUtility.GenerateGUID();
+        Customer.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::Customer, Customer."No.");
+
+        Customer.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::Customer);
+        CommentLine.SetRange("No.", Customer."No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingCampaignWithComments()
+    var
+        Campaign: Record Campaign;
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [Campaign] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming Campaign with comment lines.
+
+        Campaign.Init();
+        Campaign."No." := LibraryUtility.GenerateGUID();
+        Campaign.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::Campaign, Campaign."No.");
+
+        Campaign.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::Campaign);
+        CommentLine.SetRange("No.", Campaign."No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
+    [Test]
+    procedure RenamingBankAccountWithComments()
+    var
+        BankAccount: Record "Bank Account";
+        CommentLine: Record "Comment Line";
+    begin
+        // [FEATURE] [Bank Account] [Comments] [Rename]
+        // [SCENARIO 369566] Renaming Bank Account with comment lines.
+
+        BankAccount.Init();
+        BankAccount."No." := LibraryUtility.GenerateGUID();
+        BankAccount.Insert();
+
+        MockTwoCommentLines(CommentLine."Table Name"::"Bank Account", BankAccount."No.");
+
+        BankAccount.Rename(LibraryUtility.GenerateGUID());
+
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::"Bank Account");
+        CommentLine.SetRange("No.", BankAccount."No.");
+        Assert.RecordCount(CommentLine, 2);
+    end;
+
     local procedure CreateAccountingPeriod(var AccountingPeriod: Record "Accounting Period"; StartingDate: Date; IsNewFiscalYear: Boolean)
     var
         InventorySetup: Record "Inventory Setup";
@@ -689,6 +975,21 @@ codeunit 134155 "ERM Table Fields UT"
     begin
         if AccountingPeriod.FindLast then;
         exit(CalcDate('<-CM+1M>', AccountingPeriod."Starting Date"));
+    end;
+
+    local procedure MockTwoCommentLines(CommentLineTableName: Enum "Comment Line Table Name"; No: Code[20])
+    var
+        CommentLine: Record "Comment Line";
+        i: Integer;
+    begin
+        with CommentLine do
+            for i := 1 to 2 do begin
+                Init();
+                "Table Name" := CommentLineTableName;
+                "No." := No;
+                "Line No." := LibraryUtility.GetNewRecNo(CommentLine, FieldNo("Line No."));
+                Insert();
+            end;
     end;
 
     local procedure MockDtldCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustNo: Code[20]; PostingDate: Date; InitialEntryDueDate: Date)

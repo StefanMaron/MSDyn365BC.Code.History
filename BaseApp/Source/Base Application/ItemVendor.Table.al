@@ -35,6 +35,11 @@ table 99 "Item Vendor"
         field(7; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
+
+            trigger OnValidate()
+            begin
+                UpdateItemCrossReference();
+            end;
         }
         field(5700; "Variant Code"; Code[10])
         {
@@ -168,6 +173,33 @@ table 99 "Item Vendor"
                    ("Variant Code" <> xRec."Variant Code") or ("Vendor Item No." <> xRec."Vendor Item No.")
                 then
                     DistIntegration.UpdateItemCrossReference(Rec, xRec);
+    end;
+
+    local procedure ToPriceAsset(var PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset.Init();
+        PriceAsset."Asset Type" := PriceAsset."Asset Type"::Item;
+        PriceAsset."Asset No." := Rec."Item No.";
+        PriceAsset."Variant Code" := Rec."Variant Code";
+    end;
+
+    local procedure ToPriceSource(var PriceSource: Record "Price Source")
+    begin
+        PriceSource.Init();
+        PriceSource."Price Type" := "Price Type"::Purchase;
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::Vendor);
+        PriceSource."Source No." := Rec."Vendor No.";
+    end;
+
+    procedure ShowPriceListLines(PriceAmountType: Enum "Price Amount Type")
+    var
+        PriceAsset: Record "Price Asset";
+        PriceSource: Record "Price Source";
+        PriceUXManagement: Codeunit "Price UX Management";
+    begin
+        ToPriceAsset(PriceAsset);
+        ToPriceSource(PriceSource);
+        PriceUXManagement.ShowPriceListLines(PriceSource, PriceAsset, PriceAmountType);
     end;
 
     [IntegrationEvent(false, false)]

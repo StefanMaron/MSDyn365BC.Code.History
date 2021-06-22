@@ -310,6 +310,7 @@ report 1320 "Notification Email"
         end;
 
         DocumentURL := PageManagement.GetWebUrl(RecRef, "Notification Entry"."Link Target Page");
+        OnSetReportFieldPlaceholdersOnAfterGetDocumentURL(DocumentURL, "Notification Entry");
     end;
 
     local procedure SetReportLinePlaceholders()
@@ -475,6 +476,11 @@ report 1320 "Notification Email"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetReportFieldPlaceholders(RecRef: RecordRef; var Field1Label: Text; var Field1Value: Text; var Field2Label: Text; var Field2Value: Text; var Field3Label: Text; var Field3Value: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetReportFieldPlaceholdersOnAfterGetDocumentURL(var DocumentURL: Text; var NotificationEntry: Record "Notification Entry")
     begin
     end;
 }

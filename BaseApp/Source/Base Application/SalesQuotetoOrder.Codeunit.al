@@ -117,6 +117,10 @@ codeunit 86 "Sales-Quote to Order"
             SalesOrderHeader."Prepayment %" := PrepmtPercent;
             if SalesOrderHeader."Posting Date" = 0D then
                 SalesOrderHeader."Posting Date" := WorkDate;
+
+            CalcFields("Work Description");
+            SalesOrderHeader."Work Description" := "Work Description";
+
             OnBeforeModifySalesOrderHeader(SalesOrderHeader, SalesHeader);
             SalesOrderHeader.Modify();
         end;
@@ -308,7 +312,7 @@ codeunit 86 "Sales-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertSalesOrderHeader(var SalesOrderHeader: Record "Sales Header"; SalesQuoteHeader: Record "Sales Header")
+    local procedure OnBeforeInsertSalesOrderHeader(var SalesOrderHeader: Record "Sales Header"; var SalesQuoteHeader: Record "Sales Header")
     begin
     end;
 

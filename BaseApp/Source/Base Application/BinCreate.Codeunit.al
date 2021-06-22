@@ -31,7 +31,14 @@ codeunit 7318 "Bin Create"
     end;
 
     local procedure BinCreate(BinCreationWorksheetLine: Record "Bin Creation Worksheet Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBinCreate(Bin, BinCreationWorksheetLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with BinCreationWorksheetLine do begin
             if EmptyLine then
                 exit;
@@ -72,6 +79,11 @@ codeunit 7318 "Bin Create"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBinInsert(var Bin: Record Bin; BinCreationWorksheetLine: Record "Bin Creation Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBinCreate(var Bin: Record Bin; BinCreationWorksheetLine: Record "Bin Creation Worksheet Line"; var IsHandled: Boolean)
     begin
     end;
 }

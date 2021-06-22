@@ -1,4 +1,4 @@
-table 981 "Payment Registration Buffer"
+﻿table 981 "Payment Registration Buffer"
 {
     Caption = 'Payment Registration Buffer';
     ReplicateData = false;
@@ -203,6 +203,7 @@ table 981 "Payment Registration Buffer"
                     "Payment Method Code" := GetO365DefalutPaymentMethodCode;
                     "Bal. Account Type" := "Payment Balance Account Type".FromInteger(PaymentRegistrationSetup."Bal. Account Type");
                     "Bal. Account No." := PaymentRegistrationSetup."Bal. Account No.";
+                    OnPopulateTableOnBeforeInsert(Rec, CustLedgerEntry);
                     Insert();
                 end;
             until CustLedgerEntry.Next = 0;
@@ -264,6 +265,7 @@ table 981 "Payment Registration Buffer"
                     "Remaining Amount" := TempSavePmtRegnBuf."Remaining Amount";
                     "Amount Received" := TempSavePmtRegnBuf."Amount Received";
                     "External Document No." := TempSavePmtRegnBuf."External Document No.";
+                    OnRestoreUserValuesOnBeforeModify(Rec, TempSavePmtRegnBuf);
                     Modify;
                 end;
             until TempSavePmtRegnBuf.Next = 0;
@@ -349,6 +351,16 @@ table 981 "Payment Registration Buffer"
                     "Remaining Amount" := "Original Remaining Amount" - "Amount Received";
             end else
                 "Remaining Amount" := "Original Remaining Amount" - "Amount Received";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPopulateTableOnBeforeInsert(var PaymentRegistrationBuffer: Record "Payment Registration Buffer"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRestoreUserValuesOnBeforeModify(var PaymentRegistrationBuffer: Record "Payment Registration Buffer"; var TempSavePmtRegnBuf: Record "Payment Registration Buffer" temporary)
+    begin
     end;
 }
 

@@ -1,4 +1,4 @@
-report 6036 "Create Contract Service Orders"
+﻿report 6036 "Create Contract Service Orders"
 {
     ApplicationArea = Service;
     Caption = 'Create Contract Service Orders';
@@ -311,7 +311,14 @@ report 6036 "Create Contract Service Orders"
     end;
 
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSalespersonCode(SalesPersonCodeToCheck, SalesPersonCodeToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesPersonCodeToCheck <> '' then
             if Salesperson.Get(SalesPersonCodeToCheck) then
                 if Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then
@@ -367,6 +374,11 @@ report 6036 "Create Contract Service Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindServiceItemLineOnCreateServiceHeader(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header"; ServiceContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

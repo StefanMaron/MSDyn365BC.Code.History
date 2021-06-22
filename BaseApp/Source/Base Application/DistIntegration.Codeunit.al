@@ -374,6 +374,7 @@ codeunit 5702 "Dist. Integration"
     begin
         ItemCrossReference.SetRange("Cross-Reference Type", CrossRefType);
         ItemCrossReference.SetRange("Cross-Reference Type No.", CrossRefTypeNo);
+        OnAfterSetFiltersTypeAndTypeNoItemCrossRef(ItemCrossReference, CrossRefType, CrossRefTypeNo);
     end;
 
     local procedure SetFiltersBarCodeOrBlankTypeItemCrossRef(var ItemCrossReference: Record "Item Cross Reference")
@@ -591,6 +592,11 @@ codeunit 5702 "Dist. Integration"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPurchItemCrossRefNotFound(var PurchaseLine: Record "Purchase Line"; var ItemVariant: Record "Item Variant")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFiltersTypeAndTypeNoItemCrossRef(var ItemCrossReference: Record "Item Cross Reference"; CrossRefType: Integer; CrossRefTypeNo: Code[30])
     begin
     end;
 

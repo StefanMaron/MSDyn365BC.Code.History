@@ -1742,6 +1742,11 @@ table 27 Item
                 then
                     TestNoEntriesExist(FieldCaption("Item Tracking Code"));
 
+                if (ItemTrackingCode."SN Warehouse Tracking" <> ItemTrackingCode2."SN Warehouse Tracking") or
+                   (ItemTrackingCode."Lot Warehouse Tracking" <> ItemTrackingCode2."Lot Warehouse Tracking")
+                then
+                    TestNoWhseEntriesExist(FieldCaption("Item Tracking Code"));
+
                 if "Costing Method" = "Costing Method"::Specific then begin
                     TestNoEntriesExist(FieldCaption("Item Tracking Code"));
 
@@ -2461,6 +2466,7 @@ table 27 Item
         PurchaseLine.RenameNo(PurchaseLine.Type::Item, xRec."No.", "No.");
         TransferLine.RenameNo(xRec."No.", "No.");
         DimMgt.RenameDefaultDim(DATABASE::Item, xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::Item, xRec."No.", "No.");
 
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
         ItemAttributeValueMapping.RenameItemAttributeValueMapping(xRec."No.", "No.");
@@ -2555,6 +2561,7 @@ table 27 Item
         ItemLedgEntryTableCaptionTxt: Label 'Item Ledger Entry';
         ItemTrackingCodeIgnoresExpirationDateErr: Label 'The settings for expiration dates do not match on the item tracking code and the item. Both must either use, or not use, expiration dates.', Comment = '%1 is the Item number';
         ReplenishmentSystemTransferErr: Label 'The Replenishment System Transfer cannot be used for item.';
+        WhseEntriesExistErr: Label 'You cannot change %1 because there are one or more warehouse entries for this item.', Comment = '%1: Changed field name';
 
     local procedure DeleteRelatedData()
     var
@@ -2741,6 +2748,15 @@ table 27 Item
             if PurchaseLine.FindFirst then
                 Error(Text008, CurrentFieldName, PurchaseLine."Document Type");
         end;
+    end;
+
+    local procedure TestNoWhseEntriesExist(CurrentFieldName: Text)
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        WarehouseEntry.SetRange("Item No.", "No.");
+        if not WarehouseEntry.IsEmpty() then
+            Error(WhseEntriesExistErr, CurrentFieldName);
     end;
 
     procedure TestNoOpenEntriesExist(CurrentFieldName: Text[100])

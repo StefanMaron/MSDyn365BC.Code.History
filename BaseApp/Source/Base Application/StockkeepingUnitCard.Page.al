@@ -1,4 +1,4 @@
-page 5700 "Stockkeeping Unit Card"
+﻿page 5700 "Stockkeeping Unit Card"
 {
     Caption = 'Stockkeeping Unit Card';
     PageType = Card;
@@ -810,15 +810,7 @@ page 5700 "Stockkeeping Unit Card"
 
     trigger OnAfterGetRecord()
     begin
-        InvtSetup.Get();
-        Item.Reset();
-        if Item.Get("Item No.") then begin
-            if InvtSetup."Average Cost Calc. Type" = InvtSetup."Average Cost Calc. Type"::"Item & Location & Variant" then begin
-                Item.SetRange("Location Filter", "Location Code");
-                Item.SetRange("Variant Filter", "Variant Code");
-            end;
-            Item.SetFilter("Date Filter", GetFilter("Date Filter"));
-        end;
+        SetItemFilters();
         EnablePlanningControls;
         EnableCostingControls;
     end;
@@ -931,6 +923,31 @@ page 5700 "Stockkeeping Unit Card"
     begin
         StandardCostEnable := Item."Costing Method" = Item."Costing Method"::Standard;
         UnitCostEnable := Item."Costing Method" <> Item."Costing Method"::Standard;
+    end;
+
+    local procedure SetItemFilters()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetItemFilters(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        InvtSetup.Get();
+        Item.Reset();
+        if Item.Get("Item No.") then begin
+            if InvtSetup."Average Cost Calc. Type" = InvtSetup."Average Cost Calc. Type"::"Item & Location & Variant" then begin
+                Item.SetRange("Location Filter", "Location Code");
+                Item.SetRange("Variant Filter", "Variant Code");
+            end;
+            Item.SetFilter("Date Filter", GetFilter("Date Filter"));
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetItemFilters(var StockkeepingUnit: Record "Stockkeeping Unit"; var Item: Record Item; var IsHandled: Boolean)
+    begin
     end;
 }
 

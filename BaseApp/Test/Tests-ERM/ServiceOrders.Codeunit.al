@@ -4080,6 +4080,101 @@ codeunit 136101 "Service Orders"
         ServiceLine.TestField("Line Discount Amount", 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ThereIsNoPaymentGLEntriesAfterPostingServiceOrderWithEmptyPaymentMethodCode()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        Customer: Record Customer;
+        GLEntry: Record "G/L Entry";
+        ServiceItemLineNo: Integer;
+    begin
+        // [SCENARIO 369667] Posting Service Order with empty "Payment Method Code" did not create G/L Entries with "Payment" type
+        // [SCENARIO 369667] even if "Payment Method Code" filled in Customer table
+        Initialize();
+
+        // [GIVEN] Create Customer With "Payment Method Code"
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount, 0);
+
+        // [GIVEN] Create Service Order
+        ServiceItemLineNo := CreateServiceOrder(ServiceHeader, '');
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLineNo);
+
+        // [GIVEN] Changed "Payment Method Code" to empty in Service Header
+        ServiceHeader.Validate("Payment Method Code", '');
+
+        // [WHEN] Post Service Order as "Ship + Invoice"
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] There is no created G/L Entries with "Document Type" = Payment
+        GLEntry.SetRange("External Document No.", ServiceHeader."No.");
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
+        Assert.IsTrue(GLEntry.IsEmpty, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ThereIsNoPaymentCustLedEntriesAfterPostingServiceOrderWithEmptyPaymentMethodCode()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ServiceItemLineNo: Integer;
+    begin
+        // [SCENARIO 369667] Posting Service Order with empty "Payment Method Code" did not create Customer Ledger Entries with "Payment" type
+        // [SCENARIO 369667] even if "Payment Method Code" filled in Customer table
+        Initialize();
+
+        // [GIVEN] Create Customer With "Payment Method Code"
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount, 0);
+
+        // [GIVEN] Create Service Order
+        ServiceItemLineNo := CreateServiceOrder(ServiceHeader, '');
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLineNo);
+
+        // [GIVEN] Changed "Payment Method Code" to empty in Service Header
+        ServiceHeader.Validate("Payment Method Code", '');
+
+        // [WHEN] Post Service Order as "Ship + Invoice"
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] There is no created Customer Ledger Entries with "Document Type" = Payment
+        CustLedgerEntry.SetRange("External Document No.", ServiceHeader."No.");
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        Assert.IsTrue(CustLedgerEntry.IsEmpty, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestValidationOfPaymentMethodCodeByEmptyValue()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        Customer: Record Customer;
+        ServiceItemLineNo: Integer;
+    begin
+        // [SCENARIO 369667] Validate "Payment Method Code" in Service Header to empty space and "Bal. Account No." should changed to empty space too
+        Initialize();
+
+        // [GIVEN] Created Customer with "Payment Method Code"
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount, 0);
+
+        // [GIVEN] Created Service Order with lines
+        ServiceItemLineNo := CreateServiceOrder(ServiceHeader, Customer."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        UpdateServiceLineWithRandomQtyAndPrice(ServiceLine, ServiceItemLineNo);
+
+        // [WHEN] Change "Payment Method Code" to empty
+        ServiceHeader.Validate("Payment Method Code", '');
+
+        // [THEN] The "Bal. Account No." reset to empty value too
+        ServiceHeader.TestField("Bal. Account No.", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

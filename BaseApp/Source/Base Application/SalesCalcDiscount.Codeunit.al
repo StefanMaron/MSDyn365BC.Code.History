@@ -88,6 +88,7 @@ codeunit 60 "Sales-Calc. Discount"
               SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase);
 
             if CustInvDisc."Service Charge" <> 0 then begin
+                OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(CustPostingGr);
                 Currency.Initialize(SalesHeader."Currency Code");
                 if not UpdateHeader then
                     SalesLine2.SetSalesHeader(SalesHeader);
@@ -147,15 +148,7 @@ codeunit 60 "Sales-Calc. Discount"
                   SalesSetup.RecordId, SalesHeader."Gen. Bus. Posting Group",
                   SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
 
-                SalesHeader."Invoice Discount Calculation" := SalesHeader."Invoice Discount Calculation"::"%";
-                SalesHeader."Invoice Discount Value" := CustInvDisc."Discount %";
-                if UpdateHeader then
-                    SalesHeader.Modify();
-
-                TempVATAmountLine.SetInvoiceDiscountPercent(
-                  CustInvDisc."Discount %", SalesHeader."Currency Code",
-                  SalesHeader."Prices Including VAT", SalesSetup."Calc. Inv. Disc. per VAT ID",
-                  SalesHeader."VAT Base Discount %");
+                UpdateSalesHeaderInvoiceDiscount(SalesHeader, TempVATAmountLine, SalesSetup."Calc. Inv. Disc. per VAT ID");
 
                 SalesLine2.SetSalesHeader(SalesHeader);
                 SalesLine2.UpdateVATOnLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
@@ -164,7 +157,27 @@ codeunit 60 "Sales-Calc. Discount"
         end;
 
         SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(SalesHeader);
-        OnAfterCalcSalesDiscount(SalesHeader);
+        OnAfterCalcSalesDiscount(SalesHeader, TempVATAmountLine, SalesLine2);
+    end;
+
+    local procedure UpdateSalesHeaderInvoiceDiscount(var SalesHeader: Record "Sales Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary; CalcInvDiscPerVATID: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateSalesHeaderInvoiceDiscount(CustInvDisc, SalesHeader, TempVATAmountLine, UpdateHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesHeader."Invoice Discount Calculation" := SalesHeader."Invoice Discount Calculation"::"%";
+        SalesHeader."Invoice Discount Value" := CustInvDisc."Discount %";
+        if UpdateHeader then
+            SalesHeader.Modify();
+
+        TempVATAmountLine.SetInvoiceDiscountPercent(
+          CustInvDisc."Discount %", SalesHeader."Currency Code",
+          SalesHeader."Prices Including VAT", CalcInvDiscPerVATID,
+          SalesHeader."VAT Base Discount %");
     end;
 
     local procedure SetSalesLineServiceCharge(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -264,7 +277,7 @@ codeunit 60 "Sales-Calc. Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcSalesDiscount(var SalesHeader: Record "Sales Header")
+    local procedure OnAfterCalcSalesDiscount(var SalesHeader: Record "Sales Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var SalesLine2: Record "Sales Line")
     begin
     end;
 
@@ -285,6 +298,16 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSalesLineServiceCharge(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustInvoiceDisc: Record "Cust. Invoice Disc."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesHeaderInvoiceDiscount(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var SalesHeader: Record "Sales Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var UpdateHeader: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(var CustomerPostingGroup: Record "Customer Posting Group")
     begin
     end;
 

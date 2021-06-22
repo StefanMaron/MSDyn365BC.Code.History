@@ -33,10 +33,14 @@ codeunit 7039 "Price Source - Campaign" implements "Price Source"
     end;
 
     procedure IsLookupOK(var PriceSource: Record "Price Source"): Boolean
+    var
+        xPriceSource: Record "Price Source";
     begin
-        if Campaign.Get(PriceSource."Source No.") then;
+        xPriceSource := PriceSource;
+        if Campaign.Get(xPriceSource."Source No.") then;
         if Page.RunModal(Page::"Campaign List", Campaign) = ACTION::LookupOK then begin
-            PriceSource.Validate("Source No.", Campaign."No.");
+            xPriceSource.Validate("Source No.", Campaign."No.");
+            PriceSource := xPriceSource;
             exit(true);
         end;
     end;

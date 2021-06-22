@@ -164,14 +164,27 @@ codeunit 900 "Assembly-Post"
     end;
 
     local procedure FinalizePost(AssemblyHeader: Record "Assembly Header")
-    var
-        AssemblyLine: Record "Assembly Line";
-        AssemblyCommentLine: Record "Assembly Comment Line";
-        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
     begin
         OnBeforeFinalizePost(AssemblyHeader);
 
         MakeInvtAdjmt();
+
+        DeleteAssemblyDocument(AssemblyHeader);
+
+        OnAfterFinalizePost(AssemblyHeader);
+    end;
+
+    local procedure DeleteAssemblyDocument(AssemblyHeader: Record "Assembly Header")
+    var
+        AssemblyLine: Record "Assembly Line";
+        AssemblyCommentLine: Record "Assembly Comment Line";
+        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteAssemblyDocument(AssemblyHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         with AssemblyHeader do begin
             // Delete header and lines
@@ -479,6 +492,7 @@ codeunit 900 "Assembly-Post"
                 if not IsStandardCostItem then
                     UpdateUnitCost;
 
+            OnPostHeaderOnBeforePostItemOutput(AssemblyHeader, QtyToOutput, QtyToOutputBase);
             ItemLedgEntryNo :=
               PostItemOutput(
                 AssemblyHeader, "Posting No. Series",
@@ -1522,6 +1536,11 @@ codeunit 900 "Assembly-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteAssemblyDocument(AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFinalizePost(var AssemblyHeader: Record "Assembly Header")
     begin
     end;
@@ -1568,6 +1587,11 @@ codeunit 900 "Assembly-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostHeaderOnAfterPostItemOutput(var AssemblyHeader: Record "Assembly Header"; var HeaderQty: Decimal; var HeaderQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostHeaderOnBeforePostItemOutput(var AssemblyHeader: Record "Assembly Header"; var HeaderQty: Decimal; var HeaderQtyBase: Decimal)
     begin
     end;
 

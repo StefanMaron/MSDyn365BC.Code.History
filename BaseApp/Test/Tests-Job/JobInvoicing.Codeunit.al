@@ -2286,6 +2286,42 @@ codeunit 136306 "Job Invoicing"
         VerifyPurchaseLineArchive(PurchaseLine, PurchaseLineArchive);
     end;
 
+    [Test]
+    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceForCustomerWithShipToCodeRespectsAddress()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+    begin
+        // [FEATURE] [Sales] [Shipment]
+        // [SCENARIO 373670] When creating Sales Invoice from Job Planning line for Customer with alternative Ship-to Code that codes Ship-to Address is used.
+        Initialize();
+
+        // [GIVEN] Customer has address "XXX" and alternate Ship-to Code with a ship-to address "YYY"
+        CreateCustomerWithAlternateShipToCode(Customer, ShipToAddress);
+
+        // [GIVEN] Job for a customer created
+        CreateJobForCustomer(Job, Customer."No.");
+
+        // [GIVEN] Job Task with Item job planning line
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        Commit();
+
+        // [WHEN] Create Sales Invoice for job planning line
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [THEN] Ship-to Address of Sales Invoice is "YYY"
+        GetSalesDocument(JobPlanningLine, SalesHeader."Document Type"::Invoice, SalesHeader);
+        SalesHeader.TestField("Ship-to Address", ShipToAddress.Address);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2427,6 +2463,29 @@ codeunit 136306 "Job Invoicing"
         JobJournalLine.Validate(Quantity, JobPlanningLine.Quantity / LibraryRandom.RandIntInRange(2, 4));
         JobJournalLine.Modify(true);
         LibraryJob.PostJobJournal(JobJournalLine);
+    end;
+
+    local procedure CreateCustomerWithAlternateShipToCode(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateCustomerAddress(Customer);
+        CreateShipToAddressWithAddress(ShipToAddress, Customer."No.");
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateShipToAddressWithAddress(var ShipToAddress: Record "Ship-to Address"; CustomerNo: Code[20])
+    begin
+        LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
+        ShipToAddress.Validate(Address, LibraryUtility.GenerateGUID());
+        ShipToAddress.Modify(true);
+    end;
+
+    local procedure CreateJobForCustomer(var Job: Record Job; CustomerNo: Code[20])
+    begin
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Bill-to Customer No.", CustomerNo);
+        Job.Modify(true);
     end;
 
     local procedure CreateAndPostJobJournalLineWithTypeItem(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task")

@@ -53,6 +53,12 @@ page 437 "Reminder Statistics"
                     Caption = 'Total';
                     ToolTip = 'Specifies the total amount due on the reminder, including interest, VAT, and additional fee.';
                 }
+                field(InvoiceRoundingAmount; InvoiceRoundingAmount)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Invoice Rounding Amount';
+                    ToolTip = 'Specifies the amount that must be added to the reminder when it is posted according to invoice rounding setup.';
+                }
             }
             group(Customer)
             {
@@ -99,6 +105,7 @@ page 437 "Reminder Statistics"
         VatAmount := "VAT Amount";
         CustPostingGr.Get("Customer Posting Group");
         VATInterest := 0;
+        InvoiceRoundingAmount := GetInvoiceRoundingAmount();
         if ReminderLevel.Get("Reminder Terms Code", "Reminder Level") then
             if ReminderLevel."Calculate Interest" and ("VAT Amount" <> 0) then begin
                 GLAcc.Get(CustPostingGr."Interest Account");
@@ -133,6 +140,7 @@ page 437 "Reminder Statistics"
         CreditLimitLCYExpendedPct: Decimal;
         Interest: Decimal;
         VatAmount: Decimal;
+        InvoiceRoundingAmount: Decimal;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

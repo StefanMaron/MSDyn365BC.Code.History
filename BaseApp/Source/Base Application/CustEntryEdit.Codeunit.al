@@ -5,8 +5,13 @@ codeunit 103 "Cust. Entry-Edit"
     TableNo = "Cust. Ledger Entry";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeOnRun(Rec, CustLedgEntry, DtldCustLedgEntry);
+        IsHandled := false;
+        OnBeforeOnRun(Rec, CustLedgEntry, DtldCustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         CustLedgEntry := Rec;
         CustLedgEntry.LockTable();
@@ -49,7 +54,7 @@ codeunit 103 "Cust. Entry-Edit"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var CustLedgerEntryRec: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    local procedure OnBeforeOnRun(var CustLedgerEntryRec: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 }

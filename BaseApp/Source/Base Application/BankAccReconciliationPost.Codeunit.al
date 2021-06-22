@@ -395,6 +395,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
             GenJnlLine.ValidateApplyRequirements(GenJnlLine);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
+            OnPostPaymentApplicationsOnAfterPostGenJnlLine(GenJnlLine, GenJnlPostLine);
             if not PostPaymentsOnly then begin
                 BankAccountLedgerEntry.SetRange(Open, true);
                 BankAccountLedgerEntry.SetRange("Bank Account No.", BankAcc."No.");
@@ -626,6 +627,11 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostPaymentApplicationsOnAfterInitGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPaymentApplicationsOnAfterPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

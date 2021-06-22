@@ -458,7 +458,13 @@ codeunit 1173 "Document Attachment Mgmt"
     var
         FromRecRef: RecordRef;
         ToRecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDocAttachForPostedSalesDocs(SalesHeader, SalesInvoiceHeader, SalesCrMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         // Triggered when a posted sales cr. memo / posted sales invoice is created
         if SalesHeader.IsTemporary then
             exit;
@@ -485,7 +491,13 @@ codeunit 1173 "Document Attachment Mgmt"
     var
         FromRecRef: RecordRef;
         ToRecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDocAttachForPostedPurchaseDocs(PurchaseHeader, PurchInvHeader, PurchCrMemoHdr, IsHandled);
+        if IsHandled then
+            exit;
+
         // Triggered when a posted purchase cr. memo / posted purchase invoice is created
         if PurchaseHeader.IsTemporary then
             exit;
@@ -1236,6 +1248,16 @@ codeunit 1173 "Document Attachment Mgmt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyAttachmentsForPostedDocsLines(var FromRecRef: RecordRef; var ToRecRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDocAttachForPostedPurchaseDocs(var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDocAttachForPostedSalesDocs(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
     begin
     end;
 }

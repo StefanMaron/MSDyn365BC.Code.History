@@ -22,6 +22,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryIncomingDocuments: Codeunit "Library - Incoming Documents";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         NoWorkflowEnabledErr: Label 'No approval workflow for this record type is enabled.';
         ApprovalRequestSendMsg: Label 'An approval request has been sent.';
         RecordIsRestrictedErr: Label 'You cannot use %1 for this action.', Comment = '%1=Record Id';
@@ -856,6 +857,8 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         UserSetup: Record "User Setup";
         PostedApprovalEntry: Record "Posted Approval Entry";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"WF Demo Purch. Inv. Approvals");
+
         LibraryVariableStorage.Clear;
         UserSetup.DeleteAll();
         LibraryERMCountryData.InitializeCountry;

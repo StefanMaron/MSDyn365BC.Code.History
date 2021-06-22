@@ -41,6 +41,7 @@ report 491 "Delete Invd Blnkt Purch Orders"
 
                                     OnBeforeDeletePurchLines(PurchLine);
                                     PurchLine.DeleteAll();
+                                    OnAfterDeletePurchLines(PurchLine);
 
                                     PurchCommentLine.SetRange("Document Type", "Document Type");
                                     PurchCommentLine.SetRange("No.", "No.");
@@ -50,6 +51,7 @@ report 491 "Delete Invd Blnkt Purch Orders"
 
                                     OnBeforeDeletePurchaseHeader("Purchase Header");
                                     Delete;
+                                    OnAfterDeletePurchaseHeader("Purchase Header");
 
                                     Commit();
                                 end;
@@ -92,6 +94,16 @@ report 491 "Delete Invd Blnkt Purch Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeletePurchLines(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 

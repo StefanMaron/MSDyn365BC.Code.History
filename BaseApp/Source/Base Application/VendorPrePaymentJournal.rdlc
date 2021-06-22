@@ -3383,6 +3383,8 @@
                                     <Group Name="Table1_Group">
                                       <GroupExpressions>
                                         <GroupExpression>=Fields!Gen__Journal_Line__Document_No__.Value</GroupExpression>
+                                        <GroupExpression>=Fields!Gen__Journal_Line__Account_Type_.Value</GroupExpression>
+                                        <GroupExpression>=Fields!Gen__Journal_Line__Account_No__.Value</GroupExpression>
                                       </GroupExpressions>
                                     </Group>
                                     <TablixMembers>

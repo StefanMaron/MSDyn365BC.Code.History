@@ -3,6 +3,7 @@ page 7 "Customer Price Groups"
     ApplicationArea = Basic, Suite;
     Caption = 'Customer Price Groups';
     PageType = List;
+    PromotedActionCategories = 'New,Process,Report,Navigate';
     SourceTable = "Customer Price Group";
     UsageCategory = Administration;
 
@@ -79,7 +80,7 @@ page 7 "Customer Price Groups"
                     Caption = 'Sales &Prices';
                     Image = SalesPrices;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Define how to set up sales price agreements. These sales prices can be for individual customers, for a group of customers, for all customers, or for a campaign.';
                     ObsoleteState = Pending;
@@ -98,13 +99,14 @@ page 7 "Customer Price Groups"
                 }
                 action(PriceLists)
                 {
+                    AccessByPermission = TableData "Sales Price Access" = R;
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Price Lists';
+                    Caption = 'Sales Price Lists';
                     Image = Price;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
-                    ToolTip = 'View or set up different prices for products that you sell to customers that belong to the customer price group.';
+                    ToolTip = 'View or set up sales price lists with prices for products that you sell to customers that belong to the customer price group.';
 
                     trigger OnAction()
                     var

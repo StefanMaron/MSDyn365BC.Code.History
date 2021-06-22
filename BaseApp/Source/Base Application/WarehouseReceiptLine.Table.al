@@ -1,4 +1,4 @@
-table 7317 "Warehouse Receipt Line"
+﻿table 7317 "Warehouse Receipt Line"
 {
     Caption = 'Warehouse Receipt Line';
     DrillDownPageID = "Whse. Receipt Lines";
@@ -588,6 +588,7 @@ table 7317 "Warehouse Receipt Line"
             then
                 ErrorOccured := true;
         end;
+        OnCheckBinOnAfterCheckIncreaseBin(Rec, Bin, DeductCubage, DeductWeight, IgnoreErrors, ErrorOccured);
         if ErrorOccured then
             "Bin Code" := '';
     end;
@@ -605,7 +606,7 @@ table 7317 "Warehouse Receipt Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOpenItemTrackingLines(Rec, IsHandled);
+        OnBeforeOpenItemTrackingLines(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -668,6 +669,7 @@ table 7317 "Warehouse Receipt Line"
     begin
         SetRange("No.", ReceiptNo);
         SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, false);
+        OnGetWhseRcptLineOnAfterSetFilters(Rec, ReceiptNo, SourceType, SourceSubType, SourceNo, SourceLineNo);
         if FindFirst then
             exit(true);
     end;
@@ -701,10 +703,16 @@ table 7317 "Warehouse Receipt Line"
         WhseManagement.SetSourceFilterForWhseRcptLine(Rec, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
     end;
 
-    local procedure OverReceiptProcessing(): Boolean
+    local procedure OverReceiptProcessing() Result: Boolean
     var
         OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOverReceiptProcessing(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not OverReceiptMgt.IsOverReceiptAllowed() or (CurrFieldNo <> FieldNo("Qty. to Receive")) or ("Qty. to Receive" <= "Qty. Outstanding") then
             exit(false);
 
@@ -733,7 +741,7 @@ table 7317 "Warehouse Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenItemTrackingLines(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
+    local procedure OnBeforeOpenItemTrackingLines(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean; CallingFieldNo: Integer)
     begin
     end;
 
@@ -759,6 +767,21 @@ table 7317 "Warehouse Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteQtyToReceive(var WhseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBinOnAfterCheckIncreaseBin(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var Bin: Record Bin; DeductCubage: Decimal; DeductWeight: Decimal; IgnoreErrors: Boolean; var ErrorOccured: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOverReceiptProcessing(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetWhseRcptLineOnAfterSetFilters(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; ReceiptNo: Code[20]; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer)
     begin
     end;
 }

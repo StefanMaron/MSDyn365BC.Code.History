@@ -8,7 +8,7 @@ page 9178 "Available Roles"
     DeleteAllowed = false;
     PageType = List;
     SourceTable = "All Profile";
-    SourceTableView = where(Enabled = const(true), "Description" = filter(<> 'Navigation menu only.'));
+    SourceTableView = where(Enabled = const(true));
 
     layout
     {
@@ -36,6 +36,17 @@ page 9178 "Available Roles"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    var
+        DescriptionFilterTxt: Label 'Navigation menu only.';
+        CurrentFilterGroup: Integer;
+    Begin
+        CurrentFilterGroup := FilterGroup();
+        FilterGroup(3);
+        SetFilter(Description, '<> %1', DescriptionFilterTxt);
+        FilterGroup(CurrentFilterGroup);
+    End;
 
     trigger OnAfterGetRecord()
     var

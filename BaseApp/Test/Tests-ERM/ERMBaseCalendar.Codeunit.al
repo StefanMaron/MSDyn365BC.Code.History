@@ -281,6 +281,37 @@ codeunit 134233 "ERM Base Calendar"
         BaseCalendarChange.TestField(Nonworking, true);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseCalendarEntriesShowCorrespondingRecords()
+    var
+        BaseCalendar: Record "Base Calendar";
+        FirstBaseCalendarCode: Code[10];
+        SecondBaseCalendarCode: Code[10];
+        BaseCalendarCard: TestPage "Base Calendar Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 373256] The "Base Calendar Entries Subform" must show corresponding records after change record in "Base Calendar Card"
+        BaseCalendar.DeleteAll();
+
+        // [GIVEN] 2 Base Calendar with Customized Calendar Change
+        // [GIVEN] First Base Calendar Code = "BC1"
+        FirstBaseCalendarCode := CreateBaseCalendarWithCustomizedCalendarChange();
+
+        // [GIVEN] Second Base Calendar Code = "BC2"
+        SecondBaseCalendarCode := CreateBaseCalendarWithCustomizedCalendarChange();
+
+        // [GIVEN] Open "Base Calendar Card" on the first record
+        BaseCalendarCard.OpenView();
+        BaseCalendarCard.BaseCalendarEntries.Description.AssertEquals(FirstBaseCalendarCode);
+
+        // [WHEN] Invoke Next() on the "Base Calendar Card"
+        BaseCalendarCard.Next();
+
+        // [THEN] BaseCalendarEntries shows corresponding record
+        BaseCalendarCard.BaseCalendarEntries.Description.AssertEquals(SecondBaseCalendarCode);
+    end;
+
     local procedure CreateCustomerWithCustomizedCalendar(var Customer: Record Customer): Code[10]
     var
         BaseCalendar: Record "Base Calendar";
@@ -436,6 +467,19 @@ codeunit 134233 "ERM Base Calendar"
             SetRange("Source Code", SourceCode);
             SetRange("Base Calendar Code", BaseCalendarCode);
         end;
+    end;
+
+    local procedure CreateBaseCalendarWithCustomizedCalendarChange(): Code[10]
+    var
+        BaseCalendar: Record "Base Calendar";
+        CustomizedCalendarChange: Record "Customized Calendar Change";
+    begin
+        LibraryService.CreateBaseCalendar(BaseCalendar);
+        CreateCustomizedCalendarChange(CustomizedCalendarChange, BaseCalendar.Code,
+            "Calendar Source Type"::Company, '', '', WorkDate(), false);
+        CustomizedCalendarChange.Validate(Description, BaseCalendar.Code);
+        CustomizedCalendarChange.Modify(true);
+        exit(BaseCalendar.Code);
     end;
 
     local procedure VerifyEmptyCalendarData(BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceNo: Code[20]; Date: Date)

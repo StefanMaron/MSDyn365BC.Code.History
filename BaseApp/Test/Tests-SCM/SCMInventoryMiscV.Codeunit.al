@@ -603,6 +603,30 @@ codeunit 137297 "SCM Inventory Misc. V"
         Assert.AreEqual(0, PurchaseLine."Qty. to Receive", 'Qty. to Receive is not 0.');
     end;
 
+    [Test]
+    procedure SetGetItemOnItemAvailbyLocationLinePage()
+    var
+        Item: Record "Item";
+        NewItem: Record "Item";
+        ItemAvailbyLocationLinesPage: Page "Item Avail. by Location Lines";
+        NewAmountType: Option "Net Change","Balance at Date";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 370328] Methods SetItem() and GetItem() work properly
+        Initialize(true);
+
+        // [GIVEN] Item with No = "Item01"
+        LibraryInventory.CreateItem(Item);
+        Item.SetFilter("Date Filter", '%1..%1', WorkDate());
+
+        // [WHEN] Invoke SetItem(...) and GetItem(...)
+        ItemAvailbyLocationLinesPage.SetItem(Item, NewAmountType::"Balance at Date");
+        ItemAvailbyLocationLinesPage.GetItem(NewItem);
+
+        // [THEN] Returned Item has No = "Item01"
+        NewItem.TestField("No.", NewItem."No.");
+    end;
+
     local procedure Initialize(Enable: Boolean)
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Misc. V");

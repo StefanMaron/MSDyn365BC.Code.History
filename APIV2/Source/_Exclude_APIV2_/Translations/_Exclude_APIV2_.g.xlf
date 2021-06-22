@@ -164,7 +164,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aged AR - Control customerId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 490418399 - Control 3226897001 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Customer Number</source>
+          <source>Customer No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aged AR - Control customerNumber - Property Caption</note>
         </trans-unit>
@@ -854,7 +854,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Company Information - Control website - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2508781286 - Control 2722208761 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Tax Registration Number</source>
+          <source>Tax Registration No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Company Information - Control taxRegistrationNumber - Property Caption</note>
         </trans-unit>
@@ -1024,7 +1024,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Control journalDisplayName - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2757592336 - Control 928535615 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Line Number</source>
+          <source>Line No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Control lineNumber - Property Caption</note>
         </trans-unit>
@@ -1034,7 +1034,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Control customerId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2757592336 - Control 3226897001 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Customer Number</source>
+          <source>Customer No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Control customerNumber - Property Caption</note>
         </trans-unit>
@@ -1044,12 +1044,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Control postingDate - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2757592336 - Control 1150262424 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Document Number</source>
+          <source>Document No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Control documentNumber - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2757592336 - Control 138905291 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>External Document Number</source>
+          <source>External Document No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Control externalDocumentNumber - Property Caption</note>
         </trans-unit>
@@ -1064,7 +1064,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Control appliesToInvoiceId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2757592336 - Control 763246229 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Applies To Invoice Number</source>
+          <source>Applies To Invoice No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Control appliesToInvoiceNumber - Property Caption</note>
         </trans-unit>
@@ -1105,22 +1105,22 @@
         </trans-unit>
         <trans-unit id="Page 2757592336 - NamedType 364076478" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "customerId" does not match to a Customer.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">customerId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - NamedType CustomerIdDoesNotMatchACustomerErr</note>
         </trans-unit>
         <trans-unit id="Page 2757592336 - NamedType 1380976696" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "customerNumber" does not match to a Customer.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">customerNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - NamedType CustomerNumberDoesNotMatchACustomerErr</note>
         </trans-unit>
         <trans-unit id="Page 2757592336 - NamedType 3746247970" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The AppliesToInvoice values do not match to the same Invoice.</source>
+          <source>The Applies To Invoice values do not match to the same Invoice.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - NamedType AppliesToDocValuesDontMatchErr</note>
         </trans-unit>
         <trans-unit id="Page 2757592336 - NamedType 1428228343" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "appliesToInvoiceId" should be the ID of an Open, Paid, Corrective, or Canceled Invoice.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">appliesToInvoiceId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - NamedType AppliesToInvoiceIdDoesNotMatchAnInvoiceErr</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
@@ -1214,7 +1214,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control taxAreaDisplayName - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - Control 2722208761 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Tax Registration Number</source>
+          <source>Tax Registration No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control taxRegistrationNumber - Property Caption</note>
         </trans-unit>
@@ -1265,37 +1265,37 @@
         </trans-unit>
         <trans-unit id="Page 1278155290 - NamedType 3939449910" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyId" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - NamedType CurrencyIdDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - NamedType 1805429782" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyCode" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - NamedType CurrencyCodeDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - NamedType 2002735526" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "paymentTermsId" does not match to a Payment Terms.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">paymentTermsId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - NamedType PaymentTermsIdDoesNotMatchAPaymentTermsErr</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - NamedType 2619345254" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "shipmentMethodId" does not match to a Shipment Method.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">shipmentMethodId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - NamedType ShipmentMethodIdDoesNotMatchAShipmentMethodErr</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - NamedType 3183835414" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "paymentMethodId" does not match to a Payment Method.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">paymentMethodId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - NamedType PaymentMethodIdDoesNotMatchAPaymentMethodErr</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - NamedType 21222800" size-unit="char" translate="yes" xml:space="preserve">
           <source>A "displayName" must be provided.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">displayName is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - NamedType NotProvidedCustomerNameErr</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - NamedType 4191584408" size-unit="char" translate="yes" xml:space="preserve">
           <source>The blank "displayName" is not allowed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">displayName is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - NamedType BlankCustomerNameErr</note>
         </trans-unit>
         <trans-unit id="Page 1983490561 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
@@ -1334,7 +1334,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Paym. Journals - Control balancingAccountId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1983490561 - Control 2661940603 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Balancing Account Number</source>
+          <source>Balancing Account No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Paym. Journals - Control balancingAccountNumber - Property Caption</note>
         </trans-unit>
@@ -1494,18 +1494,18 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType ParentIDRequiredErr</note>
         </trans-unit>
         <trans-unit id="Page 2523640698 - NamedType 3381846524" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The ID or Code field must be filled in.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>The id or code field must be filled in.</source>
+          <note from="Developer" annotates="general" priority="2">id and code are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType IdOrCodeShouldBeFilledErr</note>
         </trans-unit>
         <trans-unit id="Page 2523640698 - NamedType 3627715940" size-unit="char" translate="yes" xml:space="preserve">
           <source>The valueId or valueCode field must be filled in.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">valueId and valueCode are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType ValueIdOrValueCodeShouldBeFilledErr</note>
         </trans-unit>
         <trans-unit id="Page 2523640698 - NamedType 622941683" size-unit="char" translate="yes" xml:space="preserve">
           <source>The ID and Code fields cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">id and code are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType IdAndCodeCannotBeModifiedErr</note>
         </trans-unit>
         <trans-unit id="Page 2523640698 - NamedType 374244056" size-unit="char" translate="yes" xml:space="preserve">
@@ -1520,27 +1520,27 @@
         </trans-unit>
         <trans-unit id="Page 2523640698 - NamedType 671710886" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" does not match to a Dimension.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType DimensionIdDoesNotMatchADimensionErr</note>
         </trans-unit>
         <trans-unit id="Page 2523640698 - NamedType 4216629414" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "code" does not match to a Dimension.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType DimensionCodeDoesNotMatchADimensionErr</note>
         </trans-unit>
         <trans-unit id="Page 2523640698 - NamedType 3112459823" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The values of the Dimension Code field and the Dimension ID field do not refer to the same Dmension Value.</source>
+          <source>The values of the Dimension Code field and the Dimension ID field do not refer to the same Dimension Value.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType DimensionValueFieldsDontMatchErr</note>
         </trans-unit>
         <trans-unit id="Page 2523640698 - NamedType 57828550" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "valueId" does not match to a Dimension Value.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">valueId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType DimensionValueIdDoesNotMatchADimensionValueErr</note>
         </trans-unit>
         <trans-unit id="Page 2523640698 - NamedType 3189431782" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "valueCode" does not match to a Dimension Value.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">valueCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType DimensionValueCodeDoesNotMatchADimensionValueErr</note>
         </trans-unit>
         <trans-unit id="Page 3293418697 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
@@ -1594,7 +1594,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 950291140 - Control 2757394829 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Number</source>
+          <source>No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control number - Property Caption</note>
         </trans-unit>
@@ -1713,11 +1713,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control timeRegistrationEntries - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 950291140 - NamedType 1901776632" size-unit="char" translate="no" xml:space="preserve">
-          <source>%1 %2</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - NamedType EmployeeDisplayNameFormatTxt</note>
-        </trans-unit>
         <trans-unit id="Page 2974691313 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
           <source>General Ledger Entry</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1734,7 +1729,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - G/L Entries - Control id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2974691313 - Control 2190624577 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Entry Number</source>
+          <source>Entry No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - G/L Entries - Control entryNumber - Property Caption</note>
         </trans-unit>
@@ -1744,7 +1739,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - G/L Entries - Control postingDate - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2974691313 - Control 1150262424 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Document Number</source>
+          <source>Document No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - G/L Entries - Control documentNumber - Property Caption</note>
         </trans-unit>
@@ -1759,7 +1754,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - G/L Entries - Control accountId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2974691313 - Control 3033425374 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Account Number</source>
+          <source>Account No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - G/L Entries - Control accountNumber - Property Caption</note>
         </trans-unit>
@@ -1884,7 +1879,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 2757394829 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Number</source>
+          <source>No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control number - Property Caption</note>
         </trans-unit>
@@ -1980,7 +1975,7 @@
         </trans-unit>
         <trans-unit id="Page 1180930185 - NamedType 3536423990" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "unitOfMeasureId" does not match to a Unit of Measure.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">unitOfMeasureId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - NamedType UnitOfMeasureIdDoesNotMatchAUnitOfMeasureErr</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - NamedType 876726151" size-unit="char" translate="yes" xml:space="preserve">
@@ -1990,17 +1985,17 @@
         </trans-unit>
         <trans-unit id="Page 1180930185 - NamedType 245779182" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "taxGroupId" does not match to a Tax Group.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">taxGroupId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - NamedType TaxGroupIdDoesNotMatchATaxGroupErr</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - NamedType 845033262" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "taxGroupCode" does not match to a Tax Group.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">taxGroupCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - NamedType TaxGroupCodeDoesNotMatchATaxGroupErr</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - NamedType 2419481269" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The "itemCategoryId" does not match to a specific ItemCategory group.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>The "itemCategoryId" does not match to a specific Item Category group.</source>
+          <note from="Developer" annotates="general" priority="2">itemCategoryId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - NamedType ItemCategoryIdDoesNotMatchAnItemCategoryGroupErr</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - NamedType 1707660496" size-unit="char" translate="yes" xml:space="preserve">
@@ -2010,7 +2005,7 @@
         </trans-unit>
         <trans-unit id="Page 1180930185 - NamedType 3720971351" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "itemCategoryCode" does not match to a Item Category.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">itemCategoryCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - NamedType ItemCategoryCodeDoesNotMatchATaxGroupErr</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - NamedType 901373512" size-unit="char" translate="yes" xml:space="preserve">
@@ -2055,12 +2050,12 @@
         </trans-unit>
         <trans-unit id="Page 835543452 - NamedType 648424461" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "itemId" does not match to an Item.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">itemId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Item Variants - NamedType ItemIdDoesNotMatchAnEmployeeErr</note>
         </trans-unit>
         <trans-unit id="Page 835543452 - NamedType 1815689303" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "itemNumber" does not match to an Item.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">itemNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Item Variants - NamedType ItemNumberDoesNotMatchAnEmployeeErr</note>
         </trans-unit>
         <trans-unit id="Page 835543452 - NamedType 866385518" size-unit="char" translate="yes" xml:space="preserve">
@@ -2084,7 +2079,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Jobs - Control id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3345245471 - Control 2757394829 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Number</source>
+          <source>No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Jobs - Control number - Property Caption</note>
         </trans-unit>
@@ -2168,6 +2163,26 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - Control comment - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3494060223 - Control 594817020 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tax Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - Control taxCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3494060223 - Control 987962937 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balance Account Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - Control balanceAccountType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3494060223 - Control 175815001 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balancing Account Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - Control balancingAccountId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3494060223 - Control 2661940603 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balancing Account No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - Control balancingAccountNumber - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3494060223 - Control 2245436958 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Modified Date</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2200,12 +2215,17 @@
         </trans-unit>
         <trans-unit id="Page 3494060223 - NamedType 155883664" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "accountId" does not match to an Account.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">accountId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - NamedType AccountIdDoesNotMatchAnAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3494060223 - NamedType 1223625517" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "balancingAccountId" does not match to an Account.</source>
+          <note from="Developer" annotates="general" priority="2">balancingAccountId is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - NamedType BalAccountIdDoesNotMatchAnAccountErr</note>
         </trans-unit>
         <trans-unit id="Page 3494060223 - NamedType 2357764614" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "accountNumber" does not match to an Account.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">accountNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - NamedType AccountNumberDoesNotMatchAnAccountErr</note>
         </trans-unit>
         <trans-unit id="Page 704928557 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
@@ -2380,12 +2400,12 @@
         </trans-unit>
         <trans-unit id="Page 922720640 - NamedType 1358585716" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify a parentId in the request body.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">parentId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - PDF Document - NamedType MissingParentIdErr</note>
         </trans-unit>
         <trans-unit id="Page 922720640 - NamedType 3296680679" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify a parentType in the request body.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">parentType is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - PDF Document - NamedType MissingParentTypeErr</note>
         </trans-unit>
         <trans-unit id="Page 922720640 - NamedType 3168000933" size-unit="char" translate="yes" xml:space="preserve">
@@ -2479,7 +2499,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - Control lineType - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2715273378 - Control 1716610572 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Line Object Number</source>
+          <source>Line Object No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - Control lineObjectNumber - Property Caption</note>
         </trans-unit>
@@ -2590,7 +2610,7 @@
         </trans-unit>
         <trans-unit id="Page 2715273378 - NamedType 2697791227" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "documentId" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">documentId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - NamedType CannotChangeDocumentIdNoErr</note>
         </trans-unit>
         <trans-unit id="Page 2715273378 - NamedType 3577643735" size-unit="char" translate="yes" xml:space="preserve">
@@ -2600,7 +2620,7 @@
         </trans-unit>
         <trans-unit id="Page 2715273378 - NamedType 3559327969" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both "itemId" and "accountId" are specified. Specify only one of them.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">itemId and accountId are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - NamedType BothItemIdAndAccountIdAreSpecifiedErr</note>
         </trans-unit>
         <trans-unit id="Page 2715273378 - NamedType 2671689085" size-unit="char" translate="yes" xml:space="preserve">
@@ -2615,7 +2635,7 @@
         </trans-unit>
         <trans-unit id="Page 2715273378 - NamedType 91023212" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "lineObjectNumber" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">lineObjectNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - NamedType CannotChangeLineObjectNoErr</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
@@ -2704,62 +2724,62 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control shipToContact - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 883773547 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Buy From Address Line 1</source>
+          <source>Buy-from Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control buyFromAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2796863398 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Buy From Address Line 2</source>
+          <source>Buy-from Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control buyFromAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 477206273 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Buy From City</source>
+          <source>Buy-from City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control buyFromCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 1323057276 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Buy From Country/Region Code</source>
+          <source>Buy-from Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control buyFromCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2163249473 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Buy From State</source>
+          <source>Buy-from State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control buyFromState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 426882759 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Buy From Post Code</source>
+          <source>Buy-from Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control buyFromPostCode - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 354324300 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Address Line 1</source>
+          <source>Ship-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control shipToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 992020917 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Address Line 2</source>
+          <source>Ship-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control shipToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 1336190306 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To City</source>
+          <source>Ship-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control shipToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 3828400819 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Country/Region Code</source>
+          <source>Ship-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control shipToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2719673386 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To State</source>
+          <source>Ship-to State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control shipToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2895959832 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Post Code</source>
+          <source>Ship-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control shipToPostCode - Property Caption</note>
         </trans-unit>
@@ -2860,12 +2880,12 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - NamedType 3210053793" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - NamedType CannotChangeIDErr</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - NamedType 3395634949" size-unit="char" translate="yes" xml:space="preserve">
           <source>A "vendorNumber" or a "vendorID" must be provided.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">vendorNumber and vendorID are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - NamedType BuyFromVendorNotProvidedErr</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - NamedType 259424556" size-unit="char" translate="yes" xml:space="preserve">
@@ -2885,12 +2905,12 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - NamedType 3939449910" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyId" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - NamedType CurrencyIdDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - NamedType 1805429782" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyCode" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - NamedType CurrencyCodeDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - NamedType 4291081697" size-unit="char" translate="yes" xml:space="preserve">
@@ -2994,7 +3014,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Control lineType - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1420007888 - Control 1716610572 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Line Object Number</source>
+          <source>Line Object No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Control lineObjectNumber - Property Caption</note>
         </trans-unit>
@@ -3105,7 +3125,7 @@
         </trans-unit>
         <trans-unit id="Page 1420007888 - NamedType 2697791227" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "documentId" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">documentId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - NamedType CannotChangeDocumentIdNoErr</note>
         </trans-unit>
         <trans-unit id="Page 1420007888 - NamedType 3577643735" size-unit="char" translate="yes" xml:space="preserve">
@@ -3115,7 +3135,7 @@
         </trans-unit>
         <trans-unit id="Page 1420007888 - NamedType 3559327969" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both "itemId" and "accountId" are specified. Specify only one of them.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">itemId and accountId are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - NamedType BothItemIdAndAccountIdAreSpecifiedErr</note>
         </trans-unit>
         <trans-unit id="Page 1420007888 - NamedType 2671689085" size-unit="char" translate="yes" xml:space="preserve">
@@ -3130,7 +3150,7 @@
         </trans-unit>
         <trans-unit id="Page 1420007888 - NamedType 91023212" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "lineObjectNumber" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">lineObjectNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - NamedType CannotChangeLineObjectNoErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
@@ -3149,12 +3169,12 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 2757394829 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Number</source>
+          <source>No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control number - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 138905291 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>External Document Number</source>
+          <source>External Document No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control externalDocumentNumber - Property Caption</note>
         </trans-unit>
@@ -3204,62 +3224,62 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control billToCustomerNumber - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 1534408368 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Address Line 1</source>
+          <source>Sell-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control sellToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 2172104985 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Address Line 2</source>
+          <source>Sell-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control sellToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 639928126 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To City</source>
+          <source>Sell-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control sellToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 1038432503 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Country/Region Code</source>
+          <source>Sell-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control sellToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 270403302 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To State</source>
+          <source>Sell-to State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control sellToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 2043020436 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Post Code</source>
+          <source>Sell-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control sellToPostCode - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 3948026507 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Address Line 1</source>
+          <source>Bill-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control billToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 1566149062 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Address Line 2</source>
+          <source>Bill-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control billToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 2880519393 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To City</source>
+          <source>Bill-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control billToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 683811484 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Country/Region Code</source>
+          <source>Bill-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control billToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 2700905313 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To State</source>
+          <source>Bill-to State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control billToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - Control 3070315367 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Post Code</source>
+          <source>Bill-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control billToPostCode - Property Caption</note>
         </trans-unit>
@@ -3365,7 +3385,7 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3210053793" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CannotChangeIDErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 491074039" size-unit="char" translate="yes" xml:space="preserve">
@@ -3380,7 +3400,7 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 335169170" size-unit="char" translate="yes" xml:space="preserve">
           <source>A "customerNumber" or a "customerId" must be provided.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">customerNumber and customerId are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType SellToCustomerNotProvidedErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 1170909690" size-unit="char" translate="yes" xml:space="preserve">
@@ -3393,24 +3413,14 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType BillToCustomerValuesDontMatchErr</note>
         </trans-unit>
-        <trans-unit id="Page 3006414751 - NamedType 2102671796" size-unit="char" translate="no" xml:space="preserve">
-          <source>&lt;&gt;%1&amp;&lt;&gt;%2</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType PermissionFilterFormatTxt</note>
-        </trans-unit>
-        <trans-unit id="Page 3006414751 - NamedType 983877717" size-unit="char" translate="no" xml:space="preserve">
-          <source>&lt;&gt;%1&amp;&lt;&gt;%2&amp;&lt;&gt;%3&amp;&lt;&gt;%4</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType PermissionCrMemoFilterformatTxt</note>
-        </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 1350713266" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "invoiceId" and "invoiceNumber" do not match to a specific Invoice.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">invoiceId and invoiceNumber are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType InvoiceValuesDontMatchErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 1940554256" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "invoiceId" does not match to an Invoice.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">invoiceId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType InvoiceIdDoesNotMatchAnInvoiceErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 2624287652" size-unit="char" translate="yes" xml:space="preserve">
@@ -3420,22 +3430,22 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3939449910" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyId" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CurrencyIdDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 1805429782" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyCode" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType CurrencyCodeDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 2002735526" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "paymentTermsId" does not match to a Payment Terms.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">paymentTermsId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType PaymentTermsIdDoesNotMatchAPaymentTermsErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 2619345254" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "shipmentMethodId" does not match to a Shipment Method.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">shipmentMethodId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType ShipmentMethodIdDoesNotMatchAShipmentMethodErr</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 30303159" size-unit="char" translate="yes" xml:space="preserve">
@@ -3519,7 +3529,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Control lineType - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2529413663 - Control 1716610572 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Line Object Number</source>
+          <source>Line Object No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Control lineObjectNumber - Property Caption</note>
         </trans-unit>
@@ -3630,17 +3640,17 @@
         </trans-unit>
         <trans-unit id="Page 2529413663 - NamedType 2697791227" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "documentId" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">documentId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - NamedType CannotChangeDocumentIdNoErr</note>
         </trans-unit>
         <trans-unit id="Page 2529413663 - NamedType 3577643735" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "sequence" cannot be modified. Delete and insert the line again.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">sequence is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - NamedType CannotChangeLineNoErr</note>
         </trans-unit>
         <trans-unit id="Page 2529413663 - NamedType 3559327969" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both "itemId" and "accountId" are specified. Specify only one of them.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">itemId and accountId are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - NamedType BothItemIdAndAccountIdAreSpecifiedErr</note>
         </trans-unit>
         <trans-unit id="Page 2529413663 - NamedType 2671689085" size-unit="char" translate="yes" xml:space="preserve">
@@ -3655,7 +3665,7 @@
         </trans-unit>
         <trans-unit id="Page 2529413663 - NamedType 91023212" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "lineObjectNumber" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">lineObjectNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - NamedType CannotChangeLineObjectNoErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
@@ -3734,102 +3744,102 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control billToCustomerNumber - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 1889388274 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Name</source>
+          <source>Ship-to Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control shipToName - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 1979445219 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Contact</source>
+          <source>Ship-to Contact</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control shipToContact - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 1534408368 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Address Line 1</source>
+          <source>Sell-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control sellToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2172104985 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Address Line 2</source>
+          <source>Sell-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control sellToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 639928126 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To City</source>
+          <source>Sell-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control sellToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 1038432503 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Country/Region Code</source>
+          <source>Sell-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control sellToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 270403302 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To State</source>
+          <source>Sell-to State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control sellToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2043020436 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Post Code</source>
+          <source>Sell-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control sellToPostCode - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 3948026507 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Address Line 1</source>
+          <source>Bill-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control billToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 1566149062 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Address Line 2</source>
+          <source>Bill-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control billToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2880519393 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To City</source>
+          <source>Bill-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control billToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 683811484 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Country/Region Code</source>
+          <source>Bill-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control billToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2700905313 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To State</source>
+          <source>Bill-to State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control billToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 3070315367 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Post Code</source>
+          <source>Bill-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control billToPostCode - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 354324300 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Address Line 1</source>
+          <source>Ship-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control shipToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 992020917 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Address Line 2</source>
+          <source>Ship-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control shipToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 1336190306 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To City</source>
+          <source>Ship-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control shipToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 3828400819 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Country/Region Code</source>
+          <source>Ship-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control shipToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2719673386 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To State</source>
+          <source>Ship-to State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control shipToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2895959832 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Post Code</source>
+          <source>Ship-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control shipToPostCode - Property Caption</note>
         </trans-unit>
@@ -3945,7 +3955,7 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 335169170" size-unit="char" translate="yes" xml:space="preserve">
           <source>A "customerNumber" or a "customerId" must be provided.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">customerNumber and customerId are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType SellToCustomerNotProvidedErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 1170909690" size-unit="char" translate="yes" xml:space="preserve">
@@ -3975,33 +3985,23 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 3939449910" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyId" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CurrencyIdDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 1805429782" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyCode" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType CurrencyCodeDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 2002735526" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "paymentTermsId" does not match to a Payment Terms.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">paymentTermsId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType PaymentTermsIdDoesNotMatchAPaymentTermsErr</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 2619345254" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "shipmentMethodId" does not match to a Shipment Method.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">shipmentMethodId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType ShipmentMethodIdDoesNotMatchAShipmentMethodErr</note>
-        </trans-unit>
-        <trans-unit id="Page 3783002405 - NamedType 2102671796" size-unit="char" translate="no" xml:space="preserve">
-          <source>&lt;&gt;%1&amp;&lt;&gt;%2</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType PermissionFilterFormatTxt</note>
-        </trans-unit>
-        <trans-unit id="Page 3783002405 - NamedType 701160163" size-unit="char" translate="no" xml:space="preserve">
-          <source>&lt;&gt;%1&amp;&lt;&gt;%2&amp;&lt;&gt;%3&amp;&lt;&gt;%4</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - NamedType PermissionInvoiceFilterformatTxt</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 288789381" size-unit="char" translate="yes" xml:space="preserve">
           <source>The action can be applied to a posted invoice only.</source>
@@ -4099,7 +4099,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Control lineType - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 957521806 - Control 1716610572 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Line Object Number</source>
+          <source>Line Object No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Control lineObjectNumber - Property Caption</note>
         </trans-unit>
@@ -4230,12 +4230,12 @@
         </trans-unit>
         <trans-unit id="Page 957521806 - NamedType 4011611522" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "id" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - NamedType CannotChangeIdNoErr</note>
         </trans-unit>
         <trans-unit id="Page 957521806 - NamedType 2697791227" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "documentId" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">documentId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - NamedType CannotChangeDocumentIdNoErr</note>
         </trans-unit>
         <trans-unit id="Page 957521806 - NamedType 3577643735" size-unit="char" translate="yes" xml:space="preserve">
@@ -4245,7 +4245,7 @@
         </trans-unit>
         <trans-unit id="Page 957521806 - NamedType 3559327969" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both "itemId" and "accountId" are specified. Specify only one of them.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">itemId and accountId are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - NamedType BothItemIdAndAccountIdAreSpecifiedErr</note>
         </trans-unit>
         <trans-unit id="Page 957521806 - NamedType 2671689085" size-unit="char" translate="yes" xml:space="preserve">
@@ -4260,7 +4260,7 @@
         </trans-unit>
         <trans-unit id="Page 957521806 - NamedType 91023212" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "lineObjectNumber" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">lineObjectNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - NamedType CannotChangeLineObjectNoErr</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
@@ -4314,77 +4314,77 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control customerName - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 3276161585 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Name</source>
+          <source>Bill-to Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control billToName - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 2913482491 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Customer Id</source>
+          <source>Bill-to Customer Id</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control billToCustomerId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 3592631193 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Customer Number</source>
+          <source>Bill-to Customer No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control billToCustomerNumber - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 1889388274 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Name</source>
+          <source>Ship-to Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control shipToName - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 1979445219 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Contact</source>
+          <source>Ship-to Contact</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control shipToContact - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 1534408368 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Address Line 1</source>
+          <source>Sell-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control sellToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 2172104985 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Address Line 2</source>
+          <source>Sell-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control sellToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 639928126 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To City</source>
+          <source>Sell-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control sellToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 1038432503 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Country/Region Code</source>
+          <source>Sell-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control sellToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 270403302 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To State</source>
+          <source>Sell-to State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control sellToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 2043020436 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Post Code</source>
+          <source>Sell-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control sellToPostCode - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 3948026507 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Address Line 1</source>
+          <source>Bill-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control billToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 1566149062 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Address Line 2</source>
+          <source>Bill-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control billToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 2880519393 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To City</source>
+          <source>Bill-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control billToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 683811484 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Country/Region Code</source>
+          <source>Bill-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control billToCountry - Property Caption</note>
         </trans-unit>
@@ -4394,37 +4394,37 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control billToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 3070315367 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Post Code</source>
+          <source>Bill-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control billToPostCode - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 354324300 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Address Line 1</source>
+          <source>Ship-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control shipToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 992020917 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Address Line 2</source>
+          <source>Ship-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control shipToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 1336190306 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To City</source>
+          <source>Ship-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control shipToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 3828400819 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Country/Region Code</source>
+          <source>Ship-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control shipToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 2719673386 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To State</source>
+          <source>Ship-to State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control shipToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 2895959832 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Post Code</source>
+          <source>Ship-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control shipToPostCode - Property Caption</note>
         </trans-unit>
@@ -4535,12 +4535,12 @@
         </trans-unit>
         <trans-unit id="Page 48856144 - NamedType 3210053793" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - NamedType CannotChangeIDErr</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - NamedType 335169170" size-unit="char" translate="yes" xml:space="preserve">
           <source>A "customerNumber" or a "customerId" must be provided.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">customerNumber and customerId are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - NamedType SellToCustomerNotProvidedErr</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - NamedType 1170909690" size-unit="char" translate="yes" xml:space="preserve">
@@ -4575,22 +4575,22 @@
         </trans-unit>
         <trans-unit id="Page 48856144 - NamedType 3939449910" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyId" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - NamedType CurrencyIdDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - NamedType 1805429782" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyCode" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - NamedType CurrencyCodeDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - NamedType 2002735526" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "paymentTermsId" does not match to a Payment Terms.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">paymentTermsId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - NamedType PaymentTermsIdDoesNotMatchAPaymentTermsErr</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - NamedType 2619345254" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "shipmentMethodId" does not match to a Shipment Method.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">shipmentMethodId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - NamedType ShipmentMethodIdDoesNotMatchAShipmentMethodErr</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - NamedType 983217553" size-unit="char" translate="yes" xml:space="preserve">
@@ -4639,7 +4639,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - Control lineType - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 505573178 - Control 1716610572 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Line Object Number</source>
+          <source>Line Object No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - Control lineObjectNumber - Property Caption</note>
         </trans-unit>
@@ -4740,7 +4740,7 @@
         </trans-unit>
         <trans-unit id="Page 505573178 - NamedType 2697791227" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "documentId" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">documentId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - NamedType CannotChangeDocumentIdNoErr</note>
         </trans-unit>
         <trans-unit id="Page 505573178 - NamedType 3577643735" size-unit="char" translate="yes" xml:space="preserve">
@@ -4750,7 +4750,7 @@
         </trans-unit>
         <trans-unit id="Page 505573178 - NamedType 3559327969" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both "itemId" and "accountId" are specified. Specify only one of them.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">itemId and accountId are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - NamedType BothItemIdAndAccountIdAreSpecifiedErr</note>
         </trans-unit>
         <trans-unit id="Page 505573178 - NamedType 2671689085" size-unit="char" translate="yes" xml:space="preserve">
@@ -4765,7 +4765,7 @@
         </trans-unit>
         <trans-unit id="Page 505573178 - NamedType 91023212" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "lineObjectNumber" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">lineObjectNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - NamedType CannotChangeLineObjectNoErr</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
@@ -4789,7 +4789,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control number - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 138905291 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>External Document Number</source>
+          <source>External Document No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control externalDocumentNumber - Property Caption</note>
         </trans-unit>
@@ -4849,92 +4849,92 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control shipToContact - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 1534408368 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Address Line 1</source>
+          <source>Sell-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control sellToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 2172104985 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Address Line 2</source>
+          <source>Sell-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control sellToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 639928126 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To City</source>
+          <source>Sell-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control sellToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 1038432503 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Country/Region Code</source>
+          <source>Sell-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control sellToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 270403302 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To State</source>
+          <source>Sell-to State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control sellToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 2043020436 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell To Post Code</source>
+          <source>Sell-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control sellToPostCode - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 3948026507 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Address Line 1</source>
+          <source>Bill-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control billToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 1566149062 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Address Line 2</source>
+          <source>Bill-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control billToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 2880519393 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To City</source>
+          <source>Bill-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control billToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 683811484 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Country/Region Code</source>
+          <source>Bill-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control billToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 2700905313 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To State</source>
+          <source>Bill-to State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control billToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 3070315367 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill To Post Code</source>
+          <source>Bill-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control billToPostCode - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 354324300 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Address Line 1</source>
+          <source>Ship-to Address Line 1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control shipToAddressLine1 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 992020917 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Address Line 2</source>
+          <source>Ship-to Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control shipToAddressLine2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 1336190306 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To City</source>
+          <source>Ship-to City</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control shipToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 3828400819 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Country/Region Code</source>
+          <source>Ship-to Country/Region Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control shipToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 2719673386 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To State</source>
+          <source>Ship-to State</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control shipToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 2895959832 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Ship To Post Code</source>
+          <source>Ship-to Post Code</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control shipToPostCode - Property Caption</note>
         </trans-unit>
@@ -5045,12 +5045,12 @@
         </trans-unit>
         <trans-unit id="Page 617149860 - NamedType 3210053793" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "id" cannot be changed.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - NamedType CannotChangeIDErr</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - NamedType 335169170" size-unit="char" translate="yes" xml:space="preserve">
           <source>A "customerNumber" or a "customerId" must be provided.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">customerNumber and customerId are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - NamedType SellToCustomerNotProvidedErr</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - NamedType 1170909690" size-unit="char" translate="yes" xml:space="preserve">
@@ -5075,22 +5075,22 @@
         </trans-unit>
         <trans-unit id="Page 617149860 - NamedType 3939449910" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyId" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - NamedType CurrencyIdDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - NamedType 1805429782" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyCode" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - NamedType CurrencyCodeDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - NamedType 2002735526" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "paymentTermsId" does not match to a Payment Terms.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">paymentTermsId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - NamedType PaymentTermsIdDoesNotMatchAPaymentTermsErr</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - NamedType 2619345254" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "shipmentMethodId" does not match to a Shipment Method.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">shipmentMethodId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - NamedType ShipmentMethodIdDoesNotMatchAShipmentMethodErr</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - NamedType 3179925413" size-unit="char" translate="yes" xml:space="preserve">
@@ -5229,7 +5229,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Time Registr. Entries - Control jobNumber - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4020415616 - Control 3045250155 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Job Task Number</source>
+          <source>Job Task No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Time Registr. Entries - Control jobTaskNumber - Property Caption</note>
         </trans-unit>
@@ -5285,7 +5285,7 @@
         </trans-unit>
         <trans-unit id="Page 4020415616 - NamedType 3219162272" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "employeeId" does not match to an Employee.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">employeeId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Time Registr. Entries - NamedType EmployeeIdDoesNotMatchAnEmployeeErr</note>
         </trans-unit>
         <trans-unit id="Page 4020415616 - NamedType 3424577687" size-unit="char" translate="yes" xml:space="preserve">
@@ -5295,12 +5295,12 @@
         </trans-unit>
         <trans-unit id="Page 4020415616 - NamedType 1544230694" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "employeeNumber" does not match to an Employee.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">employeeNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Time Registr. Entries - NamedType EmployeeNumberDoesNotMatchAnEmployeeErr</note>
         </trans-unit>
         <trans-unit id="Page 4020415616 - NamedType 2395360486" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "jobId" does not match to a Job.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">jobId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Time Registr. Entries - NamedType JobIdDoesNotMatchAJobErr</note>
         </trans-unit>
         <trans-unit id="Page 4020415616 - NamedType 155915836" size-unit="char" translate="yes" xml:space="preserve">
@@ -5310,12 +5310,12 @@
         </trans-unit>
         <trans-unit id="Page 4020415616 - NamedType 1172261136" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "jobNumber" does not match to a Job.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">jobNumber is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Time Registr. Entries - NamedType JobNumberDoesNotMatchAJobErr</note>
         </trans-unit>
         <trans-unit id="Page 4020415616 - NamedType 1497246413" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "employeeId" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">employeeId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Time Registr. Entries - NamedType CannotModifyEmployeeIdErr</note>
         </trans-unit>
         <trans-unit id="Page 4020415616 - NamedType 1900734740" size-unit="char" translate="yes" xml:space="preserve">
@@ -5325,7 +5325,7 @@
         </trans-unit>
         <trans-unit id="Page 4020415616 - NamedType 1415552295" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value for "employeeId" cannot be modified.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">employeeId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Time Registr. Entries - NamedType CannotChangeEmployeeIdErr</note>
         </trans-unit>
         <trans-unit id="Page 4020415616 - NamedType 2901946605" size-unit="char" translate="yes" xml:space="preserve">
@@ -5504,7 +5504,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control website - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2680707570 - Control 2722208761 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Tax Registration Number</source>
+          <source>Tax Registration No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control taxRegistrationNumber - Property Caption</note>
         </trans-unit>
@@ -5565,22 +5565,22 @@
         </trans-unit>
         <trans-unit id="Page 2680707570 - NamedType 3939449910" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyId" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - NamedType CurrencyIdDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 2680707570 - NamedType 1805429782" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyCode" does not match to a Currency.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">currencyCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - NamedType CurrencyCodeDoesNotMatchACurrencyErr</note>
         </trans-unit>
         <trans-unit id="Page 2680707570 - NamedType 2002735526" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "paymentTermsId" does not match to a Payment Terms.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">paymentTermsId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - NamedType PaymentTermsIdDoesNotMatchAPaymentTermsErr</note>
         </trans-unit>
         <trans-unit id="Page 2680707570 - NamedType 3183835414" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "paymentMethodId" does not match to a Payment Method.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Developer" annotates="general" priority="2">paymentMethodId is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - NamedType PaymentMethodIdDoesNotMatchAPaymentMethodErr</note>
         </trans-unit>
         <trans-unit id="Query 1376762199 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
