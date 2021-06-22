@@ -103,15 +103,7 @@ codeunit 1001 "Job Post-Line"
         JobPlanningLine.FindFirst;
         Job.Get(JobPlanningLine."Job No.");
 
-        if Job."Invoice Currency Code" = '' then begin
-            Job.TestField("Currency Code", SalesHeader."Currency Code");
-            Job.TestField("Currency Code", JobPlanningLine."Currency Code");
-            SalesHeader.TestField("Currency Code", JobPlanningLine."Currency Code");
-            SalesHeader.TestField("Currency Factor", JobPlanningLine."Currency Factor");
-        end else begin
-            Job.TestField("Currency Code", '');
-            JobPlanningLine.TestField("Currency Code", '');
-        end;
+        CheckCurrency(Job, SalesHeader, JobPlanningLine);
 
         IsHandled := false;
         OnPostInvoiceContractLineOnBeforeCheckBillToCustomer(SalesHeader, SalesLine, JobPlanningLine, IsHandled);
@@ -185,7 +177,10 @@ codeunit 1001 "Job Post-Line"
         Txt: Text[500];
         IsHandled: Boolean;
     begin
-        OnBeforeValidateRelationship(SalesHeader, SalesLine, JobPlanningLine);
+        IsHandled := false;
+        OnBeforeValidateRelationship(SalesHeader, SalesLine, JobPlanningLine, IsHandled);
+        if IsHandled then
+            exit;
 
         JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
         Txt := StrSubstNo(Text000,
@@ -473,6 +468,26 @@ codeunit 1001 "Job Post-Line"
         exit(JobLedgEntry.GetLastEntryNo() + 1);
     end;
 
+    local procedure CheckCurrency(Job: Record Job; SalesHeader: Record "Sales Header"; JobPlanningLine: Record "Job Planning Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCurrency(Job, SalesHeader, JobPlanningLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Job."Invoice Currency Code" = '' then begin
+            Job.TestField("Currency Code", SalesHeader."Currency Code");
+            Job.TestField("Currency Code", JobPlanningLine."Currency Code");
+            SalesHeader.TestField("Currency Code", JobPlanningLine."Currency Code");
+            SalesHeader.TestField("Currency Factor", JobPlanningLine."Currency Factor");
+        end else begin
+            Job.TestField("Currency Code", '');
+            JobPlanningLine.TestField("Currency Code", '');
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostInvoiceContractLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
@@ -509,7 +524,7 @@ codeunit 1001 "Job Post-Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateRelationship(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var JobPlanningLine: Record "Job Planning Line")
+    local procedure OnBeforeValidateRelationship(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -545,6 +560,11 @@ codeunit 1001 "Job Post-Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateRelationshipOnBeforeCheckLineDiscount(var SalesLine: Record "Sales Line"; var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCurrency(Job: Record Job; SalesHeader: Record "Sales Header"; JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean);
     begin
     end;
 }

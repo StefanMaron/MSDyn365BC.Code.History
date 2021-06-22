@@ -3204,7 +3204,7 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                     <Paragraph>
                       <TextRuns>
                         <TextRun>
-                          <Value>=Code.GetData(1,2)</Value>
+                          <Value>="[" + Code.GetData(1,2) + "]"</Value>
                           <Style>
                             <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
@@ -3290,7 +3290,7 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                     <Paragraph>
                       <TextRuns>
                         <TextRun>
-                          <Value>=Code.GetData(4,3)</Value>
+                          <Value>="[" + Code.GetData(4,3) + "]"</Value>
                           <Style>
                             <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
@@ -3321,7 +3321,7 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                     <Paragraph>
                       <TextRuns>
                         <TextRun>
-                          <Value>="********" + Code.GetData(5,3)</Value>
+                          <Value>="[********" + Code.GetData(5,3) + "]"</Value>
                           <Style>
                             <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>

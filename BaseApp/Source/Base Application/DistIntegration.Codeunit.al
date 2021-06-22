@@ -80,7 +80,14 @@ codeunit 5702 "Dist. Integration"
     end;
 
     procedure EnterPurchaseItemCrossRef(var PurchLine2: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEnterPurchaseItemCrossRef(PurchLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchLine2 do
             if Type = Type::Item then begin
                 ItemCrossReference.Reset();
@@ -500,6 +507,11 @@ codeunit 5702 "Dist. Integration"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesLineModify(var SalesLine: Record "Sales Line"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnterPurchaseItemCrossRef(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

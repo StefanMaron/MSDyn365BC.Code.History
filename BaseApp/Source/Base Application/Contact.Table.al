@@ -289,14 +289,8 @@ table 5050 Contact
 
             trigger OnValidate()
             var
-                Opp: Record Opportunity;
-                OppEntry: Record "Opportunity Entry";
-                Task: Record "To-do";
-                InteractLogEntry: Record "Interaction Log Entry";
                 SegLine: Record "Segment Line";
-                SalesHeader: Record "Sales Header";
                 Cont: Record Contact;
-                ContBusRel: Record "Contact Business Relation";
             begin
                 if Cont.Get("Company No.") then
                     InheritCompanyToPersonData(Cont)
@@ -312,76 +306,7 @@ table 5050 Contact
                 if not SegLine.IsEmpty then
                     Error(Text012, FieldCaption("Company No."));
 
-                if Cont.Get("No.") then begin
-                    if xRec."Company No." <> '' then begin
-                        Opp.SetCurrentKey("Contact Company No.", "Contact No.");
-                        Opp.SetRange("Contact Company No.", xRec."Company No.");
-                        Opp.SetRange("Contact No.", "No.");
-                        if not Opp.IsEmpty then
-                            Opp.ModifyAll("Contact No.", xRec."Company No.");
-                        OppEntry.SetCurrentKey("Contact Company No.", "Contact No.");
-                        OppEntry.SetRange("Contact Company No.", xRec."Company No.");
-                        OppEntry.SetRange("Contact No.", "No.");
-                        if not OppEntry.IsEmpty then
-                            OppEntry.ModifyAll("Contact No.", xRec."Company No.");
-                        Task.SetCurrentKey("Contact Company No.", "Contact No.");
-                        Task.SetRange("Contact Company No.", xRec."Company No.");
-                        Task.SetRange("Contact No.", "No.");
-                        if not Task.IsEmpty then
-                            Task.ModifyAll("Contact No.", xRec."Company No.");
-                        InteractLogEntry.SetCurrentKey("Contact Company No.", "Contact No.");
-                        InteractLogEntry.SetRange("Contact Company No.", xRec."Company No.");
-                        InteractLogEntry.SetRange("Contact No.", "No.");
-                        if not InteractLogEntry.IsEmpty then
-                            InteractLogEntry.ModifyAll("Contact No.", xRec."Company No.");
-                        ContBusRel.Reset();
-                        ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
-                        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-                        ContBusRel.SetRange("Contact No.", xRec."Company No.");
-                        SalesHeader.SetCurrentKey("Sell-to Customer No.", "External Document No.");
-                        SalesHeader.SetRange("Sell-to Contact No.", "No.");
-                        if ContBusRel.FindFirst then
-                            SalesHeader.SetRange("Sell-to Customer No.", ContBusRel."No.")
-                        else
-                            SalesHeader.SetRange("Sell-to Customer No.", '');
-                        if SalesHeader.Find('-') then
-                            repeat
-                                SalesHeader."Sell-to Contact No." := xRec."Company No.";
-                                if SalesHeader."Sell-to Contact No." = SalesHeader."Bill-to Contact No." then
-                                    SalesHeader."Bill-to Contact No." := xRec."Company No.";
-                                SalesHeader.Modify();
-                            until SalesHeader.Next = 0;
-                        SalesHeader.Reset();
-                        SalesHeader.SetCurrentKey("Bill-to Contact No.");
-                        SalesHeader.SetRange("Bill-to Contact No.", "No.");
-                        if not SalesHeader.IsEmpty then
-                            SalesHeader.ModifyAll("Bill-to Contact No.", xRec."Company No.");
-                    end else begin
-                        Opp.SetCurrentKey("Contact Company No.", "Contact No.");
-                        Opp.SetRange("Contact Company No.", '');
-                        Opp.SetRange("Contact No.", "No.");
-                        if not Opp.IsEmpty then
-                            Opp.ModifyAll("Contact Company No.", "Company No.");
-                        OppEntry.SetCurrentKey("Contact Company No.", "Contact No.");
-                        OppEntry.SetRange("Contact Company No.", '');
-                        OppEntry.SetRange("Contact No.", "No.");
-                        if not OppEntry.IsEmpty then
-                            OppEntry.ModifyAll("Contact Company No.", "Company No.");
-                        Task.SetCurrentKey("Contact Company No.", "Contact No.");
-                        Task.SetRange("Contact Company No.", '');
-                        Task.SetRange("Contact No.", "No.");
-                        if not Task.IsEmpty then
-                            Task.ModifyAll("Contact Company No.", "Company No.");
-                        InteractLogEntry.SetCurrentKey("Contact Company No.", "Contact No.");
-                        InteractLogEntry.SetRange("Contact Company No.", '');
-                        InteractLogEntry.SetRange("Contact No.", "No.");
-                        if not InteractLogEntry.IsEmpty then
-                            InteractLogEntry.ModifyAll("Contact Company No.", "Company No.");
-                    end;
-
-                    if CurrFieldNo <> 0 then
-                        Modify;
-                end;
+                UpdateCompanyNo();
             end;
         }
         field(5052; "Company Name"; Text[100])
@@ -1014,12 +939,15 @@ table 5050 Contact
     end;
 
     trigger OnModify()
+    var
+        ContactBeforeModify: Record Contact;
     begin
         // If the modify is called from code, Rec and xRec are the same,
         // so find the xRec
+        ContactBeforeModify.Copy(xRec);
         if Format(xRec) = Format(Rec) then
-            xRec.Find;
-        DoModify(xRec);
+            ContactBeforeModify.Find;
+        DoModify(ContactBeforeModify);
         SetSearchEmail();
     end;
 
@@ -1065,7 +993,7 @@ table 5050 Contact
         DifferentCustomerTemplateMsg: Label 'Sales quote %1 with original customer template %2 was assigned to the customer created from template %3.', Comment = '%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code';
         NoOriginalCustomerTemplateMsg: Label 'Sales quote %1 without an original customer template was assigned to the customer created from template %2.', Comment = '%1=Document No.,%2=Customer Template Code';
 
-    procedure DoModify(xRec: Record Contact)
+    procedure DoModify(ContactBeforeModify: Record Contact)
     var
         OldCont: Record Contact;
         Cont: Record Contact;
@@ -1088,102 +1016,102 @@ table 5050 Contact
                 repeat
                     ContChanged := false;
                     OldCont := Cont;
-                    if Name <> xRec.Name then begin
+                    if Name <> ContactBeforeModify.Name then begin
                         Cont."Company Name" := Name;
                         ContChanged := true;
                     end;
                     if RMSetup."Inherit Salesperson Code" and
-                       (xRec."Salesperson Code" <> "Salesperson Code") and
-                       (xRec."Salesperson Code" = Cont."Salesperson Code")
+                       (ContactBeforeModify."Salesperson Code" <> "Salesperson Code") and
+                       (ContactBeforeModify."Salesperson Code" = Cont."Salesperson Code")
                     then begin
                         Cont."Salesperson Code" := "Salesperson Code";
                         ContChanged := true;
                     end;
                     if RMSetup."Inherit Territory Code" and
-                       (xRec."Territory Code" <> "Territory Code") and
-                       (xRec."Territory Code" = Cont."Territory Code")
+                       (ContactBeforeModify."Territory Code" <> "Territory Code") and
+                       (ContactBeforeModify."Territory Code" = Cont."Territory Code")
                     then begin
                         Cont."Territory Code" := "Territory Code";
                         ContChanged := true;
                     end;
                     if RMSetup."Inherit Country/Region Code" and
-                       (xRec."Country/Region Code" <> "Country/Region Code") and
-                       (xRec."Country/Region Code" = Cont."Country/Region Code")
+                       (ContactBeforeModify."Country/Region Code" <> "Country/Region Code") and
+                       (ContactBeforeModify."Country/Region Code" = Cont."Country/Region Code")
                     then begin
                         Cont."Country/Region Code" := "Country/Region Code";
                         ContChanged := true;
                     end;
                     if RMSetup."Inherit Language Code" and
-                       (xRec."Language Code" <> "Language Code") and
-                       (xRec."Language Code" = Cont."Language Code")
+                       (ContactBeforeModify."Language Code" <> "Language Code") and
+                       (ContactBeforeModify."Language Code" = Cont."Language Code")
                     then begin
                         Cont."Language Code" := "Language Code";
                         ContChanged := true;
                     end;
                     if RMSetup."Inherit Address Details" then
-                        if xRec.IdenticalAddress(Cont) then begin
-                            if xRec.Address <> Address then begin
+                        if ContactBeforeModify.IdenticalAddress(Cont) then begin
+                            if ContactBeforeModify.Address <> Address then begin
                                 Cont.Address := Address;
                                 ContChanged := true;
                             end;
-                            if xRec."Address 2" <> "Address 2" then begin
+                            if ContactBeforeModify."Address 2" <> "Address 2" then begin
                                 Cont."Address 2" := "Address 2";
                                 ContChanged := true;
                             end;
-                            if xRec."Post Code" <> "Post Code" then begin
+                            if ContactBeforeModify."Post Code" <> "Post Code" then begin
                                 Cont."Post Code" := "Post Code";
                                 ContChanged := true;
                             end;
-                            if xRec.City <> City then begin
+                            if ContactBeforeModify.City <> City then begin
                                 Cont.City := City;
                                 ContChanged := true;
                             end;
-                            if xRec.County <> County then begin
+                            if ContactBeforeModify.County <> County then begin
                                 Cont.County := County;
                                 ContChanged := true;
                             end;
                             OnAfterSyncAddress(Cont, Rec, ContChanged);
                         end;
                     if RMSetup."Inherit Communication Details" then begin
-                        if (xRec."Phone No." <> "Phone No.") and (xRec."Phone No." = Cont."Phone No.") then begin
+                        if (ContactBeforeModify."Phone No." <> "Phone No.") and (ContactBeforeModify."Phone No." = Cont."Phone No.") then begin
                             Cont."Phone No." := "Phone No.";
                             ContChanged := true;
                         end;
-                        if (xRec."Telex No." <> "Telex No.") and (xRec."Telex No." = Cont."Telex No.") then begin
+                        if (ContactBeforeModify."Telex No." <> "Telex No.") and (ContactBeforeModify."Telex No." = Cont."Telex No.") then begin
                             Cont."Telex No." := "Telex No.";
                             ContChanged := true;
                         end;
-                        if (xRec."Fax No." <> "Fax No.") and (xRec."Fax No." = Cont."Fax No.") then begin
+                        if (ContactBeforeModify."Fax No." <> "Fax No.") and (ContactBeforeModify."Fax No." = Cont."Fax No.") then begin
                             Cont."Fax No." := "Fax No.";
                             ContChanged := true;
                         end;
-                        if (xRec."Telex Answer Back" <> "Telex Answer Back") and (xRec."Telex Answer Back" = Cont."Telex Answer Back") then begin
+                        if (ContactBeforeModify."Telex Answer Back" <> "Telex Answer Back") and (ContactBeforeModify."Telex Answer Back" = Cont."Telex Answer Back") then begin
                             Cont."Telex Answer Back" := "Telex Answer Back";
                             ContChanged := true;
                         end;
-                        if (xRec."E-Mail" <> "E-Mail") and (xRec."E-Mail" = Cont."E-Mail") then begin
+                        if (ContactBeforeModify."E-Mail" <> "E-Mail") and (ContactBeforeModify."E-Mail" = Cont."E-Mail") then begin
                             Cont.Validate("E-Mail", "E-Mail");
                             ContChanged := true;
                         end;
-                        if (xRec."Home Page" <> "Home Page") and (xRec."Home Page" = Cont."Home Page") then begin
+                        if (ContactBeforeModify."Home Page" <> "Home Page") and (ContactBeforeModify."Home Page" = Cont."Home Page") then begin
                             Cont."Home Page" := "Home Page";
                             ContChanged := true;
                         end;
-                        if (xRec."Extension No." <> "Extension No.") and (xRec."Extension No." = Cont."Extension No.") then begin
+                        if (ContactBeforeModify."Extension No." <> "Extension No.") and (ContactBeforeModify."Extension No." = Cont."Extension No.") then begin
                             Cont."Extension No." := "Extension No.";
                             ContChanged := true;
                         end;
-                        if (xRec."Mobile Phone No." <> "Mobile Phone No.") and (xRec."Mobile Phone No." = Cont."Mobile Phone No.") then begin
+                        if (ContactBeforeModify."Mobile Phone No." <> "Mobile Phone No.") and (ContactBeforeModify."Mobile Phone No." = Cont."Mobile Phone No.") then begin
                             Cont."Mobile Phone No." := "Mobile Phone No.";
                             ContChanged := true;
                         end;
-                        if (xRec.Pager <> Pager) and (xRec.Pager = Cont.Pager) then begin
+                        if (ContactBeforeModify.Pager <> Pager) and (ContactBeforeModify.Pager = Cont.Pager) then begin
                             Cont.Pager := Pager;
                             ContChanged := true;
                         end;
                     end;
 
-                    OnBeforeApplyCompanyChangeToPerson(Cont, Rec, xRec, ContChanged);
+                    OnBeforeApplyCompanyChangeToPerson(Cont, Rec, ContactBeforeModify, ContChanged, OldCont);
                     if ContChanged then begin
                         Cont.DoModify(OldCont);
                         Cont.Modify();
@@ -1191,22 +1119,22 @@ table 5050 Contact
                 until Cont.Next = 0;
 
             IsDuplicateCheckNeeded :=
-              (Name <> xRec.Name) or
-              ("Name 2" <> xRec."Name 2") or
-              (Address <> xRec.Address) or
-              ("Address 2" <> xRec."Address 2") or
-              (City <> xRec.City) or
-              ("Post Code" <> xRec."Post Code") or
-              ("VAT Registration No." <> xRec."VAT Registration No.") or
-              ("Phone No." <> xRec."Phone No.");
+              (Name <> ContactBeforeModify.Name) or
+              ("Name 2" <> ContactBeforeModify."Name 2") or
+              (Address <> ContactBeforeModify.Address) or
+              ("Address 2" <> ContactBeforeModify."Address 2") or
+              (City <> ContactBeforeModify.City) or
+              ("Post Code" <> ContactBeforeModify."Post Code") or
+              ("VAT Registration No." <> ContactBeforeModify."VAT Registration No.") or
+              ("Phone No." <> ContactBeforeModify."Phone No.");
 
-            OnBeforeDuplicateCheck(Rec, xRec, IsDuplicateCheckNeeded);
+            OnBeforeDuplicateCheck(Rec, ContactBeforeModify, IsDuplicateCheckNeeded);
 
             if IsDuplicateCheckNeeded then
                 CheckDuplicates;
         end;
 
-        OnAfterOnModify(Rec, xRec);
+        OnAfterOnModify(Rec, ContactBeforeModify);
     end;
 
     procedure TypeChange()
@@ -1227,6 +1155,7 @@ table 5050 Contact
             InteractLogEntry.SetRange("Contact No.", "No.");
             if InteractLogEntry.FindFirst then
                 Error(Text003, FieldCaption(Type));
+            OnTypeChangeOnAfterCheckInteractionLog(Rec, xRec);
             Task.SetRange("Contact Company No.", "Company No.");
             Task.SetRange("Contact No.", "No.");
             if not Task.IsEmpty then
@@ -1287,15 +1216,15 @@ table 5050 Contact
         end;
     end;
 
-    procedure AssistEdit(OldCont: Record Contact): Boolean
+    procedure AssistEdit(OldCont: Record Contact) Result: Boolean
     var
         Cont: Record Contact;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAssistEdit(Rec, OldCont, IsHandled);
+        OnBeforeAssistEdit(Rec, OldCont, IsHandled, Result);
         if IsHandled then
-            exit(true);
+            exit(Result);
 
         with Cont do begin
             Cont := Rec;
@@ -1414,7 +1343,13 @@ table 5050 Contact
         Vend: Record Vendor;
         ContComp: Record Contact;
         OfficeMgt: Codeunit "Office Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateVendor(Rec, VendorNo, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckForExistingRelationships(ContBusRel."Link to Table"::Vendor);
         CheckIfPrivacyBlockedGeneric;
         CheckCompanyNo;
@@ -1544,6 +1479,7 @@ table 5050 Contact
     var
         TempContBusRel: Record "Contact Business Relation" temporary;
     begin
+        OnBeforeCreateLink(Rec, TempContBusRel, CreateForm, BusRelCode, Table);
         TempContBusRel."Contact No." := "No.";
         TempContBusRel."Business Relation Code" := BusRelCode;
         TempContBusRel."Link to Table" := Table;
@@ -1581,6 +1517,7 @@ table 5050 Contact
         Vend: Record Vendor;
         BankAcc: Record "Bank Account";
         FormSelected: Boolean;
+        IsHandled: Boolean;
     begin
         FormSelected := true;
 
@@ -1600,6 +1537,11 @@ table 5050 Contact
             else
                 FormSelected := PAGE.RunModal(PAGE::"Contact Business Relations", ContBusRel) = ACTION::LookupOK;
         end;
+
+        IsHandled := false;
+        OnShowCustVendBankOnBeforeRunPage(Rec, FormSelected, ContBusRel, IsHandled);
+        if IsHandled THEN
+            exit;
 
         if FormSelected then
             case ContBusRel."Link to Table" of
@@ -1723,7 +1665,12 @@ table 5050 Contact
     end;
 
     local procedure UpdateSearchName()
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeUpdateSearchName(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
         if ("Search Name" = UpperCase(xRec.Name)) or ("Search Name" = '') then
             "Search Name" := Name;
     end;
@@ -1732,6 +1679,10 @@ table 5050 Contact
     var
         IsHandled: Boolean;
     begin
+        OnBeforeCheckDuplicates(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if RMSetup."Maintain Dupl. Search Strings" then
             DuplMgt.MakeContIndex(Rec);
 
@@ -1810,6 +1761,89 @@ table 5050 Contact
                 exit(CustTemplate.Code);
 
             Error(Text022);
+        end;
+    end;
+
+    local procedure UpdateCompanyNo()
+    var
+        Cont: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+        InteractLogEntry: Record "Interaction Log Entry";
+        Opp: Record Opportunity;
+        OppEntry: Record "Opportunity Entry";
+        SalesHeader: Record "Sales Header";
+        Task: Record "To-do";
+    begin
+        OnBeforeUpdateCompanyNo(Rec, xRec);
+        if Cont.Get("No.") then begin
+            if xRec."Company No." <> '' then begin
+                Opp.SetCurrentKey("Contact Company No.", "Contact No.");
+                Opp.SetRange("Contact Company No.", xRec."Company No.");
+                Opp.SetRange("Contact No.", "No.");
+                if not Opp.IsEmpty then
+                    Opp.ModifyAll("Contact No.", xRec."Company No.");
+                OppEntry.SetCurrentKey("Contact Company No.", "Contact No.");
+                OppEntry.SetRange("Contact Company No.", xRec."Company No.");
+                OppEntry.SetRange("Contact No.", "No.");
+                if not OppEntry.IsEmpty then
+                    OppEntry.ModifyAll("Contact No.", xRec."Company No.");
+                Task.SetCurrentKey("Contact Company No.", "Contact No.");
+                Task.SetRange("Contact Company No.", xRec."Company No.");
+                Task.SetRange("Contact No.", "No.");
+                if not Task.IsEmpty then
+                    Task.ModifyAll("Contact No.", xRec."Company No.");
+                InteractLogEntry.SetCurrentKey("Contact Company No.", "Contact No.");
+                InteractLogEntry.SetRange("Contact Company No.", xRec."Company No.");
+                InteractLogEntry.SetRange("Contact No.", "No.");
+                if not InteractLogEntry.IsEmpty then
+                    InteractLogEntry.ModifyAll("Contact No.", xRec."Company No.");
+                ContBusRel.Reset();
+                ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
+                ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
+                ContBusRel.SetRange("Contact No.", xRec."Company No.");
+                SalesHeader.SetCurrentKey("Sell-to Customer No.", "External Document No.");
+                SalesHeader.SetRange("Sell-to Contact No.", "No.");
+                if ContBusRel.FindFirst then
+                    SalesHeader.SetRange("Sell-to Customer No.", ContBusRel."No.")
+                else
+                    SalesHeader.SetRange("Sell-to Customer No.", '');
+                if SalesHeader.Find('-') then
+                    repeat
+                        SalesHeader."Sell-to Contact No." := xRec."Company No.";
+                        if SalesHeader."Sell-to Contact No." = SalesHeader."Bill-to Contact No." then
+                            SalesHeader."Bill-to Contact No." := xRec."Company No.";
+                        SalesHeader.Modify();
+                    until SalesHeader.Next = 0;
+                SalesHeader.Reset();
+                SalesHeader.SetCurrentKey("Bill-to Contact No.");
+                SalesHeader.SetRange("Bill-to Contact No.", "No.");
+                if not SalesHeader.IsEmpty then
+                    SalesHeader.ModifyAll("Bill-to Contact No.", xRec."Company No.");
+            end else begin
+                Opp.SetCurrentKey("Contact Company No.", "Contact No.");
+                Opp.SetRange("Contact Company No.", '');
+                Opp.SetRange("Contact No.", "No.");
+                if not Opp.IsEmpty then
+                    Opp.ModifyAll("Contact Company No.", "Company No.");
+                OppEntry.SetCurrentKey("Contact Company No.", "Contact No.");
+                OppEntry.SetRange("Contact Company No.", '');
+                OppEntry.SetRange("Contact No.", "No.");
+                if not OppEntry.IsEmpty then
+                    OppEntry.ModifyAll("Contact Company No.", "Company No.");
+                Task.SetCurrentKey("Contact Company No.", "Contact No.");
+                Task.SetRange("Contact Company No.", '');
+                Task.SetRange("Contact No.", "No.");
+                if not Task.IsEmpty then
+                    Task.ModifyAll("Contact Company No.", "Company No.");
+                InteractLogEntry.SetCurrentKey("Contact Company No.", "Contact No.");
+                InteractLogEntry.SetRange("Contact Company No.", '');
+                InteractLogEntry.SetRange("Contact No.", "No.");
+                if not InteractLogEntry.IsEmpty then
+                    InteractLogEntry.ModifyAll("Contact Company No.", "Company No.");
+            end;
+
+            if CurrFieldNo <> 0 then
+                Modify;
         end;
     end;
 
@@ -1908,11 +1942,16 @@ table 5050 Contact
         end;
     end;
 
-    procedure GetSalutation(SalutationType: Option Formal,Informal; LanguageCode: Code[10]): Text[260]
+    procedure GetSalutation(SalutationType: Option Formal,Informal; LanguageCode: Code[10]) Salutation: Text[260]
     var
         SalutationFormula: Record "Salutation Formula";
         NamePart: array[5] of Text[100];
+        IsHandled: Boolean;
     begin
+        OnBeforeGetSalutation(Rec, SalutationType, LanguageCode, IsHandled, Salutation);
+        IF IsHandled THEN
+            exit(Salutation);
+
         if not SalutationFormula.Get("Salutation Code", LanguageCode, SalutationType) then
             Error(Text021, LanguageCode, "No.");
         SalutationFormula.TestField(Salutation);
@@ -1998,7 +2037,12 @@ table 5050 Contact
     end;
 
     procedure InheritCompanyToPersonData(NewCompanyContact: Record Contact)
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeInheritCompanyToPersonData(Rec, xRec, NewCompanyContact, IsHandled);
+        if IsHandled then
+            exit;
         "Company Name" := NewCompanyContact.Name;
 
         RMSetup.Get();
@@ -2055,7 +2099,12 @@ table 5050 Contact
         OldCompanyFieldValue: Text;
         ContactFieldValue: Text;
         Stale: Boolean;
+        IsHandled: Boolean;
     begin
+        OnBeforeUpdateFieldForNewCompany(Rec, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ContactRecRef.GetTable(Rec);
         ContactFieldRef := ContactRecRef.Field(FieldNo);
         ContactFieldValue := Format(ContactFieldRef.Value);
@@ -2128,6 +2177,7 @@ table 5050 Contact
                         Vend.Modify();
                     end;
         end;
+        OnAfterProcessNameChange(Rec, Cust, Vend);
     end;
 
     procedure GetCompNo(ContactText: Text): Text
@@ -2259,10 +2309,12 @@ table 5050 Contact
 
     procedure SetLastDateTimeModified()
     var
-        DotNet_DateTimeOffset: Codeunit DotNet_DateTimeOffset;
         UtcNow: DateTime;
+        UserTimeZoneOffset: Duration;
     begin
-        UtcNow := DotNet_DateTimeOffset.ConvertToUtcDateTime(CurrentDateTime);
+        UtcNow := CurrentDateTime();
+        UserTimeZoneOffset := GetTimeZoneOffset();
+        UtcNow := UtcNow - UserTimeZoneOffset;
         "Last Date Modified" := DT2Date(UtcNow);
         "Last Time Modified" := DT2Time(UtcNow);
 
@@ -2271,32 +2323,33 @@ table 5050 Contact
 
     procedure GetLastDateTimeModified(): DateTime
     var
-        DotNet_DateTime: Codeunit DotNet_DateTime;
-        TypeHelper: Codeunit "Type Helper";
-        Hour: Integer;
-        Minute: Integer;
-        Second: Integer;
+        Result: DateTime;
+        UserTimeZoneOffset: Duration;
     begin
         if "Last Date Modified" = 0D then
             exit(0DT);
 
-        TypeHelper.GetHMSFromTime(Hour, Minute, Second, "Last Time Modified");
+        Result := CreateDateTime("Last Date Modified", "Last Time Modified");
+        UserTimeZoneOffset := GetTimeZoneOffset();
+        exit(Result + UserTimeZoneOffset);
+    end;
 
-        DotNet_DateTime.CreateUTC(
-          Date2DMY("Last Date Modified", 3),
-          Date2DMY("Last Date Modified", 2),
-          Date2DMY("Last Date Modified", 1),
-          Hour, Minute, Second);
-        exit(DotNet_DateTime.ToDateTime);
+    local procedure GetTimeZoneOffset() UserTimeZoneOffset: Duration
+    var
+        TypeHelper: Codeunit "Type Helper";
+        DotNet_DateTimeOffset: Codeunit DotNet_DateTimeOffset;
+    begin
+        if not TypeHelper.GetUserTimezoneOffset(UserTimeZoneOffset) then
+            UserTimeZoneOffset := DotNet_DateTimeOffset.GetOffset();
     end;
 
     procedure SetLastDateTimeFilter(DateFilter: DateTime)
     var
-        DotNet_DateTimeOffset: Codeunit DotNet_DateTimeOffset;
         SyncDateTimeUtc: DateTime;
         CurrentFilterGroup: Integer;
     begin
-        SyncDateTimeUtc := DotNet_DateTimeOffset.ConvertToUtcDateTime(DateFilter);
+        SyncDateTimeUtc := DateFilter;
+        SyncDateTimeUtc := SyncDateTimeUtc - GetTimeZoneOffset();
         CurrentFilterGroup := FilterGroup;
         SetFilter("Last Date Modified", '>=%1', DT2Date(SyncDateTimeUtc));
         FilterGroup(-1);
@@ -2626,6 +2679,16 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateLink(var Contact: Record Contact; var TempContBusRel: Record "Contact Business Relation"; var CreateForm: Integer; var BusRelCode: Code[10]; var Table: Enum "Contact Business Relation Link To Table")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInheritCompanyToPersonData(var Contact: Record Contact; xContact: Record Contact; var NewCompanyContact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalculatedName(var Contact: Record Contact; var NewName92: Text[92])
     begin
     end;
@@ -2657,6 +2720,11 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnModify(var Contact: Record Contact; xContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProcessNameChange(var Contact: Record Contact; Customer: Record Customer; Vendor: Record Vendor)
     begin
     end;
 
@@ -2696,12 +2764,12 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeApplyCompanyChangeToPerson(var PersonContact: Record Contact; Contact: Record Contact; xContact: Record Contact; var ContChanged: Boolean)
+    local procedure OnBeforeApplyCompanyChangeToPerson(var PersonContact: Record Contact; Contact: Record Contact; xContact: Record Contact; var ContChanged: Boolean; OldContact: Record Contact)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssistEdit(var Contact: record Contact; OldContact: Record Contact; var IsHandled: Boolean)
+    local procedure OnBeforeAssistEdit(var Contact: record Contact; OldContact: Record Contact; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -2730,8 +2798,23 @@ table 5050 Contact
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckDuplicates(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSalesQuoteFromContact(var Contact: Record Contact; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateVendor(var Contact: Record Contact; var VendorNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSalutation(var Contact: Record Contact; var SalutationType: Option Formal,Informal; var LanguageCode: Code[10]; var IsHandled: Boolean; var Salutation: Text[260])
     begin
     end;
 
@@ -2766,6 +2849,21 @@ table 5050 Contact
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCompanyNo(var Contact: Record Contact; xContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateFieldForNewCompany(var Contact: Record Contact; var FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSearchName(var Contact: Record Contact; xContact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var Contact: Record Contact; var PostCode: Record "Post Code");
     begin
     end;
@@ -2792,6 +2890,17 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnShowCustVendBankCaseElse(var ContactBusinessRelation: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowCustVendBankOnBeforeRunPage(var Contact: Record Contact; FormSelected: Boolean; var ContBusRel: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTypeChangeOnAfterCheckInteractionLog(var Contact: Record Contact; xContact: Record Contact)
     begin
     end;
 }

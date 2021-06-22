@@ -53,6 +53,7 @@ page 99000773 "Capacity Journal"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("Item No."; "Item No.")
                 {

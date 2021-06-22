@@ -110,7 +110,7 @@ table 1001 "Job Task"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Job Planning Line"."Total Cost (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Planning Line"."Total Cost (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                             "Job Task No." = FIELD("Job Task No."),
                                                                             "Job Task No." = FIELD(FILTER(Totaling)),
                                                                             "Schedule Line" = CONST(true),
@@ -123,7 +123,7 @@ table 1001 "Job Task"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Job Planning Line"."Line Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Planning Line"."Line Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                              "Job Task No." = FIELD("Job Task No."),
                                                                              "Job Task No." = FIELD(FILTER(Totaling)),
                                                                              "Schedule Line" = CONST(true),
@@ -136,7 +136,7 @@ table 1001 "Job Task"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Job Ledger Entry"."Total Cost (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Ledger Entry"."Total Cost (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                            "Job Task No." = FIELD("Job Task No."),
                                                                            "Job Task No." = FIELD(FILTER(Totaling)),
                                                                            "Entry Type" = CONST(Usage),
@@ -149,7 +149,7 @@ table 1001 "Job Task"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Job Ledger Entry"."Line Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Ledger Entry"."Line Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                             "Job Task No." = FIELD("Job Task No."),
                                                                             "Job Task No." = FIELD(FILTER(Totaling)),
                                                                             "Entry Type" = CONST(Usage),
@@ -162,7 +162,7 @@ table 1001 "Job Task"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Job Planning Line"."Total Cost (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Planning Line"."Total Cost (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                             "Job Task No." = FIELD("Job Task No."),
                                                                             "Job Task No." = FIELD(FILTER(Totaling)),
                                                                             "Contract Line" = CONST(true),
@@ -175,7 +175,7 @@ table 1001 "Job Task"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Job Planning Line"."Line Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Planning Line"."Line Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                              "Job Task No." = FIELD("Job Task No."),
                                                                              "Job Task No." = FIELD(FILTER(Totaling)),
                                                                              "Contract Line" = CONST(true),
@@ -188,7 +188,7 @@ table 1001 "Job Task"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = - Sum ("Job Ledger Entry"."Line Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = - Sum("Job Ledger Entry"."Line Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                              "Job Task No." = FIELD("Job Task No."),
                                                                              "Job Task No." = FIELD(FILTER(Totaling)),
                                                                              "Entry Type" = CONST(Sale),
@@ -201,7 +201,7 @@ table 1001 "Job Task"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = - Sum ("Job Ledger Entry"."Total Cost (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = - Sum("Job Ledger Entry"."Total Cost (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                             "Job Task No." = FIELD("Job Task No."),
                                                                             "Job Task No." = FIELD(FILTER(Totaling)),
                                                                             "Entry Type" = CONST(Sale),
@@ -309,7 +309,7 @@ table 1001 "Job Task"
         field(62; "Outstanding Orders"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Sum ("Purchase Line"."Outstanding Amt. Ex. VAT (LCY)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Purchase Line"."Outstanding Amt. Ex. VAT (LCY)" WHERE("Document Type" = CONST(Order),
                                                                                       "Job No." = FIELD("Job No."),
                                                                                       "Job Task No." = FIELD("Job Task No."),
                                                                                       "Job Task No." = FIELD(FILTER(Totaling))));
@@ -319,7 +319,7 @@ table 1001 "Job Task"
         field(63; "Amt. Rcd. Not Invoiced"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Sum ("Purchase Line"."A. Rcd. Not Inv. Ex. VAT (LCY)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Purchase Line"."A. Rcd. Not Inv. Ex. VAT (LCY)" WHERE("Document Type" = CONST(Order),
                                                                                       "Job No." = FIELD("Job No."),
                                                                                       "Job Task No." = FIELD("Job Task No."),
                                                                                       "Job Task No." = FIELD(FILTER(Totaling))));
@@ -330,7 +330,7 @@ table 1001 "Job Task"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Job Planning Line"."Remaining Total Cost (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Planning Line"."Remaining Total Cost (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                                       "Job Task No." = FIELD("Job Task No."),
                                                                                       "Job Task No." = FIELD(FILTER(Totaling)),
                                                                                       "Schedule Line" = CONST(true),
@@ -343,7 +343,7 @@ table 1001 "Job Task"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("Job Planning Line"."Remaining Line Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Sum("Job Planning Line"."Remaining Line Amount (LCY)" WHERE("Job No." = FIELD("Job No."),
                                                                                        "Job Task No." = FIELD("Job Task No."),
                                                                                        "Job Task No." = FIELD(FILTER(Totaling)),
                                                                                        "Schedule Line" = CONST(true),
@@ -354,7 +354,7 @@ table 1001 "Job Task"
         }
         field(66; "Start Date"; Date)
         {
-            CalcFormula = Min ("Job Planning Line"."Planning Date" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Min("Job Planning Line"."Planning Date" WHERE("Job No." = FIELD("Job No."),
                                                                          "Job Task No." = FIELD("Job Task No.")));
             Caption = 'Start Date';
             Editable = false;
@@ -362,7 +362,7 @@ table 1001 "Job Task"
         }
         field(67; "End Date"; Date)
         {
-            CalcFormula = Max ("Job Planning Line"."Planning Date" WHERE("Job No." = FIELD("Job No."),
+            CalcFormula = Max("Job Planning Line"."Planning Date" WHERE("Job No." = FIELD("Job No."),
                                                                          "Job Task No." = FIELD("Job Task No.")));
             Caption = 'End Date';
             Editable = false;
@@ -550,7 +550,7 @@ table 1001 "Job Task"
         else
             PurchLine.SetRange("Job Task No.", JobTaskNo);
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin

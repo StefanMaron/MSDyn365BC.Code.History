@@ -198,7 +198,7 @@ table 110 "Sales Shipment Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Sales Comment Line" WHERE("Document Type" = CONST(Shipment),
+            CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = CONST(Shipment),
                                                             "No." = FIELD("No."),
                                                             "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -530,6 +530,10 @@ table 110 "Sales Shipment Header"
         {
             Caption = 'Shipping Agent Service Code';
             TableRelation = "Shipping Agent Services".Code WHERE("Shipping Agent Code" = FIELD("Shipping Agent Code"));
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
         }
         field(7001; "Allow Line Disc."; Boolean)
         {

@@ -375,6 +375,7 @@ codeunit 7500 "Item Attribute Management"
         Item: Record Item;
         ItemCategory: Record "Item Category";
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+        IsHandled: Boolean;
     begin
         Item.SetRange("Item Category Code", CategoryCode);
         if Item.FindSet then
@@ -386,6 +387,10 @@ codeunit 7500 "Item Attribute Management"
                     exit(true);
             until Item.Next = 0;
 
+        IsHandled := false;
+        OnSearchCategoryItemsForAttributeOnBeforeSearchByParentCategory(CategoryCode, AttributeID, IsHandled);
+        if IsHandled then
+            exit;
         ItemCategory.SetRange("Parent Category", CategoryCode);
         if ItemCategory.FindSet then
             repeat
@@ -408,6 +413,11 @@ codeunit 7500 "Item Attribute Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBufferedItemAttributeValueMappingInsert(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; var TempItemAttributeValueMapping: Record "Item Attribute Value Mapping" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSearchCategoryItemsForAttributeOnBeforeSearchByParentCategory(CategoryCode: Code[20]; AttributeID: Integer; var IsHandled: Boolean)
     begin
     end;
 }

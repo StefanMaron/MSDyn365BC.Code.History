@@ -58,6 +58,7 @@ page 99000823 "Output Journal"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("Item No."; "Item No.")
                 {

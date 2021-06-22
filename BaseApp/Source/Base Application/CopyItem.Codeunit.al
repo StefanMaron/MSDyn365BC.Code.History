@@ -468,5 +468,14 @@ codeunit 730 "Copy Item"
     local procedure OnBeforeInitSeries(var Item: Record Item; var InventorySetup: Record "Inventory Setup")
     begin
     end;
+
+    [Obsolete('This is a backward compatibility call of event from the obsolete report Copy Item', '16.0')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Item", 'OnAfterCopyItem', '', false, false)]
+    local procedure OnAfterCopyItemBackward(var CopyItemBuffer: Record "Copy Item Buffer"; SourceItem: Record Item; var TargetItem: Record Item);
+    var
+        CopyItemReport: Report "Copy Item";
+    begin
+        CopyItemReport.AfterCopyItem(SourceItem, TargetItem);
+    end;
 }
 

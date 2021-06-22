@@ -39,21 +39,24 @@ codeunit 1002 "Job Create-Invoice"
         InvoiceNo: Code[20];
         IsHandled: Boolean;
     begin
-        if not CrMemo then begin
-            GetSalesInvoiceNo.SetCustomer(JobPlanningLine."Job No.");
-            GetSalesInvoiceNo.RunModal;
-            IsHandled := false;
-            OnBeforeGetInvoiceNo(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled);
-            if not IsHandled then
-                GetSalesInvoiceNo.GetInvoiceNo(Done, NewInvoice, PostingDate, InvoiceNo);
-        end else begin
-            GetSalesCrMemoNo.SetCustomer(JobPlanningLine."Job No.");
-            GetSalesCrMemoNo.RunModal;
-            IsHandled := false;
-            OnBeforeGetCrMemoNo(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled);
-            if not IsHandled then
-                GetSalesCrMemoNo.GetCreditMemoNo(Done, NewInvoice, PostingDate, InvoiceNo);
-        end;
+        IsHandled := false;
+        OnCreateSalesInvoiceOnBeforeRunReport(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled);
+        if not IsHandled then
+            if not CrMemo then begin
+                GetSalesInvoiceNo.SetCustomer(JobPlanningLine."Job No.");
+                GetSalesInvoiceNo.RunModal;
+                IsHandled := false;
+                OnBeforeGetInvoiceNo(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled);
+                if not IsHandled then
+                    GetSalesInvoiceNo.GetInvoiceNo(Done, NewInvoice, PostingDate, InvoiceNo);
+            end else begin
+                GetSalesCrMemoNo.SetCustomer(JobPlanningLine."Job No.");
+                GetSalesCrMemoNo.RunModal;
+                IsHandled := false;
+                OnBeforeGetCrMemoNo(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled);
+                if not IsHandled then
+                    GetSalesCrMemoNo.GetCreditMemoNo(Done, NewInvoice, PostingDate, InvoiceNo);
+            end;
 
         if Done then begin
             if (PostingDate = 0D) and NewInvoice then
@@ -982,6 +985,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteSalesLineOnBeforeJobPlanningLineModify(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceOnBeforeRunReport(var JobPlanningLine: Record "Job Planning Line"; var Done: Boolean; var NewInvoice: Boolean; var PostingDate: Date; var InvoiceNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

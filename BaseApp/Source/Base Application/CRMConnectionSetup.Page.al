@@ -33,6 +33,7 @@ page 5330 "CRM Connection Setup"
                 {
                     ApplicationArea = Suite;
                     Editable = IsEditable;
+                    Visible = IsUserNamePasswordVisible;
                     ToolTip = 'Specifies the user name of a Dynamics 365 Sales account.';
 
                     trigger OnValidate()
@@ -45,6 +46,7 @@ page 5330 "CRM Connection Setup"
                     ApplicationArea = Suite;
                     Enabled = IsEditable;
                     ExtendedDatatype = Masked;
+                    Visible = IsUserNamePasswordVisible;
                     ToolTip = 'Specifies the password of a Dynamics 365 Sales user account.';
 
                     trigger OnValidate()
@@ -59,7 +61,7 @@ page 5330 "CRM Connection Setup"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Enabled', Comment = 'Name of tickbox which shows whether the connection is enabled or disabled';
-                    ToolTip = 'Specifies if the connection to Dynamics 365 Sales is enabled.';
+                    ToolTip = 'Specifies if the connection to Dynamics 365 Sales is enabled. When you check this checkbox, you will be prompted to sign-in to Common Data Service with an administrator user account. The account will be used one time to give consent to, install and configure applications and components that the integration requires.';
 
                     trigger OnValidate()
                     begin
@@ -370,7 +372,7 @@ page 5330 "CRM Connection Setup"
                 Image = Setup;
                 Promoted = true;
                 PromotedCategory = Report;
-                Enabled = IsEditable;
+                Enabled = IsRedeployEnabled;
                 ToolTip = 'Redeploy and reconfigure the base integration solution.';
 
                 trigger OnAction()
@@ -560,6 +562,7 @@ page 5330 "CRM Connection Setup"
         ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic;
         SoftwareAsAService := EnvironmentInfo.IsSaaS;
         CRMIntegrationManagement.RegisterAssistedSetup();
+        SetVisibilityFlags();
     end;
 
     trigger OnOpenPage()
@@ -573,13 +576,10 @@ page 5330 "CRM Connection Setup"
             InitializeDefaultProxyVersion;
             Insert;
             LoadConnectionStringElementsFromCDSConnectionSetup();
-            UpdateConnectionString();
         end else begin
             CRMPassword := GetPassword();
-            if not "Is Enabled" then begin
+            if not "Is Enabled" then
                 LoadConnectionStringElementsFromCDSConnectionSetup();
-                UpdateConnectionString();
-            end;
             ConnectionString := GetConnectionString;
             UnregisterConnection;
             if "Proxy Version" = 0 then begin
@@ -624,6 +624,7 @@ page 5330 "CRM Connection Setup"
         JobQueueIsNotRunningMsg: Label 'There is no job queue started. Scheduled synchronization jobs require an active job queue to process jobs.\\Contact your administrator to get a job queue configured and started.';
         AllScheduledJobsAreRunningMsg: Label 'An job queue is started and all scheduled synchronization jobs are ready or already processing.';
         SetupSuccessfulMsg: Label 'The default setup for %1 synchronization has completed successfully.', Comment = '%1 = CRM product name';
+        Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
         ScheduledSynchJobsRunningStyleExpr: Text;
         CRMSolutionInstalledStyleExpr: Text;
         CRMVersionStyleExpr: Text;
@@ -633,6 +634,8 @@ page 5330 "CRM Connection Setup"
         ActiveJobs: Integer;
         TotalJobs: Integer;
         IsEditable: Boolean;
+        IsRedeployEnabled: Boolean;
+        IsUserNamePasswordVisible: Boolean;
         IsWebCliResetEnabled: Boolean;
         SoftwareAsAService: Boolean;
         IsConnectionStringEditable: Boolean;
@@ -702,6 +705,20 @@ page 5330 "CRM Connection Setup"
         IsEditable := not "Is Enabled" and not CDSIntegrationImpl.IsIntegrationEnabled();
         IsWebCliResetEnabled := "Is CRM Solution Installed" and "Is Enabled For User";
         WebServiceEnabled := CRMIntegrationManagement.IsItemAvailabilityWebServiceEnabled;
+    end;
+
+    local procedure SetVisibilityFlags()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+    begin
+        IsUserNamePasswordVisible := true;
+        IsRedeployEnabled := CDSIntegrationImpl.IsIntegrationEnabled();
+
+        if CDSConnectionSetup.Get() then
+            if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then
+                if not CDSConnectionSetup."Connection String".Contains(Office365AuthTxt) then
+                    IsUserNamePasswordVisible := false;
     end;
 
     local procedure InitializeDefaultProxyVersion()

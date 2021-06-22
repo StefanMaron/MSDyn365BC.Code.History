@@ -168,12 +168,16 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
     end;
 
     procedure CreateNewPhysInvtOrderLine()
+    var
+        InsertLine: Boolean;
     begin
         PhysInvtOrderLine.PrepareLine(
           PhysInvtOrderHeader."No.", NextLineNo,
           WhseEntry."Item No.", WhseEntry."Variant Code", WhseEntry."Location Code", WhseEntry."Bin Code", '', 0);
         PhysInvtOrderLine.CalcQtyAndLastItemLedgExpected(QtyExp, LastItemLedgEntryNo);
-        if (QtyExp <> 0) or ZeroQty then begin
+        InsertLine := false;
+        OnCreateNewPhysInvtOrderLineOnAfterCalcQtyAndLastItemLedgExpected(QtyExp, LastItemLedgEntryNo, WhseEntry, PhysInvtOrderLine, InsertLine);
+        if (QtyExp <> 0) or ZeroQty or InsertLine then begin
             PhysInvtOrderLine.Insert(true);
             PhysInvtOrderLine.CreateDim(DATABASE::Item, PhysInvtOrderLine."Item No.");
             if CalcQtyExpected then
@@ -192,6 +196,11 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; CalcQtyExpected: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewPhysInvtOrderLineOnAfterCalcQtyAndLastItemLedgExpected(QtyExpected: Decimal; LastItemLedgEntryNo: Integer; WarehouseEntry: Record "Warehouse Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var InsertLine: Boolean)
     begin
     end;
 }

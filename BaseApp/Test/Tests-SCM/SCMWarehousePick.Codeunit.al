@@ -41,6 +41,7 @@ codeunit 137055 "SCM Warehouse Pick"
         LocationCodeMustNotOccurErr: Label 'Location code %1 must not occur.  Expected value - %2', Comment = '%1 : occured location code, %2 : expected location code.';
         SourceDocument: Option ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output","Service Order",,,,,,,"Assembly Consumption","Assembly Order";
         ItemLedgEntryDocType: Option " ","Sales Shipment","Sales Invoice","Sales Return Receipt","Sales Credit Memo","Purchase Receipt","Purchase Invoice","Purchase Return Shipment","Purchase Credit Memo","Transfer Shipment","Transfer Receipt","Service Shipment","Service Invoice","Service Credit Memo","Posted Assembly";
+        ReservationAction: Option AutoReserve,GetQuantities;
 
     [Test]
     [HandlerFunctions('ReservationPageHandler')]
@@ -1191,6 +1192,199 @@ codeunit 137055 "SCM Warehouse Pick"
         VerifyTransferReceiptLineBaseQty(FromLocationCode, ToLocationCode, Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,AssembleToOrderLinesPageHandler,ReservationMultipleOptionPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReservedRegisteredPickOfATOComponent()
+    var
+        Zone: Record Zone;
+        Bin: Record Bin;
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        AsmToOrderNo: Code[20];
+        Qty: Decimal;
+        QuantityPer: Decimal;
+    begin
+        // [FEATURE] [Assemble-to-Order] [Reservation]
+        // [SCENARIO 349922] Picked and reserved assembly component is excluded correctly from the quantity available for reservation
+        Initialize;
+
+        // [GIVEN] Assemble-to-order item "I" assembled from 3 pcs of component item "C"
+        QuantityPer := LibraryRandom.RandDec(10, 2);
+        CreateATOItemWithComponent(AsmItem, CompItem, QuantityPer);
+
+        // [GIVEN] Post the positive adjustment for 5 pcs of item "C" on location set up for directed put-away and pick
+        Qty := LibraryRandom.RandDecInDecimalRange(QuantityPer, 2 * QuantityPer, 2);
+        LibraryWarehouse.FindZone(Zone, LocationWhite.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, LocationWhite.Code, Zone.Code, 1);
+        UpdateInventoryUsingWhseAdjustmentPerZone(CompItem, LocationWhite.Code, Zone.Code, Bin.Code, Qty);
+
+        // [GIVEN] Released Sales Order "SO1" for 1 pcs of assembled item "I" with "Q" pcs of item "C" reserved for assembly
+        CreateSalesOrder(SalesHeader, LocationWhite.Code, AsmItem."No.", 1);
+        LibraryVariableStorage.Enqueue(ReservationAction::AutoReserve);
+        ShowAssemblyLinesSalesOrder(SalesHeader);
+        AsmToOrderNo := FindAssemblyToOrderNo(AsmItem."No.");
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create shipment and registered pick for the sales order "SO1"
+        CreateWhseShipmentAndPick(SalesHeader);
+        FindWhseActivityLine(
+            WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, LocationWhite.Code, AsmToOrderNo);
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Sales Order "SO2" for 1 pcs of assembled item "I"
+        CreateSalesOrder(SalesHeader, LocationWhite.Code, AsmItem."No.", 1);
+
+        // [WHEN] Open Reservation page for component "C" in Assemble-to-Order Lines for "SO2"
+        LibraryVariableStorage.Enqueue(ReservationAction::GetQuantities);
+        ShowAssemblyLinesSalesOrder(SalesHeader);
+
+        // [THEN] "Qty. Allocated in Warehouse" = 2
+        // [THEN] "Total Available Quantity" = 3
+        Assert.AreEqual(QuantityPer, LibraryVariableStorage.DequeueDecimal(), 'Unexpected quantity allocated in warehouse.');
+        Assert.AreEqual(Qty - QuantityPer, LibraryVariableStorage.DequeueDecimal(), 'Unexpected total available quantity.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,AssembleToOrderLinesPageHandler,ReservationMultipleOptionPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReservedPickOfATOComponentWithSameBinAsOpenFloor()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        Bin: Record Bin;
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        AsmToOrderNo: Code[20];
+        Qty: Decimal;
+        QuantityPer: Decimal;
+    begin
+        // [FEATURE] [Assemble-to-Order] [Reservation]
+        // [SCENARIO 349923] Picked and reserved assembly component is excluded correctly from the quantity available for reservation when "Open Shop Floor Bin Code" = "To-Assembly Bin Code" on a Location
+        Initialize;
+
+        // [GIVEN] "Open Shop Floor Bin Code" = "To-Assembly Bin Code" on Location "L" set up for directed put-away and pick
+        CreateFullWarehouseSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        Location.Validate("Open Shop Floor Bin Code", Location."To-Assembly Bin Code");
+        Location.Modify(true);
+
+        // [GIVEN] Assemble-to-order item "I" assembled from 3 pcs of component item "C"
+        QuantityPer := LibraryRandom.RandDec(10, 2);
+        CreateATOItemWithComponent(AsmItem, CompItem, QuantityPer);
+
+        // [GIVEN] Post the positive adjustment for 5 pcs of item "C" on location "L"
+        Qty := LibraryRandom.RandDecInDecimalRange(QuantityPer, 2 * QuantityPer, 2);
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+        UpdateInventoryUsingWhseAdjustmentPerZone(CompItem, Location.Code, Zone.Code, Bin.Code, Qty);
+
+        // [GIVEN] Released Sales Order "SO1" for 1 pcs of assembled item "I" with "Q" pcs of item "C" reserved for assembly
+        CreateSalesOrder(SalesHeader, Location.Code, AsmItem."No.", 1);
+        LibraryVariableStorage.Enqueue(ReservationAction::AutoReserve);
+        ShowAssemblyLinesSalesOrder(SalesHeader);
+        AsmToOrderNo := FindAssemblyToOrderNo(AsmItem."No.");
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create shipment and registered pick for the sales order "SO1"
+        CreateWhseShipmentAndPick(SalesHeader);
+        FindWhseActivityLine(
+            WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, Location.Code, AsmToOrderNo);
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Sales Order "SO2" for 1 pcs of assembled item "I"
+        CreateSalesOrder(SalesHeader, Location.Code, AsmItem."No.", 1);
+
+        // [WHEN] Open Reservation page for component "C" in Assemble-to-Order Lines for "SO2"
+        LibraryVariableStorage.Enqueue(ReservationAction::GetQuantities);
+        ShowAssemblyLinesSalesOrder(SalesHeader);
+
+        // [THEN] "Qty. Allocated in Warehouse" = 2
+        // [THEN] "Total Available Quantity" = 3
+        Assert.AreEqual(QuantityPer, LibraryVariableStorage.DequeueDecimal(), 'Unexpected quantity allocated in warehouse.');
+        Assert.AreEqual(Qty - QuantityPer, LibraryVariableStorage.DequeueDecimal(), 'Unexpected total available quantity.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,AssembleToOrderLinesPageHandler,ReservationMultipleOptionPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReservedPickOfATOComponentWithSameBinAsProduction()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        Bin: Record Bin;
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        AsmToOrderNo: Code[20];
+        Qty: Decimal;
+        QuantityPer: Decimal;
+    begin
+        // [FEATURE] [Assemble-to-Order] [Reservation]
+        // [SCENARIO 349923] Picked and reserved assembly component is excluded correctly from the quantity available for reservation when "To-Production Bin Code" = "To-Assembly Bin Code" on Location
+        Initialize;
+
+        // [GIVEN] "To-Production Bin Code" = "To-Assembly Bin Code" on Location "L" set up for directed put-away and pick
+        CreateFullWarehouseSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        Location.Validate(Location."To-Production Bin Code", Location."To-Assembly Bin Code");
+        Location.Modify(true);
+
+        // [GIVEN] Assemble-to-order item "I" assembled from 3 pcs of component item "C"
+        QuantityPer := LibraryRandom.RandDec(10, 2);
+        CreateATOItemWithComponent(AsmItem, CompItem, QuantityPer);
+
+        // [GIVEN] Post the positive adjustment for 5 pcs of item "C" on location "L"
+        Qty := LibraryRandom.RandDecInDecimalRange(QuantityPer, 2 * QuantityPer, 2);
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+        UpdateInventoryUsingWhseAdjustmentPerZone(CompItem, Location.Code, Zone.Code, Bin.Code, Qty);
+
+        // [GIVEN] Released Sales Order "SO1" for 1 pcs of assembled item "I" with "Q" pcs of item "C" reserved for assembly
+        CreateSalesOrder(SalesHeader, Location.Code, AsmItem."No.", 1);
+        LibraryVariableStorage.Enqueue(ReservationAction::AutoReserve);
+        ShowAssemblyLinesSalesOrder(SalesHeader);
+        AsmToOrderNo := FindAssemblyToOrderNo(AsmItem."No.");
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create shipment and registered pick for the sales order "SO1"
+        CreateWhseShipmentAndPick(SalesHeader);
+        FindWhseActivityLine(
+            WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, Location.Code, AsmToOrderNo);
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Sales Order "SO2" for 1 pcs of assembled item "I"
+        CreateSalesOrder(SalesHeader, Location.Code, AsmItem."No.", 1);
+
+        // [WHEN] Open Reservation page for component "C" in Assemble-to-Order Lines for "SO2"
+        LibraryVariableStorage.Enqueue(ReservationAction::GetQuantities);
+        ShowAssemblyLinesSalesOrder(SalesHeader);
+
+        // [THEN] "Qty. Allocated in Warehouse" = 2
+        // [THEN] "Total Available Quantity" = 3
+        Assert.AreEqual(QuantityPer, LibraryVariableStorage.DequeueDecimal(), 'Unexpected quantity allocated in warehouse.');
+        Assert.AreEqual(Qty - QuantityPer, LibraryVariableStorage.DequeueDecimal(), 'Unexpected total available quantity.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -1437,6 +1631,20 @@ codeunit 137055 "SCM Warehouse Pick"
         UpdateInventoryUsingWhseAdjustmentPerZone(Item, LocationWhite.Code, Zone.Code, Bin.Code, Quantity);  // For large Quantity.
     end;
 
+    local procedure CreateATOItemWithComponent(var AsmItem: Record Item; var CompItem: Record Item; QuantityPer: Decimal)
+    var
+        BOMComponent: Record "BOM Component";
+    begin
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Order");
+        AsmItem.Modify(true);
+        LibraryInventory.CreateItem(CompItem);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.",
+          QuantityPer, CompItem."Base Unit of Measure");
+    end;
+
     local procedure CreateEmptyTransferLine(TransferHeader: Record "Transfer Header")
     var
         TransferLine: Record "Transfer Line";
@@ -1616,6 +1824,16 @@ codeunit 137055 "SCM Warehouse Pick"
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.SalesLines.Reserve.Invoke;  // Open Page - Reservation on ReservationPageHandler.
         SalesOrder.Close;
+    end;
+
+    local procedure ShowAssemblyLinesSalesOrder(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst;
+        SalesLine.ShowAsmToOrderLines;
     end;
 
     local procedure FilterWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20])
@@ -1943,6 +2161,32 @@ codeunit 137055 "SCM Warehouse Pick"
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
         Reservation."Reserve from Current Line".Invoke; // Reserve Current line.
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReservationMultipleOptionPageHandler(var Reservation: TestPage Reservation)
+    var
+        Quantity: Decimal;
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            ReservationAction::AutoReserve:
+                Reservation."Reserve from Current Line".Invoke;
+            ReservationAction::GetQuantities:
+                begin
+                    Evaluate(Quantity, Reservation.QtyAllocatedInWarehouse.Value());
+                    LibraryVariableStorage.Enqueue(Quantity);
+                    Evaluate(Quantity, Reservation.TotalAvailableQuantity.Value());
+                    LibraryVariableStorage.Enqueue(Quantity);
+                end;
+        end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure AssembleToOrderLinesPageHandler(var AssembletoOrderLines: TestPage "Assemble-to-Order Lines")
+    begin
+        AssembletoOrderLines."&Reserve".Invoke;
     end;
 
     [ConfirmHandler]

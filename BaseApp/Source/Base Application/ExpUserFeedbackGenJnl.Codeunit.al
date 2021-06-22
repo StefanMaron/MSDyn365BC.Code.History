@@ -28,6 +28,11 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
     end;
 
     procedure SetExportFlagOnGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        SetGivenExportFlagOnGenJnlLine(GenJnlLine, true)
+    end;
+
+    procedure SetGivenExportFlagOnGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; Flag: Boolean)
     var
         GenJnlLine2: Record "Gen. Journal Line";
     begin
@@ -36,17 +41,17 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
             repeat
                 case GenJnlLine2."Account Type" of
                     GenJnlLine2."Account Type"::Vendor:
-                        SetExportFlagOnAppliedVendorLedgerEntry(GenJnlLine2);
+                        SetExportFlagOnAppliedVendorLedgerEntry(GenJnlLine2, Flag);
                     GenJnlLine2."Account Type"::Customer:
-                        SetExportFlagOnAppliedCustLedgerEntry(GenJnlLine2);
+                        SetExportFlagOnAppliedCustLedgerEntry(GenJnlLine2, Flag);
                 end;
-                GenJnlLine2.Validate("Check Exported", true);
-                GenJnlLine2.Validate("Exported to Payment File", true);
+                GenJnlLine2.Validate("Check Exported", Flag);
+                GenJnlLine2.Validate("Exported to Payment File", Flag);
                 GenJnlLine2.Modify(true);
             until GenJnlLine2.Next = 0;
     end;
 
-    local procedure SetExportFlagOnAppliedVendorLedgerEntry(GenJnlLine: Record "Gen. Journal Line")
+    local procedure SetExportFlagOnAppliedVendorLedgerEntry(GenJnlLine: Record "Gen. Journal Line"; Flag: Boolean)
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -63,7 +68,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
 
             if VendLedgerEntry.FindSet then
                 repeat
-                    VendLedgerEntry.Validate("Exported to Payment File", true);
+                    VendLedgerEntry.Validate("Exported to Payment File", Flag);
                     CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgerEntry);
                 until VendLedgerEntry.Next = 0;
         end;
@@ -74,12 +79,12 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
         VendLedgerEntry.SetRange("Applies-to Doc. No.", GenJnlLine."Document No.");
         if VendLedgerEntry.FindSet then
             repeat
-                VendLedgerEntry.Validate("Exported to Payment File", true);
+                VendLedgerEntry.Validate("Exported to Payment File", Flag);
                 CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgerEntry);
             until VendLedgerEntry.Next = 0;
     end;
 
-    local procedure SetExportFlagOnAppliedCustLedgerEntry(GenJnlLine: Record "Gen. Journal Line")
+    local procedure SetExportFlagOnAppliedCustLedgerEntry(GenJnlLine: Record "Gen. Journal Line"; Flag: Boolean)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -96,7 +101,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
 
             if CustLedgerEntry.FindSet then
                 repeat
-                    CustLedgerEntry.Validate("Exported to Payment File", true);
+                    CustLedgerEntry.Validate("Exported to Payment File", Flag);
                     CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
                 until CustLedgerEntry.Next = 0;
         end;
@@ -108,7 +113,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
 
         if CustLedgerEntry.FindSet then
             repeat
-                CustLedgerEntry.Validate("Exported to Payment File", true);
+                CustLedgerEntry.Validate("Exported to Payment File", Flag);
                 CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
             until CustLedgerEntry.Next = 0;
     end;

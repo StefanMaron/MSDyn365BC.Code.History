@@ -559,6 +559,10 @@ codeunit 8618 "Config. Excel Exchange"
                         TableColumnName := ConfigPackageField."Field Caption" + ' ' + StrSubstNo('(%1)', Dimension.TableCaption)
                     else
                         TableColumnName := ConfigPackageField."Field Caption";
+
+                    if TableColumnName = '' then
+                        TableColumnName := ConfigPackageField."Field Name";
+
                     XmlColumnProperties := WrkShtWriter2.CreateXmlColumnProperties(
                         1,
                         '/DataList/' + (ConfigXMLExchange.GetElementName(ConfigPackageTable."Table Caption") + 'List') +

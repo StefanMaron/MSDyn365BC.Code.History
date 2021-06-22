@@ -237,6 +237,7 @@ page 1190 "Create Payment"
 
                     TempPaymentBuffer.Reset();
                     TempPaymentBuffer.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
+                    TempPaymentBuffer.SetRange("Vendor Ledg. Entry Doc. Type", TempPaymentBuffer."Vendor Ledg. Entry Doc. Type");
                     if TempPaymentBuffer.Find('-') then begin
                         TempPaymentBuffer.Amount += PaymentAmt;
                         SummarizePerVend := true;

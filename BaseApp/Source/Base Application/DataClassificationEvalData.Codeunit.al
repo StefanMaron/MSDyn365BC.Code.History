@@ -1019,6 +1019,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Price Calculation Buffer");
         SetTableFieldsToNormal(DATABASE::"Price Calculation Setup");
         SetTableFieldsToNormal(DATABASE::"Dtld. Price Calculation Setup");
+        SetTableFieldsToNormal(DATABASE::"Price List Header");
         SetTableFieldsToNormal(DATABASE::"Price List Line");
         SetTableFieldsToNormal(DATABASE::"Price Source");
         SetTableFieldsToNormal(DATABASE::"Sales Price");

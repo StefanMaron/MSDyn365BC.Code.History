@@ -17,8 +17,13 @@ codeunit 5790 "Available to Promise"
         PrevItemFilters: Text;
 
     procedure QtyAvailabletoPromise(var Item: Record Item; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; AvailabilityDate: Date; PeriodType: Option Day,Week,Month,Quarter,Year; LookaheadDateFormula: DateFormula) AvailableToPromise: Decimal
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeQtyAvailableToPromise(Item, AvailabilityDate);
+        IsHandled := false;
+        OnBeforeQtyAvailableToPromise(Item, AvailabilityDate, GrossRequirement, ScheduledReceipt, PeriodType, LookaheadDateFormula, AvailableToPromise, IsHandled);
+        If IsHandled then
+            exit;
 
         ScheduledReceipt := CalcScheduledReceipt(Item);
         GrossRequirement := CalcGrossRequirement(Item);
@@ -44,7 +49,13 @@ codeunit 5790 "Available to Promise"
     procedure CalcAvailableInventory(var Item: Record Item): Decimal
     var
         AvailableInventory: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcAvailableInventory(Item, AvailableInventory, IsHandled);
+        if IsHandled then
+            exit(AvailableInventory);
+
         CalcAllItemFields(Item);
         AvailableInventory := Item.Inventory - Item."Reserved Qty. on Inventory";
         OnAfterCalcAvailableInventory(Item, AvailableInventory);
@@ -185,22 +196,21 @@ codeunit 5790 "Available to Promise"
             AvailableQtyPeriod := AvailabilityAtDate."Scheduled Receipt" - AvailabilityAtDate."Gross Requirement";
             if AvailabilityAtDate."Scheduled Receipt" <= AvailabilityAtDate."Gross Requirement" then begin
                 AvailableQty := AvailableQty + AvailableQtyPeriod;
-                AvailableDate := AvailabilityAtDate."Period End";
                 if AvailableQty < NeededQty then
                     QtyIsAvailable := false;
             end else
-                if QtyIsAvailable then
-                    AvailabilityAtDate.FindLast
-                else begin
+                if not QtyIsAvailable then begin
                     AvailableQty := AvailableQty + AvailableQtyPeriod;
-                    if AvailableQty >= NeededQty then begin
+                    if AvailableQty >= NeededQty then
                         QtyIsAvailable := true;
-                        AvailableDate := AvailabilityAtDate."Period End";
-                        PeriodStart := AvailabilityAtDate."Period Start";
-                        PeriodEnd := AvailabilityAtDate."Period End";
-                        AvailabilityAtDate.FindLast;
-                    end;
                 end;
+
+            if QtyIsAvailable then begin
+                AvailableDate := AvailabilityAtDate."Period End";
+                PeriodStart := AvailabilityAtDate."Period Start";
+                PeriodEnd := AvailabilityAtDate."Period End";
+                AvailabilityAtDate.FindLast();
+            end;
         end;
 
         if QtyIsAvailable then begin
@@ -684,6 +694,11 @@ codeunit 5790 "Available to Promise"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAvailableInventory(var Item: Record Item; var AvailableInventory: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcGrossRequirement(var Item: Record Item)
     begin
     end;
@@ -694,7 +709,7 @@ codeunit 5790 "Available to Promise"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeQtyAvailableToPromise(var Item: Record Item; AvailabilityDate: Date)
+    local procedure OnBeforeQtyAvailableToPromise(var Item: Record Item; AvailabilityDate: Date; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; PeriodType: Option Day,Week,Month,Quarter,Year; LookaheadDateFormula: DateFormula; var AvailableToPromise: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

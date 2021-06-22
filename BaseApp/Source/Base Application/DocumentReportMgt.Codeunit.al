@@ -23,6 +23,7 @@ codeunit 9651 "Document Report Mgt."
         FileTypeHtmlTxt: Label 'html', Locked = true;
         ClientTypeMgt: Codeunit "Client Type Management";
         EnableLegacyPrint: Boolean;
+        LayoutEmptyErr: Label 'The custom report layout for ''%1'' is empty.', Comment = '%1 = Code of the Custom report layout';
 
     [Scope('OnPrem')]
     [Obsolete('Update calling code to use the function with an OutStream parameter', '15.3')]
@@ -205,6 +206,8 @@ codeunit 9651 "Document Report Mgt."
     begin
         CustomReportLayout.TestField(Type, CustomReportLayout.Type::Word);
         CustomReportLayout.GetLayoutBlob(TempBlob);
+        if not TempBlob.HasValue() then
+            Error(LayoutEmptyErr, CustomReportLayout.Code);            
         TempBlob.CreateInStream(DocumentStream);
         NAVWordXMLMerger := NAVWordXMLMerger.WordReportManager;
 

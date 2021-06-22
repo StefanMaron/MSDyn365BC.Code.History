@@ -20,6 +20,7 @@ codeunit 134099 "Purchase Documents"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTimeSheet: Codeunit "Library - Time Sheet";
         Assert: Codeunit Assert;
         PurchaseAlreadyExistsTxt: Label 'Purchase %1 %2 already exists for this vendor.', Comment = '%1 = Document Type; %2 = Document No.';
         IsInitialized: Boolean;
@@ -867,6 +868,42 @@ codeunit 134099 "Purchase Documents"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure PurchaserCodeUpdatedFromUserSetupWhenVendorWithPurchaser()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        UserSetup: Record "User Setup";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        // [FEATURE] [Salesperson Code]
+        // [SCENARIO 297510] Vendor with blank "Purchaser Code" and Purchaser Code empty - use Purchaser from UserSetup
+        Initialize();
+
+        // [GIVEN] Purchaser "SP01"
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+
+        // [GIVEN] User Setup with Salesperson Code
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser.Code);
+        UserSetup.Modify(true);
+
+        // [GIVEN] Purchase Order Created for Vendor "V01"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Vendor "V01" with blank "Purchaser Code"
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [WHEN] Set "Buy-from Vendor No." = "CU02" on Purchase Order
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+
+        // [THEN] "Purchaser Code" updated on Purchase Order
+        PurchaseHeader.TestField("Purchaser Code", SalespersonPurchaser.Code);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure OrderDateOnPurchaseDocumentIsInitializedWithWorkDate()
     var
@@ -887,6 +924,44 @@ codeunit 134099 "Purchase Documents"
             LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
             PurchaseLine.TestField("Order Date", WorkDate);
         end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure PurchaserCodeUpdatedFromVendorWithSalesperson()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        UserSetup: Record "User Setup";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        // [FEATURE] [Salesperson Code]
+        // [SCENARIO 297510] Vendor with "Purchaser Code" but UserSetup Purchaser Code empty - updated from Vendor
+        Initialize();
+
+        // [GIVEN] Purchaser "SP01"
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+
+        // [GIVEN] User Setup without Salesperson Code
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup.Validate("Salespers./Purch. Code", '');
+        UserSetup.Modify(true);
+
+        // [GIVEN] Purchase Order Created for Vendor "V01"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Vendor "V02" with blank "Purchaser Code"
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Purchaser Code", SalespersonPurchaser.Code);
+        Vendor.Modify(true);
+
+        // [WHEN] Set "Buy-from Vendor No." = "CU02" on Purchase Order
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+
+        // [THEN] "Purchaser Code" updated on Purchase Order
+        PurchaseHeader.TestField("Purchaser Code", SalespersonPurchaser.Code);
     end;
 
     [Test]

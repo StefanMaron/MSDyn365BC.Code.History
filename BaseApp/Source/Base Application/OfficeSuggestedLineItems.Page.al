@@ -6,7 +6,6 @@ page 1637 "Office Suggested Line Items"
     ShowFilter = false;
     SourceTable = "Office Suggested Line Item";
     SourceTableTemporary = true;
-
     layout
     {
         area(content)
@@ -21,8 +20,12 @@ page 1637 "Office Suggested Line Items"
                     field(Add; Add)
                     {
                         ApplicationArea = Basic, Suite;
-                        Enabled = NOT NeedsAttention;
                         ToolTip = 'Specifies whether to add this item to the document';
+                        trigger OnValidate()
+                        begin
+                            if Add and (Matches > 1) then
+                                Error(ItemNeedsToBeResolvedErr);
+                        end;
                     }
                     field(Item; GetItem)
                     {
@@ -32,7 +35,7 @@ page 1637 "Office Suggested Line Items"
                         Lookup = false;
                         QuickEntry = false;
                         Style = Attention;
-                        StyleExpr = NeedsAttention;
+                        StyleExpr = Matches > 1;
                         ToolTip = 'Specifies the item';
                         Width = 10;
 
@@ -56,8 +59,6 @@ page 1637 "Office Suggested Line Items"
                                     Validate("Line No.", LastLineNo + 1000);
                                     LastLineNo := "Line No.";
                                 end;
-
-                                NeedsAttention := false;
                             end;
                         end;
 
@@ -90,6 +91,10 @@ page 1637 "Office Suggested Line Items"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Do not show this message again';
+                    trigger OnValidate()
+                    begin
+                        UpdatedDoNotShowAgain := DoNotShowAgain;
+                    end;
                 }
             }
         }
@@ -99,15 +104,15 @@ page 1637 "Office Suggested Line Items"
     {
     }
 
-    trigger OnAfterGetRecord()
-    begin
-        NeedsAttention := Matches > 1;
-    end;
-
     trigger OnOpenPage()
     begin
         if FindLast then
             LastLineNo := "Line No.";
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        DoNotShowAgain := UpdatedDoNotShowAgain;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -122,8 +127,9 @@ page 1637 "Office Suggested Line Items"
         ResolveItemTxt: Label 'Resolve item';
         LastLineNo: Integer;
         DoNotShowAgain: Boolean;
+        UpdatedDoNotShowAgain: Boolean;
         MultipleMatchesTxt: Label '%1 (%2 matches)', Comment = '%1 - The keyword that yielded items in the database. %2 - the number of item matches that were found from the keyword.';
-        NeedsAttention: Boolean;
+        ItemNeedsToBeResolvedErr: Label 'Resolve the item in order to add it.';
 
     local procedure GetDescription() Description: Text
     begin

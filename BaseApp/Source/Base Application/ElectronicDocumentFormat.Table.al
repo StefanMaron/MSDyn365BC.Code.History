@@ -29,7 +29,7 @@ table 61 "Electronic Document Format"
         }
         field(6; "Codeunit Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Codeunit ID")));
             Caption = 'Codeunit Caption';
             Editable = false;
@@ -43,7 +43,7 @@ table 61 "Electronic Document Format"
         }
         field(8; "Delivery Codeunit Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Delivery Codeunit ID")));
             Caption = 'Delivery Codeunit Caption';
             Editable = false;
@@ -116,6 +116,7 @@ table 61 "Electronic Document Format"
                   GetAttachmentFileName(GetDocumentNo(RecRef), GetDocumentType(RecRef), 'xml');
                 RecordExportBuffer.ZipFileName :=
                   GetAttachmentFileName(GetDocumentNo(RecRef), GetDocumentType(RecRef), 'zip');
+                OnSendElectronicallyOnBeforeRecordExportBufferInsert(RecordExportBuffer, RecRef);
                 RecordExportBuffer.Insert(true);
                 if StartID = 0 then
                     StartID := RecordExportBuffer.ID;
@@ -356,8 +357,12 @@ table 61 "Electronic Document Format"
     var
         DummySalesHeader: Record "Sales Header";
         DummyServiceHeader: Record "Service Header";
+        TranslationHelper: Codeunit "Translation Helper";
+        ReportDistributionManagement: Codeunit "Report Distribution Management";
         DocumentRecordRef: RecordRef;
     begin
+        TranslationHelper.SetGlobalLanguageByCode(ReportDistributionManagement.GetDocumentLanguageCode(DocumentVariant));
+
         if DocumentVariant.IsRecord then
             DocumentRecordRef.GetTable(DocumentVariant)
         else
@@ -365,30 +370,32 @@ table 61 "Electronic Document Format"
                 DocumentRecordRef := DocumentVariant;
         case DocumentRecordRef.Number of
             DATABASE::"Sales Invoice Header":
-                exit(Format(DummySalesHeader."Document Type"::Invoice));
+                DocumentTypeText := Format(DummySalesHeader."Document Type"::Invoice);
             DATABASE::"Sales Cr.Memo Header":
-                exit(Format(DummySalesHeader."Document Type"::"Credit Memo"));
+                DocumentTypeText := Format(DummySalesHeader."Document Type"::"Credit Memo");
             DATABASE::"Service Invoice Header":
-                exit(Format(DummyServiceHeader."Document Type"::Invoice));
+                DocumentTypeText := Format(DummyServiceHeader."Document Type"::Invoice);
             DATABASE::"Service Cr.Memo Header":
-                exit(Format(DummyServiceHeader."Document Type"::"Credit Memo"));
+                DocumentTypeText := Format(DummyServiceHeader."Document Type"::"Credit Memo");
             DATABASE::Job:
-                exit(Format(DummyServiceHeader."Document Type"::Quote));
+                DocumentTypeText := Format(DummyServiceHeader."Document Type"::Quote);
             DATABASE::"Service Header":
                 begin
                     DummyServiceHeader := DocumentVariant;
                     if DummyServiceHeader."Document Type" = DummyServiceHeader."Document Type"::Quote then
-                        exit(Format(DummyServiceHeader."Document Type"::Quote));
+                        DocumentTypeText := Format(DummyServiceHeader."Document Type"::Quote);
                 end;
             DATABASE::"Sales Header":
                 begin
                     DummySalesHeader := DocumentVariant;
                     if DummySalesHeader."Document Type" = DummySalesHeader."Document Type"::Quote then
-                        exit(Format(DummySalesHeader."Document Type"::Quote));
+                        DocumentTypeText := Format(DummySalesHeader."Document Type"::Quote);
                 end;
             else
                 OnGetDocumentTypeCaseElse(DocumentVariant, DocumentTypeText);
         end;
+
+        TranslationHelper.RestoreGlobalLanguage();
     end;
 
     procedure InsertElectronicFormat(InsertElectronicFormatCode: Code[20]; InsertElectronicFormatDescription: Text[250]; CodeunitID: Integer; DeliveryCodeunitID: Integer; InsertElectronicFormatUsage: Option)
@@ -430,6 +437,11 @@ table 61 "Electronic Document Format"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDocumentTypeCaseElse(DocumentVariant: Variant; var DocumentTypeText: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendElectronicallyOnBeforeRecordExportBufferInsert(var RecordExportBuffer: Record "Record Export Buffer"; RecRef: RecordRef)
     begin
     end;
 }

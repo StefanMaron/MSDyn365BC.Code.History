@@ -1276,6 +1276,76 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         WarehouseRequest.TestField("Document Status", WarehouseRequest."Document Status"::Open);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyReceivedNotPutAwayTakesAvailQtyIntoConsideration()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ReceiptBin: Record Bin;
+        ShipmentBin: Record Bin;
+        WarehouseEmployee: Record "Warehouse Employee";
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Warehouse Pick] [Put-Away] [Purchase] [Receipt] [Credit-Memo]
+        // [SCENARIO 351606] Creating pick when one of receipts was not put-away and reversed by posting credit-memo.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Location with required receipt, shipment, put-away and pick.
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 5, false);
+        LibraryWarehouse.FindBin(ReceiptBin, Location.Code, '', 2);
+        LibraryWarehouse.FindBin(ShipmentBin, Location.Code, '', 3);
+
+        Location.Validate("Receipt Bin Code", ReceiptBin.Code);
+        Location.Validate("Shipment Bin Code", ShipmentBin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create purchase order, release it, create warehouse receipt and post it.
+        // [GIVEN] Delete the warehouse put-away without registering it.
+        CreateAndReleasePurchaseOrderWithItemTracking(PurchaseHeader, Item."No.", Location.Code, Qty, false);
+        CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, false, 0);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Put-away");
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.Delete(true);
+
+        // [GIVEN] Create purchase credit-memo and post it.
+        CreatePurchaseDocument(
+          PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Item."No.", Location.Code, Qty, '', false);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create another purchase order, release it, create and post warehouse receipt and put-away.
+        CreateAndReleasePurchaseOrderWithItemTracking(PurchaseHeader, Item."No.", Location.Code, Qty, false);
+        CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, false, 0);
+        RegisterWarehouseActivity(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Put-away");
+
+        // [GIVEN] Create sales order, release it, create warehouse shipment.
+        CreateAndReleaseSalesOrder(SalesHeader, '', Item."No.", Qty, Location.Code, '', false, 0);
+        CreateWarehouseShipmentFromSalesHeader(SalesHeader);
+
+        // [WHEN] Create pick from the warehouse shipment.
+        CreatePickFromWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
+
+        // [THEN] The pick is successfully created.
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.TestField(Quantity, Qty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

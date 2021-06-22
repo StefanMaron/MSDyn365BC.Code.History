@@ -55,6 +55,7 @@ codeunit 137163 "SCM Orders VI"
         ReturnQtyErr: Label '%1 must be equal to ''0''  in %2', Comment = '%1 = Field caption; %2 = Table caption';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
         MissingMandatoryLocationTxt: Label 'Location Code must have a value in Requisition Line';
+        CannotReserveFromSpecialOrderErr: Label 'You cannot reserve from this item ledger entry because the associated special sales order %1 has not been posted yet.', Comment = '%1: Sales Order No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1211,6 +1212,80 @@ codeunit 137163 "SCM Orders VI"
         // [THEN] Reserved quantity on sales order "SO2" is 0
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoReserveItemLedgEntryPostedFromFinishedSpecialOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Special Order] [Reservation]
+        // [SCENARIO 376890] Item ledger entry posted from special order can be reserved for another sales order after the special sales order is shipped.
+        Initialize();
+
+        // [GIVEN] Create sales order "SO1" and purchase order "PO" with special order link.
+        CreateSpecialOrderSalesAndPurchase(SalesHeader, SalesLine);
+
+        // [GIVEN] Double quantity on the purchase order line.
+        // [GIVEN] Receive "PO".
+        FindPurchaseLine(PurchaseLine, SalesLine."No.");
+        UpdateQuantityOnPurchaseLine(PurchaseLine, PurchaseLine.Quantity * 2);
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Ship "SO1".
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Create sales order "SO2".
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, '', SalesLine."No.", SalesLine.Quantity, '');
+
+        // [WHEN] Auto reserve sales order "SO2"
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [THEN] "SO2" is fully reserved.
+        SalesLine.CalcFields("Reserved Quantity");
+        SalesLine.TestField("Reserved Quantity", SalesLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ReservationPerItemEntryModalPageHandler,AvailableItemLedgEntriesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure AutoReserveItemLedgEntryPostedFromUnfinishedSpecialPurchOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeaderNo: Code[20];
+    begin
+        // [FEATURE] [Special Order] [Reservation]
+        // [SCENARIO 376890] Item ledger entry posted from special order cannot be reserved for another sales order before the special sales order is shipped.
+        Initialize();
+
+        // [GIVEN] Create sales order "SO1" and purchase order "PO" with special order link.
+        CreateSpecialOrderSalesAndPurchase(SalesHeader, SalesLine);
+        SalesHeaderNo := SalesHeader."No.";
+
+        // [GIVEN] Double quantity on the purchase order line.
+        // [GIVEN] Receive "PO".
+        FindPurchaseLine(PurchaseLine, SalesLine."No.");
+        UpdateQuantityOnPurchaseLine(PurchaseLine, PurchaseLine.Quantity * 2);
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Create sales order "SO2".
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, '', SalesLine."No.", SalesLine.Quantity, '');
+
+        // [WHEN] Open reservation page for "SO2" and reserve from the posted "PO".
+        asserterror SalesLine.ShowReservation();
+
+        // [THEN] An error message is shown pointing that the special sales order "SO1" has not been posted yet.
+        Assert.ExpectedError(StrSubstNo(CannotReserveFromSpecialOrderErr, SalesHeaderNo));
+        Assert.ExpectedErrorCode('Dialog');
     end;
 
     [Test]
@@ -3471,6 +3546,20 @@ codeunit 137163 "SCM Orders VI"
     begin
         Reservation."Auto Reserve".Invoke;
         Reservation.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReservationPerItemEntryModalPageHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Total Quantity".DrillDown();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure AvailableItemLedgEntriesModalPageHandler(var AvailableItemLedgEntries: TestPage "Available - Item Ledg. Entries")
+    begin
+        AvailableItemLedgEntries.Reserve.Invoke();
     end;
 
     [ModalPageHandler]

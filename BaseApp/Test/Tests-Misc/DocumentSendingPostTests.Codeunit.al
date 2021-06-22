@@ -3292,6 +3292,37 @@ codeunit 139151 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DocumentSendingProfileDoesNotRunCheckForDiskPDF()
+    var
+        DocumentSendingProfile: Record "Document Sending Profile";
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 358975] Post sales invoice with Document Sending Profile = Disk::PDF
+        Initialize;
+
+        // [GIVEN] Document Sending Profile for Disk::PDF has 'Disk Format' = PEPPOL
+        CreateDocumentSendingProfileWithAllTrue(DocumentSendingProfile);
+        DocumentSendingProfile.Validate("Disk Format", PeppolFormatNameTxt);
+        DocumentSendingProfile.Modify(true);
+
+        // [GIVEN] Sales Invoice for customer with the Document Sending Profile created above and no specific field filled in for PEPPOL
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        Customer.Get(SalesHeader."Bill-to Customer No.");
+        Customer.Validate("Document Sending Profile", DocumentSendingProfile.Code);
+        Customer.Modify(true);
+
+        // [WHEN] Post the Sales Invoice
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] The Sales Invoice is successfuly posted
+        SalesInvoiceHeader.Get(InvoiceNo);
+    end;
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
@@ -3856,48 +3887,30 @@ codeunit 139151 DocumentSendingPostTests
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CountryRegion: Record "Country/Region";
     begin
-        ElectronicDocumentFormat.DeleteAll();
-        ElectronicDocumentFormat.Init();
-        ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
-        ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Export Sales Inv. - PEPPOL 2.1";
-        ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Sales Invoice";
-        ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
-        ElectronicDocumentFormat.Insert(true);
+        ElectronicDocumentFormat.DeleteAll;
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0", 0,
+          ElectronicDocumentFormat.Usage::"Sales Invoice");
 
-        ElectronicDocumentFormat.Init();
-        ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
-        ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Export Sales Cr.M. - PEPPOL2.1";
-        ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Sales Credit Memo";
-        ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
-        ElectronicDocumentFormat.Insert(true);
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0", 0,
+          ElectronicDocumentFormat.Usage::"Sales Credit Memo");
 
-        ElectronicDocumentFormat.Init();
-        ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
-        ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Export Serv. Inv. - PEPPOL 2.1";
-        ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Service Invoice";
-        ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
-        ElectronicDocumentFormat.Insert(true);
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0", 0,
+          ElectronicDocumentFormat.Usage::"Service Invoice");
 
-        ElectronicDocumentFormat.Init();
-        ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
-        ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"Exp. Service Cr.M. - PEPPOL2.1";
-        ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Service Credit Memo";
-        ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
-        ElectronicDocumentFormat.Insert(true);
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0", 0,
+          ElectronicDocumentFormat.Usage::"Service Credit Memo");
 
-        ElectronicDocumentFormat.Init();
-        ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
-        ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"PEPPOL Validation";
-        ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Sales Validation";
-        ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
-        ElectronicDocumentFormat.Insert(true);
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"PEPPOL Validation", 0,
+          ElectronicDocumentFormat.Usage::"Sales Validation");
 
-        ElectronicDocumentFormat.Init();
-        ElectronicDocumentFormat.Code := PeppolFormatNameTxt;
-        ElectronicDocumentFormat."Codeunit ID" := CODEUNIT::"PEPPOL Service Validation";
-        ElectronicDocumentFormat.Usage := ElectronicDocumentFormat.Usage::"Service Validation";
-        ElectronicDocumentFormat.Description := LibraryUtility.GenerateGUID;
-        ElectronicDocumentFormat.Insert(true);
+        ElectronicDocumentFormat.InsertElectronicFormat(
+          PeppolFormatNameTxt, PeppolFormatNameTxt, CODEUNIT::"PEPPOL Service Validation", 0,
+          ElectronicDocumentFormat.Usage::"Service Validation");
 
         with CountryRegion do begin
             SetRange("VAT Scheme", '');

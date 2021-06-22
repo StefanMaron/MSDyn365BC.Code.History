@@ -163,6 +163,11 @@ codeunit 6299 "Power BI Embed Helper"
         UriBuilderFullUrl: DotNet UriBuilder;
         UriBuilderBaseUrl: DotNet UriBuilder;
     begin
+        if not UrlHelper.IsPROD() then begin
+            EmbeddedTargetOrigin := '*';
+            exit;
+        end;
+
         // From documentation about TargetOrigin:
         //   This string is the concatenation of the protocol and "://", the host name if one exists, and ":" followed by a port number if a port is present
         //   and differs from the default port for the given protocol. Examples of typical origins are https://example.org (implying port 443), http://example.net 

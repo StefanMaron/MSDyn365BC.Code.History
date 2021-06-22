@@ -8,10 +8,13 @@ codeunit 5520 "Get Unplanned Demand"
 
     trigger OnRun()
     begin
+        if IncludeMetDemandForSpecificSalesOrderNo <> '' then
+            SetFilterToSpecificSalesOrder();
+
         DeleteAll();
         SalesLine.SetFilter("Document Type", '%1|%2', SalesLine."Document Type"::Order, SalesLine."Document Type"::"Return Order");
         ProdOrderComp.SetFilter(
-          Status, '%1|%2|%3', ProdOrderComp.Status::Planned, ProdOrderComp.Status::"Firm Planned", ProdOrderComp.Status::Released);
+            Status, '%1|%2|%3', ProdOrderComp.Status::Planned, ProdOrderComp.Status::"Firm Planned", ProdOrderComp.Status::Released);
         ServLine.SetRange("Document Type", ServLine."Document Type"::Order);
         AsmLine.SetRange("Document Type", AsmLine."Document Type"::Order);
         JobPlanningLine.SetRange(Status, JobPlanningLine.Status::Order);
@@ -25,6 +28,7 @@ codeunit 5520 "Get Unplanned Demand"
         GetUnplannedAsmLine(Rec);
         GetUnplannedServLine(Rec);
         GetUnplannedJobPlanningLine(Rec);
+
         OnAfterGetUnplanned(Rec);
 
         OnBeforeClosePlanningWindow(Rec, Window, NoOfRecords);
@@ -52,10 +56,64 @@ codeunit 5520 "Get Unplanned Demand"
         DemandQtyBase: Decimal;
         IncludeMetDemandForSpecificSalesOrderNo: Code[20];
         RecordCounter: Integer;
+        FilterStringBuilderLbl: Label '%1|', Locked = true;
+        SendTraceCategoryLbl: Label 'Planning', Locked = true;
+        FilterTooLongMsg: Label 'Item filter is too long.', Locked = true;
 
     procedure SetIncludeMetDemandForSpecificSalesOrderNo(SalesOrderNo: Code[20])
     begin
         IncludeMetDemandForSpecificSalesOrderNo := SalesOrderNo;
+    end;
+
+    local procedure SetFilterToSpecificSalesOrder()
+    var
+        SalesOrderLine: Record "Sales Line";
+        TempItem: Record Item temporary;
+        Item: Record Item;
+        TypeHelper: Codeunit "Type Helper";
+        ItemFilter: Text;
+    begin
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        AsmLine.SetRange(Type, AsmLine.Type::Item);
+        JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Item);
+
+        SalesOrderLine.SetRange("Document No.", IncludeMetDemandForSpecificSalesOrderNo);
+        SalesOrderLine.SetRange("Document Type", SalesOrderLine."Document Type"::Order);
+        SalesOrderLine.SetRange(Type, SalesOrderLine.Type::Item);
+
+        if SalesOrderLine.FindSet() then begin
+            repeat
+                // Find all the items needed to be planned and add it to a temp item bufffer
+                if not TempItem.Get(SalesOrderLine."No.") then
+                    if Item.Get(SalesOrderLine."No.") then begin
+                        TempItem := Item;
+                        TempItem.Insert();
+                    end;
+            until SalesOrderLine.Next() = 0;
+
+            if TempItem.Count() >= (TypeHelper.GetMaxNumberOfParametersInSQLQuery() - 100) then
+                exit;
+
+            // Build a filter string from the temperory item buffer
+            if not TempItem.FindSet() then
+                exit;
+
+            repeat
+                if (StrLen(ItemFilter) + StrLen(TempItem."No.") + 1) > MaxStrLen(ItemFilter) then begin
+                    SendTraceTag('0000CG7', SendTraceCategoryLbl, Verbosity::Warning, FilterTooLongMsg);
+                    exit;
+                end;
+
+                ItemFilter += StrSubstNo(FilterStringBuilderLbl, TempItem."No.");
+            Until TempItem.Next() = 0;
+
+            ItemFilter := CopyStr(ItemFilter, 1, StrLen(ItemFilter) - 1);
+
+            SalesLine.SetFilter("No.", ItemFilter);
+            ProdOrderComp.SetFilter("Item No.", ItemFilter);
+            AsmLine.SetFilter("No.", ItemFilter);
+            JobPlanningLine.SetFilter("No.", ItemFilter);
+        end;
     end;
 
     local procedure GetUnplannedSalesLine(var UnplannedDemand: Record "Unplanned Demand")
@@ -351,7 +409,6 @@ codeunit 5520 "Get Unplanned Demand"
         TempUnplannedDemand: Record "Unplanned Demand" temporary;
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
         HeaderExists: Boolean;
-        ForceIncludeDemand: Boolean;
     begin
         with TempUnplannedDemand do begin
             UnplannedDemand.Reset();
@@ -373,14 +430,7 @@ codeunit 5520 "Get Unplanned Demand"
                             CalcDemand(TempUnplannedDemand, false) + CalcDemand(UnplannedDemand, true),
                             "Quantity (Base)");
 
-                    ForceIncludeDemand :=
-                      (UnplannedDemand."Demand Order No." = IncludeMetDemandForSpecificSalesOrderNo) and
-                      (UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Sales) and
-                      (UnplannedDemand."Demand SubType" = SalesLine."Document Type"::Order);
-
-                    if ForceIncludeDemand or
-                       (IncludeMetDemandForSpecificSalesOrderNo = '') and (UnplannedDemand."Needed Qty. (Base)" > 0)
-                    then begin
+                    if UnplannedDemand."Needed Qty. (Base)" > 0 then begin
                         UnplannedDemand.Insert();
                         if not HeaderExists then begin
                             InsertUnplannedDemandHeader(TempUnplannedDemand, UnplannedDemand);
@@ -410,6 +460,7 @@ codeunit 5520 "Get Unplanned Demand"
             SetRange("Item No.", "Item No.");
             SetRange("Variant Code", "Variant Code");
             SetRange("Location Code", "Location Code");
+
             if Planned then begin
                 SetRange("Demand Date", 0D, "Demand Date");
                 CalcSums("Needed Qty. (Base)");

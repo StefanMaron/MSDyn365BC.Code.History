@@ -69,6 +69,7 @@ codeunit 5818 "Undo Service Shipment Line"
             SetFilter("Spare Part Action", '%1|%2',
               "Spare Part Action"::"Component Replaced", "Spare Part Action"::"Component Installed");
             SetFilter("Service Item No.", '<>%1', '');
+            OnCheckComponentsAdjustedOnAfterLocalServShptLineSetFilters(LocalServShptLine);
             exit(not IsEmpty);
         end;
     end;
@@ -433,6 +434,11 @@ codeunit 5818 "Undo Service Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var ServiceShipmentLine: Record "Service Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckComponentsAdjustedOnAfterLocalServShptLineSetFilters(var ServiceShptLine: Record "Service Shipment Line")
     begin
     end;
 }

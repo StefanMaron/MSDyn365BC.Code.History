@@ -2695,6 +2695,45 @@ codeunit 137156 "SCM Orders IV"
         Assert.ExpectedError(ApplToItemEntryBlankErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobPlanningLineIsProperlyUpdatedAfterPostingPurchaseLine()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Jobs] [Job Planning Line]
+        // [SCENARIO 355575] Job planning line remaining quantity is properly updated on posting several purchase lines.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(50, 100);
+
+        // [GIVEN] Job, Job Task and Job Planning Line with item "I" and quantity = 90.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(
+          JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate(Quantity, 3 * Qty);
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] A purchase order with two lines, each for item "I" and quantity = 30.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        CreatePurchaseLineWithJob(PurchaseLine, PurchaseHeader, JobPlanningLine, Qty);
+        CreatePurchaseLineWithJob(PurchaseLine, PurchaseHeader, JobPlanningLine, Qty);
+
+        // [WHEN] Receive and invoice the purchase order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Quantity on the job planning line remains 90.
+        // [THEN] Remaining quantity on the job planning line = 30.
+        JobPlanningLine.Find();
+        JobPlanningLine.TestField(Quantity, 3 * Qty);
+        JobPlanningLine.TestField("Remaining Qty.", Qty);
+    end;
+
     local procedure Initialize()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
@@ -3292,6 +3331,15 @@ codeunit 137156 "SCM Orders IV"
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(50, 2));
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseLineWithJob(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; JobPlanningLine: Record "Job Planning Line"; Qty: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, JobPlanningLine."No.", Qty);
+        PurchaseLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
         PurchaseLine.Modify(true);
     end;
 

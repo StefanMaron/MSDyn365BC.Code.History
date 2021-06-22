@@ -113,6 +113,7 @@ codeunit 5403 AddOnIntegrManagement
             PurchOrderLine.Validate("Work Center No.", "Work Center No.");
             if "Prod. Order No." <> '' then
                 if "Work Center No." <> '' then begin
+                    OnTransferFromReqLineToPurchLineOnBeforeBeforeAssignOverheadRate(WorkCenter, ReqLine."Order Date");
                     WorkCenter.Get(PurchOrderLine."Work Center No.");
                     if WorkCenter."Unit Cost Calculation" = WorkCenter."Unit Cost Calculation"::Time then begin
                         ProdOrderRtngLine.Get(
@@ -143,6 +144,11 @@ codeunit 5403 AddOnIntegrManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReceiptOrderStatus(SalesLine: Record "Sales Line"; var Checked: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferFromReqLineToPurchLineOnBeforeBeforeAssignOverheadRate(var WordCenter: Record "Work Center"; var OrderDate: Date)
     begin
     end;
 }

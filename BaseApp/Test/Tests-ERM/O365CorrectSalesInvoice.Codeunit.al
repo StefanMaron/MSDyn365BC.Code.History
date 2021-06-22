@@ -28,6 +28,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         EntriesSuccessfullyUnappliedMsg: Label 'The entries were successfully unapplied.';
         ShippedQtyReturnedCorrectErr: Label 'You cannot correct this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
         ShippedQtyReturnedCancelErr: Label 'You cannot cancel this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
+        AmountSalesInvErr: Label 'Amount must have a value in Sales Invoice Header';
 
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesInvoicePageHandler')]
@@ -1093,7 +1094,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     begin
         Initialize;
 
-        CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 0, 1, SalesInvoiceHeader);
+        CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 2, 1, SalesInvoiceHeader);
 
         LastItemLedgEntry.FindLast;
         Assert.AreEqual(-1, LastItemLedgEntry."Shipped Qty. Not Returned", '');
@@ -1381,6 +1382,71 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Assert.IsFalse(PostedSalesInvoices.CorrectInvoice.Visible, 'action Correct.Visible');
         Assert.IsFalse(PostedSalesInvoices.CancelInvoice.Visible, 'action Cancel.Visible');
         Assert.IsTrue(PostedSalesInvoices.ShowCreditMemo.Visible, 'action ShowCreditMemo.Visible');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceZeroAmountDeclineCancel()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [SCENARIO 352180] Posted Sales Invoice with zero amount line cannot be corrected
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with 1 line and Unit Price/Line Amount = 0
+        CreateAndPostSalesInvForNewItemAndCust(Item, Customer, 0, 1, SalesInvoiceHeader);
+
+        // [WHEN] Invoice is corrected
+        // [THEN] Error message 'Amount must have a value in Sales Invoice Header' appears
+        asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, FALSE);
+        Assert.ExpectedError(AmountSalesInvErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectPostedSalesInvoice2LinesOneZeroUnitPrice()
+    var
+        Customer: Record Customer;
+        Item1: Record Item;
+        Item2: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLineType: Enum "Sales Line Type";
+        PostedSalesInvoiceNo: Code[20];
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [SCENARIO 352180] Posted Sales Invoice with zero linr amount line can be corrected
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice PSI1 with 2 lines. 
+        // Item1, Qty = 1, Unit Price = 0, Line Amount = 0
+        // Item2, Qty = 1, Unit Price = 10, Line Amount = 10
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
+        CreateItemsWithPrice(Item1, 0);
+        CreateItemsWithPrice(Item2, 10);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType::Item, Item1."No.", 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType::Item, Item2."No.", 1);
+        PostedSalesInvoiceNo := LibrarySales.PostSalesDocument(Salesheader, TRUE, TRUE);
+        SalesInvoiceHeader.GET(PostedSalesInvoiceNo);
+
+        // [WHEN] Correct Posted Invoice is invoked
+        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeader);
+
+        // [THEN] New Sales Invoice created lines equal to PSI1
+        SalesLine.Reset();
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+
+        SalesLine.SetRange("No.", Item1."No.");
+        SalesLine.FindFirst();
+        SalesLine.TestField("Unit Price", 0);
+
+        SalesLine.SetRange("No.", Item2."No.");
+        SalesLine.FindFirst();
+        SalesLine.TestField("Unit Price", 10);
     end;
 
     local procedure Initialize()

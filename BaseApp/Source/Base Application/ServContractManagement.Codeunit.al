@@ -546,6 +546,8 @@ codeunit 5940 ServContractManagement
             NewContract := true;
         end;
 
+        OnCreateDetailedServLineOnAfterSetFirstLineAndNewContract(FirstLine, NewContract);
+
         Cust.Get(ServContractHeader."Bill-to Customer No.");
         ServLine.Reset();
 
@@ -2318,6 +2320,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateAllCreditLinesCaseElse(ServiceContractHeader: Record "Service Contract Header"; var InvPeriod: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDetailedServLineOnAfterSetFirstLineAndNewContract(var FirstLine: Boolean; var NewContract: Boolean)
     begin
     end;
 

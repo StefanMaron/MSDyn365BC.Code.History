@@ -585,6 +585,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field Media - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3029408820 - Field 376825882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MediaSet</source>
+          <target state="translated">MediaSet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field MediaSet - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2488342448 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cue Setup</source>
           <target state="translated">Настройка очереди</target>
@@ -1431,6 +1437,72 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Web Service Aggregate - Field All Tenants - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 1734503621" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>OAuthLanding.htm</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType OAuthLandingPageTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 973150169" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>OAuth2</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType Oauth2CategoryLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 2397240830" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The default redirectURL is: %1</source>
+          <note from="Developer" annotates="general" priority="2">%1 = The redirect URL</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType DefaultRedirectUrlTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 433891438" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The authentication request URL %1 has been succesfully retrieved.</source>
+          <target state="translated">URL-адрес запроса проверки подлинности %1 успешно извлечен.</target>
+          <note from="Developer" annotates="general" priority="2">%1=Authentication request URL</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType AuthRequestUrlTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 2829230789" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The authorization request URL for the OAuth2 Grant flow cannot be constructed because of missing ClientId, RedirectUrl or state</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType MissingClientIdRedirectUrlStateErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 2433936037" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The OAuth2 authentication code retrieved is empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType AuthorizationCodeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 1863207932" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The Authorization code cannot be read from the JSON file.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType CannotreadFromJsonErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 4158249146" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The code property cannot be extracted from the JSON body of the authorization code.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType CannotGetCodePropertyFromJsonErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 1636116418" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The code property value from the JSON body cannot be retreieved.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType CodePropertyDoesNotHaveValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 2831011129" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The authorization code cannot be written to a text value.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType CannotWriteJsonToAuthCodeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 808418647" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The access token failed to be retrieved by the client credentials grant flow.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType EmptyAccessTokenClientCredsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 2058783442" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Starting the authorization code grant flow.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType StartAuthCodeFlowMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2027814023 - NamedType 2341535384" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The authorization code has been successfully extracted from the JSON body.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType AuthorizationCodeExtractedSuccessfullyFromJsonMsg</note>
+        </trans-unit>
         <trans-unit id="Page 4123539893 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Advanced Settings</source>
           <target state="translated">Расширенные настройки</target>
@@ -1901,11 +1973,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType OverrideImageQst</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2308444729 - NamedType 3567299321" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The provided field must be of type 'Media'.</source>
-          <target state="translated">Поле должно быть типа "Мультимедиа".</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType NotAMediaFieldErr</note>
+        <trans-unit id="Codeunit 2308444729 - NamedType 2595675358" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unsupported field type: %1</source>
+          <target state="translated">Неподдерживаемый тип поля: %1</target>
+          <note from="Developer" annotates="general" priority="2">The type of the field</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType UnsupportedFieldTypeErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2458010968 - NamedType 1037556188" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The picture quality must be in the range from 0 to 100.</source>
@@ -1996,6 +2068,12 @@
           <target state="translated">Шифрование данных не включено. Рекомендуется шифровать данные. \Открыть окно "Управление шифрованием данных"?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Cryptography Management Impl. - NamedType EncryptionIsNotActivatedQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1641905399 - NamedType 569519751" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unable to initialize certificate!</source>
+          <target state="translated">Не удается инициализировать сертификат.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit X509Certificate2 Impl. - NamedType CertInitializeErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1225200592 - NamedType 2920143230" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 must be greater than %2.</source>
@@ -2921,6 +2999,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Translation Implementation - NamedType NoRecordIdErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1516646291 - NamedType 122615366" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Translations cannot be added or retrieved for temporary records.</source>
+          <target state="translated">Невозможно добавлять или извлекать переводы для временных записей.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Translation Implementation - NamedType CannotTranslateTempRecErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1516646291 - NamedType 1727257142" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Translations cannot be added for the record on table %1.</source>
+          <target state="translated">Невозможно добавить переводы для записи в таблице %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Table number</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Translation Implementation - NamedType NotAValidRecordForTranslationErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1726821529 - NamedType 1200477291" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>SUPER</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2982,6 +3072,78 @@
           <target state="translated">Невозможно изменить веб-службу, так как она конфликтует с неопубликованной системной веб-службой для объекта.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Web Service Management Impl. - NamedType WebServiceModNotAllowedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 660764448 - NamedType 868391751" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The XML definition is invalid.</source>
+          <target state="translated">Недопустимое определение XML.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Xml Validation Impl. - NamedType InvalidXmlErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 660764448 - NamedType 1521412279" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The schema definition is not valid XML.</source>
+          <target state="translated">Определение схемы не представляет собой допустимый XML.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Xml Validation Impl. - NamedType InvalidSchemaErr</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Waiting for a response - do not close this page</source>
+          <target state="translated">Ожидание отклика — не закрывайте эту страницу</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - NamedType 973150169" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>OAuth2</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType Oauth2CategoryLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - NamedType 3897527576" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The returned authorization code is missing the returned code.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType MissingCodeErr</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - NamedType 737339074" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The returned authorization code is missing information about the returned state.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType MissingStateErr</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - NamedType 1956023362" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The authroization code returned state is missmatching the expected state value.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType MismatchingStateErr</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - NamedType 1622219291" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Error: %1 ; Description: %2.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = OAuth error message ; %2 = description of OAuth failure error message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType OauthFailErrMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - NamedType 1957645693" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>The authorization code flow grant process has started.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType OAuthCodeStartMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - NamedType 4292239315" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No authorization code has been returned</source>
+          <target state="translated">Код авторизации не возвращен</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType NoAuthCodeErr</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - NamedType 2342417125" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No state has been returned</source>
+          <target state="translated">Состояние не возвращено</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType NoStateErr</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - NamedType 1232297936" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The state parameter value does not match.</source>
+          <target state="translated">Значение параметра "Состояние" не совпадает.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType NotMatchingStateErr</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - NamedType 3906946713" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error: %1, description: %2</source>
+          <target state="translated">Ошибка: %1; описание: %2</target>
+          <note from="Developer" annotates="general" priority="2">%1 = The authorization error message, %2 = The authorization error description</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType AuthCodeErrorLbl</note>
         </trans-unit>
         <trans-unit id="Page 232331644 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Plans</source>
@@ -3075,7 +3237,7 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Update users from Office 365</source>
-          <target state="translated">Обновить пользователей из Office</target>
+          <target state="translated">Обновить пользователей из Office 365</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Property Caption</note>
         </trans-unit>
@@ -3099,11 +3261,13 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 1673237505 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Note:</source>
+          <target state="translated">Примечание.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NoteGroup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 1673237505 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>It can take up to 72 hours for a change in Office 365 to become available to Business Central. If a change within that period does not appear in Business Central after you update users, try again later.</source>
+          <target state="translated">Чтобы изменение в Office 365 стало доступно в Business Central, может потребоваться до 72 часов. Если внесенное в течение этого периода изменение не отображается в Business Central после обновления пользователей, повторите попытку позже.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NoteGroup - Property InstructionalText</note>
         </trans-unit>
@@ -3223,6 +3387,7 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 4139032030 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Summary</source>
+          <target state="translated">Сводка</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NumberOfUpdatesAppliedGroup - Property Caption</note>
         </trans-unit>
@@ -3324,19 +3489,19 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 2315222883" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Number of available updates: %1.</source>
-          <target state="translated">Доступно обновлений: %1.</target>
+          <target state="translated">Количество доступных обновлений: %1.</target>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to apply</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesAvailableTxt</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 2085817347" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Number of license updates for users who have customized permissions: %1. The default permissions from the new license will replace the custom permissions. You must either apply the new permissions now or keep the current permissions. To do that, choose Manage permission updates.</source>
-          <target state="translated">%1 из обновлений представляют собой обновления лицензий для пользователей с настроенными разрешениями. Разрешения по умолчанию, предусмотренные новой лицензией, заменят собой настроенные разрешения. Можно либо применить новые разрешения, либо оставить текущие. Чтобы это сделать, выберите "Управление обновлениями разрешений".</target>
+          <target state="translated">Количество обновлений лицензий для пользователей с настроенными разрешениями: %1. Разрешения по умолчанию, предусмотренные новой лицензией, заменят собой настроенные разрешения. Необходимо либо применить новые разрешения, либо оставить текущие. Чтобы это сделать, выберите "Управление обновлениями разрешений".</target>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to get confirmation on</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesToConfirmTxt</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 2580697080" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Number of available changes: %1. These can be name, email address, preferred language, and user access changes. Choose View changes to see the list.</source>
-          <target state="translated">Доступно изменений: %1. Это могут быть изменения в именах, адресах электронной почты, предпочтительных языках и уровне доступа пользователей. Нажмите "Просмотр изменений", чтобы увидеть весь список.</target>
+          <target state="translated">Количество доступных изменений: %1. Это могут быть изменения в именах, адресах электронной почты, предпочтительных языках и уровне доступа пользователей. Нажмите "Просмотр изменений", чтобы увидеть весь список.</target>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates ready to apply</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesReadyToApplyTxt</note>
         </trans-unit>
@@ -5884,6 +6049,36 @@
           <target state="translated">Этот системный профиль следует использовать для входа в систему только при отсутствии других профилей.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Profile BLANK - Property ProfileDescription</note>
+        </trans-unit>
+        <trans-unit id="Enum 1111761898 - EnumValue 3371220206 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No prompt parameter in the request</source>
+          <target state="translated">В запросе отсутствует параметр приглашения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Prompt Interaction - EnumValue None - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1111761898 - EnumValue 3544158917 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Login</source>
+          <target state="translated">Вход</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Prompt Interaction - EnumValue Login - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1111761898 - EnumValue 742762963 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select Account</source>
+          <target state="translated">Выбрать учетную запись</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Prompt Interaction - EnumValue Select Account - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1111761898 - EnumValue 1733759026 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Consent</source>
+          <target state="translated">Согласие</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Prompt Interaction - EnumValue Consent - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1111761898 - EnumValue 1161619611 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Admin Consent</source>
+          <target state="translated">Согласие администратора</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Prompt Interaction - EnumValue Admin Consent - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 1150498218 - EnumValue 1476382836 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Uncategorized</source>

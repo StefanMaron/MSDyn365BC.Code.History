@@ -387,97 +387,178 @@ codeunit 134826 "UT Contact Table"
     [Scope('OnPrem')]
     procedure TypeHelper_GetHMS_ZeroTime()
     var
-        TypeHelper : Codeunit "Type Helper";
-        TimeSource : Time;
-        Hour : Integer;
-        Minute : Integer;
-        Second : Integer;
+        TypeHelper: Codeunit "Type Helper";
+        TimeSource: Time;
+        Hour: Integer;
+        Minute: Integer;
+        Second: Integer;
     begin
         // [FEATURE] [Time Zone]
         TimeSource := 000000T;
-        TypeHelper.GetHMSFromTime(Hour,Minute,Second,TimeSource);
-  
-        Assert.AreEqual(0,Hour,'Hour');
-        Assert.AreEqual(0,Minute,'Minute');
-        Assert.AreEqual(0,Second,'Second');
+        TypeHelper.GetHMSFromTime(Hour, Minute, Second, TimeSource);
+
+        Assert.AreEqual(0, Hour, 'Hour');
+        Assert.AreEqual(0, Minute, 'Minute');
+        Assert.AreEqual(0, Second, 'Second');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TypeHelper_GetHMS_NonZeroTime()
     var
-        TypeHelper : Codeunit "Type Helper";
-        TimeSource : Time;
-        Hour : Integer;
-        Minute : Integer;
-        Second : Integer;
+        TypeHelper: Codeunit "Type Helper";
+        TimeSource: Time;
+        Hour: Integer;
+        Minute: Integer;
+        Second: Integer;
     begin
         // [FEATURE] [Time Zone]
         TimeSource := 235521T;
-        TypeHelper.GetHMSFromTime(Hour,Minute,Second,TimeSource);
-  
-        Assert.AreEqual(23,Hour,'Hour');
-        Assert.AreEqual(55,Minute,'Minute');
-        Assert.AreEqual(21,Second,'Second');
+        TypeHelper.GetHMSFromTime(Hour, Minute, Second, TimeSource);
+
+        Assert.AreEqual(23, Hour, 'Hour');
+        Assert.AreEqual(55, Minute, 'Minute');
+        Assert.AreEqual(21, Second, 'Second');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure Contact_GetLastDateTimeModified_01()
     var
-        Contact : Record "Contact";
-        ExpectedDateTime : DateTime;
+        Contact: Record "Contact";
+        ExpectedDateTime: DateTime;
     begin
         // [FEATURE] [Time Zone]
-        Assert.AreEqual(0DT,Contact.GetLastDateTimeModified,'');
-  
+        // [SCENARIO 351072] Contact.SetLastDateTimeModified() takes into account the time zone specified in User Personalization table
+        CleanUserPersonalizationTable();
+        SetTimeZoneInUserPersonalizationTable(GetCustomTimeZone());
+
+        Assert.AreEqual(0DT, Contact.GetLastDateTimeModified(), '');
+
         ExpectedDateTime := CurrentDateTime;
         Contact.SetLastDateTimeModified;
-  
-        Assert.AreEqual(ExpectedDateTime,Contact.GetLastDateTimeModified,'');
+
+        Assert.AreEqual(ExpectedDateTime, Contact.GetLastDateTimeModified(), '');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure Contact_GetLastDateTimeModified_02()
     var
-        Contact : Record "Contact";
-        DotNet_DateTimeOffset : Codeunit "DotNet_DateTimeOffset";
-        ExpectedDateTime : DateTime;
-        LocalTimeZoneOffset : Duration;
+        Contact: Record "Contact";
+        TypeHelper: Codeunit "Type Helper";
+        ExpectedDateTime: DateTime;
+        LocalTimeZoneOffset: Duration;
     begin
         // [FEATURE] [Time Zone]
+        // [SCENARIO 351072] Contact.GetLastDateTimeModified() takes into account the time zone specified in User Personalization table
+        CleanUserPersonalizationTable();
+        SetTimeZoneInUserPersonalizationTable(GetCustomTimeZone());
+
         Contact."Last Date Modified" := DT2Date(CurrentDateTime);
         Contact."Last Time Modified" := 000000T;
-  
-        LocalTimeZoneOffset := DotNet_DateTimeOffset.GetOffset;
-  
-        ExpectedDateTime := CreateDateTime(Contact."Last Date Modified",Contact."Last Time Modified") + LocalTimeZoneOffset;
-        Assert.AreEqual(ExpectedDateTime,Contact.GetLastDateTimeModified,'');
+
+        Evaluate(LocalTimeZoneOffset, '9hours');
+
+        ExpectedDateTime := CreateDateTime(Contact."Last Date Modified", Contact."Last Time Modified") + LocalTimeZoneOffset;
+        Assert.AreEqual(ExpectedDateTime, Contact.GetLastDateTimeModified(), '');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ContactCard_LastDateTimeModified()
     var
-        Contact : Record "Contact";
-        DotNet_DateTimeOffset : Codeunit "DotNet_DateTimeOffset";
-        ContactCard : TestPage "Contact Card";
-        ExpectedDateTime : DateTime;
-        LocalTimeZoneOffset : Duration;
+        Contact: Record "Contact";
+        TypeHelper: Codeunit "Type Helper";
+        ContactCard: TestPage "Contact Card";
+        ExpectedDateTime: DateTime;
+        LocalTimeZoneOffset: Duration;
     begin
         // [FEATURE] [Time Zone] [UI]
+        // [SCENARIO 351072] Contact Card shows the returned value of the Contact.GetLastDateTimeModified() function
+        CleanUserPersonalizationTable();
+        SetTimeZoneInUserPersonalizationTable(GetCustomTimeZone());
+
         Contact.Init();
-        Contact."No." := LibraryUtility.GenerateGUID;
-        Contact."Last Date Modified" := DT2Date(CurrentDateTime);
+        Contact."No." := LibraryUtility.GenerateGUID();
+        Contact."Last Date Modified" := DT2Date(CurrentDateTime());
         Contact."Last Time Modified" := 000000T;
         Contact.Insert();
-  
-        LocalTimeZoneOffset := DotNet_DateTimeOffset.GetOffset;
-        ExpectedDateTime := CreateDateTime(Contact."Last Date Modified",Contact."Last Time Modified") + LocalTimeZoneOffset;
-  
-        ContactCard.OpenView;
-        ContactCard.Filter.SetFilter("No.",Contact."No.");
+
+        Evaluate(LocalTimeZoneOffset, '9hours');
+        ExpectedDateTime := CreateDateTime(Contact."Last Date Modified", Contact."Last Time Modified") + LocalTimeZoneOffset;
+
+        ContactCard.OpenView();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+        ContactCard.LastDateTimeModified.AssertEquals(ExpectedDateTime);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure Contact_GetLastDateTimeModified_01_WithoutUserPersonalization()
+    var
+        Contact: Record "Contact";
+        ExpectedDateTime: DateTime;
+    begin
+        // [FEATURE] [Time Zone]
+        // [SCENARIO 351072] Contact.SetLastDateTimeModified() takes into account the server time zone when User Personalization is not present
+        CleanUserPersonalizationTable();
+
+        Assert.AreEqual(0DT, Contact.GetLastDateTimeModified(), '');
+
+        ExpectedDateTime := CurrentDateTime;
+        Contact.SetLastDateTimeModified;
+
+        Assert.AreEqual(ExpectedDateTime, Contact.GetLastDateTimeModified(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure Contact_GetLastDateTimeModified_02_WithoutUserPersonalization()
+    var
+        Contact: Record "Contact";
+        TypeHelper: Codeunit "Type Helper";
+        ExpectedDateTime: DateTime;
+        LocalTimeZoneOffset: Duration;
+    begin
+        // [FEATURE] [Time Zone]
+        // [SCENARIO 351072] Contact.GetLastDateTimeModified() takes into account the server time zone when User Personalization is not present
+        CleanUserPersonalizationTable();
+
+        Contact."Last Date Modified" := DT2Date(CurrentDateTime);
+        Contact."Last Time Modified" := 000000T;
+
+        TypeHelper.GetTimezoneOffset(LocalTimeZoneOffset, GetStandardTimeZone());
+
+        ExpectedDateTime := CreateDateTime(Contact."Last Date Modified", Contact."Last Time Modified") + LocalTimeZoneOffset;
+        Assert.AreEqual(ExpectedDateTime, Contact.GetLastDateTimeModified(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ContactCard_LastDateTimeModified_WithoutUserPersonalization()
+    var
+        Contact: Record "Contact";
+        TypeHelper: Codeunit "Type Helper";
+        ContactCard: TestPage "Contact Card";
+        ExpectedDateTime: DateTime;
+        LocalTimeZoneOffset: Duration;
+    begin
+        // [FEATURE] [Time Zone] [UI]
+        // [SCENARIO 351072] Contact Card shows the returned value of the Contact.GetLastDateTimeModified() function without User Personalization setup
+        CleanUserPersonalizationTable();
+
+        Contact.Init();
+        Contact."No." := LibraryUtility.GenerateGUID();
+        Contact."Last Date Modified" := DT2Date(CurrentDateTime());
+        Contact."Last Time Modified" := 000000T;
+        Contact.Insert();
+
+        TypeHelper.GetTimezoneOffset(LocalTimeZoneOffset, GetStandardTimeZone());
+        ExpectedDateTime := CreateDateTime(Contact."Last Date Modified", Contact."Last Time Modified") + LocalTimeZoneOffset;
+
+        ContactCard.OpenView();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
         ContactCard.LastDateTimeModified.AssertEquals(ExpectedDateTime);
     end;
 
@@ -661,6 +742,34 @@ codeunit 134826 "UT Contact Table"
         SalesHeader."Sell-to Contact No." := ContactNo;
         SalesHeader."Bill-to Contact No." := ContactNo;
         SalesHeader.Insert();
+    end;
+
+    local procedure CleanUserPersonalizationTable()
+    var
+        UserPersonalization: Record "User Personalization";
+    begin
+        UserPersonalization.DeleteAll();
+    end;
+
+    local procedure SetTimeZoneInUserPersonalizationTable(TimeZone: Text[180])
+    var
+        UserPersonalization: Record "User Personalization";
+    begin
+        UserPersonalization.Init();
+        UserPersonalization."User SID" := UserSecurityId();
+        UserPersonalization."Time Zone" := TimeZone;
+        if not UserPersonalization.Insert() then
+            UserPersonalization.Modify();
+    end;
+
+    local procedure GetStandardTimeZone(): Text[180]
+    begin
+        exit('');
+    end;
+
+    local procedure GetCustomTimeZone(): Text[180]
+    begin
+        exit('Yakutsk Standard Time');
     end;
 
     local procedure VerifyContactRelatedRecordsDeleted(ContactNo: Code[20])

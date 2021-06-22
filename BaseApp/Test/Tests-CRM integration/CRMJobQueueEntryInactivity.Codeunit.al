@@ -124,11 +124,13 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         Item.Modify(); // calls COD1.OnDatabaseInsert -> COD5150.InsertUpdateIntegrationRecord
 
         // [THEN] Job 'ITEM' gets Status "Ready", new "Earliest Start Date/Time" is about 1 second from now
-        JobQueueEntry[1].Find;
-        JobQueueEntry[1].TestField(Status, JobQueueEntry[1].Status::Ready);
-        Assert.IsTrue(
-          JobQueueEntry[1]."Earliest Start Date/Time" > CurrDT, 'Start time should be shifted to future');
-        VerifyDateTimeDifference(CurrentDateTime, JobQueueEntry[1]."Earliest Start Date/Time", 1);
+            if TaskScheduler.CanCreateTask() then begin
+                JobQueueEntry[1].Find;
+                JobQueueEntry[1].TestField(Status, JobQueueEntry[1].Status::Ready);
+                Assert.IsTrue(
+                    JobQueueEntry[1]."Earliest Start Date/Time" > CurrDT, 'Start time should be shifted to future');
+                VerifyDateTimeDifference(CurrentDateTime, JobQueueEntry[1]."Earliest Start Date/Time", 1);
+            end;
         // [THEN] Job 'CUSTOMER' is not changed, Status is "On Hold with Inactivity period"
         JobQueueEntry[2].Find;
         JobQueueEntry[2].TestField(Status, JobQueueEntry[2].Status::"On Hold with Inactivity Timeout");
@@ -288,7 +290,10 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         LibraryCRMIntegration.CreateCRMOrganization;
         CRMOrganization.FindFirst;
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
-        CRMConnectionSetup.Modify();
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
+        CDSConnectionSetup.Modify();
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
     end;
 

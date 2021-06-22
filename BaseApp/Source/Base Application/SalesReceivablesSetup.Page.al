@@ -318,6 +318,11 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to direct-debit mandates.';
                 }
+                field("Price List Nos."; "Price List Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to sales price lists.';
+                }
             }
             group("Background Posting")
             {

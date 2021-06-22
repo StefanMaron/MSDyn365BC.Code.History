@@ -72,6 +72,8 @@ codeunit 134327 "ERM Purchase Order"
         CopyFromPurchaseErr: Label 'Wrong result of CopyFrom function';
         CopyFromResourceErr: Label 'Wrong result of validate No. with resource';
         BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
+        YouMustDeleteExistingLinesErr: Label 'You must delete the existing purchase lines before you can change %1.';
+        RecreatePurchaseLinesQst: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\\Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -2844,9 +2846,10 @@ codeunit 134327 "ERM Purchase Order"
         Commit();
 
         // [WHEN] Validate field "Gen. Bus. Posting Group" = "B" in Purchase Order header
-        PurchaseHeader.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
+        asserterror PurchaseHeader.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
 
-        // [THEN] Field "Gen. Bus. Posting Group" in Purchase Order is not changed
+        // [THEN] Field "Gen. Bus. Posting Group" in Purchase Order is not changed because of error message
+        Assert.ExpectedError(StrSubstNo(YouMustDeleteExistingLinesErr, PurchaseLine.FieldCaption("Gen. Bus. Posting Group")));
         PurchaseLine.Find;
         PurchaseLine.TestField("Gen. Bus. Posting Group", OldGenBusPostingGroup);
     end;
@@ -5720,6 +5723,43 @@ codeunit 134327 "ERM Purchase Order"
         PurchCommentLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchCommentLine.SetRange("No.", PurchaseHeader."No.");
         Assert.RecordCount(PurchCommentLine, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithVerification')]
+    [Scope('OnPrem')]
+    procedure RevertCurrencyCodeWhenRefusedToRecreateSalesLines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UT] [Currency] [FCY]
+        // [SCENARIO 347892] System throws error and reverts entered "Currency Code" when Stan refused to recreate existing purchase lines on Purchase Order
+        Initialize();
+
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        PurchaseHeader.TestField("Currency Code", '');
+        Commit();
+
+        PurchaseOrder.Trap();
+        PAGE.Run(PAGE::"Purchase Order", PurchaseHeader);
+
+        PurchaseOrder."No.".AssertEquals(PurchaseHeader."No.");
+        PurchaseOrder."Currency Code".AssertEquals('');
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(RecreatePurchaseLinesQst, PurchaseHeader.FieldCaption("Currency Code")));
+        LibraryVariableStorage.Enqueue(false);
+        asserterror PurchaseOrder."Currency Code".SetValue(LibraryERM.CreateCurrencyWithRandomExchRates());
+
+        Assert.ExpectedError(StrSubstNo(YouMustDeleteExistingLinesErr, PurchaseHeader.FieldCaption("Currency Code")));
+
+        PurchaseOrder."Currency Code".AssertEquals('');
+        PurchaseOrder.Close();
+
+        PurchaseHeader.Find();
+        PurchaseHeader.TestField("Currency Code", '');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -8679,6 +8719,14 @@ codeunit 134327 "ERM Purchase Order"
     procedure ConfirmHandlerYesNo(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := LibraryVariableStorage.DequeueBoolean;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerWithVerification(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ModalPageHandler]

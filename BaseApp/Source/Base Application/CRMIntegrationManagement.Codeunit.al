@@ -56,6 +56,7 @@ codeunit 5330 "CRM Integration Management"
         NoOf: Option ,Scheduled,Failed,Skipped,Total;
         CRMConnSetupWizardQst: Label 'Do you want to open the %1 Connection assisted setup wizard?', Comment = '%1 = CRM product name';
         ConnectionStringFormatTok: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
+        OAuthConnectionStringFormatTok: Label 'Url=%1; AccessToken=%2; ProxyVersion=%3; %4', Locked = true;
         CRMDisabledErrorReasonNotificationIdTxt: Label 'd82835d9-a005-451a-972b-0d6532de2072';
         ConnectionBrokenMsg: Label 'The connection to Dynamics 365 Sales is disabled due to the following error: %1.\\Please contact your system administrator.', Comment = '%1 = Error text received from D365 for Sales';
         ConnectionDisabledNotificationMsg: Label 'Connection to Dynamics 365 is broken and that it has been disabled due to an error: %1', Comment = '%1 = Error text received from D365 for Sales';
@@ -171,9 +172,10 @@ codeunit 5330 "CRM Integration Management"
     var
         CRMNAVConnection: Record "CRM NAV Connection";
         CRMAccountStatistics: Record "CRM Account Statistics";
+        Cnt: Integer;
     begin
-        if CRMAccountStatistics.FindFirst then;
-        if CRMNAVConnection.FindFirst then;
+        Cnt := CRMAccountStatistics.Count();
+        Cnt := CRMNAVConnection.Count();
     end;
 
     procedure SetCRMNAVConnectionUrl(WebClientUrl: Text[250])
@@ -1184,7 +1186,8 @@ codeunit 5330 "CRM Integration Management"
 
     [TryFunction]
     [Scope('OnPrem')]
-    procedure ImportCRMSolution(ServerAddress: Text; IntegrationUserEmail: Text; AdminUserEmail: Text; AdminUserPassword: Text; ProxyVersion: Integer)
+    [NonDebuggable]
+    procedure ImportCRMSolution(ServerAddress: Text; IntegrationUserEmail: Text; AdminUserEmail: Text; AdminUserPassword: Text; AccessToken: Text; ProxyVersion: Integer; ForceRedeploy: Boolean)
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMRole: Record "CRM Role";
@@ -1195,10 +1198,16 @@ codeunit 5330 "CRM Integration Management"
         IntegrationUserRoleGUID: Guid;
         DefaultOwningTeamGUID: Guid;
         TempConnectionString: Text;
+        ImportSolution: Boolean;
     begin
         CheckConnectRequiredFields(ServerAddress, IntegrationUserEmail);
-        TempConnectionString := StrSubstNo(
-            ConnectionStringFormatTok, ServerAddress, AdminUserEmail, AdminUserPassword, ProxyVersion, 'AuthType=Office365;');
+        CDSConnectionSetup.Get();
+        if AccessToken <> '' then
+            TempConnectionString :=
+                StrSubstNo(OAuthConnectionStringFormatTok, ServerAddress, AccessToken, ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup))
+        else
+            TempConnectionString := StrSubstNo(
+                ConnectionStringFormatTok, ServerAddress, AdminUserEmail, AdminUserPassword, ProxyVersion, CDSIntegrationImpl.GetAuthenticationTypeToken(CDSConnectionSetup));
         if not InitializeCRMConnection(CRMHelper, TempConnectionString) then
             ProcessConnectionFailures;
 
@@ -1206,7 +1215,12 @@ codeunit 5330 "CRM Integration Management"
         if IsNullGuid(UserGUID) then
             Error(UserDoesNotExistCRMErr, IntegrationUserEmail, CRMProductName.SHORT);
 
-        if not CRMHelper.CheckSolutionPresence(MicrosoftDynamicsNavIntegrationTxt) then
+        if ForceRedeploy then
+            ImportSolution := true
+        else
+            ImportSolution := not CRMHelper.CheckSolutionPresence(MicrosoftDynamicsNavIntegrationTxt);
+
+        if ImportSolution then
             if not ImportDefaultCRMSolution(CRMHelper) then
                 ProcessConnectionFailures;
 
@@ -1334,13 +1348,14 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     [TryFunction]
+    [NonDebuggable]
     local procedure InitializeCRMConnection(var CRMHelper: DotNet CrmHelper; ConnectionString: Text)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         if ConnectionString = '' then begin
             CRMConnectionSetup.Get();
-            CRMHelper := CRMHelper.CrmHelper(CRMConnectionSetup.GetConnectionStringWithPassword);
+            CRMHelper := CRMHelper.CrmHelper(CRMConnectionSetup.GetConnectionStringWithCredentials());
         end else
             CRMHelper := CRMHelper.CrmHelper(ConnectionString);
         if not TestCRMConnection(CRMHelper) then

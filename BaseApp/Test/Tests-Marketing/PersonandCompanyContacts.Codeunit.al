@@ -21,6 +21,7 @@ codeunit 134626 "Person and Company Contacts"
         LibraryERM: Codeunit "Library - ERM";
         BusinessRelationsNotZeroErr: Label 'No. of Business Relations must be equal to ''0''  in Contact: No.=%1. Current value is ''1''.';
         LibraryRapidStart: Codeunit "Library - Rapid Start";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
 
     [Test]
     [Scope('OnPrem')]
@@ -349,6 +350,148 @@ codeunit 134626 "Person and Company Contacts"
         Assert.AreEqual(LibraryVariableStorage.DequeueText, CompanyContact.Name, '');
     end;
 
+    [Test]
+    [TestPermissions(TestPermissions::Restrictive)]
+    [Scope('OnPrem')]
+    procedure NameAssistEditOnContactCardWithoutPermissions()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [SCENARIO 285982] [Permissions] Name assist edit won't be opened when user don't have MODIFY permissions to Contact table
+        Initialize;
+
+        // [GIVEN] New contact with "First Name" = "Name", "Middle Name" = <blank> and "Last Name" = <blank>
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [GIVEN] User without Contact editing permisions
+        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetRead;
+
+        // [WHEN] User open Name Details assist edit dialog
+        ContactCard.OpenEdit;
+        ContactCard.FILTER.SetFilter("No.", Contact."No.");
+        asserterror ContactCard.Name.AssistEdit;
+
+        // [THEN] Error is raised, Name Details won't open
+        // [THEN] Contact's "Name" = "First Name"
+        Assert.ExpectedError('You do not have the following permissions on TableData Contact: Modify.');
+        Assert.ExpectedErrorCode('TestWrapped:Permission');
+    end;
+
+    [Test]
+    [HandlerFunctions('NameDetailsOnChangeModalPageHandler')]
+    [TestPermissions(TestPermissions::Restrictive)]
+    [Scope('OnPrem')]
+    procedure NameAssistEditOnContactCardWithPermissions()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+        FirstName: Text;
+        MiddleName: Text;
+        Surname: Text;
+    begin
+        // [SCENARIO 285982] [Permissions] Name assist edit will be opened when user don't have MODIFY permissions to Contact table
+        Initialize();
+
+        // [GIVEN] User setup with "First Name" = "F", "Middle Name" = "M" and "Last Name" = "L"
+        FirstName := LibraryUtility.GenerateGUID();
+        MiddleName := LibraryUtility.GenerateGUID();
+        Surname := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(FirstName);
+        LibraryVariableStorage.Enqueue(MiddleName);
+        LibraryVariableStorage.Enqueue(Surname);
+
+        // [GIVEN] New contact with "First Name" = "Name", "Middle Name" = <blank> and "Last Name" = <blank>
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [GIVEN] User with Contact editing permisions
+        LibraryLowerPermissions.SetO365Basic();
+        LibraryLowerPermissions.SetCustomerEdit();
+
+        // [WHEN] User sets "First Name" = "F", "Middle Name" = "M" and "Last Name" = "L" on Name Details assist edit dialog
+        ContactCard.OpenEdit();
+        ContactCard.FILTER.SetFilter("No.", Contact."No.");
+        ContactCard.Name.AssertEquals(Contact.Name);
+        ContactCard.Name.AssistEdit();
+        ContactCard.Name.AssertEquals(FirstName + ' ' + MiddleName + ' ' + Surname);
+        ContactCard.Close();
+
+        // [THEN] Contact's "Name" becomes "F M L"
+        // [THEN] Contact's "First Name" = "F", "Middle Name" = "M" and "Last Name" = "L"
+        Contact.Find();
+        Contact.TestField("First Name", FirstName);
+        Contact.TestField("Middle Name", MiddleName);
+        Contact.TestField(Surname, Surname);
+    end;
+
+    [Test]
+    [TestPermissions(TestPermissions::Restrictive)]
+    [Scope('OnPrem')]
+    procedure CompanyNameAssistEditOnContactCardWithoutPermissions()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [SCENARIO 285982] [Permissions] Company Name assist edit won't be opened when user don't have MODIFY permissions to Contact table
+        Initialize();
+
+        // [GIVEN] New contact with "Company Name" = "Name"
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] User without Contact editing permisions
+        LibraryLowerPermissions.SetO365Basic();
+        LibraryLowerPermissions.SetRead();
+
+        // [WHEN] User open Name Details assist edit dialog
+        ContactCard.OpenEdit();
+        ContactCard.FILTER.SetFilter("No.", Contact."No.");
+        asserterror ContactCard."Company Name".AssistEdit();
+
+        // [THEN] Error is raised, Name Details won't be open
+        // [THEN] Contact's "Name" = "Company Name"
+        Assert.ExpectedError('You do not have the following permissions on TableData Contact: Modify.');
+        Assert.ExpectedErrorCode('TestWrapped:Permission');
+    end;
+
+    [Test]
+    [HandlerFunctions('CompanyDetailsOnChangeModalPageHandler')]
+    [TestPermissions(TestPermissions::Restrictive)]
+    [Scope('OnPrem')]
+    procedure CompanyNameAssistEditOnContactCardWithPermissions()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+        CompanyName: Text;
+    begin
+        // [SCENARIO 285982] [Permissions] Company Name assist edit will be opened when user don't have MODIFY permissions to Contact table
+        Initialize();
+
+        // [GIVEN] User setup with "Company Name" = "C"
+        CompanyName := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(CompanyName);
+
+        // [GIVEN] New contact with "Company Name" = "Name"
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] User with Contact editing permisions
+        LibraryLowerPermissions.SetO365Basic();
+        LibraryLowerPermissions.SetCustomerEdit();
+
+        // [WHEN] User sets "Company Name" = "C" on Name Details assist edit dialog
+        ContactCard.OpenEdit();
+        ContactCard.FILTER.SetFilter("No.", Contact."No.");
+        ContactCard."Company Name".AssertEquals(Contact."Company Name");
+        ContactCard."Company Name".AssistEdit();
+        ContactCard."Company Name".AssertEquals(CompanyName);
+        ContactCard.Close();
+
+        // [THEN] Contact's "Name" becomes "C"
+        // [THEN] Contact's "Company Name" = "C"
+        Contact.Find();
+        Contact.TestField("Company Name", CompanyName);
+    end;
+
     local procedure Initialize()
     begin
         LibraryGraphSync.DisableGraphSync;
@@ -537,6 +680,25 @@ codeunit 134626 "Person and Company Contacts"
     begin
         LibraryVariableStorage.Enqueue(CompanyDetails.Name.Value);
         CompanyDetails.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure NameDetailsOnChangeModalPageHandler(var NameDetails: TestPage "Name Details")
+    begin
+        NameDetails."First Name".SetValue(LibraryVariableStorage.DequeueText);
+        NameDetails."Middle Name".SetValue(LibraryVariableStorage.DequeueText);
+        NameDetails.Surname.SetValue(LibraryVariableStorage.DequeueText);
+        NameDetails.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CompanyDetailsOnChangeModalPageHandler(var CompanyDetails: TestPage "Company Details")
+    begin
+        LibraryVariableStorage.Enqueue(CompanyDetails.Name.Value);
+        CompanyDetails.Name.SetValue(LibraryVariableStorage.DequeueText);
+        CompanyDetails.OK.Invoke();
     end;
 }
 

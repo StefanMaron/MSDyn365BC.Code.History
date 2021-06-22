@@ -91,10 +91,6 @@ table 5401 "Item Variant"
         SKU: Record "Stockkeeping Unit";
         ItemIdent: Record "Item Identifier";
         ItemCrossReference: Record "Item Cross Reference";
-        SalesPrice: Record "Sales Price";
-        SalesLineDiscount: Record "Sales Line Discount";
-        PurchasePrice: Record "Purchase Price";
-        PurchaseLineDiscount: Record "Purchase Line Discount";
         BOMComp: Record "BOM Component";
         ItemJnlLine: Record "Item Journal Line";
         RequisitionLine: Record "Requisition Line";
@@ -268,26 +264,6 @@ table 5401 "Item Variant"
         ItemVend.SetRange("Item No.", "Item No.");
         ItemVend.SetRange("Variant Code", Code);
         ItemVend.DeleteAll();
-
-        SalesPrice.Reset();
-        SalesPrice.SetRange("Item No.", "Item No.");
-        SalesPrice.SetRange("Variant Code", Code);
-        SalesPrice.DeleteAll();
-
-        SalesLineDiscount.Reset();
-        SalesLineDiscount.SetRange(Code, "Item No.");
-        SalesLineDiscount.SetRange("Variant Code", Code);
-        SalesLineDiscount.DeleteAll();
-
-        PurchasePrice.Reset();
-        PurchasePrice.SetRange("Item No.", "Item No.");
-        PurchasePrice.SetRange("Variant Code", Code);
-        PurchasePrice.DeleteAll();
-
-        PurchaseLineDiscount.Reset();
-        PurchaseLineDiscount.SetRange("Item No.", "Item No.");
-        PurchaseLineDiscount.SetRange("Variant Code", Code);
-        PurchaseLineDiscount.DeleteAll();
 
         SKU.SetRange("Item No.", "Item No.");
         SKU.SetRange("Variant Code", Code);

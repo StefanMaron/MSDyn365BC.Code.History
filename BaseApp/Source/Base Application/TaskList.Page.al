@@ -329,10 +329,15 @@ page 5096 "Task List"
         Text004: Label 'The Make Phone Call function for this task is available only on the Attendee Scheduling window.';
         Text005: Label 'You must select a task with a contact assigned to it before you can use the Make Phone Call function.';
 
-    procedure Caption(): Text
+    procedure Caption() CaptionStr: Text
     var
-        CaptionStr: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCaption(Rec, CaptionStr, IsHandled);
+        if IsHandled then
+            exit;
+
         if Cont.Get(GetFilter("Contact Company No.")) then begin
             Contact1.Get(GetFilter("Contact Company No."));
             if Contact1."No." <> Cont."No." then
@@ -352,8 +357,6 @@ page 5096 "Task List"
             CaptionStr := CopyStr(CaptionStr + ' ' + SegHeader."No." + ' ' + SegHeader.Description, 1, MaxStrLen(CaptionStr));
         if CaptionStr = '' then
             CaptionStr := Text001;
-
-        exit(CaptionStr);
     end;
 
     local procedure ContactNoOnFormat(Text: Text[1024])
@@ -361,5 +364,11 @@ page 5096 "Task List"
         if Type = Type::Meeting then
             Text := Text000;
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCaption(var ToDo: Record "To-do"; var CaptionStr: Text; var Handled: Boolean)
+    begin
+    end;
+
 }
 

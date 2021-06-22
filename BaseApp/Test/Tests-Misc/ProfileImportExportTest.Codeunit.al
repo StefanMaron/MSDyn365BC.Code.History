@@ -1,4 +1,4 @@
-codeunit 138697 "Profile Import Test"
+codeunit 138697 "Profile Import/Export Test"
 {
     Subtype = Test;
     EventSubscriberInstance = Manual;
@@ -8,7 +8,10 @@ codeunit 138697 "Profile Import Test"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         FileManagement: Codeunit "File Management";
+        ConfPersonalizationMgt: codeunit "Conf./Personalization Mgt.";
         ImportSuccessTxt: Label 'Successfully imported';
+        CouldNotExportProfilesErr: Label 'Cannot export the profiles because one or more of them contain an error.';
+        ExportProfilesWithWarningsQst: Label 'There is an error in one or more of the profiles that you are exporting. You can export the profiles anyway, but you should fix the errors before you import them. Typically, import fails for profiles with errors.';
 
     local procedure Init()
     var
@@ -18,11 +21,60 @@ codeunit 138697 "Profile Import Test"
     end;
 
     [Test]
+    [HandlerFunctions('ForceExportProfilesConfirmHandler')]
+    procedure ForceExportInvalidProfile()
+    var
+        AllProfile: Record "All Profile";
+        ProfileImportExportTest: Codeunit "Profile Import/Export Test";
+        ZipEntries: List of [Text];
+        ProfileZipFileName: Text;
+    begin
+        Init();
+
+        // [GIVEN] A profile with invalid page customizations
+        CreateProfileWithPrefix(AllProfile, 'a'); // Prefix a letter otherwise profile al file in zip file may contain underscores
+        AddInvalidPageCustomization(AllProfile);
+
+        // [WHEN] User tries to export a confirm dialog is shown whether to export, user clicks yes (ForceExportProfilesConfirmHandler)
+        BindSubscription(ProfileImportExportTest);
+        ConfPersonalizationMgt.DownloadProfileConfigurationPackage();
+        UnbindSubscription(ProfileImportExportTest);
+        ProfileZipFileName := ProfileImportExportTest.DequeueText();
+
+        // [THEN] A zip file is exported with the invalid profile
+        Assert.IsTrue(File.Exists(ProfileZipFileName), 'Profiles were not exported to a zip file');
+        GetZipFileContentNamesAsList(ProfileZipFileName, ZipEntries);
+        Assert.IsTrue(ZipEntries.Contains('Profile.' + AllProfile."Profile ID" + '.al'), 'Forced exported profile package does not contain profile ' + AllProfile."Profile ID");
+    end;
+
+    [Test]
+    [HandlerFunctions('DoNotForceExportProfilesConfirmHandler')]
+    procedure DoNotForceExportInvalidProfile()
+    var
+        AllProfile: Record "All Profile";
+        ProfileImportExportTest: Codeunit "Profile Import/Export Test";
+    begin
+        Init();
+
+        // [GIVEN] A profile with invalid page customizations
+        CreateProfileWithPrefix(AllProfile, 'a'); // Prefix a letter otherwise profile al file in zip file may contain underscores
+        AddInvalidPageCustomization(AllProfile);
+
+        // [WHEN] User tries to export a confirm dialog is shown whether to export, user clicks no (DoNotForceExportProfilesConfirmHandler) and no file is exported
+        BindSubscription(ProfileImportExportTest);
+        ConfPersonalizationMgt.DownloadProfileConfigurationPackage();
+        UnbindSubscription(ProfileImportExportTest);
+
+        // [THEN] No file is exported
+        asserterror ProfileImportExportTest.DequeueText();
+    end;
+
+    [Test]
     procedure ImportOverridingProfiles()
     var
         AllProfile1: Record "All Profile";
         AllProfile2: Record "All Profile";
-        ProfileImportTest: codeunit "Profile Import Test";
+        ProfileImportTest: codeunit "Profile Import/Export Test";
         ProfileList: TestPage "Profile List";
         ProfileImportWizard: TestPage "Profile Import Wizard";
         ProfileZipFileName: Text;
@@ -63,7 +115,7 @@ codeunit 138697 "Profile Import Test"
     var
         Profile1: Record "All Profile";
         Profile2: Record "All Profile";
-        ProfileImportTest: codeunit "Profile Import Test";
+        ProfileImportTest: codeunit "Profile Import/Export Test";
         ProfileList: TestPage "Profile List";
         ProfileImportWizard: TestPage "Profile Import Wizard";
         ProfileZipFileName: Text;
@@ -105,7 +157,7 @@ codeunit 138697 "Profile Import Test"
         Profile1: Record "All Profile";
         Profile2: Record "All Profile";
         ProfileImport: Record "Profile Import";
-        ProfileImportTest: codeunit "Profile Import Test";
+        ProfileImportTest: codeunit "Profile Import/Export Test";
         ProfileList: TestPage "Profile List";
         ProfileImportWizard: TestPage "Profile Import Wizard";
         ProfileZipFileName: Text;
@@ -274,6 +326,65 @@ codeunit 138697 "Profile Import Test"
         Assert.AreEqual(AllProfile.Caption, DatabaseAllProfile.Caption, 'Caption was not imported correctly.');
         Assert.AreEqual(AllProfile.Enabled, DatabaseAllProfile.Enabled, 'Enabled was not imported correctly.');
         Assert.AreEqual(AllProfile.Promoted, DatabaseAllProfile.Promoted, 'Promoted was not imported correctly.');
+    end;
+
+    local procedure AddInvalidPageCustomization(AllProfile: Record "All Profile")
+    var
+        TenantProfilePageMetadata: Record "Tenant Profile Page Metadata";
+        OutStream: OutStream;
+    begin
+        TenantProfilePageMetadata."App ID" := AllProfile."App ID";
+        TenantProfilePageMetadata."Profile ID" := AllProfile."Profile ID";
+        TenantProfilePageMetadata."Page ID" := Page::"Profile Customization List";
+        TenantProfilePageMetadata.Owner := TenantProfilePageMetadata.Owner::Tenant;
+        TenantProfilePageMetadata."Page AL".CreateOutStream(OutStream);
+        WriteInvalidPageCustomization(OutStream);
+
+        TenantProfilePageMetadata.Insert();
+    end;
+
+    local procedure WriteInvalidPageCustomization(var OutStream: OutStream)
+    var
+        CRLF: Text[2];
+    begin
+        CRLF[1] := 10;
+        CRLF[2] := 13;
+        OutStream.WriteText('pagecustomization MS___Configuration10 customizes "Customization Test Page"' + CRLF);
+        OutStream.WriteText('{' + CRLF);
+        OutStream.WriteText('    layout {' + CRLF);
+        OutStream.WriteText('        modify(IntField) {' + CRLF);
+        OutStream.WriteText('            NonExistingAttribute = false;' + CRLF);
+        OutStream.WriteText('        }' + CRLF);
+        OutStream.WriteText('    }' + CRLF);
+        OutStream.WriteText('}');
+    end;
+
+    local procedure GetZipFileContentNamesAsList(ZipFileName: Text; var OutList: List of [Text])
+    var
+        DataCompression: codeunit "Data Compression";
+        ZipFile: File;
+        ProfilesZipArchiveInstream: instream;
+    begin
+        ZipFile.Open(ZipFileName);
+        ZipFile.CreateInStream(ProfilesZipArchiveInstream);
+        DataCompression.OpenZipArchive(ProfilesZipArchiveInstream, false);
+        DataCompression.GetEntryList(OutList);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ForceExportProfilesConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Assert.AreEqual(ExportProfilesWithWarningsQst, Question, 'Unexpected question');
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure DoNotForceExportProfilesConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Assert.AreEqual(ExportProfilesWithWarningsQst, Question, 'Unexpected question');
+        Reply := false;
     end;
 
     // Subscribers

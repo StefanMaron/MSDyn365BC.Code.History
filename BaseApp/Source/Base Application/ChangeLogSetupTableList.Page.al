@@ -197,7 +197,14 @@ page 593 "Change Log Setup (Table) List"
     end;
 
     local procedure UpdateRec()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateRec(Rec, ChangeLogSetupTable, IsHandled);
+        if IsHandled then
+            exit;
+
         with ChangeLogSetupTable do
             if ("Log Insertion" = "Log Insertion"::" ") and ("Log Modification" = "Log Modification"::" ") and
                ("Log Deletion" = "Log Deletion"::" ")
@@ -246,6 +253,11 @@ page 593 "Change Log Setup (Table) List"
     local procedure ChangeLogSetupTableLogDeletion()
     begin
         UpdateRec;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateRec(var AllObjWithCaption: Record AllObjWithCaption; ChangeLogSetupTable: Record "Change Log Setup (Table)"; var IsHandled: Boolean)
+    begin
     end;
 }
 

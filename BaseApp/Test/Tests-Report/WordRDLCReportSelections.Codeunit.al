@@ -70,7 +70,7 @@ codeunit 134775 "Word & RDLC Report Selections"
 
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
         LibraryVariableStorage.AssertEmpty;
@@ -97,8 +97,8 @@ codeunit 134775 "Word & RDLC Report Selections"
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
         LibraryVariableStorage.AssertEmpty;
@@ -125,8 +125,8 @@ codeunit 134775 "Word & RDLC Report Selections"
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
         LibraryVariableStorage.AssertEmpty;
@@ -175,7 +175,7 @@ codeunit 134775 "Word & RDLC Report Selections"
 
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Standard Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStandardStatementReportName);
         LibraryVariableStorage.AssertEmpty;
@@ -228,8 +228,8 @@ codeunit 134775 "Word & RDLC Report Selections"
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStandardStatementReportName);
         LibraryVariableStorage.AssertEmpty;
@@ -256,8 +256,8 @@ codeunit 134775 "Word & RDLC Report Selections"
 
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStandardStatementReportName);
         LibraryVariableStorage.AssertEmpty;
@@ -312,7 +312,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         asserterror OneCustomer_TwoSelections(
           CreateCustomerWithEntry(Customer), REPORT::Statement, REPORT::"Standard Statement", WorkDate, WorkDate, WorkDate, 0D);
 
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankEndDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankEndDateErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         // [THEN] "Statement" PDF file has been created
         // [THEN] "Standard Statement" PDF file has not been created
@@ -345,8 +345,8 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error on blanked "End Date" is returned
         // [THEN] "Statement" PDF file has not been created
         // [THEN] "Standard Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankEndDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankEndDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
         VerifyReportOutputFileNotExists(Customer.Name, GetStandardStatementReportName);
@@ -377,7 +377,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Statement" PDF file has not been created
         // [THEN] "Standard Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
@@ -406,7 +406,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         asserterror OneCustomer_TwoSelections(
           CreateCustomerWithEntry(Customer), REPORT::Statement, REPORT::"Standard Statement", 0D, WorkDate, WorkDate, WorkDate);
 
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         // [THEN] "Statement" PDF file has not been created
         // [THEN] "Standard Statement" PDF file has been created
@@ -440,8 +440,8 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Statement" PDF file has not been created
         // [THEN] "Standard Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
         VerifyReportOutputFileNotExists(Customer.Name, GetStandardStatementReportName);
@@ -473,9 +473,9 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Statement" PDF file has not been created
         // [THEN] "Standard Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,BlankEndDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, BlankEndDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
         VerifyReportOutputFileNotExists(Customer.Name, GetStandardStatementReportName);
@@ -531,7 +531,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         asserterror OneCustomer_TwoSelections(
           CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", REPORT::Statement, WorkDate, WorkDate, WorkDate, 0D);
 
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankEndDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankEndDateErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         // [THEN] "Standard Statement" PDF file has been created
         // [THEN] "Statement" PDF file has not been created
@@ -564,8 +564,8 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error on blanked "End Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created
         // [THEN] "Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankEndDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankEndDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStandardStatementReportName);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
@@ -596,7 +596,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Standard Statement" PDF file has not been created
         // [THEN] "Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStandardStatementReportName);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
@@ -623,9 +623,9 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [WHEN] Run "Statement" (SaveAs PDF) report (use blanked "Start Date" for "Standard Statement")
         ErrorMessages.Trap;
         asserterror OneCustomer_TwoSelections(
-          CreateCustomerWithEntry(Customer),REPORT::"Standard Statement",REPORT::Statement,0D,WorkDate,WorkDate,WorkDate);
+          CreateCustomerWithEntry(Customer), REPORT::"Standard Statement", REPORT::Statement, 0D, WorkDate, WorkDate, WorkDate);
 
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         // [THEN] "Standard Statement" PDF file has not been created
         // [THEN] "Statement" PDF file has been created
@@ -659,8 +659,8 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created
         // [THEN] "Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStandardStatementReportName);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
@@ -691,9 +691,9 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created
         // [THEN] "Statement" PDF file has not been created
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,BlankEndDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, BlankEndDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer.Name, GetStandardStatementReportName);
         VerifyReportOutputFileNotExists(Customer.Name, GetStatementReportName);
@@ -798,7 +798,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Standard Statement" PDF file has not been created for "C1"
         // [THEN] "Standard Statement" PDF file has not been created for "C2"
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer[1].Name, GetStatementReportName);
         VerifyReportOutputFileNotExists(Customer[2].Name, GetStatementReportName);
@@ -828,9 +828,9 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created for "C1"
         // [THEN] "Standard Statement" PDF file has not been created for "C2"
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer[1].Name, GetStatementReportName);
         VerifyReportOutputFileNotExists(Customer[2].Name, GetStatementReportName);
@@ -935,7 +935,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error "No data exists for the specified report filters." is returned
         // [THEN] "Standard Statement" PDF file has not been created for "C1"
         // [THEN] "Standard Statement" PDF file has not been created for "C2"
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer[1].Name, GetStandardStatementReportName);
         VerifyReportOutputFileNotExists(Customer[2].Name, GetStandardStatementReportName);
@@ -965,9 +965,9 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Error on blanked "Start Date" is returned
         // [THEN] "Standard Statement" PDF file has not been created for "C1"
         // [THEN] "Standard Statement" PDF file has not been created for "C2"
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
         VerifyReportOutputFileNotExists(Customer[1].Name, GetStandardStatementReportName);
         VerifyReportOutputFileNotExists(Customer[2].Name, GetStandardStatementReportName);
@@ -1008,7 +1008,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         // [THEN] Request page uses saved Start Date as date before workdate and End Date as workdate
         // [THEN] Request page uses 'PDF' Report Output
         VerifyReportOutputFileExists(Customer.Name, GetStandardStatementReportName);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Scope('OnPrem')]
@@ -1017,8 +1017,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         FileMgt: Codeunit "File Management";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Word & RDLC Report Selections");
-        LibraryVariableStorage.Clear;
-        FileMgt.ServerRemoveDirectory(TemporaryPath, true);
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -1114,13 +1113,16 @@ codeunit 134775 "Word & RDLC Report Selections"
         end;
     end;
 
-    local procedure GetReportOutputFullFileName(CustomerName: Text; ReportName: Text): Text[250]
+    local procedure GetReportOutputFullFileName(CustomerName: Text; ReportName: Text): Text
     var
         FileMgt: Codeunit "File Management";
     begin
-        exit(
-          FileMgt.CombinePath(
-            TemporaryPath, StrSubstNo('Report for %1_%2 as of %3.pdf', CustomerName, ReportName, Format(WorkDate, 0, 9))));
+        exit(FileMgt.CombinePath(TemporaryPath, GetReportOutputFileName(CustomerName, ReportName)));
+    end;
+
+    local procedure GetReportOutputFileName(CustomerName: Text; ReportName: Text): Text
+    begin
+        exit(StrSubstNo('%1 for %2 as of %3.pdf', ReportName, CustomerName, Format(WorkDate, 0, 9)));
     end;
 
     local procedure GetStandardStatementReportName(): Text
@@ -1191,18 +1193,22 @@ codeunit 134775 "Word & RDLC Report Selections"
     var
         FileMgt: Codeunit "File Management";
         FullFilePath: Text;
+        FileName: Text;
     begin
         FullFilePath := GetReportOutputFullFileName(CustomerName, ReportName);
-        Assert.IsTrue(FileMgt.ServerFileExists(FullFilePath), StrSubstNo(ExpectedFilePathErr, FullFilePath));
+        FileName := GetReportOutputFileName(CustomerName, ReportName);
+        Assert.IsTrue(FileMgt.ServerFileExists(FullFilePath), StrSubstNo(ExpectedFilePathErr, FileName));
     end;
 
     local procedure VerifyReportOutputFileNotExists(CustomerName: Text; ReportName: Text)
     var
         FileMgt: Codeunit "File Management";
         FullFilePath: Text;
+        FileName: Text;
     begin
         FullFilePath := GetReportOutputFullFileName(CustomerName, ReportName);
-        Assert.IsFalse(FileMgt.ServerFileExists(FullFilePath), StrSubstNo(ExpectedMissingFilePathErr, FullFilePath));
+        FileName := GetReportOutputFileName(CustomerName, ReportName);
+        Assert.IsFalse(FileMgt.ServerFileExists(FullFilePath), StrSubstNo(ExpectedMissingFilePathErr, FileName));
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 8800, 'OnBeforeVerifyXmlContainsDataset', '', false, false)]
@@ -1211,16 +1217,16 @@ codeunit 134775 "Word & RDLC Report Selections"
         CancelVerification := true;
     end;
 
-    local procedure AssertErrorMessageOnPage(var ErrorMessages: TestPage "Error Messages";HasRecord: Boolean;ExpectedErrorMessage: Text)
+    local procedure AssertErrorMessageOnPage(var ErrorMessages: TestPage "Error Messages"; HasRecord: Boolean; ExpectedErrorMessage: Text)
     begin
-        Assert.IsTrue(HasRecord,'Error Messages page does not have record');
-        Assert.ExpectedMessage(ExpectedErrorMessage,ErrorMessages.Description.Value);
+        Assert.IsTrue(HasRecord, 'Error Messages page does not have record');
+        Assert.ExpectedMessage(ExpectedErrorMessage, ErrorMessages.Description.Value);
     end;
 
     local procedure AssertNoMoreErrorMessageOnPage(var ErrorMessages: TestPage "Error Messages")
     begin
         if ErrorMessages.Next then
-          Assert.Fail(StrSubstNo('Unexpected error: %1',ErrorMessages.Description.Value));
+            Assert.Fail(StrSubstNo('Unexpected error: %1', ErrorMessages.Description.Value));
     end;
 
     [RequestPageHandler]

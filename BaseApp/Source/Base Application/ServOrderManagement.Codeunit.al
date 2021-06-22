@@ -455,6 +455,7 @@ codeunit 5900 ServOrderManagement
             ServItem.SetCurrentKey("Customer No.", "Ship-to Code");
             ServItem.SetRange("Customer No.", ServHeader."Customer No.");
             ServItem.SetRange("Ship-to Code", ServHeader."Ship-to Code");
+            OnLookupServItemNoOnAfterServItemSetFilters(ServItemLine, ServItem, ServHeader);
             ServItemList.SetTableView(ServItem);
             ServItemList.LookupMode(true);
             if ServItemList.RunModal = ACTION::LookupOK then begin
@@ -659,6 +660,11 @@ codeunit 5900 ServOrderManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateResponseDateTime(var ServItemLine: Record "Service Item Line"; var Deleting: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupServItemNoOnAfterServItemSetFilters(var ServItemLine: Record "Service Item Line"; ServItem: Record "Service Item"; ServHeader: Record "Service Header");
     begin
     end;
 }

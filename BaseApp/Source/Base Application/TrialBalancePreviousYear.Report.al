@@ -110,6 +110,7 @@ report 7 "Trial Balance/Previous Year"
                 }
                 dataitem(BlankLineRepeater; "Integer")
                 {
+                    DataItemTableView = SORTING(Number);
                     column(BlankLineNo; BlankLineNo)
                     {
                     }

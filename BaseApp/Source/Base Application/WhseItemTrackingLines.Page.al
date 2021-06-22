@@ -797,18 +797,7 @@ page 6550 "Whse. Item Tracking Lines"
                 LastEntryNo := TempTrkgSpec."Entry No.";
             until WhseItemTrkgLine2.Next = 0;
 
-        SourceSpecification."Source Type" := SourceType;
-        SourceSpecification."Source Subtype" := SourceSubtype;
-        SourceSpecification."Source ID" := SourceID;
-        SourceSpecification."Source Batch Name" := '';
-        SourceSpecification."Source Prod. Order Line" := SourceProdOrderLine;
-        SourceSpecification."Source Ref. No." := SourceRefNo;
-        SourceSpecification."Quantity (Base)" := QuantityBase;
-        SourceSpecification."Item No." := SourceWhseItemTrkgLine."Item No.";
-        SourceSpecification."Variant Code" := SourceWhseItemTrkgLine."Variant Code";
-        SourceSpecification."Location Code" := SourceWhseItemTrkgLine."Location Code";
-        SourceSpecification.Description := SourceWhseItemTrkgLine.Description;
-        SourceSpecification."Qty. per Unit of Measure" := SourceWhseItemTrkgLine."Qty. per Unit of Measure";
+        SetSourceSpecification(SourceSpecification, SourceWhseItemTrkgLine, SourceType, SourceSubtype, SourceID, SourceProdOrderLine, SourceRefNo, QuantityBase);
         ItemTrackingMgt.SetGlobalParameters(SourceSpecification, TempTrkgSpec, DueDate);
         exit(ItemTrackingMgt.Run);
     end;
@@ -874,6 +863,24 @@ page 6550 "Whse. Item Tracking Lines"
         UpdateExpDateColor();
     end;
 
+    local procedure SetSourceSpecification(var SourceSpecification: Record "Tracking Specification"; SourceWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceProdOrderLine: Integer; SourceRefNo: Integer; QuantityBase: Decimal)
+    begin
+        SourceSpecification."Source Type" := SourceType;
+        SourceSpecification."Source Subtype" := SourceSubtype;
+        SourceSpecification."Source ID" := SourceID;
+        SourceSpecification."Source Batch Name" := '';
+        SourceSpecification."Source Prod. Order Line" := SourceProdOrderLine;
+        SourceSpecification."Source Ref. No." := SourceRefNo;
+        SourceSpecification."Quantity (Base)" := QuantityBase;
+        SourceSpecification."Item No." := SourceWhseItemTrkgLine."Item No.";
+        SourceSpecification."Variant Code" := SourceWhseItemTrkgLine."Variant Code";
+        SourceSpecification."Location Code" := SourceWhseItemTrkgLine."Location Code";
+        SourceSpecification.Description := SourceWhseItemTrkgLine.Description;
+        SourceSpecification."Qty. per Unit of Measure" := SourceWhseItemTrkgLine."Qty. per Unit of Measure";
+
+        OnAfterSetSourceSpecification(SourceSpecification, SourceWhseItemTrkgLine);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSource(var GlobalWhseWorksheetLine: Record "Whse. Worksheet Line"; SourceWhseWorksheetLine: Record "Whse. Worksheet Line"; SourceType: Integer)
     begin
@@ -886,6 +893,11 @@ page 6550 "Whse. Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertItemTrackingLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseWorksheetLine: Record "Whse. Worksheet Line"; WarehouseEntry: Record "Warehouse Entry"; QtyToEmpty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceSpecification(var SourceSpecification: Record "Tracking Specification"; SourceWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary)
     begin
     end;
 }

@@ -1,4 +1,4 @@
-codeunit 5760 "Whse.-Post Receipt"
+﻿codeunit 5760 "Whse.-Post Receipt"
 {
     Permissions = TableData "Whse. Item Entry Relation" = i,
                   TableData "Posted Whse. Receipt Header" = i,
@@ -118,6 +118,7 @@ codeunit 5760 "Whse.-Post Receipt"
 
             GetLocation("Location Code");
             PutAwayRequired := Location.RequirePutaway("Location Code");
+            OnCodeOnAfterSetPutAwayRequired(WhseRcptHeader, PutAwayRequired);
             if PutAwayRequired and not Location."Use Put-away Worksheet" then begin
                 CreatePutAwayDoc(WhseRcptHeader);
                 if not SuppressCommit then
@@ -132,16 +133,28 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     local procedure GetSourceDocument()
+    var
+        SourceHeader: Variant;
     begin
         with WhseRcptLine do
             case "Source Type" of
                 DATABASE::"Purchase Line":
-                    PurchHeader.Get("Source Subtype", "Source No.");
+                    begin
+                        PurchHeader.Get("Source Subtype", "Source No.");
+                        SourceHeader := PurchHeader;
+                    end;
                 DATABASE::"Sales Line": // Return Order
-                    SalesHeader.Get("Source Subtype", "Source No.");
+                    begin
+                        SalesHeader.Get("Source Subtype", "Source No.");
+                        SourceHeader := SalesHeader;
+                    end;
                 DATABASE::"Transfer Line":
-                    TransHeader.Get("Source No.");
+                    begin
+                        TransHeader.Get("Source No.");
+                        SourceHeader := TransHeader;
+                    end;
             end;
+        OnAfterGetSourceDocument(SourceHeader);
     end;
 
     local procedure MakePreliminaryChecks()
@@ -458,6 +471,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         WhseRcptLine2."Qty. to Cross-Dock" := 0;
                         WhseRcptLine2."Qty. to Cross-Dock (Base)" := 0;
                         WhseRcptLine2.Status := WhseRcptLine2.GetLineStatus;
+                        OnPostUpdateWhseDocumentsOnBeforeWhseRcptLineModify(WhseRcptLine2);
                         WhseRcptLine2.Modify();
                         OnAfterPostUpdateWhseRcptLine(WhseRcptLine2);
                     end;
@@ -905,6 +919,16 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterSetPutAwayRequired(WhseRcptHeader: Record "Warehouse Receipt Header"; var PutAwayRequired: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSourceDocument(SourceHeader: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPostUpdateWhseRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
@@ -1041,6 +1065,11 @@ codeunit 5760 "Whse.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUpdateWhseDocumentsOnBeforeDeleteAll(var WhseReceiptHeader: Record "Warehouse Receipt Header"; var WhseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateWhseDocumentsOnBeforeWhseRcptLineModify(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
 }

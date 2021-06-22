@@ -130,11 +130,17 @@ codeunit 6300 "Azure AD Mgt."
     var
         UriBuilder: DotNet UriBuilder;
         PathString: DotNet String;
+        RedirectUrl: Text;
     begin
+        // Retrieve the Client URL
+        RedirectUrl := GetUrl(ClientType::Web);
+        // Extract the Base Url (domain) from the full CLient URL
+        RedirectUrl := GetBaseUrl(RedirectUrl);
+
         // Due to a bug in ADAL 2.9, it will not consider URI's to be equal if one URI specified the default port number (ex: 443 for HTTPS)
         // and the other did not. UriBuilder(...).Uri.ToString() is a way to remove any protocol-default port numbers, such as 80 for HTTP
         // and 443 for HTTPS. This bug appears to be fixed in ADAL 3.1+.
-        UriBuilder := UriBuilder.UriBuilder(GetUrl(CLIENTTYPE::Web));
+        UriBuilder := UriBuilder.UriBuilder(RedirectUrl);
 
         // Append a '/' character to the end of the path if one does not exist already.
         PathString := UriBuilder.Path;
@@ -146,7 +152,31 @@ codeunit 6300 "Azure AD Mgt."
         UriBuilder.Query := '';
 
         // Pull out the full URL by the URI and convert it to a string.
-        exit(UriBuilder.Uri.ToString);
+        RedirectUrl := UriBuilder.Uri.ToString();
+
+        exit(CopyStr(RedirectUrl, 1, 150));
+    end;
+
+
+    local procedure GetBaseUrl(RedirectUrl: Text): Text
+    var
+        BaseIndex: Integer;
+        EndBaseUrlIndex: Integer;
+        Baseurl: Text;
+    begin
+        if StrPos(LowerCase(RedirectUrl), 'https://') <> 0 then
+            BaseIndex := 9;
+        if StrPos(LowerCase(RedirectUrl), 'http://') <> 0 then
+            BaseIndex := 8;
+
+        Baseurl := CopyStr(RedirectUrl, BaseIndex);
+        EndBaseUrlIndex := StrPos(Baseurl, '/');
+
+        if EndBaseUrlIndex = 0 then
+            exit(RedirectUrl);
+
+        Baseurl := CopyStr(Baseurl, 1, EndBaseUrlIndex - 1);
+        exit(CopyStr(RedirectUrl, 1, BaseIndex - 1) + Baseurl);
     end;
 
     [Scope('OnPrem')]
@@ -216,7 +246,7 @@ codeunit 6300 "Azure AD Mgt."
         exit(true);
     end;
 
-    [Obsolete('To add the record "Azure AD App Setup Wizard" in the Assisted Setup table use the method Add provided in the Assisted Setup codeunit','16.0')]
+    [Obsolete('To add the record "Azure AD App Setup Wizard" in the Assisted Setup table use the method Add provided in the Assisted Setup codeunit', '16.0')]
     procedure CreateAssistedSetup()
     var
         AssistedSetup: Codeunit "Assisted Setup";

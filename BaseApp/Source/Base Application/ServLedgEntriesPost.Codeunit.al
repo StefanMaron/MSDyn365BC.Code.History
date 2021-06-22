@@ -634,6 +634,7 @@ codeunit 5912 "ServLedgEntries-Post"
             NewServLedgEntry := ServLedgEntry;
             NewServLedgEntry."Entry No." := NextServLedgerEntryNo;
             InvertServLedgEntry(NewServLedgEntry);
+            OnReverseServLedgEntryOnBeforeNewServLedgEntryInsert(NewServLedgEntry, ServLedgEntry);
             NewServLedgEntry.Insert();
             NextServLedgerEntryNo += 1;
         end;
@@ -664,6 +665,7 @@ codeunit 5912 "ServLedgEntries-Post"
             NewWarrantyLedgEntry := WarrantyLedgEntry;
             NewWarrantyLedgEntry."Entry No." := NextWarrantyLedgerEntryNo;
             InvertWarrantyLedgEntry(NewWarrantyLedgEntry);
+            OnReverseWarrantyEntryOnBeforeNewWarrantyLedgEntryInsert(NewWarrantyLedgEntry, WarrantyLedgEntry);
             NewWarrantyLedgEntry.Insert();
             NextWarrantyLedgerEntryNo += 1;
         end;
@@ -1084,6 +1086,16 @@ codeunit 5912 "ServLedgEntries-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertServLedgerEntrySaleOnBeforeCloseEntries(var ServiceLedgerEntry: Record "Service Ledger Entry"; var ApplyToServLedgEntry: Record "Service Ledger Entry"; var ServiceLine: Record "Service Line"; var ServHeader: Record "Service Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseWarrantyEntryOnBeforeNewWarrantyLedgEntryInsert(var NewWarrantyLedgerEntry: Record "Warranty Ledger Entry"; var WarrantyLedgerEntry: Record "Warranty Ledger Entry");
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseServLedgEntryOnBeforeNewServLedgEntryInsert(var NewServLedgEntry: Record "Service Ledger Entry"; var ServLedgEntry: Record "Service Ledger Entry")
     begin
     end;
 }

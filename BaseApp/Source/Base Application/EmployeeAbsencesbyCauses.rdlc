@@ -1767,7 +1767,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalAbsence.Value)</Value>
+                                  <Value>=Sum(Fields!Employee_Absence__Quantity__Base__.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>

@@ -15,7 +15,6 @@ codeunit 104000 "Upgrade - BaseApp"
         ExcelTemplateAgedAccountsReceivableTxt: Label 'ExcelTemplateAgedAccountsReceivable', Locked = true;
         ExcelTemplateAgedAccountsPayableTxt: Label 'ExcelTemplateAgedAccountsPayable', Locked = true;
         ExcelTemplateCompanyInformationTxt: Label 'ExcelTemplateViewCompanyInformation', Locked = true;
-        InvoicingShouldNotBeUpgradedErr: Label 'Invoicing tenant should not be upgraded.', Locked = true;
 
     trigger OnUpgradePerDatabase()
     begin
@@ -26,7 +25,6 @@ codeunit 104000 "Upgrade - BaseApp"
 
     trigger OnUpgradePerCompany()
     begin
-        DoNotUpgradeIfInvoicing();
         UpdateDefaultDimensionsReferencedIds();
         UpdateGenJournalBatchReferencedIds();
         UpdateItems();
@@ -41,16 +39,9 @@ codeunit 104000 "Upgrade - BaseApp"
         CopyIncomingDocumentURLsIntoOneFiled();
         UpgradePowerBiEmbedUrl();
         UpgradeSearchEmail();
+        UpgradeEmailLogging();
 
         UpgradeAPIs();
-    end;
-
-    local procedure DoNotUpgradeIfInvoicing()
-    var
-        O365SalesInitialSetup: Record "O365 Sales Initial Setup";
-    begin
-        IF (O365SalesInitialSetup.GET AND O365SalesInitialSetup."Is initialized") THEN
-            Error(InvoicingShouldNotBeUpgradedErr);
     end;
 
     local procedure UpdateDefaultDimensionsReferencedIds()
@@ -65,7 +56,6 @@ codeunit 104000 "Upgrade - BaseApp"
         IF DefaultDimension.FINDSET THEN
             REPEAT
                 DefaultDimension.UpdateReferencedIds;
-                IF DefaultDimension.MODIFY THEN;
             UNTIL DefaultDimension.NEXT = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionAPIUpgradeTag());
@@ -843,20 +833,20 @@ codeunit 104000 "Upgrade - BaseApp"
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
-        BlankGuid: Guid;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemVariantItemIdUpgradeTag()) then
             exit;
 
-        ItemVariant.SetRange("Item Id", BlankGuid);
         if ItemVariant.FindSet() then
             repeat
                 if Item.Get(ItemVariant."Item No.") then
                     if ItemVariant."Item Id" <> Item.SystemId then begin
-                        ItemVariant."Item Id" := Item.SystemId;
-                        ItemVariant.Modify();
+                        ItemVariant2 := ItemVariant;
+                        ItemVariant2."Item Id" := Item.SystemId;
+                        ItemVariant2.Modify();
                     end;
             until ItemVariant.Next() = 0;
 
@@ -993,6 +983,62 @@ codeunit 104000 "Upgrade - BaseApp"
         end;
         if Changed then
             TargetRecordRef.Modify();
+    end;
+
+    local procedure UpgradeEmailLogging()
+    var
+        MarketingSetup: Record "Marketing Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetEmailLoggingUpgradeTag()) then
+            exit;
+
+        if IsEmailLoggingConfigured() then
+            if MarketingSetup.Get() then
+                if not MarketingSetup."Email Logging Enabled" then begin
+                    MarketingSetup."Email Logging Enabled" := true;
+                    MarketingSetup.Modify();
+                end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEmailLoggingUpgradeTag());
+    end;
+
+    local procedure IsEmailLoggingConfigured(): Boolean
+    var
+        MarketingSetup: Record "Marketing Setup";
+        JobQueueEntry: Record "Job Queue Entry";
+        InteractionTemplateSetup: Record "Interaction Template Setup";
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        if not InteractionTemplateSetup.Get() then
+            exit(false);
+
+        if InteractionTemplateSetup."E-Mails" = '' then
+            exit(false);
+
+        InteractionTemplate.SetRange(Code, InteractionTemplateSetup."E-Mails");
+        if InteractionTemplate.IsEmpty() then
+            exit(false);
+
+        if not MarketingSetup.Get() then
+            exit(false);
+
+        if MarketingSetup."Autodiscovery E-Mail Address" = '' then
+            exit(false);
+
+        if not MarketingSetup."Queue Folder UID".HasValue then
+            exit(false);
+
+        if not MarketingSetup."Storage Folder UID".HasValue then
+            exit(false);
+
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Email Logging Context Adapter");
+        if JobQueueEntry.IsEmpty() then
+            exit(false);
+
+        exit(true);
     end;
 }
 

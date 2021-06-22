@@ -87,21 +87,6 @@ page 5055 "Name Details"
     trigger OnAfterGetCurrRecord()
     begin
         CurrPage.Editable(Type = Type::Person);
-        Rec := Contact;
     end;
-
-    trigger OnOpenPage()
-    begin
-        Contact := Rec;
-    end;
-
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    begin
-        if CloseAction in [ACTION::OK, ACTION::LookupOK] then
-            Modify;
-    end;
-
-    var
-        Contact: Record Contact;
 }
 

@@ -1114,9 +1114,9 @@ page 9233 "G/L Balance by Dim. Matrix"
             if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
                 SetFilter("Business Unit Filter", AnalysisByDimParameters."Bus. Unit Filter");
             if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
-                SetFilter("Global Dimension 1 Filter", AnalysisByDimParameters."Dimension 1 Filter");
+                SetFilter("Global Dimension 1 Filter", GetDimValueTotaling(AnalysisByDimParameters."Dimension 1 Filter", GLSetup."Global Dimension 1 Code"));
             if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
-                SetFilter("Global Dimension 2 Filter", AnalysisByDimParameters."Dimension 2 Filter");
+                SetFilter("Global Dimension 2 Filter", GetDimValueTotaling(AnalysisByDimParameters."Dimension 2 Filter", GLSetup."Global Dimension 2 Code"));
             if AnalysisByDimParameters."Budget Filter" = '' then
                 SetRange("Budget Filter")
             else
@@ -1472,6 +1472,14 @@ page 9233 "G/L Balance by Dim. Matrix"
     local procedure FormatStr(): Text
     begin
         exit(RoundingFactorFormatString);
+    end;
+
+    local procedure GetDimValueTotaling(DimValueFilter: Text; DimensionCode: Code[20]): Text
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+    begin
+        DimensionManagement.ResolveDimValueFilter(DimValueFilter, DimensionCode);
+        exit(DimValueFilter);
     end;
 
     [IntegrationEvent(false, false)]

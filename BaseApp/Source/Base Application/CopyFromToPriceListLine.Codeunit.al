@@ -19,10 +19,7 @@ Codeunit 7009 CopyFromToPriceListLine
         if SalesPrice.FindSet() then
             repeat
                 PriceListLine.Init();
-                if PriceListLine.IsTemporary then
-                    PriceListLine."Line No." += 1
-                else
-                    PriceListLine."Line No." := 0;
+                InitLineNo(PriceListLine);
                 PriceListLine.Validate("Source Type", ConvertToSourceType(SalesPrice));
                 PriceListLine.Validate("Source No.", SalesPrice."Sales Code");
                 PriceListLine."VAT Bus. Posting Gr. (Price)" := SalesPrice."VAT Bus. Posting Gr. (Price)";
@@ -57,6 +54,7 @@ Codeunit 7009 CopyFromToPriceListLine
         if SalesLineDiscount.FindSet() then
             repeat
                 PriceListLine.Init();
+                InitLineNo(PriceListLine);
                 PriceListLine.Validate("Source Type", ConvertToSourceType(SalesLineDiscount));
                 PriceListLine.Validate("Source No.", SalesLineDiscount."Sales Code");
                 PriceListLine."Starting Date" := SalesLineDiscount."Starting Date";
@@ -217,10 +215,7 @@ Codeunit 7009 CopyFromToPriceListLine
         if JobItemPrice.FindSet() then
             repeat
                 PriceListLine.Init();
-                if PriceListLine.IsTemporary then
-                    PriceListLine."Line No." += 1
-                else
-                    PriceListLine."Line No." := 0;
+                InitLineNo(PriceListLine);
                 SetJobAsSource(JobItemPrice."Job No.", JobItemPrice."Job Task No.", PriceListLine);
                 PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
                 PriceListLine.Validate("Asset No.", JobItemPrice."Item No.");
@@ -264,10 +259,7 @@ Codeunit 7009 CopyFromToPriceListLine
         if JobGLAccountPrice.FindSet() then
             repeat
                 PriceListLine.Init();
-                if PriceListLine.IsTemporary then
-                    PriceListLine."Line No." += 1
-                else
-                    PriceListLine."Line No." := 0;
+                InitLineNo(PriceListLine);
                 SetJobAsSource(JobGLAccountPrice."Job No.", JobGLAccountPrice."Job Task No.", PriceListLine);
                 PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"G/L Account");
                 PriceListLine.Validate("Asset No.", JobGLAccountPrice."G/L Account No.");
@@ -296,10 +288,7 @@ Codeunit 7009 CopyFromToPriceListLine
         if JobResourcePrice.FindSet() then
             repeat
                 PriceListLine.Init();
-                if PriceListLine.IsTemporary then
-                    PriceListLine."Line No." += 1
-                else
-                    PriceListLine."Line No." := 0;
+                InitLineNo(PriceListLine);
                 SetJobAsSource(JobResourcePrice."Job No.", JobResourcePrice."Job Task No.", PriceListLine);
                 case JobResourcePrice.Type of
                     JobResourcePrice.Type::All,
@@ -360,10 +349,7 @@ Codeunit 7009 CopyFromToPriceListLine
         if ResourceCost.FindSet() then
             repeat
                 PriceListLine.Init();
-                if PriceListLine.IsTemporary then
-                    PriceListLine."Line No." += 1
-                else
-                    PriceListLine."Line No." := 0;
+                InitLineNo(PriceListLine);
                 PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Vendors");
                 case ResourceCost.Type of
                     ResourceCost.Type::All,
@@ -396,10 +382,7 @@ Codeunit 7009 CopyFromToPriceListLine
         if ResourcePrice.FindSet() then
             repeat
                 PriceListLine.Init();
-                if PriceListLine.IsTemporary then
-                    PriceListLine."Line No." += 1
-                else
-                    PriceListLine."Line No." := 0;
+                InitLineNo(PriceListLine);
                 PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Customers");
                 case ResourcePrice.Type of
                     ResourcePrice.Type::All,
@@ -433,10 +416,7 @@ Codeunit 7009 CopyFromToPriceListLine
         if PurchasePrice.FindSet() then
             repeat
                 PriceListLine.Init();
-                if PriceListLine.IsTemporary then
-                    PriceListLine."Line No." += 1
-                else
-                    PriceListLine."Line No." := 0;
+                InitLineNo(PriceListLine);
                 PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Vendor);
                 PriceListLine.Validate("Source No.", PurchasePrice."Vendor No.");
                 PriceListLine."Starting Date" := PurchasePrice."Starting Date";
@@ -469,6 +449,7 @@ Codeunit 7009 CopyFromToPriceListLine
         if PurchaseLineDiscount.FindSet() then
             repeat
                 PriceListLine.Init();
+                InitLineNo(PriceListLine);
                 PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Vendor);
                 PriceListLine.Validate("Source No.", PurchaseLineDiscount."Vendor No.");
                 PriceListLine."Starting Date" := PurchaseLineDiscount."Starting Date";
@@ -487,6 +468,14 @@ Codeunit 7009 CopyFromToPriceListLine
                 PriceListLine.Insert(true);
             until PurchaseLineDiscount.Next() = 0;
         PurchaseLineDiscount := OrigPurchaseLineDiscount;
+    end;
+
+    procedure InitLineNo(var PriceListLine: record "Price List Line")
+    begin
+        if PriceListLine.IsTemporary then
+            PriceListLine."Line No." += 10000
+        else
+            PriceListLine."Line No." := 0;
     end;
 
     [IntegrationEvent(false, false)]

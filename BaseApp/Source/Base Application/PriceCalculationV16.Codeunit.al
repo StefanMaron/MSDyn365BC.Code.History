@@ -122,12 +122,15 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
     var
         TempPriceListLine: Record "Price List Line" temporary;
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        GetPriceLine: Page "Get Price Line";
     begin
         CurrLineWithPrice.Verify();
         if not CurrLineWithPrice.CopyToBuffer(PriceCalculationBufferMgt) then
             exit;
-        if FindLines(AmountType, TempPriceListLine, PriceCalculationBufferMgt, false) then
-            if PAGE.RunModal(PAGE::"Get Price Line", TempPriceListLine) = ACTION::LookupOK then begin
+        if FindLines(AmountType, TempPriceListLine, PriceCalculationBufferMgt, false) then begin
+            GetPriceLine.SetForLookup(CurrLineWithPrice, AmountType, TempPriceListLine);
+            if GetPriceLine.RunModal() = ACTION::LookupOK then begin
+                GetPriceLine.GetRecord(TempPriceListLine);
                 if not PriceCalculationBufferMgt.IsInMinQty(TempPriceListLine) then
                     Error(PickedWrongMinQtyErr);
                 PriceCalculationBufferMgt.ConvertAmount(AmountType, TempPriceListLine);
@@ -135,6 +138,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
                 CurrLineWithPrice.Update(AmountType);
                 CurrLineWithPrice.ValidatePrice(AmountType);
             end;
+        end;
     end;
 
     procedure ShowPrices(var TempPriceListLine: Record "Price List Line")
@@ -333,7 +337,6 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         */
         PriceCalculationMgt.Run();
     end;
-
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterIsBetterLine(PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; BestPriceListLine: Record "Price List Line"; var Result: Boolean)

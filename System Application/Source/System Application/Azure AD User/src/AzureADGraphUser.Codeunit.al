@@ -68,6 +68,18 @@ codeunit 9024 "Azure AD Graph User"
     end;
 
     /// <summary>    
+    /// Tries to get the user's authentication object ID.
+    /// </summary>
+    /// <param name="UserSecurityId">The user's security ID.</param>
+    /// <param name="AuthenticationObjectId">Var parameter that hold the user's authention object ID.</param>
+    /// <return>True if the call was successful; otherwise - false.</error>
+    [Scope('OnPrem')]
+    procedure TryGetUserAuthenticationObjectId(UserSecurityId: Guid; var AuthenticationObjectId: Text): Boolean
+    begin
+        exit(AzureADGraphUserImpl.TryGetUserAuthenticationObjectId(UserSecurityId, AuthenticationObjectId));
+    end;
+
+    /// <summary>    
     /// Gets the user from a given Authentication object ID.
     /// </summary>
     /// <param name="AuthenticationObjectID">The user's Authentication object ID.</param>

@@ -1,4 +1,4 @@
-table 121 "Purch. Rcpt. Line"
+﻿table 121 "Purch. Rcpt. Line"
 {
     Caption = 'Purch. Rcpt. Line';
     DrillDownPageID = "Posted Purchase Receipt Lines";
@@ -741,6 +741,8 @@ table 121 "Purch. Rcpt. Line"
         if PurchInvHeader."No." <> TempPurchLine."Document No." then
             PurchInvHeader.Get(TempPurchLine."Document Type", TempPurchLine."Document No.");
 
+        OnInsertInvLineFromRcptLineOnBeforeCheckPurchLineReceiptNo(Rec, PurchLine, TempPurchLine, NextLineNo);
+
         if PurchLine."Receipt No." <> "Document No." then begin
             PurchLine.Init();
             PurchLine."Line No." := NextLineNo;
@@ -1131,6 +1133,11 @@ table 121 "Purch. Rcpt. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRcptLineOnAfterCalcQuantities(var PurchaseLine: Record "Purchase Line"; PurchaseOrderLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRcptLineOnBeforeCheckPurchLineReceiptNo(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchLine: Record "Purchase Line"; var TempPurchLine: Record "Purchase Line"; var NextLineNo: Integer)
     begin
     end;
 

@@ -142,11 +142,13 @@ table 5373 "CRM Full Synch. Review Line"
                 Validate("Dependency Filter", IntegrationTableMapping."Dependency Filter");
                 Validate("Initial Synch Recommendation", GetInitialSynchRecommendation(IntegrationTableMapping));
                 Direction := IntegrationTableMapping.Direction;
+                SendTraceTag('0000CDF', CategoryTok, Verbosity::Normal, StrSubstNo(SynchRecommDetailsTxt, Name, Format(Direction), Format("Initial Synch Recommendation")), DataClassification::SystemMetadata);
                 Insert(true);
             end else
                 if "Job Queue Entry Status" = "Job Queue Entry Status"::" " then begin
                     Validate("Dependency Filter", IntegrationTableMapping."Dependency Filter");
                     Validate("Initial Synch Recommendation", GetInitialSynchRecommendation(IntegrationTableMapping));
+                    SendTraceTag('0000CDF', CategoryTok, Verbosity::Normal, StrSubstNo(SynchRecommDetailsTxt, Name, Format(Direction), Format("Initial Synch Recommendation")), DataClassification::SystemMetadata);
                     Modify(true);
                 end;
         end;
@@ -179,7 +181,6 @@ table 5373 "CRM Full Synch. Review Line"
         BCRecRef: RecordRef;
         DependencyInitialSynchRecommendation: Option "Full Synchronization","Couple Records","No Records Found","Dependency not satisfied";
     begin
-
         if IntegrationTableMapping."Dependency Filter" <> '' then
             if not IsDependencyFilterInitialSynchRecommendationFullSynchronization(IntegrationTableMapping."Dependency Filter") then
                 exit("Initial Synch Recommendation"::"Dependency not satisfied");
@@ -482,5 +483,9 @@ table 5373 "CRM Full Synch. Review Line"
                 exit('Subordinate');
         end;
     end;
+
+    var
+        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        SynchRecommDetailsTxt: Label 'The synchronization recommendation for CDS entity %1, with the direction %2 is %3', Comment = '%1 = Name of CDS entity, %2 = Synchronization Direction of CDS entity, %3 = Synchronization Recommendation', Locked = true;
 }
 

@@ -63,34 +63,37 @@ codeunit 99000792 "Create Prod. Order from Sale"
             CreateProdOrderLines.Copy(ProdOrder, 1, SalesLine."Variant Code", true);
         end;
 
-        if ProdOrder."Source Type" = ProdOrder."Source Type"::Item then begin
-            ProdOrderLine.SetRange(Status, ProdOrder.Status);
-            ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
+        IsHandled := false;
+        OnCreateProdOrderOnBeforeProcessItemSourceType(ProdOrder, SalesLine, IsHandled);
+        if not IsHandled then
+            if ProdOrder."Source Type" = ProdOrder."Source Type"::Item then begin
+                ProdOrderLine.SetRange(Status, ProdOrder.Status);
+                ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
 
-            if ProdOrderLine.FindFirst then begin
-                ProdOrderRowID :=
-                  ItemTrackingMgt.ComposeRowID(
-                    DATABASE::"Prod. Order Line", ProdOrderLine.Status,
-                    ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0);
-                ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, ProdOrderRowID, true, true);
+                if ProdOrderLine.FindFirst then begin
+                    ProdOrderRowID :=
+                      ItemTrackingMgt.ComposeRowID(
+                        DATABASE::"Prod. Order Line", ProdOrderLine.Status,
+                        ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0);
+                    ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, ProdOrderRowID, true, true);
 
-                SalesLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
-                if ProdOrderLine."Remaining Qty. (Base)" > (SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)")
-                then begin
-                    ReservQty := (SalesLine."Outstanding Quantity" - SalesLine."Reserved Quantity");
-                    ReservQtyBase := (SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)");
-                end else begin
-                    ReservQty := Round(ProdOrderLine."Remaining Qty. (Base)" / SalesLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
-                    ReservQtyBase := ProdOrderLine."Remaining Qty. (Base)";
+                    SalesLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+                    if ProdOrderLine."Remaining Qty. (Base)" > (SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)")
+                    then begin
+                        ReservQty := (SalesLine."Outstanding Quantity" - SalesLine."Reserved Quantity");
+                        ReservQtyBase := (SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)");
+                    end else begin
+                        ReservQty := Round(ProdOrderLine."Remaining Qty. (Base)" / SalesLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                        ReservQtyBase := ProdOrderLine."Remaining Qty. (Base)";
+                    end;
+                    SalesLineReserve.BindToProdOrder(SalesLine, ProdOrderLine, ReservQty, ReservQtyBase);
+                    if SalesLine.Reserve = SalesLine.Reserve::Never then begin
+                        SalesLine.Reserve := SalesLine.Reserve::Optional;
+                        SalesLine.Modify();
+                    end;
+                    ProdOrderLine.Modify();
                 end;
-                SalesLineReserve.BindToProdOrder(SalesLine, ProdOrderLine, ReservQty, ReservQtyBase);
-                if SalesLine.Reserve = SalesLine.Reserve::Never then begin
-                    SalesLine.Reserve := SalesLine.Reserve::Optional;
-                    SalesLine.Modify();
-                end;
-                ProdOrderLine.Modify();
             end;
-        end;
 
         if ProdOrder.Status = ProdOrder.Status::Released then
             ProdOrderStatusMgt.FlushProdOrder(ProdOrder, ProdOrder.Status, WorkDate);
@@ -130,6 +133,11 @@ codeunit 99000792 "Create Prod. Order from Sale"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateProdOrderOnBeforeProdOrderInsert(var ProductionOrder: Record "Production Order"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateProdOrderOnBeforeProcessItemSourceType(var ProdOrder: Record "Production Order"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

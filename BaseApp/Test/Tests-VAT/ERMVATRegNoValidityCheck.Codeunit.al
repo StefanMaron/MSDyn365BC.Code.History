@@ -34,6 +34,8 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         DisclaimerTxt: Label 'You are accessing a third-party website and service. Review the disclaimer before you continue.';
         VATRegNoVIESSettingIsNotEnabledErr: Label 'VAT Reg. No. Validation Setup is not enabled.';
         NoVATNoToValidateErr: Label 'Specify the VAT registration number that you want to verify.';
+        EmptyCountryCodeErr: Label 'You must specify the country that issued the VAT registration number. Choose the country in the Country/Region Code field.';
+        EmptyEUCountryCodeErr: Label 'You must specify the EU Country/Region Code for the country that issued the VAT registration number. You can specify that on the Country/Regions page.';
         CannotInsertMultipleSettingsErr: Label 'You cannot insert multiple settings.';
         UnexpectedResponseErr: Label 'The VAT registration number could not be verified because the VIES VAT Registration No. service may be currently unavailable for the selected EU state, %1.';
 
@@ -1112,9 +1114,70 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure ThrowErrorWhenVATRegistrationLogIsEmpty()
+    procedure ThrowErrorWhenCountryCodeIsNotSet()
+    var
+        CustomerCard: TestPage "Customer Card";
+        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
+        VATRegistrationNoFormat: Record "VAT Registration No. Format";
+    begin
+        // [SCENARIO] 
+        // An error is thrown when a user try to validate a VAT number
+        // and no country/region code is specified
+
+        // [WHEN] the VAT validation service is enabled
+        VATRegNoSrvConfig.DeleteAll();
+        VATRegNoSrvConfig.Init();
+        VATRegNoSrvConfig.Enabled := true;
+        VATRegNoSrvConfig.Insert();
+
+        VATRegistrationNoFormat.DeleteAll();
+
+        // [GIVEN] 
+        // a customer with no country/region code 
+        CustomerCard.OpenEdit;
+        CustomerCard."Country/Region Code".SetValue('');
+        // [THEN] 
+        // an error is expected when the user try to validate the VAT number
+        asserterror CustomerCard."VAT Registration No.".Drilldown();
+        Assert.ExpectedError(EmptyCountryCodeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ThrowErrorWhenEUCountryCodeIsNotSet()
+    var
+        CustomerCard: TestPage "Customer Card";
+        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
+        CountryRegion: Record "Country/Region";
+    begin
+        // [SCENARIO] 
+        // An error is thrown when a user try to validate a VAT number
+        // and no EU country/region code is specified
+
+        // [WHEN] the VAT validation service is enabled
+        VATRegNoSrvConfig.DeleteAll();
+        VATRegNoSrvConfig.Init();
+        VATRegNoSrvConfig.Enabled := true;
+        VATRegNoSrvConfig.Insert();
+
+        // insert test country code
+        CountryRegion.Code := 'TEST';
+        CountryRegion.Insert();
+
+        // [GIVEN] 
+        // a customer with no country/region code 
+        CustomerCard.OpenEdit;
+        CustomerCard."Country/Region Code".SetValue('TE');
+        // [THEN] 
+        // an error is expected when the user try to validate the VAT number
+        asserterror CustomerCard."VAT Registration No.".Drilldown();
+        Assert.ExpectedError(EmptyEUCountryCodeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ThrowErrorWhenVATRegNoIsNotSet()
     var
         VATRegistrationLog: Record "VAT Registration Log";
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";

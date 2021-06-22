@@ -26,7 +26,7 @@ codeunit 8612 "Config. Template Management"
         TempDummyField: Record "Field" temporary;
         SkipFieldValidation: Boolean;
     begin
-        OnBeforeUpdateWithSkipFields(SkipFieldValidation);
+        OnBeforeUpdateWithSkipFields(SkipFieldValidation, RecRef, TempDummyField);
         UpdateRecordWithSkipFields(ConfigTemplateHeader, RecRef, SkipFieldValidation, TempDummyField);
     end;
 
@@ -524,7 +524,7 @@ codeunit 8612 "Config. Template Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateWithSkipFields(var SkipFieldValidation: Boolean)
+    local procedure OnBeforeUpdateWithSkipFields(var SkipFieldValidation: Boolean; var RecRef: RecordRef; TempDummyField: Record "Field" temporary)
     begin
     end;
 

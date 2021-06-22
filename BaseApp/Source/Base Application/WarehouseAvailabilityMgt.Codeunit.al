@@ -178,10 +178,14 @@ codeunit 7314 "Warehouse Availability Mgt."
     local procedure CalcQtyRcvdNotAvailable(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
     var
         PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
+        TempBin: Record Bin temporary;
+        WarehouseEntry: Record "Warehouse Entry";
         QtyRcvdNotAvailable: Decimal;
+        QtyAvailToPutAway: Decimal;
     begin
         // Returns the quantity received but not yet put-away for a given item
         // for pick/ship/receipt/put-away locations without directed put-away and pick
+        // with consideration of actually available quantity to put-away in receive bins
         with PostedWhseRcptLine do begin
             SetCurrentKey("Item No.", "Location Code", "Variant Code");
             SetRange("Item No.", ItemNo);
@@ -189,6 +193,25 @@ codeunit 7314 "Warehouse Availability Mgt."
             SetRange("Variant Code", VariantCode);
             CalcSums("Qty. (Base)", "Qty. Put Away (Base)");
             QtyRcvdNotAvailable := "Qty. (Base)" - "Qty. Put Away (Base)";
+
+            WarehouseEntry.SetRange("Location Code", LocationCode);
+            if (QtyRcvdNotAvailable > 0) and not WarehouseEntry.IsEmpty() then begin
+                FindSet();
+                repeat
+                    TempBin."Location Code" := "Location Code";
+                    TempBin.Code := "Bin Code";
+                    if TempBin.Insert() then;
+                until Next() = 0;
+
+                if TempBin.FindSet() then
+                    repeat
+                        QtyAvailToPutAway += CalcQtyOnBin(TempBin."Location Code", TempBin.Code, "Item No.", "Variant Code", '', '');
+                    until TempBin.Next() = 0;
+
+                if QtyAvailToPutAway < QtyRcvdNotAvailable then
+                    QtyRcvdNotAvailable := QtyAvailToPutAway;
+            end;
+
             OnAfterCalcQtyRcvdNotAvailable(PostedWhseRcptLine, LocationCode, ItemNo, VariantCode, QtyRcvdNotAvailable);
             exit(QtyRcvdNotAvailable);
         end;
@@ -432,6 +455,21 @@ codeunit 7314 "Warehouse Availability Mgt."
         exit(0);
     end;
 
+    local procedure CalcQtyPickedOnAssemblyLine(SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer): Decimal
+    var
+        AssemblyLine: Record "Assembly Line";
+    begin
+        with AssemblyLine do begin
+            SetRange("Document Type", SourceSubtype);
+            SetRange("Document No.", SourceID);
+            SetRange("Line No.", SourceRefNo);
+            if FindFirst() then
+                exit("Qty. Picked (Base)");
+        end;
+
+        exit(0);
+    end;
+
     local procedure CalcQtyPickedOnWhseShipmentLine(SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer): Decimal
     var
         WhseShipmentLine: Record "Warehouse Shipment Line";
@@ -459,6 +497,9 @@ codeunit 7314 "Warehouse Availability Mgt."
     begin
         if SourceType = DATABASE::"Prod. Order Component" then
             exit(CalcQtyPickedOnProdOrderComponentLine(SourceSubType, SourceID, SourceProdOrderLine, SourceRefNo));
+
+        if SourceType = DATABASE::"Assembly Line" then
+            exit(CalcQtyPickedOnAssemblyLine(SourceSubType, SourceID, SourceRefNo));
 
         if Location.RequireShipment(LocationCode) then
             exit(CalcQtyPickedOnWhseShipmentLine(SourceType, SourceSubType, SourceID, SourceRefNo));

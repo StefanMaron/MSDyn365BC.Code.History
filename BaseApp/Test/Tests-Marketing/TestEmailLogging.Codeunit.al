@@ -130,6 +130,7 @@ codeunit 139012 "Test Email Logging"
         MarketingSetup."Storage Folder UID".CreateOutStream(Stream);
         Stream.WriteText('test value 2');
         MarketingSetup."Autodiscovery E-Mail Address" := 'test@test.com';
+        MarketingSetup."Email Logging Enabled" := true;
         MarketingSetup.Modify();
 
         EmailLoggingDispatcher.CheckSetup(MarketingSetup);
@@ -252,6 +253,7 @@ codeunit 139012 "Test Email Logging"
         MarketingSetup."Storage Folder UID".CreateOutStream(Stream);
         Stream.WriteText('test value 2');
         MarketingSetup."Autodiscovery E-Mail Address" := 'test@test.com';
+        MarketingSetup."Email Logging Enabled" := true;
         MarketingSetup.Modify();
 
         MarketingSetup.Init();
@@ -263,6 +265,8 @@ codeunit 139012 "Test Email Logging"
 
         Assert.IsTrue(MarketingSetup."Storage Folder Path" <> '', 'Storage Folder path is not set');
         Assert.IsTrue(MarketingSetup."Storage Folder UID".HasValue, 'Storage Folder UID is not set');
+
+        Assert.IsTrue(MarketingSetup."Email Logging Enabled", 'Email Logging is not enabled');
 
         MarketingSetupPage.ClearEmailLoggingSetup(MarketingSetup);
 
@@ -276,6 +280,8 @@ codeunit 139012 "Test Email Logging"
 
         Assert.IsFalse(MarketingSetup."Storage Folder Path" <> '', 'Storage Folder path is not cleared');
         Assert.IsFalse(MarketingSetup."Storage Folder UID".HasValue, 'Storage Folder UID is not cleared');
+
+        Assert.IsFalse(MarketingSetup."Email Logging Enabled", 'Email Logging is not disabled');
     end;
 
     [Test]
@@ -325,6 +331,7 @@ codeunit 139012 "Test Email Logging"
         MarketingSetup.Get();
         BackupEmail := MarketingSetup."Autodiscovery E-Mail Address";
         Clear(MarketingSetup."Autodiscovery E-Mail Address");
+        MarketingSetup."Email Logging Enabled" := true;
         MarketingSetup.Modify();
 
         Commit();

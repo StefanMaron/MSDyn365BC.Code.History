@@ -56,6 +56,8 @@ codeunit 134378 "ERM Sales Order"
         QuoteNoMustBeVisibleErr: Label 'Quote No. must be visible.';
         QuoteNoMustNotBeVisibleErr: Label 'Quote No. must not be visible.';
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?';
+        YouMustDeleteExistingLinesErr: Label 'You must delete the existing sales lines before you can change %1.';
+        RecreateSalesLinesMsg: Label 'the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2423,9 +2425,10 @@ codeunit 134378 "ERM Sales Order"
         Commit();
 
         // [WHEN] Validate field "Gen. Bus. Posting Group" = "B" in Sales Order header
-        SalesHeader.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
+        asserterror SalesHeader.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
 
-        // [THEN] field "Gen. Bus. Posting Group" in Sales Order line is not changed
+        // [THEN] field "Gen. Bus. Posting Group" in Sales Order line is not changed because of error message
+        Assert.ExpectedError(StrSubstNo(YouMustDeleteExistingLinesErr, SalesLine.FieldCaption("Gen. Bus. Posting Group")));
         SalesLine.Find;
         SalesLine.TestField("Gen. Bus. Posting Group", OldGenBusPostingGroup);
     end;
@@ -4023,6 +4026,43 @@ codeunit 134378 "ERM Sales Order"
 
         // [THEN] Sell-to Phone No. is changed.
         Assert.AreEqual(Contact."Phone No.", SalesHeader."Sell-to Phone No.", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithVerification')]
+    [Scope('OnPrem')]
+    procedure RevertCurrencyCodeWhenRefusedToRecreateSalesLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UT] [Currency] [FCY]
+        // [SCENARIO 347892] System throws error and reverts entered "Currency Code" when Stan refused to recreate existing sales lines on Sales Order
+        Initialize();
+
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesHeader.TestField("Currency Code", '');
+        Commit();
+
+        SalesOrder.Trap();
+        PAGE.Run(PAGE::"Sales Order", SalesHeader);
+
+        SalesOrder."No.".AssertEquals(SalesHeader."No.");
+        SalesOrder."Currency Code".AssertEquals('');
+
+        LibraryVariableStorage.Enqueue(RecreateSalesLinesMsg);
+        LibraryVariableStorage.Enqueue(false);
+        asserterror SalesOrder."Currency Code".SetValue(LibraryERM.CreateCurrencyWithRandomExchRates());
+
+        Assert.ExpectedError(StrSubstNo(YouMustDeleteExistingLinesErr, SalesHeader.FieldCaption("Currency Code")));
+
+        SalesOrder."Currency Code".AssertEquals('');
+        SalesOrder.Close();
+
+        SalesHeader.Find();
+        SalesHeader.TestField("Currency Code", '');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -5734,6 +5774,14 @@ codeunit 134378 "ERM Sales Order"
     procedure ConfirmHandlerNoToChangingEmail(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := Question <> ConfirmEmptyEmailQst;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerWithVerification(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [StrMenuHandler]

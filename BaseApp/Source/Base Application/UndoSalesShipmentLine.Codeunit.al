@@ -381,7 +381,13 @@ codeunit 5815 "Undo Sales Shipment Line"
     local procedure DeleteSalesShptLineServItems(SalesShptLine: Record "Sales Shipment Line")
     var
         ServItem: Record "Service Item";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteSalesShptLineServItems(SalesShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ServItem.SetCurrentKey("Sales/Serv. Shpt. Document No.", "Sales/Serv. Shpt. Line No.");
         ServItem.SetRange("Sales/Serv. Shpt. Document No.", SalesShptLine."Document No.");
         ServItem.SetRange("Sales/Serv. Shpt. Line No.", SalesShptLine."Line No.");
@@ -573,6 +579,11 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSalesShptLine(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean; var SkipTestFields: Boolean; var SkipUndoPosting: Boolean; var SkipUndoInitPostATO: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteSalesShptLineServItems(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 

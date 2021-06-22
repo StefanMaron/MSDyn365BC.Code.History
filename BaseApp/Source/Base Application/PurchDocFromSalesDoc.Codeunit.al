@@ -1,4 +1,4 @@
-codeunit 1314 "Purch. Doc. From Sales Doc."
+﻿codeunit 1314 "Purch. Doc. From Sales Doc."
 {
 
     trigger OnRun()
@@ -92,6 +92,7 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
 
         PurchaseHeader.SetFilter("No.", NoFilter);
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        OnCreatePurchaseOrderOnAfterPurchaseHeaderSetFilters(PurchaseHeader, SalesHeader);
 
         case PurchaseHeader.Count of
             0:
@@ -250,6 +251,11 @@ codeunit 1314 "Purch. Doc. From Sales Doc."
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePurchaseHeaderOnBeforeInsert(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchaseOrderOnAfterPurchaseHeaderSetFilters(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
     begin
     end;
 

@@ -35,10 +35,12 @@ page 7200 "CDS Connection Setup"
 
                     trigger OnAssistEdit()
                     var
+                        CDSEnvironment: Codeunit "CDS Environment";
                         AuthenticationType: Option Office365,AD,IFD,OAuth;
                     begin
                         AuthenticationType := "Authentication Type";
-                        GetCDSEnvironment();
+
+                        CDSEnvironment.SelectTenantEnvironment(Rec, CDSEnvironment.GetGlobalDiscoverabilityToken(), false);
 
                         if "Server Address" <> xRec."Server Address" then
                             InitializeDefaultBusinessUnit();
@@ -52,12 +54,14 @@ page 7200 "CDS Connection Setup"
                 {
                     ApplicationArea = Suite;
                     Editable = IsEditable;
+                    Visible = IsUserNamePasswordVisible;
                     ToolTip = 'Specifies the name of the user that will be used to connect to the Common Data Service environment and synchronize data. This must not be the administrator user account.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
                 }
                 field(Password; UserPassword)
                 {
                     ApplicationArea = Suite;
                     Editable = IsEditable;
+                    Visible = IsUserNamePasswordVisible;
                     ExtendedDatatype = Masked;
                     ToolTip = 'Specifies the password of the user that will be used to connect to the Common Data ServiceS environment and synchronize data.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
 
@@ -69,6 +73,38 @@ page 7200 "CDS Connection Setup"
                                     PAGE.RunModal(PAGE::"Data Encryption Management");
                         SetPassword(UserPassword);
                     end;
+                }
+                field("Client Id"; "Client Id")
+                {
+                    ApplicationArea = Suite;
+                    Editable = IsEditable;
+                    Visible = IsClientIdClientSecretVisible;
+                    ToolTip = 'Specifies the id of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                }
+                field("Client Secret"; ClientSecret)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Client Secret';
+                    Editable = IsEditable;
+                    Visible = IsClientIdClientSecretVisible;
+                    ExtendedDatatype = Masked;
+                    ToolTip = 'Specifies the secret of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+
+                    trigger OnValidate()
+                    begin
+                        if not IsTemporary() then
+                            if (ClientSecret <> '') and (not EncryptionEnabled()) then
+                                if Confirm(EncryptionIsNotActivatedQst) then
+                                    PAGE.RunModal(PAGE::"Data Encryption Management");
+                        SetClientSecret(ClientSecret);
+                    end;
+                }
+                field("Redirect URL"; "Redirect URL")
+                {
+                    ApplicationArea = Suite;
+                    Editable = IsEditable;
+                    Visible = IsClientIdClientSecretVisible;
+                    ToolTip = 'Specifies the Redirect URL of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 }
                 field("SDK Version"; "Proxy Version")
                 {
@@ -92,7 +128,7 @@ page 7200 "CDS Connection Setup"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Enabled', Comment = 'Name of the check box that shows whether the connection to the Common Data Service environment is enabled.';
-                    ToolTip = 'Specifies whether the connection to the Common Data Service environment is enabled.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies whether the connection to the Common Data Service environment is enabled. When you check this checkbox, you will be prompted to sign-in with an administrator user account and give consent to the application that will be used to connect to Common Data Service. The account will be used one time to install and configure components that the integration requires.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnValidate()
                     var
@@ -100,9 +136,12 @@ page 7200 "CDS Connection Setup"
                     begin
                         RefreshStatuses := true;
                         CurrPage.Update(true);
-                        if ("Is Enabled") and ("Ownership Model" = "Ownership Model"::Person) then
-                            if Confirm(DoYouWantToMakeSalesPeopleMappingQst, true) then
-                                CDSSetupDefaults.RunCoupleSalespeoplePage();
+                        if "Is Enabled" then begin
+                            SendTraceTag('0000CDE', CategoryTok, Verbosity::Normal, CDSConnEnabledOnPageTxt, DataClassification::SystemMetadata);
+                            if "Ownership Model" = "Ownership Model"::Person then
+                                if Confirm(DoYouWantToMakeSalesPeopleMappingQst, true) then
+                                    CDSSetupDefaults.RunCoupleSalespeoplePage();
+                        end;
                     end;
                 }
             }
@@ -250,30 +289,6 @@ page 7200 "CDS Connection Setup"
                     end;
                 }
             }
-            usercontrol(OAuthIntegration; OAuthControlAddIn)
-            {
-                ApplicationArea = Basic, Suite;
-                trigger AuthorizationCodeRetrieved(code: Text)
-                var
-                    CDSEnvironment: Codeunit "CDS Environment";
-                    Token: Text;
-                begin
-                    Token := CDSDiscoverabilityOauth.CompleteAuthorizationProcess(code, Rec);
-                    SendTraceTag('0000BFC', GlobalDiscoOauthCategoryLbl, Verbosity::Normal, OauthCodeRetrievedMsg, DataClassification::SystemMetadata);
-
-                    CDSEnvironment.SelectTenantEnvironment(Rec, Token, true);
-                end;
-
-                trigger AuthorizationErrorOccurred(error: Text; desc: Text);
-                begin
-                    SendTraceTag('0000BFD', GlobalDiscoOauthCategoryLbl, Verbosity::Error, StrSubstNo(OauthFailErrMsg, error, desc), DataClassification::SystemMetadata);
-                end;
-
-                trigger ControlAddInReady();
-                begin
-                    OAuthAddinReady := true;
-                end;
-            }
         }
     }
 
@@ -288,7 +303,7 @@ page 7200 "CDS Connection Setup"
                 Image = Setup;
                 Promoted = true;
                 PromotedCategory = Process;
-                Enabled = IsEditable;
+                Enabled = IsEditable and SoftwareAsAService;
                 ToolTip = 'Runs Common Data Service Connection Setup Wizard.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
@@ -355,6 +370,24 @@ page 7200 "CDS Connection Setup"
                     CRMSystemuserList.Run();
                 end;
             }
+            action(AddUsersToTeam)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Add Coupled Users to Team';
+                Enabled = "Is Enabled" and ("Ownership Model" = "Ownership Model"::Person);
+                Image = LinkAccount;
+                Promoted = true;
+                PromotedCategory = "Report";
+                ToolTip = 'Add the coupled Common Data Service users to the default owning team.';
+
+                trigger OnAction()
+                var
+                    Added: Integer;
+                begin
+                    Added := CDSIntegrationImpl.AddCoupledUsersToDefaultOwningTeam(Rec);
+                    Message(UsersAddedToTeamMsg, Added);
+                end;
+            }
             action(StartInitialSynchAction)
             {
                 ApplicationArea = Suite;
@@ -410,10 +443,13 @@ page 7200 "CDS Connection Setup"
                 begin
                     CDSIntegrationImpl.ImportAndConfigureIntegrationSolution(Rec, true);
 
-                    if CDSIntegrationImpl.CheckIntegrationRequirements(Rec, true) then
+                    if CDSIntegrationImpl.CheckIntegrationRequirements(Rec, true) then begin
+                        SendTraceTag('0000CDH', CategoryTok, Verbosity::Normal, SuccessfullyRedeployedSolutionTxt, DataClassification::SystemMetadata);
                         Message(DeploySucceedMsg)
-                    else
+                    end else begin
+                        SendTraceTag('0000CDI', CategoryTok, Verbosity::Error, UnsuccessfullyRedeployedSolutionTxt, DataClassification::SystemMetadata);
                         Message(DeployFailedMsg);
+                    end;
                     RefreshStatuses := true;
                     CurrPage.Update(true);
                 end;
@@ -544,11 +580,13 @@ page 7200 "CDS Connection Setup"
     begin
         ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic();
         SoftwareAsAService := EnvironmentInfo.IsSaaS();
-        CDSIntegrationImpl.RegisterAssistedSetup();
+        if SoftwareAsAService then
+            CDSIntegrationImpl.RegisterAssistedSetup();
         SolutionKey := CDSIntegrationImpl.GetBaseSolutionUniqueName();
         SolutionName := CDSIntegrationImpl.GetBaseSolutionDisplayName();
         DefaultBusinessUnitName := CDSIntegrationImpl.GetDefaultBusinessUnitName();
         RefreshStatuses := true;
+        SetVisibilityFlags();
     end;
 
     trigger OnOpenPage()
@@ -558,10 +596,14 @@ page 7200 "CDS Connection Setup"
             InitializeDefaultProxyVersion();
             InitializeDefaultOwnershipModel();
             InitializeDefaultBusinessUnit();
+            InitializeDefaultRedirectUrl();
             Insert();
             LoadConnectionStringElementsFromCRMConnectionSetup();
         end else begin
             UserPassword := GetPassword();
+            ClientSecret := GetClientSecret();
+            if "Redirect URL" = '' then
+                InitializedefaultRedirectUrl();
             if (not IsValidProxyVersion()) or (not IsValidOwnershipModel() or (not IsValidBusinessUnit())) then begin
                 CDSIntegrationImpl.UnregisterConnection();
                 if not IsValidProxyVersion() then
@@ -592,11 +634,13 @@ page 7200 "CDS Connection Setup"
 
     var
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
-        CDSDiscoverabilityOauth: Codeunit "CDS Discoverability Oauth";
         SolutionKey: Text;
         SolutionName: Text;
         DefaultBusinessUnitName: Text;
+        [NonDebuggable]
         UserPassword: Text;
+        [NonDebuggable]
+        ClientSecret: Text;
         ResetIntegrationTableMappingConfirmQst: Label 'This will delete all existing integration table mappings and Common Data Service synchronization jobs and install the default integration table mappings and jobs for Common Data Service synchronization.\\Are you sure that you want to continue?';
         EncryptionIsNotActivatedQst: Label 'Data encryption is currently not enabled. We recommend that you encrypt data. \Do you want to open the Data Encryption Management window?';
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Common Data Service Connection Setup)';
@@ -614,15 +658,19 @@ page 7200 "CDS Connection Setup"
         DeployFailedMsg: Label 'The deployment of the solution, user roles, and entities failed.';
         ConnectionSuccessMsg: Label 'The connection test was successful. The settings are valid.';
         ConnectionFailedMsg: Label 'The connection test has failed. %1.', Comment = '%1 = Connection test failure error message';
-        GlobalDiscoOauthCategoryLbl: Label 'Global Discoverability OAuth', Locked = true;
-        OauthFailErrMsg: Label 'Error: %1 ; Description: %2.', Comment = '%1 = OAuth error message ; %2 = description of OAuth failure error message';
-        OauthCodeRetrievedMsg: Label 'OAuth authorization code retrieved.';
         SynchronizeModifiedQst: Label 'This will synchronize all modified records in all Integration Table Mappings.\\Do you want to continue?';
         SyncNowSuccessMsg: Label 'Synchronize Modified Records completed.\Open %1 window for details.', Comment = '%1 = The localized caption of page Integration Synch. Job List';
         SetupSuccessfulMsg: Label 'The default setup for Common Data Service synchronization has completed successfully.';
         DoYouWantToMakeSalesPeopleMappingQst: Label 'Do you want to map salespeople to users in Common Data Service?';
-        OAuthAddinReady: Boolean;
+        UsersAddedToTeamMsg: Label 'Count of users added to the default owning team: %1.', Comment = '%1 - count of users.';
+        Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
+        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        CDSConnEnabledOnPageTxt: Label 'CDS Connection has been enabled from CDSConnectionSetupPage', Locked = true;
+        SuccessfullyRedeployedSolutionTxt: Label 'The CDS solutin has been successfully redeployed', Locked = true;
+        UnsuccessfullyRedeployedSolutionTxt: Label 'The CDS solutin has failed to be redeployed', Locked = true;
         IsEditable: Boolean;
+        IsUserNamePasswordVisible: Boolean;
+        IsClientIdClientSecretVisible: Boolean;
         SoftwareAsAService: Boolean;
         CDSVersion: Text;
         CDSVersionStatus: Boolean;
@@ -637,25 +685,6 @@ page 7200 "CDS Connection Setup"
         TeamStatusStyleExpr: Text;
         EntitiesStatusStyleExpr: Text;
         RefreshStatuses: Boolean;
-
-    [NonDebuggable]
-    local procedure GetCDSEnvironment()
-    var
-        CDSEnvironment: Codeunit "CDS Environment";
-        AuthRequestUrl: Text;
-        Token: Text;
-    begin
-        Token := CDSEnvironment.GetOnBehalfAuthorizationToken();
-        if CDSEnvironment.SelectTenantEnvironment(Rec, Token, true) = true then
-            exit;
-
-        if OAuthAddinReady then begin
-            AuthRequestUrl := CDSDiscoverabilityOauth.StartAuthorizationProcess();
-
-            if AuthRequestUrl <> '' then
-                CurrPage.OAuthIntegration.StartAuthorization(AuthRequestUrl);
-        end;
-    end;
 
     local procedure RefreshData()
     begin
@@ -709,6 +738,25 @@ page 7200 "CDS Connection Setup"
         IsEditable := not "Is Enabled";
     end;
 
+    local procedure SetVisibilityFlags()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        IsUserNamePasswordVisible := true;
+        IsClientIdClientSecretVisible := not SoftwareAsAService;
+
+        if not CDSConnectionSetup.Get() then begin
+            IsUserNamePasswordVisible := false;
+            exit;
+        end;
+
+        if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then
+            IsClientIdClientSecretVisible := false
+        else
+            if not "Connection String".Contains(Office365AuthTxt) then
+                IsUserNamePasswordVisible := false;
+    end;
+
     local procedure InitializeDefaultProxyVersion()
     begin
         Validate("Proxy Version", CDSIntegrationImpl.GetLastProxyVersionItem());
@@ -726,6 +774,13 @@ page 7200 "CDS Connection Setup"
         else
             "Business Unit Name" := CopyStr(DefaultBusinessUnitName, 1, MaxStrLen("Business Unit Name"));
         Clear("Business Unit Id");
+    end;
+
+    local procedure InitializeDefaultRedirectUrl()
+    var
+        AzureADMgt: Codeunit "Azure AD Mgt.";
+    begin
+        "Redirect URL" := AzureADMgt.GetDefaultRedirectUrl();
     end;
 
     local procedure IsValidBusinessUnit(): Boolean

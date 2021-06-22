@@ -547,6 +547,10 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Return Order No. Series';
             TableRelation = "No. Series";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
     }
 
     keys

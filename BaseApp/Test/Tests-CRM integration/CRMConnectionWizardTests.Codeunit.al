@@ -30,7 +30,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         EmptySynchUserCredentialsErr: Label 'You must specify the credentials for the user account for synchronization with %1.';
         WrongAdminCredentialsErr: Label 'Enter valid %1 administrator credentials.';
         ButtonTxt: Label 'Button';
-        AllCredentialsRequiredErr: Label 'A %1 URL, user name and password are required to enable a connection.';
+        AllCredentialsRequiredErr: Label 'A %1 URL and user name are required to enable a connection.';
         TheRowDoesNotExistErr: Label 'The row does not exist';
         CryptographyManagement: Codeunit "Cryptography Management";
         CRMProductName: Codeunit "CRM Product Name";
@@ -409,25 +409,26 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [SCENARIO 180150] User press back to return to previous Wizard page
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Connection Wizard is opened
-        CRMConnectionSetupWizard.OpenEdit;
+        CRMConnectionSetupWizard.OpenEdit();
 
         // [GIVEN] Second page of Wizard is opened
         CRMConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
+        CRMConnectionSetupWizard.ActionNext.Invoke();
+        CRMConnectionSetupWizard.ActionAdvanced.Invoke();
         Assert.IsTrue(
-          CRMConnectionSetupWizard.Email.Visible,
-          StrSubstNo(ShouldBeErr, CRMConnectionSetupWizard.Email.Caption, VisibleTxt));
+          CRMConnectionSetupWizard.PublishItemAvailabilityService.Visible(),
+          StrSubstNo(ShouldBeErr, CRMConnectionSetupWizard.PublishItemAvailabilityService.Caption(), VisibleTxt));
 
         // [WHEN] User press Back
-        CRMConnectionSetupWizard.ActionBack.Invoke;
+        CRMConnectionSetupWizard.ActionBack.Invoke();
 
         // [THEN] First page of Wizard is opened.
         Assert.IsFalse(
-          CRMConnectionSetupWizard.Email.Visible,
-          StrSubstNo(ShouldNotBeErr, CRMConnectionSetupWizard.Email.Caption, VisibleTxt));
+          CRMConnectionSetupWizard.PublishItemAvailabilityService.Visible(),
+          StrSubstNo(ShouldNotBeErr, CRMConnectionSetupWizard.PublishItemAvailabilityService.Caption(), VisibleTxt));
         CRMConnectionSetupWizard.Close();
     end;
 
@@ -522,33 +523,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmYesHandler,CRMAdminCredentialsModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure VerifyWizardWrongAdminCredentialsError()
-    var
-        CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
-    begin
-        // [SCENARIO 198614] CRM Connection Wizard shows error message on incorrect admin credentials
-        Initialize;
-
-        // [GIVEN] CRM Connection Setup Wizard is opened
-        // [GIVEN] Dynamics CRM URL = 'https://test.dynamics.com'
-        CRMConnectionSetupWizard.Trap;
-        PAGE.Run(PAGE::"CRM Connection Setup Wizard");
-
-        CRMConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
-        CRMConnectionSetupWizard.Email.SetValue('abc@abc.com');
-        CRMConnectionSetupWizard.Password.SetValue('***');
-
-        // [WHEN] Finish pressed
-        asserterror CRMConnectionSetupWizard.ActionFinish.Invoke;
-
-        // [THEN] Error message appears stating that entered admin credentials are wrong
-        Assert.ExpectedError(StrSubstNo(WrongAdminCredentialsErr, CRMProductName.SHORT));
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure CRMConnectionSetupCheckConnectRequiredFields()
     var
@@ -634,6 +608,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
+        LatestSDKVersion: Integer;
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Step Finish should update the real record
@@ -665,8 +640,9 @@ codeunit 139314 "CRM Connection Wizard Tests"
         // [THEN] user mapping is disabled
         CRMConnectionSetup.TestField("Is User Mapping Required", false);
         CRMConnectionSetup.TestField("Is User Mapped To CRM User", false);
-        // [THEN] By Default "Proxy Version" = 9
-        CRMConnectionSetup.TestField("Proxy Version", 9);
+        // [THEN] The latest SDK proxy version is by default
+        LatestSDKVersion := LibraryCRMIntegration.GetLastestSDKVersion();
+        CRMConnectionSetup.TestField("Proxy Version", LatestSDKVersion);
     end;
 
     [Test]
@@ -925,9 +901,11 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CDSConnectionSetup."Is Enabled" := true;
         CDSConnectionSetup."Server Address" := 'https://test.dynamics.com';
         CDSConnectionSetup."User Name" := 'test@test.com';
-        CDSConnectionSetup.SetPassword('test1234');
         CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
-        CDSConnectionSetup.Insert();
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
+        CDSConnectionSetup.Modify();
     end;
 
     local procedure RunWizardToCompletion(var CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard")

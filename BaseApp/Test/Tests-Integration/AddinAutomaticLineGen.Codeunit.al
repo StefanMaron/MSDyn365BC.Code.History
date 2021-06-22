@@ -374,11 +374,23 @@ codeunit 139062 "Add-in Automatic Line Gen."
     procedure DontShowAgainDisablesMessageInInstructionMgt()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
+        OfficeAddinContext: Record "Office Add-in Context";
+        Item: array[5] of Record Item;
+        SalesQuote: TestPage "Sales Quote";
+        EmailBody: Text;
+        Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If the user clicks "do not show again" when the suggested items page comes up, disable the page in instruction mgt.
+        Initialize();
 
-        // [GIVEN] The Suggested Line Items page is open.
-        PAGE.RunModal(PAGE::"Office Suggested Line Items");
+        // [GIVEN] User has an email from a customer that contains a request for several items
+        CreateRandomItems(Item, Quantity, 2);
+        EmailBody := StrSubstNo(MultipleQuantityBodyText, Item[1].Description, Quantity[1], Item[2].Description, Quantity[2]);
+        Setup(OfficeAddinContext, EmailBody, CommandType.NewSalesQuote);
+
+        // [WHEN] The user opens the add-in in the context of the customer email
+        SalesQuote.Trap;
+        RunMailEngine(OfficeAddinContext);
 
         // [WHEN] The user clicks "Do Not Show Again"
         // Page handler does this
@@ -579,7 +591,10 @@ codeunit 139062 "Add-in Automatic Line Gen."
     [Scope('OnPrem')]
     procedure HandleSuggestedLinesPageClickDoNotShowAgain(var OfficeSuggestedLineItems: TestPage "Office Suggested Line Items")
     begin
+        OfficeSuggestedLineItems.First;
         OfficeSuggestedLineItems.DoNotShowAgain.SetValue(true);
+        OfficeSuggestedLineItems.Next;
+        Assert.IsTrue(OfficeSuggestedLineItems.DoNotShowAgain.AsBoolean(), 'The DoNotShowAgain box should be checked.');
         OfficeSuggestedLineItems.OK.Invoke;
     end;
 
@@ -600,16 +615,16 @@ codeunit 139062 "Add-in Automatic Line Gen."
     procedure HandleSuggestedLinesPageWithItemResolution(var OfficeSuggestedLineItems: TestPage "Office Suggested Line Items")
     begin
         OfficeSuggestedLineItems.First;
-        Assert.IsFalse(OfficeSuggestedLineItems.Add.Enabled, 'The "Add" box should be disabled when items need to be resolved.');
+        AssertError OfficeSuggestedLineItems.Add.SetValue(true);
 
         OfficeSuggestedLineItems.Next;
-        Assert.IsTrue(OfficeSuggestedLineItems.Add.Enabled, 'The "Add" box should be enabled if the line needs no resolution.');
+        Assert.IsTrue(OfficeSuggestedLineItems.Add.Enabled, 'The "Add" box can be enabled if the line needs no resolution.');
 
         OfficeSuggestedLineItems.First;
         OfficeSuggestedLineItems.Item.DrillDown;
 
         OfficeSuggestedLineItems.First;
-        Assert.IsTrue(OfficeSuggestedLineItems.Add.Enabled, 'The "Add" box should be enabled after the item is resolved.');
+        Assert.IsTrue(OfficeSuggestedLineItems.Add.Enabled, 'The "Add" box can be enabled after the item is resolved.');
         Assert.IsTrue(OfficeSuggestedLineItems.Add.AsBoolean, 'The "Add" box should be checked after the item is resolved.');
 
         OfficeSuggestedLineItems.OK.Invoke;
