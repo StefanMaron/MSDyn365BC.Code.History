@@ -92,6 +92,9 @@ codeunit 5330 "CRM Integration Management"
         ResetAllCustomIntegrationTableMappingsLbl: Label 'One or more of the selected integration table mappings is custom.\\Restoring the default table mapping for a custom table mapping will restore all custom table mappings to their default.\\Do you want to continue?';
         OptionMappingFailedNotificationTxt: Label 'No match in the option mapping was found in the last synchronization. For more information, see https://go.microsoft.com/fwlink/?linkid=2139110.';
         DeletedRecordWithZeroTableIdTxt: Label 'CRM Integration Record with zero Table ID has been deleted. Integration ID: %1, CRM ID: %2', Locked = true;
+        RecordMarkedAsSkippedTxt: Label 'The %1 record was marked as skipped before.', Comment = '%1 = table caption';
+        RecordAlreadyCoupledTxt: Label 'The %1 record is already coupled.', Comment = '%1 = table caption';
+        DetailedNotificationMessageTxt: Label '%1 %2', Comment = '%1 - notification message, %2 - details', Locked = true;
 
     procedure IsCRMIntegrationEnabled(): Boolean
     var
@@ -263,6 +266,7 @@ codeunit 5330 "CRM Integration Management"
         RecRef: RecordRef;
         RecordCounter: array[4] of Integer;
         ShouldSendNotification: Boolean;
+        SkipReason: Text;
     begin
         RecordCounter[NoOf::Total] := GetRecordRef(RecVariant, RecRef);
         if RecordCounter[NoOf::Total] = 0 then
@@ -271,9 +275,9 @@ codeunit 5330 "CRM Integration Management"
         if RecRef.Number = DATABASE::"CRM Integration Record" then
             ShouldSendNotification := UpdateCRMIntRecords(RecRef, RecordCounter)
         else
-            ShouldSendNotification := UpdateRecords(RecRef, RecordCounter);
+            ShouldSendNotification := UpdateRecords(RecRef, RecordCounter, SkipReason);
         if ShouldSendNotification then
-            SendSyncNotification(RecordCounter);
+            SendSyncNotification(RecordCounter, SkipReason);
     end;
 
     local procedure UpdateCRMIntRecords(var RecRef: RecordRef; var RecordCounter: array[4] of Integer): Boolean
@@ -319,7 +323,7 @@ codeunit 5330 "CRM Integration Management"
         exit(true);
     end;
 
-    local procedure UpdateRecords(var RecRef: RecordRef; var RecordCounter: array[4] of Integer): Boolean
+    local procedure UpdateRecords(var RecRef: RecordRef; var RecordCounter: array[4] of Integer; var SkipReason: Text): Boolean
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         SelectedDirection: Integer;
@@ -351,14 +355,17 @@ codeunit 5330 "CRM Integration Management"
             end;
             if not Skipped then
                 Skipped := IsRecordSkipped(RecRef.RecordId);
-            if Skipped then
-                RecordCounter[NoOf::Skipped] += 1
-            else
+            if Skipped then begin
+                RecordCounter[NoOf::Skipped] += 1;
+                SkipReason := StrSubstNo(RecordMarkedAsSkippedTxt, GetTableCaption(RecRef.Number()));
+            end else
                 if EnqueueSyncJob(IntegrationTableMapping, RecRef.RecordId, CRMID, SelectedDirection) then
                     RecordCounter[NoOf::Scheduled] += 1
                 else
                     RecordCounter[NoOf::Failed] += 1;
         until RecRef.Next() = 0;
+        if (SkipReason <> '') and (RecordCounter[NoOf::Total] > 1) then
+            SkipReason := '';
         exit(true);
     end;
 
@@ -460,12 +467,15 @@ codeunit 5330 "CRM Integration Management"
         exit(0);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by CreateNewRecordsInCRM', '18.0')]
     procedure CreateNewRecordInCRM(RecordID: RecordID; ConfirmBeforeDeletingExistingCoupling: Boolean)
     begin
         // Extinct method. Kept for backward compatibility.
         ConfirmBeforeDeletingExistingCoupling := false;
         CreateNewRecordsInCRM(RecordID);
     end;
+#endif
 
     procedure CreateNewRecordsInCRM(RecVariant: Variant)
     var
@@ -474,6 +484,7 @@ codeunit 5330 "CRM Integration Management"
         RecRef: RecordRef;
         CRMID: Guid;
         RecordCounter: array[4] of Integer;
+        SkipReason: Text;
     begin
         RecordCounter[NoOf::Total] := GetRecordRef(RecVariant, RecRef);
         if RecordCounter[NoOf::Total] = 0 then
@@ -492,7 +503,9 @@ codeunit 5330 "CRM Integration Management"
             end;
         until RecRef.Next = 0;
 
-        SendSyncNotification(RecordCounter);
+        if (RecordCounter[NoOf::Total] = 1) and (RecordCounter[NoOf::Skipped] = 1) then
+            SkipReason := StrSubstNo(RecordAlreadyCoupledTxt, GetTableCaption(IntegrationTableMapping."Table ID"));
+        SendSyncNotification(RecordCounter, SkipReason);
     end;
 
     procedure CreateNewRecordsFromCRM(RecVariant: Variant)
@@ -502,6 +515,7 @@ codeunit 5330 "CRM Integration Management"
         RecRef: RecordRef;
         CRMID: Guid;
         RecordCounter: array[4] of Integer;
+        SkipReason: Text;
     begin
         RecordCounter[NoOf::Total] := GetRecordRef(RecVariant, RecRef);
         if RecordCounter[NoOf::Total] = 0 then
@@ -522,7 +536,9 @@ codeunit 5330 "CRM Integration Management"
             end;
         until RecRef.Next = 0;
 
-        SendSyncNotification(RecordCounter);
+        if (RecordCounter[NoOf::Total] = 1) and (RecordCounter[NoOf::Skipped] = 1) then
+            SkipReason := StrSubstNo(RecordAlreadyCoupledTxt, GetTableCaption(IntegrationTableMapping."Integration Table ID"));
+        SendSyncNotification(RecordCounter, SkipReason);
     end;
 
     [Scope('OnPrem')]
@@ -535,6 +551,7 @@ codeunit 5330 "CRM Integration Management"
         CRMID: Guid;
         RecordCounter: array[4] of Integer;
         CRMIdFilter: Text;
+        SkipReason: Text;
     begin
         RecordCounter[NoOf::Total] := GetRecordRef(RecVariant, RecRef);
         if RecordCounter[NoOf::Total] = 0 then
@@ -554,12 +571,19 @@ codeunit 5330 "CRM Integration Management"
             end;
         until RecRef.Next() = 0;
         CRMIdFilter := CRMIdFilter.TrimEnd('|');
+        if CRMIdFilter = '' then begin
+            SkipReason := StrSubstNo(RecordAlreadyCoupledTxt, GetTableCaption(IntegrationTableMapping."Integration Table ID"));
+            SendNotification(StrSubstNo(DetailedNotificationMessageTxt, SyncNowSkippedMsg, SkipReason));
+            exit;
+        end;
         IntegrationTableMapping.SetIntegrationTableFilter(GetTableViewForFilter(IntegrationTableMapping."Integration Table ID", CRMIdFilter));
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
         AddIntegrationTableMapping(IntegrationTableMapping);
         Commit();
         CRMSetupDefaults.CreateJobQueueEntry(IntegrationTableMapping);
-        SendSyncNotification(RecordCounter);
+        if (RecordCounter[NoOf::Total] = 1) and (RecordCounter[NoOf::Skipped] = 1) then
+            SkipReason := StrSubstNo(RecordAlreadyCoupledTxt, GetTableCaption(IntegrationTableMapping."Integration Table ID"));
+        SendSyncNotification(RecordCounter, SkipReason);
     end;
 
     [Obsolete('This method is identical to CreateNewRecordsFromSelectedCRMRecords', '17.0')]
@@ -572,6 +596,7 @@ codeunit 5330 "CRM Integration Management"
         CRMID: Guid;
         RecordCounter: array[4] of Integer;
         CRMIdFilter: Text;
+        SkipReason: Text;
     begin
         RecordCounter[NoOf::Total] := GetRecordRef(RecVariant, RecRef);
         if RecordCounter[NoOf::Total] = 0 then
@@ -591,11 +616,18 @@ codeunit 5330 "CRM Integration Management"
             end;
         until RecRef.Next() = 0;
         CRMIdFilter := CRMIdFilter.TrimEnd('|');
+        if CRMIdFilter = '' then begin
+            SkipReason := StrSubstNo(RecordAlreadyCoupledTxt, GetTableCaption(IntegrationTableMapping."Integration Table ID"));
+            SendNotification(StrSubstNo(DetailedNotificationMessageTxt, SyncNowSkippedMsg, SkipReason));
+            exit;
+        end;
         IntegrationTableMapping.SetIntegrationTableFilter(GetTableViewForFilter(IntegrationTableMapping."Integration Table ID", CRMIdFilter));
         AddIntegrationTableMapping(IntegrationTableMapping);
         Commit();
         CRMSetupDefaults.CreateJobQueueEntry(IntegrationTableMapping);
-        SendSyncNotification(RecordCounter);
+        if (RecordCounter[NoOf::Total] = 1) and (RecordCounter[NoOf::Skipped] = 1) then
+            SkipReason := StrSubstNo(RecordAlreadyCoupledTxt, GetTableCaption(IntegrationTableMapping."Integration Table ID"));
+        SendSyncNotification(RecordCounter, SkipReason);
     end;
 
     local procedure PerformInitialSynchronization(RecordID: RecordID; CRMID: Guid; Direction: Option)
@@ -2237,11 +2269,19 @@ codeunit 5330 "CRM Integration Management"
 
     local procedure SendSyncNotification(RecordCounter: array[4] of Integer): Boolean
     begin
+        exit(SendSyncNotification(RecordCounter, ''));
+    end;
+
+    local procedure SendSyncNotification(RecordCounter: array[4] of Integer; SkipReason: Text): Boolean
+    begin
         if RecordCounter[NoOf::Total] = 1 then begin
             if RecordCounter[NoOf::Scheduled] = 1 then
                 exit(SendNotification(SyncNowScheduledMsg));
             if RecordCounter[NoOf::Skipped] = 1 then
-                exit(SendNotification(SyncNowSkippedMsg));
+                if SkipReason = '' then
+                    exit(SendNotification(SyncNowSkippedMsg))
+                else
+                    exit(SendNotification(StrSubstNo(DetailedNotificationMessageTxt, SyncNowSkippedMsg, SkipReason)));
             exit(SendNotification(SyncNowFailedMsg));
         end;
         exit(SendMultipleSyncNotification(RecordCounter));

@@ -1,4 +1,4 @@
-codeunit 99000810 "Calculate Planning Route Line"
+﻿codeunit 99000810 "Calculate Planning Route Line"
 {
     Permissions = TableData Item = r,
                   TableData "Prod. Order Capacity Need" = rimd,
@@ -149,6 +149,8 @@ codeunit 99000810 "Calculate Planning Route Line"
               (PlanningRoutingLine."Direct Unit Cost" *
                PlanningRoutingLine."Indirect Cost %" / 100 + PlanningRoutingLine."Overhead Rate");
         end;
+
+        OnCreatePlanningCapNeedOnAfterCalulateExpectedUnitCost(PlanningRoutingLine, TimeType, PlanningRoutingLine."Input Quantity");
 
         ProdOrderCapNeed."Time Type" := TimeType;
         if TimeType = TimeType::"Run Time" then
@@ -1506,6 +1508,11 @@ codeunit 99000810 "Calculate Planning Route Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateLoadBackOnBeforeFirstCalculate(var PlanningRoutingLine: Record "Planning Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePlanningCapNeedOnAfterCalulateExpectedUnitCost(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; NeedQty: Decimal)
     begin
     end;
 

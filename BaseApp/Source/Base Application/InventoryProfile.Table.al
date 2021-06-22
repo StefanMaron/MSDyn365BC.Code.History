@@ -1007,7 +1007,7 @@ table 99000853 "Inventory Profile"
                     case ReqLine."Ref. Order Type" of
                         ReqLine."Ref. Order Type"::"Prod. Order":
                             TrkgReservEntry.SetSource(
-                              DATABASE::"Prod. Order Component", "Source Order Status", "Ref. Order No.", "Source Ref. No.", '', "Ref. Line No.");
+                              DATABASE::"Prod. Order Component", ReqLine."Ref. Order Status", "Ref. Order No.", "Source Ref. No.", '', "Ref. Line No.");
                         ReqLine."Ref. Order Type"::Assembly:
                             TrkgReservEntry.SetSource(
                               DATABASE::"Assembly Line", "Source Order Status", "Ref. Order No.", "Source Ref. No.", '', "Ref. Line No.");

@@ -1,4 +1,4 @@
-report 99001020 "Carry Out Action Msg. - Plan."
+﻿report 99001020 "Carry Out Action Msg. - Plan."
 {
     Caption = 'Carry Out Action Msg. - Plan.';
     ProcessingOnly = true;
@@ -12,6 +12,8 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
             trigger OnAfterGetRecord()
             begin
+                OnBeforeRequisitionLineOnAfterGetRecord("Requisition Line", CombineTransferOrders);
+
                 WindowUpdate;
 
                 if not "Accept Action Message" then
@@ -469,7 +471,13 @@ report 99001020 "Carry Out Action Msg. - Plan."
         JobPlanningLine: Record "Job Planning Line";
         AsmLine: Record "Assembly Line";
         ReqLine2: Record "Requisition Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckLine("Requisition Line", PurchOrderChoice, TransOrderChoice, IsHandled);
+        if IsHandled then
+            exit;
+
         with "Requisition Line" do begin
             if "Planning Line Origin" <> "Planning Line Origin"::"Order Planning" then
                 exit;
@@ -479,10 +487,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
             if "Planning Level" > 0 then
                 exit;
 
-            if "Replenishment System" in ["Replenishment System"::Purchase,
-                                          "Replenishment System"::Transfer]
-            then
-                TestField("Supply From");
+            CheckSupplyFrom();
 
             case "Demand Type" of
                 DATABASE::"Sales Line":
@@ -598,6 +603,20 @@ report 99001020 "Carry Out Action Msg. - Plan."
         end;
     end;
 
+    local procedure CheckSupplyFrom()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSupplyFrom("Requisition Line", PurchOrderChoice, TransOrderChoice, IsHandled);
+        if IsHandled then
+            exit;
+
+        with "Requisition Line" do
+            if "Replenishment System" in ["Replenishment System"::Purchase, "Replenishment System"::Transfer] then
+                TestField("Supply From");
+    end;
+
     local procedure WindowUpdate()
     begin
         Counter := Counter + 1;
@@ -636,7 +655,22 @@ report 99001020 "Carry Out Action Msg. - Plan."
     end;
 
     [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeCheckSupplyFrom(RequisitionLine: Record "Requisition Line"; PurchOrderChoice: Option " ","Make Purch. Orders","Make Purch. Orders & Print","Copy to Req. Wksh"; TransOrderChoice: Option " ","Make Trans. Orders","Make Trans. Orders & Print","Copy to Req. Wksh"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLine(RequisitionLine: Record "Requisition Line"; PurchOrderChoice: Option " ","Make Purch. Orders","Make Purch. Orders & Print","Copy to Req. Wksh"; TransOrderChoice: Option " ","Make Trans. Orders","Make Trans. Orders & Print","Copy to Req. Wksh"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
     local procedure OnBeforePreReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRequisitionLineOnAfterGetRecord(var RequisitionLine: Record "Requisition Line"; var CombineTransferOrders: Boolean)
     begin
     end;
 

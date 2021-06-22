@@ -897,11 +897,11 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvLineAggregate.Id :=
           SalesInvoiceAggregator.GetIdFromDocumentIdAndSequence(PurchInvEntityAggregate.Id, PurchaseLine."Line No.");
         PurchInvLineAggregate.SystemId := PurchaseLine.SystemId;
-        if PurchaseLine."VAT Calculation Type" = PurchaseLine."VAT Calculation Type"::"Sales Tax" then
-            PurchInvLineAggregate."Tax Code" := PurchaseLine."Tax Group Code"
-        else
-            PurchInvLineAggregate."Tax Code" := PurchaseLine."VAT Identifier";
-
+        SetTaxGroupIdAndCode(
+            PurchInvLineAggregate,
+            PurchaseLine."Tax Group Code",
+            PurchaseLine."VAT Prod. Posting Group",
+            PurchaseLine."VAT Identifier");
         PurchInvLineAggregate."VAT %" := PurchaseLine."VAT %";
         PurchInvLineAggregate."Tax Amount" := PurchaseLine."Amount Including VAT" - PurchaseLine."VAT Base Amount";
         PurchInvLineAggregate."Prices Including Tax" := PurchInvEntityAggregate."Prices Including VAT";
@@ -1087,6 +1087,23 @@ codeunit 5529 "Purch. Inv. Aggregator"
 
         if not (UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetFixAPIPurchaseInvoicesCreatedFromOrders())) then
             UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetFixAPIPurchaseInvoicesCreatedFromOrders());
+    end;
+
+    procedure SetTaxGroupIdAndCode(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate"; TaxGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; VATIdentifier: Code[20])
+    var
+        TaxGroup: Record "Tax Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        if GeneralLedgerSetup.UseVat then begin
+            PurchInvLineAggregate."Tax Code" := VATIdentifier;
+            if VATProductPostingGroup.Get(VATProductPostingGroupCode) then
+                PurchInvLineAggregate."Tax Id" := VATProductPostingGroup.SystemId;
+        end else begin
+            PurchInvLineAggregate."Tax Code" := TaxGroupCode;
+            if TaxGroup.Get(TaxGroupCode) then
+                PurchInvLineAggregate."Tax Id" := TaxGroup.SystemId;
+        end;
     end;
 }
 

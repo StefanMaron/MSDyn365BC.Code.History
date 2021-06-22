@@ -365,6 +365,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
     var
         BestPriceListLine: Record "Price List Line";
     begin
+        OnBeforeCalcBestAmount(AmountType, PriceCalculationBufferMgt, PriceListLine);
         PriceListLine.SetRange(Status, PriceListLine.Status::Active);
         if PriceListLine.FindSet() then
             repeat
@@ -409,6 +410,11 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPickBestLine(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line"; var BestPriceListLine: Record "Price List Line"; var FoundBestLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBestAmount(AmountType: Enum "Price Amount Type"; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; var PriceListLine: Record "Price List Line")
     begin
     end;
 

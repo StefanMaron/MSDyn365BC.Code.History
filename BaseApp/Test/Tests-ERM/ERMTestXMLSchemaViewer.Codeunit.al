@@ -1167,6 +1167,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler')]
     procedure ImportXBRLSchemaFileWithInfoAboutXBRLTaxonomyLine()
     var
         XBRLSchema: Record "XBRL Schema";

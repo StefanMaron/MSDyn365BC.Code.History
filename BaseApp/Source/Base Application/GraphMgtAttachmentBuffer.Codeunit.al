@@ -731,7 +731,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
     local procedure IsSalesInvoice(var DocumentRecordRef: RecordRef): Boolean
     var
-        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo";
+        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo","Purchase Order";
     begin
         if DocumentRecordRef.Number = DATABASE::"Sales Invoice Header" then
             exit(true);
@@ -744,7 +744,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
     local procedure IsPurchaseInvoice(var DocumentRecordRef: RecordRef): Boolean
     var
-        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo";
+        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo","Purchase Order";
     begin
         if DocumentRecordRef.Number = DATABASE::"Purch. Inv. Header" then
             exit(true);
@@ -757,7 +757,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
     local procedure IsSalesQuote(var DocumentRecordRef: RecordRef): Boolean
     var
-        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo";
+        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo","Purchase Order";
     begin
         GetDocumentType(DocumentRecordRef, DocumentType);
         exit(DocumentType = DocumentType::Quote);
@@ -765,10 +765,18 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
     local procedure IsSalesOrder(var DocumentRecordRef: RecordRef): Boolean
     var
-        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo";
+        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo","Purchase Order";
     begin
         GetDocumentType(DocumentRecordRef, DocumentType);
         exit(DocumentType = DocumentType::"Sales Order");
+    end;
+
+    local procedure IsPurchaseOrder(var DocumentRecordRef: RecordRef): Boolean
+    var
+        DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo","Purchase Order";
+    begin
+        GetDocumentType(DocumentRecordRef, DocumentType);
+        exit(DocumentType = DocumentType::"Purchase Order");
     end;
 
     local procedure IsSalesCreditMemo(var DocumentRecordRef: RecordRef): Boolean
@@ -779,9 +787,10 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         exit(DocumentType = DocumentType::"Sales Credit Memo");
     end;
 
-    local procedure GetDocumentType(var DocumentRecordRef: RecordRef; var DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo")
+    local procedure GetDocumentType(var DocumentRecordRef: RecordRef; var DocumentType: Option Quote,Invoice,"Journal Line","G/L Entry","Sales Order","Sales Credit Memo","Purchase Order")
     var
         SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
     begin
         if DocumentRecordRef.Number = DATABASE::"Gen. Journal Line" then begin
             DocumentType := DocumentType::"Journal Line";
@@ -804,8 +813,17 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         end;
 
         if DocumentRecordRef.Number = DATABASE::"Purchase Header" then begin
-            DocumentType := DocumentType::Invoice;
-            exit;
+            DocumentRecordRef.SetTable(PurchaseHeader);
+
+            if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Invoice then begin
+                DocumentType := DocumentType::Invoice;
+                exit;
+            end;
+
+            if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then begin
+                DocumentType := DocumentType::"Purchase Order";
+                exit;
+            end;
         end;
 
         DocumentRecordRef.SetTable(SalesHeader);
@@ -907,6 +925,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         IncomingDocument: Record "Incoming Document";
         GLEntry: Record "G/L Entry";
         SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
         AttachmentEntityBufferDocType: Enum "Attachment Entity Buffer Document Type";
     begin
         if not IncomingDocumentAttachment.GetBySystemId(AttachmentId) then
@@ -940,6 +959,12 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                 begin
                     if GLEntry.Get(IncomingDocument."Related Record ID") then
                         exit(AttachmentEntityBufferDocType::Journal);
+
+                    if PurchaseHeader.GetBySystemId(DocumentId) then
+                        if PurchaseHeader."Incoming Document Entry No." = IncomingDocument."Entry No." then
+                            if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then
+                                exit(AttachmentEntityBufferDocType::"Purchase Order");
+
                     exit(AttachmentEntityBufferDocType::" ");
                 end;
         end;
@@ -957,6 +982,8 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         SearchSalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
         SalesCreditMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         SearchSalesCreditMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
+        PurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer";
+        SearchPurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer";
         GenJournalLine: Record "Gen. Journal Line";
         GLEntry: Record "G/L Entry";
         DocumentId: Guid;
@@ -1039,6 +1066,18 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             end;
             SearchSalesCreditMemoEntityBuffer.Copy(SalesCreditMemoEntityBuffer);
             if SearchSalesCreditMemoEntityBuffer.Next() <> 0 then
+                ErrorMsg := MultipleDocumentsFoundForIdErr;
+            exit;
+        end;
+
+        if IsPurchaseOrder(DocumentRecordRef) then begin
+            PurchaseOrderEntityBuffer.SetRange(Id, DocumentId);
+            if not PurchaseOrderEntityBuffer.FindFirst() then begin
+                ErrorMsg := DocumentDoesNotExistErr;
+                exit;
+            end;
+            SearchPurchaseOrderEntityBuffer.Copy(PurchaseOrderEntityBuffer);
+            if SearchPurchaseOrderEntityBuffer.Next() <> 0 then
                 ErrorMsg := MultipleDocumentsFoundForIdErr;
             exit;
         end;
@@ -1205,6 +1244,12 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                         exit;
                     end;
                 end;
+            AttachmentEntityBufferDocType::"Purchase Order":
+                if PurchaseHeader.GetBySystemId(DocumentIdFilter) then
+                    if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then begin
+                        DocumentRecordRef.GetTable(PurchaseHeader);
+                        exit;
+                    end;
             AttachmentEntityBufferDocType::" ":
                 ErrorMsg := DocumentIDorTypeNotSpecifiedForAttachmentsErr;
         end;
@@ -1295,7 +1340,12 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         if DocumentRecordRef.Number = DATABASE::"Purchase Header" then begin
             DocumentRecordRef.SetTable(PurchaseHeader);
             IncomingDocument.Description := CopyStr(PurchaseHeader."Buy-from Vendor Name", 1, MaxStrLen(IncomingDocument.Description));
-            IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Purchase Invoice";
+
+            if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Invoice then
+                IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Purchase Invoice";
+            if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then
+                IncomingDocument."Document Type" := IncomingDocument."Document Type"::" ";
+
             IncomingDocument."Document No." := PurchaseHeader."No.";
             IncomingDocument.Insert(true);
             PurchaseHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
@@ -1517,6 +1567,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
     var
         IncomingDocument: Record "Incoming Document";
         SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
     begin
         IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
         case IncomingDocument."Document Type" of
@@ -1543,7 +1594,12 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                 TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Purchase Invoice";
 
             IncomingDocument."Document Type"::" ":
-                TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::" ";
+                if PurchaseHeader.Get(IncomingDocument."Related Record ID") then begin
+                    if PurchaseHeader."Incoming Document Entry No." = IncomingDocument."Entry No." then
+                        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then
+                            TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::"Purchase Order";
+                end else
+                    TempAttachmentEntityBuffer."Document Type" := TempAttachmentEntityBuffer."Document Type"::" ";
         end;
     end;
 }

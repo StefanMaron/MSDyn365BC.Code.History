@@ -26,7 +26,7 @@ page 28 "Vend. Invoice Discounts"
                 field("Minimum Amount"; "Minimum Amount")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the minimum amount that your order must total for the discount to be granted or the service charge levied.';
+                    ToolTip = 'Specifies the minimum amount that the order must total for the discount to be granted or the service charge levied. For discounts, only purchase lines where the Allow Invoice Disc. field is selected are included in the calculation.';
                 }
                 field("Discount %"; "Discount %")
                 {

@@ -527,8 +527,6 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     procedure AddItemTrackingToTempRecSet(var TempReservEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; ItemTrackingCode: Record "Item Tracking Code"): Decimal
-    var
-        ReservStatus: Enum "Reservation Status";
     begin
         with TempReservEntry do begin
             LostReservationQty := 0; // Late Binding
@@ -538,9 +536,14 @@ codeunit 99000831 "Reservation Engine Mgt."
               "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
 
             // Process entry in descending order against field Reservation Status
-            for ReservStatus := "Reservation Status"::Prospect downto "Reservation Status"::Reservation do
-                ModifyItemTrkgByReservStatus(
-                    TempReservEntry, TrackingSpecification, ReservStatus, QtyToAdd, QtyToAddAsBlank, ItemTrackingCode);
+            ModifyItemTrkgByReservStatus(
+                TempReservEntry, TrackingSpecification, "Reservation Status"::Prospect, QtyToAdd, QtyToAddAsBlank, ItemTrackingCode);
+            ModifyItemTrkgByReservStatus(
+                TempReservEntry, TrackingSpecification, "Reservation Status"::Surplus, QtyToAdd, QtyToAddAsBlank, ItemTrackingCode);
+            ModifyItemTrkgByReservStatus(
+                TempReservEntry, TrackingSpecification, "Reservation Status"::Reservation, QtyToAdd, QtyToAddAsBlank, ItemTrackingCode);
+            ModifyItemTrkgByReservStatus(
+                TempReservEntry, TrackingSpecification, "Reservation Status"::Tracking, QtyToAdd, QtyToAddAsBlank, ItemTrackingCode);
 
             exit(QtyToAdd);
         end;

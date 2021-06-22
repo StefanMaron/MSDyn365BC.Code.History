@@ -1868,6 +1868,71 @@ codeunit 137080 "SCM Planning And Manufacturing"
         until (OldPlanningRoutingLine.Next() = 0) and (PlanningRoutingLine.Next() = 0);
     end;
 
+    [Test]
+    procedure TrackingProdOrderComponentByPlanningEngine()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ReservationEntry: Record "Reservation Entry";
+        ReschedulingPeriod: DateFormula;
+    begin
+        // [FEATURE] [Planning] [Prod. Order Component]
+        // [SCENARIO 386704] The planning engine establishes tracking between Prod. Order Component in a released production order and inventory.
+        Initialize();
+
+        // [GIVEN] Component item "C" set up for lot-for-lot planning.
+        // [GIVEN] Production BOM with component "C".
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Reordering Policy", CompItem."Reordering Policy"::"Lot-for-Lot");
+        CompItem.Modify(true);
+        CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", CompItem."Base Unit of Measure", 1);
+
+        // [GIVEN] Production item "P" set up for lot-for-lot planning.
+        // [GIVEN] Enable rescheduling on the item "P".
+        // [GIVEN] Assign the production BOM.
+        Evaluate(ReschedulingPeriod, '<1M>');
+        CreateItemWithReplenishmentSystem(ProdItem, ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Reordering Policy", ProdItem."Reordering Policy"::"Lot-for-Lot");
+        ProdItem.Validate("Rescheduling Period", ReschedulingPeriod);
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Post 50 pcs of item "C" to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, CompItem."No.", '', '', LibraryRandom.RandIntInRange(50, 100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create and refresh released production order for 10 pcs of item "P" on "WORKDATE + 10 days".
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.",
+          LibraryRandom.RandIntInRange(10, 20));
+        ProductionOrder.SetUpdateEndDate();
+        ProductionOrder.Validate("Due Date", LibraryRandom.RandDate(10));
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder."No.", CompItem."No.");
+
+        // [GIVEN] Create sales order for 10 pcs of item "P" on WORKDATE.
+        CreateSalesOrderWithQuantity(ProdItem."No.", ProductionOrder.Quantity);
+
+        // [WHEN] Calculate regenerative plan for both items "C" and "P".
+        Item.SetFilter("No.", '%1|%2', CompItem."No.", ProdItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+
+        // [THEN] Prod. order component "C" of the released production order becomes tracked from the inventory.
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Prod. Order Component", ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.",
+          ProdOrderComponent."Line No.", true);
+        ReservationEntry.FindFirst();
+        ReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
+        ReservationEntry.TestField("Source Type", DATABASE::"Item Ledger Entry");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2641,6 +2706,13 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderCapacityNeed.SetRange("No.", RoutingLine."No.");
         ProdOrderCapacityNeed.SetRange("Time Type", TimeType);
         ProdOrderCapacityNeed.FindFirst;
+    end;
+
+    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20]; ItemNo: Code[20])
+    begin
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderNo: Code[20]; OperationNo: Code[10])

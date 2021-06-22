@@ -240,7 +240,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 962999263" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot authenticate the credentials on server %1.</source>
-          <target state="translated">Pověření nelze ověřit na serveru %1.</target>
+          <target state="translated">Pověření nelze autentizovat na serveru %1.</target>
           <note from="Developer" annotates="general" priority="2">%1 = The SMTP server address</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType AuthenticationFailureErr</note>
         </trans-unit>

@@ -55,25 +55,21 @@ codeunit 134389 "ERM Customer Statistics"
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         OverdueAmount: Decimal;
-        OldWorkDate: Date;
     begin
-        // Check Overdue Amount on Customer Statistics Page for Customer.
+        // [FEATURE] [UI]
+        // [SCENARIO 384838] Overdue amount of Customer Statistics is correct after posting sales invoice
 
-        // Setup: Create Sales Invoice for Customer.
-        Initialize;
+        // [GIVEN] Today is January 10
+        // [GIVEN] Post sales invoice with "Posting Date" = January 8 and amount = "X"
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
-        OverdueAmount := CreateSalesInvoice(SalesHeader, Customer."No.", WorkDate);
-        OldWorkDate := WorkDate;  // Need to preserve Old WorkDate.
-        WorkDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);  // Set Random WorkDate to verify result.
+        OverdueAmount := CreateSalesInvoice(SalesHeader, Customer."No.", Today() - LibraryRandom.RandInt(10));
 
-        // Exercise.
+        // [WHEN] Post sales invoice
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // Verify: Verify Overdue Amount on Customer Statistics Page.
+        // [THEN] Overdue amount is "X" in Customer Statistics
         VerifyOverdueBalanceForCustomer(SalesHeader."Sell-to Customer No.", OverdueAmount);
-
-        // Tear Down: Restore Old WorkDate.
-        WorkDate := OldWorkDate;
     end;
 
     [Test]
@@ -272,28 +268,21 @@ codeunit 134389 "ERM Customer Statistics"
     procedure CheckOverDueBalanceForCustomer()
     var
         Customer: Record Customer;
-        OldWorkDate: Date;
-        PaymentAmountLCY: Decimal;
         InvoiceAmountLCY: Decimal;
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 210533] Check Over Due Balance on Customer after changing Work date greater than Payment Date.
+        // [SCENARIO 384838] Overdue balance does not depend on the payment
 
-        // Setup: Post Sales Invoice and make partial payment.
-        Initialize;
+        // [GIVEN] Today is January 10
+        // [GIVEN] Post sales invoice with "Posting Date" = January 8 and Amount = "X"
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         InvoiceAmountLCY := CreateAndPostSalesDocument(Customer."No.", '');
-        PaymentAmountLCY := PostPartialPaymentForCustomer(Customer."No.", InvoiceAmountLCY);
+        // [WHEN] Post partial payment to the invoice with Amount = "Y"
+        PostPartialPaymentForCustomer(Customer."No.", InvoiceAmountLCY);
 
-        // Exercise: Change Work date after Posting Payment.
-        OldWorkDate := WorkDate;
-        WorkDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate);
-
-        // Verify: Verifing Over Due Balance on Customer Statistics.
-        Assert.AreEqual(Customer.CalcOverdueBalance, Round(InvoiceAmountLCY - PaymentAmountLCY), OverDueBalanceErr);
-
-        // Tear Down: Restore Old WorkDate.
-        WorkDate := OldWorkDate;
+        // [THEN] CalcOverdueBalance function of the Customer table returns "X"
+        Assert.AreEqual(Round(InvoiceAmountLCY), Customer.CalcOverdueBalance(), OverDueBalanceErr);
     end;
 
     [Test]
@@ -912,6 +901,7 @@ codeunit 134389 "ERM Customer Statistics"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        UpdatePostedNoSeriesInSalesSetup; // required for RU
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Statistics");
@@ -927,7 +917,7 @@ codeunit 134389 "ERM Customer Statistics"
         PostingDate :=
           CalcDate(
             '<-' + Format(LibraryRandom.RandInt(10)) + 'D>',
-            CalcDate('<-' + Format(PaymentTerms."Due Date Calculation") + '>', WorkDate));
+            CalcDate('<-' + Format(PaymentTerms."Due Date Calculation") + '>', Today()));
         LineAmount := CreateSalesInvoice(SalesHeader, CreateCustomerWithPaymentTerms(PaymentTerms.Code), PostingDate);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -1011,7 +1001,7 @@ codeunit 134389 "ERM Customer Statistics"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, WorkDate);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, Today() - 1);
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
@@ -1249,6 +1239,16 @@ codeunit 134389 "ERM Customer Statistics"
         SalesReceivablesSetup.Get();
         OldCreditWarnings := SalesReceivablesSetup."Credit Warnings";
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure UpdatePostedNoSeriesInSalesSetup()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryERM.CreateNoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryERM.CreateNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;
 

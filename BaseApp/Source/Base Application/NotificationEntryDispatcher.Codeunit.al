@@ -101,6 +101,7 @@
         EmailFeature: Codeunit "Email Feature";
         DocumentMailing: Codeunit "Document-Mailing";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        FileManagement: Codeunit "File Management";
         BodyText: Text;
         MailSubject: Text;
         IsEmailedSuccessfully: Boolean;
@@ -121,6 +122,7 @@
         else
             IsEmailedSuccessfully := DocumentMailing.EmailFileWithSubjectAndSender(
              '', '', HtmlBodyFilePath, MailSubject, Email, true, NotificationEntry."Sender User ID");
+        FileManagement.DeleteServerFile(HtmlBodyFilePath);
         if IsEmailedSuccessfully then
             NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
               NotificationEntry, BodyText, true, NotificationSetup."Notification Method"::Email.AsInteger())

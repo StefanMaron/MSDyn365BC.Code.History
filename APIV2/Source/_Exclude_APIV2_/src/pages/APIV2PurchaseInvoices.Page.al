@@ -382,6 +382,16 @@ page 30042 "APIV2 - Purchase Invoices"
                         RegisterFieldSet(FieldNo("Currency Code"));
                     end;
                 }
+                field(orderId; "Order Id")
+                {
+                    Caption = 'Order Id';
+                    Editable = false;
+                }
+                field(orderNumber; "Order No.")
+                {
+                    Caption = 'Order No.';
+                    Editable = false;
+                }
                 field(pricesIncludeTax; "Prices Including VAT")
                 {
                     Caption = 'Prices Include Tax';

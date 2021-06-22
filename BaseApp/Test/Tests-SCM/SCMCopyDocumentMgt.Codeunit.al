@@ -1175,6 +1175,129 @@ codeunit 137212 "SCM Copy Document Mgt."
         AssemblyLine.TestField("Unit Cost", UnitCost * 2);
     end;
 
+    [Test]
+    procedure CopyItemChargeAssignmentFromPurchCreditMemo()
+    var
+        Vendor: Record Vendor;
+        Item: array[2] of Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: array[2] of Record "Purch. Rcpt. Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        CreditMemoNo: Code[20];
+    begin
+        // [FEATURE] [Item Charge] [Purchase] [Credit Memo] [Invoice]
+        // [SCENARIO 387263] Correct distribution of item charge assignment when copying document from posted purchase credit memo.
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item[1]);
+        LibraryInventory.CreateItem(Item[2]);
+
+        // [GIVEN] Create purchase order with two lines - item nos. "I1", "I2".
+        // [GIVEN] Receive the purchase order.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.", Item[1]."No.",
+          LibraryRandom.RandInt(10), '', WorkDate());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item[2]."No.", LibraryRandom.RandInt(10));
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        FindPurchRcptLine(PurchRcptLine[1], PurchaseHeader."No.", Item[1]."No.");
+        FindPurchRcptLine(PurchRcptLine[2], PurchaseHeader."No.", Item[2]."No.");
+
+        // [GIVEN] Create purchase credit memo with item charge. Quantity = 1.
+        // [GIVEN] Assign 0.25 to the receipt of item "I1".
+        // [GIVEN] Assign 0.75 to the receipt of item "I2".
+        // [GIVEN] Post the credit memo.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", 4 * LibraryRandom.RandDecInRange(50, 100, 2));
+        PurchaseLine.Modify(true);
+        CreateItemChargeAssignmentPurch(PurchaseLine, PurchRcptLine[1]."Document No.", PurchRcptLine[1]."Line No.", Item[1]."No.", 0.25);
+        CreateItemChargeAssignmentPurch(PurchaseLine, PurchRcptLine[2]."Document No.", PurchRcptLine[2]."Line No.", Item[2]."No.", 0.75);
+        CreditMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Copy posted credit memo to a new purchase invoice.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        CopyDocumentMgt.CopyPurchDoc("Purchase Document Type From"::"Posted Credit Memo", CreditMemoNo, PurchaseHeader);
+
+        // [THEN] Open item charge assignment for the invoice.
+        // [THEN] 0.25 of item charge is assigned to item "I1"
+        ItemChargeAssignmentPurch.SetRange("Document Type", PurchaseHeader."Document Type");
+        ItemChargeAssignmentPurch.SetRange("Document No.", PurchaseHeader."No.");
+        ItemChargeAssignmentPurch.SetRange("Item No.", Item[1]."No.");
+        ItemChargeAssignmentPurch.FindFirst();
+        ItemChargeAssignmentPurch.TestField("Qty. to Assign", 0.25);
+
+        // [THEN] 0.75 of item charge is assigned to item "I2"
+        ItemChargeAssignmentPurch.SetRange("Item No.", Item[2]."No.");
+        ItemChargeAssignmentPurch.FindFirst();
+        ItemChargeAssignmentPurch.TestField("Qty. to Assign", 0.75);
+    end;
+
+    [Test]
+    procedure CopyItemChargeAssignmentFromSalesCreditMemo()
+    var
+        Customer: Record Customer;
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: array[2] of Record "Sales Shipment Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        CreditMemoNo: Code[20];
+    begin
+        // [FEATURE] [Item Charge] [Sales] [Credit Memo] [Invoice]
+        // [SCENARIO 387263] Correct distribution of item charge assignment when copying document from posted sales credit memo.
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item[1]);
+        LibraryInventory.CreateItem(Item[2]);
+
+        // [GIVEN] Create sales order with two lines - item nos. "I1", "I2".
+        // [GIVEN] Ship the sales order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", Item[1]."No.",
+          LibraryRandom.RandInt(10), '', WorkDate());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[2]."No.", LibraryRandom.RandInt(10));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        FindSalesShipmentLine(SalesShipmentLine[1], SalesHeader."No.", Item[1]."No.");
+        FindSalesShipmentLine(SalesShipmentLine[2], SalesHeader."No.", Item[2]."No.");
+
+        // [GIVEN] Create sales credit memo with item charge. Quantity = 1.
+        // [GIVEN] Assign 0.25 to the shipment of item "I1".
+        // [GIVEN] Assign 0.75 to the shipment of item "I2".
+        // [GIVEN] Post the credit memo.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        SalesLine.Validate("Unit Price", 4 * LibraryRandom.RandDecInRange(50, 100, 2));
+        SalesLine.Modify(true);
+        CreateItemChargeAssignmentSales(
+          SalesLine, SalesShipmentLine[1]."Document No.", SalesShipmentLine[1]."Line No.", Item[1]."No.", 0.25);
+        CreateItemChargeAssignmentSales(
+          SalesLine, SalesShipmentLine[2]."Document No.", SalesShipmentLine[2]."Line No.", Item[2]."No.", 0.75);
+        CreditMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Copy posted credit memo to a new sales invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Credit Memo", CreditMemoNo, SalesHeader);
+
+        // [THEN] Open item charge assignment for the invoice.
+        // [THEN] 0.25 of item charge is assigned to item "I1"
+        ItemChargeAssignmentSales.SetRange("Document Type", SalesHeader."Document Type");
+        ItemChargeAssignmentSales.SetRange("Document No.", SalesHeader."No.");
+        ItemChargeAssignmentSales.SetRange("Item No.", Item[1]."No.");
+        ItemChargeAssignmentSales.FindFirst();
+        ItemChargeAssignmentSales.TestField("Qty. to Assign", 0.25);
+
+        // [THEN] 0.75 of item charge is assigned to item "I2"
+        ItemChargeAssignmentSales.SetRange("Item No.", Item[2]."No.");
+        ItemChargeAssignmentSales.FindFirst();
+        ItemChargeAssignmentSales.TestField("Qty. to Assign", 0.75);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1193,6 +1316,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySales.SetCreditWarningsToNoWarnings;
 
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
@@ -1726,6 +1850,14 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesLine.FindLast;
     end;
 
+    local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; OrderNo: Code[20]; ItemNo: Code[20])
+    begin
+        SalesShipmentLine.SetRange("Order No.", OrderNo);
+        SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+        SalesShipmentLine.SetRange("No.", ItemNo);
+        SalesShipmentLine.FindFirst();
+    end;
+
     local procedure FindSalesShptLineNo(SalesShptNo: Code[20]; LineOrderNo: Integer): Integer
     var
         SalesShipmentLine: Record "Sales Shipment Line";
@@ -1743,6 +1875,14 @@ codeunit 137212 "SCM Copy Document Mgt."
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.FindLast;
+    end;
+
+    local procedure FindPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; OrderNo: Code[20]; ItemNo: Code[20])
+    begin
+        PurchRcptLine.SetRange("Order No.", OrderNo);
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindPurchRcptLineNo(PurchRcptNo: Code[20]; LineOrderNo: Integer): Integer

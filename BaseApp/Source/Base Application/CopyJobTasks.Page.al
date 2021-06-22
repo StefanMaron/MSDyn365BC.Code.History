@@ -38,6 +38,7 @@ page 1041 "Copy Job Tasks"
                     begin
                         if SourceJob."No." <> '' then begin
                             JobTask.SetRange("Job No.", SourceJob."No.");
+                            OnLookupFromJobTaskNoOnAfterSetJobTaskFilters(JobTask);
                             if PAGE.RunModal(PAGE::"Job Task List", JobTask) = ACTION::LookupOK then
                                 FromJobTaskNo := JobTask."Job Task No.";
                         end;
@@ -63,6 +64,7 @@ page 1041 "Copy Job Tasks"
                     begin
                         if SourceJobNo <> '' then begin
                             JobTask.SetRange("Job No.", SourceJobNo);
+                            OnLookupToJobTaskNoOnAfterSetJobTaskFilters(JobTask);
                             if PAGE.RunModal(PAGE::"Job Task List", JobTask) = ACTION::LookupOK then
                                 ToJobTaskNo := JobTask."Job Task No.";
                         end;
@@ -240,6 +242,16 @@ page 1041 "Copy Job Tasks"
     begin
         TargetJob := TargetJob2;
         TargetJobNo := TargetJob."No.";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupFromJobTaskNoOnAfterSetJobTaskFilters(var JobTask: Record "Job Task")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupToJobTaskNoOnAfterSetJobTaskFilters(var JobTask: Record "Job Task")
+    begin
     end;
 }
 

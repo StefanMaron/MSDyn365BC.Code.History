@@ -188,12 +188,6 @@
     procedure CheckSalesHeader(SalesHeader: Record "Sales Header"; ShowError: Boolean) Result: Boolean
     var
         SalesLine: Record "Sales Line";
-        CurrItemVariant: Record "Item Variant";
-        SalesOrder: Page "Sales Order";
-        QtyOutstandingBase: Decimal;
-        RecordNo: Integer;
-        TotalNoOfRecords: Integer;
-        LocationCode: Code[10];
     begin
         OnBeforeCheckSalesHeader(SalesHeader, ShowError);
 
@@ -206,13 +200,28 @@
             SalesLine.SetRange("Document No.", "No.");
             SalesLine.SetRange(Type, SalesLine.Type::Item);
             OnCheckSalesHeaderOnAfterSetLineFilters(SalesLine, SalesHeader);
-            if SalesLine.FindSet then
-                repeat
-                    if SalesLine.IsInventoriableItem then
-                        SalesLine.Mark(true);
-                until SalesLine.Next = 0;
-            SalesLine.MarkedOnly(true);
+            CheckSalesHeaderMarkSalesLines(SalesHeader, SalesLine);
 
+            exit(CheckSalesLines(SalesHeader, SalesLine, ShowError));
+        end;
+    end;
+
+    local procedure CheckSalesLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowError: Boolean) Result: Boolean
+    var
+        CurrItemVariant: Record "Item Variant";
+        SalesOrder: Page "Sales Order";
+        QtyOutstandingBase: Decimal;
+        RecordNo: Integer;
+        TotalNoOfRecords: Integer;
+        LocationCode: Code[10];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesLines(SalesHeader, SalesLine, ShowError, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        with SalesHeader do begin
             if SalesLine.FindSet then begin
                 LocationCode := SalesLine."Location Code";
                 SetItemVariant(CurrItemVariant, SalesLine."No.", SalesLine."Variant Code");
@@ -256,6 +265,23 @@
                 until SalesLine.Next = 0; // sorted by item
             end;
         end;
+    end;
+
+    local procedure CheckSalesHeaderMarkSalesLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesHeaderMarkSalesLines(SalesLine, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SalesLine.FindSet then
+            repeat
+                if SalesLine.IsInventoriableItem then
+                    SalesLine.Mark(true);
+            until SalesLine.Next() = 0;
+        SalesLine.MarkedOnly(true);
     end;
 
     local procedure CheckSalesHeaderOnAfterSetItemVariant(var Result: Boolean) IsHandled: Boolean
@@ -549,6 +575,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShowError: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTransferHeader(var TransferHeader: Record "Transfer Header"; var ShowError: Boolean)
     begin
     end;
@@ -580,6 +611,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenWarehouseShipmentPage(var GetSourceDocuments: Report "Get Source Documents"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesHeaderMarkSalesLines(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

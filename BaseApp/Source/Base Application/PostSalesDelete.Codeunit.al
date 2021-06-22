@@ -193,23 +193,8 @@ codeunit 363 "PostSales-Delete"
                 ("Posting No." <> '') or
                 ("Document Type" = "Document Type"::Invoice) and
                 ("No. Series" = "Posting No. Series"))
-            then begin
-                SalesInvHeader.TransferFields(SalesHeader);
-                if "Posting No." <> '' then
-                    SalesInvHeader."No." := "Posting No.";
-                if "Document Type" = "Document Type"::Invoice then begin
-                    SalesInvHeader."Pre-Assigned No. Series" := "No. Series";
-                    SalesInvHeader."Pre-Assigned No." := "No.";
-                end else begin
-                    SalesInvHeader."Pre-Assigned No. Series" := '';
-                    SalesInvHeader."Pre-Assigned No." := '';
-                    SalesInvHeader."Order No. Series" := "No. Series";
-                    SalesInvHeader."Order No." := "No.";
-                end;
-                SalesInvHeader."Posting Date" := Today;
-                SalesInvHeader."User ID" := UserId;
-                SalesInvHeader."Source Code" := SourceCode;
-            end;
+            then
+                InitSalesInvHeader(SalesInvHeader, SalesHeader, SourceCode);
 
             if ("Posting No. Series" <> '') and
                (("Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"]) and
@@ -258,6 +243,29 @@ codeunit 363 "PostSales-Delete"
           SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, SalesInvHeaderPrePmt, SalesCrMemoHeaderPrePmt);
     end;
 
+    local procedure InitSalesInvHeader(var SalesInvHeader: Record "Sales Invoice Header"; SalesHeader: Record "Sales Header"; SourceCode: Code[10])
+    begin
+        with SalesHeader do begin
+            SalesInvHeader.TransferFields(SalesHeader);
+            if "Posting No." <> '' then
+                SalesInvHeader."No." := "Posting No.";
+            if "Document Type" = "Document Type"::Invoice then begin
+                SalesInvHeader."Pre-Assigned No. Series" := "No. Series";
+                SalesInvHeader."Pre-Assigned No." := "No.";
+            end else begin
+                SalesInvHeader."Pre-Assigned No. Series" := '';
+                SalesInvHeader."Pre-Assigned No." := '';
+                SalesInvHeader."Order No. Series" := "No. Series";
+                SalesInvHeader."Order No." := "No.";
+            end;
+            SalesInvHeader."Posting Date" := Today;
+            SalesInvHeader."User ID" := UserId;
+            SalesInvHeader."Source Code" := SourceCode;
+        end;
+
+        OnAfterInitSalesInvHeader(SalesInvHeader, SalesHeader);
+    end;
+
     procedure IsDocumentDeletionAllowed(PostingDate: Date)
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -270,6 +278,11 @@ codeunit 363 "PostSales-Delete"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDeleteHeader(SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var SalesInvoiceHeaderPrepmt: Record "Sales Invoice Header"; var SalesCrMemoHeaderPrepmt: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitSalesInvHeader(var SalesInvHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header")
     begin
     end;
 

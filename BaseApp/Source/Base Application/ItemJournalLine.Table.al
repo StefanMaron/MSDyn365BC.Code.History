@@ -2555,7 +2555,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePickDimension(Rec, IsHandled);
+        OnBeforePickDimension(Rec, IsHandled, CurrFieldNo, TableArray, CodeArray, InheritFromDimSetID, InheritFromTableNo);
         if IsHandled then
             exit;
 
@@ -4309,7 +4309,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePickDimension(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforePickDimension(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean; CurrentFieldNo: Integer; TableArray: array[10] of Integer; CodeArray: array[10] of Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
     begin
     end;
 

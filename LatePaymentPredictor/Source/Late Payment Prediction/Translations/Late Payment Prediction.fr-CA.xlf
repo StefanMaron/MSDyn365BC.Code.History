@@ -900,7 +900,7 @@
           <target state="translated">Un montant est obligatoire pour établir une prévision.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Table 1192395785</note>
+          <note from="ObjectTarget" annotates="general" priority="5">TableExtension 3795713173</note>
         </trans-unit>
       </group>
     </body>

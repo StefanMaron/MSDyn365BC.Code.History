@@ -1,4 +1,4 @@
-codeunit 1011 "Job Jnl.-Check Line"
+﻿codeunit 1011 "Job Jnl.-Check Line"
 {
     TableNo = "Job Journal Line";
 
@@ -38,8 +38,7 @@ codeunit 1011 "Job Jnl.-Check Line"
 
             CheckPostingDate(JobJnlLine);
 
-            if ("Document Date" <> 0D) and ("Document Date" <> NormalDate("Document Date")) then
-                FieldError("Document Date", Text000);
+            CheckDocumentDate(JobJnlLine);
 
             if "Time Sheet No." <> '' then
                 TimeSheetMgt.CheckJobJnlLine(JobJnlLine);
@@ -65,6 +64,20 @@ codeunit 1011 "Job Jnl.-Check Line"
         end;
 
         OnAfterRunCheck(JobJnlLine);
+    end;
+
+    local procedure CheckDocumentDate(JobJnlLine: Record "Job Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDocumentDate(JobJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with JobJnlLine do
+            if ("Document Date" <> 0D) and ("Document Date" <> NormalDate("Document Date")) then
+                FieldError("Document Date", Text000);
     end;
 
     local procedure CheckPostingDate(JobJnlLine: Record "Job Journal Line")
@@ -175,6 +188,11 @@ codeunit 1011 "Job Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRunCheck(var JobJnlLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDocumentDate(var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

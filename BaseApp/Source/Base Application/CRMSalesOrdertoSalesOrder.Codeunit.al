@@ -45,6 +45,9 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         StartingToUncoupleSalesOrderTelemetryMsg: Label 'Starting to uncouple sales order %2 from %1 order %3.', Locked = true;
         SuccessfullyUncoupledSalesOrderTelemetryMsg: Label 'Successfully uncoupled sales order %2 from %1 order %3.', Locked = true;
         FailedToUncoupleSalesOrderTelemetryMsg: Label 'Failed to uncouple sales order %2 from %1 order %3.', Locked = true;
+        CRMSalesOrderNotFoundTxt: Label '%1 sales order %2 is not found.', Locked = true;
+        SuccessfullyResetLastBackofficeSubmitOnCRMSalesOrderTxt: Label 'Successfully reset last backoffice submit time on %1 sales order %2.', Locked = true;
+        FailedToResetLastBackofficeSubmitOnCRMSalesOrderTxt: Label 'Failed to reset last backoffice submit time on %1 sales order %2.', Locked = true;
 
     local procedure ApplySalesOrderDiscounts(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
     var
@@ -259,13 +262,34 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         end;
     end;
 
+    [TryFunction]
+    local procedure TryResetLastBackofficeSubmitOnCRMSalesOrder(CRMSalesOrderId: Guid)
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+    begin
+        CRMSalesOrder.SetAutoCalcFields(CreatedByName, ModifiedByName, TransactionCurrencyIdName);
+        if not CRMSalesOrder.Get(CRMSalesOrderId) then begin
+            Session.LogMessage('0000ER9', StrSubstNo(CRMSalesOrderNotFoundTxt, CRMProductName.CDSServiceName(), CRMSalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            exit;
+        end;
+        CRMSalesorder.StateCode := CRMSalesOrder.StateCode::Active;
+        CRMSalesorder.StatusCode := CRMSalesorder.StatusCode::Pending;
+        CRMSalesOrder.Modify();
+        CRMSalesOrder.LastBackofficeSubmit := 0D;
+        CRMSalesOrder.Modify();
+        if CRMSalesOrder.LastBackofficeSubmit = 0D then
+            Session.LogMessage('0000ERA', StrSubstNo(SuccessfullyResetLastBackofficeSubmitOnCRMSalesOrderTxt, CRMProductName.CDSServiceName(), CRMSalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok)
+        else
+            Session.LogMessage('0000ERC', StrSubstNo(FailedToResetLastBackofficeSubmitOnCRMSalesOrderTxt, CRMProductName.CDSServiceName(), CRMSalesOrderId), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+    end;
+
     [EventSubscriber(ObjectType::Table, 36, 'OnBeforeDeleteEvent', '', false, false)]
     [Scope('OnPrem')]
     procedure RemoveCouplingToCRMSalesOrderOnSalesHeaderDelete(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
-        CRMSalesorder: Record "CRM Salesorder";
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CRMSalesOrderId: Guid;
     begin
         if Rec.IsTemporary then
             exit;
@@ -281,28 +305,22 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
 
-        if not CRMIntegrationRecord.FindIDFromRecordID(Rec.RecordId, CRMSalesorder.SalesOrderId) then
+        if not CRMIntegrationRecord.FindIDFromRecordID(Rec.RecordId, CRMSalesOrderId) then
             exit;
 
-        Session.LogMessage('0000DEX', StrSubstNo(StartingToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+        Session.LogMessage('0000DEX', StrSubstNo(StartingToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
 
         if not CRMIntegrationManagement.IsWorkingConnection() then begin
-            Session.LogMessage('0000DI9', StrSubstNo(FailedToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            Session.LogMessage('0000DI9', StrSubstNo(FailedToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
             exit;
         end;
 
         if CRMIntegrationManagement.RemoveCoupling(Rec.RecordId(), false) then begin
-            Session.LogMessage('0000DEY', StrSubstNo(SuccessfullyUncoupledSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
-            CRMSalesOrder.SetAutoCalcFields(CreatedByName, ModifiedByName, TransactionCurrencyIdName);
-            if CRMSalesOrder.Get(CRMSalesorder.SalesOrderId) then begin
-                CRMSalesorder.StateCode := CRMSalesOrder.StateCode::Active;
-                CRMSalesorder.StatusCode := CRMSalesorder.StatusCode::Pending;
-                CRMSalesOrder.Modify();
-                CRMSalesOrder.LastBackofficeSubmit := 0D;
-                CRMSalesOrder.Modify();
-            end
+            Session.LogMessage('0000DEY', StrSubstNo(SuccessfullyUncoupledSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            if not TryResetLastBackofficeSubmitOnCRMSalesOrder(CRMSalesOrderId) then
+                Session.LogMessage('0000ERB', StrSubstNo(FailedToResetLastBackofficeSubmitOnCRMSalesOrderTxt, CRMProductName.CDSServiceName(), CRMSalesOrderId), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         end else
-            Session.LogMessage('0000DEZ', StrSubstNo(FailedToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            Session.LogMessage('0000DEZ', StrSubstNo(FailedToUncoupleSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Assemble-to-Order Link", 'OnBeforeSalesLineCheckAvailShowWarning', '', false, false)]

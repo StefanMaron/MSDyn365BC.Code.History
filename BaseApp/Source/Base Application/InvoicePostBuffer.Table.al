@@ -429,7 +429,14 @@ table 49 "Invoice Post. Buffer"
     end;
 
     procedure CalcDiscountNoVAT(DiscountAmount: Decimal; DiscountAmountACY: Decimal)
+    var
+        IsHandled: boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcDiscountNoVAT(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         "VAT Base Amount" := DiscountAmount;
         "VAT Base Amount (ACY)" := DiscountAmountACY;
         Amount := "VAT Base Amount";
@@ -679,6 +686,11 @@ table 49 "Invoice Post. Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcDiscount(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcDiscountNoVAT(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
     begin
     end;
 

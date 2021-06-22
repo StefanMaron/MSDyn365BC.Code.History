@@ -38,8 +38,10 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
                                 VendorLedgerEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 VendorLedgerEntry.SetRange("Document No.", "Applies-to Doc. No.");
                             end;
-                            if "Applies-to ID" <> '' then
+                            if "Applies-to ID" <> '' then begin
+                                VendorLedgerEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
                                 VendorLedgerEntry.SetRange("Applies-to ID", "Applies-to ID");
+                            end;
                             if VendorLedgerEntry.FindFirst then begin
                                 CreditTransferEntry.SetRange("Applies-to Entry No.", VendorLedgerEntry."Entry No.");
                                 FoundCorrespondingLedgerEntry := true;

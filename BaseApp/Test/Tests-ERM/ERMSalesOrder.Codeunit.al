@@ -4174,6 +4174,110 @@ codeunit 134378 "ERM Sales Order"
         SalesInvoiceLine.TestField(Amount, SalesLine.Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargeCoveredByInvoiceDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        DocNo: Code[20];
+        InvDiscountAmount: Decimal;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Sales Order] [Item Charge]
+        // [SCENARIO 385298] Stan can post sales order that has the item charge covered by invoice discount.
+        Initialize();
+
+        // [GIVEN] Create sales Order with item and item charge lines. Item Charge Line has "Allow Invoice Disc." set to true.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(5), LibraryRandom.RandDec(100, 2));
+        InvDiscountAmount += SalesLine.Amount;
+        Qty := SalesLine.Quantity;
+        CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)",
+           LibraryInventory.CreateItemChargeNo(), Qty, SalesLine."Unit Price" / 3);
+        SalesLine.Validate("Allow Invoice Disc.", true);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Open Item Charge Assignment page and set Qty to Assign = Qty. of item line.
+        LibraryVariableStorage.Enqueue(1); // suggest equally
+        SalesLine.ShowItemChargeAssgnt();
+
+        // [GIVEN]  Invoice discount equal to total amount is applied to Purchase Order.
+        InvDiscountAmount += SalesLine.Amount;
+        SalesHeader.Validate("Invoice Discount Value", InvDiscountAmount);
+        SalesHeader.Modify(true);
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(InvDiscountAmount, SalesHeader);
+        CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
+
+        // [GIVEN] Post sales order.
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Posted sales Invoice Line has quantity and amount of sales order.
+        SalesInvoiceLine.SetRange("Document No.", DocNo);
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"Charge (Item)");
+        SalesInvoiceLine.FindFirst();
+        SalesInvoiceLine.TestField(Quantity, SalesLine.Quantity);
+        SalesInvoiceLine.TestField(Amount, SalesLine.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargePartiallyInvoicedCoveredByInvoiceDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        DocNo: Code[20];
+        InvDiscountAmount: Decimal;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Sales Order] [Item Charge]
+        // [SCENARIO 390121] Stan can post sales order that has the item charge covered by invoice discount and partially invoiced.
+        Initialize();
+
+        // [GIVEN] Create sales Order with item and item charge lines. Item Charge Line has "Allow Invoice Disc." set to true, Quantity = 5 and "Qty. to Invoice" = 1.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandIntInRange(2, 5), LibraryRandom.RandDec(100, 2));
+        InvDiscountAmount += SalesLine.Amount;
+        Qty := SalesLine.Quantity;
+        CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)",
+            LibraryInventory.CreateItemChargeNo(), Qty, SalesLine."Unit Price" / 2);
+        SalesLine.Validate("Allow Invoice Disc.", true);
+        SalesLine.Validate("Qty. to Invoice", 1);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Open Item Charge Assignment page and set Qty to Assign = Qty. of item line.
+        LibraryVariableStorage.Enqueue(1); // suggest equally
+        SalesLine.ShowItemChargeAssgnt();
+
+        // [GIVEN]  Invoice discount equal to total amount is applied to Purchase Order.
+        InvDiscountAmount += SalesLine.Amount;
+        SalesHeader.Validate("Invoice Discount Value", InvDiscountAmount);
+        SalesHeader.Modify(true);
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(InvDiscountAmount, SalesHeader);
+        CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
+
+        // [GIVEN] Post sales order.
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Posted sales Invoice Line has quantity = 1 and amount of sales order.
+        SalesInvoiceLine.SetRange("Document No.", DocNo);
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"Charge (Item)");
+        SalesInvoiceLine.FindFirst();
+        SalesInvoiceLine.TestField(Quantity, 1);
+        SalesInvoiceLine.TestField(Amount, SalesLine.Amount);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";

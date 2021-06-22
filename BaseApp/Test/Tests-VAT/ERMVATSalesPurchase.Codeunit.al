@@ -1949,9 +1949,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
           SalesHeader, SalesHeader."Document Type"::Order,
           LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusinessPostingGroup.Code));
         CreateSalesLineWithUnitPriceAndVATProdPstGroup(
-          SalesLine[1], SalesHeader, VATProductPostingGroup[1].Code, SalesLine[1].Type::"G/L Account", GLAccount."No.", 0);
+          SalesLine[1], SalesHeader, VATProductPostingGroup[1].Code,
+          SalesLine[1].Type::"G/L Account", GLAccount."No.", 0, LibraryRandom.RandIntInRange(1000, 1500));
         CreateSalesLineWithUnitPriceAndVATProdPstGroup(
-          SalesLine[2], SalesHeader, VATProductPostingGroup[2].Code, SalesLine[2].Type::"G/L Account", GLAccount."No.", 1);
+          SalesLine[2], SalesHeader, VATProductPostingGroup[2].Code,
+          SalesLine[2].Type::"G/L Account", GLAccount."No.", 1, LibraryRandom.RandIntInRange(1000, 1500));
 
         // [WHEN] Sales Line "S1" Quantity is validated with 1.
         SalesLine[1].Validate(Quantity, 1);
@@ -1998,9 +2000,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
           PurchaseHeader, PurchaseHeader."Document Type"::Order,
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusinessPostingGroup.Code));
         CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(
-          PurchaseLine[1], PurchaseHeader, VATProductPostingGroup[1].Code, PurchaseLine[1].Type::"G/L Account", GLAccount."No.", 0);
+          PurchaseLine[1], PurchaseHeader, VATProductPostingGroup[1].Code,
+          PurchaseLine[1].Type::"G/L Account", GLAccount."No.", 0, LibraryRandom.RandIntInRange(1000, 1500));
         CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(
-          PurchaseLine[2], PurchaseHeader, VATProductPostingGroup[2].Code, PurchaseLine[2].Type::"G/L Account", GLAccount."No.", 1);
+          PurchaseLine[2], PurchaseHeader, VATProductPostingGroup[2].Code,
+          PurchaseLine[2].Type::"G/L Account", GLAccount."No.", 1, LibraryRandom.RandIntInRange(1000, 1500));
 
         // [WHEN] Purchase Line "P1" Quantity is validated with 1.
         PurchaseLine[1].Validate(Quantity, 1);
@@ -2166,6 +2170,60 @@ codeunit 134045 "ERM VAT Sales/Purchase"
           Round(LineAmount[2] * VATPct[2] / 100));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseReverseChargeVATEntriesAmounts()
+    var
+        GLAccount: array[2] of Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Purchase] [Reverse Charge VAT]
+        // [SCENARIO 377909] Posting Purchase Order with Reverse Charge VAT creates VAT entries with expected amounts.
+        Initialize();
+
+        // [GIVEN] VAT Posting Setups "V" with "VAT %" = 23 and VAT Calculation Type = "Reverse Charge VAT".
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] G/L Accounts "G1"/"G2".
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        LibraryERM.CreateGLAccount(GLAccount[1]);
+        GLAccount[1].Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount[1].Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount[1].Modify(true);
+        LibraryERM.CreateGLAccount(GLAccount[2]);
+        GLAccount[2].Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount[2].Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount[2].Modify(true);
+
+        // [GIVEN] Purchase Order with two Purchase Lines with "Unit Price" = "25.8"/"25.8", "VAT Prod. Post. Group" = "V", "No." = "G1"/"G2".
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Order,
+            LibraryPurchase.CreateVendorWithBusPostingGroups(
+                GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(
+            PurchaseLine, PurchaseHeader,
+            VATPostingSetup."VAT Prod. Posting Group", PurchaseLine.Type::"G/L Account", GLAccount[1]."No.", 1, 25.8);
+        CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(
+            PurchaseLine, PurchaseHeader,
+            VATPostingSetup."VAT Prod. Posting Group", PurchaseLine.Type::"G/L Account", GLAccount[2]."No.", 1, 25.8);
+
+        // [WHEN] Purchase Order is posted.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Two VAT entries created with Amount = "5.93"/"5.94".
+        VATEntry.SetRange("Bill-to/Pay-to No.", PurchaseHeader."Buy-from Vendor No.");
+        VATEntry.SetFilter(Amount, '5.93');
+        Assert.RecordIsNotEmpty(VATEntry);
+        VATEntry.SetFilter(Amount, '5.94');
+        Assert.RecordIsNotEmpty(VATEntry);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2309,11 +2367,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesLine.Modify();
     end;
 
-    local procedure CreateSalesLineWithUnitPriceAndVATProdPstGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATProdPstGroupCode: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesLineWithUnitPriceAndVATProdPstGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATProdPstGroupCode: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("VAT Prod. Posting Group", VATProdPstGroupCode);
-        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(1000, 1500));
+        SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
     end;
 
@@ -2412,11 +2470,11 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATProdPstGroupCode: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseLineWithUnitPriceAndVATProdPstGroup(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATProdPstGroupCode: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("VAT Prod. Posting Group", VATProdPstGroupCode);
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 1500));
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
     end;
 

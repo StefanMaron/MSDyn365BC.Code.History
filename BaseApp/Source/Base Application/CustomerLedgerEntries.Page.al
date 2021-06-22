@@ -161,7 +161,6 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the total net amount of sales to the customer in LCY.';
-                    Visible = false;
                 }
                 field("Bal. Account Type"; "Bal. Account Type")
                 {
@@ -697,8 +696,8 @@ page 25 "Customer Ledger Entries"
         SetControlVisibility();
         SetDimVisibility();
 
-        if GetFilters <> '' then
-            if FindFirst then;
+        if (GetFilters() <> '') and not Find() then
+            if FindFirst() then;
     end;
 
     var

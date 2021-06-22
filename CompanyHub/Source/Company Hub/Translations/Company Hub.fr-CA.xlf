@@ -2075,7 +2075,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 2942533026 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of purchase discounts for the next week.</source>
-          <target state="translated">Spécifie le nombre d’escomptes achat de la semaine prochaine.</target>
+          <target state="translated">Spécifie le nombre d’escomptes achat de la semaine suivante.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Purchase Discounts Next Week - Property ToolTip</note>
         </trans-unit>
@@ -2231,7 +2231,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 1428064786 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of sales credit memos pending sending to the document exchange that are assigned to you or to a group that you are a member of.</source>
-          <target state="translated">Spécifie le nombre de notes de crédit vente en attente d’envoi à l’échange de documents qui sont affectés à un groupe dont vous êtes membre ou à vous-même.</target>
+          <target state="translated">Spécifie le nombre de notes de crédit vente en attente d’envoi à l’échange de documents qui sont affectées à un groupe dont vous êtes membre ou à vous-même.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Sales CrM. - Pending Doc.Exch. - Property ToolTip</note>
         </trans-unit>

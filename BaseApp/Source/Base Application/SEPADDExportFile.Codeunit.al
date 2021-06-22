@@ -37,14 +37,21 @@ codeunit 1230 "SEPA DD-Export File"
         ExportToServerFile: Boolean;
         ExportWithoutIBANErr: Label 'Either the Bank Account No. and Bank Branch No. fields or the IBAN field must be filled in for %1 %2.', Comment = '%1= table name, %2=key field value. Example: Either the Bank Account No. and Bank Branch No. fields or the IBAN field must be filled in for Bank Account WWB-OPERATING.';
 
-    local procedure Export(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; XMLPortID: Integer; FileName: Text): Boolean
+    local procedure Export(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; XMLPortID: Integer; FileName: Text) Result: Boolean
     var
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
         OutStr: OutStream;
+        IsHandled: Boolean;
     begin
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPortID, OutStr, DirectDebitCollectionEntry);
+
+        IsHandled := false;
+        OnExportOnAfterXMLPortExport(TempBlob, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(FileManagement.BLOBExport(TempBlob, StrSubstNo('%1.XML', FileName), not ExportToServerFile) <> '');
     end;
 
@@ -68,6 +75,11 @@ codeunit 1230 "SEPA DD-Export File"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDirectDebitCollection(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var DirectDebitCollection: Record "Direct Debit Collection"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportOnAfterXMLPortExport(var TempBlob: Codeunit "Temp Blob"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -19,6 +19,11 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         NewCodePatternTxt: Label 'SP NO. %1', Locked = true;
         SalespersonPurchaserCodeFilterLbl: Label 'SP NO. 0*', Locked = true;
         CouplingsNeedToBeResetErr: Label 'Dataverse integration is enabled. The existing couplings need to be reset to enable other companies access to records coupled to the company being deleted.';
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
+        UpdateContactParentCompanyTxt: Label 'Updating contact parent company.', Locked = true;
+        UpdateContactParentCompanyFailedTxt: Label 'Updating contact parent company failed. Parent Customer ID: %1', Locked = true, Comment = '%1 - parent customer id';
+        UpdateContactParentCompanySuccessfulTxt: Label 'Contact parent company has successfully been updated.', Locked = true;
+        UpdateContactParentCompanyAlreadySetTxt: Label 'Contact parent company has already been set correctly.', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnInitCDSConnection', '', true, true)]
     local procedure HandleOnInitCDSConnection(var ConnectionName: Text; var handled: Boolean)
@@ -108,7 +113,10 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'CRM Account-Customer',
             'CRM Account-Vendor':
-                SetCompanyIdOnCRMAccount(SourceRecordRef);
+                begin
+                    SetCompanyIdOnCRMAccount(SourceRecordRef);
+                    UpdateChildContactsParentCompany(SourceRecordRef);
+                end;
             'CRM Contact-Contact':
                 begin
                     FixPrimaryContactNo(SourceRecordRef, DestinationRecordRef);
@@ -320,11 +328,18 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeModifyRecord', '', false, false)]
     local procedure HandleOnBeforeModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        SourceDestCode: Text;
     begin
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
-        case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
+        SourceDestCode := GetSourceDestCode(SourceRecordRef, DestinationRecordRef);
+
+        if SourceDestCode = 'Contact-CRM Contact' then
+            UpdateCRMContactParentCustomerId(SourceRecordRef, DestinationRecordRef);
+
+        case SourceDestCode of
             'Customer-CRM Account',
             'Contact-CRM Contact',
             'Vendor-CRM Account':
@@ -691,7 +706,6 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationRecSynchInvoke: Codeunit "Integration Rec. Synch. Invoke";
-        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
         RecRef: RecordRef;
         RecordModifiedAfterLastSync: Boolean;
     begin
@@ -706,7 +720,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
         if FindCustomerByAccountId(CRMContact.ParentCustomerId, Customer) then
             if Customer."Primary Contact No." = '' then
-                if IntegrationTableMapping.Get(CDSSetupDefaults.GetCustomerTableMappingName()) then
+                if IntegrationTableMapping.FindMapping(Database::Customer, Database::"CRM Account") then
                     if IntegrationTableMapping.Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::FromIntegrationTable] then begin
                         RecRef.GetTable(Customer);
                         RecordModifiedAfterLastSync := IntegrationRecSynchInvoke.WasModifiedAfterLastSynch(IntegrationTableMapping, RecRef);
@@ -724,7 +738,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
         if FindVendorByAccountId(CRMContact.ParentCustomerId, Vendor) then
             if Vendor."Primary Contact No." = '' then
-                if IntegrationTableMapping.Get(CDSSetupDefaults.GetVendorTableMappingName()) then
+                if IntegrationTableMapping.FindMapping(Database::Vendor, Database::"CRM Account") then
                     if IntegrationTableMapping.Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::FromIntegrationTable] then begin
                         RecRef.GetTable(Vendor);
                         RecordModifiedAfterLastSync := IntegrationRecSynchInvoke.WasModifiedAfterLastSynch(IntegrationTableMapping, RecRef);
@@ -741,6 +755,102 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                     end;
 
         exit(false);
+    end;
+
+    local procedure UpdateChildContactsParentCompany(CRMAccountRecordRef: RecordRef)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMAccount: Record "CRM Account";
+        CRMContact: Record "CRM Contact";
+        Contact: Record Contact;
+        ContactRecordRef: RecordRef;
+        CRMContactRecordRef: RecordRef;
+        CompanyId: Guid;
+    begin
+        CRMAccountRecordRef.SetTable(CRMAccount);
+        case CRMAccount.CustomerTypeCode of
+            CRMAccount.CustomerTypeCode::Customer:
+                if not IntegrationTableMapping.FindMapping(Database::Customer, Database::"CRM Account") then
+                    exit;
+            CRMAccount.CustomerTypeCode::Vendor:
+                if not IntegrationTableMapping.FindMapping(Database::Vendor, Database::"CRM Account") then
+                    exit;
+            else
+                exit;
+        end;
+
+        if not (IntegrationTableMapping.Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::FromIntegrationTable]) then
+            exit;
+
+        Contact.SetRange("Company No.", '');
+        if Contact.IsEmpty() then
+            exit; // all contacts have parent company set
+
+        if not CDSIntegrationImpl.TryGetCompanyId(CompanyId) then
+            exit;
+
+        // find and process already synced child contacts
+        CRMContact.SetRange(ParentCustomerIdType, CRMContact.ParentCustomerIdType::account);
+        CRMContact.SetRange(ParentCustomerId, CRMAccount.AccountId);
+        CRMContact.SetRange(CompanyId, CompanyId);
+        if CRMContact.FindSet() then
+            repeat
+                if CRMIntegrationRecord.FindByCRMID(CRMContact.ContactId) then begin
+                    CRMContactRecordRef.GetTable(CRMContact);
+                    ContactRecordRef.Open(Database::Contact);
+                    if ContactRecordRef.GetBySystemId(CRMIntegrationRecord."Integration ID") then begin
+                        FixPrimaryContactNo(CRMContactRecordRef, ContactRecordRef);
+                        UpdateContactParentCompany(CRMAccount.AccountId, ContactRecordRef);
+                    end;
+                    ContactRecordRef.Close();
+                end;
+            until CRMContact.Next() = 0;
+    end;
+
+    local procedure UpdateContactParentCompany(AccountId: Guid; var ContactRecordRef: RecordRef)
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        Contact: Record Contact;
+        IntegrationRecSynchInvoke: Codeunit "Integration Rec. Synch. Invoke";
+        RecordModifiedAfterLastSync: Boolean;
+        OldCompanyNo: Code[20];
+        NewCompanyNo: Code[20];
+    begin
+        if not IntegrationTableMapping.FindMapping(Database::Contact, Database::"CRM Contact") then
+            exit;
+
+        if not (IntegrationTableMapping.Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::FromIntegrationTable]) then
+            exit;
+
+        Session.LogMessage('0000EOB', UpdateContactParentCompanyTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+
+        RecordModifiedAfterLastSync := IntegrationRecSynchInvoke.WasModifiedAfterLastSynch(IntegrationTableMapping, ContactRecordRef);
+        OldCompanyNo := ContactRecordRef.Field(Contact.FieldNo("Company No.")).Value();
+
+        if not CRMSynchHelper.SetContactParentCompany(AccountId, ContactRecordRef) then begin
+            Session.LogMessage('0000EOC', StrSubstNo(UpdateContactParentCompanyFailedTxt, AccountId), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            exit;
+        end;
+
+        NewCompanyNo := ContactRecordRef.Field(Contact.FieldNo("Company No.")).Value();
+        if NewCompanyNo = OldCompanyNo then begin
+            Session.LogMessage('0000EOD', UpdateContactParentCompanyAlreadySetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            exit;
+        end;
+
+        ContactRecordRef.Modify();
+        if not RecordModifiedAfterLastSync then begin
+            ContactRecordRef.SetTable(Contact);
+            CRMIntegrationRecord.SetRange("Integration ID", Contact.SystemId);
+            if CRMIntegrationRecord.FindFirst() then begin
+                CRMIntegrationRecord."Last Synch. Modified On" := Contact.SystemModifiedAt;
+                CRMIntegrationRecord.Modify();
+            end;
+        end;
+
+        Session.LogMessage('0000EOE', UpdateContactParentCompanySuccessfulTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
     local procedure FindNewValueForCoupledRecordPK(IntegrationTableMapping: Record "Integration Table Mapping"; SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant) IsValueFound: Boolean
@@ -794,7 +904,6 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationRecSynchInvoke: Codeunit "Integration Rec. Synch. Invoke";
-        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
         CRMRecordRef: RecordRef;
         CRMAccountModifiedAfterLastSync: Boolean;
     begin
@@ -815,10 +924,10 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
         case CRMAccount.CustomerTypeCode of
             CRMAccount.CustomerTypeCode::Customer:
-                if not IntegrationTableMapping.Get(CDSSetupDefaults.GetCustomerTableMappingName()) then
+                if not IntegrationTableMapping.FindMapping(Database::Customer, Database::"CRM Account") then
                     exit(false);
             CRMAccount.CustomerTypeCode::Vendor:
-                if not IntegrationTableMapping.Get(CDSSetupDefaults.GetVendorTableMappingName()) then
+                if not IntegrationTableMapping.FindMapping(Database::Vendor, Database::"CRM Account") then
                     exit(false);
         end;
 

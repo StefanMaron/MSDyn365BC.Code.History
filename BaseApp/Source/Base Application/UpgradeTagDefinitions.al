@@ -551,15 +551,19 @@
         exit('MS-352854-ShortcutDimensionsInGLEntry-20201204');
     end;
 
-    [Scope('OnPrem')]
     procedure GetRemoveOldWorkflowTableRelationshipRecordsTag(): Code[250]
     begin
         exit('MS-384473-RemoveOldWorkflowTableRelationshipRecords-20201222');
     end;
-    
+
+    [Obsolete('Function will be removed', '18.0')]
+    procedure GetNewPurchaseOrderEntityBufferUpgradeTag(): Code[250]
+    begin
+        exit('MS-385184-PurchaseOrderEntityBuffer-20210104');
+    end;
+
     procedure GetUserTaskDescriptionToUTF8UpgradeTag(): Code[250]
     begin
         exit('MS-385481-UserTaskDescriptionToUTF8-20210112');
     end;
 }
-

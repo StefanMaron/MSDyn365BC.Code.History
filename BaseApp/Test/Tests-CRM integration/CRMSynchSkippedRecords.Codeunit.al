@@ -21,7 +21,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         NotFoundErr: Label 'could not be found in Salesperson/Purchaser.';
         SkippedRecMsg: Label 'The record will be skipped for further synchronization';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        SyncNowSkippedMsg: Label 'The synchronization has been skipped.';
+        SyncNowSkippedMsg: Label 'The synchronization has been skipped. The Customer record was marked as skipped before.';
         LibraryUtility: Codeunit "Library - Utility";
         WantToSynchronizeQst: Label 'Are you sure you want to synchronize?';
         DataWillBeOverriddenMsg: Label 'data on one of the records will be lost and replaced with data from the other record';

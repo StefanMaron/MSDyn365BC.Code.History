@@ -1265,6 +1265,46 @@ codeunit 134982 "ERM Financial Reports"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('VATVIESDeclDiskRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATVIESDeclDiskPostdateFiltering()
+    var
+        Customer1: Record Customer;
+        Customer2: Record Customer;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATEntry: Record "VAT Entry";
+        FileName: Text[1024];
+    begin
+        // [FEATURE] [VAT- VIES Declaration Disk] [Date Filter]
+        // [SCENARIO 387684] Report "VAT- VIES Declaration Disk" respects "Posting Date" filters
+        Initialize();
+
+        // [GIVEN] Customers "C1" and "C2", having Country/Region Codes "CR1" and "CR2" respectfully
+        // [GIVEN] VAT Entries "V1" and "V2" for "C1" and "C2", with "Posting Date" = 01/02/2018 and 01/02/2017 respectfully
+        LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
+        LibrarySales.CreateCustomerWithVATRegNo(Customer1);
+        UpdateEUCountryRegion(Customer1."Country/Region Code");
+        MockVATEntryWithPostingDateForCustomer(Customer1, WorkDate());
+        LibrarySales.CreateCustomerWithVATRegNo(Customer2);
+        UpdateEUCountryRegion(Customer2."Country/Region Code");
+        MockVATEntryWithPostingDateForCustomer(Customer2, WorkDate() + 1);
+
+        // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "C1"|"C2" and Posting Date = 01/02/2018
+        VATEntry.SetFilter("Bill-to/Pay-to No.", '%1|%2', Customer1."No.", Customer2."No.");
+        VATEntry.SetRange("Posting Date", WorkDate);
+        Commit();
+        RunVATVIESDeclarationDisk(VATEntry, FileName);
+
+        // [THEN] VAT Entry "V1" has "Internal Ref. No." = INCSTR(FORMAT(01/02/2018,4,2) + '000000') = INCSTR('0102' + '000000') = '0102000001'
+        VerifyInternalRefNoVATEntry(Customer1."No.", IncStr(Format(WorkDate(), 4, 2) + '000000'));
+
+        // [THEN] VAT Entry "V2" has "Internal Ref. No." = <blank>
+        VerifyInternalRefNoVATEntry(Customer2."No.", '');
+
+        FileManagement.DeleteServerFile(FileName);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1293,6 +1333,23 @@ codeunit 134982 "ERM Financial Reports"
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Financial Reports");
+    end;
+    
+    local procedure MockVATEntryWithPostingDateForCustomer(Customer: Record Customer; PostingDate: Date)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        with VATEntry do begin
+            Init();
+            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
+            Type := Type::Sale;
+            "Posting Date" := PostingDate;
+            "Bill-to/Pay-to No." := Customer."No.";
+            "VAT Registration No." := Customer."VAT Registration No.";
+            "Country/Region Code" := Customer."Country/Region Code";
+            Base := LibraryRandom.RandDecInRange(10, 20, 2);
+            Insert();
+        end;
     end;
 
     local procedure CreateAndPostGenLine(var GenJournalLine: Record "Gen. Journal Line")

@@ -277,7 +277,7 @@ page 141 "Posted Purch. Cr. Memo Subform"
                         CaptionClass = DocumentTotals.GetInvoiceDiscAmountWithVATCaption(TotalPurchCrMemoHdr."Prices Including VAT");
                         Caption = 'Invoice Discount Amount';
                         Editable = false;
-                        ToolTip = 'Specifies a discount amount that is deducted from the value in the Total Incl. VAT field. You can enter or change the amount manually.';
+                        ToolTip = 'Specifies a discount amount that is deducted from the value of the Total Incl. VAT field, based on purchase lines where the Allow Invoice Disc. field is selected.';
                     }
                 }
                 group(Control9)

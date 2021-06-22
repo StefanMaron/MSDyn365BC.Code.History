@@ -44,7 +44,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         ExpectedBatchError: Label 'Batch must be same as of %1.';
         ExpectedBalanceError: Label 'Balance on %1 must be equal to Expected Amount.';
         ExpectedTotBalanceError: Label 'Total Balance on %1 must be equal to Expected Total Amount.';
-        NoGLEntriesTransferedError: Label 'Could not transfer general ledger entries to Cost Accounting.';
+        NoGLEntriesTransferedError: Label 'There are no G/L entries that meet the criteria for transfer to cost accounting.';
         ExpectedNoPostingMsg: Label 'Not all journals were posted. The journals that were not successfully posted are now marked.';
         ExpectedPostingMsg: Label 'The journals were successfully posted.';
         UnexpectedMessage: Label 'Actual Message [%1] must be equal to Expected Message [%2].';

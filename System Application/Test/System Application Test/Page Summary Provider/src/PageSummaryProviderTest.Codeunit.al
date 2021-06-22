@@ -45,6 +45,7 @@ codeunit 132548 "Page Summary Provider Test"
 
         // [Then] The summary reflects the page and record
         ValidateSummaryHeader(PageSummaryJsonObject, 'Page summary', 'Card', 'Brick');
+        LibraryAssert.AreEqual('132549', ReadJsonString(PageSummaryJsonObject, 'cardPageId'), 'Incorrect cardPageId');
         LibraryAssert.AreEqual(4, GetNumberOfFields(PageSummaryJsonObject), 'Incorrect number of fields returned.');
         ValidateSummaryField(PageSummaryJsonObject, 0, 'TestText', PageProviderSummaryTest.TestText, 'Text');
         ValidateSummaryField(PageSummaryJsonObject, 1, 'TestInteger', format(PageProviderSummaryTest.TestInteger), 'Integer');
@@ -94,6 +95,7 @@ codeunit 132548 "Page Summary Provider Test"
         // [Then] An error is thrown
         PageSummaryJsonObject.ReadFrom(PageSummaryProvider.GetPageSummary(Page::"Page Summary Empty Page", Bookmark));
         ValidateSummaryHeader(PageSummaryJsonObject, 'Page Summary Empty Page', 'Card', 'Caption');
+        LibraryAssert.AreEqual('0', ReadJsonString(PageSummaryJsonObject, 'cardPageId'), 'Incorrect cardPageId');
         LibraryAssert.AreEqual(0, GetNumberOfFields(PageSummaryJsonObject), 'Page Summary Empty Page should not have any fields.');
 
         // [When] We get the summary for a page where the bookmark is invalid

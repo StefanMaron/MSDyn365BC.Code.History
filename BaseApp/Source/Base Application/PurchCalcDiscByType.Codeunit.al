@@ -17,7 +17,7 @@ codeunit 66 "Purch - Calc Disc. By Type"
     end;
 
     var
-        InvDiscBaseAmountIsZeroErr: Label 'There is no amount that you can apply an invoice discount to.';
+        InvDiscBaseAmountIsZeroErr: Label 'Cannot apply an invoice discount because the document does not include lines where the Allow Invoice Disc. field is selected. To add a discount, specify a line discount in the Line Discount % field for the relevant lines, or add a line of type Item where the Allow Invoice Disc. field is selected.';
 
     procedure ApplyDefaultInvoiceDiscount(InvoiceDiscountAmount: Decimal; var PurchHeader: Record "Purchase Header")
     var

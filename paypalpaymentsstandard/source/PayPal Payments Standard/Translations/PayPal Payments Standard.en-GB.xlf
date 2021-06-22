@@ -646,7 +646,7 @@
           <target state="translated">Terms of service</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 1655671086</note>
         </trans-unit>
       </group>
     </body>

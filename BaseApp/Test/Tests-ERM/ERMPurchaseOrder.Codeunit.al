@@ -6031,6 +6031,107 @@ codeunit 134327 "ERM Purchase Order"
         PurchInvLine.TestField(Amount, PurchaseLine.Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('QtyToAssgnItemChargeModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargeCoveredByInvoiceDiscount()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvLine: Record "Purch. Inv. Line";
+        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
+        DocNo: Code[20];
+        InvDiscountAmount: Decimal;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Purchase Order] [Item Charge]
+        // [SCENARIO 385298] Stan can post purchase order that has the item charge covered by invoice discount.
+        Initialize();
+
+        // [GIVEN] Create Purchase Order with item and item charge lines. Item Charge Line has "Allow Invoice Disc." set to true.
+        CreatePurchaseHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order);
+        CreatePurchaseLineWithDirectUnitCost(
+            PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(5), LibraryRandom.RandDec(100, 2));
+        InvDiscountAmount += PurchaseLine.Amount;
+        Qty := PurchaseLine.Quantity;
+        CreatePurchaseLineWithDirectUnitCost(
+            PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::"Charge (Item)",
+            LibraryInventory.CreateItemChargeNo(), Qty, PurchaseLine."Unit Cost" / 3);
+        PurchaseLine.Validate("Allow Invoice Disc.", true);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Open Item Charge Assignment page and set Qty to Assign = Qty. of item line.
+        OpenItemChargeAssgnt(PurchaseLine, true, Qty);
+
+        // [GIVEN] Invoice discount equal to total amount is applied to Purchase Order.
+        InvDiscountAmount += PurchaseLine.Amount;
+        PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvDiscountAmount, PurchaseHeaderOrder);
+        CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchaseLine);
+
+        // [GIVEN] Post purchase order.
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+
+        // [THEN] Posted Purchase Invoice Line has quantity and amount of purchase order.
+        PurchInvLine.SetRange("Document No.", DocNo);
+        PurchInvLine.SetRange(Type, PurchInvLine.Type::"Charge (Item)");
+        PurchInvLine.FindFirst();
+        PurchInvLine.TestField(Quantity, PurchaseLine.Quantity);
+        PurchInvLine.TestField(Amount, PurchaseLine.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('QtyToAssgnItemChargeModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargePartiallyInvoicedCoveredByInvoiceDiscount()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvLine: Record "Purch. Inv. Line";
+        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
+        DocNo: Code[20];
+        InvDiscountAmount: Decimal;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Purchase Order] [Item Charge]
+        // [SCENARIO 390121] Stan can post purchase order that has the item charge covered by invoice discount and partially invoiced.
+        Initialize();
+
+        // [GIVEN] Create Purchase Order with item and item charge lines. Item Charge Line has "Allow Invoice Disc." set to true and Quantity = 5.
+        CreatePurchaseHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order);
+        CreatePurchaseLineWithDirectUnitCost(
+            PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::Item, CreateItem(),
+            LibraryRandom.RandIntInRange(2, 5), LibraryRandom.RandDec(100, 2));
+        InvDiscountAmount += PurchaseLine.Amount;
+        Qty := PurchaseLine.Quantity;
+        CreatePurchaseLineWithDirectUnitCost(
+            PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::"Charge (Item)",
+            LibraryInventory.CreateItemChargeNo(), Qty, PurchaseLine."Unit Cost" / 2);
+        PurchaseLine.Validate("Allow Invoice Disc.", true);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Open Item Charge Assignment page and set Qty to Assign = Qty. of item line.
+        OpenItemChargeAssgnt(PurchaseLine, true, Qty);
+
+        // [GIVEN] "Qty. to Invoice" is set to 1.
+        PurchaseLine.Validate("Qty. to Invoice", 1);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Invoice discount equal to total amount is applied to Purchase Order.
+        InvDiscountAmount += PurchaseLine.Amount;
+        PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvDiscountAmount, PurchaseHeaderOrder);
+        CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchaseLine);
+
+        // [GIVEN] Post purchase order.
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+
+        // [THEN] Posted Purchase Invoice Line has quantity = 1 and amount of purchase order.
+        PurchInvLine.SetRange("Document No.", DocNo);
+        PurchInvLine.SetRange(Type, PurchInvLine.Type::"Charge (Item)");
+        PurchInvLine.FindFirst();
+        PurchInvLine.TestField(Quantity, 1);
+        PurchInvLine.TestField(Amount, PurchaseLine.Amount);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";

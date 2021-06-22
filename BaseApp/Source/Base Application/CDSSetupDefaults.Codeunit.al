@@ -59,7 +59,13 @@ codeunit 7204 "CDS Setup Defaults"
         IntegrationFieldMapping: Record "Integration Field Mapping";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CDSSystemuser: Record "CRM Systemuser";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResetSalesPeopleSystemUserMapping(IntegrationTableMappingName, ShouldRecreateJobQueueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser",
@@ -112,7 +118,13 @@ codeunit 7204 "CDS Setup Defaults"
         CDSCompany: Record "CDS Company";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         EmptyGuid: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResetCustomerAccountMapping(IntegrationTableMappingName, ShouldRecreateJobQueueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::Customer, DATABASE::"CRM Account",
@@ -312,7 +324,13 @@ codeunit 7204 "CDS Setup Defaults"
         CDSCompany: Record "CDS Company";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         EmptyGuid: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResetVendorAccountMapping(IntegrationTableMappingName, ShouldRecreateJobQueueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::Vendor, DATABASE::"CRM Account",
@@ -504,7 +522,13 @@ codeunit 7204 "CDS Setup Defaults"
         CDSCompany: Record "CDS Company";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         EmptyGuid: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResetContactContactMapping(IntegrationTableMappingName, EnqueueJobQueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::Contact, DATABASE::"CRM Contact",
@@ -699,7 +723,13 @@ codeunit 7204 "CDS Setup Defaults"
         IntegrationFieldMapping: Record "Integration Field Mapping";
         Currency: Record Currency;
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResetCurrencyTransactionCurrencyMapping(IntegrationTableMappingName, EnqueueJobQueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::Currency, DATABASE::"CRM Transactioncurrency",
@@ -744,7 +774,13 @@ codeunit 7204 "CDS Setup Defaults"
         PaymentTerms: Record "Payment Terms";
         CRMAccount: Record "CRM Account";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResetPaymentTermsMapping(IntegrationTableMappingName, IsHandled);
+        if IsHandled then
+            exit;
+
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::"Payment Terms", DATABASE::"CRM Account",
@@ -770,7 +806,13 @@ codeunit 7204 "CDS Setup Defaults"
         ShipmentMethod: Record "Shipment Method";
         CRMAccount: Record "CRM Account";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResetShipmentMethodMapping(IntegrationTableMappingName, IsHandled);
+        if IsHandled then
+            exit;
+
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::"Shipment Method", DATABASE::"CRM Account",
@@ -796,7 +838,13 @@ codeunit 7204 "CDS Setup Defaults"
         ShippingAgent: Record "Shipping Agent";
         CRMAccount: Record "CRM Account";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResetShippingAgentMapping(IntegrationTableMappingName, IsHandled);
+        if IsHandled then
+            exit;
+
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
           DATABASE::"Shipping Agent", DATABASE::"CRM Account",
@@ -1308,6 +1356,46 @@ codeunit 7204 "CDS Setup Defaults"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResetConfiguration(var CDSConnectionSetup: Record "CDS Connection Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetContactContactMapping(var IntegrationTableMappingName: Code[20]; var ShouldRecreateJobQueueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetCurrencyTransactionCurrencyMapping(var IntegrationTableMappingName: Code[20]; var ShouldRecreateJobQueueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetCustomerAccountMapping(var IntegrationTableMappingName: Code[20]; var ShouldRecreateJobQueueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetPaymentTermsMapping(var IntegrationTableMappingName: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetShipmentMethodMapping(var IntegrationTableMappingName: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetShippingAgentMapping(var IntegrationTableMappingName: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetSalesPeopleSystemUserMapping(var IntegrationTableMappingName: Code[20]; var ShouldRecreateJobQueueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetVendorAccountMapping(var IntegrationTableMappingName: Code[20]; var ShouldRecreateJobQueueEntry: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

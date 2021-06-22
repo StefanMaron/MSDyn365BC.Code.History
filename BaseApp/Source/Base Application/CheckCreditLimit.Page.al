@@ -251,12 +251,18 @@ page 343 "Check Credit Limit"
     end;
 
     [Scope('OnPrem')]
-    procedure ServiceHeaderShowWarning(ServHeader: Record "Service Header"): Boolean
+    procedure ServiceHeaderShowWarning(ServHeader: Record "Service Header") Result: Boolean
     var
         ServSetup: Record "Service Mgt. Setup";
         OldServHeader: Record "Service Header";
         AssignDeltaAmount: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceHeaderShowWarning(ServHeader, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         ServSetup.Get();
         SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
@@ -303,8 +309,15 @@ page 343 "Check Credit Limit"
     end;
 
     [Scope('OnPrem')]
-    procedure ServiceLineShowWarning(ServLine: Record "Service Line"): Boolean
+    procedure ServiceLineShowWarning(ServLine: Record "Service Line") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceLineShowWarning(ServLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
            SalesSetup."Credit Warnings"::"No Warning"
@@ -405,6 +418,7 @@ page 343 "Check Credit Limit"
             CalcCreditLimitLCY;
             if (CustCreditAmountLCY > "Credit Limit (LCY)") and ("Credit Limit (LCY)" <> 0) then
                 ExitValue := 1;
+            OnShowWarningOnAfterCalcCreditLimitLCYExitValue(Rec, CustCreditAmountLCY, ExitValue);
         end;
         if CheckOverDueBalance and
            (SalesSetup."Credit Warnings" in
@@ -415,6 +429,7 @@ page 343 "Check Credit Limit"
             CalcOverdueBalanceLCY;
             if "Balance Due (LCY)" > 0 then
                 ExitValue := ExitValue + 2;
+            OnShowWarningOnAfterCalcDueBalanceExitValue(Rec, ExitValue);
         end;
 
         if ExitValue > 0 then begin
@@ -564,12 +579,32 @@ page 343 "Check Credit Limit"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceLineShowWarning(var ServLine: Record "Service Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceHeaderShowWarning(var ServiceHeader: Record "Service Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeShowWarning(var Customer: Record Customer; var NewOrderAmountLCY: Decimal; OldOrderAmountLCY: Decimal; OrderAmountTotalLCY: Decimal; ShippedRetRcdNotIndLCY: Decimal; CustCreditAmountLCY: Decimal; DeltaAmount: Decimal; CheckOverDueBalance: Boolean; var Heading: Text[250]; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcOverdueBalanceLCYAfterSetFilter(var Customer: Record Customer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowWarningOnAfterCalcCreditLimitLCYExitValue(var Customer: Record Customer; var CustCreditAmountLCY: Decimal; var ExitValue: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowWarningOnAfterCalcDueBalanceExitValue(var Customer: Record Customer; var ExitValue: Integer)
     begin
     end;
 }

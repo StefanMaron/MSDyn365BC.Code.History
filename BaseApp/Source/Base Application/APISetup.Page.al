@@ -93,7 +93,7 @@ page 5469 "API Setup"
                 ObsoleteState = Pending;
                 ObsoleteTag = '18.0';
                 ToolTip = 'Update records that are used by the salesInvoices, salesOrders, salesCreditMemos, and purchaseInvoices APIs.';
-                
+
                 trigger OnAction()
                 var
                     SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
@@ -138,6 +138,23 @@ page 5469 "API Setup"
                 begin
                     Codeunit.Run(CODEUNIT::"API Fix Purch Rcpt Line");
                     GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Purch Rcpt Line");
+                end;
+            }
+
+            action(FixPurchOrder)
+            {
+                ApplicationArea = All;
+                Caption = 'Fix Purchase Order API Records';
+                Image = Setup;
+                Promoted = false;
+                ToolTip = 'Updates records that are used by the purchaseOrders API';
+
+                trigger OnAction()
+                var
+                    GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+                begin
+                    Codeunit.Run(CODEUNIT::"API Fix Purchase Order");
+                    GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Purchase Order");
                 end;
             }
         }

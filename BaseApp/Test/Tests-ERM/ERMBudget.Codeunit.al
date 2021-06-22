@@ -2281,6 +2281,56 @@ codeunit 134922 "ERM Budget"
             VerifyGLBudgetEntryWithDimensionValue(GLBudgetName.Name, DimensionValue[i].Code, EntryAmount[i]);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,ExportBudgetToExcelWithDimRequestPageHandler')]
+    procedure GLBudgetImportFromExcelSameDimensionUsedAsExportFilterAndColumnDimension()
+    var
+        DimensionValue: Record "Dimension Value";
+        GLBudgetName: Record "G/L Budget Name";
+        GLBudgetEntry: Record "G/L Budget Entry";
+        SelectedDimension: Record "Selected Dimension";
+        GLAccountNo: Code[20];
+        FileName: Text;
+        EntryAmount: Integer;
+    begin
+        // [FEATURE] [G/L Budget Entries]
+        // [SCENARIO 389404] It is possible to Import Budget with same the dimension in export filters and column dimensions.
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] Budget having Budget Entry with Amount "100" and Dimension Value "DV1" of Global Dimension 1 "D".
+        LibraryERM.CreateGLBudgetName(GLBudgetName);
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        EntryAmount := LibraryRandom.RandInt(10);
+        GLBudgetEntry.Get(CreateGLBudgetEntry(GLBudgetName.Name, GLAccountNo, EntryAmount));
+        GLBudgetEntry.Validate("Global Dimension 1 Code", DimensionValue.Code);
+        GLBudgetEntry.Modify(true);
+
+        // [GIVEN] Budget exported to Excel File with filter "DV1" and column Dimension "D".
+        GLBudgetEntry.SetRange("Budget Name", GLBudgetName.Name);
+        GLBudgetEntry.SetRange("Global Dimension 1 Code", DimensionValue.Code);
+        LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
+        LibraryDimension.CreateSelectedDimension(
+            SelectedDimension, 3, REPORT::"Export Budget to Excel", '', DimensionValue."Dimension Code");
+        LibraryReportValidation.SetFileName(GLBudgetName.Name);
+        FileName := LibraryReportValidation.GetFileName();
+        Commit();
+        RunExportBudgetToExcelWithRequestPage(GLBudgetEntry, FileName);
+
+        // [GIVEN] Budget Entry's Amount "100" modified to "150" to later make sure import works.
+        GLBudgetEntry.Validate(Amount, EntryAmount + LibraryRandom.RandInt(10));
+        GLBudgetEntry.Modify(true);
+
+        // [WHEN] Budget is imported back from File.
+        RunImportBudgetFromExcel(GLBudgetName.Name, 0, FileName, false);
+
+        // [THEN] Budget Entries Amount is equal to "100" and has Dimension Value equal to "DV".
+        VerifyGLBudgetEntryAmountAndDimensionSetID(
+            GLBudgetName.Name, GLBudgetEntry."Global Dimension 1 Code", GLBudgetEntry."Global Dimension 2 Code",
+            EntryAmount, GLBudgetEntry."Dimension Set ID");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -713,21 +713,21 @@
           <target state="translated">Condiciones del servicio de PayPal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 1655671086</note>
         </trans-unit>
         <trans-unit id="PageExtension 1655671086 - Control 161526099 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies PayPal terms of service.</source>
           <target state="translated">Especifica las condiciones del servicio de PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 1655671086</note>
         </trans-unit>
         <trans-unit id="PageExtension 1655671086 - NamedType 961880541" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Terms of service</source>
           <target state="translated">Condiciones del servicio</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 1655671086</note>
         </trans-unit>
       </group>
     </body>

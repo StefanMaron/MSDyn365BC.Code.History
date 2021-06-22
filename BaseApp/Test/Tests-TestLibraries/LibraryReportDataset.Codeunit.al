@@ -15,28 +15,29 @@ codeunit 131007 "Library - Report Dataset"
         Assert: Codeunit Assert;
         FileManagement: Codeunit "File Management";
         InvalidRowErr: Label 'Row does not exist.';
-        InvalidFieldErr: Label 'Field ''%1'' does not exist.';
+        InvalidFieldErr: Label 'Field ''%1'' does not exist.', Locked = true;
         RowNotFoundErr: Label 'No row found where Field ''%1'' = <%2>.', Locked = true;
         RowFoundErr: Label 'Row is found where Field ''%1'' = <%2>.', Locked = true;
         CurrentRowErr: Label 'Current row does not have Field ''%1'' = <%2>.', Locked = true;
-        ElementNotFoundInScemaErr: Label 'Field ''%1'' was not found in the embedded xml schema.';
-        RowIndexErr: Label 'Invalid row index: %1';
-        ElementNameErr: Label 'Element with name ''%1'' was not found';
-        RowIndexNotFoundErr: Label 'Could not find row with index %1 in report dataset';
+        ElementNotFoundInScemaErr: Label 'Field ''%1'' was not found in the embedded xml schema.', Locked = true;
+        RowIndexErr: Label 'Invalid row index: %1', Locked = true;
+        ElementNameErr: Label 'Element with name ''%1'' was not found', Locked = true;
+        RowIndexNotFoundErr: Label 'Could not find row with index %1 in report dataset', Locked = true;
         NameTagTxt: Label 'Name', Locked = true;
         StringTagTxt: Label 'string', Locked = true;
-        XmlDoc: DotNet XmlDocument;
-        XmlNodeList: DotNet XmlNodeList;
-        SchemaNodeList: DotNet XmlNodeList;
+        XmlDoc: XmlDocument;
+        SchemaNodeList: XmlNodeList;
+        Rows: XmlNodeList;
         XMLSchemaType: Option ReportPreview,XML;
         FunctionNotSupportedForXMLErr: Label 'The function is not supported for XML Dataset. Functions with Tag cannot be used, use the functions named Element.';
         DataSetFileName: Text;
         ParametersFileName: Text;
         CurrentRowIndex: Integer;
+        SearchPatternColumnByNameTxt: Label './/Column[@name="%1"]', Locked = true;
 
     procedure AssertElementTagExists(ElementTag: Text)
     begin
-        VerifyTagIsSupported;
+        VerifyTagIsSupported();
         SetXmlNodeList(ElementTag);
         Assert.IsTrue(
           FindRowWithTagNoValue(ElementTag) <> -1,
@@ -45,7 +46,7 @@ codeunit 131007 "Library - Report Dataset"
 
     procedure AssertElementTagWithValueExists(ElementTag: Text; ExpectedValue: Variant)
     begin
-        VerifyTagIsSupported;
+        VerifyTagIsSupported();
         SetXmlNodeList(ElementTag);
         Assert.IsTrue(
           SearchForElementTagByValue(ElementTag, ExpectedValue),
@@ -54,7 +55,7 @@ codeunit 131007 "Library - Report Dataset"
 
     procedure AssertElementTagWithValueNotExist(ElementTag: Text; ExpectedValue: Variant)
     begin
-        VerifyTagIsSupported;
+        VerifyTagIsSupported();
         SetXmlNodeList(ElementTag);
         Assert.IsFalse(
           SearchForElementTagByValue(ElementTag, ExpectedValue),
@@ -63,9 +64,49 @@ codeunit 131007 "Library - Report Dataset"
 
     procedure AssertElementWithValueExists(ElementName: Text; ExpectedValue: Variant)
     begin
-        Assert.IsTrue(
-          SearchForElementByValue(ElementName, ExpectedValue),
-          StrSubstNo(RowNotFoundErr, ElementName, ExpectedValue))
+        AssertValueInElement(ElementName, ExpectedValue);
+    end;
+
+    procedure AssertValueInElement(ElementName: Text; ExpectedValue: Variant)
+    var
+        Row: XmlNode;
+        SearchPattern: Text;
+    begin
+        foreach Row in Rows do
+            if ElementName <> '' then begin
+                case XMLSchemaType of
+                    XMLSchemaType::ReportPreview:
+                        SearchPattern := ElementName;
+                    XMLSchemaType::XML:
+                        SearchPattern := StrSubstNo(SearchPatternColumnByNameTxt, ElementName)
+                end;
+                if CheckingInRow(SearchPattern, Row, ExpectedValue) then
+                    exit;
+            end;
+        Assert.Fail(StrSubstNo(RowNotFoundErr, ElementName, ExpectedValue));
+    end;
+
+    local procedure CheckingInRow(SearchPattern: Text; Row: XmlNode; ExpectedValue: Variant): Boolean
+    var
+        SearchResults: XmlNodeList;
+        Result: XmlNode;
+        ActualValue: Variant;
+    begin
+        if Row.SelectNodes(SearchPattern, SearchResults) then
+            foreach Result in SearchResults do begin
+                ActualValue := Result.AsXmlElement().InnerText();
+                if XMLSchemaType = XMLSchemaType::ReportPreview then
+                    EvaluateActualValue(SearchPattern, ActualValue, ActualValue);
+                if CompareValues(ExpectedValue, ActualValue) then
+                    exit(true);
+            end;
+        exit(false);
+    end;
+
+    local procedure CompareValues(ExpectedValue: Variant; ActualValue: Variant): Boolean
+    begin
+        ConvertValue(ExpectedValue, ActualValue);
+        exit(Assert.Compare(ExpectedValue, ActualValue));
     end;
 
     procedure AssertElementWithValueNotExist(ElementName: Text; ExpectedValue: Variant)
@@ -124,67 +165,81 @@ codeunit 131007 "Library - Report Dataset"
 
     procedure CurrentRowHasElementTag(ElementName: Text): Boolean
     var
-        XmlNode: DotNet XmlNode;
+        Row: XmlNode;
     begin
-        XmlNode := XmlNodeList.Item(CurrentRowIndex);
-        exit(XmlNode.Name = ElementName);
+        Rows.Get(CurrentRowIndex, Row);
+        exit(Row.AsXmlElement().Name() = ElementName);
     end;
 
     procedure CurrentRowHasElement(ElementName: Text): Boolean
     var
-        XmlNode: DotNet XmlNode;
+        Row: XmlNode;
+        Element: XmlNode;
     begin
-        XmlNode := XmlNodeList.Item(CurrentRowIndex);
+        Rows.Get(CurrentRowIndex, Row);
+
+        if ElementName = '' then
+            exit(false);
 
         case XMLSchemaType of
             XMLSchemaType::ReportPreview:
-                exit(not IsNull(XmlNode.Item(ElementName)));
+                exit(Row.SelectSingleNode(ElementName, Element));
             XMLSchemaType::XML:
-                exit(NameAttributeMatchesValue(XmlNode, ElementName));
+                exit(NameAttributeMatchesValue(Row, ElementName));
         end;
+        exit(false);
     end;
 
     procedure FindCurrentRowTagValue(ElementTag: Text; var Value: Variant)
     var
-        XmlNode: DotNet XmlNode;
+        Row: XmlNode;
         ElementText: Text;
     begin
-        VerifyTagIsSupported;
+        VerifyTagIsSupported();
 
-        if CurrentRowIndex = -1 then
+        if CurrentRowIndex = 0 then
             Error(InvalidRowErr);
 
-        XmlNode := XmlNodeList.Item(CurrentRowIndex);
+        Rows.Get(CurrentRowIndex, Row);
 
         if not CurrentRowHasElementTag(ElementTag) then
             Error(InvalidFieldErr, ElementTag);
 
-        ElementText := XmlNode.InnerText;
+        ElementText := Row.AsXmlElement().InnerText();
         Value := ElementText;
     end;
 
     procedure FindCurrentRowValue(ElementName: Text; var Value: Variant)
     var
-        XmlNode: DotNet XmlNode;
+        Row: XmlNode;
+        Element: XmlNode;
+        Column: XmlNode;
         ElementText: Text;
-        Decimal: Decimal;
-        "Integer": Integer;
-        Boolean: Boolean;
     begin
-        if CurrentRowIndex = -1 then
+        if CurrentRowIndex = 0 then
             Error(InvalidRowErr);
 
-        XmlNode := XmlNodeList.Item(CurrentRowIndex);
+        Rows.Get(CurrentRowIndex, Row);
         if not CurrentRowHasElement(ElementName) then
             Error(InvalidFieldErr, ElementName);
 
         if XMLSchemaType = XMLSchemaType::XML then begin
-            Value := XmlNode.InnerText;
+            Row.SelectSingleNode(StrSubstNo(SearchPatternColumnByNameTxt, ElementName), Column);
+            Value := Column.AsXmlElement().InnerText();
             exit;
         end;
 
-        ElementText := XmlNode.Item(ElementName).InnerText;
+        Row.AsXmlElement().SelectSingleNode(ElementName, Element);
+        ElementText := Element.AsXmlElement().InnerText();
+        EvaluateActualValue(ElementName, ElementText, Value);
+    end;
 
+    local procedure EvaluateActualValue(ElementName: Text; ElementText: Text; var Value: Variant)
+    var
+        Decimal: Decimal;
+        "Integer": Integer;
+        Boolean: Boolean;
+    begin
         case GetElementSchemaType(ElementName) of
             'xs:boolean':
                 begin
@@ -208,11 +263,16 @@ codeunit 131007 "Library - Report Dataset"
 
     local procedure GetElementSchemaType(ElementName: Text): Text
     var
+        xmlNode: XmlNode;
+        xmlAttribute: XmlAttribute;
         i: Integer;
     begin
-        for i := 0 to SchemaNodeList.Count - 1 do begin
-            if SchemaNodeList.Item(i).Attributes.GetNamedItem('name').Value = ElementName then
-                exit(SchemaNodeList.Item(i).Attributes.GetNamedItem('type').Value);
+        for i := 1 to SchemaNodeList.Count() do begin
+            SchemaNodeList.Get(i, xmlNode);
+            xmlNode.AsXmlElement().Attributes().Get('name', xmlAttribute);
+            if xmlAttribute.Value() = ElementName then
+                if xmlNode.AsXmlElement().Attributes().Get('type', xmlAttribute) then
+                    exit(xmlAttribute.Value());
         end;
         Error(ElementNotFoundInScemaErr, ElementName);
     end;
@@ -222,19 +282,19 @@ codeunit 131007 "Library - Report Dataset"
         ValueVar: Variant;
         Value: Decimal;
     begin
-        while GetNextRow do
+        while GetNextRow() do
             if CurrentRowHasElement(ElementName) then begin
                 FindCurrentRowValue(ElementName, ValueVar);
                 Value := ValueVar;
                 TotalValue += Value;
             end;
 
-        CurrentRowIndex := -1
+        CurrentRowIndex := 0
     end;
 
     procedure GetNextRow(): Boolean
     begin
-        if CurrentRowIndex < RowCount - 1 then begin
+        if CurrentRowIndex < RowCount() then begin
             CurrentRowIndex += 1;
             exit(true);
         end;
@@ -243,11 +303,9 @@ codeunit 131007 "Library - Report Dataset"
 
     procedure MoveToRow(RowIndex: Integer)
     begin
-        // Assume incoming index is in range  1..Count (like arrays in C/AL)
-        // Dataset indices start from 0.. thus we need compare CurrentRowIndex with passed decremented (by 1) RowIndex
-        CurrentRowIndex := -1;
-        while GetNextRow and (CurrentRowIndex <> (RowIndex - 1)) do;
-        if not ((CurrentRowIndex = (RowIndex - 1)) and (CurrentRowIndex > -1)) then
+        CurrentRowIndex := 0;
+        while GetNextRow() and (CurrentRowIndex <> RowIndex) do;
+        if not ((CurrentRowIndex = RowIndex) and (CurrentRowIndex > 0)) then
             Error(StrSubstNo(RowIndexNotFoundErr, RowIndex));
     end;
 
@@ -272,9 +330,9 @@ codeunit 131007 "Library - Report Dataset"
     var
         TempBlob: Codeunit "Temp Blob";
         DataTypeManagement: Codeunit "Data Type Management";
+        ReportRecordRef: RecordRef;
         ReportOutStream: OutStream;
         ReportInStream: InStream;
-        ReportRecordRef: RecordRef;
     begin
         TempBlob.CreateOutStream(ReportOutStream);
 
@@ -290,7 +348,6 @@ codeunit 131007 "Library - Report Dataset"
 
     procedure LoadFromInStream(DataSetInStream: InStream)
     var
-        XMLDOMManagement: Codeunit "XML DOM Management";
         DatasetXMLText: Text;
         XMLStartIndex: Integer;
     begin
@@ -301,7 +358,7 @@ codeunit 131007 "Library - Report Dataset"
             DatasetXMLText := CopyStr(DatasetXMLText, XMLStartIndex);
 
         XMLSchemaType := XMLSchemaType::XML;
-        XMLDOMManagement.LoadXMLDocumentFromText(DatasetXMLText, XmlDoc);
+        XmlDocument.ReadFrom(DatasetXMLText, XmlDoc);
         InitializeGlobals(false);
     end;
 
@@ -321,23 +378,25 @@ codeunit 131007 "Library - Report Dataset"
     end;
 
     local procedure LoadXMLFile(FileName: Text; "Schema": Boolean)
-    var
-        XMLDOMManagement: Codeunit "XML DOM Management";
     begin
-        XMLDOMManagement.LoadXMLDocumentFromFile(FileName, XmlDoc);
+        LoadXMLDocumentFromFile(FileName, XmlDoc);
         InitializeGlobals(Schema);
     end;
 
     local procedure InitializeGlobals("Schema": Boolean)
+    var
+        xmlNamespace: XmlNamespaceManager;
     begin
-        CurrentRowIndex := -1;
+        CurrentRowIndex := 0;
 
-        if Schema then
-            SchemaNodeList := XmlDoc.GetElementsByTagName('xs:sequence').Item(0).ChildNodes
-        else
+        if Schema then begin
+            XmlNamespace.NameTable(XmlDoc.NameTable);
+            XmlNamespace.AddNamespace('xs', 'http://www.w3.org/2001/XMLSchema');
+            XmlDoc.SelectNodes('//xs:element', XmlNamespace, SchemaNodeList)
+        end else
             Clear(SchemaNodeList);
 
-        Clear(XmlNodeList);
+        GetResultRows();
 
         // Clear filename to avoid consecutive tests to validate pre-existing data
         DataSetFileName := '';
@@ -351,21 +410,24 @@ codeunit 131007 "Library - Report Dataset"
 
     procedure Reset()
     begin
-        Clear(XmlNodeList);
-        CurrentRowIndex := -1
+        GetResultRows();
+        CurrentRowIndex := 0
     end;
 
     procedure RowCount(): Integer
     begin
-        if IsNull(XmlNodeList) then
-            case XMLSchemaType of
-                XMLSchemaType::ReportPreview:
-                    XmlNodeList := XmlDoc.GetElementsByTagName('Result');
-                XMLSchemaType::XML:
-                    XmlNodeList := XmlDoc.GetElementsByTagName('Column');
-            end;
+        exit(Rows.Count());
+    end;
 
-        exit(XmlNodeList.Count);
+    local procedure GetResultRows()
+    begin
+        Clear(Rows);
+        case XMLSchemaType of
+            XMLSchemaType::ReportPreview:
+                XmlDoc.SelectNodes('DataSet/Result', Rows);
+            XMLSchemaType::XML:
+                XmlDoc.SelectNodes('ReportDataSet/DataItems/DataItem', Rows);
+        end;
     end;
 
     local procedure SearchForElementTagByValue(ElementTag: Text; ElementValue: Variant): Boolean
@@ -380,14 +442,14 @@ codeunit 131007 "Library - Report Dataset"
 
     procedure FindRowWithTagNoValue(ElementTag: Text) Result: Integer
     begin
-        while GetNextRow do
+        while GetNextRow() do
             if CurrentRowHasElementTag(ElementTag) then begin
-                Result := CurrentRowIndex;
-                CurrentRowIndex := -1;
+                Result := CurrentRowIndex - 1;
+                CurrentRowIndex := 0;
                 exit(Result);
             end;
 
-        CurrentRowIndex := -1;
+        CurrentRowIndex := 0;
         Result := -1;
         exit(Result);
     end;
@@ -396,17 +458,17 @@ codeunit 131007 "Library - Report Dataset"
     var
         CurrentValue: Variant;
     begin
-        while GetNextRow do
+        while GetNextRow() do
             if CurrentRowHasElementTag(ElementTag) then begin
                 FindCurrentRowTagValue(ElementTag, CurrentValue);
                 if Assert.Compare(CurrentValue, ElementValue) then begin
-                    Result := CurrentRowIndex;
-                    CurrentRowIndex := -1;
+                    Result := CurrentRowIndex - 1;
+                    CurrentRowIndex := 0;
                     exit(Result);
                 end;
             end;
 
-        CurrentRowIndex := -1;
+        CurrentRowIndex := 0;
         Result := -1;
         exit(Result);
     end;
@@ -415,86 +477,86 @@ codeunit 131007 "Library - Report Dataset"
     var
         CurrentValue: Variant;
     begin
-        while GetNextRow do
+        while GetNextRow() do
             if CurrentRowHasElement(ElementName) then begin
                 FindCurrentRowValue(ElementName, CurrentValue);
                 ConvertValue(ElementValue, CurrentValue);
                 if Assert.Compare(CurrentValue, ElementValue) then begin
-                    Result := CurrentRowIndex;
-                    CurrentRowIndex := -1;
+                    Result := CurrentRowIndex - 1;
+                    CurrentRowIndex := 0;
                     exit(Result);
                 end;
             end;
 
-        CurrentRowIndex := -1;
+        CurrentRowIndex := 0;
         Result := -1;
         exit(Result);
     end;
 
     procedure GetElementValueInCurrentRow(ElementName: Text; var Result: Variant)
     begin
-        Assert.IsTrue(CurrentRowIndex > -1, StrSubstNo(RowIndexErr, CurrentRowIndex));
+        Assert.IsTrue(CurrentRowIndex > 0, StrSubstNo(RowIndexErr, CurrentRowIndex));
         Assert.IsTrue(CurrentRowHasElement(ElementName), StrSubstNo(ElementNameErr, ElementName));
         FindCurrentRowValue(ElementName, Result);
     end;
 
     procedure SetRangeWithTrimmedValues(ElementName: Text; Value: Variant; TrimSpacesInValue: Boolean)
     var
-        XmlNode: DotNet XmlNode;
+        dataSet: XmlNode;
     begin
         // Validate that the element exists in the dataset
         GetElementSchemaType(ElementName);
-        XmlNode := XmlDoc.GetElementsByTagName('DataSet').Item(0);
+        XmlDoc.GetChildElements('DataSet').Get(1, dataSet);
         if TrimSpacesInValue = false then
-            XmlNodeList := XmlNode.SelectNodes(StrSubstNo('//*/*[%1="%2"]', ElementName, Format(Value, 0, 9)))
+            dataSet.SelectNodes(StrSubstNo('//*/*[%1="%2"]', ElementName, Format(Value, 0, 9)), Rows)
         else
-            XmlNodeList := XmlNode.SelectNodes(StrSubstNo('//*/*[normalize-space(%1)="%2"]', ElementName, Format(Value, 0, 9)));
-        CurrentRowIndex := -1
+            dataSet.SelectNodes(StrSubstNo('//*/*[normalize-space(%1)="%2"]', ElementName, Format(Value, 0, 9)), Rows);
+        CurrentRowIndex := 0
     end;
 
     procedure SetXmlNodeList(value: Text)
     begin
-        XmlNodeList := XmlDoc.GetElementsByTagName(value);
+        XmlDoc.SelectNodes(StrSubstNo('//%1', value), Rows);
     end;
 
     procedure GetLastRow()
     begin
-        CurrentRowIndex := RowCount - 1;
+        CurrentRowIndex := RowCount();
     end;
 
-    local procedure NameAttributeMatchesValue(var XmlNode: DotNet XmlNode; AttributeName: Text): Boolean
+    local procedure NameAttributeMatchesValue(var XmlNode: XmlNode; AttributeName: Text): Boolean
     var
-        Attribute: DotNet XmlNode;
+        Column: XmlNode;
     begin
-        foreach Attribute in XmlNode.Attributes do
-            if Attribute.Name = 'name' then
-                exit(Attribute.Value = AttributeName);
-
-        exit(false);
+        exit(XmlNode.SelectSingleNode(StrSubstNo(SearchPatternColumnByNameTxt, AttributeName), Column));
     end;
 
     local procedure ConvertValue(var ExpectedValue: Variant; var ActualValue: Variant)
+    begin
+        if XMLSchemaType <> XMLSchemaType::XML then
+            exit;
+        ConvertValues(ExpectedValue, ActualValue);
+    end;
+
+    local procedure ConvertValues(var ExpectedValue: Variant; var ActualValue: Variant)
     var
         ConvertedDecimal: Decimal;
         ConvertedInteger: Integer;
         ConvertedBoolean: Boolean;
     begin
-        if XMLSchemaType <> XMLSchemaType::XML then
-            exit;
-
-        if ExpectedValue.IsDecimal then begin
+        if ExpectedValue.IsDecimal() then begin
             Evaluate(ConvertedDecimal, ActualValue);
             ActualValue := ConvertedDecimal;
             exit;
         end;
 
-        if ExpectedValue.IsInteger then begin
+        if ExpectedValue.IsInteger() then begin
             Evaluate(ConvertedInteger, ActualValue);
             ActualValue := ConvertedInteger;
             exit;
         end;
 
-        if ExpectedValue.IsBoolean then begin
+        if ExpectedValue.IsBoolean() then begin
             Evaluate(ConvertedBoolean, ActualValue);
             ActualValue := ConvertedBoolean;
             exit;
@@ -505,6 +567,47 @@ codeunit 131007 "Library - Report Dataset"
     begin
         if XMLSchemaType = XMLSchemaType::XML then
             Error(FunctionNotSupportedForXMLErr);
+    end;
+
+    [TryFunction]
+    [Scope('OnPrem')]
+    procedure LoadXMLDocumentFromText(XmlText: Text; var XmlDocument: XmlDocument)
+    var
+        XmlReadOptions: XmlReadOptions;
+    begin
+        LoadXmlDocFromText(XmlText, XmlDocument, XmlReadOptions);
+    end;
+
+    [Scope('OnPrem')]
+    procedure LoadXMLDocumentFromFile(FileName: Text; var XmlDocument: XmlDocument)
+    var
+        FileManagement: Codeunit "File Management";
+        File: DotNet File;
+    begin
+        FileManagement.IsAllowedPath(FileName, false);
+        if not File.Exists(FileName) then
+            Error('Report Dataset file does not exist.');
+        LoadXMLDocumentFromText(FileManagement.GetFileContents(FileName), XmlDocument);
+    end;
+
+    local procedure LoadXmlDocFromText(XmlText: Text; var xmlDoc: XmlDocument; xmlReadOptions: XmlReadOptions)
+    begin
+        if XmlText = '' then
+            exit;
+
+        ClearUTF8BOMSymbols(XmlText);
+        XmlDocument.ReadFrom(XmlText, xmlReadOptions, xmlDoc);
+    end;
+
+    local procedure ClearUTF8BOMSymbols(var XmlText: Text)
+    var
+        UTF8Encoding: DotNet UTF8Encoding;
+        ByteOrderMarkUtf8: Text;
+    begin
+        UTF8Encoding := UTF8Encoding.UTF8Encoding();
+        ByteOrderMarkUtf8 := UTF8Encoding.GetString(UTF8Encoding.GetPreamble());
+        if StrPos(XmlText, ByteOrderMarkUtf8) = 1 then
+            XmlText := DelStr(XmlText, 1, StrLen(ByteOrderMarkUtf8));
     end;
 }
 

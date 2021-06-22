@@ -58,6 +58,8 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         Assert.AreEqual(LibraryXMLRead.GetNodesCount('cac:InvoiceLine'), 1, '');
         // [THEN] <EndpointID> exported as 'BE1234567890' with VAT schema ID (TFS 340767)
         VerifyCustomerEndpoint(Customer."VAT Registration No.", GetVATSchemaID(Customer."Country/Region Code"));
+        // [THEN] <TaxCurrencyCode> is not exported, one <TaxTotal> node in XML (TFS 389982)
+        VerifyTaxTotalNode('Invoice');
     end;
 
     [Test]
@@ -192,6 +194,10 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryS);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', GetVATPctPostedSalesInvoice(SalesInvoiceHeader));
+
+        // [THEN] 'schemeID' attriute is not exported for TaxCategory (TFS 388773)
+        LibraryXMLRead.VerifyAttributeAbsenceInSubtree('cac:TaxTotal', 'cac:TaxCategory', 'schemeID');
+        LibraryXMLRead.VerifyAttributeAbsenceInSubtree('cac:InvoiceLine', 'cac:ClassifiedTaxCategory', 'schemeID');
     end;
 
     [Test]
@@ -463,6 +469,8 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         Assert.AreEqual(LibraryXMLRead.GetNodesCount('cac:CreditNoteLine'), 1, '');
         // [THEN] <EndpointID> exported as 'BE1234567890' with VAT schema ID (TFS 340767)
         VerifyCustomerEndpoint(Customer."VAT Registration No.", GetVATSchemaID(Customer."Country/Region Code"));
+        // [THEN] <TaxCurrencyCode> is not exported, one <TaxTotal> node in XML (TFS 389982)
+        VerifyTaxTotalNode('CreditNote');
     end;
 
     [Test]
@@ -597,6 +605,10 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         LibraryXMLRead.Initialize(XMLFilePath);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryS);
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', GetVATPctPostedSalesCrMemo(SalesCrMemoHeader));
+
+        // [THEN] 'schemeID' attirbute is not exported for TaxCategory (TFS 388773)
+        LibraryXMLRead.VerifyAttributeAbsenceInSubtree('cac:TaxTotal', 'cac:TaxCategory', 'schemeID');
+        LibraryXMLRead.VerifyAttributeAbsenceInSubtree('cac:CreditNoteLine', 'cac:ClassifiedTaxCategory', 'schemeID');
     end;
 
     [Test]
@@ -848,7 +860,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         Initialize;
 
         // [GIVEN] Posted Service Invoice for Customer with GLN = '1234567890123'
-        CreatePostServiceInvoice(ServiceInvoiceHeader);
+        CreatePostServiceInvoice(ServiceInvoiceHeader, '');
         Customer.Get(ServiceInvoiceHeader."Customer No.");
 
         // [WHEN] Export Service Credit Memo with PEPPOL BIS3
@@ -880,7 +892,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         Initialize;
 
         // [GIVEN] Posted Service Credit Memo for Customer with GLN = '1234567890123'
-        CreatePostServiceCrMemo(ServiceCrMemoHeader);
+        CreatePostServiceCrMemo(ServiceCrMemoHeader, '');
         Customer.Get(ServiceCrMemoHeader."Customer No.");
 
         // [WHEN] Export Service Credit Memo with PEPPOL BIS3
@@ -958,6 +970,118 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         LibraryXMLRead.VerifyNodeAbsence('cac:PaymentTerms');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoiceFCY()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: Record Customer;
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice] [Currency]
+        // [SCENARIO 389982] PEPPOL BIS3. Export Sales Invoice in FCY
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice in FCY
+        Customer.Get(CreateCustomerWithAddressAndVATRegNo);
+        CreateSalesDoc(SalesHeader, SalesLine, Customer."No.", SalesHeader."Document Type"::Invoice, CreateCurrencyCode);
+        SalesInvoiceHeader.Get(
+          LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader."External Document No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader.Modify();
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <TaxCurrencyCode> is not exported, one <TaxTotal> node in XML (TFS 389982)
+        LibraryXMLRead.Initialize(XMLFilePath);
+        VerifyTaxTotalNode('Invoice');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemoFCY()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        Customer: Record Customer;
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo] [Currency]
+        // [SCENARIO 389982] PEPPOL BIS3. Export Sales Credit Memo in FCY
+        Initialize();
+
+        // [GIVEN] Posted Sales Credit Memo in FCY
+        Customer.Get(CreateCustomerWithAddressAndVATRegNo);
+        CreateSalesDoc(SalesHeader, SalesLine, Customer."No.", SalesHeader."Document Type"::"Credit Memo", CreateCurrencyCode);
+        SalesCrMemoHeader.Get(
+          LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesCrMemoHeader."External Document No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader.Modify();
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <TaxCurrencyCode> is not exported, one <TaxTotal> node in XML (TFS 389982)
+        LibraryXMLRead.Initialize(XMLFilePath);
+        VerifyTaxTotalNode('CreditNote');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_ServiceInvoiceFCY()
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        Customer: Record Customer;
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Service] [Invoice] [Currency]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Service Invoice in FCY
+        Initialize();
+
+        // [GIVEN] Posted Service Invoice in FCY
+        CreatePostServiceInvoice(ServiceInvoiceHeader, CreateCurrencyCode);
+        Customer.Get(ServiceInvoiceHeader."Customer No.");
+
+        // [WHEN] Export Service Invoice with PEPPOL BIS3
+        ServiceInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(ServiceInvoiceHeader, CreateBISElectronicDocumentFormatServiceInvoice);
+
+        // [THEN] <TaxCurrencyCode> is not exported, one <TaxTotal> node in XML (TFS 389982)
+        LibraryXMLRead.Initialize(XMLFilePath);
+        VerifyTaxTotalNode('Invoice');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_ServiceCrMemoFCY()
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        Customer: Record Customer;
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Service] [Credit Memo] [FCY]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Service Credit Memo in FCY
+        Initialize();
+
+        // [GIVEN] Posted Service Credit Memo in FCY
+        CreatePostServiceCrMemo(ServiceCrMemoHeader, CreateCurrencyCode);
+        Customer.Get(ServiceCrMemoHeader."Customer No.");
+
+        // [WHEN] Export Service Credit Memo with PEPPOL BIS3
+        ServiceCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(ServiceCrMemoHeader, CreateBISElectronicDocumentFormatServiceCrMemo);
+
+        // [THEN] <TaxCurrencyCode> is not exported, one <TaxTotal> node in XML (TFS 389982)
+        LibraryXMLRead.Initialize(XMLFilePath);
+        VerifyTaxTotalNode('CreditNote');
+    end;
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
@@ -1001,6 +1125,18 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             Validate(GLN, '1234567891231');
             Modify(true);
         end;
+    end;
+
+    local procedure CreateCurrencyCode(): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        Currency.Init();
+        Currency.Validate(Code, LibraryUtility.GenerateRandomAlphabeticText(3, 0));
+        if not Currency.Insert(true) then
+            exit(Currency.Code);
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        exit(Currency.Code);
     end;
 
     local procedure CreateElectronicDocumentFormatSetup(NewCode: Code[20]; NewUsage: Option; NewCodeunitID: Integer): Code[20]
@@ -1069,16 +1205,17 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesDoc(SalesHeader, SalesLine, CustomerNo, DocumentType);
+        CreateSalesDoc(SalesHeader, SalesLine, CustomerNo, DocumentType, '');
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Your Reference",
           LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("Your Reference"), DATABASE::"Sales Header"));
         SalesHeader.Validate("Shipment Date", LibraryRandom.RandDate(10));
+        SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
@@ -1091,7 +1228,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesDoc(SalesHeader, SalesLine, CustomerNo, DocumentType);
+        CreateSalesDoc(SalesHeader, SalesLine, CustomerNo, DocumentType, '');
         SalesLine.Validate(
           "VAT Prod. Posting Group", CreateVATPostingSetupWithTaxCategory(SalesHeader."VAT Bus. Posting Group", TaxCategory, VATPct));
         SalesLine.Modify(true);
@@ -1103,7 +1240,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesDoc(SalesHeader, SalesLine, CustomerNo, DocumentType);
+        CreateSalesDoc(SalesHeader, SalesLine, CustomerNo, DocumentType, '');
         SalesLine.Validate(
           "VAT Prod. Posting Group",
           CreateVATPostingSetupWithTaxCategoryReverseVAT(SalesHeader."VAT Bus. Posting Group", TaxCategory, VATPct));
@@ -1111,23 +1248,25 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreatePostServiceInvoice(var ServiceInvoiceHeader: Record "Service Invoice Header")
+    local procedure CreatePostServiceInvoice(var ServiceInvoiceHeader: Record "Service Invoice Header"; CurrencyCode: Code[10])
     var
         DummyServiceHeader: Record "Service Header";
     begin
-        ServiceInvoiceHeader.SetRange("Pre-Assigned No.", CreatePostServiceDoc(DummyServiceHeader."Document Type"::Invoice));
+        ServiceInvoiceHeader.SetRange(
+          "Pre-Assigned No.", CreatePostServiceDoc(DummyServiceHeader."Document Type"::Invoice, CurrencyCode));
         ServiceInvoiceHeader.FindFirst;
     end;
 
-    local procedure CreatePostServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    local procedure CreatePostServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; CurrencyCode: Code[10])
     var
         DummyServiceHeader: Record "Service Header";
     begin
-        ServiceCrMemoHeader.SetRange("Pre-Assigned No.", CreatePostServiceDoc(DummyServiceHeader."Document Type"::"Credit Memo"));
+        ServiceCrMemoHeader.SetRange(
+          "Pre-Assigned No.", CreatePostServiceDoc(DummyServiceHeader."Document Type"::"Credit Memo", CurrencyCode));
         ServiceCrMemoHeader.FindFirst;
     end;
 
-    local procedure CreatePostServiceDoc(DocumentType: Enum "Service Document Type"): Code[20]
+    local procedure CreatePostServiceDoc(DocumentType: Enum "Service Document Type"; CurrencyCode: Code[10]): Code[20]
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -1136,6 +1275,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         Customer.Get(CreateCustomerWithAddressAndGLN);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, Customer."No.");
         ServiceHeader.Validate("Due Date", LibraryRandom.RandDate(10));
+        ServiceHeader.Validate("Currency Code", CurrencyCode);
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceLineWithQuantity(
           ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
@@ -1394,6 +1534,12 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:EndpointID', EndpointID);
         LibraryXMLRead.VerifyAttributeValueInSubtree('cac:AccountingCustomerParty', 'cbc:EndpointID', 'schemeID', schemeID);
+    end;
+
+    local procedure VerifyTaxTotalNode(DocumentType: Text)
+    begin
+        LibraryXMLRead.VerifyElementAbsenceInSubtree(DocumentType, 'cbc:TaxCurrencyCode');
+        Assert.AreEqual(1, LibraryXMLRead.GetNodesCount('cac:TaxTotal'), '');
     end;
 }
 

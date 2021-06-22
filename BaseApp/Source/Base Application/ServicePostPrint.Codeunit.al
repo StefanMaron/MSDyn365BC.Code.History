@@ -71,6 +71,11 @@ codeunit 5982 "Service-Post+Print"
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetReport(ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceHeader do
             case "Document Type" of
                 "Document Type"::Order:
@@ -131,6 +136,11 @@ codeunit 5982 "Service-Post+Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmPost(var ServiceHeader: Record "Service Header"; var HideDialog: Boolean; var Ship: Boolean; var Consume: Boolean; var Invoice: Boolean; var IsHandled: Boolean; var PassedServLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetReport(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

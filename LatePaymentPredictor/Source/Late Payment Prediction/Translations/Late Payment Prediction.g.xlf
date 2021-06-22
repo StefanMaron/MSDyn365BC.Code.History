@@ -728,7 +728,7 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension CustomerLedgerEntryLPP - Field Prediction Confidence % - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 3795713173 - NamedType 3140912156" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1192395785">
+        <trans-unit id="TableExtension 3795713173 - NamedType 3140912156" size-unit="char" translate="yes" xml:space="preserve" al-object-target="TableExtension 3795713173">
           <source>There must be an amount to make a prediction for.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension LPP Sales Header - NamedType PredictionDisabledErr</note>

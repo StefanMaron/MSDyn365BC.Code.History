@@ -15,6 +15,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryAssembly: Codeunit "Library - Assembly";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -1862,6 +1863,141 @@ codeunit 137621 "SCM Costing Bugs II"
         ValueEntry.TestField("Cost Amount (Actual)", 0);
     end;
 
+    [Test]
+    procedure CostAdjustmentRoundingIssueWithFIFOItemAfterRevaluation()
+    var
+        Item: Record Item;
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [FEATURE] [Adjust Cost Item Entries] [Item Charge]
+        // [SCENARIO 385318] Eliminate rounding errors in cost adjustment of FIFO item.
+        Initialize();
+
+        // [GIVEN] FIFO item.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Modify(true);
+
+        // [GIVEN] Receive and invoice purchase order for 3 pcs per 5.29 LCY.
+        // [GIVEN] Purchase receipt = "R".
+        CreateAndPostPurchaseOrderAndFindRcptLine(PurchRcptLine, Item."No.", '', 3, 5.29);
+
+        // [GIVEN] Write off 3 pcs from the inventory. Item ledger entry no. = "X".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', -3);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::"Positive Adjmt.", '', false);
+
+        // [GIVEN] Post positive adjustment for 3 pc with the cost applied from the item entry "X".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 3);
+        ItemJournalLine.Validate("Applies-from Entry", ItemLedgerEntry."Entry No.");
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Post three lines of negative adjustment, each for 1 pc.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', -1);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name",
+          ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", 1);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name",
+          ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", 1);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Adjust cost item entries.
+        // [GIVEN] Each item entry posted now has Unit Cost = 5.29.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Create purchase invoice for item charge and apply it to the purchase receipt "R". Unit Cost = 0.23.
+        // [GIVEN] Post the invoice.
+        CreateAndPostPurchaseInvoiceForItemCharge(PurchRcptLine, 0.23);
+
+        // [GIVEN] The total cost of purchase after posting charge is equal to 16.10 LCY (3 * 5.29 + 0.23 = 16.10).
+        // [GIVEN] The rounded cost of each outbound entry for -1 pc must be -5.37 (-5.366666...) which gives the cost of -3 pcs = -16.11 (-3 * 5.37).
+        // [GIVEN] The difference of -0.01 will be added to the inbound entry directly applied to the three negative adjustments.
+
+        // [WHEN] Adjust cost item entries.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] The sums of quantity and cost amount of all item entries becomes zero.
+        VerifyValueEntry(Item."No.", 0, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CostAdjustmentRoundingIssueWithAsmItemAfterComponentRevalued()
+    var
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        LocationRed: Record Location;
+        LocationBlue: Record Location;
+        LocationInTransit: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        AssemblyHeader: Record "Assembly Header";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+    begin
+        // [FEATURE] [Adjust Cost Item Entries] [Item Charge] [Assembly] [Transfer]
+        // [SCENARIO 385318] Eliminate rounding errors in cost adjustment of assembled item after its component is revalued.
+        Initialize();
+
+        // [GIVEN] Locations "Blue", "Red".
+        LibraryWarehouse.CreateTransferLocations(LocationBlue, LocationRed, LocationInTransit);
+
+        // [GIVEN] Component item "C".
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Costing Method", CompItem."Costing Method"::FIFO);
+        CompItem.Modify(true);
+
+        // [GIVEN] Assembled item "A". Unit Cost = 5.29 LCY.
+        // [GIVEN] Use "C" as component for "A".
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Costing Method", AsmItem."Costing Method"::FIFO);
+        AsmItem.Validate("Unit Cost", 5.29);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Modify(true);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [GIVEN] Receive and invoice purchase order at location "Blue" for 3 pcs of item "C", 5.29 LCY each.
+        // [GIVEN] Purchase receipt = "R".
+        CreateAndPostPurchaseOrderAndFindRcptLine(PurchRcptLine, CompItem."No.", LocationBlue.Code, 3, 5.29);
+
+        // [GIVEN] Create and post assembly order for 3 pcs of item "A" at location "Blue".
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, AsmItem."No.", LocationBlue.Code, 3, '');
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [GIVEN] Transfer 3 pcs of item "A" from "Blue" to "Red".
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationBlue.Code, LocationRed.Code, LocationInTransit.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, AsmItem."No.", 3);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [GIVEN] Create and post sales order for item "A" at location "Red", three lines, 1 pc per each line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Location Code", LocationRed.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AsmItem."No.", 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AsmItem."No.", 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AsmItem."No.", 1);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', CompItem."No.", AsmItem."No."), '');
+
+        // [GIVEN] Purchase invoice with item charge assigned to the receipt "R". Unit Cost = 0.23.
+        CreateAndPostPurchaseInvoiceForItemCharge(PurchRcptLine, 0.23);
+
+        // [WHEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', CompItem."No.", AsmItem."No."), '');
+
+        // [THEN] The sums of quantity and cost amount for item "A" are equal to 0.
+        VerifyValueEntry(AsmItem."No.", 0, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1976,6 +2112,39 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJournalLine.Validate("New Location Code", NewLocationCode);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateAndPostPurchaseOrderAndFindRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; DirectUnitCost: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, Qty, LocationCode, WorkDate);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.FindFirst();
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceForItemCharge(PurchRcptLine: Record "Purch. Rcpt. Line"; DirectUnitCost: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
+          PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
     local procedure CreateConsumptionJournalLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderNo: Code[20]; ItemNo: Code[20]; Qty: Decimal)
@@ -2484,6 +2653,16 @@ codeunit 137621 "SCM Costing Bugs II"
         until ItemLedgerEntry.Next = 0;
     end;
 
+    local procedure VerifyValueEntry(ItemNo: Code[20]; Qty: Decimal; CostAmount: Decimal)
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)");
+        ValueEntry.TestField("Item Ledger Entry Quantity", Qty);
+        ValueEntry.TestField("Cost Amount (Actual)", CostAmount);
+    end;
+
     local procedure AdjustCostAndVerify(ItemNo: Code[20]; ExpectedUnitCost: Decimal)
     var
         Item: Record Item;
@@ -2697,6 +2876,11 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         LibraryVariableStorage.Enqueue(Option);
         Choice := 1;
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text)
+    begin
     end;
 }
 

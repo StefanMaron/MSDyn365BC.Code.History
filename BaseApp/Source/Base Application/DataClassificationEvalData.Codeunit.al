@@ -76,6 +76,7 @@
         ClassifySalesOrderEntityBuffer;
         ClassifySalesQuoteEntityBuffer;
         ClassifySalesCrMemoEntityBuffer;
+        ClassifyPurchaseOrderEntityBuffer();
         ClassifyWarehouseEntry;
         ClassifyWarehouseJournalLine;
         ClassifyWarehouseEmployee;
@@ -6358,6 +6359,60 @@
         TableNo := DATABASE::"Posted Gen. Journal Line";
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyPostedGenJournalLine.FieldNo("VAT Registration No."));
+    end;
+
+    local procedure ClassifyPurchaseOrderEntityBuffer()
+    var
+        PurchOrderEntityBufer: Record "Purchase Order Entity Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Purchase Order Entity Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Buy-from Vendor No."));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("No."));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Payment Terms Code"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Vendor Posting Group"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Currency Code"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Prices Including VAT"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Purchaser Code"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Recalculate Invoice Disc."));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo(Amount));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Amount Including VAT"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Buy-from Vendor Name"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Buy-from Address"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Buy-from Address 2"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Buy-from City"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Buy-from Contact"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Buy-from Post Code"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Buy-from County"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Buy-from Country/Region Code"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Document Date"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Vendor Ledger Entry No."));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Invoice Discount Amount"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Buy-from Contact No."));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Completely Received"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Requested Receipt Date"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Total Tax Amount"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo(Status));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Discount Applied Before Tax"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Pay-to Vendor No."));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Pay-to Name"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Pay-to Address"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Pay-to Address 2"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Pay-to City"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Pay-to Contact"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Pay-to Post Code"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Pay-to County"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Pay-to Country/Region Code"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Ship-to Code"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Ship-to Name"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Ship-to Address"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Ship-to Address 2"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Ship-to City"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Ship-to Contact"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Ship-to Post Code"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Ship-to County"));
+        SetFieldToPersonal(TableNo, PurchOrderEntityBufer.FieldNo("Ship-to Country/Region Code"));
     end;
 }
 

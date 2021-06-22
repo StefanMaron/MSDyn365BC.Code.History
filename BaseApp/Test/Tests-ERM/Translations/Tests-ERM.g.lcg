@@ -8528,6 +8528,51 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM - XBRL Taxonomy Pages - NamedType SingleLineExpectedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3004069584 - NamedType 2918744926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applied %1 labels.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - integer, e.g. "Applied 3 labels."]D;]A;(LookupHint=Codeunit ERM - XBRL Taxonomy Pages - NamedType InsertedLabelsMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3004069584 - NamedType 2392975966" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applied %1 presentation relations.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - integer, e.g. "Applied 3 presentation relations."]D;]A;(LookupHint=Codeunit ERM - XBRL Taxonomy Pages - NamedType InsertedPresentationsMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3004069584 - NamedType 2711826255" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applied %1 calculations.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - integer, e.g. "Applied 3 calculations."]D;]A;(LookupHint=Codeunit ERM - XBRL Taxonomy Pages - NamedType InsertedCalculationsMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3004069584 - NamedType 906017833" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applied %1 references.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - integer, e.g. "Applied 3 references."]D;]A;(LookupHint=Codeunit ERM - XBRL Taxonomy Pages - NamedType InsertedReferencesMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3004069584 - NamedType 3772884302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applied %1 taxonomy lines.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - integer, e.g. "Applied 3 taxonomy lines."]D;]A;(LookupHint=Codeunit ERM - XBRL Taxonomy Pages - NamedType InsertedSchemeMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 35293308 - NamedType 3268343927" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Purchase Invoice %1 already exists for this vendor.]]></Val>

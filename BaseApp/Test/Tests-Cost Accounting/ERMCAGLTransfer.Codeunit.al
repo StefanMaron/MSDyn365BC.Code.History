@@ -20,7 +20,7 @@ codeunit 134812 "ERM CA GL Transfer"
         isInitialized: Boolean;
         CostRegisterEntriesError: Label 'The number of expected Cost Register entries is different than the actual one';
         ExpectedValueIsDifferentError: Label 'Expected value of %1 field is different than the actual one.';
-        NoEntriesToTransferError: Label 'Could not transfer general ledger entries to Cost Accounting.';
+        NoEntriesToTransferError: Label 'There are no G/L entries that meet the criteria for transfer to cost accounting.';
         UnexpectedErrorMessage: Label 'Unexpected error message: %1.';
 
     local procedure Initialize()

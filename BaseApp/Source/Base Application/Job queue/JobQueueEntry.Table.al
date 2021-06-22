@@ -876,8 +876,20 @@
         end else begin
             SetStatusValue(Status::Error);
             Commit();
-            if CODEUNIT.Run(CODEUNIT::"Job Queue - Send Notification", Rec) then;
+            TryRunJobQueueSendNotification();
         end;
+    end;
+
+    local procedure TryRunJobQueueSendNotification()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTryRunJobQueueSendNotification(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Codeunit.Run(Codeunit::"Job Queue - Send Notification", Rec) then;
     end;
 
     local procedure ClearRunOnWeekdays()
@@ -1316,6 +1328,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetStatusValue(var JobQueueEntry: Record "Job Queue Entry"; var xJobQueueEntry: Record "Job Queue Entry"; var NewStatus: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTryRunJobQueueSendNotification(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
 

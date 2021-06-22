@@ -1,4 +1,4 @@
-codeunit 7322 "Create Inventory Pick/Movement"
+﻿codeunit 7322 "Create Inventory Pick/Movement"
 {
     Permissions = TableData "Whse. Item Tracking Line" = rimd;
     TableNo = "Warehouse Activity Header";
@@ -1238,6 +1238,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         with InternalMovementLine do begin
             SetRange("No.", InternalMovementHeader."No.");
             SetFilter("Qty. (Base)", '>0');
+            OnSetFilterInternalMomementOnAfterSetFilters(InternalMovementLine, InternalMovementHeader);
             exit(Find('-'));
         end;
     end;
@@ -1329,6 +1330,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         with InternalMovementLine do begin
             SetRange("No.", InternalMovementHeaderNo);
+            OnDeleteHandledInternalMovementLinesOnAfterInternalMovementLineSetFilters(InternalMovementLine, InternalMovementHeaderNo);
             FindSet;
             repeat
                 TempInternalMovementLine.SetRange("Item No.", "Item No.");
@@ -1859,6 +1861,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDeleteHandledInternalMovementLinesOnAfterInternalMovementLineSetFilters(var InternalMovementLine: Record "Internal Movement Line"; InternalMovementHeaderNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDeleteHandledInternalMovementLinesOnBeforeInternalMovementLineModify(var InternalMovementLine: Record "Internal Movement Line"; TempInternalMovementLine: Record "Internal Movement Line" temporary)
     begin
     end;
@@ -1890,6 +1897,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeLineOnBeforeUpdatePlaceLine(var NewWhseActivLine: Record "Warehouse Activity Line"; var PlaceBinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFilterInternalMomementOnAfterSetFilters(var InternalMovementLine: Record "Internal Movement Line"; InternalMovementHeader: Record "Internal Movement Header")
     begin
     end;
 

@@ -3429,6 +3429,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control currencyCode - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4099491740 - Control 1719523317 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Order Id</source>
+          <target state="translated">Order-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control orderId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4099491740 - Control 3577402367 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Order No.</source>
+          <target state="translated">Ordernr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control orderNumber - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4099491740 - Control 3690097785 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Prices Include Tax</source>
           <target state="translated">Prijzen inclusief btw</target>
@@ -3560,6 +3572,630 @@
           <target state="translated">U bent niet gemachtigd om inkoopfacturen te lezen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - NamedType PurchaseInvoicePermissionsErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchase Order Line</source>
+          <target state="translated">Inkooporderregel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchase Order Lines</source>
+          <target state="translated">Inkooporderregels</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 565362798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Id</source>
+          <target state="translated">Document-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control documentId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 4026315105 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sequence</source>
+          <target state="translated">Volgorde</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control sequence - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 1137752084 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item Id</source>
+          <target state="translated">Artikel-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control itemId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 1406037800 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Id</source>
+          <target state="translated">Rekening-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control accountId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 2268742530 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line Type</source>
+          <target state="translated">Regeltype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control lineType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 1716610572 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line Object No.</source>
+          <target state="translated">Regelobjectnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control lineObjectNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beschrijving</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 84346318 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unit Of Measure Id</source>
+          <target state="translated">Id van maateenheid</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control unitOfMeasureId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 1092236590 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unit Of Measure Code</source>
+          <target state="translated">Code van maateenheid</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control unitOfMeasureCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 3355113493 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Quantity</source>
+          <target state="translated">Aantal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control quantity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 3840690540 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Direct Unit Cost</source>
+          <target state="translated">Directe kostprijs per eenheid</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control directUnitCost - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Discount Amount</source>
+          <target state="translated">Kortingsbedrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control discountAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 659357154 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Discount Percent</source>
+          <target state="translated">Kortingspercentage</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control discountPercent - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Discount Applied Before Tax</source>
+          <target state="translated">Korting toegepast vóór belasting</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control discountAppliedBeforeTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 3260766182 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount Excluding Tax</source>
+          <target state="translated">Bedrag exclusief btw</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control amountExcludingTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 594817020 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tax Code</source>
+          <target state="translated">Btw-code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control taxCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 2776482850 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tax Percent</source>
+          <target state="translated">Btw-percentage</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control taxPercent - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 4101803605 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Total Tax Amount</source>
+          <target state="translated">Totaal btw-bedrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control totalTaxAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 4103372332 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount Including Tax</source>
+          <target state="translated">Bedrag inclusief btw</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control amountIncludingTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 1512188312 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Invoice Discount Allocation</source>
+          <target state="translated">Toewijzing van factuurkorting</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control invoiceDiscountAllocation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 3755691981 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Net Amount</source>
+          <target state="translated">Nettobedrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control netAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 639184402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Net Tax Amount</source>
+          <target state="translated">Netto-btw-bedrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control netTaxAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 462527801 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Net Amount Including Tax</source>
+          <target state="translated">Nettobedrag inclusief btw</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control netAmountIncludingTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 2351225378 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expected Receipt Date</source>
+          <target state="translated">Verwachte ontvangstdatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control expectedReceiptDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 297672120 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Received Quantity</source>
+          <target state="translated">Ontvangen aantal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control receivedQuantity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 3931212466 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Invoiced Quantity</source>
+          <target state="translated">Gefactureerd aantal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control invoicedQuantity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 2263737622 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Invoice Quantity</source>
+          <target state="translated">Factuuraantal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control invoiceQuantity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 794240300 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ship Quantity</source>
+          <target state="translated">Verzendaantal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control receiveQuantity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 3104767193 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item Variant Id</source>
+          <target state="translated">Artikelvariant-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control itemVariantId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set Lines</source>
+          <target state="translated">Dimensiesetregels</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control dimensionSetLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - NamedType 2565185687" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must specify an Id or a Document Id to get the lines.</source>
+          <target state="translated">U moet een id of een document-id opgeven om de regels op te halen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType IDOrDocumentIdShouldBeSpecifiedForLinesErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - NamedType 2697791227" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The value for "documentId" cannot be modified.</source>
+          <target state="translated">De waarde van 'documentId' kan niet worden gewijzigd.</target>
+          <note from="Developer" annotates="general" priority="2">documentId is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType CannotChangeDocumentIdNoErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - NamedType 3577643735" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The value for sequence cannot be modified. Delete and insert the line again.</source>
+          <target state="translated">De waarde van reeks kan niet worden gewijzigd. Verwijder de regel en voeg deze opnieuw in.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType CannotChangeLineNoErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - NamedType 3559327969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Both "itemId" and "accountId" are specified. Specify only one of them.</source>
+          <target state="translated">Zowel "itemId" als "accountId" zijn opgegeven. Geef slechts een van beide op.</target>
+          <note from="Developer" annotates="general" priority="2">itemId and accountId are field names and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType BothItemIdAndAccountIdAreSpecifiedErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - NamedType 2671689085" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item does not exist.</source>
+          <target state="translated">Artikel bestaat niet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType ItemDoesNotExistErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - NamedType 1048593969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account does not exist.</source>
+          <target state="translated">Account bestaat niet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType AccountDoesNotExistErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - NamedType 91023212" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The value for "lineObjectNumber" cannot be modified.</source>
+          <target state="translated">De waarde van 'lineObjectNumber' kan niet worden gewijzigd.</target>
+          <note from="Developer" annotates="general" priority="2">lineObjectNumber is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType CannotChangeLineObjectNoErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - NamedType 1698940350" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data required by the API was not set up. To set up the data, invoke the action from the API Setup page.</source>
+          <target state="translated">Door API vereiste gegevens zijn niet ingesteld. Als u de gegevens wilt instellen, roept u de actie aan via de pagina API-instellingen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - NamedType SetupNotCompletedErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchase Order</source>
+          <target state="translated">Inkooporder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchase Orders</source>
+          <target state="translated">Inkooporders</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2757394829 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">Nr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control number - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2072918206 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Order Date</source>
+          <target state="translated">Orderdatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control orderDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posting Date</source>
+          <target state="translated">Boekingsdatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control postingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 149332515 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Id</source>
+          <target state="translated">Leveranciers-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control vendorId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 712552689 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor No.</source>
+          <target state="translated">Leveranciersnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control vendorNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2483398189 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Name</source>
+          <target state="translated">Leveranciersnaam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control vendorName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2297462936 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pay-to Name</source>
+          <target state="translated">Factuurnaam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control payToName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 4128959070 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pay-to Vendor Id</source>
+          <target state="translated">Factuurleveranciers-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control payToVendorId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 424924552 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pay-to Vendor No.</source>
+          <target state="translated">Factuurleveranciersnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control payToVendorNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 1889388274 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ship-to Name</source>
+          <target state="translated">Verzendnaam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 1979445219 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ship-to Contact</source>
+          <target state="translated">Verzendcontact</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToContact - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 883773547 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy-from Address Line 1</source>
+          <target state="translated">Leveranciersadresregel 1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control buyFromAddressLine1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2796863398 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy-from Address Line 2</source>
+          <target state="translated">Leveranciersadresregel 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control buyFromAddressLine2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 477206273 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy-from City</source>
+          <target state="translated">Leveranciersplaats</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control buyFromCity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 1323057276 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy-from Country/Region Code</source>
+          <target state="translated">Land-/regiocode van leverancier</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control buyFromCountry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2163249473 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy-from State</source>
+          <target state="translated">Leveranciersstaat/-provincie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control buyFromState - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 426882759 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Buy-from Post Code</source>
+          <target state="translated">Leverancierspostcode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control buyFromPostCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2839400550 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pay-to Address Line 1</source>
+          <target state="translated">Factuuradresregel 1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control payToAddressLine1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 926310699 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pay-to Address Line 2</source>
+          <target state="translated">Factuuradresregel 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control payToAddressLine2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 1075512840 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pay-to City</source>
+          <target state="translated">Factuurplaats</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control payToCity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2898359933 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pay-to Country/Region Code</source>
+          <target state="translated">Land-/regiocode van factuur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control payToCountry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 3313580032 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pay-to State</source>
+          <target state="translated">Factuurstaat/-provincie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control payToState - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2482427330 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pay-to Post Code</source>
+          <target state="translated">Factuurpostcode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control payToPostCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 354324300 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ship-to Address Line 1</source>
+          <target state="translated">Verzendadresregel 1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToAddressLine1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 992020917 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ship-to Address Line 2</source>
+          <target state="translated">Verzendadresregel 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToAddressLine2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 1336190306 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ship-to City</source>
+          <target state="translated">Verzendplaats</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToCity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 3828400819 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ship-to Country/Region Code</source>
+          <target state="translated">Land-/regiocode van verzending</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToCountry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2719673386 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ship-to State</source>
+          <target state="translated">Verzendstaat/-provincie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToState - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2895959832 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ship-to Post Code</source>
+          <target state="translated">Verzendpostcode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipToPostCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 416025006 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Currency Id</source>
+          <target state="translated">Valuta-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control currencyId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 1808640270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Currency Code</source>
+          <target state="translated">Valutacode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control currencyCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 3690097785 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Prices Include Tax</source>
+          <target state="translated">Prijzen inclusief btw</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control pricesIncludeTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 3603481462 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Terms Id</source>
+          <target state="translated">Betalingsvoorwaarden-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control paymentTermsId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 419055430 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shipment Method Id</source>
+          <target state="translated">Verzendwijze-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control shipmentMethodId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 1313438251 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchaser</source>
+          <target state="translated">Inkoper</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control purchaser - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 1210421372 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Requested Receipt Date</source>
+          <target state="translated">Verzochte ontvangstdatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control requestedReceiptDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 3700155212 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Lines</source>
+          <target state="translated">Regels</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control purchaseOrderLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Discount Amount</source>
+          <target state="translated">Kortingsbedrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control discountAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 1312831416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Discount Applied Before Tax</source>
+          <target state="translated">Korting toegepast vóór belasting</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control discountAppliedBeforeTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 3762354732 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Total Amount Excluding Tax</source>
+          <target state="translated">Totaalbedrag exclusief btw</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control totalAmountExcludingTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 4101803605 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Total Tax Amount</source>
+          <target state="translated">Totaal btw-bedrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control totalTaxAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 1842111270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Total Amount Including Tax</source>
+          <target state="translated">Totaalbedrag inclusief btw</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control totalAmountIncludingTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 73969887 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Fully Received</source>
+          <target state="translated">Volledig ontvangen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control fullyReceived - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 998393528 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <target state="translated">Status</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Modified Date</source>
+          <target state="translated">Datum van laatste wijziging</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 8604086 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attachments</source>
+          <target state="translated">Bijlagen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control attachments - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set Lines</source>
+          <target state="translated">Dimensiesetregels</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control dimensionSetLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 3210053793" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "id" cannot be changed.</source>
+          <target state="translated">De 'id' kan niet worden gewijzigd.</target>
+          <note from="Developer" annotates="general" priority="2">id is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CannotChangeIDErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 3395634949" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A "vendorNumber" or a "vendorId" must be provided.</source>
+          <target state="translated">Er moet een 'vendorNumber' of een 'vendorId' worden opgegeven.</target>
+          <note from="Developer" annotates="general" priority="2">vendorNumber and vendorId are field names and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType BuyFromVendorNotProvidedErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 561066829" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The buy-from vendor values do not match to a specific Vendor.</source>
+          <target state="translated">De kopen-van leverancierswaarden komen niet overeen met een specifieke leverancier.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType BuyFromVendorValuesDontMatchErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 682526452" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The pay-to vendor values do not match to a specific Vendor.</source>
+          <target state="translated">De factuurleverancierswaarden komen niet overeen met een specifieke leverancier.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType PayToVendorValuesDontMatchErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 259424556" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The buy-from vendor cannot be found.</source>
+          <target state="translated">De kopen-van leverancier kan niet worden gevonden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CouldNotFindBuyFromVendorErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 2178917581" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The pay-to vendor cannot be found.</source>
+          <target state="translated">De factuurleverancier kan niet worden gevonden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CouldNotFindPayToVendorErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 2935539084" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have permissions to read Purchase Orders.</source>
+          <target state="translated">U bent niet gemachtigd om inkooporders te lezen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType PurchaseOrderPermissionsErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 2624287652" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The currency values do not match to a specific Currency.</source>
+          <target state="translated">De valutawaarden komen niet overeen met een specifieke valuta.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CurrencyValuesDontMatchErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 3939449910" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "currencyId" does not match to a Currency.</source>
+          <target state="translated">De 'currencyId' komt niet overeen met een valuta.</target>
+          <note from="Developer" annotates="general" priority="2">currencyId is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CurrencyIdDoesNotMatchACurrencyErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 1805429782" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "currencyCode" does not match to a Currency.</source>
+          <target state="translated">De 'currencyCode' komt niet overeen met een valuta.</target>
+          <note from="Developer" annotates="general" priority="2">currencyCode is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CurrencyCodeDoesNotMatchACurrencyErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 2002735526" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "paymentTermsId" does not match to a Payment Terms.</source>
+          <target state="translated">De 'paymentTermsId' komt niet overeen met een betalingsvoorwaarde.</target>
+          <note from="Developer" annotates="general" priority="2">paymentTermsId is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType PaymentTermsIdDoesNotMatchAPaymentTermsErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 2619345254" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "shipmentMethodId" does not match to a Shipment Method.</source>
+          <target state="translated">De 'shipmentMethodId' komt niet overeen met een verzendwijze.</target>
+          <note from="Developer" annotates="general" priority="2">shipmentMethodId is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType ShipmentMethodIdDoesNotMatchAShipmentMethodErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 1698940350" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data required by the API was not set up. To set up the data, invoke the action from the API Setup page.</source>
+          <target state="translated">Door API vereiste gegevens zijn niet ingesteld. Als u de gegevens wilt instellen, roept u de actie aan via de pagina API-instellingen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType SetupNotCompletedErr</note>
         </trans-unit>
         <trans-unit id="Page 3772100527 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purchase Receipt</source>

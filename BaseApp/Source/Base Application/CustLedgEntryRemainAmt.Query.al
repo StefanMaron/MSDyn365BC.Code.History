@@ -21,6 +21,9 @@ query 21 "Cust. Ledg. Entry Remain. Amt."
             filter(Customer_Posting_Group; "Customer Posting Group")
             {
             }
+            filter(Date_Filter; "Date Filter")
+            {
+            }
             column(Sum_Remaining_Amt_LCY; "Remaining Amt. (LCY)")
             {
                 Method = Sum;

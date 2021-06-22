@@ -104,17 +104,14 @@ codeunit 2503 "Extension Operation Impl"
         DotNetNavAppALInstaller.ALUnpublishNavTenantApp(PackageID);
     end;
 
-    procedure DownloadExtensionSource(PackageId: Guid): Boolean
+    procedure GetExtensionSource(PackageId: Guid; var ExtensionSourceTempBlob: Codeunit "Temp Blob"; var CleanFileName: Text): Boolean
     var
         PublishedApplication: Record "Published Application";
-        TempBlob: Codeunit "Temp Blob";
         ExtensionInstallationImpl: Codeunit "Extension Installation Impl";
         DotNetNavDesignerALFunctions: DotNet NavDesignerALFunctions;
         NvOutStream: OutStream;
-        NvInStream: InStream;
         FileName: Text;
         VersionString: Text;
-        CleanFileName: Text;
     begin
         CheckPermissions();
 
@@ -126,18 +123,29 @@ codeunit 2503 "Extension Operation Impl"
         if not PublishedApplication.FindFirst() then
             exit(false);
 
-        TempBlob.CreateOutStream(NvOutStream);
-        VersionString :=
-          ExtensionInstallationImpl.GetVersionDisplayString(PublishedApplication);
+        ExtensionSourceTempBlob.CreateOutStream(NvOutStream);
+        VersionString := ExtensionInstallationImpl.GetVersionDisplayString(PublishedApplication);
 
         DotNetNavDesignerALFunctions.GenerateDesignerPackageZipStreamByVersion(NvOutStream, PublishedApplication.ID, VersionString);
+
         FileName := StrSubstNo(ExtensionFileNameTxt, PublishedApplication.Name, PublishedApplication.Publisher, VersionString);
         CleanFileName := DotNetNavDesignerALFunctions.SanitizeDesignerFileName(FileName, '_');
+
+        exit(true);
+    end;
+
+    procedure DownloadExtensionSource(PackageId: Guid): Boolean
+    var
+        TempBlob: Codeunit "Temp Blob";
+        NvInStream: InStream;
+        CleanFileName: Text;
+    begin
+        if not GetExtensionSource(PackageId, TempBlob, CleanFileName) then
+            exit(false);
 
         TempBlob.CreateInStream(NvInStream);
 
         exit(DownloadFromStream(NvInStream, DialogTitleTxt, '', '*.*', CleanFileName));
-
     end;
 
     procedure DownloadDeploymentStatusDetails(OperationId: Guid)

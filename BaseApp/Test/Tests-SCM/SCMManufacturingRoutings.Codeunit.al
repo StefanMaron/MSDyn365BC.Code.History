@@ -13,6 +13,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         LibraryCalcComplexity: Codeunit "Library - Calc. Complexity";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -24,6 +25,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         WrongNoOfTerminationProcessesErr: Label 'Actual number of termination processes in route %1 is %2', Comment = '%1 = Routing No., %2 = No. of operations';
         WrongNoOfStartProcessesErr: Label 'Actual number of start processes in route %1 is %2', Comment = '%1 = Routing No., %2 = No. of operations';
         NoLineWithinFilterErr: Label 'There is no Routing Line within the filter';
+        ItemTrackingMode: Option SetLotNo,VerifyTotals;
         isInitialized: Boolean;
         CannotDeleteWorkMachineCenterErr: Label 'You cannot delete %1 %2 because there is at least one %3 associated with it.';
         WorkMachineCenterNotExistErr: Label 'Operation no. %1 uses %2 no. %3 that no longer exists.', Comment = '%1 - Routing Line Operation No.; %2 - Work Center or Machine Center table caption; %3 - Work or Machine Center No.';
@@ -878,6 +880,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst;
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SetLotNo);
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
         LibraryVariableStorage.Enqueue(ProdOrderLine."Quantity (Base)");
         ProdOrderLine.OpenItemTrackingLines();
@@ -1235,6 +1238,110 @@ codeunit 137082 "SCM Manufacturing - Routings"
         Assert.ExpectedErrorCode('TestField');
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ItemTrackingLinesModalPageHandler,ConfirmHandler,MessageHandler')]
+    procedure TotalsOnItemTrackingLinesForPartiallyPostedPrOLineWithBackwardFlushing()
+    var
+        Location: Record Location;
+        RoutingHeader: Record "Routing Header";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        Qty: Decimal;
+        QtyToPost: Decimal;
+    begin
+        // [FEATURE] [Flushing] [Item Tracking] [Prod. Order Line]
+        // [SCENARIO 387367] Total quantity on Item Tracking Page for Prod. Order Line ("P") shows "P".Quantity when posted output quantity is less than "P".Quantity.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(11, 20);
+        QtyToPost := LibraryRandom.RandInt(10);
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Routing with work center set up for backward flushing.
+        CreateRoutingWithBackwardFlushedWorkCenter(RoutingHeader);
+
+        // [GIVEN] Lot-tracked item.
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // [GIVEN] Production order for 10 pcs.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", Qty);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open production journal, set lot no. and output quantity = 7. Post output.
+        LibraryVariableStorage.Enqueue(QtyToPost);
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Open item tracking lines for the prod. order line.
+        // [THEN] Total quantity = 10. Undefined quantity = 3.
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::VerifyTotals);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryVariableStorage.Enqueue(Qty - QtyToPost);
+        ProdOrderLine.Find();
+        ProdOrderLine.OpenItemTrackingLines();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ItemTrackingLinesModalPageHandler,ConfirmHandler,MessageHandler')]
+    procedure TotalsOnItemTrackingLinesForOverPostedPrOLineWithBackwardFlushing()
+    var
+        Location: Record Location;
+        RoutingHeader: Record "Routing Header";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        Qty: Decimal;
+        QtyToPost: Decimal;
+    begin
+        // [FEATURE] [Flushing] [Item Tracking] [Prod. Order Line]
+        // [SCENARIO 387367] Total quantity on Item Tracking Page for Prod. Order Line ("P") shows posted output quantity when it is greater than "P".Quantity.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        QtyToPost := LibraryRandom.RandIntInRange(11, 20);
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Routing with work center set up for backward flushing.
+        CreateRoutingWithBackwardFlushedWorkCenter(RoutingHeader);
+
+        // [GIVEN] Lot-tracked item.
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // [GIVEN] Production order for 10 pcs.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", Qty);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Open production journal, set lot no. and output quantity = 13. Post output.
+        LibraryVariableStorage.Enqueue(QtyToPost);
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Open item tracking lines for the prod. order line.
+        // [THEN] Total quantity = 13. Undefined quantity = 0.
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::VerifyTotals);
+        LibraryVariableStorage.Enqueue(QtyToPost);
+        LibraryVariableStorage.Enqueue(0);
+        ProdOrderLine.Find();
+        ProdOrderLine.OpenItemTrackingLines();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing - Routings");
@@ -1327,6 +1434,21 @@ codeunit 137082 "SCM Manufacturing - Routings"
         end;
     end;
 
+    local procedure CreateRoutingWithBackwardFlushedWorkCenter(var RoutingHeader: Record "Routing Header")
+    var
+        WorkCenter: Record "Work Center";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Flushing Method", WorkCenter."Flushing Method"::Backward);
+        WorkCenter.Modify(true);
+
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(10)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+    end;
+
     local procedure CreateWorkCenterWithCost(var WorkCenter: Record "Work Center"; UnitCost: Decimal; OverheadRate: Decimal)
     begin
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
@@ -1409,13 +1531,53 @@ codeunit 137082 "SCM Manufacturing - Routings"
     end;
 
     [ModalPageHandler]
-    [Scope('OnPrem')]
     procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines.First;
-        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueInteger);
-        ItemTrackingLines.OK.Invoke;
+        case LibraryVariableStorage.DequeueInteger() of
+            ItemTrackingMode::SetLotNo:
+                begin
+                    ItemTrackingLines.First;
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines.OK.Invoke;
+                end;
+            ItemTrackingMode::VerifyTotals:
+                begin
+                    ItemTrackingLines."SourceQuantityArray[1]".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines.Quantity3.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+                end;
+        end;
+    end;
+
+    [ModalPageHandler]
+    procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    var
+        FlushingFilter: Enum "Flushing Method Filter";
+        Qty: Decimal;
+    begin
+        Qty := LibraryVariableStorage.DequeueDecimal();
+
+        ProductionJournal.FlushingFilter.SetValue(FlushingFilter::"All Methods");
+        ProductionJournal.Last();
+        ProductionJournal."Output Quantity".SetValue(Qty);
+
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SetLotNo);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(Qty);
+        ProductionJournal.ItemTrackingLines.Invoke();
+
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

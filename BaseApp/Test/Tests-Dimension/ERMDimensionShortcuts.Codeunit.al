@@ -21,6 +21,7 @@
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
         IsInitialized: Boolean;
+        TempBatchNameTxt: Label 'BD_TEMP_B';
 
     [Test]
     [Scope('OnPrem')]
@@ -5377,6 +5378,58 @@
         // [THEN] "GLA".Balance = 0
         GLAccount.CalcFields(Balance);
         Assert.IsTrue(GLAccount.Balance = 0, 'Wrong balance');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringByDimPostedEntryBatchName()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGenJournalLine: Record "Gen. Journal Line";
+        DimensionValue: array[6] of Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+        i: Integer;
+        AllocGLAccNo: code[20];
+    begin
+        // [SCENARIO 388593] Posted recurring journal lines contain original batch name, not the temporary one
+        Initialize;
+
+        // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        // [GIVEN] 6 posted gen. jnl. lines
+        LibraryERM.CreateGLAccount(GLAccount);
+        for i := 1 to 6 do begin
+            CreateGenJnlLine(GenJournalLine, GLAccount."No.", i * 100);
+            GenJournalLine.Validate("Dimension Set ID", CreateDimSet(DimensionValue[i]));
+            GenJournalLine.Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        end;
+
+        // [WHEN] Post recurring journal without dimension filter
+        CreateRecurringGenJnlLine(RecurringGenJournalLine, GLAccount."No.");
+        LibraryERM.PostGeneralJnlLine(RecurringGenJournalLine);
+
+        // [THEN] "Reversing" recurring entries contain original batch name
+        GLEntry.SetRange("G/L Account No.", GLAccount."No.");
+        GLEntry.SetRange("Journal Batch Name", RecurringGenJournalLine."Journal Batch Name");
+        Assert.RecordCount(GLEntry, 6);
+        GLEntry.SetRange("Journal Batch Name", TempBatchNameTxt);
+        Assert.RecordCount(GLEntry, 0);
+
+        // [THEN] "Allocation" recurring entries contain original batch name
+        GenJnlAllocation.SetRange("Journal Template Name", RecurringGenJournalLine."Journal Template Name");
+        GenJnlAllocation.SetRange("Journal Batch Name", RecurringGenJournalLine."Journal Batch Name");
+        GenJnlAllocation.SetRange("Journal Line No.", RecurringGenJournalLine."Line No.");
+        GenJnlAllocation.FindFirst();
+
+        GLEntry.SetRange("G/L Account No.", GenJnlAllocation."Account No.");
+        GLEntry.SetRange("Journal Batch Name", RecurringGenJournalLine."Journal Batch Name");
+        Assert.RecordCount(GLEntry, 6);
+        GLEntry.SetRange("Journal Batch Name", TempBatchNameTxt);
+        Assert.RecordCount(GLEntry, 0);
     end;
 
     local procedure Initialize()

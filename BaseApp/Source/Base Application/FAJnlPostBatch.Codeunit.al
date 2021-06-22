@@ -255,11 +255,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                 LineCount := LineCount + 1;
                 Window.Update(3, LineCount);
                 Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
-                if not ("FA No." = '') and
-                   (FAJnlBatch."No. Series" <> '') and
-                   ("Document No." <> LastDocNo2)
-                then
-                    TestField("Document No.", NoSeriesMgt.GetNextNo(FAJnlBatch."No. Series", "FA Posting Date", false));
+                CheckFAJnlLineDocumentNo();
                 if not ("FA No." = '') then
                     LastDocNo2 := "Document No.";
                 MakeRecurringTexts(FAJnlLine);
@@ -289,6 +285,28 @@ codeunit 5633 "FA Jnl.-Post Batch"
                 OnPostLinesOnAfterFAJnlPostLine(FAJnlLine);
             until Next = 0;
         end;
+    end;
+
+    local procedure CheckFAJnlLineDocumentNo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckFAJnlLineDocumentNo(FAJnlLine, FAJnlBatch, IsHandled);
+        if IsHandled then
+            exit;
+
+        with FAJnlLine do
+            if not ("FA No." = '') and
+               (FAJnlBatch."No. Series" <> '') and
+               ("Document No." <> LastDocNo2)
+            then
+                TestField("Document No.", NoSeriesMgt.GetNextNo(FAJnlBatch."No. Series", "FA Posting Date", false));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckFAJnlLineDocumentNo(FAJnlLine: Record "FA Journal Line"; FAJnlBatch: Record "FA Journal Batch"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

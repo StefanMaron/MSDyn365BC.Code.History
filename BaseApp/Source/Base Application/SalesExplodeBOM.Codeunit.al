@@ -206,7 +206,7 @@ codeunit 63 "Sales-Explode BOM"
 
                 ToSalesLine."BOM Item No." := BOMItemNo;
 
-                OnInsertOfExplodedBOMLineToSalesLine(ToSalesLine, SalesLine, FromBOMComp);
+                OnInsertOfExplodedBOMLineToSalesLine(ToSalesLine, SalesLine, FromBOMComp, SalesHeader);
 
                 ToSalesLine.Insert();
                 OnExplodeBOMCompLinesOnAfterToSalesLineInsert(ToSalesLine, SalesLine, FromBOMComp);
@@ -278,7 +278,7 @@ codeunit 63 "Sales-Explode BOM"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertOfExplodedBOMLineToSalesLine(var ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; BOMComponent: Record "BOM Component")
+    local procedure OnInsertOfExplodedBOMLineToSalesLine(var ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; BOMComponent: Record "BOM Component"; var SalesHeader: Record "Sales Header")
     begin
     end;
 

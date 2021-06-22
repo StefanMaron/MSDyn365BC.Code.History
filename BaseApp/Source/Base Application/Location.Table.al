@@ -321,6 +321,7 @@
 
                 if not "Bin Mandatory" and xRec."Bin Mandatory" then begin
                     WhseEntry.SetRange("Location Code", Code);
+                    OnValidateBinMandatoryOnAfterWhseEntrySetFilters(Rec, WhseEntry);
                     WhseEntry.CalcSums("Qty. (Base)");
                     if WhseEntry."Qty. (Base)" <> 0 then
                         Error(Text002, FieldCaption("Bin Mandatory"));
@@ -939,6 +940,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBinMandatoryOnAfterItemLedgEntrySetFilters(var Location: Record Location);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBinMandatoryOnAfterWhseEntrySetFilters(var Location: Record Location; var WhseEntry: Record "Warehouse Entry")
     begin
     end;
 }

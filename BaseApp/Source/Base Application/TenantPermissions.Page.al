@@ -848,6 +848,7 @@ page 9850 "Tenant Permissions"
         FilterGroup(2);
         SetFilter("Role ID", CurrentRoleID);
         TenantPermission.SetFilter("Role ID", CurrentRoleID);
+        TenantPermission.SetFilter("App ID", CurrentAppID);
         FilterGroup(0);
 
         if TenantPermission.FindSet then

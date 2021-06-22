@@ -40,6 +40,8 @@ codeunit 136312 "Job Reservation"
         VendorNoIsNotMatchErr: Label 'Vendor No. is not match.';
         VendorItemNoErr: Label 'Vendor Item No. should be %1';
         NotCreateReservationEntryErr: Label 'The Reservation Entry should not be created.';
+        ReservationEntriesExistErr: Label 'You cannot set the status to %1 because the job has reservations on the job planning lines.', Comment = '%1=The job status name';
+        AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more job planning lines. \Please reserve manually.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1034,6 +1036,204 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine.TestField("Reserved Quantity", JobPlanningLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    procedure JobStatusChangedToPlanningWhenJobPlanningLineWithReservationExistsNotConfirmed()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 384812] Job status "Open" cannot be changed if reservations exist on the Job Planning Lines for it and user does not confirm reservation entry deletion
+        Initialize(false);
+
+        // [GIVEN] Create an post purchase order for item "I".
+        CreateAndReceivePurchaseOrder(PurchaseLine, '');
+
+        // [GIVEN] Item "I" is set up for Reserve = Always.
+        Item.Get(PurchaseLine."No.");
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Create job of "Open" status.
+        LibraryJob.CreateJob(Job);
+        Job.Validate(Status, Job.Status::Open);
+        Job.Modify(true);
+
+        // [GIVEN] Job planning line with item "I" and reservation created.
+        CreateJobTaskWithJobPlanningLineWithUsageLink(JobPlanningLine, Job, Item."No.", LibraryRandom.RandInt(5));
+        JobPlanningLine.AutoReserve();
+
+        // [WHEN] Change Job status to "Planning" and don't confirm reservation entry deletion
+        asserterror Job.Validate(Status, Job.Status::Planning);
+
+        // [THEN] Validation fails with Error message: "You cannot set the status to "Planning" because the job has reservations on the job planning lines."
+        Assert.ExpectedError(StrSubstNo(ReservationEntriesExistErr, Job.Status::Planning));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure JobStatusChangedToPlanningWhenJobPlanningLineWithReservationExistsConfirmed()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        // [SCENARIO 384812] Job status "Open" changed to "Planning" deletes reservations existing on the Job Planning Lines for it if user confirms reservation entry deletion
+        Initialize(false);
+
+        // [GIVEN] Create an post purchase order for item "I".
+        CreateAndReceivePurchaseOrder(PurchaseLine, '');
+
+        // [GIVEN] Item "I" is set up for Reserve = Always.
+        Item.Get(PurchaseLine."No.");
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Create job of "Open" status.
+        LibraryJob.CreateJob(Job);
+        Job.Validate(Status, Job.Status::Open);
+        Job.Modify(true);
+
+        // [GIVEN] Job planning line with item "I" and reservation created.
+        CreateJobTaskWithJobPlanningLineWithUsageLink(JobPlanningLine, Job, Item."No.", LibraryRandom.RandInt(5));
+        JobPlanningLine.AutoReserve();
+
+        // [WHEN] Change Job status to "Planning" and confirm reservation entry deletion
+        Job.Validate(Status, Job.Status::Planning);
+        Job.Modify(true);
+
+        // [THEN] The reservation for job planning of status "Order" is deleted
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Job Planning Line", JobPlanningLine.Status::Order,
+          JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", false);
+        Assert.RecordIsEmpty(ReservationEntry);
+    end;
+
+    [Test]
+    procedure JobStatusChangedToOpenAutoReserveFullQty()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 384812] Job status changed to "Open" fully autoreserves job planning lines for items with Reserve = Always when all quantity available
+        Initialize(false);
+
+        // [GIVEN] Create an post purchase order for 10 PCS of item "I".
+        CreateAndReceivePurchaseOrder(PurchaseLine, '');
+
+        // [GIVEN] Item "I" is set up for Reserve = Always.
+        Item.Get(PurchaseLine."No.");
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Create job of "Planning" status.
+        LibraryJob.CreateJob(Job);
+        Job.Validate(Status, Job.Status::Planning);
+        Job.Modify(true);
+
+        // [GIVEN] Job planning line with 5 PCS of item "I" and no reservation created.
+        CreateJobTaskWithJobPlanningLineWithUsageLink(JobPlanningLine, Job, Item."No.", LibraryRandom.RandInt(5));
+        JobPlanningLine.CalcFields("Reserved Quantity");
+        JobPlanningLine.TestField("Reserved Quantity", 0);
+
+        // [WHEN] Change Job status to "Open"
+        Job.Validate(Status, Job.Status::Open);
+
+        // [THEN] Job Planning Line is fully reserved with "Reserved Quantity" = 5 PCS
+        VerifyJobPlanningLine(JobPlanningLine, JobPlanningLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageHandler')]
+    procedure JobStatusChangedToOpenAutoReserveAvailableQty()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 384812] Job status changed to "Open" autoreserves job planning lines for items with Reserve = Always for available quantity when full auto reservation not possible
+        Initialize(false);
+
+        // [GIVEN] Create an post purchase order for 10 PCS of item "I".
+        CreateAndReceivePurchaseOrder(PurchaseLine, '');
+
+        // [GIVEN] Item "I" is set up for Reserve = Always.
+        Item.Get(PurchaseLine."No.");
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Create job of "Planning" status.
+        LibraryJob.CreateJob(Job);
+        Job.Validate(Status, Job.Status::Planning);
+        Job.Modify(true);
+
+        // [GIVEN] Job planning line with 50 PCS of item "I" and no reservation created.
+        CreateJobTaskWithJobPlanningLineWithUsageLink(JobPlanningLine, Job, Item."No.", LibraryRandom.RandIntInRange(50, 100));
+        JobPlanningLine.CalcFields("Reserved Quantity");
+        JobPlanningLine.TestField("Reserved Quantity", 0);
+
+        // [WHEN] Change Job status to "Open"
+        Job.Validate(Status, Job.Status::Open);
+
+        // [THEN] Message is shown "Automatic reservation is not possible on one or more job planning lines."
+        Assert.ExpectedMessage(AutoReserveNotPossibleMsg, LibraryVariableStorage.DequeueText());
+
+        // [THEN] Job Planning Line is partially reserved with "Reserved Quantity" = 10 PCS
+        VerifyJobPlanningLine(JobPlanningLine, PurchaseLine.Quantity);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageHandler')]
+    procedure JobStatusChangedToOpenAutoReserveMultipleLines()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        JobPlanningLine: array[2] of Record "Job Planning Line";
+    begin
+        // [SCENARIO 384812] Job status changed to "Open" autoreserves multiple job planning lines for items with Reserve = Always for quantity available to reserve
+        Initialize(false);
+
+        // [GIVEN] Create an post purchase order for 10 PCS of item "I".
+        CreateAndReceivePurchaseOrder(PurchaseLine, '');
+
+        // [GIVEN] Item "I" is set up for Reserve = Always.
+        Item.Get(PurchaseLine."No.");
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Create job of "Planning" status.
+        LibraryJob.CreateJob(Job);
+        Job.Validate(Status, Job.Status::Planning);
+        Job.Modify(true);
+
+        // [GIVEN] Job planning line "JP1" with 4 PCS of item "I" and no reservation created.
+        CreateJobTaskWithJobPlanningLineWithUsageLink(JobPlanningLine[1], Job, Item."No.", LibraryRandom.RandInt(5));
+
+        // [GIVEN] Job planning line "JP2" with 10 PCS of item "I" and no reservation created.
+        CreateJobTaskWithJobPlanningLineWithUsageLink(JobPlanningLine[2], Job, Item."No.", PurchaseLine.Quantity);
+
+        // [WHEN] Change Job status to "Open"
+        Job.Validate(Status, Job.Status::Open);
+
+        // [THEN] Message is shown "Automatic reservation is not possible on one or more job planning lines."
+        Assert.ExpectedMessage(AutoReserveNotPossibleMsg, LibraryVariableStorage.DequeueText());
+
+        // [THEN] Job Planning Line "JP1" is fully reserved with "Reserved Quantity" = 4 PCS
+        // [THEN] Job Planning Line "JP2" is partially reserved with "Reserved Quantity" = 6 PCS
+        VerifyJobPlanningLine(JobPlanningLine[1], JobPlanningLine[1].Quantity);
+        VerifyJobPlanningLine(JobPlanningLine[2], PurchaseLine.Quantity - JobPlanningLine[1].Quantity);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1365,6 +1565,7 @@ codeunit 136312 "Job Reservation"
 
     local procedure VerifyJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; ReservedQuantity: Decimal)
     begin
+        JobPlanningLine.Find();
         JobPlanningLine.CalcFields("Reserved Quantity");
         JobPlanningLine.TestField("Reserved Quantity", ReservedQuantity);
     end;
@@ -1440,11 +1641,23 @@ codeunit 136312 "Job Reservation"
     begin
     end;
 
+    [MessageHandler]
+    procedure VerifyMessageHandler(Msg: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Msg);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

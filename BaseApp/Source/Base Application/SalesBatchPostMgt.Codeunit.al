@@ -1,4 +1,4 @@
-codeunit 1371 "Sales Batch Post Mgt."
+﻿codeunit 1371 "Sales Batch Post Mgt."
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Batch Processing Parameter" = rimd,
@@ -35,6 +35,8 @@ codeunit 1371 "Sales Batch Post Mgt."
         SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
         ErrorMessages: Page "Error Messages";
     begin
+        OnBeforeRunBatch(SalesHeader, ReplacePostingDate, PostingDate, ReplaceDocumentDate, Ship, Invoice);
+
         if ReplacePostingDate and (PostingDate = 0D) then
             Error(PostingDateIsNotSetErr);
 
@@ -319,6 +321,11 @@ codeunit 1371 "Sales Batch Post Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareSalesHeader(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunBatch(var SalesHeader: Record "Sales Header";var ReplacePostingDate: Boolean; PostingDate: Date; ReplaceDocumentDate: Boolean; Ship: Boolean; Invoice: Boolean)
     begin
     end;
 

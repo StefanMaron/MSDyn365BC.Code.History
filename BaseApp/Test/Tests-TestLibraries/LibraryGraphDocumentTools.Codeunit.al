@@ -546,12 +546,12 @@ codeunit 130619 "Library - Graph Document Tools"
     begin
         with Vendor do begin
             if EmptyData then
-                AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, '', '', '', '', '', '')
+                AssertPurchaseDocumentPayToAddress(PurchaseHeader, '', '', '', '', '', '')
             else
                 if PartiallyEmptyData then
-                    AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, Address, "Address 2", '', '', "Country/Region Code", '')
+                    AssertPurchaseDocumentPayToAddress(PurchaseHeader, Address, "Address 2", '', '', "Country/Region Code", '')
                 else
-                    AssertPurchaseDocumentBuyFromAddress(PurchaseHeader, Address, "Address 2", City, County, "Country/Region Code", "Post Code");
+                    AssertPurchaseDocumentPayToAddress(PurchaseHeader, Address, "Address 2", City, County, "Country/Region Code", "Post Code");
         end;
     end;
 
@@ -785,13 +785,14 @@ codeunit 130619 "Library - Graph Document Tools"
         JSONManagement: Codeunit "JSON Management";
         sequenceTxt: Text;
         objectTypeTxt: Text;
+        xmlConvert: DotNet XmlConvert;
     begin
         Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, 'sequence', sequenceTxt), 'Could not find sequence');
         Assert.IsTrue(
           JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, LineTypeFieldNameTxt, objectTypeTxt),
           'Could not find ' + LineTypeFieldNameTxt);
-        PurchInvLineAggregate."API Type" := PurchaseLine.Type.AsInteger();
-        Assert.AreEqual(objectTypeTxt, Format(PurchInvLineAggregate."API Type"), 'Wrong value for the API Type');
+        PurchInvLineAggregate."API Type" := PurchaseLine.Type;
+        Assert.AreEqual(xmlConvert.DecodeName(objectTypeTxt), Format(PurchInvLineAggregate."API Type"), 'Wrong value for the API Type');
         Assert.AreEqual(sequenceTxt, Format(PurchaseLine."Line No."), 'Wrong value for Line No.');
     end;
 

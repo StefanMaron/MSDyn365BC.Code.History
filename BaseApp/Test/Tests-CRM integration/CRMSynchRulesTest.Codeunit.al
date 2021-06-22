@@ -17,39 +17,63 @@ codeunit 139181 "CRM Synch. Rules Test"
         LibraryUtility: Codeunit "Library - Utility";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         Assert: Codeunit Assert;
-        ContactCannotBeCreatedErr: Label 'The contact cannot be created because the company does not exist';
+        ContactMissingCompanyErr: Label 'The contact cannot be synchronized because the company does not exist';
 
     [Test]
     [Scope('OnPrem')]
     procedure ModifiedCRMContactSyncedToNAVContact()
     var
         Contact: Record Contact;
-        CRMAccount: Record "CRM Account";
         CRMContact: Record "CRM Contact";
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
         // [SCENARIO] Modified CRM Contact synchronized to the couped NAV Contact
-        Initialize;
+        Initialize();
         // [GIVEN] NAV Contact, where Name is 'A', is coupled to CRM Contact
-        LibraryMarketing.CreatePersonContact(Contact);
-        LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
-        LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
+        CreateCoupledContactsWithParents(Contact, CRMContact);
         CRMContact.LastName := Contact.Surname;
         CRMContact.Modify(true);
-        CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
         // [GIVEN] CRM Contact Name is changed to "B"
         Sleep(20);
         CRMContact.LastName := 'NewLastName';
         CRMContact.Modify(true);
 
         // [WHEN] Sync the CRM contact to NAV
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CONTACT');
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMContact.ContactId, true, true);
 
         // [THEN] NAV Contact is modified, Name is "B"
-        Contact.Find;
+        Contact.Find();
         Contact.TestField(Surname, CRMContact.LastName);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ModifiedNAVContactSyncedToCRMContact()
+    var
+        Contact: Record Contact;
+        CRMContact: Record "CRM Contact";
+    begin
+        // [SCENARIO] Modified NAV Contact synchronized to the couped CRM Contact
+        Initialize();
+        // [GIVEN] CRM Contact, where Name is 'A', is coupled to NAV Contact
+        CreateCoupledContactsWithParents(Contact, CRMContact);
+        Contact.Surname := CRMContact.LastName;
+        Contact.Modify(true);
+        // [GIVEN] NAV Contact Name is changed to "B"
+        Sleep(20);
+        Contact.Surname := 'NewLastName';
+        Contact.Modify(true);
+
+        // [WHEN] Sync the NAV contact to CRM
+        ResetDefaultCRMSetupConfiguration();
+        IntegrationTableMapping.Get('CONTACT');
+        CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Contact.RecordId(), true, true);
+
+        // [THEN] CRM Contact is modified, Name is "B"
+        CRMContact.Find();
+        CRMContact.TestField(LastName, Contact.Surname);
     end;
 
     [Test]
@@ -83,7 +107,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         IntegrationSynchJob.TestField(Failed, 1);
         IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", JobID);
         IntegrationSynchJobErrors.FindFirst;
-        Assert.ExpectedMessage(ContactCannotBeCreatedErr, IntegrationSynchJobErrors.Message);
+        Assert.ExpectedMessage(ContactMissingCompanyErr, IntegrationSynchJobErrors.Message);
     end;
 
     [Test]
@@ -538,6 +562,34 @@ codeunit 139181 "CRM Synch. Rules Test"
         NoSeriesLine.SetRange(Open, true);
         NoSeriesLine.FindFirst;
         exit(NoSeriesLine."Last No. Used");
+    end;
+
+    local procedure CreateCoupledContactsWithParents(var Contact: Record Contact; var CRMContact: Record "CRM Contact")
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CompanyContact: Record Contact;
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CustomerNo: Code[20];
+    begin
+        LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
+        CompanyContact.Get(Contact."Company No.");
+        CompanyContact.SetHideValidationDialog(true);
+        CustomerNo := CompanyContact.CreateCustomer('');
+        Customer.Get(CustomerNo);
+        LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
+        CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId(), CRMAccount.AccountId);
+        LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
+        CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId(), CRMContact.ContactId);
+        CRMContact.OwnerId := CRMAccount.OwnerId;
+        CRMContact.OwnerIdType := CRMAccount.OwnerIdType;
+        CRMContact.Modify();
+        CRMIntegrationRecord.FindByCRMID(CRMContact.OwnerId);
+        CRMIntegrationRecord.FindFirst();
+        SalespersonPurchaser.GetBySystemId(CRMIntegrationRecord."Integration ID");
+        Contact."Salesperson Code" := SalespersonPurchaser.Code;
+        Contact.Modify();
     end;
 
     [Scope('OnPrem')]

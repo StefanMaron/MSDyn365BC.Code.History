@@ -671,8 +671,8 @@ page 143 "Posted Sales Invoices"
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        if HasFilters then
-            if FindFirst then;
+        if HasFilters and not Find() then
+            if FindFirst() then;
         IsOfficeAddin := OfficeMgt.IsAvailable;
         SalesInvoiceHeader.CopyFilters(Rec);
         SalesInvoiceHeader.SetFilter("Document Exchange Status", '<>%1', "Document Exchange Status"::"Not Sent");

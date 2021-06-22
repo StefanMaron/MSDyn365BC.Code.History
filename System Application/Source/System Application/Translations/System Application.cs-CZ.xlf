@@ -5151,13 +5151,13 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 3177497220" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We found %1 license update for a user who has customized permissions. Before continuing, you must either keep the current permissions or add the permissions associated with the new license for the user.</source>
-          <target state="translated">Zjistili jsme, %1 aktualizace licence pro uživatele, který má vlastní oprávnění. Před pokračováním je nutné buď zachovat aktuální oprávnění nebo přidat oprávnění přidružená k nové licenci pro uživatele.</target>
+          <target state="translated">Zjistili jsme %1 aktualizací licence pro uživatele, který má vlastní oprávnění. Před pokračováním je nutné buď zachovat aktuální oprávnění nebo přidat oprávnění přidružená k nové licenci pro uživatele.</target>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to get confirmation on</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesToConfirmSingularTxt</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 3386275873" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We found %1 license updates for users who have customized permissions. Before continuing, you must either keep the current permissions or add the permissions associated with the new license for those users.</source>
-          <target state="translated">Zjistili jsme, %1 aktualizace licence pro uživatele, který má vlastní oprávnění. Před pokračováním je nutné buď zachovat aktuální oprávnění nebo přidat oprávnění přidružená k nové licenci pro uživatele.</target>
+          <target state="translated">Zjistili jsme %1 aktualizací licence pro uživatele, který má vlastní oprávnění. Před pokračováním je nutné buď zachovat aktuální oprávnění nebo přidat oprávnění přidružená k nové licenci pro uživatele.</target>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to get confirmation on</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesToConfirmPluralTxt</note>
         </trans-unit>

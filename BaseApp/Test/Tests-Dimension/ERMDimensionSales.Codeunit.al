@@ -1044,6 +1044,57 @@ codeunit 134475 "ERM Dimension Sales"
         SalesLine.TestField("Dimension Set ID", SavedDimSetID);
     end;
 
+    [Test]
+    procedure SalesInvoiceMultipleLinesAndDimensionsWithReverseChargeVAT()
+    var
+        Customer: Record Customer;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DimensionValue: array[5] of Record "Dimension Value";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[5] of Record "Sales Line";
+        VATEntry: Record "VAT Entry";
+        Index: Integer;
+    begin
+        // [FEATURE] [Reverse Charge VAT] [VAT] [Dimension] [Rounding]
+        // [SCENARIO 377909] System posts zero amounts in VAT Entries when it posts lines with "VAT Calculation Type" = Reverse Charge VAT
+
+        Initialize();
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
+        for Index := 2 to ArrayLen(DimensionValue) do
+            LibraryDimension.CreateDimensionValue(DimensionValue[Index], DimensionValue[1]."Dimension Code");
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        for Index := 1 to ArrayLen(DimensionValue) do begin
+            LibrarySales.CreateSalesLine(SalesLine[Index], SalesHeader, SalesLine[Index].Type::"G/L Account", GLAccount."No.", 1);
+            SalesLine[Index].Validate("Shortcut Dimension 1 Code", DimensionValue[Index].Code);
+            SalesLine[Index].Validate("Unit Price", 25.8);
+            SalesLine[Index].Modify(true);
+        end;
+
+        SalesLine[Index].Validate("Unit Price", 35.0);
+        SalesLine[Index].Modify(true);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Assert.RecordCount(VATEntry, 5);
+
+        VATEntry.CalcSums(Amount);
+        VATEntry.TestField(Amount, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

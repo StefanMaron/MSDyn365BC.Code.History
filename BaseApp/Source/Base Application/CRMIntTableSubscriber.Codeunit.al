@@ -14,7 +14,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CannotSynchProductErr: Label 'Cannot synchronize the product %1.', Comment = '%1=product identification';
         RecordNotFoundErr: Label 'Cannot find %1 in table %2.', Comment = '%1 = The lookup value when searching for the source record, %2 = Source table caption';
         ContactsMustBeRelatedToCompanyErr: Label 'The contact %1 must have a contact company that has a business relation to a customer.', Comment = '%1 = Contact No.';
-        ContactMissingCompanyErr: Label 'The contact cannot be created because the company does not exist.';
+        ContactMissingCompanyErr: Label 'The contact cannot be synchronized because the company does not exist.';
         CRMUnitGroupExistsAndIsInactiveErr: Label 'The %1 %2 already exists in %3, but it cannot be synchronized, because it is inactive.', Comment = '%1=table caption: Unit Group,%2=The name of the indicated Unit Group;%3=product name';
         CRMUnitGroupContainsMoreThanOneUoMErr: Label 'The %4 %1 %2 contains more than one %3. This setup cannot be used for synchronization.', Comment = '%1=table caption: Unit Group,%2=The name of the indicated Unit Group,%3=table caption: Unit., %4 = Dataverse service name';
         CustomerHasChangedErr: Label 'Cannot create the invoice in %2. The customer from the original %2 sales order %1 was changed or is no longer coupled.', Comment = '%1=CRM sales order number, %2 = Dataverse service name';
@@ -315,6 +315,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     procedure OnBeforeModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
+            'CRM Contact-Contact':
+                UpdateContactParentCompany(SourceRecordRef, DestinationRecordRef);
+            'Contact-CRM Contact':
+                UpdateCRMContactParentCustomerId(SourceRecordRef, DestinationRecordRef);
             'Customer Price Group-CRM Pricelevel':
                 UpdateCRMPricelevelBeforeModifyRecord(SourceRecordRef, DestinationRecordRef);
             'Price List Header-CRM Pricelevel':
@@ -468,8 +472,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         ParentCustomerId: Guid;
     begin
         Session.LogMessage('0000ECA', UpdateContactParentCompanyTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-        // When inserting we also want to set the company contact id
-        // We only allow creation of new contacts if the company has already been created
+        // When updating we also want to set the company contact id
+        // We only allow updating contacts if the company has already been created
         SourceFieldRef := SourceRecordRef.Field(CRMContact.FieldNo(ParentCustomerId));
         ParentCustomerId := SourceFieldRef.Value();
         if not CRMSynchHelper.SetContactParentCompany(ParentCustomerId, DestinationRecordRef) then begin
@@ -659,7 +663,13 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMSalesOrderToSalesOrder: Codeunit "CRM Sales Order to Sales Order";
         OutStream: OutStream;
         AccountId: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateCRMInvoiceBeforeInsertRecord(SourceRecordRef, DestinationRecordRef, IsHandled);
+        if IsHandled then
+            exit;
+
         SourceRecordRef.SetTable(SalesInvoiceHeader);
         DestinationRecordRef.SetTable(CRMInvoice);
 
@@ -1535,6 +1545,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         OptionValue := OptionDestinationFielRef.Value();
         if (OptionValue <> 0) and (OptionValue <> EnumValue) then
             EnumDestinationFielRef.Value := OptionValue;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCRMInvoiceBeforeInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -1,4 +1,4 @@
-codeunit 5980 "Service-Post"
+﻿codeunit 5980 "Service-Post"
 {
     Permissions = TableData "Service Header" = imd,
                   TableData "Service Item Line" = imd,
@@ -150,7 +150,7 @@ codeunit 5980 "Service-Post"
                           PostedWhseShipmentLine, TempTrackingSpecification);
                     until TempWarehouseShipmentLine.Next = 0;
                 if WarehouseShipmentHeaderLocal.Get(WarehouseShipmentHeader."No.") then
-                    WhsePostShpt.PostUpdateWhseDocuments(WarehouseShipmentHeader);
+                    UpdateWhseDocuments();
             end;
 
             if PreviewMode then begin
@@ -179,6 +179,18 @@ codeunit 5980 "Service-Post"
         PassedServHeader := ServiceHeader;
 
         OnAfterPostWithLines(PassedServHeader);
+    end;
+
+    local procedure UpdateWhseDocuments()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateWhseDocuments(WarehouseShipmentHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        WhsePostShpt.PostUpdateWhseDocuments(WarehouseShipmentHeader);
     end;
 
     local procedure Initialize(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
@@ -608,6 +620,11 @@ codeunit 5980 "Service-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestMandatoryFields(var PassedServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWhseDocuments(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 

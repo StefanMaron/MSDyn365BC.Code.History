@@ -334,21 +334,18 @@ codeunit 131902 "Library - Service"
     end;
 
     procedure CreateServiceDocumentWithItemServiceLine(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
+    begin
+        CreateServiceDocumentForCustomerNo(ServiceHeader, DocumentType, LibrarySales.CreateCustomerNo());
+    end;
+
+    procedure CreateServiceDocumentForCustomerNo(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
     var
         ServiceItem: Record "Service Item";
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
         NoSeries: Record "No. Series";
     begin
-        CreateServiceHeader(ServiceHeader, DocumentType, LibrarySales.CreateCustomerNo);
-
-        if ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo" then begin
-            ServiceHeader."Posting No. Series" := LibraryERM.CreateNoSeriesCode;
-            NoSeries.Get(ServiceHeader."Posting No. Series");
-            NoSeries.Validate("Date Order", true);
-            NoSeries.Modify(true);
-            ServiceHeader.Modify();
-        end;
+        CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
 
         CreateServiceItem(ServiceItem, ServiceHeader."Bill-to Customer No.");
         ServiceItem.Validate("Response Time (Hours)", LibraryRandom.RandDecInRange(5, 10, 2));

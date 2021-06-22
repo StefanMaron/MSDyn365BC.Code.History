@@ -33,6 +33,9 @@ codeunit 1008 "Job Calculate Statistics"
         GetCostAmounts(C);
         GetLCYPriceAmounts(PL);
         GetPriceAmounts(P);
+
+        OnReportAnalysisOnAfterGetAmounts(PL, CL, P, C, I);
+
         Clear(Amt);
         for I := 1 to 8 do begin
             if AmountField[I] = AmountField[I] ::SchPrice then
@@ -98,6 +101,8 @@ codeunit 1008 "Job Calculate Statistics"
                 else
                     Amt[I] := P[16] - C[16];
         end;
+
+        OnAfterReportAnalysis(AmountField, CurrencyField, Amt);
     end;
 
     procedure ReportSuggBilling(var Job2: Record Job; var JT: Record "Job Task"; var Amt: array[8] of Decimal; CurrencyField: array[8] of Option LCY,FCY)
@@ -146,6 +151,8 @@ codeunit 1008 "Job Calculate Statistics"
         JobPlanningLine.FilterGroup(0);
         JobLedgEntry.SetFilter("Posting Date", Job.GetFilter("Posting Date Filter"));
         JobPlanningLine.SetFilter("Planning Date", Job.GetFilter("Planning Date Filter"));
+
+        OnAfterJobCalculateCommonFilters(Job);
     end;
 
     procedure JTCalculateCommonFilters(var JT2: Record "Job Task"; var Job2: Record Job; UseJobFilter: Boolean)
@@ -176,6 +183,8 @@ codeunit 1008 "Job Calculate Statistics"
             JobLedgEntry.SetFilter("Posting Date", Job2.GetFilter("Posting Date Filter"));
             JobPlanningLine.SetFilter("Planning Date", Job2.GetFilter("Planning Date Filter"));
         end;
+
+        OnAfterJTCalculateCommonFilters(JT, JT2, Job2, UseJobFilter);
     end;
 
     procedure CalculateAmounts()
@@ -322,7 +331,27 @@ codeunit 1008 "Job Calculate Statistics"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterJobCalculateCommonFilters(var Job: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterJTCalculateCommonFilters(JobTask: Record "Job Task"; var JobTask2: Record "Job Task"; var Job2: Record Job; UseJobFilter: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReportAnalysis(AmountField: array[8] of Option " ",SchPrice,UsagePrice,ContractPrice,InvoicedPrice,SchCost,UsageCost,ContractCost,InvoicedCost,SchProfit,UsageProfit,ContractProfit,InvoicedProfit; CurrencyField: array[8] of Option LCY,FCY; var Amt: array[8] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcJobPlanAmountsOnAfterJobPlanningLineSetFilters(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReportAnalysisOnAfterGetAmounts(var PL: array[16] of Decimal; var CL: array[16] of Decimal; var P: array[16] of Decimal; var C: array[16] of Decimal; var I: Integer)
     begin
     end;
 
