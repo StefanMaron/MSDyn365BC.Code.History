@@ -42,7 +42,7 @@ codeunit 6300 "Azure AD Mgt."
             AccessToken := AzureADAuthFlow.AcquireTokenByAuthorizationCodeWithCredentials(
                 AuthorizationCode,
                 GetClientId,
-                AzureADAppSetup.GetSecretKey,
+                AzureADAppSetup.GetSecretKeyFromIsolatedStorage(),
                 ResourceUrl);
         end;
     end;
@@ -305,7 +305,7 @@ codeunit 6300 "Azure AD Mgt."
             AzureADAppSetup.FindFirst;
             AccessToken := AzureADAuthFlow.AcquireTokenFromCacheWithCredentials(
                 GetClientId,
-                AzureADAppSetup.GetSecretKey,
+                AzureADAppSetup.GetSecretKeyFromIsolatedStorage(),
                 ResourceName);
         end;
     end;

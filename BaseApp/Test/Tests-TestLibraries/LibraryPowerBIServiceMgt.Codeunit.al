@@ -45,7 +45,7 @@ codeunit 131016 "Library - Power BI Service Mgt"
                 Init;
                 "Redirect URL" := 'http://dummyurl:1234/Main_Instance1/WebClient/OAuthLanding.htm';
                 "App ID" := CreateGuid;
-                SetSecretKey(CreateGuid);
+                SetSecretKeyToIsolatedStorage(CreateGuid);
                 Insert;
             end;
     end;

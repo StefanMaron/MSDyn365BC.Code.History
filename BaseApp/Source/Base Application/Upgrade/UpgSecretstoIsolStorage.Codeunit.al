@@ -10,6 +10,7 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
     begin
         MoveServicePasswordToIsolatedStorage();
         MoveGraphMailRefreshCodeToIsolatedStorage();
+        MoveAzureADAppSetupSecretToIsolatedStorage();
     end;
 
     local procedure MoveServicePasswordToIsolatedStorage()
@@ -57,6 +58,35 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
             END;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGraphMailRefreshCodeToIsolatedStorageTag());
+    end;
+
+    local procedure MoveAzureADAppSetupSecretToIsolatedStorage()
+    var
+        AzureADAppSetup: Record "Azure AD App Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        InStream: InStream;
+        SecretKey, DecryptedSecretKey : Text;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetMoveAzureADAppSetupSecretToIsolatedStorageTag()) then
+            exit;
+        if not AzureADAppSetup.FindFirst() then
+            exit;
+
+        AzureADAppSetup.CalcFields("Secret Key");
+        AzureADAppSetup."Secret Key".CreateInStream(InStream);
+        InStream.Read(SecretKey);
+
+        if EncryptionEnabled() then
+            DecryptedSecretKey := Decrypt(SecretKey)
+        else
+            DecryptedSecretKey := SecretKey;
+
+        AzureADAppSetup.SetSecretKeyToIsolatedStorage(DecryptedSecretKey);
+        Clear(AzureADAppSetup."Secret Key");
+        AzureADAppSetup.Modify();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetMoveAzureADAppSetupSecretToIsolatedStorageTag());
     end;
 
     local procedure MoveToIsolatedStorage(KeyGuid: Guid)
