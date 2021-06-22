@@ -130,10 +130,8 @@ codeunit 6501 "Item Tracking Data Collection"
             TempTrackingSpecification.Validate("Lot No.", TempGlobalEntrySummary."Lot No.");
 
             TransferExpDateFromSummary(TempTrackingSpecification, TempGlobalEntrySummary);
-            if TempTrackingSpecification.IsReclass then begin
-                TempTrackingSpecification."New Serial No." := TempTrackingSpecification."Serial No.";
-                TempTrackingSpecification."New Lot No." := TempTrackingSpecification."Lot No.";
-            end;
+            if TempTrackingSpecification.IsReclass then
+                TempTrackingSpecification.CopyNewTrackingFromTrackingSpec(TempTrackingSpecification);
 
             NewQtyOnLine := QtyOnLine + AdjustmentQty + QtyHandledOnLine;
             if TempTrackingSpecification."Serial No." <> '' then
@@ -537,10 +535,8 @@ codeunit 6501 "Item Tracking Data Collection"
                 TempTrackingSpecification.CopyTrackingFromEntrySummary(TempEntrySummary);
                 TempTrackingSpecification."Buffer Status" := TempTrackingSpecification."Buffer Status"::INSERT;
                 TransferExpDateFromSummary(TempTrackingSpecification, TempEntrySummary);
-                if TempTrackingSpecification.IsReclass then begin
-                    TempTrackingSpecification."New Serial No." := TempTrackingSpecification."Serial No.";
-                    TempTrackingSpecification."New Lot No." := TempTrackingSpecification."Lot No.";
-                end;
+                if TempTrackingSpecification.IsReclass then
+                    TempTrackingSpecification.CopyNewTrackingFromTrackingSpec(TempTrackingSpecification);
                 TempTrackingSpecification.Validate("Quantity (Base)", TempEntrySummary."Selected Quantity");
                 OnBeforeTempTrackingSpecificationInsert(TempTrackingSpecification, TempEntrySummary);
                 TempTrackingSpecification.Insert();
@@ -913,6 +909,7 @@ codeunit 6501 "Item Tracking Data Collection"
     local procedure RelateJnlLineToTempTrkgSpec(var ReservEntry: Record "Reservation Entry"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     var
         ItemJnlLine: Record "Item Journal Line";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         RemainingQty: Decimal;
         AdjustQty: Decimal;
         QtyOnJnlLine: Decimal;
@@ -938,9 +935,8 @@ codeunit 6501 "Item Tracking Data Collection"
         // "Buffer Value1" : Summed up quantity on journal line(s)
         // "Buffer Value2" : Adjustment needed to neutralize double entries
 
-        if FindRelatedParentTrkgSpec(ItemJnlLine, TempTrackingSpecification,
-             ReservEntry."Serial No.", ReservEntry."Lot No.")
-        then begin
+        ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
+        if FindRelatedParentTrkgSpec(ItemJnlLine, TempTrackingSpecification, ItemTrackingSetup) then begin
             RemainingQty := TempTrackingSpecification."Quantity (Base)" + TempTrackingSpecification."Buffer Value2";
             QtyOnJnlLine := ReservEntry."Quantity (Base)";
             ReservEntry."Transferred from Entry No." := Abs(TempTrackingSpecification."Entry No.");
@@ -960,7 +956,7 @@ codeunit 6501 "Item Tracking Data Collection"
         end;
     end;
 
-    local procedure FindRelatedParentTrkgSpec(ItemJnlLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; SerialNo: Code[50]; LotNo: Code[50]): Boolean
+    local procedure FindRelatedParentTrkgSpec(ItemJnlLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     begin
         ItemJnlLine.TestField("Order Type", ItemJnlLine."Order Type"::Production);
         TempTrackingSpecification.Reset();
@@ -979,7 +975,7 @@ codeunit 6501 "Item Tracking Data Collection"
                     TempTrackingSpecification.SetSourceFilter('', ItemJnlLine."Order Line No.");
                 end;
         end;
-        TempTrackingSpecification.SetTrackingFilter(SerialNo, LotNo);
+        TempTrackingSpecification.SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup);
         exit(TempTrackingSpecification.FindFirst);
     end;
 
@@ -1016,6 +1012,7 @@ codeunit 6501 "Item Tracking Data Collection"
     local procedure MaxDoubleEntryAdjustQty(var TempItemTrackLineChanged: Record "Tracking Specification" temporary; var ChangedEntrySummary: Record "Entry Summary" temporary): Decimal
     var
         ItemJnlLine: Record "Item Journal Line";
+        ItemTrackingSetup: Record "Item Tracking Setup";
     begin
         if not (TempItemTrackLineChanged."Source Type" = DATABASE::"Item Journal Line") then
             exit;
@@ -1029,10 +1026,8 @@ codeunit 6501 "Item Tracking Data Collection"
             exit;
 
         TempGlobalTrackingSpec.Reset();
-
-        if FindRelatedParentTrkgSpec(ItemJnlLine, TempGlobalTrackingSpec,
-             ChangedEntrySummary."Serial No.", ChangedEntrySummary."Lot No.")
-        then
+        ItemTrackingSetup.CopyTrackingFromEntrySummary(ChangedEntrySummary);
+        if FindRelatedParentTrkgSpec(ItemJnlLine, TempGlobalTrackingSpec, ItemTrackingSetup) then
             exit(-TempGlobalTrackingSpec."Quantity (Base)" - TempGlobalTrackingSpec."Buffer Value2");
     end;
 

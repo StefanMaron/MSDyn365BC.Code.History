@@ -8,6 +8,9 @@ page 2815 "Native - Coupons"
     ModifyAllowed = false;
     PageType = ListPart;
     SourceTable = "O365 Coupon Claim";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {

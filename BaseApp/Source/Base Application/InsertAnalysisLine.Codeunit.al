@@ -113,7 +113,7 @@ codeunit 7111 "Insert Analysis Line"
           AnalysisLine.Type::"Sales/Purchase person");
     end;
 
-    local procedure InsertGroup(var AnalysisLine: Record "Analysis Line"; GroupDimCode: Code[20]; TotalingType: Integer)
+    local procedure InsertGroup(var AnalysisLine: Record "Analysis Line"; GroupDimCode: Code[20]; TotalingType: Enum "Analysis Line Type")
     var
         DimVal: Record "Dimension Value";
         DimValList: Page "Dimension Value List";
@@ -166,7 +166,7 @@ codeunit 7111 "Insert Analysis Line"
         end;
     end;
 
-    local procedure InsertAnalysisLine(var AnalysisLine: Record "Analysis Line"; var AnalysisLineNo: Integer; Text: Text[100]; No: Code[20]; Type2: Integer; Bold2: Boolean; Indent: Integer)
+    local procedure InsertAnalysisLine(var AnalysisLine: Record "Analysis Line"; var AnalysisLineNo: Integer; Text: Text[100]; No: Code[20]; Type2: Enum "Analysis Line Type"; Bold2: Boolean; Indent: Integer)
     begin
         with AnalysisLine do begin
             Init;

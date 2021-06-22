@@ -529,27 +529,27 @@ codeunit 2 "Company-Initialize"
     begin
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Sales Invoice");
+          CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Sales Invoice".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Sales Credit Memo");
+          CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Sales Credit Memo".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"PEPPOL Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation");
+          CODEUNIT::"PEPPOL Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Invoice");
+          CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Invoice".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo");
+          CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo".AsInteger());
 
         ElectronicDocumentFormat.InsertElectronicFormat(
           PEPPOLBIS3_ElectronicFormatTxt, PEPPOLBIS3_ElectronicFormatDescriptionTxt,
-          CODEUNIT::"PEPPOL Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation");
+          CODEUNIT::"PEPPOL Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
     end;
 
     local procedure InsertSourceCode(var SourceCodeDefCode: Code[10]; "Code": Code[10]; Description: Text[50])
@@ -592,10 +592,6 @@ codeunit 2 "Company-Initialize"
         ClientAddIn: Record "Add-in";
     begin
         InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.DynamicsOnlineConnect', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"DotNet Control Add-in",
-          'Microsoft Dynamics Online Connect control add-in', '');
-        InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.BusinessChart', '31bf3856ad364e35', '',
           ClientAddIn.Category::"JavaScript Control Add-in",
           'Microsoft Dynamics BusinessChart control add-in',
@@ -636,7 +632,7 @@ codeunit 2 "Company-Initialize"
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.FlowIntegration', '31bf3856ad364e35', '',
           ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Flow Integration control add-in',
+          'Microsoft Power Automate Integration control add-in',
           ApplicationPath + 'Add-ins\FlowIntegration\Microsoft.Dynamics.Nav.Client.FlowIntegration.zip');
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.RoleCenterSelector', '31bf3856ad364e35', '',

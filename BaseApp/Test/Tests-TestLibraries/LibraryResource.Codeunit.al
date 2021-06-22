@@ -104,7 +104,7 @@ codeunit 130511 "Library - Resource"
         ResJournalLine.Insert(true);
     end;
 
-    procedure CreateResourceSkill(var ResourceSkill: Record "Resource Skill"; Type: Option; No: Code[20]; SkillCode: Code[10])
+    procedure CreateResourceSkill(var ResourceSkill: Record "Resource Skill"; Type: Enum "Resource Skill Type"; No: Code[20]; SkillCode: Code[10])
     begin
         ResourceSkill.Init();
         ResourceSkill.Validate(Type, Type);

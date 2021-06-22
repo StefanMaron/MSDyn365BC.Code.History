@@ -683,7 +683,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         CreateReminders.Run;
     end;
 
-    local procedure VerifyReminderLineTypeForDocument(var ReminderLine: Record "Reminder Line"; DocumentNo: Code[20]; ExpectedReminderLineType: Option)
+    local procedure VerifyReminderLineTypeForDocument(var ReminderLine: Record "Reminder Line"; DocumentNo: Code[20]; ExpectedReminderLineType: Enum "Reminder Line Type")
     begin
         ReminderLine.SetRange("Document No.", DocumentNo);
         ReminderLine.FindFirst;

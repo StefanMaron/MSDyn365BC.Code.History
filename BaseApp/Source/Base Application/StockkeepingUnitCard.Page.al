@@ -227,7 +227,7 @@ page 5700 "Stockkeeping Unit Card"
                 {
                     ApplicationArea = Planning;
                     Enabled = DampenerPeriodEnable;
-                    ToolTip = 'Specifies a period of time during which you do not want the planning system to propose to reschedule existing supply orders forward.';
+                    ToolTip = 'Specifies a period of time during which you do not want the planning system to propose to reschedule existing supply orders forward. The dampener period limits the number of insignificant rescheduling of existing supply to a later date if that new date is within the dampener period. The dampener period function is only initiated if the supply can be rescheduled to a later date and not if the supply can be rescheduled to an earlier date. Accordingly, if the suggested new supply date is after the dampener period, then the rescheduling suggestion is not blocked. If the lot accumulation period is less than the dampener period, then the dampener period is dynamically set to equal the lot accumulation period. This is not shown in the value that you enter in the Dampener Period field. The last demand in the lot accumulation period is used to determine whether a potential supply date is in the dampener period. If this field is empty, then the value in the Default Dampener Period field in the Manufacturing Setup window applies. The value that you enter in the Dampener Period field must be a date formula, and one day (1D) is the shortest allowed period.';
                 }
                 field("Dampener Quantity"; "Dampener Quantity")
                 {
@@ -650,6 +650,7 @@ page 5700 "Stockkeeping Unit Card"
                         Caption = 'Timeline';
                         Image = Timeline;
                         ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
+                        Visible = false;
 
                         trigger OnAction()
                         begin
@@ -743,7 +744,7 @@ page 5700 "Stockkeeping Unit Card"
                         var
                             ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                         begin
-                            ItemTrackingDocMgt.ShowItemTrackingForMasterData(0, '', "Item No.", "Variant Code", '', '', "Location Code");
+                            ItemTrackingDocMgt.ShowItemTrackingForEntity(0, '', "Item No.", "Variant Code", "Location Code");
                         end;
                     }
                 }
@@ -901,12 +902,13 @@ page 5700 "Stockkeeping Unit Card"
         DampenerQtyEnabled: Boolean;
         OverflowLevelEnabled: Boolean;
     begin
-        PlanningGetParam.SetUpPlanningControls("Reordering Policy", "Include Inventory",
-          TimeBucketEnabled, SafetyLeadTimeEnabled, SafetyStockQtyEnabled,
-          ReorderPointEnabled, ReorderQtyEnabled, MaximumInventoryEnabled,
-          MinimumOrderQtyEnabled, MaximumOrderQtyEnabled, OrderMultipleEnabled, IncludeInventoryEnabled,
-          ReschedulingPeriodEnabled, LotAccumulationPeriodEnabled,
-          DampenerPeriodEnabled, DampenerQtyEnabled, OverflowLevelEnabled);
+        PlanningGetParam.SetUpPlanningControls(
+            "Reordering Policy".AsInteger(), "Include Inventory",
+            TimeBucketEnabled, SafetyLeadTimeEnabled, SafetyStockQtyEnabled,
+            ReorderPointEnabled, ReorderQtyEnabled, MaximumInventoryEnabled,
+            MinimumOrderQtyEnabled, MaximumOrderQtyEnabled, OrderMultipleEnabled, IncludeInventoryEnabled,
+            ReschedulingPeriodEnabled, LotAccumulationPeriodEnabled,
+            DampenerPeriodEnabled, DampenerQtyEnabled, OverflowLevelEnabled);
 
         TimeBucketEnable := TimeBucketEnabled;
         SafetyLeadTimeEnable := SafetyLeadTimeEnabled;

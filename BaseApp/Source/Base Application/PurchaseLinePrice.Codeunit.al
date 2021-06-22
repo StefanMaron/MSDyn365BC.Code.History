@@ -158,7 +158,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         // Tax
         PriceCalculationBuffer."Prices Including Tax" := PurchaseHeader."Prices Including VAT";
         PriceCalculationBuffer."Tax %" := PurchaseLine."VAT %";
-        PriceCalculationBuffer."VAT Calculation Type" := PurchaseLine."VAT Calculation Type";
+        PriceCalculationBuffer."VAT Calculation Type" := PurchaseLine."VAT Calculation Type".AsInteger();
         PriceCalculationBuffer."VAT Bus. Posting Group" := PurchaseLine."VAT Bus. Posting Group";
         PriceCalculationBuffer."VAT Prod. Posting Group" := PurchaseLine."VAT Prod. Posting Group";
 
@@ -196,29 +196,25 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
 
     procedure SetPrice(AmountType: enum "Price Amount Type"; PriceListLine: Record "Price List Line")
     begin
-        case AmountType of
-            AmountType::Cost:
-                if PurchaseLine.Type in [PurchaseLine.Type::Item, PurchaseLine.Type::Resource] then begin
-                    PurchaseLine."Direct Unit Cost" := PriceListLine."Unit Cost";
-                    PurchaseLine."Allow Invoice Disc." := PriceListLine."Allow Invoice Disc.";
-                    if PriceListLine.IsRealLine() then
-                        DiscountIsAllowed := PriceListLine."Allow Line Disc.";
-                    PriceCalculated := true;
-                end;
-            AmountType::Discount:
-                PurchaseLine."Line Discount %" := PriceListLine."Line Discount %";
-        end;
+        if AmountType = AmountType::Discount then
+            PurchaseLine."Line Discount %" := PriceListLine."Line Discount %"
+        else
+            if PurchaseLine.Type in [PurchaseLine.Type::Item, PurchaseLine.Type::Resource] then begin
+                PurchaseLine."Direct Unit Cost" := PriceListLine."Unit Cost";
+                PurchaseLine."Allow Invoice Disc." := PriceListLine."Allow Invoice Disc.";
+                if PriceListLine.IsRealLine() then
+                    DiscountIsAllowed := PriceListLine."Allow Line Disc.";
+                PriceCalculated := true;
+            end;
         OnAfterSetPrice(PurchaseLine, PriceListLine, AmountType);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
     begin
-        case AmountType of
-            AmountType::Discount:
-                PurchaseLine.Validate("Line Discount %");
-            AmountType::Cost:
-                PurchaseLine.Validate("Direct Unit Cost");
-        end;
+        if AmountType = AmountType::Discount then
+            PurchaseLine.Validate("Line Discount %")
+        else
+            PurchaseLine.Validate("Direct Unit Cost");
     end;
 
     procedure Update(AmountType: enum "Price Amount Type")

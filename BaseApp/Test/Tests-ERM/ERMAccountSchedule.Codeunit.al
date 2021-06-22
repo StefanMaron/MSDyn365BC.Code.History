@@ -1298,7 +1298,6 @@ codeunit 134902 "ERM Account Schedule"
         GenJournalLine: Record "Gen. Journal Line";
         ColumnLayout: Record "Column Layout";
         AccScheduleLine: Record "Acc. Schedule Line";
-        TotalingType: Option "Posting Accounts","Total Accounts",Formula,,,"Set Base For Percent","Cost Type","Cost Type Total","Cash Flow Entry Accounts","Cash Flow Total Accounts";
         GLAccountNo: Code[20];
         Amount: Decimal;
     begin
@@ -1317,7 +1316,7 @@ codeunit 134902 "ERM Account Schedule"
         // 2.Exercise: Create Account Schedule Line.
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayout."Column Layout Name");
         UpdateAccScheduleLine(
-          AccScheduleLine, GLAccountNo, TotalingType::"Posting Accounts", Format(LibraryRandom.RandInt(5)));
+          AccScheduleLine, GLAccountNo, "Acc. Schedule Line Totaling Type"::"Posting Accounts", Format(LibraryRandom.RandInt(5)));
 
         // 3.Verify: Verify Amount is correct on Account Schedule Line.
         AccScheduleLine.SetRange("Date Filter", WorkDate);
@@ -1337,7 +1336,6 @@ codeunit 134902 "ERM Account Schedule"
         GLBudgetEntry: Record "G/L Budget Entry";
         ColumnLayout: Record "Column Layout";
         AccScheduleLine: Record "Acc. Schedule Line";
-        TotalingType: Option "Posting Accounts","Total Accounts",Formula,,,"Set Base For Percent","Cost Type","Cost Type Total","Cash Flow Entry Accounts","Cash Flow Total Accounts";
     begin
         // Unit test - Check Account Schedule Line Amount for corresponding G/L Budget Filter.
 
@@ -1354,7 +1352,7 @@ codeunit 134902 "ERM Account Schedule"
         // 2.Exercise: Create Account Schedule Line with G/L Account No. in Totaling Field.
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayout."Column Layout Name");
         UpdateAccScheduleLine(
-          AccScheduleLine, GLAccount."No.", TotalingType::"Posting Accounts", Format(LibraryRandom.RandInt(5)));
+          AccScheduleLine, GLAccount."No.", "Acc. Schedule Line Totaling Type"::"Posting Accounts", Format(LibraryRandom.RandInt(5)));
 
         // 3.Verify: To verify G/L Budget Entry Amount Schedule line is correct for corresponding G/L Budget Filter.
         AccScheduleLine.SetRange("Date Filter", WorkDate);
@@ -4860,7 +4858,7 @@ codeunit 134902 "ERM Account Schedule"
           AccScheduleLine, ColumnLayout."Column Layout Name", GLAccount."No.", AccScheduleLine."Totaling Type"::"Posting Accounts");
     end;
 
-    local procedure CreateAndUpdateAccountSchedule(var AccScheduleLine: Record "Acc. Schedule Line"; ColumnLayoutName: Code[10]; GLAccountNo: Code[20]; TotalingType: Option)
+    local procedure CreateAndUpdateAccountSchedule(var AccScheduleLine: Record "Acc. Schedule Line"; ColumnLayoutName: Code[10]; GLAccountNo: Code[20]; TotalingType: Enum "Acc. Schedule Line Totaling Type")
     begin
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayoutName);
         UpdateAccScheduleLine(AccScheduleLine, GLAccountNo, TotalingType, Format(LibraryRandom.RandInt(5)));
@@ -4949,7 +4947,7 @@ codeunit 134902 "ERM Account Schedule"
         AccScheduleLine.SetRange("Date Filter", WorkDate);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal)
     var
         GLAccount: Record "G/L Account";
     begin
@@ -4968,7 +4966,7 @@ codeunit 134902 "ERM Account Schedule"
         UpdateGenJournalLine(GenJournalLine, GLAccount."No.");
     end;
 
-    local procedure CreateMultiAccountScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; ColumnLayoutName: Code[10]; RowNo: Code[10]; FormulaValue: Text[50]; FormulaValue2: Text[50]; TotalingType: Option; NewPage: Boolean)
+    local procedure CreateMultiAccountScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; ColumnLayoutName: Code[10]; RowNo: Code[10]; FormulaValue: Text[50]; FormulaValue2: Text[50]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; NewPage: Boolean)
     begin
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayoutName);
         UpdateAccScheduleLine(AccScheduleLine, FormulaValue, TotalingType, RowNo);
@@ -5034,7 +5032,7 @@ codeunit 134902 "ERM Account Schedule"
         Commit();  // Commit required for running the Account Schedule Report.
     end;
 
-    local procedure MockAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Option)
+    local procedure MockAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; TotalingType: Enum "Acc. Schedule Line Totaling Type")
     begin
         AccScheduleLine.Init();
         AccScheduleLine.SetFilter("Date Filter", Format(WorkDate));
@@ -5271,7 +5269,7 @@ codeunit 134902 "ERM Account Schedule"
         LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
     end;
 
-    local procedure SetupAccountSchedule(var AccScheduleLine: Record "Acc. Schedule Line"; AccountNo: Code[10]; TotalingType: Option)
+    local procedure SetupAccountSchedule(var AccScheduleLine: Record "Acc. Schedule Line"; AccountNo: Code[10]; TotalingType: Enum "Acc. Schedule Line Totaling Type")
     begin
         CreateAccountScheduleAndLine(AccScheduleLine, AccountNo);
         UpdateAccScheduleLine(AccScheduleLine, AccountNo, TotalingType, AccountNo);
@@ -5374,7 +5372,7 @@ codeunit 134902 "ERM Account Schedule"
         AccScheduleLine.Modify(true);
     end;
 
-    local procedure UpdateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; Totalling: Text[250]; TotalingType: Option; RowNo: Code[10])
+    local procedure UpdateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; Totalling: Text[250]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; RowNo: Code[10])
     begin
         AccScheduleLine.Validate("Row No.", RowNo);
         AccScheduleLine.Validate("Totaling Type", TotalingType);

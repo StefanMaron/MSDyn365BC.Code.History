@@ -101,7 +101,7 @@ page 5331 "CRM Full Synch. Review"
                     if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
                         QuestionTxt := StartInitialSynchTeamOwnershipModelQst
                     else
-                        QuestionTxt := StrSubstNo(StartInitialSynchPersonOwnershipModelQst, PRODUCTNAME.Short, 'CDS');
+                        QuestionTxt := StrSubstNo(StartInitialSynchPersonOwnershipModelQst, PRODUCTNAME.Short, CRMProductName.CDSServiceName());
                     if Confirm(QuestionTxt) then
                         Start;
                 end;
@@ -166,6 +166,7 @@ page 5331 "CRM Full Synch. Review"
     end;
 
     var
+        CRMProductName: Codeunit "CRM Product Name";
         ActionStartEnabled: Boolean;
         ActionResetEnabled: Boolean;
         ActionRestartEnabled: Boolean;
@@ -173,7 +174,7 @@ page 5331 "CRM Full Synch. Review"
         JobQueueEntryStatusStyle: Text;
         ToIntTableJobStatusStyle: Text;
         FromIntTableJobStatusStyle: Text;
-        StartInitialSynchPersonOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Before running full synchronization, you should couple all %1 salespeople to %2 users.\\Do you want to continue?', Comment = '%1 - product name, %2 = CRM product name';
+        StartInitialSynchPersonOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Before running full synchronization, you should couple all %1 salespeople to %2 users.\\Do you want to continue?', Comment = '%1 - product name, %2 = CDS service name';
         StartInitialSynchTeamOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Do you want to continue?';
 }
 

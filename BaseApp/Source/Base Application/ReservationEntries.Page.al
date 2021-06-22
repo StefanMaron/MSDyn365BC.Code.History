@@ -85,7 +85,7 @@ page 497 "Reservation Entries"
                     Editable = false;
                     ToolTip = 'Specifies which line or entry the items are reserved for.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         LookupReservedFor;
                     end;
@@ -97,7 +97,7 @@ page 497 "Reservation Entries"
                     Editable = false;
                     ToolTip = 'Specifies which line or entry the items are reserved from.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         LookupReservedFrom;
                     end;
@@ -194,7 +194,10 @@ page 497 "Reservation Entries"
                     Caption = 'Cancel Reservation';
                     Image = Cancel;
                     ToolTip = 'Cancel the selected reservation entry.';
-
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedOnly = true;
+                    Scope = Repeater;
                     trigger OnAction()
                     var
                         ReservEntry: Record "Reservation Entry";
@@ -368,7 +371,7 @@ page 497 "Reservation Entries"
         OnAfterLookupReserved(ReservEntry);
     end;
 
-    local procedure QuantityBaseOnAfterValidate()
+    protected procedure QuantityBaseOnAfterValidate()
     begin
         CurrPage.Update;
     end;

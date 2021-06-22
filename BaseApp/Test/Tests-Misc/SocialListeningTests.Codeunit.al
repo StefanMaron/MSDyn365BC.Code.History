@@ -4,6 +4,9 @@ codeunit 135010 "Social Listening Tests"
     Permissions = TableData "Social Listening Setup" = md;
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -19,7 +22,6 @@ codeunit 135010 "Social Listening Tests"
         SetupIsRequiredTxt: Label 'Setup is required';
         LibraryJobQueue: Codeunit "Library - Job Queue";
 
-    [Test]
     [Scope('OnPrem')]
     procedure TestSocialListeningSingleton()
     var
@@ -41,7 +43,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure TestSocialListeningSetupSolutionID()
     var
@@ -68,7 +69,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure TestSocialListeningSetupURLSolutionID()
     var
@@ -88,7 +88,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure TestSocialListeningSetupBadURLSolutionID()
     var
@@ -109,7 +108,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure TestSocialListeningAcceptLicenseAgreement()
     var
@@ -136,7 +134,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure TestSocialListeningShowWithoutLicenseAgreement()
     var
@@ -155,7 +152,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure TestSocialListeningShowWithoutSocialListeningURL()
     var
@@ -174,7 +170,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure TestSocialListeningTopicURLSolutionID()
     var
@@ -204,7 +199,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure TestSocialListeningTopicBadURLSolutionID()
     var
@@ -235,7 +229,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [HandlerFunctions('AddSocialListeningTopicHandler')]
     [Scope('OnPrem')]
     procedure TestSocialListeningTopicFactboxAccessCustAdd()
@@ -273,7 +266,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [HandlerFunctions('AddSocialListeningTopicHandler')]
     [Scope('OnPrem')]
     procedure TestSocialListeningTopicFactboxAccessVendAdd()
@@ -311,7 +303,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [HandlerFunctions('AddSocialListeningTopicHandler')]
     [TestPermissions(TestPermissions::Disabled)]
     [Scope('OnPrem')]
@@ -350,7 +341,6 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
-    [Test]
     [HandlerFunctions('RemoveSocialListeningTopicHandler')]
     [Scope('OnPrem')]
     procedure TestSocialListeningTopicFactboxAccessRemove()

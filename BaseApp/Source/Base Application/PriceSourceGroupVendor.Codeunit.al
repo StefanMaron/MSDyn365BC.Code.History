@@ -8,7 +8,7 @@ codeunit 7014 "Price Source Group - Vendor" implements "Price Source Group"
         Ordinals: list of [Integer];
     begin
         Ordinals := PurchaseSourceType.Ordinals();
-        exit(Ordinals.Contains(SourceType))
+        exit(Ordinals.Contains(SourceType.AsInteger()))
     end;
 
     procedure GetGroup() SourceGroup: Enum "Price Source Group";

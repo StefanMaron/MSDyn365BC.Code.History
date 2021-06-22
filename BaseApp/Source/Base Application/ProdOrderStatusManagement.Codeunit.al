@@ -1,4 +1,4 @@
-﻿codeunit 5407 "Prod. Order Status Management"
+codeunit 5407 "Prod. Order Status Management"
 {
     Permissions = TableData "Source Code Setup" = r,
                   TableData "Production Order" = rimd,
@@ -14,7 +14,7 @@
         if ChangeStatusForm.RunModal = ACTION::Yes then begin
             OnRunOnAfterChangeStatusFormRun(Rec);
             ChangeStatusForm.ReturnPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost);
-            ChangeStatusOnProdOrder(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
+            ChangeProdOrderStatus(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
             Commit();
             ShowStatusMessage(Rec);
         end;
@@ -42,7 +42,7 @@
         WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
         InvtAdjmt: Codeunit "Inventory Adjustment";
         UOMMgt: Codeunit "Unit of Measure Management";
-        NewStatus: Option Quote,Planned,"Firm Planned",Released,Finished;
+        NewStatus: Enum "Production Order Status";
         NewPostingDate: Date;
         NewUpdateUnitCost: Boolean;
         SourceCodeSetupRead: Boolean;
@@ -50,14 +50,20 @@
         Text009: Label 'You cannot finish line %1 on %2 %3. It has consumption or capacity posted with no output.';
         Text010: Label 'You must specify a %1 in %2 %3 %4.';
 
+    [Obsolete('Replaced by ChangeProdOrderStatus with enum parameter NewStatus.', '17.0')]
     procedure ChangeStatusOnProdOrder(ProdOrder: Record "Production Order"; NewStatus: Option Quote,Planned,"Firm Planned",Released,Finished; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     begin
+        ChangeProdOrderStatus(ProdOrder, "Production Order Status".FromInteger(NewStatus), NewPostingDate, NewUpdateUnitCost);
+    end;
+
+    procedure ChangeProdOrderStatus(ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
+    begin
         SetPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost);
-        OnBeforeChangeStatusOnProdOrder(ProdOrder, NewStatus);
+        OnBeforeChangeStatusOnProdOrder(ProdOrder, NewStatus.AsInteger());
         if NewStatus = NewStatus::Finished then begin
             CheckBeforeFinishProdOrder(ProdOrder);
             FlushProdOrder(ProdOrder, NewStatus, NewPostingDate);
-            ReservMgt.DeleteDocumentReservation(DATABASE::"Prod. Order Line", ProdOrder.Status, ProdOrder."No.", false);
+            ReservMgt.DeleteDocumentReservation(DATABASE::"Prod. Order Line", ProdOrder.Status.AsInteger(), ProdOrder."No.", false);
             ErrorIfUnableToClearWIP(ProdOrder);
             TransProdOrder(ProdOrder);
 
@@ -146,12 +152,13 @@
         FromProdOrderLine: Record "Prod. Order Line";
         ToProdOrderLine: Record "Prod. Order Line";
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        NewStatusOption: Option;
     begin
         with FromProdOrderLine do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
             LockTable();
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     ToProdOrderLine := FromProdOrderLine;
                     ToProdOrderLine.Status := ToProdOrder.Status;
@@ -187,8 +194,10 @@
                     ToProdOrderLine.Validate("Unit Cost", "Unit Cost");
                     OnCopyFromProdOrderLine(ToProdOrderLine, FromProdOrderLine);
                     ToProdOrderLine.Modify();
-                    OnAfterToProdOrderLineModify(ToProdOrderLine, FromProdOrderLine, NewStatus);
-                until Next = 0;
+                    NewStatusOption := NewStatus.AsInteger();
+                    OnAfterToProdOrderLineModify(ToProdOrderLine, FromProdOrderLine, NewStatusOption);
+                    NewStatus := "Production Order Status".FromInteger(NewStatusOption);
+                until Next() = 0;
                 OnAfterTransProdOrderLines(FromProdOrder, ToProdOrder);
                 DeleteAll();
             end;
@@ -277,7 +286,7 @@
                         ToProdOrderComp.Validate("Expected Quantity");
                         ReserveProdOrderComp.TransferPOCompToPOComp(FromProdOrderComp, ToProdOrderComp, 0, true);
                         if ToProdOrderComp.Status in [ToProdOrderComp.Status::"Firm Planned", ToProdOrderComp.Status::Released] then
-                            ToProdOrderComp.AutoReserve;
+                            ToProdOrderComp.AutoReserve();
                     end;
                     OnCopyFromProdOrderComp(ToProdOrderComp, FromProdOrderComp);
                     ToProdOrderComp.Modify();
@@ -447,7 +456,7 @@
         end;
     end;
 
-    procedure FlushProdOrder(ProdOrder: Record "Production Order"; NewStatus: Option Simulated,Planned,"Firm Planned",Released,Finished; PostingDate: Date)
+    procedure FlushProdOrder(ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; PostingDate: Date)
     var
         Item: Record Item;
         ItemJnlLine: Record "Item Journal Line";
@@ -468,7 +477,7 @@
         PutawayQtyBaseToCalc: Decimal;
         IsLastOperation: Boolean;
     begin
-        if NewStatus < NewStatus::Released then
+        if IsStatusSimulatedOrPlanned(NewStatus) then
             exit;
 
         GetSourceCodeSetup;
@@ -756,7 +765,15 @@
         SourceCodeSetupRead := true;
     end;
 
+    [Obsolete('Replaced by same with enum parameter NewStatus.', '17.0')]
     procedure SetPostingInfo(Status: Option Quote,Planned,"Firm Planned",Released,Finished; PostingDate: Date; UpdateUnitCost: Boolean)
+    begin
+        NewStatus := "Production Order Status".FromInteger(Status);
+        NewPostingDate := PostingDate;
+        NewUpdateUnitCost := UpdateUnitCost;
+    end;
+
+    procedure SetPostingInfo(Status: Enum "Production Order Status"; PostingDate: Date; UpdateUnitCost: Boolean)
     begin
         NewStatus := Status;
         NewPostingDate := PostingDate;
@@ -897,6 +914,11 @@
             until RecordLink.Next = 0;
     end;
 
+    local procedure IsStatusSimulatedOrPlanned(Status: Enum "Production Order Status"): Boolean
+    begin
+        exit((Status = Status::Simulated) or (Status = Status::Planned) or (Status = Status::"Firm Planned"));
+    end;
+
     local procedure SetProdOrderCompFilters(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order")
     begin
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
@@ -969,7 +991,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterChangeStatusOnProdOrder(var ProdOrder: Record "Production Order"; var ToProdOrder: Record "Production Order"; NewStatus: Option; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
+    local procedure OnAfterChangeStatusOnProdOrder(var ProdOrder: Record "Production Order"; var ToProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     begin
     end;
 

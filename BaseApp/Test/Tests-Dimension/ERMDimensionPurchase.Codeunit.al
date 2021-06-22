@@ -1054,7 +1054,7 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Purchase");
     end;
 
-    local procedure ApplyAndPostVendorEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentType: Option)
+    local procedure ApplyAndPostVendorEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
@@ -1201,7 +1201,7 @@ codeunit 134476 "ERM Dimension Purchase"
         DimensionSetID := PurchaseLine."Dimension Set ID";
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorDimensionCode: Code[20]; ItemDimensionCode: Code[20]; ValuePosting: Option; DocumentType: Option)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorDimensionCode: Code[20]; ItemDimensionCode: Code[20]; ValuePosting: Option; DocumentType: Enum "Purchase Document Type")
     var
         DefaultDimension: Record "Default Dimension";
     begin
@@ -1313,7 +1313,7 @@ codeunit 134476 "ERM Dimension Purchase"
         UpdateDimensionSetID(StandardPurchaseLine, DifferentDimensionCode);
     end;
 
-    local procedure CreateStandardPurchaseLine(var StandardPurchaseLine: Record "Standard Purchase Line"; StandardPurchaseCode: Code[10]; Type: Option; No: Code[20])
+    local procedure CreateStandardPurchaseLine(var StandardPurchaseLine: Record "Standard Purchase Line"; StandardPurchaseCode: Code[10]; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         LibraryPurchase.CreateStandardPurchaseLine(StandardPurchaseLine, StandardPurchaseCode);
         StandardPurchaseLine.Validate(Type, Type);
@@ -1323,7 +1323,7 @@ codeunit 134476 "ERM Dimension Purchase"
         StandardPurchaseLine.Modify(true);
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1337,7 +1337,7 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGenJournalLineWithDimSetID(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; NewDimSetID: Integer)
+    local procedure CreateGenJournalLineWithDimSetID(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; NewDimSetID: Integer)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
@@ -1345,7 +1345,7 @@ codeunit 134476 "ERM Dimension Purchase"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateAndPostGenJournalLinesWithDimSetID(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; DimSetID: Integer; DimSetID2: Integer)
+    local procedure CreateAndPostGenJournalLinesWithDimSetID(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; DimSetID: Integer; DimSetID2: Integer)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1407,7 +1407,7 @@ codeunit 134476 "ERM Dimension Purchase"
         GLEntry.FindFirst;
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
@@ -1472,12 +1472,11 @@ codeunit 134476 "ERM Dimension Purchase"
     local procedure RunCopyPurchaseDocument(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20])
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         Commit();
         Clear(CopyPurchaseDocument);
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.InitializeRequest(DocumentType::"Posted Shipment", DocumentNo, true, false);
+        CopyPurchaseDocument.SetParameters("Sales Document Type From"::"Posted Shipment", DocumentNo, true, false);
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.Run;
     end;
@@ -1720,7 +1719,7 @@ codeunit 134476 "ERM Dimension Purchase"
         until GLEntry.Next = 0;
     end;
 
-    local procedure VerifyDimensionOnPurchaseOrderLine(DocumentType: Option; DocumentNo: Code[20]; DimensionCode: Code[20])
+    local procedure VerifyDimensionOnPurchaseOrderLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; DimensionCode: Code[20])
     var
         DimensionSetEntry: Record "Dimension Set Entry";
         PurchaseLine: Record "Purchase Line";
@@ -1733,7 +1732,7 @@ codeunit 134476 "ERM Dimension Purchase"
           StrSubstNo(DimensionValueCodeError, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
     end;
 
-    local procedure VerifyQuantityReceivedOnPurchaseLine(DocumentType: Option; DocumentNo: Code[20]; Quantity: Decimal)
+    local procedure VerifyQuantityReceivedOnPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; Quantity: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1780,7 +1779,7 @@ codeunit 134476 "ERM Dimension Purchase"
           StrSubstNo(QuantityReceivedError, PurchRcptLine.FieldCaption(Quantity), Quantity, PurchRcptLine.TableCaption));
     end;
 
-    local procedure VerifyQuantitytoReceiveOnPurchaseLine(DocumentType: Option; DocumentNo: Code[20]; Quantity: Decimal)
+    local procedure VerifyQuantitytoReceiveOnPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; Quantity: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin

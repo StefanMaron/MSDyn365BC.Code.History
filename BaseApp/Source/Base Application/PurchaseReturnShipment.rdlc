@@ -3751,6 +3751,42 @@ End Function</Code>
         <Field Name="No_ReturnShipmentHeader">
           <DataField>No_ReturnShipmentHeader</DataField>
         </Field>
+        <Field Name="BuyFromContactPhoneNoLbl">
+          <DataField>BuyFromContactPhoneNoLbl</DataField>
+        </Field>
+        <Field Name="BuyFromContactMobilePhoneNoLbl">
+          <DataField>BuyFromContactMobilePhoneNoLbl</DataField>
+        </Field>
+        <Field Name="BuyFromContactEmailLbl">
+          <DataField>BuyFromContactEmailLbl</DataField>
+        </Field>
+        <Field Name="PayToContactPhoneNoLbl">
+          <DataField>PayToContactPhoneNoLbl</DataField>
+        </Field>
+        <Field Name="PayToContactMobilePhoneNoLbl">
+          <DataField>PayToContactMobilePhoneNoLbl</DataField>
+        </Field>
+        <Field Name="PayToContactEmailLbl">
+          <DataField>PayToContactEmailLbl</DataField>
+        </Field>
+        <Field Name="BuyFromContactPhoneNo">
+          <DataField>BuyFromContactPhoneNo</DataField>
+        </Field>
+        <Field Name="BuyFromContactMobilePhoneNo">
+          <DataField>BuyFromContactMobilePhoneNo</DataField>
+        </Field>
+        <Field Name="BuyFromContactEmail">
+          <DataField>BuyFromContactEmail</DataField>
+        </Field>
+        <Field Name="PayToContactPhoneNo">
+          <DataField>PayToContactPhoneNo</DataField>
+        </Field>
+        <Field Name="PayToContactMobilePhoneNo">
+          <DataField>PayToContactMobilePhoneNo</DataField>
+        </Field>
+        <Field Name="PayToContactEmail">
+          <DataField>PayToContactEmail</DataField>
+        </Field>
         <Field Name="PurchReturnShpCaption">
           <DataField>PurchReturnShpCaption</DataField>
         </Field>

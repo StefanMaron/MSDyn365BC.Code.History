@@ -6,7 +6,7 @@ codeunit 881 "OCR - Receive from Service"
         IncomingDocument: Record "Incoming Document";
         CompanyInformation: Record "Company Information";
         JobQueueEntry: Record "Job Queue Entry";
-        AzureADMgt: Codeunit "Azure AD Mgt.";
+        EnvironmentInfo: Codeunit "Environment Information";
         JobQueueEntryFound: Boolean;
     begin
         GetDocuments;
@@ -18,7 +18,7 @@ codeunit 881 "OCR - Receive from Service"
               "OCR Status", '%1|%2',
               IncomingDocument."OCR Status"::Sent,
               IncomingDocument."OCR Status"::"Awaiting Verification");
-            if IncomingDocument.IsEmpty and AzureADMgt.IsSaaS and CompanyInformation."Demo Company" then
+            if IncomingDocument.IsEmpty and EnvironmentInfo.IsSaaS and CompanyInformation."Demo Company" then
                 JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold")
             else
                 if JobQueueEntry.Status = JobQueueEntry.Status::"On Hold" then

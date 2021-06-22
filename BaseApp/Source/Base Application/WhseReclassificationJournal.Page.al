@@ -170,7 +170,7 @@ page 7365 "Whse. Reclassification Journal"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }

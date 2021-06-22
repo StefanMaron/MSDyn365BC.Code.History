@@ -18,8 +18,8 @@ codeunit 134096 "ERM VAT Return"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryVATReport: Codeunit "Library - VAT Report";
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         IfEmptyErr: Label '''%1'' in ''%2'' must not be blank.', Comment = '%1=caption of a field, %2=key of record';
         GeneratedMsg: Label 'The report has been successfully generated.';
         SubmittedMsg: Label 'The report has been successfully submitted.';
@@ -615,7 +615,7 @@ codeunit 134096 "ERM VAT Return"
         end;
     end;
 
-    local procedure InsertVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; BoxNo: Text[30]; AmountType: Option)
+    local procedure InsertVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; BoxNo: Text[30]; AmountType: Enum "VAT Statement Line Amount Type")
     begin
         with VATStatementLine do begin
             "Line No." += 10000;
@@ -649,7 +649,7 @@ codeunit 134096 "ERM VAT Return"
         end;
     end;
 
-    local procedure SuggestLines(VATReportHeader: Record "VAT Report Header"; Selection: Option; PeriodSelection: Option; PeriodYear: Integer; AmountInACY: Boolean);
+    local procedure SuggestLines(VATReportHeader: Record "VAT Report Header"; Selection: Enum "VAT Statement Report Selection"; PeriodSelection: Enum "VAT Statement Report Period Selection"; PeriodYear: Integer; AmountInACY: Boolean);
     var
         VATReportMediator: Codeunit "VAT Report Mediator";
     begin
@@ -701,10 +701,10 @@ codeunit 134096 "ERM VAT Return"
         VATReportRequestPage.VATStatementTemplate.SETVALUE(VATStatementName."Statement Template Name");
         VATReportRequestPage.VATStatementName.SETVALUE(VATStatementName.Name);
 
-        Selection := LibraryVariableStorage.DequeueInteger();
+        Selection := "VAT Statement Report Selection".FromInteger(LibraryVariableStorage.DequeueInteger());
         VATReportRequestPage.Selection.SETVALUE(Format(Selection));
 
-        PeriodSelection := LibraryVariableStorage.DequeueInteger();
+        PeriodSelection := "VAT Statement Report Period Selection".FromInteger(LibraryVariableStorage.DequeueInteger());
         VATReportRequestPage.PeriodSelection.SETVALUE(Format(PeriodSelection));
 
         VATReportRequestPage."Period Year".SETVALUE(LibraryVariableStorage.DequeueInteger);

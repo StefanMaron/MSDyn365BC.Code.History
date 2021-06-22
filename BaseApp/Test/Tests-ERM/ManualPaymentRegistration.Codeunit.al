@@ -1538,7 +1538,7 @@ codeunit 134710 "Manual Payment Registration"
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure PostRefundForSalesCreditMemoBalAccountGL()
     var
         Customer: Record Customer;
@@ -1614,7 +1614,7 @@ codeunit 134710 "Manual Payment Registration"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1624,7 +1624,7 @@ codeunit 134710 "Manual Payment Registration"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithCustomer(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesDocumentWithCustomer(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1822,7 +1822,7 @@ codeunit 134710 "Manual Payment Registration"
         PaymentRegistrationMgt.ConfirmPostLumpPayment(TempPaymentRegistrationBuffer)
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[20]
     begin
         CreateSalesDocument(SalesHeader, DocumentType);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true))
@@ -1838,7 +1838,7 @@ codeunit 134710 "Manual Payment Registration"
         exit(CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Order))
     end;
 
-    local procedure CreateAndPostSalesDocumentWithPaymentDiscount(var SalesHeader: Record "Sales Header"; DocumentType: Option): Code[20]
+    local procedure CreateAndPostSalesDocumentWithPaymentDiscount(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[20]
     begin
         CreateSalesDocument(SalesHeader, DocumentType);
         UpdatePaymentDiscount(SalesHeader);
@@ -2116,7 +2116,7 @@ codeunit 134710 "Manual Payment Registration"
         CustLedgerEntry.TestField(Open, RemainingAmount <> 0);
     end;
 
-    local procedure VerifyCustLedgerEntryWithType(CustomerNo: Code[20]; DocNo: Code[20]; RemainingAmount: Decimal; ExpectedDocumentType: Option)
+    local procedure VerifyCustLedgerEntryWithType(CustomerNo: Code[20]; DocNo: Code[20]; RemainingAmount: Decimal; ExpectedDocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

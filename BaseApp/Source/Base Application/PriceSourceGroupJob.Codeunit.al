@@ -8,7 +8,7 @@ codeunit 7015 "Price Source Group - Job" implements "Price Source Group"
         Ordinals: list of [Integer];
     begin
         Ordinals := JobSourceType.Ordinals();
-        exit(Ordinals.Contains(SourceType))
+        exit(Ordinals.Contains(SourceType.AsInteger()))
     end;
 
     procedure GetGroup() SourceGroup: Enum "Price Source Group";

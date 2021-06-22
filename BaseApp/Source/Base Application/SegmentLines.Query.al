@@ -132,6 +132,15 @@ query 106 "Segment Lines"
             column(Mail_Contact; "Mail Contact")
             {
             }
+            column(Contact_PhoneNo; "Contact Phone No.")
+            {
+            }
+            column(Contact_MobilePhoneNo; "Contact Mobile Phone No.")
+            {
+            }
+            column(Contact_EMail; "Contact Email")
+            {
+            }
         }
     }
 }

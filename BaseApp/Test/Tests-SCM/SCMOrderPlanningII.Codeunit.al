@@ -217,7 +217,7 @@ codeunit 137087 "SCM Order Planning - II"
         PlanningMultipleSalesOrder(Item."Replenishment System"::"Prod. Order", false);
     end;
 
-    local procedure PlanningMultipleSalesOrder(ReplenishmentSystem: Option; StatusReleased: Boolean)
+    local procedure PlanningMultipleSalesOrder(ReplenishmentSystem: Enum "Replenishment System"; StatusReleased: Boolean)
     var
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
@@ -407,7 +407,7 @@ codeunit 137087 "SCM Order Planning - II"
         ChangeReplenishmentSalesOrder(Item."Replenishment System"::"Prod. Order", Item."Replenishment System"::Purchase);
     end;
 
-    local procedure ChangeReplenishmentSalesOrder(ReplenishmentSystem: Option; ReplenishmentSystem2: Option)
+    local procedure ChangeReplenishmentSalesOrder(ReplenishmentSystem: Enum "Replenishment System"; ReplenishmentSystem2: Enum "Replenishment System")
     var
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
@@ -495,8 +495,8 @@ codeunit 137087 "SCM Order Planning - II"
         OpenOrderPlanningPage(OrderPlanning, SalesHeader."No.", Item."No.");
         Commit();
 
-        // Exercise and Verify : Click on Assist edit of Available to transfer from order planning page. Check That the value on Get alternative supply page is same as expected, Verification is done under Page Handler.
-        OrderPlanning.AvailableForTransfer.AssistEdit;
+        // Exercise and Verify : Click on Available for Transfer from order planning page. Check That the value on Get alternative supply page is same as expected, Verification is done under Page Handler.
+        OrderPlanning."Alternative Supply".Invoke();
 
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
@@ -526,7 +526,7 @@ codeunit 137087 "SCM Order Planning - II"
         Commit();
 
         // Exercise : Click On Assist Edit Of Available To Transfer, Select the value and click OK on Order Planning Page.
-        OrderPlanning.AvailableForTransfer.AssistEdit;
+        OrderPlanning."Alternative Supply".Invoke();
         OrderPlanning.OK.Invoke;
 
         // Verify : Check that Replenishment System and Quantity is same as expected on Order Planning.
@@ -563,7 +563,7 @@ codeunit 137087 "SCM Order Planning - II"
         PlanningForProduction(ProductionOrder.Status::Planned);
     end;
 
-    local procedure PlanningForProduction(Status: Option)
+    local procedure PlanningForProduction(Status: Enum "Production Order Status")
     var
         ProductionOrder: Record "Production Order";
         ParentItem: Record Item;
@@ -579,7 +579,8 @@ codeunit 137087 "SCM Order Planning - II"
         LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
 
         // Verify : Verify That Quantity on Requisition Line has same as quantity on Production BOM Component Line.
-        VerifyDemandQtyAndLocation(ProductionOrder."No.", SalesHeader."Document Type"::Invoice, DemandTypeGlobal::Production, Status);
+        VerifyDemandQtyAndLocation(
+            ProductionOrder."No.", SalesHeader."Document Type"::Invoice, DemandTypeGlobal::Production, Status.AsInteger());
     end;
 
     [Test]
@@ -648,7 +649,7 @@ codeunit 137087 "SCM Order Planning - II"
         PlanningForProdChangeRepl(ProductionOrder.Status::"Firm Planned")
     end;
 
-    local procedure PlanningForProdChangeRepl(Status: Option)
+    local procedure PlanningForProdChangeRepl(Status: Enum "Production Order Status")
     var
         ProductionOrder: Record "Production Order";
         ParentItem: Record Item;
@@ -695,7 +696,7 @@ codeunit 137087 "SCM Order Planning - II"
         ReserveProductionPlanning(ChildItem.Reserve::Always, false);
     end;
 
-    local procedure ReserveProductionPlanning(ReserveOnItem: Option; ReserveOnRequistition: Boolean)
+    local procedure ReserveProductionPlanning(ReserveOnItem: Enum "Reserve Method"; ReserveOnRequistition: Boolean)
     var
         ProductionOrder: Record "Production Order";
         ParentItem: Record Item;
@@ -742,7 +743,7 @@ codeunit 137087 "SCM Order Planning - II"
         ReserveProdPlanMakeOrder(ChildItem.Reserve::Never);
     end;
 
-    local procedure ReserveProdPlanMakeOrder(ReserveOnItem: Option)
+    local procedure ReserveProdPlanMakeOrder(ReserveOnItem: Enum "Reserve Method")
     var
         ProductionOrder: Record "Production Order";
         ParentItem: Record Item;
@@ -812,7 +813,7 @@ codeunit 137087 "SCM Order Planning - II"
         DimensionOnOrderPlanning(ProductionOrder.Status::Released);
     end;
 
-    local procedure DimensionOnOrderPlanning(Status: Option)
+    local procedure DimensionOnOrderPlanning(Status: Enum "Production Order Status")
     var
         ProductionOrder: Record "Production Order";
         ParentItem: Record Item;
@@ -1290,7 +1291,7 @@ codeunit 137087 "SCM Order Planning - II"
         // [GIVEN] Open order planning page and place position on order "SO1".
         // [GIVEN] Open "Available for transfer" page and set "SO1" to be fulfilled by a transfer from location "Blue".
         OpenOrderPlanningPage(OrderPlanning, SalesHeader[1]."No.", Item."No.");
-        OrderPlanning.AvailableForTransfer.AssistEdit;
+        OrderPlanning."Alternative Supply".Invoke();
 
         // [WHEN] Place position on sales order "SO2".
         OrderPlanning.FILTER.SetFilter("Demand Order No.", SalesHeader[2]."No.");
@@ -1347,7 +1348,7 @@ codeunit 137087 "SCM Order Planning - II"
         PurchasesPayablesSetup.Modify(true);
     end;
 
-    local procedure ChangeReplenishmentSystem(var RequisitionLine: Record "Requisition Line"; OldReplenishmentSystem: Option; NewReplenishmentSystem: Option; DemandOrderNo: Code[20]; VendorNo: Code[20])
+    local procedure ChangeReplenishmentSystem(var RequisitionLine: Record "Requisition Line"; OldReplenishmentSystem: Enum "Replenishment System"; NewReplenishmentSystem: Enum "Replenishment System"; DemandOrderNo: Code[20]; VendorNo: Code[20])
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
@@ -1358,7 +1359,7 @@ codeunit 137087 "SCM Order Planning - II"
         RequisitionLine.Modify(true);
     end;
 
-    local procedure ChangeReplForTrasferOrder(var RequisitionLine: Record "Requisition Line"; OldReplenishmentSystem: Option; NewReplenishmentSystem: Option; DemandOrderNo: Code[20]; SupplyFrom: Code[20])
+    local procedure ChangeReplForTrasferOrder(var RequisitionLine: Record "Requisition Line"; OldReplenishmentSystem: Enum "Replenishment System"; NewReplenishmentSystem: Enum "Replenishment System"; DemandOrderNo: Code[20]; SupplyFrom: Code[20])
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
@@ -1370,7 +1371,7 @@ codeunit 137087 "SCM Order Planning - II"
         RequisitionLine.Modify(true);
     end;
 
-    local procedure CreateManufacturingSetup(var Item: Record Item; var ChildItem: Record Item; Reserve: Option)
+    local procedure CreateManufacturingSetup(var Item: Record Item; var ChildItem: Record Item; Reserve: Enum "Reserve Method")
     begin
         CreateItem(ChildItem, ChildItem."Replenishment System"::Purchase, '', '');
         UpdateItem(ChildItem, Reserve);
@@ -1390,7 +1391,7 @@ codeunit 137087 "SCM Order Planning - II"
         CreateItem(Item, Item."Replenishment System"::"Prod. Order", RoutingHeader."No.", ProductionBOMHeader."No.");
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option; RoutingHeaderNo: Code[20]; ProductionBOMNo: Code[20])
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; RoutingHeaderNo: Code[20]; ProductionBOMNo: Code[20])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
@@ -1414,7 +1415,7 @@ codeunit 137087 "SCM Order Planning - II"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure UpdateItem(var Item: Record Item; Reserve: Option)
+    local procedure UpdateItem(var Item: Record Item; Reserve: Enum "Reserve Method")
     begin
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
         Item.Validate(Reserve, Reserve);
@@ -1500,7 +1501,7 @@ codeunit 137087 "SCM Order Planning - II"
             ManufacturingUserTemplate.Delete(true);
     end;
 
-    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Option; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
@@ -1710,7 +1711,7 @@ codeunit 137087 "SCM Order Planning - II"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
-    local procedure CalculateExpectedQuantity(DocumentType: Option; OutStandingQuantity: Decimal): Decimal
+    local procedure CalculateExpectedQuantity(DocumentType: Enum "Sales Document Type"; OutStandingQuantity: Decimal): Decimal
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1737,11 +1738,9 @@ codeunit 137087 "SCM Order Planning - II"
     local procedure GetRandomLanguageCode(): Code[10]
     var
         Language: Record Language;
-        RandNum: Integer;
     begin
-        Language.Init();
-        RandNum := LibraryRandom.RandIntInRange(1, Language.Count);
-        Language.Next(RandNum);
+        // TODO: BUG 134976 - Get random codes
+        Language.Get('ENU');
         exit(Language.Code);
     end;
 
@@ -1879,11 +1878,10 @@ codeunit 137087 "SCM Order Planning - II"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
-        ItemJournalTemplateType: Option Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod. Order";
     begin
         // Create Item Journal to populate Item Quantity.
-        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplateType::Item);
-        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplateType::Item, ItemJournalTemplate.Name);
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, "Item Journal Template Type"::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, "Item Journal Template Type"::Item, ItemJournalTemplate.Name);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase, ItemNo,
           Quantity);
@@ -1989,7 +1987,7 @@ codeunit 137087 "SCM Order Planning - II"
               ManufacturingUserTemplate."Create Transfer Order"::"Make Trans. Orders");
     end;
 
-    local procedure VerifyDemandQtyAndLocation(DemandOrderNo: Code[20]; SalesDocType: Option; DemandType: Option; Status: Option)
+    local procedure VerifyDemandQtyAndLocation(DemandOrderNo: Code[20]; SalesDocType: Enum "Sales Document Type"; DemandType: Option; Status: Option)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -2151,7 +2149,7 @@ codeunit 137087 "SCM Order Planning - II"
         PurchaseLine.TestField("Currency Code", CurrencyCode);
     end;
 
-    local procedure VerifyServiceReservationEntry(ServiceHeaderType: Option; ServiceHeaderNo: Code[20]; ItemNo: Code[20]; Qty: Decimal)
+    local procedure VerifyServiceReservationEntry(ServiceHeaderType: Enum "Service Document Type"; ServiceHeaderNo: Code[20]; ItemNo: Code[20]; Qty: Decimal)
     var
         ReservationEntry: Record "Reservation Entry";
     begin

@@ -326,7 +326,7 @@ codeunit 134764 TestPowerBIQueries
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure TestItemListByCustomerQuery()
     var
         Customer: Record Customer;
@@ -545,7 +545,7 @@ codeunit 134764 TestPowerBIQueries
         GLBudgetEntry.Insert();
     end;
 
-    local procedure MockValueEntryForSales(var ValueEntry: Record "Value Entry"; CustomerNo: Code[20]; DocumentType: Option; ItemNo: Code[20]; Qty: Decimal)
+    local procedure MockValueEntryForSales(var ValueEntry: Record "Value Entry"; CustomerNo: Code[20]; DocumentType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

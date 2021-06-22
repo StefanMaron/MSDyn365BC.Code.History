@@ -343,7 +343,7 @@ codeunit 137111 "SCM Production Backlog Chart"
     end;
 
     [Normal]
-    local procedure CreateProdOrders(ItemNo: Code[20]; Status: Option; NoOfOrders: Integer)
+    local procedure CreateProdOrders(ItemNo: Code[20]; Status: Enum "Production Order Status"; NoOfOrders: Integer)
     var
         ManufacturingSetup: Record "Manufacturing Setup";
         ProductionOrder: Record "Production Order";
@@ -361,7 +361,7 @@ codeunit 137111 "SCM Production Backlog Chart"
     end;
 
     [Normal]
-    local procedure GetExpectedProdOrderBacklog(var Qty: Decimal; var CostAmount: Decimal; var TotalCostAmount: Decimal; DateFilter: Text; UseMyItem: Boolean; Status: Option; ItemNo: Code[20])
+    local procedure GetExpectedProdOrderBacklog(var Qty: Decimal; var CostAmount: Decimal; var TotalCostAmount: Decimal; DateFilter: Text; UseMyItem: Boolean; Status: Enum "Production Order Status"; ItemNo: Code[20])
     var
         ProdOrderLine: Record "Prod. Order Line";
         MyItem: Record "My Item";
@@ -393,7 +393,7 @@ codeunit 137111 "SCM Production Backlog Chart"
     end;
 
     [Normal]
-    local procedure VerifyDelayedBacklogRecords(ItemNo: Code[20]; Status: Option)
+    local procedure VerifyDelayedBacklogRecords(ItemNo: Code[20]; Status: Enum "Production Order Status")
     var
         DelayedProdOrdersByCost: Query "Delayed Prod. Orders - by Cost";
         Qty: Decimal;
@@ -420,7 +420,7 @@ codeunit 137111 "SCM Production Backlog Chart"
     end;
 
     [Normal]
-    local procedure VerifyPendingBacklogRecords(ItemNo: Code[20]; Status: Option)
+    local procedure VerifyPendingBacklogRecords(ItemNo: Code[20]; Status: Enum "Production Order Status")
     var
         PendingProdOrdersByCost: Query "Pending Prod. Orders - by Cost";
         Qty: Decimal;
@@ -447,7 +447,7 @@ codeunit 137111 "SCM Production Backlog Chart"
     end;
 
     [Normal]
-    local procedure VerifyMyDelayedBacklogRecords(ItemNo: Code[20]; Status: Option)
+    local procedure VerifyMyDelayedBacklogRecords(ItemNo: Code[20]; Status: Enum "Production Order Status")
     var
         MyDelayedProdOrders: Query "My Delayed Prod. Orders";
         Qty: Decimal;
@@ -473,7 +473,7 @@ codeunit 137111 "SCM Production Backlog Chart"
     end;
 
     [Normal]
-    local procedure VerifyMyBacklogRecords(ItemNo: Code[20]; Status: Option)
+    local procedure VerifyMyBacklogRecords(ItemNo: Code[20]; Status: Enum "Production Order Status")
     var
         MyProdOrdersByCost: Query "My Prod. Orders - By Cost";
         Qty: Decimal;

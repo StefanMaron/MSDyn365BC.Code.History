@@ -37,6 +37,11 @@ codeunit 1530 "Request Page Parameters Helper"
     end;
 
     procedure ConvertParametersToFilters(RecRef: RecordRef; TempBlob: Codeunit "Temp Blob"): Boolean
+    begin
+        exit(ConvertParametersToFilters(RecRef, TempBlob, TextEncoding::MSDos));
+    end;
+
+    procedure ConvertParametersToFilters(RecRef: RecordRef; TempBlob: Codeunit "Temp Blob"; Encoding: TextEncoding): Boolean
     var
         TableMetadata: Record "Table Metadata";
         FoundXmlNodeList: DotNet XmlNodeList;
@@ -44,18 +49,18 @@ codeunit 1530 "Request Page Parameters Helper"
         if not TableMetadata.Get(RecRef.Number) then
             exit(false);
 
-        if not FindNodes(FoundXmlNodeList, ReadParameters(TempBlob), DataItemPathTxt) then
+        if not FindNodes(FoundXmlNodeList, ReadParameters(TempBlob, Encoding), DataItemPathTxt) then
             exit(false);
 
         exit(GetFiltersForTable(RecRef, FoundXmlNodeList));
     end;
 
-    local procedure ReadParameters(TempBlob: Codeunit "Temp Blob") Parameters: Text
+    local procedure ReadParameters(TempBlob: Codeunit "Temp Blob"; Encoding: TextEncoding) Parameters: Text
     var
         ParametersInStream: InStream;
     begin
         if TempBlob.HasValue then begin
-            TempBlob.CreateInStream(ParametersInStream);
+            TempBlob.CreateInStream(ParametersInStream, Encoding);
             ParametersInStream.ReadText(Parameters);
         end;
     end;

@@ -563,7 +563,13 @@ page 490 "Acc. Schedule Overview"
                     GLBudgetFilter2: Text;
                     BusUnitFilter: Text;
                     CostBudgetFilter2: Text;
+                    IsHandled: Boolean;
                 begin
+                    IsHandled := false;
+                    OnBeforePrint(Rec, CurrentColumnName, IsHandled);
+                    if IsHandled then
+                        exit;
+
                     AccSched.SetAccSchedName(CurrentSchedName);
                     AccSched.SetColumnLayoutName(CurrentColumnName);
                     DateFilter2 := GetFilter("Date Filter");
@@ -1115,6 +1121,11 @@ page 490 "Acc. Schedule Overview"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateDimFilterControls()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrint(var AccScheduleLine: Record "Acc. Schedule Line"; ColumnLayoutName: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -211,7 +211,7 @@ page 9106 "Customer Ledger Entry FactBox"
     var
         Heading: Text[50];
     begin
-        if CustLedgerEntry."Document Type" = 0 then
+        if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::" " then
             Heading := Text000
         else
             Heading := Format(CustLedgerEntry."Document Type");

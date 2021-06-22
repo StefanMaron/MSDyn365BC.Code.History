@@ -73,7 +73,7 @@ codeunit 137308 "SCM Planning Reports"
         PlanningAvailabilityForPurchase(Item."Reordering Policy"::"Maximum Qty.");
     end;
 
-    local procedure PlanningAvailabilityForPurchase(ReorderingPolicy: Option)
+    local procedure PlanningAvailabilityForPurchase(ReorderingPolicy: Enum "Reordering Policy")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -158,7 +158,7 @@ codeunit 137308 "SCM Planning Reports"
         PlanningAvailabilityReport(ProductionOrder.Status::Released, Item."Reordering Policy"::"Fixed Reorder Qty.");
     end;
 
-    local procedure PlanningAvailabilityReport(ProductionOrderStatus: Option; ItemReorderingPolicy: Option)
+    local procedure PlanningAvailabilityReport(ProductionOrderStatus: Enum "Production Order Status"; ItemReorderingPolicy: Enum "Reordering Policy")
     var
         SalesLine: Record "Sales Line";
         ProductionOrder: Record "Production Order";
@@ -249,7 +249,7 @@ codeunit 137308 "SCM Planning Reports"
         CalcRegenerativePlanAndPlanningAvailability(Item."Replenishment System"::"Prod. Order");
     end;
 
-    local procedure CalcRegenerativePlanAndPlanningAvailability(ItemReplenishmentSystem: Option)
+    local procedure CalcRegenerativePlanAndPlanningAvailability(ItemReplenishmentSystem: Enum "Replenishment System")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -294,7 +294,7 @@ codeunit 137308 "SCM Planning Reports"
         CarryOutActionMessageAndPlanningAvailability(Item."Replenishment System"::"Prod. Order");
     end;
 
-    local procedure CarryOutActionMessageAndPlanningAvailability(ItemReplenishmentSystem: Option)
+    local procedure CarryOutActionMessageAndPlanningAvailability(ItemReplenishmentSystem: Enum "Replenishment System")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -342,7 +342,7 @@ codeunit 137308 "SCM Planning Reports"
         CarryOutActionMessageAndDeleteOrder(Item."Replenishment System"::"Prod. Order");
     end;
 
-    local procedure CarryOutActionMessageAndDeleteOrder(ItemReplenishmentSystem: Option)
+    local procedure CarryOutActionMessageAndDeleteOrder(ItemReplenishmentSystem: Enum "Replenishment System")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -425,7 +425,7 @@ codeunit 137308 "SCM Planning Reports"
           Item."Reordering Policy"::Order, Item."Replenishment System"::"Prod. Order");
     end;
 
-    local procedure CarryOutActionMessageForDiffReplenishmentReorderPolicy(ItemReorderingPolicy: Option; ItemReplenishmentSystem: Option)
+    local procedure CarryOutActionMessageForDiffReplenishmentReorderPolicy(ItemReorderingPolicy: Enum "Reordering Policy"; ItemReplenishmentSystem: Enum "Replenishment System")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -528,7 +528,7 @@ codeunit 137308 "SCM Planning Reports"
         PlanningAvailabilityForFirmPlannedOrdersWithBOMVersion(ProductionBOMVersion.Status::Certified, false, true);  // Calculate Regenerative Plan - False, BOM Version Item - True.
     end;
 
-    local procedure PlanningAvailabilityForFirmPlannedOrdersWithBOMVersion(Status: Option; CalculateRegenerativePlan: Boolean; BOMVersionItem: Boolean)
+    local procedure PlanningAvailabilityForFirmPlannedOrdersWithBOMVersion(Status: Enum "BOM Status"; CalculateRegenerativePlan: Boolean; BOMVersionItem: Boolean)
     var
         Item: Record Item;
         Item2: Record Item;
@@ -621,7 +621,7 @@ codeunit 137308 "SCM Planning Reports"
         CalcNetChangePlanAndPlanningAvailability(Item."Replenishment System"::"Prod. Order");
     end;
 
-    local procedure CalcNetChangePlanAndPlanningAvailability(ItemReplenishmentSystem: Option)
+    local procedure CalcNetChangePlanAndPlanningAvailability(ItemReplenishmentSystem: Enum "Replenishment System")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -692,7 +692,7 @@ codeunit 137308 "SCM Planning Reports"
         PlanningAvailabilityForFirmPlannedOrdersWithBOMVersionAndItemReorderPolicyFRQ(ProductionBOMVersion.Status::Certified, false, true);  // Calculate Net Change Plan - False, BOM Version Item - True.
     end;
 
-    local procedure PlanningAvailabilityForFirmPlannedOrdersWithBOMVersionAndItemReorderPolicyFRQ(Status: Option; CalculateNetChangePlan: Boolean; BOMVersionItem: Boolean)
+    local procedure PlanningAvailabilityForFirmPlannedOrdersWithBOMVersionAndItemReorderPolicyFRQ(Status: Enum "BOM Status"; CalculateNetChangePlan: Boolean; BOMVersionItem: Boolean)
     var
         Item: Record Item;
         Item2: Record Item;
@@ -761,7 +761,7 @@ codeunit 137308 "SCM Planning Reports"
         PlanningAvailabilityReportForProdWithRoutingAndMultipleSales(Item."Reordering Policy"::"Maximum Qty.");
     end;
 
-    local procedure PlanningAvailabilityReportForProdWithRoutingAndMultipleSales(ReorderingPolicy: Option)
+    local procedure PlanningAvailabilityReportForProdWithRoutingAndMultipleSales(ReorderingPolicy: Enum "Reordering Policy")
     var
         Item: Record Item;
         ProductionOrder: Record "Production Order";
@@ -806,7 +806,7 @@ codeunit 137308 "SCM Planning Reports"
         CalcRegenerativePlanForProdWithRoutingAndMultipleSales(Item."Reordering Policy"::"Maximum Qty.");
     end;
 
-    local procedure CalcRegenerativePlanForProdWithRoutingAndMultipleSales(ReorderingPolicy: Option)
+    local procedure CalcRegenerativePlanForProdWithRoutingAndMultipleSales(ReorderingPolicy: Enum "Reordering Policy")
     var
         Item: Record Item;
         ProductionOrder: Record "Production Order";
@@ -858,7 +858,7 @@ codeunit 137308 "SCM Planning Reports"
         CarryOutActionMsgForProdWithRoutingAndMultipleSales(Item."Reordering Policy"::"Maximum Qty.");
     end;
 
-    local procedure CarryOutActionMsgForProdWithRoutingAndMultipleSales(ReorderingPolicy: Option)
+    local procedure CarryOutActionMsgForProdWithRoutingAndMultipleSales(ReorderingPolicy: Enum "Reordering Policy")
     var
         Item: Record Item;
         ProductionOrder: Record "Production Order";
@@ -1165,7 +1165,7 @@ codeunit 137308 "SCM Planning Reports"
         PlanningAvailabilityForSalesWithProdOrder(Item."Reordering Policy"::"Maximum Qty.");
     end;
 
-    local procedure PlanningAvailabilityForSalesWithProdOrder(ReorderingPolicy: Option)
+    local procedure PlanningAvailabilityForSalesWithProdOrder(ReorderingPolicy: Enum "Reordering Policy")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -1218,7 +1218,7 @@ codeunit 137308 "SCM Planning Reports"
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    local procedure PlanningAvailabilityReportForProdOrderStatusUpdate(ProductionOrderStatus: Option)
+    local procedure PlanningAvailabilityReportForProdOrderStatusUpdate(ProductionOrderStatus: Enum "Production Order Status")
     var
         SalesLine: Record "Sales Line";
         ProductionOrder: Record "Production Order";
@@ -1340,7 +1340,7 @@ codeunit 137308 "SCM Planning Reports"
         ItemJournalBatch.Modify(true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ReorderPolicy: Option; ReplenishmentSystem: Option)
+    local procedure CreateItem(var Item: Record Item; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ReorderPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryManufacturing.CreateItemManufacturing(
           Item, Item."Costing Method"::FIFO, 0, ReorderPolicy, Item."Flushing Method", RoutingNo, ProductionBOMNo);
@@ -1440,7 +1440,7 @@ codeunit 137308 "SCM Planning Reports"
         REPORT.Run(REPORT::"Planning Availability", true, false, PlanningBuffer);
     end;
 
-    local procedure CreateProductionOrderSetup(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Option; ItemReorderingPolicy: Option)
+    local procedure CreateProductionOrderSetup(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Enum "Production Order Status"; ItemReorderingPolicy: Enum "Reordering Policy")
     var
         Item: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
@@ -1455,7 +1455,7 @@ codeunit 137308 "SCM Planning Reports"
         UpdateProductionPlanningFlexibility(ProductionOrder."No.");
     end;
 
-    local procedure CreateProdOrderItemsSetup(var Item: Record Item; var ProductionBOMHeader: Record "Production BOM Header"; ReorderingPolicy: Option)
+    local procedure CreateProdOrderItemsSetup(var Item: Record Item; var ProductionBOMHeader: Record "Production BOM Header"; ReorderingPolicy: Enum "Reordering Policy")
     var
         RoutingHeader: Record "Routing Header";
     begin
@@ -1500,7 +1500,7 @@ codeunit 137308 "SCM Planning Reports"
         LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo2, 100);  // Quantity per Value important.
     end;
 
-    local procedure CreateProductionBOMWithVersion(ItemBaseUnitOfMeasure: Code[10]; ChildItemNo: Code[20]; Status: Option)
+    local procedure CreateProductionBOMWithVersion(ItemBaseUnitOfMeasure: Code[10]; ChildItemNo: Code[20]; Status: Enum "BOM Status")
     var
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBomVersion: Record "Production BOM Version";
@@ -1525,7 +1525,7 @@ codeunit 137308 "SCM Planning Reports"
           LibraryRandom.RandInt(10) + 10);  // Random Quantity.
     end;
 
-    local procedure UpdateProductionBOMVersionStatus(ProductionBomVersion: Record "Production BOM Version"; Status: Option)
+    local procedure UpdateProductionBOMVersionStatus(ProductionBomVersion: Record "Production BOM Version"; Status: Enum "BOM Status")
     begin
         ProductionBomVersion.Validate(Status, Status);
         ProductionBomVersion.Modify(true);
@@ -1575,14 +1575,14 @@ codeunit 137308 "SCM Planning Reports"
         exit(Item."No.");
     end;
 
-    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Option; ItemNo: Code[20])
+    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Enum "Production Order Status"; ItemNo: Code[20])
     begin
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrderStatus, ProductionOrder."Source Type"::Item, ItemNo, LibraryRandom.RandDec(5, 2));
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure CreateAndRefreshProdOrderWithLocation(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Option; ItemNo: Code[20]; LocationCode: Code[10])
+    local procedure CreateAndRefreshProdOrderWithLocation(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Enum "Production Order Status"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
         with ProductionOrder do begin
             LibraryManufacturing.CreateProductionOrder(
@@ -1690,7 +1690,7 @@ codeunit 137308 "SCM Planning Reports"
         Item.Modify(true);
     end;
 
-    local procedure CreateSalesOrdersWithFirmPlannedProd(var Item: Record Item; var ProductionOrder: Record "Production Order"; var SalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line"; ReorderingPolicy: Option)
+    local procedure CreateSalesOrdersWithFirmPlannedProd(var Item: Record Item; var ProductionOrder: Record "Production Order"; var SalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line"; ReorderingPolicy: Enum "Reordering Policy")
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin

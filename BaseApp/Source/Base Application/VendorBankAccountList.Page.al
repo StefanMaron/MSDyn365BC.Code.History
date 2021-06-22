@@ -102,5 +102,12 @@ page 426 "Vendor Bank Account List"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    var
+        MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
+    begin
+        MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
+    end;
 }
 

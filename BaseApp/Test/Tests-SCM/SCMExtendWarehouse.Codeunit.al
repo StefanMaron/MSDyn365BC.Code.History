@@ -146,7 +146,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ManufacturingSetupRec.Modify(true);
     end;
 
-    local procedure ItemSetup(var Item: Record Item; ReplenishmentSystem: Option; FlushingMethod: Option)
+    local procedure ItemSetup(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; FlushingMethod: Enum "Flushing Method")
     begin
         LibraryInventory.CreateItem(Item);
 
@@ -277,7 +277,7 @@ codeunit 137030 "SCM Extend Warehouse"
         ProductionBOMHeader.Modify(true);
     end;
 
-    local procedure CreateWorkCenter(var WorkCenter: Record "Work Center"; FlushingMethod: Option)
+    local procedure CreateWorkCenter(var WorkCenter: Record "Work Center"; FlushingMethod: Enum "Flushing Method")
     begin
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
         WorkCenter.Validate(Capacity, 1);
@@ -285,7 +285,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WorkCenter.Modify(true);
     end;
 
-    local procedure CreateMachineCenter(var MachineCenter: Record "Machine Center"; WorkCenter: Record "Work Center"; FlushingMethod: Option)
+    local procedure CreateMachineCenter(var MachineCenter: Record "Machine Center"; WorkCenter: Record "Work Center"; FlushingMethod: Enum "Flushing Method")
     begin
         LibraryManufacturing.CreateMachineCenterWithCalendar(MachineCenter, WorkCenter."No.", 1);
         MachineCenter.Validate("Flushing Method", FlushingMethod);
@@ -479,7 +479,7 @@ codeunit 137030 "SCM Extend Warehouse"
             ProdOrderComp.Next(ComponentIndex - 1);
     end;
 
-    local procedure ChangeFlushingMethodOnItem(var Item: Record Item; FlushingMethod: Option)
+    local procedure ChangeFlushingMethodOnItem(var Item: Record Item; FlushingMethod: Enum "Flushing Method")
     begin
         Item.Validate("Flushing Method", FlushingMethod);
         Item.Modify(true);
@@ -614,7 +614,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
-    local procedure AddComponentToProdOrder(ProductionOrder: Record "Production Order"; ItemNo: Code[20]; QuantityPer: Decimal; LocationCode: Code[10]; BinCode: Code[20]; FlushingMethod: Option)
+    local procedure AddComponentToProdOrder(ProductionOrder: Record "Production Order"; ItemNo: Code[20]; QuantityPer: Decimal; LocationCode: Code[10]; BinCode: Code[20]; FlushingMethod: Enum "Flushing Method")
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
@@ -778,7 +778,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityHdr.FindLast;
     end;
 
-    local procedure GetLastActvHdrCreatedWithSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; SourceDoc: Option; SourceNo: Code[30])
+    local procedure GetLastActvHdrCreatedWithSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[30])
     begin
         WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);
@@ -788,7 +788,7 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityHdr.FindLast;
     end;
 
-    local procedure AssertActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; SourceDoc: Option; SourceNo: Code[20]; NoOfLines: Integer; Message: Text[30])
+    local procedure AssertActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; NoOfLines: Integer; Message: Text[30])
     begin
         WhseActivityHdr.Init();
         WhseActivityHdr.SetCurrentKey("Source Document", "Source No.", "Location Code");
@@ -802,7 +802,7 @@ codeunit 137030 "SCM Extend Warehouse"
             WhseActivityHdr.FindSet(true);
     end;
 
-    local procedure AssertNoActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; SourceDoc: Option; SourceNo: Code[20]; Message: Text[30])
+    local procedure AssertNoActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option; SourceDoc: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; Message: Text[30])
     begin
         AssertActivityHdr(WhseActivityHdr, Location, ActivityType, SourceDoc, SourceNo, 0, Message);
     end;
@@ -885,7 +885,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Assert.AreEqual(0, InternalMovementHeaderSecond.Count, 'Internal movement is not deleted!');
     end;
 
-    local procedure AssertRegisteredInvtMovement(var RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr."; SourceProdOrder: Record "Production Order"; SourceDoc: Option; Item: Record Item; FromBin: Record Bin; ToBin: Record Bin; Quantity: Decimal; ExpectedCountOfHdr: Integer; ReturnHdrNo: Integer)
+    local procedure AssertRegisteredInvtMovement(var RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr."; SourceProdOrder: Record "Production Order"; SourceDoc: Enum "Warehouse Activity Source Document"; Item: Record Item; FromBin: Record Bin; ToBin: Record Bin; Quantity: Decimal; ExpectedCountOfHdr: Integer; ReturnHdrNo: Integer)
     var
         RegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
     begin
@@ -900,7 +900,7 @@ codeunit 137030 "SCM Extend Warehouse"
         end;
     end;
 
-    local procedure AssertRegisteredInvtMvmtHdr(var RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr."; SourceProdOrder: Record "Production Order"; SourceDoc: Option; ExpectedCountOfHdr: Integer; ReturnHdrNo: Integer; Message: Text[1024])
+    local procedure AssertRegisteredInvtMvmtHdr(var RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr."; SourceProdOrder: Record "Production Order"; SourceDoc: Enum "Warehouse Activity Source Document"; ExpectedCountOfHdr: Integer; ReturnHdrNo: Integer; Message: Text[1024])
     begin
         RegisteredInvtMovementHdr.Reset();
         RegisteredInvtMovementHdr.SetRange("Source No.", SourceProdOrder."No.");
@@ -1051,7 +1051,7 @@ codeunit 137030 "SCM Extend Warehouse"
           ' production order lines within the filter: ' + ProdOrderLine.GetFilters);
     end;
 
-    local procedure AssertProdOrderRoutingLine(ProductionOrder: Record "Production Order"; OperationNo: Text[10]; Type: Option; No: Code[20]; LocationCode: Code[10]; ToBinCode: Code[20]; FromBinCode: Code[20]; OSFBBinCode: Code[20]; NoOfLines: Integer)
+    local procedure AssertProdOrderRoutingLine(ProductionOrder: Record "Production Order"; OperationNo: Text[10]; Type: Enum "Capacity Type Routing"; No: Code[20]; LocationCode: Code[10]; ToBinCode: Code[20]; FromBinCode: Code[20]; OSFBBinCode: Code[20]; NoOfLines: Integer)
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
@@ -1069,7 +1069,7 @@ codeunit 137030 "SCM Extend Warehouse"
           ' production order routing lines within the filter: ' + ProdOrderRoutingLine.GetFilters);
     end;
 
-    local procedure AssertOutputJournalLine(ProductionOrder: Record "Production Order"; OperationNo: Text[10]; Type: Option; No: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; NoOfLines: Integer)
+    local procedure AssertOutputJournalLine(ProductionOrder: Record "Production Order"; OperationNo: Text[10]; Type: Enum "Capacity Type Routing"; No: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; NoOfLines: Integer)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -1087,7 +1087,7 @@ codeunit 137030 "SCM Extend Warehouse"
           'There are no ' + Format(NoOfLines) + ' output journal lines within the filter: ' + ItemJournalLine.GetFilters);
     end;
 
-    local procedure AssertWarehouseEntry(BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal; SourceType: Integer; SourceNo: Code[20]; SourceSubtype: Option; SourceDoc: Option; ExpectedCount: Integer)
+    local procedure AssertWarehouseEntry(BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal; SourceType: Integer; SourceNo: Code[20]; SourceSubtype: Option; SourceDoc: Enum "Warehouse Journal Source Document"; ExpectedCount: Integer)
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
@@ -1403,8 +1403,8 @@ codeunit 137030 "SCM Extend Warehouse"
         // Check the warehouse entries
         AssertWarehouseEntry(FirstBin.Code, Item."No.", '', 10, DATABASE::"Item Journal Line", '',
           0, WarehouseEntry."Source Document"::"Item Jnl.", 1);
-        AssertWarehouseEntry(FirstBin.Code, Item."No.", '', -5, 0, '', 0, 0, 1);
-        AssertWarehouseEntry(SecondBin.Code, Item."No.", '', 5, 0, '', 0, 0, 1);
+        AssertWarehouseEntry(FirstBin.Code, Item."No.", '', -5, 0, '', 0, "Warehouse Activity Source Document"::" ", 1);
+        AssertWarehouseEntry(SecondBin.Code, Item."No.", '', 5, 0, '', 0, "Warehouse Activity Source Document"::" ", 1);
     end;
 
     [MessageHandler]
@@ -1677,8 +1677,8 @@ codeunit 137030 "SCM Extend Warehouse"
         AssertWarehouseEntry(
           FromBin.Code, TestItem."No.", '', 10, DATABASE::"Item Journal Line", '', 0,
           WarehouseEntry."Source Document"::"Item Jnl.", 1);
-        AssertWarehouseEntry(FromBin.Code, TestItem."No.", '', -5, 0, '', 0, 0, 1);
-        AssertWarehouseEntry(ToBin.Code, TestItem."No.", '', 5, 0, '', 0, 0, 1);
+        AssertWarehouseEntry(FromBin.Code, TestItem."No.", '', -5, 0, '', 0, "Warehouse Activity Source Document"::" ", 1);
+        AssertWarehouseEntry(ToBin.Code, TestItem."No.", '', 5, 0, '', 0, "Warehouse Activity Source Document"::" ", 1);
     end;
 
     [Test]
@@ -2655,11 +2655,11 @@ codeunit 137030 "SCM Extend Warehouse"
 
         AssertWarehouseEntry(
           FromBin.Code, ChildItem."No.", '', -20, DATABASE::"Prod. Order Component", ProductionOrder."No.",
-          ProductionOrder.Status, WarehouseEntry."Source Document"::"Prod. Consumption", 1);
+          ProductionOrder.Status.AsInteger(), WarehouseEntry."Source Document"::"Prod. Consumption", 1);
 
         AssertWarehouseEntry(
           ToBin.Code, ChildItem."No.", '', 20, DATABASE::"Prod. Order Component", ProductionOrder."No.",
-          ProductionOrder.Status, WarehouseEntry."Source Document"::"Prod. Consumption", 1);
+          ProductionOrder.Status.AsInteger(), WarehouseEntry."Source Document"::"Prod. Consumption", 1);
     end;
 
     [Test]
@@ -2725,11 +2725,11 @@ codeunit 137030 "SCM Extend Warehouse"
 
         AssertWarehouseEntry(
           FromBin.Code, ChildItem."No.", 'ONE', -20, DATABASE::"Prod. Order Component", ProductionOrder."No.",
-          ProductionOrder.Status, WarehouseEntry."Source Document"::"Prod. Consumption", 1);
+          ProductionOrder.Status.AsInteger(), WarehouseEntry."Source Document"::"Prod. Consumption", 1);
 
         AssertWarehouseEntry(
           ToBin.Code, ChildItem."No.", 'ONE', 20, DATABASE::"Prod. Order Component", ProductionOrder."No.",
-          ProductionOrder.Status, WarehouseEntry."Source Document"::"Prod. Consumption", 1);
+          ProductionOrder.Status.AsInteger(), WarehouseEntry."Source Document"::"Prod. Consumption", 1);
 
         AssertWarehouseEntry(
           FromBin.Code, ChildItem."No.", '', 100, DATABASE::"Item Journal Line", '',
@@ -2796,11 +2796,11 @@ codeunit 137030 "SCM Extend Warehouse"
 
         AssertWarehouseEntry(
           FromBin.Code, ChildItem."No.", '', -10, DATABASE::"Prod. Order Component", ProductionOrder."No.",
-          ProductionOrder.Status, WarehouseEntry."Source Document"::"Prod. Consumption", 1);
+          ProductionOrder.Status.AsInteger(), WarehouseEntry."Source Document"::"Prod. Consumption", 1);
 
         AssertWarehouseEntry(
           ToBin.Code, ChildItem."No.", '', 10, DATABASE::"Prod. Order Component", ProductionOrder."No.",
-          ProductionOrder.Status, WarehouseEntry."Source Document"::"Prod. Consumption", 1);
+          ProductionOrder.Status.AsInteger(), WarehouseEntry."Source Document"::"Prod. Consumption", 1);
 
         // Autofill and register
         AutofillQtyToHandle(ProductionOrder);
@@ -2813,11 +2813,11 @@ codeunit 137030 "SCM Extend Warehouse"
 
         AssertWarehouseEntry(
           FromBin.Code, ChildItem."No.", '', -10, DATABASE::"Prod. Order Component", ProductionOrder."No.",
-          ProductionOrder.Status, WarehouseEntry."Source Document"::"Prod. Consumption", 2);
+          ProductionOrder.Status.AsInteger(), WarehouseEntry."Source Document"::"Prod. Consumption", 2);
 
         AssertWarehouseEntry(
           ToBin.Code, ChildItem."No.", '', 10, DATABASE::"Prod. Order Component", ProductionOrder."No.",
-          ProductionOrder.Status, WarehouseEntry."Source Document"::"Prod. Consumption", 2);
+          ProductionOrder.Status.AsInteger(), WarehouseEntry."Source Document"::"Prod. Consumption", 2);
     end;
 
     [Test]
@@ -5725,7 +5725,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
 
         AssertActivityHdr(WarehouseActivityHeader, Location, WarehouseActivityHeader.Type::Pick,
-          0, '', 1, MSG_WHSE_PICK);
+          "Warehouse Activity Source Document"::" ", '', 1, MSG_WHSE_PICK);
         AssertActivityLine(WarehouseActivityHeader, ChildItem1, Bin, WarehouseActivityLine."Action Type"::Take, 20, 20, 1,
           MSG_WHSE_PICK_LINE);
         AssertActivityLine(WarehouseActivityHeader, ChildItem1, FromBin[2], WarehouseActivityLine."Action Type"::Place, 20, 20, 1,
@@ -7297,7 +7297,7 @@ codeunit 137030 "SCM Extend Warehouse"
                 CreateMachineCenter(MachineCenter[i], WorkCenter[2], MachineCenter[i]."Flushing Method"::Manual);
     end;
 
-    local procedure PC429(var Item: array[4] of Record Item; var ProductionBOMHeader: Record "Production BOM Header"; var RoutingHeader: Record "Routing Header"; FlushingMethod: Option)
+    local procedure PC429(var Item: array[4] of Record Item; var ProductionBOMHeader: Record "Production BOM Header"; var RoutingHeader: Record "Routing Header"; FlushingMethod: Enum "Flushing Method")
     var
         ArrayOfWorkCenter: array[2] of Record "Work Center";
         ArrayOfMachineCenter: array[4] of Record "Machine Center";
@@ -7357,7 +7357,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Create component lines in the BOM
         for i := 2 to 5 do begin
-            ItemSetup(Item[i], Item[i]."Replenishment System"::Purchase, i - 1);
+            ItemSetup(Item[i], Item[i]."Replenishment System"::Purchase, "Flushing Method".FromInteger(i - 1));
             LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '',
               ProductionBOMLine.Type::Item, Item[i]."No.", 2);
         end;
@@ -7370,7 +7370,7 @@ codeunit 137030 "SCM Extend Warehouse"
         Item[1].Modify(true);
     end;
 
-    local procedure PC431(var Item: array[4] of Record Item; var ProductionBOMHeader: Record "Production BOM Header"; var RoutingHeader: Record "Routing Header"; FlushingMethodOfChild1: Option; FlushingMethodOfChild2: Option; FlushingMethodOfWorkCenter: Option)
+    local procedure PC431(var Item: array[4] of Record Item; var ProductionBOMHeader: Record "Production BOM Header"; var RoutingHeader: Record "Routing Header"; FlushingMethodOfChild1: Enum "Flushing Method"; FlushingMethodOfChild2: Enum "Flushing Method"; FlushingMethodOfWorkCenter: Enum "Flushing Method")
     var
         ProductionBOMLine: Record "Production BOM Line";
         RoutingLink: Record "Routing Link";

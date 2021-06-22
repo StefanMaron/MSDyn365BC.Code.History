@@ -381,7 +381,7 @@ codeunit 137800 "SCM Work Center Test"
         exit(MachineCenter."No.");
     end;
 
-    local procedure CreateWorkCenter(UOMType: Option; ShopCalendarCode: Code[10]; DueDate: Date): Code[20]
+    local procedure CreateWorkCenter(UOMType: Enum "Capacity Unit of Measure"; ShopCalendarCode: Code[10]; DueDate: Date): Code[20]
     var
         WorkCenter: Record "Work Center";
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
@@ -487,7 +487,7 @@ codeunit 137800 "SCM Work Center Test"
         end;
     end;
 
-    local procedure CreateSimpleRouting(RoutingLineType: Option; MachineWorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal): Code[20]
+    local procedure CreateSimpleRouting(RoutingLineType: Enum "Capacity Type Routing"; MachineWorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal): Code[20]
     var
         RoutingHeader: Record "Routing Header";
     begin
@@ -498,7 +498,7 @@ codeunit 137800 "SCM Work Center Test"
         exit(RoutingHeader."No.");
     end;
 
-    local procedure CreateTwoLinesRouting(RoutingLineType: Option; MachineWorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal): Code[20]
+    local procedure CreateTwoLinesRouting(RoutingLineType: Enum "Capacity Type Routing"; MachineWorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal): Code[20]
     var
         RoutingHeader: Record "Routing Header";
         i: Integer;
@@ -513,7 +513,7 @@ codeunit 137800 "SCM Work Center Test"
         exit(RoutingHeader."No.");
     end;
 
-    local procedure CreateFourLinesRouting(RoutingLineType: Option; MachineWorkCenterNo: array[4] of Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal): Code[20]
+    local procedure CreateFourLinesRouting(RoutingLineType: Enum "Capacity Type Routing"; MachineWorkCenterNo: array[4] of Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal): Code[20]
     var
         RoutingHeader: Record "Routing Header";
         i: Integer;
@@ -529,7 +529,7 @@ codeunit 137800 "SCM Work Center Test"
         exit(RoutingHeader."No.");
     end;
 
-    local procedure CreateRoutingLine(RoutingHeader: Record "Routing Header"; RoutingLineType: Option; MachineWorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal)
+    local procedure CreateRoutingLine(RoutingHeader: Record "Routing Header"; RoutingLineType: Enum "Capacity Type Routing"; MachineWorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal)
     var
         RoutingLine: Record "Routing Line";
     begin

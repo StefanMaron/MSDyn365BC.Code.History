@@ -283,7 +283,7 @@ page 5651 "Insurance Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -414,6 +414,8 @@ page 5651 "Insurance Journal"
         CurrentJnlBatchName: Code[10];
         InsuranceDescription: Text[100];
         FADescription: Text[100];
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

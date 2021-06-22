@@ -14,11 +14,9 @@ table 5082 "Activity Step"
         {
             Caption = 'Step No.';
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Task Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Meeting,Phone Call';
-            OptionMembers = " ",Meeting,"Phone Call";
         }
         field(4; Description; Text[100])
         {

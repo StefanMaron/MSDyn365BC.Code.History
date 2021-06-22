@@ -198,7 +198,7 @@ page 6646 "Purchase Return List Archive"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("<Page Sales Archive Comment Sheet>")

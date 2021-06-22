@@ -14,11 +14,13 @@ codeunit 6060 "Hybrid Deployment"
         FailedToProcessRequestErr: Label 'The request could not be processed due to an unexpected error.';
         FailedCreatingIRErr: Label 'Failed to create your integration runtime.';
         FailedDisableReplicationErr: Label 'Failed to disable replication.';
+        FailedDisableDataLakeMigrationErr: Label 'Failed to disable the Azure Data Lake migration.';
         FailedEnableReplicationErr: Label 'Failed to enable your replication.\\Make sure your integration runtime is successfully connected and try again.';
         FailedGettingStatusErr: Label 'Failed to retrieve the replication run status.';
         FailedGettingIRKeyErr: Label 'Failed to get your integration runtime key. Please try again.';
         FailedGettingVersionInformationErr: Label 'Failed to get the version information. Please try again.';
         FailedPreparingTablesErr: Label 'Failed to prepare tables for replication. See the help document for more information.';
+        FailedDataLakeErr: Label 'Failed to start the Azure Data Lake Migration. Please try again.';
         FailedRegeneratingIRKeyErr: Label 'Failed to regenerate your integration runtime key. Please try again.';
         FailedRunReplicationErr: Label 'Failed to trigger replication. Please try again.';
         FailedRunUpgradeErr: Label 'Failed to trigger upgrade. Please try again.';
@@ -76,6 +78,18 @@ codeunit 6060 "Hybrid Deployment"
         EnableIntelligentCloud(false);
 
         OnAfterDisableReplication(InstanceId);
+    end;
+
+    [Scope('OnPrem')]
+    procedure DisableDataLakeMigration()
+    var
+        InstanceId: Text;
+        Output: Text;
+    begin
+        if not TryDisableDataLakeMigration(InstanceId) then
+            Error(FailedDisableDataLakeMigrationErr);
+
+        RetryGetStatus(InstanceId, FailedDisableDataLakeMigrationErr, Output);
     end;
 
     [Scope('OnPrem')]
@@ -181,6 +195,22 @@ codeunit 6060 "Hybrid Deployment"
         JSONManagement.InitializeObject(JsonOutput);
         JSONManagement.GetStringPropertyValueByName('DeployedVersion', DeployedVersion);
         JSONManagement.GetStringPropertyValueByName('LatestVersion', LatestVersion);
+    end;
+
+    [Scope('OnPrem')]
+    procedure InitiateDataLakeMigration(var RunId: Text; StorageAccountName: Text; StorageAccountKey: Text)
+    var
+        JSONManagement: Codeunit "JSON Management";
+        InstanceId: Text;
+        JsonOutput: Text;
+    begin
+        if not TryInitiateDataLakeMigration(InstanceId, StorageAccountName, StorageAccountKey) then
+            Error(FailedDataLakeErr);
+
+        RetryGetStatus(InstanceId, FailedDataLakeErr, JsonOutput);
+
+        JSONManagement.InitializeObject(JsonOutput);
+        JSONManagement.GetStringPropertyValueByName('RunId', RunId);
     end;
 
     [Scope('OnPrem')]
@@ -310,12 +340,17 @@ codeunit 6060 "Hybrid Deployment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDisableDataLakeMigration(var InstanceId: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDisableReplication(var InstanceId: Text)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    LOCAL PROCEDURE OnAfterDisableReplication(VAR InstanceId: Text);
+    local procedure OnAfterDisableReplication(VAR InstanceId: Text);
     begin
     end;
 
@@ -360,6 +395,11 @@ codeunit 6060 "Hybrid Deployment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitiateDataLakeMigration(var InstanceId: Text; StorageAccountName: Text; StorageAccountKey: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPrepareTablesForReplication()
     begin
     end;
@@ -388,6 +428,12 @@ codeunit 6060 "Hybrid Deployment"
     local procedure TryCreateIntegrationRuntime(var InstanceId: Text)
     begin
         OnCreateIntegrationRuntime(InstanceId);
+    end;
+
+    [TryFunction]
+    local procedure TryDisableDataLakeMigration(var InstanceId: Text)
+    begin
+        OnDisableDataLakeMigration(InstanceId);
     end;
 
     [TryFunction]
@@ -423,6 +469,13 @@ codeunit 6060 "Hybrid Deployment"
     local procedure TryGetVersionInformation(var InstanceId: Text)
     begin
         OnGetVersionInformation(InstanceId);
+        ValidateInstanceId(InstanceId);
+    end;
+
+    [TryFunction]
+    local procedure TryInitiateDataLakeMigration(var InstanceId: Text; StorageAccountName: Text; StorageAccountKey: Text)
+    begin
+        OnInitiateDataLakeMigration(InstanceId, StorageAccountName, StorageAccountKey);
         ValidateInstanceId(InstanceId);
     end;
 
@@ -476,8 +529,7 @@ codeunit 6060 "Hybrid Deployment"
         if not TryGetErrorCode(JsonOutput, ErrorCode) or (ErrorCode = '') then
             exit;
 
-        SendTraceTag('00006NE', 'IntelligentCloud', VERBOSITY::Warning,
-          StrSubstNo('Error occurred in replication service: %1', ErrorCode), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00006NE', StrSubstNo('Error occurred in replication service: %1', ErrorCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'IntelligentCloud');
         OnGetErrorMessage(ErrorCode, Message);
 
         if Message <> '' then
@@ -514,7 +566,7 @@ codeunit 6060 "Hybrid Deployment"
     local procedure ValidateInstanceId(InstanceId: Text)
     begin
         if InstanceId = '' then begin
-            SendTraceTag('00007HU', 'IntelligentCloud', VERBOSITY::Error, 'Received an empty response from the replication service.');
+            Session.LogMessage('00007HU', 'Received an empty response from the replication service.', Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', 'IntelligentCloud');
             Error(FailedToProcessRequestErr);
         end;
     end;

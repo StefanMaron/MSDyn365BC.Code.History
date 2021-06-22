@@ -90,7 +90,6 @@ codeunit 134102 "ERM Prepayment III"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
-        AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner";
         PurchPrepmtAccount: Code[20];
         Amount: Decimal;
         DocumentNo: Code[20];
@@ -114,7 +113,7 @@ codeunit 134102 "ERM Prepayment III"
         LibraryLowerPermissions.SetO365Setup;
         LibraryLowerPermissions.AddPurchDocsPost;
         PurchasePostPrepayments.Invoice(PurchaseHeader);
-        CreateAndPostPaymentEntry(AccountType::Vendor, PurchaseHeader."Buy-from Vendor No.");
+        CreateAndPostPaymentEntry("Gen. Journal Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.");
         CreateAndModifyExchangeRate(PurchaseHeader."Currency Code");
 
         // Reopen Purchase Order and Modify Purchase Header.
@@ -151,7 +150,6 @@ codeunit 134102 "ERM Prepayment III"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
-        AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner";
         SalesPrepmtAccount: Code[20];
         Amount: Decimal;
         DocumentNo: Code[20];
@@ -174,7 +172,7 @@ codeunit 134102 "ERM Prepayment III"
         LibraryLowerPermissions.SetO365Setup;
         LibraryLowerPermissions.AddSalesDocsPost;
         SalesPostPrepayments.Invoice(SalesHeader);
-        CreateAndPostPaymentEntry(AccountType::Customer, SalesHeader."Sell-to Customer No.");
+        CreateAndPostPaymentEntry("Gen. Journal Account Type"::Customer, SalesHeader."Sell-to Customer No.");
         CreateAndModifyExchangeRate(SalesHeader."Currency Code");
 
         // Reopen Sales Order and Modify Sales Header.
@@ -1292,7 +1290,6 @@ codeunit 134102 "ERM Prepayment III"
         SalesLine: Record "Sales Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VATEntry: Record "VAT Entry";
-        AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner";
         DocumentNo: Code[20];
         OldSalesPrepaymentsAccount: Code[20];
     begin
@@ -1315,7 +1312,7 @@ codeunit 134102 "ERM Prepayment III"
         // [GIVEN] Payment Journal Line "PAY01" applied to "PPI01" created and posted
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Payment,
-          CreateAndPostPaymentEntry(AccountType::Customer, SalesHeader."Sell-to Customer No."));
+          CreateAndPostPaymentEntry("Gen. Journal Account Type"::Customer, SalesHeader."Sell-to Customer No."));
         FindVATEntriesForDocument(VATEntry, VATEntry."Document Type"::Payment, CustLedgerEntry."Document No.");
         VerifyGLEntryVATEntryLink(VATEntry."Entry No.");
 
@@ -1359,7 +1356,7 @@ codeunit 134102 "ERM Prepayment III"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment III");
     end;
 
-    local procedure ApplyCustomerLedgerEntries(DocumentType: Option; DocumentType2: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyCustomerLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -1409,13 +1406,13 @@ codeunit 134102 "ERM Prepayment III"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateAndModifySalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateAndModifySalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         ModifyUnitPriceOnSalesLine(SalesLine, UnitPrice);
     end;
 
-    local procedure CreateAndPostPaymentEntry(AccountType: Option; AccountNo: Code[20]): Code[20]
+    local procedure CreateAndPostPaymentEntry(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1646,21 +1643,21 @@ codeunit 134102 "ERM Prepayment III"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.FindSet;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.FindSet;
     end;
 
-    local procedure FindSalesLinePrepaymentPct(DocumentType: Option; DocumentNo: Code[20]) TotalPrepaymentPct: Decimal
+    local procedure FindSalesLinePrepaymentPct(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]) TotalPrepaymentPct: Decimal
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1670,7 +1667,7 @@ codeunit 134102 "ERM Prepayment III"
         until SalesLine.Next = 0;
     end;
 
-    local procedure FindVATEntriesForDocument(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVATEntriesForDocument(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
@@ -1845,7 +1842,7 @@ codeunit 134102 "ERM Prepayment III"
         PurchInvHeader.TestField("No.", NoSeriesLine."Last No. Used");
     end;
 
-    local procedure VerifySalesLine(DocumentType: Option; DocumentNo: Code[20]; PrepaymentAmount: Decimal)
+    local procedure VerifySalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; PrepaymentAmount: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin

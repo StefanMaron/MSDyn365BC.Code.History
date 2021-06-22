@@ -1,4 +1,4 @@
-report 5915 "Service Document - Test"
+﻿report 5915 "Service Document - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ServiceDocumentTest.rdlc';
@@ -655,12 +655,10 @@ report 5915 "Service Document - Test"
                                     TempServiceLine."Line Amount" := 0;
 
                                 TempDimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
-                                if "Document Type" = "Document Type"::"Credit Memo"
-                                then begin
-                                    if "Document Type" = "Document Type"::"Credit Memo" then begin
+                                if "Document Type" = "Document Type"::"Credit Memo" then begin
+                                    if "Document Type" = "Document Type"::"Credit Memo" then
                                         if "Qty. to Invoice" <> Quantity then
                                             AddError(StrSubstNo(Text015, FieldCaption("Qty. to Invoice"), Quantity));
-                                    end;
                                     if "Qty. to Ship" <> 0 then
                                         AddError(StrSubstNo(Text043, FieldCaption("Qty. to Ship")));
                                 end else
@@ -736,7 +734,7 @@ report 5915 "Service Document - Test"
                                         CheckShptLines("Service Line");
                                 end;
 
-                                if (Type >= Type::"G/L Account") and ("Qty. to Invoice" <> 0) then begin
+                                if (Type.AsInteger() >= Type::"G/L Account".AsInteger()) and ("Qty. to Invoice" <> 0) then begin
                                     if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
                                         AddError(
                                           StrSubstNo(
@@ -759,7 +757,7 @@ report 5915 "Service Document - Test"
                                     if ServCost.Get("No.") then
                                         No[1] := ServCost."Account No.";
                                 end else begin
-                                    TableID[1] := DimMgt.TypeToTableID5(Type);
+                                    TableID[1] := DimMgt.TypeToTableID5(Type.AsInteger());
                                     No[1] := "No.";
                                 end;
                                 TableID[2] := DATABASE::Job;
@@ -1405,7 +1403,7 @@ report 5915 "Service Document - Test"
             if Quantity <> 0 then begin
                 if "No." = '' then
                     AddError(StrSubstNo(Text019, Type, FieldCaption("No.")));
-                if Type = 0 then
+                if Type = Type::" " then
                     AddError(StrSubstNo(Text006, FieldCaption(Type)));
             end else
                 if Amount <> 0 then
@@ -1524,7 +1522,7 @@ report 5915 "Service Document - Test"
         with ServiceHeader do
             if "Bill-to Customer No." = '' then
                 AddError(StrSubstNo(Text006, FieldCaption("Bill-to Customer No.")))
-            else begin
+            else
                 if "Bill-to Customer No." <> "Customer No." then
                     if Cust.Get("Bill-to Customer No.") then begin
                         if Cust."Privacy Blocked" then
@@ -1545,7 +1543,6 @@ report 5915 "Service Document - Test"
                           StrSubstNo(
                             Text008,
                             Cust.TableCaption, "Bill-to Customer No."));
-            end;
     end;
 
     local procedure VerifyPostingDate(ServiceHeader: Record "Service Header")
@@ -1564,4 +1561,3 @@ report 5915 "Service Document - Test"
                         AddError(TempErrorText);
     end;
 }
-

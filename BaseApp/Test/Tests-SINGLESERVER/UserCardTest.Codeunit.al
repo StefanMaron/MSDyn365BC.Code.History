@@ -165,11 +165,11 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure GenerateAcsPin()
     var
-        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
+        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
     begin
         Initialize();
-        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId());
-        BindSubscription(TestUserPermissionsSubscbr);
+        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
+        BindSubscription(TestUserPermissionsSubs);
 
         // Set valid ACS pin with auto generate. Ensure ACS state changed to Pending and ACS pin is persistent
         AcsAuthenticationHelper(User001Msg, '', 'Pending', false, true);
@@ -180,13 +180,13 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure GenerateWebServiceKeyNoExpires()
     var
-        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
+        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
         UserCardPage: TestPage "User Card";
         WsCompareKey: Text;
     begin
         Initialize();
-        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId());
-        BindSubscription(TestUserPermissionsSubscbr);
+        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
+        BindSubscription(TestUserPermissionsSubs);
 
         // Generate web key with no expires date. Validate key is generated and not date is not set
         WebServiceAccessHelper(CreateDateTime(Today, 0T), true, false, User001Msg);
@@ -206,13 +206,13 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure GenerateWebServiceKeyWithExpires()
     var
-        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
+        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
         UserCardPage: TestPage "User Card";
         WsCompareKey: Text;
     begin
         Initialize();
-        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId());
-        BindSubscription(TestUserPermissionsSubscbr);
+        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
+        BindSubscription(TestUserPermissionsSubs);
 
         // Generate web key with expire date. Validate key is generated and date i set
         WebServiceAccessHelper(CreateDateTime(Today, 0T), false, false, User001Msg);
@@ -232,13 +232,13 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure CancelGenerateWebServiceKey()
     var
-        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
+        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
         UserCardPage: TestPage "User Card";
         WsCompareKey: Text;
     begin
         Initialize();
-        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId());
-        BindSubscription(TestUserPermissionsSubscbr);
+        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
+        BindSubscription(TestUserPermissionsSubs);
 
         // Generate web key. Answer no if we should generate key. Ensure key and date is not changed
         UserCardPage.OpenEdit;

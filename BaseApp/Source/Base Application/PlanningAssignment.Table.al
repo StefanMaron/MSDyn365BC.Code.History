@@ -254,7 +254,7 @@ table 99000850 "Planning Assignment"
     var
         Item: Record Item;
         SKU: Record "Stockkeeping Unit";
-        ReorderingPolicy: Option;
+        ReorderingPolicy: Enum "Reordering Policy";
     begin
         ReorderingPolicy := Item."Reordering Policy"::" ";
 

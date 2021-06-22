@@ -40,7 +40,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestChart(
@@ -54,7 +54,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestChart(
@@ -68,7 +68,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestChart(
@@ -82,7 +82,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestChart(
@@ -96,7 +96,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestChart(
@@ -110,7 +110,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestChart(AnalysisReportChartSetup."Base X-Axis on"::Line, LibraryRandom.RandIntInRange(1, 5) - 1, 0);
@@ -122,7 +122,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestChart(AnalysisReportChartSetup."Base X-Axis on"::Column, AnalysisReportChartSetup."Period Length", 0);
@@ -134,7 +134,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -148,7 +148,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -162,7 +162,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -176,7 +176,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -190,7 +190,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -204,7 +204,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -218,7 +218,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -232,7 +232,7 @@ codeunit 137409 "Analysis Reports Chart"
     var
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_ChangePeriod(
@@ -247,7 +247,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         MovePeriod: Option " ",Next,Previous;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -262,7 +262,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         MovePeriod: Option " ",Next,Previous;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -277,7 +277,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         MovePeriod: Option " ",Next,Previous;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -291,7 +291,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         MovePeriod: Option " ",Next,Previous;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -305,7 +305,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         MovePeriod: Option " ",Next,Previous;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -319,7 +319,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         MovePeriod: Option " ",Next,Previous;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestAction_MovePeriod(
@@ -334,7 +334,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestDrillDown(
@@ -350,7 +350,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestDrillDown(
@@ -366,7 +366,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestDrillDown(
@@ -382,7 +382,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestDrillDown(
@@ -398,7 +398,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestDrillDown(
@@ -413,7 +413,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestDrillDown(
@@ -428,7 +428,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestDrillDown(
@@ -444,7 +444,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestDrillDown(
@@ -460,7 +460,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup: Record "Analysis Report Chart Setup";
         TestDrillDownType: Option ColumnFormula,RowFormula,Data;
     begin
-        Initialize;
+        Initialize();
         AnalysisReportChartSetup.Init();
 
         TestDrillDown(
@@ -478,6 +478,7 @@ codeunit 137409 "Analysis Reports Chart"
         ValueEntries: TestPage "Value Entries";
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReportWithItemEntries(
           AnalysisLine, AnalysisColumn, ItemLedgerEntry, ValueEntry, AnalysisColumn."Value Type"::Quantity, true);
@@ -502,6 +503,7 @@ codeunit 137409 "Analysis Reports Chart"
         ItemLedgerEntries: TestPage "Item Ledger Entries";
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReportWithItemEntries(
           AnalysisLine, AnalysisColumn, ItemLedgerEntry, ValueEntry, AnalysisColumn."Value Type"::Quantity, false);
@@ -525,6 +527,7 @@ codeunit 137409 "Analysis Reports Chart"
         Item: Record Item;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReport2ItemAndTotalLines2Cols(
           AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Unit Price", true);
@@ -532,6 +535,35 @@ codeunit 137409 "Analysis Reports Chart"
         Item.Get(AnalysisLine.Range);
         LibrarySales.CreateSalesPrice(
           SalesPrice, Item."No.", SalesPrice."Sales Type"::"All Customers", '', WorkDate, '', '', '', 0, LibraryRandom.RandDec(100, 2));
+
+        LibraryVariableStorage.Enqueue(SalesPrice."Unit Price");
+        CalcAnalysisReportCellValue(AnalysisLine, AnalysisColumn, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPriceLineHandler')]
+    [Scope('OnPrem')]
+    procedure DrillDownInventoryAnalysisReportUnitPriceFromSalesPriceV16()
+    var
+        AnalysisLine: Record "Analysis Line";
+        AnalysisColumn: Record "Analysis Column";
+        SalesPrice: Record "Sales Price";
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+    begin
+        // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        SetupAnalysisReport2ItemAndTotalLines2Cols(
+          AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Unit Price", true);
+
+        Item.Get(AnalysisLine.Range);
+        LibrarySales.CreateSalesPrice(
+          SalesPrice, Item."No.", SalesPrice."Sales Type"::"All Customers", '', WorkDate, '', '', '', 0, LibraryRandom.RandDec(100, 2));
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
         LibraryVariableStorage.Enqueue(SalesPrice."Unit Price");
         CalcAnalysisReportCellValue(AnalysisLine, AnalysisColumn, true);
@@ -547,6 +579,7 @@ codeunit 137409 "Analysis Reports Chart"
         Item: Record Item;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReport2ItemAndTotalLines2Cols(
           AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Unit Price", true);
@@ -570,6 +603,7 @@ codeunit 137409 "Analysis Reports Chart"
         Item: Record Item;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReport2ItemAndTotalLines2Cols(
           AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Standard Cost", true);
@@ -594,6 +628,7 @@ codeunit 137409 "Analysis Reports Chart"
         ValueEntries: TestPage "Value Entries";
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReportWithItemEntries(
           AnalysisLine, AnalysisColumn, ItemLedgerEntry, ValueEntry, AnalysisColumn."Value Type"::"Sales Amount", true);
@@ -618,6 +653,7 @@ codeunit 137409 "Analysis Reports Chart"
         ValueEntries: TestPage "Value Entries";
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReportWithItemEntries(
           AnalysisLine, AnalysisColumn, ItemLedgerEntry, ValueEntry, AnalysisColumn."Value Type"::"Sales Amount", false);
@@ -639,6 +675,7 @@ codeunit 137409 "Analysis Reports Chart"
         ValueEntries: TestPage "Value Entries";
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReportWithItemEntries(
           AnalysisLine, AnalysisColumn, ItemLedgerEntry, ValueEntry, AnalysisColumn."Value Type"::"Cost Amount", true);
@@ -662,6 +699,7 @@ codeunit 137409 "Analysis Reports Chart"
         ValueEntries: TestPage "Value Entries";
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReportWithItemEntries(
           AnalysisLine, AnalysisColumn, ItemLedgerEntry, ValueEntry, AnalysisColumn."Value Type"::"Cost Amount", false);
@@ -686,6 +724,7 @@ codeunit 137409 "Analysis Reports Chart"
         ValueEntries: TestPage "Value Entries";
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReportWithItemEntries(
           AnalysisLine, AnalysisColumn, ItemLedgerEntry, ValueEntry, AnalysisColumn."Value Type"::"Non-Invntble Amount", true);
@@ -709,6 +748,7 @@ codeunit 137409 "Analysis Reports Chart"
         Item: Record Item;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReport2ItemAndTotalLines2Cols(
           AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Indirect Cost", false);
@@ -732,6 +772,7 @@ codeunit 137409 "Analysis Reports Chart"
         Item: Record Item;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReport2ItemAndTotalLines2Cols(
           AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Unit Cost", false);
@@ -756,6 +797,7 @@ codeunit 137409 "Analysis Reports Chart"
         ActualAmount: Decimal;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReportWithItemEntries(
           AnalysisLine, AnalysisColumn, ItemLedgerEntry, ValueEntry, AnalysisColumn."Value Type"::"Non-Invntble Amount", true);
@@ -773,6 +815,7 @@ codeunit 137409 "Analysis Reports Chart"
         ActualAmount: Decimal;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReport2ItemAndTotalLines2Cols(
           AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Standard Cost", true);
@@ -795,6 +838,7 @@ codeunit 137409 "Analysis Reports Chart"
         ActualAmount: Decimal;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReport2ItemAndTotalLines2Cols(
           AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Indirect Cost", true);
@@ -817,6 +861,7 @@ codeunit 137409 "Analysis Reports Chart"
         ActualAmount: Decimal;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReport2ItemAndTotalLines2Cols(
           AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Unit Cost", true);
@@ -839,6 +884,7 @@ codeunit 137409 "Analysis Reports Chart"
         ActualAmount: Decimal;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReport2ItemAndTotalLines2Cols(
           AnalysisLine, AnalysisColumn, AnalysisLine."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Unit Price", true);
@@ -862,6 +908,7 @@ codeunit 137409 "Analysis Reports Chart"
         ActualAmount: Decimal;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReportWithItemEntries(
           AnalysisLine, AnalysisColumn, ItemLedgerEntry, ValueEntry, AnalysisColumn."Value Type"::Quantity, false);
@@ -880,6 +927,7 @@ codeunit 137409 "Analysis Reports Chart"
         ActualAmount: Decimal;
     begin
         // [FEATURE] [Inventory Analysis Reports]
+        Initialize();
 
         SetupAnalysisReportWithItemEntries(
           AnalysisLine, AnalysisColumn, ItemLedgerEntry, ValueEntry, AnalysisColumn."Value Type"::"Non-Invntble Amount", false);
@@ -912,7 +960,7 @@ codeunit 137409 "Analysis Reports Chart"
     begin
         // [SCENARIO 379113] There should be no "Index out of bounds" error if Analysis Report Chart Setup uses Analysis Column Template with more than 12 columns
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Max Number Of Matrix Columns is 12
         MaxNumberOfMatrixColumns := 12;
@@ -954,14 +1002,17 @@ codeunit 137409 "Analysis Reports Chart"
 
     local procedure Initialize()
     var
+        PriceListLine: Record "Price List Line";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Analysis Reports Chart");
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        PriceListLine.DeleteAll();
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Analysis Reports Chart");
-        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
@@ -1279,7 +1330,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartLine.Insert();
     end;
 
-    local procedure SetupAnalysisReport2ItemAndTotalLines2Cols(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; ColumnValueType: Option; Invoiced: Boolean)
+    local procedure SetupAnalysisReport2ItemAndTotalLines2Cols(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; ColumnValueType: Enum "Analysis Column Type"; Invoiced: Boolean)
     var
         AnalysisReportName: Record "Analysis Report Name";
     begin
@@ -1291,7 +1342,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportName.Modify(true);
     end;
 
-    local procedure SetupAnalysisReportWithItemEntries(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; ValueType: Option; Invoiced: Boolean)
+    local procedure SetupAnalysisReportWithItemEntries(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; ValueType: Enum "Analysis Value Type"; Invoiced: Boolean)
     var
         Item: Record Item;
     begin
@@ -1341,7 +1392,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisLine.Modify(true);
     end;
 
-    local procedure CreateAnalysisColTempl2Cols(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; FirstColValueType: Option; IsInvoiced: Boolean)
+    local procedure CreateAnalysisColTempl2Cols(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; FirstColValueType: Enum "Analysis Column Type"; IsInvoiced: Boolean)
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
         ColumnFormula: Code[80];
@@ -1374,7 +1425,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisColumn.FindSet;
     end;
 
-    local procedure SetupItemEntries(var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; StartingDate: Date; EndingDate: Date; PeriodLength: Option; ILEEntryType: Option)
+    local procedure SetupItemEntries(var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; StartingDate: Date; EndingDate: Date; PeriodLength: Option; ILEEntryType: Enum "Item Ledger Document Type")
     var
         PostingDate: Date;
         ItemLedgerEntryNo: Integer;
@@ -1400,7 +1451,7 @@ codeunit 137409 "Analysis Reports Chart"
         until PostingDate > EndingDate;
     end;
 
-    local procedure CreateItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryNo: Integer; PostingDate: Date; ItemNo: Code[20]; Quantity: Decimal; ILEEntryType: Option)
+    local procedure CreateItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryNo: Integer; PostingDate: Date; ItemNo: Code[20]; Quantity: Decimal; ILEEntryType: Enum "Item Ledger Document Type")
     begin
         Clear(ItemLedgerEntry);
         ItemLedgerEntry."Entry No." := EntryNo;
@@ -1659,18 +1710,25 @@ codeunit 137409 "Analysis Reports Chart"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure GetPriceLineHandler(var GetPriceLine: TestPage "Get Price Line")
+    begin
+        GetPriceLine."Unit Price".AssertEquals(LibraryVariableStorage.DequeueDecimal);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure ItemCardHandler(var ItemCard: TestPage "Item Card")
     var
         AnalysisColumn: Record "Analysis Column";
     begin
         case LibraryVariableStorage.DequeueInteger of
-            AnalysisColumn."Value Type"::"Unit Price":
+            AnalysisColumn."Value Type"::"Unit Price".AsInteger():
                 ItemCard."Unit Price".AssertEquals(LibraryVariableStorage.DequeueDecimal);
-            AnalysisColumn."Value Type"::"Standard Cost":
+            AnalysisColumn."Value Type"::"Standard Cost".AsInteger():
                 ItemCard."Standard Cost".AssertEquals(LibraryVariableStorage.DequeueDecimal);
-            AnalysisColumn."Value Type"::"Indirect Cost":
+            AnalysisColumn."Value Type"::"Indirect Cost".AsInteger():
                 ItemCard."Indirect Cost %".AssertEquals(LibraryVariableStorage.DequeueDecimal);
-            AnalysisColumn."Value Type"::"Unit Cost":
+            AnalysisColumn."Value Type"::"Unit Cost".AsInteger():
                 ItemCard."Unit Cost".AssertEquals(LibraryVariableStorage.DequeueDecimal);
         end;
     end;

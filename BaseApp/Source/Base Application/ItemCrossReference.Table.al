@@ -201,7 +201,7 @@ table 5717 "Item Cross Reference"
         exit(not ItemCrossReference2.IsEmpty);
     end;
 
-    procedure GetItemDescription(var ItemDescription: Text; var ItemDescription2: Text; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; CrossRefType: Option; CrossRefTypeNo: Code[20]): Boolean
+    procedure FindItemDescription(var ItemDescription: Text[100]; var ItemDescription2: Text[50]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; CrossRefType: Option; CrossRefTypeNo: Code[20]): Boolean
     var
         ItemCrossReference: Record "Item Cross Reference";
     begin
@@ -219,6 +219,17 @@ table 5717 "Item Cross Reference"
         end;
 
         exit(false);
+    end;
+
+    [Obsolete('Replaced by FindItemDescription().', '17.0')]
+    procedure GetItemDescription(var ItemDescription: Text; var ItemDescription2: Text; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; CrossRefType: Option; CrossRefTypeNo: Code[20]): Boolean
+    var
+        NewDescription: Text[100];
+        NewDescription2: Text[50];
+    begin
+        FindItemDescription(NewDescription, NewDescription2, ItemNo, VariantCode, UnitOfMeasureCode, CrossRefType, CrossRefTypeNo);
+        ItemDescription := NewDescription;
+        ItemDescription2 := NewDescription2;
     end;
 
     procedure HasValidUnitOfMeasure(): Boolean

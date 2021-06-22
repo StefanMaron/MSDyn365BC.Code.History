@@ -67,7 +67,26 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestSendToEMailAndPDFSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendToEMailAndPDF();
+    end;
+
+    // [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestSendToEMailAndPDF()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendToEMailAndPDF();
+    end;
+
+    procedure SendToEMailAndPDF()
     var
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
@@ -87,7 +106,26 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestSendToEMailAndPDFVendorSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendToEMailAndPDFVendor();
+    end;
+
+    // [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestSendToEMailAndPDFVendor()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendToEMailAndPDFVendor();
+    end;
+
+    procedure SendToEMailAndPDFVendor()
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
@@ -146,7 +184,26 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('EMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestEmailAttachmentOnlySMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        EmailAttachmentOnly();
+    end;
+
+    // [Test]
+    [HandlerFunctions('EmailEditorHandlerCustomMessage,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestEmailAttachmentOnly()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        EmailAttachmentOnly();
+    end;
+
+    procedure EmailAttachmentOnly()
     var
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
         UseForAttachment: Boolean;
@@ -171,8 +228,28 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('EMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestEmailBodyOnlySMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        EmailBodyOnly();
+    end;
+
+    // [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestEmailBodyOnly()
     var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        EmailBodyOnly();
+    end;
+
+    procedure EmailBodyOnly()
+    var
+        EmailFeature: Codeunit "Email Feature";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
         UseForAttachment: Boolean;
         UseForBody: Boolean;
@@ -188,13 +265,35 @@ codeunit 134421 "Report Selections Tests"
         PostedSalesInvoice.Email.Invoke;
 
         // Verify
-        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesInvoice."No.".Value);
+        if EmailFeature.IsEnabled() then
+            VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, '') // the attachemnt name will not be added if the attachment file path is ''
+        else
+            VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesInvoice."No.".Value);
     end;
 
     [Test]
     [HandlerFunctions('EMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestEmailAttachmentAndBodySMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        EmailAttachmentAndBody();
+    end;
+
+    // [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestEmailAttachmentAndBody()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        EmailAttachmentAndBody();
+    end;
+
+    procedure EmailAttachmentAndBody()
     var
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
         UseForAttachment: Boolean;
@@ -219,7 +318,26 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('EMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestCustomEmailAttachmentSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        CustomEmailAttachment();
+    end;
+
+    // [Test]
+    [HandlerFunctions('EmailEditorHandlerCustomMessage,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestCustomEmailAttachment()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        CustomEmailAttachment();
+    end;
+
+    procedure CustomEmailAttachment()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
@@ -243,9 +361,29 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('EMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestCustomEmailBodySMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        CustomEmailBody();
+    end;
+
+    // [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestCustomEmailBody()
     var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        CustomEmailBody();
+    end;
+
+    procedure CustomEmailBody()
+    var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        EmailFeature: Codeunit "Email Feature";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
         Initialize;
@@ -262,13 +400,35 @@ codeunit 134421 "Report Selections Tests"
         PostedSalesInvoice.Email.Invoke;
 
         // Verify
-        VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesInvoice."No.".Value);
+        if EmailFeature.IsEnabled() then
+            VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, '') // the attachemnt name will not be added if the attachment file path is ''
+        else
+            VerifySendEmailPage(FromEmailBodyTemplateTxt, TemplateIdentificationTxt, PostedSalesInvoice."No.".Value);
     end;
 
     [Test]
     [HandlerFunctions('EMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestCustomEmailAttachmentAndBodySMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        CustomEmailAttachmentAndBody();
+    end;
+
+    // [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestCustomEmailAttachmentAndBody()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        CustomEmailAttachmentAndBody();
+    end;
+
+    procedure CustomEmailAttachmentAndBody()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
@@ -297,11 +457,13 @@ codeunit 134421 "Report Selections Tests"
     [Scope('OnPrem')]
     procedure TestChangingMessageType()
     var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
         UseForAttachment: Boolean;
         UseForBody: Boolean;
     begin
         Initialize;
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
 
         // Setup
         OpenNewPostedSalesInvoice(PostedSalesInvoice);
@@ -314,6 +476,8 @@ codeunit 134421 "Report Selections Tests"
         PostedSalesInvoice.Email.Invoke;
 
         // Verify is within handler
+
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
     end;
 
     [Test]
@@ -336,8 +500,8 @@ codeunit 134421 "Report Selections Tests"
         SetupReportSelections(true, true);
 
         // Save a report to get some HTML to test the email item with
-        SalesInvoiceHeader.SetRecFilter;
-        ReportSelections.GetEmailBody(
+        SalesInvoiceHeader.SetRecFilter();
+        ReportSelections.GetEmailBodyForCust(
           FileName, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", DummyEmailAddress);
         GetEmailItem(TempEmailItem, TempEmailItem."Message Type"::"From Email Body Template", FileName, false);
 
@@ -369,8 +533,8 @@ codeunit 134421 "Report Selections Tests"
         Customer.Modify(true);
 
         // Save a report to get some HTML to test the email item with
-        SalesInvoiceHeader.SetRecFilter;
-        ReportSelections.GetEmailBody(
+        SalesInvoiceHeader.SetRecFilter();
+        ReportSelections.GetEmailBodyForCust(
           FileName, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
 
         // Verify
@@ -397,8 +561,8 @@ codeunit 134421 "Report Selections Tests"
         SetUpCustomEmail(SalesInvoiceHeader, CustomLayoutEmailTxt, true);
 
         // Save a report to get some HTML to test the email item with
-        SalesInvoiceHeader.SetRecFilter;
-        ReportSelections.GetEmailBody(
+        SalesInvoiceHeader.SetRecFilter();
+        ReportSelections.GetEmailBodyForCust(
           FileName, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
 
         // Verify
@@ -427,8 +591,8 @@ codeunit 134421 "Report Selections Tests"
         SetUpCustomEmail(SalesInvoiceHeader, CustomLayoutEmailTxt, false);
 
         // Save a report to get some HTML to test the email item with
-        SalesInvoiceHeader.SetRecFilter;
-        ReportSelections.GetEmailBody(
+        SalesInvoiceHeader.SetRecFilter();
+        ReportSelections.GetEmailBodyForCust(
           FileName, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
 
         // Verify
@@ -532,7 +696,26 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('EMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure SalesQuoteSendByEmailWhenArchivingIsOnSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        QuoteSendByEmailWhenArchivingIsOn();
+    end;
+
+    // [Test]
+    [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure SalesQuoteSendByEmailWhenArchivingIsOn()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        QuoteSendByEmailWhenArchivingIsOn();
+    end;
+
+    procedure QuoteSendByEmailWhenArchivingIsOn()
     var
         SalesHeader: Record "Sales Header";
         SalesHeaderArchive: Record "Sales Header Archive";
@@ -566,7 +749,26 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('SelectSendingOptionHandler,TestAddressEMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestSendToEMailAndPDFVendorWithOrderAddressSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendToEMailAndPDFVendorWithOrderAddress();
+    end;
+
+    // [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,TestAddressEmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestSendToEMailAndPDFVendorWithOrderAddress()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendToEMailAndPDFVendorWithOrderAddress();
+    end;
+
+    procedure SendToEMailAndPDFVendorWithOrderAddress()
     var
         Vendor: Record Vendor;
         OrderAddress: Record "Order Address";
@@ -764,7 +966,26 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestSendToEMailAndPDFVendorWithSpecialSymbolsInNoSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendToEMailAndPDFVendorWithSpecialSymbolsInNo();
+    end;
+
+    // [Test]
+    [HandlerFunctions('SelectSendingOptionHandler,EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestSendToEMailAndPDFVendorWithSpecialSymbolsInNo()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendToEMailAndPDFVendorWithSpecialSymbolsInNo();
+    end;
+
+    procedure SendToEMailAndPDFVendorWithSpecialSymbolsInNo()
     var
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
@@ -856,7 +1077,26 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('StatementOKRequestPageHandler,DownloadAttachmentNoConfirmHandler')]
     [Scope('OnPrem')]
+    procedure EmailCustomerStatementSMTP() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        EmailCustomerStatementInternal();
+    end;
+
+    // [Test]
+    [HandlerFunctions('StatementOKRequestPageHandler,DownloadAttachmentNoConfirmHandler')]
+    [Scope('OnPrem')]
     procedure EmailCustomerStatement()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        EmailCustomerStatementInternal();
+    end;
+
+    procedure EmailCustomerStatementInternal()
     var
         ReportSelections: Record "Report Selections";
         CustomReportSelection: Record "Custom Report Selection";
@@ -864,6 +1104,8 @@ codeunit 134421 "Report Selections Tests"
         Customer: Record Customer;
         SalesInvoiceHeader: Record "Sales Invoice Header";
         InteractionLogEntry: Record "Interaction Log Entry";
+        ConnectorMock: Codeunit "Connector Mock";
+        EmailFeature: Codeunit "Email Feature";
         CustomerCard: TestPage "Customer Card";
         ReportOutput: Option Print,Preview,PDF,Email,Excel,XML;
         CustomerNo: Code[20];
@@ -871,6 +1113,8 @@ codeunit 134421 "Report Selections Tests"
         // [FEATURE] [Sales] [Statement]
         // [SCENARIO 300470] Send to email Customer Statement in case a document layout is used for email body.
         Initialize;
+        if EmailFeature.IsEnabled() then
+            ConnectorMock.FailOnSend(true);
 
         // [GIVEN] Custom Report Selection with Customer "C", Usage "Customer Statement", Report ID = 116 (Statement), "Use for Email Body" = TRUE.
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
@@ -881,7 +1125,7 @@ codeunit 134421 "Report Selections Tests"
 
         InsertCustomReportSelectionCustomer(
           CustomReportSelection, CustomerNo, GetCustomerStatementReportID, true, true,
-          CustomReportLayout.InitBuiltInLayout(GetCustomerStatementReportID, CustomReportLayout.Type::Word),
+          CustomReportLayout.InitBuiltInLayout(GetCustomerStatementReportID, CustomReportLayout.Type::Word.AsInteger()),
           'abc@abc.abc', CustomReportSelection.Usage::"C.Statement");
         Commit();
 
@@ -1178,7 +1422,26 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('TestAddressEMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure GetSendToEmailFromContactsFilterSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        GetSendToEmailFromContactsFilterInternal();
+    end;
+
+    // [Test]
+    [HandlerFunctions('TestAddressEmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure GetSendToEmailFromContactsFilter()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        GetSendToEmailFromContactsFilterInternal();
+    end;
+
+    procedure GetSendToEmailFromContactsFilterInternal()
     var
         SalesHeader: Record "Sales Header";
         CustomReportSelection: Record "Custom Report Selection";
@@ -1319,8 +1582,8 @@ codeunit 134421 "Report Selections Tests"
         SetupReportSelections(true, true);
 
         // [GIVEN] When send sales invoice by e-mail.
-        SalesInvoiceHeader.SetRecFilter;
-        ReportSelections.GetEmailBody(
+        SalesInvoiceHeader.SetRecFilter();
+        ReportSelections.GetEmailBodyForCust(
           FileName, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
 
         // [THEN] The "a@a.com; b@b.com; c@c.com" address is used as target email address.
@@ -1494,7 +1757,26 @@ codeunit 134421 "Report Selections Tests"
     [Test]
     [HandlerFunctions('TestAddressEMailDialogHandler')]
     [Scope('OnPrem')]
+    procedure TestEmailBodyOnlyWithOrderAddressSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        EmailBodyOnlyWithOrderAddress();
+    end;
+
+    // [Test]
+    [HandlerFunctions('TestAddressEmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure TestEmailBodyOnlyWithOrderAddress()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        EmailBodyOnlyWithOrderAddress();
+    end;
+
+    procedure EmailBodyOnlyWithOrderAddress()
     var
         Contact: Record Contact;
         Customer: Record Customer;
@@ -1535,6 +1817,102 @@ codeunit 134421 "Report Selections Tests"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ContactListHandler')]
+    procedure GetSendToEmailContactListWithBillToCustomerContacts()
+    var
+        Customer: array[2] of Record Customer;
+        CustomReportSelection: Record "Custom Report Selection";
+        ContBusRel: Record "Contact Business Relation";
+        CompanyContact: Record Contact;
+        PersonContact: Record Contact;
+        i: Integer;
+    begin
+        // [SCENARIO 369122] Contacts from "Bill-to Customer No." are added to the list of contacts of original customer while select emails for document layout
+        Initialize();
+
+        // [GIVEN] Customer "C1", contacts "CC11".."CC13", sales quote customer report selection
+        LibrarySales.CreateCustomer(Customer[1]);
+        CreateSalesQuoteCustomReportSelection(CustomReportSelection, Customer[1]."No.");
+        ContBusRel.FindContactsByRelation(CompanyContact, ContBusRel."Link to Table"::Customer, Customer[1]."No.");
+        LibraryVariableStorage.Enqueue(CompanyContact."No.");
+        for i := 1 to 2 do begin
+            Clear(PersonContact);
+            LibraryMarketing.CreatePersonContact(PersonContact);
+            PersonContact.Validate("Company No.", CompanyContact."No.");
+            PersonContact.Modify(true);
+        end;
+
+        // [GIVEN] Customer "C2", contacts "CC21".."CC22"
+        LibrarySales.CreateCustomer(Customer[2]);
+        ContBusRel.FindContactsByRelation(CompanyContact, ContBusRel."Link to Table"::Customer, Customer[2]."No.");
+        LibraryVariableStorage.Enqueue(CompanyContact."No.");
+        Clear(PersonContact);
+        LibraryMarketing.CreatePersonContact(PersonContact);
+        PersonContact.Validate("Company No.", CompanyContact."No.");
+        PersonContact.Modify(true);
+
+        // [GIVEN] Customer "C1"."Bill-to Customer No." = "C2"
+        Customer[1].Validate("Bill-to Customer No.", Customer[2]."No.");
+        Customer[1].Modify(true);
+
+        // [WHEN] Select contacts to get emails
+        CustomReportSelection.GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Customer.AsInteger(), Customer[1]."No.");
+
+        // [THEN] Contact list page contains 5 records with "CC11".."CC13" and "CC21".."CC22" contacts (verified in ContactListHandler)
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ContactListHandler')]
+    procedure GetSendToEmailContactListWithPayToVendorContacts()
+    var
+        Vendor: array[2] of Record Vendor;
+        CustomReportSelection: Record "Custom Report Selection";
+        ContBusRel: Record "Contact Business Relation";
+        CompanyContact: Record Contact;
+        PersonContact: Record Contact;
+        i: Integer;
+    begin
+        // [SCENARIO 369122] Contacts from "Pay-to Vendor No." are added to the list of contacts of original vendor while select emails for document layout
+        Initialize();
+
+        // [GIVEN] Vendor "V1", contacts "VC11".."VC13", sales quote customer report selection
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        CreatePurchaseQuoteCustomReportSelection(CustomReportSelection, Vendor[1]."No.");
+        ContBusRel.FindContactsByRelation(CompanyContact, ContBusRel."Link to Table"::Vendor, Vendor[1]."No.");
+        LibraryVariableStorage.Enqueue(CompanyContact."No.");
+        for i := 1 to 2 do begin
+            Clear(PersonContact);
+            LibraryMarketing.CreatePersonContact(PersonContact);
+            PersonContact.Validate("Company No.", CompanyContact."No.");
+            PersonContact.Modify(true);
+        end;
+
+        // [GIVEN] Vendor "V2", contacts "VC21".."VC22"
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        ContBusRel.FindContactsByRelation(CompanyContact, ContBusRel."Link to Table"::Vendor, Vendor[2]."No.");
+        LibraryVariableStorage.Enqueue(CompanyContact."No.");
+        Clear(PersonContact);
+        LibraryMarketing.CreatePersonContact(PersonContact);
+        PersonContact.Validate("Company No.", CompanyContact."No.");
+        PersonContact.Modify(true);
+
+        // [GIVEN] Vendor "V1"."Pay-to Vendor No." = "V2"
+        Vendor[1].Validate("Pay-to Vendor No.", Vendor[2]."No.");
+        Vendor[1].Modify(true);
+
+        // [WHEN] Select contacts to get emails
+        CustomReportSelection.GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Vendor.AsInteger(), Vendor[1]."No.");
+
+        // [THEN] Contact list page contains 5 records with "VC11".."VC13" and "VC21".."VC22" contacts (verified in ContactListHandler)
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -1543,6 +1921,8 @@ codeunit 134421 "Report Selections Tests"
         InventorySetup: Record "Inventory Setup";
         CompanyInformation: Record "Company Information";
         ReportLayoutSelection: Record "Report Layout Selection";
+        EmailFeature: Codeunit "Email Feature";
+        LibraryWorkflow: Codeunit "Library - Workflow";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Report Selections Tests");
 
@@ -1553,6 +1933,10 @@ codeunit 134421 "Report Selections Tests"
         ReportLayoutSelection.DeleteAll();
         CreateDefaultReportSelection();
         LibrarySetupStorage.Restore();
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount()
+        else
+            LibraryWorkflow.SetUpSMTPEmailSetup();
 
         if Initialized then
             exit;
@@ -1574,7 +1958,6 @@ codeunit 134421 "Report Selections Tests"
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibrarySetupStorage.SaveSalesSetup();
         LibrarySetupStorage.SavePurchasesSetup();
-        LibraryWorkflow.SetUpSMTPEmailSetup();
 
         Commit();
     end;
@@ -1772,7 +2155,8 @@ codeunit 134421 "Report Selections Tests"
     begin
         GetCustomBodyLayout(CustomReportLayout);
 
-        OldReportSelections.FilterPrintUsage(OldReportSelections.Usage::"S.Invoice");
+        OldReportSelections.Reset();
+        OldReportSelections.SetRange(Usage, OldReportSelections.Usage::"S.Invoice");
         OldReportSelections.FindFirst;
 
         UpdateReportSelections(
@@ -1785,8 +2169,9 @@ codeunit 134421 "Report Selections Tests"
         OldReportSelections: Record "Report Selections";
         DummyCustomReportLayout: Record "Custom Report Layout";
     begin
-        OldReportSelections.FilterPrintUsage(OldReportSelections.Usage::"P.Order");
-        OldReportSelections.FindFirst;
+        OldReportSelections.Reset();
+        OldReportSelections.SetRange(Usage, OldReportSelections.Usage::"P.Order");
+        OldReportSelections.FindFirst();
 
         UpdateReportSelections(
           OldReportSelections.Usage::"P.Order", GetReportIDForPurchaseOrder, UseForEmailAttachment, UseForEmailBody,
@@ -1835,8 +2220,9 @@ codeunit 134421 "Report Selections Tests"
     var
         ReportSelections: Record "Report Selections";
     begin
-        ReportSelections.FilterPrintUsage(NewUsage);
-        ReportSelections.FindFirst;
+        ReportSelections.Reset();
+        ReportSelections.SetRange(Usage, NewUsage);
+        ReportSelections.FindFirst();
         ReportSelections.Validate("Report ID", NewReportID);
         ReportSelections.Validate("Use for Email Attachment", UseForEmailAttachment);
         ReportSelections.Validate("Use for Email Body", UseForEmailBody);
@@ -1964,7 +2350,7 @@ codeunit 134421 "Report Selections Tests"
     var
         CustomLayoutReporting: Codeunit "Custom Layout Reporting";
     begin
-        CustomLayoutReporting.InitializeData(
+        CustomLayoutReporting.InitializeReportData(
             ReportUsage, DataRecordRef, SourceJoinFieldName,
             DataRecordJoinTable, IteratorTableFieldName, DataItemTableSameAsIterator);
         CustomLayoutReporting.SetOutputFileBaseName(OutputFileBaseName);
@@ -2006,9 +2392,9 @@ codeunit 134421 "Report Selections Tests"
         else
             AttachmentNameOK := StrPos(ActualAttachmentFileName, ExpectedAttachmentName) > 0;
 
-        Assert.AreEqual(ExpectedType, ActualType, 'Message type is wrong on Send Email Dialog');
-        Assert.IsTrue(BodyTextOK, 'Email Body text is wrong on Send Email Dialog, check if the right template was selected');
-        Assert.IsTrue(AttachmentNameOK, 'Attachment File Name text is wrong on Send Email Dialog');
+        Assert.AreEqual(ExpectedType, ActualType, 'Message type is wrong on Email Editor');
+        Assert.IsTrue(BodyTextOK, 'Email Body text is wrong on Email Editor, check if the right template was selected');
+        Assert.IsTrue(AttachmentNameOK, 'Attachment File Name text is wrong on Email Editor');
     end;
 
     local procedure VerifyCopiedCustomReportSelection(var ReportSelections: Record "Report Selections"; SourceType: Integer; SourceNo: Code[20]; CustomReportSelectionRecordCount: Integer)
@@ -2050,6 +2436,16 @@ codeunit 134421 "Report Selections Tests"
         CustomReportSelection."Source No." := SourceNo;
         CustomReportSelection.Usage := CustomReportSelection.Usage::"S.Quote";
         CustomReportSelection."Report ID" := 1304;
+        CustomReportSelection.Insert();
+    end;
+
+    local procedure CreatePurchaseQuoteCustomReportSelection(var CustomReportSelection: Record "Custom Report Selection"; SourceNo: Code[20])
+    begin
+        CustomReportSelection.Init();
+        CustomReportSelection."Source Type" := Database::Vendor;
+        CustomReportSelection."Source No." := SourceNo;
+        CustomReportSelection.Usage := CustomReportSelection.Usage::"P.Quote";
+        CustomReportSelection."Report ID" := 404;
         CustomReportSelection.Insert();
     end;
 
@@ -2183,9 +2579,45 @@ codeunit 134421 "Report Selections Tests"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    var
+        EmailItem: Record "Email Item";
+    begin
+        LibraryVariableStorage.Enqueue(Format(EmailItem."Message Type"::"From Email Body Template"));
+        LibraryVariableStorage.Enqueue(EmailEditor.BodyField.Value);
+        LibraryVariableStorage.Enqueue(EmailEditor.Attachments.FileName.Value);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EmailEditorHandlerCustomMessage(var EmailEditor: TestPage "Email Editor")
+    var
+        EmailItem: Record "Email Item";
+    begin
+        LibraryVariableStorage.Enqueue(Format(EmailItem."Message Type"::"Custom Message"));
+        LibraryVariableStorage.Enqueue(EmailEditor.BodyField.Value);
+        LibraryVariableStorage.Enqueue(EmailEditor.Attachments.FileName.Value);
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CloseEmailEditorHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure TestAddressEMailDialogHandler(var EMailDialog: TestPage "Email Dialog")
     begin
         LibraryVariableStorage.Enqueue(EMailDialog.SendTo.Value);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure TestAddressEmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    begin
+        LibraryVariableStorage.Enqueue(EmailEditor.ToField.Value);
     end;
 
     [ModalPageHandler]
@@ -2240,6 +2672,35 @@ codeunit 134421 "Report Selections Tests"
     procedure ExceededContactsNotification(var Notification: Notification): Boolean
     begin
         Assert.IsTrue(StrPos(Notification.Message, 'Too many contacts were selected.') > 0, 'Exceeding contacts notification is expected');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ContactListHandler(var ContactList: TestPage "Contact List")
+    var
+        Contact: Record Contact;
+        ContactNoFilter: Text;
+    begin
+        ContactNoFilter := ContactList.Filter.GetFilter("No.");
+        Contact.SetFilter("No.", ContactNoFilter);
+        Assert.RecordCount(Contact, 5);
+
+        Contact.Reset();
+        Contact.SetRange("Company No.", LibraryVariableStorage.DequeueText());
+        Assert.RecordCount(Contact, 3);
+        Contact.FindSet();
+        repeat
+            ContactList.GoToRecord(Contact);
+        until Contact.Next() = 0;
+
+        Contact.SetRange("Company No.", LibraryVariableStorage.DequeueText());
+        Assert.RecordCount(Contact, 2);
+        Contact.FindSet();
+        repeat
+            ContactList.GoToRecord(Contact);
+        until Contact.Next() = 0;
+
+        ContactList.Cancel().Invoke();
     end;
 }
 

@@ -48,7 +48,8 @@ page 2115 "Report Viewer"
     var
         ReportSelections: Record "Report Selections";
     begin
-        ReportSelections.GetHtmlReport(DocumentContent, ReportType, RecordVariant, CustNo);
+        ReportSelections.GetHtmlReportForCust(
+            DocumentContent, "Report Selection Usage".FromInteger(ReportType), RecordVariant, CustNo);
     end;
 }
 

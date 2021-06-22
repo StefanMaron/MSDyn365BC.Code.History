@@ -4,7 +4,7 @@ page 5335 "Integration Table Mapping List"
     Caption = 'Integration Table Mappings';
     InsertAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Synchronization,Mapping';
+    PromotedActionCategories = 'New,Process,Report,Synchronization,Mapping,Uncoupling';
     SourceTable = "Integration Table Mapping";
     SourceTableView = WHERE("Delete After Synchronization" = CONST(false));
     UsageCategory = Lists;
@@ -100,6 +100,7 @@ page 5335 "Integration Table Mapping List"
                         FilterPageBuilder.AddTable(IntegrationTableCaptionValue, "Integration Table ID");
                         if IntegrationTableFilter <> '' then
                             FilterPageBuilder.SetView(IntegrationTableCaptionValue, IntegrationTableFilter);
+                        Commit();
                         if FilterPageBuilder.RunModal then begin
                             IntegrationTableFilter := FilterPageBuilder.GetView(IntegrationTableCaptionValue, false);
                             SetIntegrationTableFilter(IntegrationTableFilter);
@@ -132,6 +133,16 @@ page 5335 "Integration Table Mapping List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a date/time filter to delimit which modified records are synchronized by their modification date. The filter is based on the Modified On field on the involved integration table records.';
                 }
+                field("Deletion-Conflict Resolution"; "Deletion-Conflict Resolution")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the action to take when a coupled record is deleted in one of the connected applications.';
+                }
+                field("Update-Conflict Resolution"; "Update-Conflict Resolution")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the action to take when a coupled record is updated in both of the connected applications.';
+                }
             }
         }
     }
@@ -154,6 +165,27 @@ page 5335 "Integration Table Mapping List"
                 RunPageMode = View;
                 ToolTip = 'View fields in Dynamics 365 Sales integration tables that are mapped to fields in Business Central.';
             }
+            action(ResetConfiguration)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Use Default Synchronization Setup';
+                Image = ResetStatus;
+                ToolTip = 'Resets the integration table mappings and synchronization jobs to the default values for a connection with Common Data Service. All current mappings are deleted.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+
+                trigger OnAction()
+                var
+                    IntegrationTableMapping: Record "Integration Table Mapping";
+                    CRMIntegrationMgt: Codeunit "CRM Integration Management";
+                begin
+                    CurrPage.SetSelectionFilter(IntegrationTableMapping);
+
+                    if IntegrationTableMapping.IsEmpty() then
+                        Error(NoRecSelectedErr);
+
+                    CRMIntegrationMgt.ResetIntTableMappingDefaultConfiguration(IntegrationTableMapping);
+                    CurrPage.Update();
+                end;
+            }
             action("View Integration Synch. Job Log")
             {
                 ApplicationArea = Suite;
@@ -166,8 +198,11 @@ page 5335 "Integration Table Mapping List"
                 ToolTip = 'View the status of the individual synchronization jobs that have been run for the Dynamics 365 Sales integration. This includes synchronization jobs that have been run from the job queue and manual synchronization jobs that were performed on records from the Business Central client.';
 
                 trigger OnAction()
+                var
+                    IntegrationTableMapping: Record "Integration Table Mapping";
                 begin
-                    ShowLog('');
+                    CurrPage.SetSelectionFilter(IntegrationTableMapping);
+                    ShowSynchronizationLog(IntegrationTableMapping);
                 end;
             }
             action(SynchronizeNow)
@@ -189,7 +224,7 @@ page 5335 "Integration Table Mapping List"
                         exit;
 
                     SynchronizeNow(false);
-                    Message(SynchronizedModifiedCompletedMsg, IntegrationSynchJobList.Caption);
+                    Message(SynchronizeModifiedScheduledMsg, IntegrationSynchJobList.Caption);
                 end;
             }
             action(SynchronizeAll)
@@ -212,7 +247,59 @@ page 5335 "Integration Table Mapping List"
                     if not Confirm(StartFullSynchronizationQst) then
                         exit;
                     SynchronizeNow(true);
-                    Message(FullSynchronizationCompletedMsg, IntegrationSynchJobList.Caption);
+                    Message(FullSynchronizationScheduledMsg, IntegrationSynchJobList.Caption);
+                end;
+            }
+            action("View Integration Uncouple Job Log")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Integration Uncouple Job Log';
+                Enabled = HasRecords;
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                Image = Log;
+                Promoted = true;
+                PromotedCategory = Category6;
+                PromotedIsBig = true;
+                ToolTip = 'View the status of jobs for uncoupling records in a Dynamics 365 Sales integration. The jobs were run either from the job queue, or manually, in Business Central.';
+
+                trigger OnAction()
+                var
+                    IntegrationTableMapping: Record "Integration Table Mapping";
+                begin
+                    CurrPage.SetSelectionFilter(IntegrationTableMapping);
+                    ShowUncouplingLog(IntegrationTableMapping);
+                end;
+            }
+            action(RemoveCoupling)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Delete Couplings';
+                Enabled = HasRecords AND ("Parent Name" = '');
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                Image = UnLinkAccount;
+                Promoted = true;
+                PromotedCategory = Category6;
+                ToolTip = 'Delete couplings between the selected Business Central record types and Dynamics 365 Sales entities.';
+
+                trigger OnAction()
+                var
+                    IntegrationTableMapping: Record "Integration Table Mapping";
+                    CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    IntegrationSynchJobList: Page "Integration Synch. Job List";
+                    JobCount: Integer;
+                begin
+                    CurrPage.SetSelectionFilter(IntegrationTableMapping);
+                    if not IntegrationTableMapping.FindSet() then
+                        exit;
+
+                    if not Confirm(StartUncouplingQst) then
+                        exit;
+
+                    repeat
+                        CRMIntegrationManagement.RemoveCoupling(IntegrationTableMapping."Table ID", IntegrationTableMapping."Integration Table ID");
+                        JobCount += 1;
+                    until IntegrationTableMapping.Next() = 0;
+                    Message(RemoveCouplingsScheduledMsg, IntegrationSynchJobList.Caption, JobCount)
                 end;
             }
         }
@@ -231,7 +318,7 @@ page 5335 "Integration Table Mapping List"
         HasRecords := not IsEmpty;
     end;
 
-    trigger OnOpenPage()
+    trigger OnInit()
     begin
         SetCRMIntegrationEnabledState();
         SetCDSIntegrationEnabledState();
@@ -246,10 +333,15 @@ page 5335 "Integration Table Mapping List"
         IntegrationTableCaptionValue: Text[250];
         TableFilter: Text;
         IntegrationTableFilter: Text;
-        StartFullSynchronizationQst: Label 'You are about synchronize all data within the mapping. This process may take several minutes.\\Do you want to continue?';
-        SynchronizedModifiedCompletedMsg: Label 'Synchronized Modified Records completed.\See the %1 window for details.', Comment = '%1 caption from page 5338';
-        FullSynchronizationCompletedMsg: Label 'Full Synchronization completed.\See the %1 window for details.', Comment = '%1 caption from page 5338';
+        StartFullSynchronizationQst: Label 'You are about synchronize all data within the mapping.\The synchronization will run in the background, so you can continue with other tasks.\\Do you want to continue?';
+        StartUncouplingQst: Label 'You are about to uncouple the selected mappings, which means data for the records will no longer synchronize.\The uncoupling will run in the background, so you can continue with other tasks.\\Do you want to continue?';
+        SynchronizeModifiedScheduledMsg: Label 'Synchronization is scheduled for Modified Records.\Details are available on the %1 page.', Comment = '%1 caption from page Integration Synch. Job List';
+        FullSynchronizationScheduledMsg: Label 'Full Synchronization is scheduled.\Details are available on the %1 page.', Comment = '%1 caption from page Integration Synch. Job List';
+        RemoveCouplingsScheduledMsg: Label 'Uncoupling is scheduled for %2 mappings.\Details are available on the %1 page.', Comment = '%1 - caption from page 5344, %2 - scheduled job count';
+        NoRecSelectedErr: Label 'You must choose at least one integration table mapping.';
         HasRecords: Boolean;
+        CRMIntegrationEnabled: Boolean;
+        CDSIntegrationEnabled: Boolean;
 
     local procedure GetFieldCaption(): Text
     var
@@ -271,14 +363,14 @@ page 5335 "Integration Table Mapping List"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
     end;
 
     local procedure SetCDSIntegrationEnabledState()
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
     end;
 }
 

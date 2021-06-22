@@ -92,7 +92,7 @@ report 6697 "Create Ret.-Related Documents"
             Clear(CopyDocMgt);
             CopyDocMgt.SetProperties(true, false, false, true, true, false, false);
             OnPreReportOnBeforeCopySalesDoc(CopyDocMgt, SROSalesHeader, SOSalesHeader);
-            CopyDocMgt.CopySalesDoc(DocType::"Return Order", SROSalesHeader."No.", SOSalesHeader);
+            CopyDocMgt.CopySalesDoc("Sales Document Type From"::"Return Order", SROSalesHeader."No.", SOSalesHeader);
             OnPreReportOnAfterCopySalesDoc(SROSalesHeader, SOSalesHeader);
             TempRetRelDoc."Entry No." := 3;
             TempRetRelDoc."Document Type" := TempRetRelDoc."Document Type"::"Sales Order";
@@ -136,7 +136,6 @@ report 6697 "Create Ret.-Related Documents"
         TempRetRelDoc: Record "Returns-Related Document" temporary;
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         VendorNo: Code[20];
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         CreatePRO: Boolean;
         CreatePO: Boolean;
         CreateSO: Boolean;

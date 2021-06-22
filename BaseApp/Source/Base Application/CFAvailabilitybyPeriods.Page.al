@@ -43,7 +43,7 @@ page 867 "CF Availability by Periods"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownEntriesFromSource("Source Type Filter"::"Liquid Funds");
+                        DrillDownSourceTypeEntries("Source Type Filter"::"Liquid Funds");
                     end;
                 }
                 field("Creation Date"; "Creation Date")
@@ -115,7 +115,7 @@ page 867 "CF Availability by Periods"
     local procedure UpdateSubForm()
     begin
         CurrPage.CFAvailabLines.PAGE.Set(Rec, PeriodType, AmountType, RoundingFactor);
-        LiquidFunds := MatrixMgt.RoundValue(CalcAmountFromSource("Source Type Filter"::"Liquid Funds"), RoundingFactor);
+        LiquidFunds := MatrixMgt.RoundValue(CalcSourceTypeAmount("Source Type Filter"::"Liquid Funds"), RoundingFactor);
     end;
 }
 

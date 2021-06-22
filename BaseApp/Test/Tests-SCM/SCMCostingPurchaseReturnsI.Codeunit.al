@@ -21,7 +21,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         LibraryUtility: Codeunit "Library - Utility";
         isInitialized: Boolean;
         ErrAmountsMustBeSame: Label 'Purchase Amounts must be same.';
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
         MsgCorrectedInvoiceNo: Label 'have a Corrected Invoice No. Do you want to continue?';
 
     local procedure NoSeriesSetup()
@@ -46,7 +46,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     procedure PurchReturnItemAndCharge()
     begin
         // One Charge Line and one Item Line in Purchase Return Order.
-        CostingMethod[1] := Item."Costing Method"::FIFO;
+        CostingMethod[1] := "Costing Method"::FIFO;
         PurchReturnItem(1, 1, false);
     end;
 
@@ -178,8 +178,6 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         PurchaseLine: Record "Purchase Line";
         TempPurchaseLine: Record "Purchase Line" temporary;
         NoSeriesManagement: Codeunit NoSeriesManagement;
-        ToDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
-        FromDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
         PostedReturnShipmentNo: Code[20];
         PurchaseItemQty: Decimal;
         PurchaseOrderNo: Code[20];
@@ -213,7 +211,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         end;
 
         // Move Negative Lines to a new Purchase Order.
-        MoveNegativeLine(PurchaseHeader, PurchaseHeader2, FromDocType::"Return Order", ToDocType::Order);
+        MoveNegativeLine(PurchaseHeader, PurchaseHeader2, "Purchase Document Type From"::"Return Order", "Purchase Document Type From"::Order);
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseLine);
         PostedReturnShipmentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate, false);
 
@@ -444,7 +442,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         end;
 
         // Move Negative Lines to a new Purchase Invoice.
-        MoveNegativeLine(PurchaseHeader, PurchaseHeader2, FromDocType::"Credit Memo", ToDocType::Invoice);
+        MoveNegativeLine(PurchaseHeader, PurchaseHeader2, "Purchase Document Type From"::"Credit Memo", "Purchase Document Type From"::Invoice);
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseLine);
         PostedReturnShipmentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Return Shipment No. Series", WorkDate, false);
 
@@ -551,7 +549,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         end;
     end;
 
-    local procedure CreateItemWithInventory(var Item: Record Item; ItemCostingMethod: Option)
+    local procedure CreateItemWithInventory(var Item: Record Item; ItemCostingMethod: Enum "Costing Method")
     var
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -695,7 +693,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     end;
 
     [Normal]
-    local procedure SelectPurchaseLines(var PurchaseLine: Record "Purchase Line"; PurchaseHeaderNo: Code[20]; DocumentType: Option)
+    local procedure SelectPurchaseLines(var PurchaseLine: Record "Purchase Line"; PurchaseHeaderNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", PurchaseHeaderNo);
@@ -703,12 +701,12 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     end;
 
     [Normal]
-    local procedure MoveNegativeLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeader2: Record "Purchase Header"; FromDocType: Option; ToDocType: Option)
+    local procedure MoveNegativeLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeader2: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; ToDocType: Enum "Purchase Document Type From")
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
         CopyDocumentMgt.SetProperties(true, false, true, true, true, false, false);
-        PurchaseHeader2."Document Type" := CopyDocumentMgt.PurchHeaderDocType(ToDocType);
+        PurchaseHeader2."Document Type" := CopyDocumentMgt.GetPurchaseDocumentType(ToDocType);
         CopyDocumentMgt.CopyPurchDoc(FromDocType, PurchaseHeader."No.", PurchaseHeader2);
     end;
 

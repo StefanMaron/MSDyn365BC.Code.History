@@ -1,4 +1,4 @@
-﻿codeunit 1305 "Sales-Quote to Invoice"
+codeunit 1305 "Sales-Quote to Invoice"
 {
     TableNo = "Sales Header";
 
@@ -27,6 +27,7 @@
         ValidateSalesPersonOnSalesHeader(Rec, true, false);
 
         CheckForBlockedLines;
+        CheckForAssembleToOrderLines(Rec);
 
         SalesInvoiceHeader := Rec;
 
@@ -61,6 +62,7 @@
         SalesInvoiceHeader: Record "Sales Header";
         SpecifyCustomerErr: Label 'You must select a customer before you can convert a quote to an invoice.';
         SpecifyBillToCustomerNoErr: Label 'You must specify the %1 before you can convert a quote to an invoice.', Comment = '%1 is Bill-To Customer No.';
+        CannotConvertAssembleToOrderItemErr: Label 'You can not convert sales quote to sales invoice because one or more lines is linked to assembly quote. Change the %1 to zero or convert the quote to order instead.', Comment = '%1 = field name';
 
     procedure GetSalesInvoiceHeader(var SalesHeader2: Record "Sales Header")
     begin
@@ -130,7 +132,7 @@
         RecordLinkManagement: Codeunit "Record Link Management";
     begin
         SalesCommentLine.CopyComments(
-          SalesQuoteHeader."Document Type", SalesInvoiceHeader."Document Type", SalesQuoteHeader."No.", SalesInvoiceHeader."No.");
+          SalesQuoteHeader."Document Type".AsInteger(), SalesInvoiceHeader."Document Type".AsInteger(), SalesQuoteHeader."No.", SalesInvoiceHeader."No.");
         RecordLinkManagement.CopyLinks(SalesQuoteHeader, SalesInvoiceHeader);
     end;
 
@@ -154,6 +156,19 @@
                 O365CouponClaimDocLink.Rename(
                   O365CouponClaimDocLink."Claim ID", O365CouponClaimDocLink."Graph Contact ID", SalesHeader."Document Type", SalesHeader."No.");
             until O365CouponClaimDocLink.Next = 0;
+    end;
+
+    local procedure CheckForAssembleToOrderLines(QuoteSalesHeader: Record "Sales Header")
+    var
+        CurrentSalesLine: Record "Sales Line";
+    begin
+        CurrentSalesLine.SetRange("Document Type", QuoteSalesHeader."Document Type");
+        CurrentSalesLine.SetRange("Document No.", QuoteSalesHeader."No.");
+        CurrentSalesLine.SetRange(Type, CurrentSalesLine.Type::Item);
+        CurrentSalesLine.SetFilter("Qty. to Assemble to Order", '<> 0');
+
+        if not CurrentSalesLine.IsEmpty() then
+            Error(CannotConvertAssembleToOrderItemErr, CurrentSalesLine.FieldCaption("Qty. to Assemble to Order"));
     end;
 
     [IntegrationEvent(false, false)]

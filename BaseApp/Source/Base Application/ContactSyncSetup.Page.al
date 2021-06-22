@@ -72,7 +72,7 @@ page 6701 "Contact Sync. Setup"
 
                         ProgressWindow.Close;
 
-                        SendTraceTag('0000ACM', O365SyncManagement.TraceCategory(), Verbosity::Normal, SetupTelemetryTxt, DataClassification::SystemMetadata);
+                        Session.LogMessage('0000ACM', SetupTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
                     end;
                 }
                 action(SyncO365)

@@ -4,6 +4,7 @@ page 930 "Assembly Quote"
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Document;
+    PromotedActionCategories = 'New,Process,Report,Quote,View,Release,Navigate';
     SourceTable = "Assembly Header";
     SourceTableView = SORTING("Document Type", "No.")
                       ORDER(Ascending)
@@ -206,7 +207,7 @@ page 930 "Assembly Quote"
 
                 trigger OnAction()
                 begin
-                    ShowDimensions;
+                    ShowDimensions();
                 end;
             }
             action("Assembly BOM")
@@ -235,6 +236,49 @@ page 930 "Assembly Quote"
         }
         area(processing)
         {
+            group("Re&lease")
+            {
+                Caption = 'Re&lease';
+                Image = ReleaseDoc;
+                action(Release)
+                {
+                    ApplicationArea = Assembly;
+                    Caption = 'Re&lease';
+                    Image = ReleaseDoc;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+F9';
+                    ToolTip = 'Release the document to the next stage of processing. When a document is released, it will be included in all availability calculations from the expected receipt date of the items. You must reopen the document before you can make changes to it.';
+
+                    trigger OnAction()
+                    var
+                        AssemblyHeader: Record "Assembly Header";
+                    begin
+                        AssemblyHeader := Rec;
+                        AssemblyHeader.Find();
+                        CODEUNIT.Run(CODEUNIT::"Release Assembly Document", AssemblyHeader);
+                    end;
+                }
+                action(Reopen)
+                {
+                    ApplicationArea = Assembly;
+                    Caption = 'Re&open';
+                    Image = ReOpen;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    ToolTip = 'Reopen the document for additional warehouse activity.';
+
+                    trigger OnAction()
+                    var
+                        AssemblyHeader: Record "Assembly Header";
+                        ReleaseAssemblyDoc: Codeunit "Release Assembly Document";
+                    begin
+                        AssemblyHeader := Rec;
+                        AssemblyHeader.Find();
+                        ReleaseAssemblyDoc.Reopen(AssemblyHeader);
+                    end;
+                }
+            }
             group("F&unctions")
             {
                 Caption = 'F&unctions';
@@ -277,6 +321,17 @@ page 930 "Assembly Quote"
                         ShowAvailability;
                     end;
                 }
+                action("Refresh availability warnings")
+                {
+                    ApplicationArea = Assembly;
+                    Caption = 'Refresh Availability';
+                    Image = RefreshLines;
+                    ToolTip = 'Check items availability and refresh warnings';
+                    trigger OnAction()
+                    begin
+                        UpdateWarningOnLines()
+                    end;
+                }
             }
         }
     }
@@ -295,7 +350,7 @@ page 930 "Assembly Quote"
         UpdateWarningOnLines;
     end;
 
-    var
+    protected var
         [InDataSet]
         IsUnitCostEditable: Boolean;
         [InDataSet]

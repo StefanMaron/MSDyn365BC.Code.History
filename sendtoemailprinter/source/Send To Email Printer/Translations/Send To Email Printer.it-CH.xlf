@@ -160,7 +160,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SMTPSetupRequired - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3508446305 - Control 2665397048 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the requirement for the prionter.</source>
+          <source>Specifies the requirement for the printer.</source>
           <target state="translated">Specifica il requisito della stampante.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SMTPSetupRequired - Property ToolTip</note>
@@ -176,6 +176,30 @@
           <target state="translated">Aprire la pagina Setup posta SMTP.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupSMTP - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 967933656 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This printer requires email account setup to print the jobs.</source>
+          <target state="translated">Questa stampante richiede il setup dell'account e-mail per la stampa dei lavori.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailAccountRequired - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 967933656 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the requirement for the printer.</source>
+          <target state="translated">Specifica il requisito della stampante.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailAccountRequired - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 2984523798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up email account</source>
+          <target state="translated">Imposta account e-mail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupEmailAccount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 2984523798 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Email Accounts page.</source>
+          <target state="translated">Aprire la pagina Account e-mail.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupEmailAccount - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3508446305 - Action 709640958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add another email printer.</source>
@@ -195,11 +219,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType SetupSMTPLbl</note>
         </trans-unit>
+        <trans-unit id="Page 3508446305 - NamedType 2912924722" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register email account</source>
+          <target state="translated">Registra account e-mail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType RegisterEmailAccountLbl</note>
+        </trans-unit>
         <trans-unit id="Page 3508446305 - NamedType 3212133970" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This printer requires SMTP mail setup to print the jobs.</source>
           <target state="translated">Questa stampante richiede il setup della posta SMTP per stampare.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType SMTPSetupRequiredLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - NamedType 2619791218" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This printer requires an email account to be registered to print the jobs.</source>
+          <target state="translated">Questa stampante richiede la registrazione dell'account e-mail per la stampa dei lavori.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType EmailAccountRequiredLbl</note>
         </trans-unit>
         <trans-unit id="Page 3508446305 - NamedType 284576615" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more</source>
@@ -236,6 +272,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType FromAddressWasNotFoundErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2195109935 - NamedType 3036052668" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email is not set up for the action you are trying to take. Ask your administrator to either add the %1 scenario to your email account, or to specify a default account for email scenarios.</source>
+          <target state="translated">L'account e-mail non è impostato per l'azione che si sta tentando di eseguire. Chiedere all'amministratore di aggiungere lo scenario %1 all'account e-mail o di specificare un account predefinito per gli scenari e-mail.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Email scenario. E.g. "Email Printer"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType NoEmailAccountDefinedErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2195109935 - NamedType 1133563836" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>To send print job to the %1 printer, you must set up SMTP.</source>
           <target state="translated">Per inviare il processo di stampa alla stampante %1, è necessario impostare SMTP.</target>
@@ -251,6 +293,11 @@
           <source>SMTP is not set up.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType SMTPNotSetupTelemetryTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2195109935 - NamedType 1049500376" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>There is no account for the "Email Printer" scenario.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType NoEmailAccountTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2195109935 - NamedType 4208107913" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>The email address of the printer is missing</source>
@@ -346,6 +393,13 @@
           <target state="translated">Millimetri (mm)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Email Printer Paper Unit - EnumValue Millimeters - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 453304344 - EnumValue 1622442990 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Printer</source>
+          <target state="translated">Stampante con indirizzo e-mail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 2593693414</note>
         </trans-unit>
       </group>
     </body>

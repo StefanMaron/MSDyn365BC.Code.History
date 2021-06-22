@@ -963,7 +963,7 @@ codeunit 134975 "ERM Dimension Report"
         REPORT.Run(REPORT::"Check Value Posting");
     end;
 
-    local procedure FindItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option; Clear: Boolean)
+    local procedure FindItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type"; Clear: Boolean)
     begin
         ItemJournalBatch.Reset();
         ItemJournalBatch.SetRange("Template Type", TemplateType);
@@ -980,7 +980,7 @@ codeunit 134975 "ERM Dimension Report"
         exit(LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code));
     end;
 
-    local procedure CreateItemJnlLineWithDim(ItemJournalBatch: Record "Item Journal Batch"; var ItemJnlLine: Record "Item Journal Line"; PostingDate: Date; DimSetID: Integer; EntryType: Option; ItemNo: Code[20])
+    local procedure CreateItemJnlLineWithDim(ItemJournalBatch: Record "Item Journal Batch"; var ItemJnlLine: Record "Item Journal Line"; PostingDate: Date; DimSetID: Integer; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20])
     var
         LibraryInventory: Codeunit "Library - Inventory";
     begin

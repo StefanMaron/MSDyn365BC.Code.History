@@ -159,7 +159,7 @@ table 911 "Posted Assembly Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }
@@ -214,7 +214,7 @@ table 911 "Posted Assembly Line"
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
     end;
 
-    procedure GetAssemblyLinesForDocument(var TempPostedAssemblyLine: Record "Posted Assembly Line" temporary; ValueEntryDocType: Option; DocNo: Code[20]; DocLineNo: Integer)
+    procedure GetAssemblyLinesForDocument(var TempPostedAssemblyLine: Record "Posted Assembly Line" temporary; ValueEntryDocType: Enum "Item Ledger Document Type"; DocNo: Code[20]; DocLineNo: Integer)
     var
         ValueEntry: Record "Value Entry";
         ItemLedgerEntry: Record "Item Ledger Entry";

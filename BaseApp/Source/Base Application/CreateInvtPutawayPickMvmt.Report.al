@@ -298,12 +298,11 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
             repeat
                 case Type of
                     Type::"Invt. Put-away":
-                        WhseDocPrint.PrintInvtPutAwayHeader(TempWhseActivHdr, true);
+                        WhseDocPrint.PrintInvtPutAwayHeader(TempWhseActivHdr, false);
                     Type::"Invt. Pick":
-                        if CreatePick then
-                            WhseDocPrint.PrintInvtPickHeader(TempWhseActivHdr, true)
-                        else
-                            WhseDocPrint.PrintInvtMovementHeader(TempWhseActivHdr, true);
+                        WhseDocPrint.PrintInvtPickHeader(TempWhseActivHdr, false);
+                    Type::"Invt. Movement":
+                        WhseDocPrint.PrintInvtMovementHeader(TempWhseActivHdr, false);
                 end;
             until Next = 0;
         end;

@@ -107,11 +107,12 @@ table 207 "Res. Journal Line"
                         Res.Get("Resource No.");
                         "Unit of Measure Code" := Res."Base Unit of Measure"
                     end;
-                    ResourceUnitOfMeasure.Get("Resource No.", "Unit of Measure Code");
-                    "Qty. per Unit of Measure" := ResourceUnitOfMeasure."Qty. per Unit of Measure";
+                    "Qty. per Unit of Measure" := 1;
+                    if ResourceUnitOfMeasure.Get("Resource No.", "Unit of Measure Code") then
+                        "Qty. per Unit of Measure" := ResourceUnitOfMeasure."Qty. per Unit of Measure";
 
-                    FindResUnitCost;
-                    FindResPrice;
+                    FindResUnitCost(FieldNo("Work Type Code"));
+                    FindResPrice(FieldNo("Work Type Code"));
                 end;
             end;
         }
@@ -122,7 +123,7 @@ table 207 "Res. Journal Line"
 
             trigger OnValidate()
             begin
-                FindResPrice;
+                FindResPrice(FieldNo("Job No."));
 
                 CreateDim(
                   DATABASE::Job, "Job No.",
@@ -149,8 +150,8 @@ table 207 "Res. Journal Line"
                 ResourceUnitOfMeasure.Get("Resource No.", "Unit of Measure Code");
                 "Qty. per Unit of Measure" := ResourceUnitOfMeasure."Qty. per Unit of Measure";
 
-                FindResUnitCost;
-                FindResPrice;
+                FindResUnitCost(FieldNo("Unit of Measure Code"));
+                FindResPrice(FieldNo("Unit of Measure Code"));
 
                 Validate(Quantity);
             end;
@@ -330,7 +331,7 @@ table 207 "Res. Journal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -388,35 +389,67 @@ table 207 "Res. Journal Line"
         ResJnlBatch: Record "Res. Journal Batch";
         ResJnlLine: Record "Res. Journal Line";
         Res: Record Resource;
-        ResCost: Record "Resource Cost";
-        ResPrice: Record "Resource Price";
         WorkType: Record "Work Type";
         GLSetup: Record "General Ledger Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         GLSetupRead: Boolean;
 
-    local procedure FindResUnitCost()
+    local procedure FindResUnitCost(CalledByFieldNo: Integer)
+    var
+        PriceType: Enum "Price Type";
     begin
-        InitResourceCost();
-        CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
-        OnAfterFindResUnitCost(Rec, ResCost);
-        "Direct Unit Cost" := ResCost."Direct Unit Cost" * "Qty. per Unit of Measure";
-        "Unit Cost" := ResCost."Unit Cost" * "Qty. per Unit of Measure";
+        FindPrice(PriceType::Purchase, CalledByFieldNo);
         Validate("Unit Cost");
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
-    local procedure FindResPrice()
+    local procedure FindResPrice(CalledByFieldNo: Integer)
+    var
+        PriceType: Enum "Price Type";
     begin
-        ResPrice.Init();
-        ResPrice.Code := "Resource No.";
-        ResPrice."Work Type Code" := "Work Type Code";
-        OnBeforeFindResPrice(Rec, ResPrice);
-        CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
-        OnAfterFindResPrice(Rec, ResPrice);
-        "Unit Price" := ResPrice."Unit Price" * "Qty. per Unit of Measure";
+        FindPrice(PriceType::Sale, CalledByFieldNo);
         Validate("Unit Price");
+    end;
+
+    local procedure FindPrice(PriceType: Enum "Price Type"; CalledByFieldNo: Integer)
+    var
+        PriceCalculationMgt: codeunit "Price Calculation Mgt.";
+        PriceCalculation: Interface "Price Calculation";
+        LineWithPrice: Interface "Line With Price";
+        Line: Variant;
+    begin
+        GetLineWithPrice(LineWithPrice);
+        LineWithPrice.SetLine(PriceType, Rec);
+        PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
+        PriceCalculation.ApplyPrice(CalledByFieldNo);
+        PriceCalculation.GetLine(Line);
+        Rec := Line;
+    end;
+
+    procedure GetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    var
+        ResJournalLinePrice: Codeunit "Res. Journal Line - Price";
+    begin
+        LineWithPrice := ResJournalLinePrice;
+        OnAfterGetLineWithPrice(LineWithPrice);
+    end;
+
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
+    procedure AfterFindResUnitCost(var ResourceCost: Record "Resource Cost")
+    begin
+        OnAfterFindResUnitCost(Rec, ResourceCost);
+    end;
+
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
+    procedure AfterFindResPrice(var ResourcePrice: Record "Resource Price")
+    begin
+        OnAfterFindResPrice(Rec, ResourcePrice);
+    end;
+
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
+    procedure BeforeFindResPrice(var ResourcePrice: Record "Resource Price")
+    begin
+        OnBeforeFindResPrice(Rec, ResourcePrice);
     end;
 
     procedure EmptyLine(): Boolean
@@ -697,13 +730,10 @@ table 207 "Res. Journal Line"
         OnAfterCopyResJnlLineFromPurchaseLine(PurchaseLine, Rec);
     end;
 
-    local procedure InitResourceCost()
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
+    procedure AfterInitResourceCost(var ResourceCost: Record "Resource Cost")
     begin
-        ResCost.Init();
-        ResCost.Code := "Resource No.";
-        ResCost."Work Type Code" := "Work Type Code";
-
-        OnAfterInitResourceCost(Rec, ResCost);
+        OnAfterInitResourceCost(Rec, ResourceCost);
     end;
 
     [IntegrationEvent(false, false)]
@@ -776,18 +806,24 @@ table 207 "Res. Journal Line"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    begin
+    end;
+
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitResourceCost(var ResJournalLine: Record "Res. Journal Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindResUnitCost(var ResJournalLine: Record "Res. Journal Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
 
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindResPrice(var ResJournalLine: Record "Res. Journal Line"; var ResPrice: Record "Resource Price")
     begin

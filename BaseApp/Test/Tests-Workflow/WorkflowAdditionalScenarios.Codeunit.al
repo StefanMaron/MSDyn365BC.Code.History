@@ -446,7 +446,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Workflow Additional Scenarios");
     end;
 
-    local procedure CreateApprovalWorkflowForSalesDocument(DocType: Option)
+    local procedure CreateApprovalWorkflowForSalesDocument(DocType: Enum "Sales Document Type")
     var
         Workflow: Record Workflow;
         EntryPoint: Integer;
@@ -519,7 +519,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         LibraryVariableStorage.Enqueue(Message);
     end;
 
-    local procedure CreateApprovalWorkflowForPurchaseDocument(DocType: Option)
+    local procedure CreateApprovalWorkflowForPurchaseDocument(DocType: Enum "Purchase Document Type")
     var
         Workflow: Record Workflow;
         EntryPoint: Integer;
@@ -535,7 +535,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode, FirstResponse);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; Amount: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Amount: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -545,7 +545,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; Amount: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; Amount: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin

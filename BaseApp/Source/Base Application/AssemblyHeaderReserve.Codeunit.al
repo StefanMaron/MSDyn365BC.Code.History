@@ -48,7 +48,7 @@ codeunit 925 "Assembly Header-Reserve"
             CreateReservEntry.SetPlanningFlexibility(AssemblyHeader."Planning Flexibility");
 
         CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Assembly Header", AssemblyHeader."Document Type",
+          DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(),
           AssemblyHeader."No.", '', 0, 0, AssemblyHeader."Qty. per Unit of Measure",
           Quantity, QuantityBase, ForReservEntry);
         CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
@@ -59,7 +59,7 @@ codeunit 925 "Assembly Header-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-    [Obsolete('Replaced by CreateReservation(AssemblyHeader, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    [Obsolete('Replaced by CreateReservation(AssemblyHeader, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(var AssemblyHeader: Record "Assembly Header"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -83,13 +83,13 @@ codeunit 925 "Assembly Header-Reserve"
 
     local procedure SignFactor(AssemblyHeader: Record "Assembly Header"): Integer
     begin
-        if AssemblyHeader."Document Type" in [2, 3, 5] then
+        if AssemblyHeader."Document Type".AsInteger() in [2, 3, 5] then
             Error(Text001);
 
         exit(1);
     end;
 
-    procedure SetBinding(Binding: Option " ","Order-to-Order")
+    procedure SetBinding(Binding: Enum "Reservation Binding")
     begin
         CreateReservEntry.SetBinding(Binding);
     end;
@@ -264,7 +264,7 @@ codeunit 925 "Assembly Header-Reserve"
         // Used for updating Quantity to Handle and Quantity to Invoice after posting
         ReservEntry.InitSortingAndFilters(false);
         ReservEntry.SetSourceFilter(
-          DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", -1, false);
+          DATABASE::"Assembly Header", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", -1, false);
         ReservEntry.SetSourceFilter('', 0);
         CreateReservEntry.UpdateItemTrackingAfterPosting(ReservEntry);
     end;
@@ -305,7 +305,7 @@ codeunit 925 "Assembly Header-Reserve"
                 end;
 
                 TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
-                    ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name",
+                    ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
                     ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
                     ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
@@ -369,7 +369,7 @@ codeunit 925 "Assembly Header-Reserve"
         if EntrySummary."Entry No." in [141, 142] then begin
             Clear(AvailableAssemblyHeaders);
             AvailableAssemblyHeaders.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
-            AvailableAssemblyHeaders.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailableAssemblyHeaders.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
             AvailableAssemblyHeaders.RunModal;
         end;
     end;

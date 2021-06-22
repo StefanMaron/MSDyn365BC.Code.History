@@ -848,7 +848,7 @@ report 202 "Sales Document - Test"
                                 if Quantity <> 0 then begin
                                     if "No." = '' then
                                         AddError(StrSubstNo(Text019, Type, FieldCaption("No.")));
-                                    if Type = 0 then
+                                    if Type = Type::" " then
                                         AddError(StrSubstNo(Text006, FieldCaption(Type)));
                                 end else
                                     if Amount <> 0 then
@@ -881,7 +881,7 @@ report 202 "Sales Document - Test"
                                         CheckShptLines("Sales Line");
                                 end;
 
-                                if (Type >= Type::"G/L Account") and ("Qty. to Invoice" <> 0) then begin
+                                if (Type <> Type::" ") and ("Qty. to Invoice" <> 0) then begin
                                     if not ApplicationAreaMgmt.IsSalesTaxEnabled then
                                         if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
                                             AddError(
@@ -936,7 +936,7 @@ report 202 "Sales Document - Test"
                                     if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                                         AddError(DimMgt.GetDimCombErr);
 
-                                    TableID[1] := DimMgt.TypeToTableID3(Type);
+                                    TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
                                     No[1] := "No.";
                                     TableID[2] := DATABASE::Job;
                                     No[2] := "Job No.";
@@ -2045,7 +2045,7 @@ report 202 "Sales Document - Test"
         SourceCodeSetup.Get();
 
         with SalesLine do begin
-            TableID[1] := DimMgt.TypeToTableID3(Type);
+            TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
             No[1] := "No.";
             TableID[2] := DATABASE::Job;
             No[2] := "Job No.";
@@ -2185,7 +2185,7 @@ report 202 "Sales Document - Test"
                                     FA.TableCaption, "No."));
                     end;
                 else begin
-                        OnCheckSalesLineCaseTypeElse(Type, "No.", ErrorText);
+                        OnCheckSalesLineCaseTypeElse(Type.AsInteger(), "No.", ErrorText);
                         if ErrorText <> '' then
                             AddError(ErrorText);
                     end;

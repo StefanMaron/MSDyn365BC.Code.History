@@ -58,17 +58,18 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
         if FoundPrice then
             Result := true
         else
-            case AmountType of
-                AmountType::Price:
-                    Result :=
-                        Result or
-                        not (CalledByFieldNo in [JobJournalLine.FieldNo(Quantity), JobJournalLine.FieldNo("Variant Code")]);
-                AmountType::Cost:
-                    Result :=
-                        Result or
-                        not ((CalledByFieldNo = JobJournalLine.FieldNo(Quantity)) or
-                            ((CalledByFieldNo = JobJournalLine.FieldNo("Variant Code")) and not IsSKU))
-            end;
+            if AmountType <> AmountType::Discount then
+                case CurrPriceType of
+                    CurrPriceType::Sale:
+                        Result :=
+                            Result or
+                            not (CalledByFieldNo in [JobJournalLine.FieldNo(Quantity), JobJournalLine.FieldNo("Variant Code")]);
+                    CurrPriceType::Purchase:
+                        Result :=
+                            Result or
+                            not ((CalledByFieldNo = JobJournalLine.FieldNo(Quantity)) or
+                                ((CalledByFieldNo = JobJournalLine.FieldNo("Variant Code")) and not IsSKU))
+                end;
     end;
 
     procedure IsDiscountAllowed() Result: Boolean;
@@ -203,39 +204,55 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
 
     procedure SetPrice(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line")
     begin
-        case AmountType of
-            AmountType::Price:
-                begin
-                    JobJournalLine."Unit Price" := PriceListLine."Unit Price";
-                    JobJournalLine."Cost Factor" := PriceListLine."Cost Factor";
-                    if PriceListLine.IsRealLine() then
-                        DiscountIsAllowed := PriceListLine."Allow Line Disc.";
-                    PriceCalculated := true;
-                end;
-            AmountType::Discount:
-                JobJournalLine."Line Discount %" := PriceListLine."Line Discount %";
-            AmountType::Cost:
-                case JobJournalLine.Type of
-                    JobJournalLine.Type::Item,
-                    JobJournalLine.Type::Resource:
-                        JobJournalLine."Direct Unit Cost (LCY)" := PriceListLine."Unit Cost";
-                    JobJournalLine.Type::"G/L Account":
-                        JobJournalLine."Unit Cost" := PriceListLine."Unit Cost";
-                end;
-        end;
+        if AmountType = AmountType::Discount then
+            JobJournalLine."Line Discount %" := PriceListLine."Line Discount %"
+        else
+            case CurrPriceType of
+                CurrPriceType::Sale:
+                    begin
+                        JobJournalLine."Unit Price" := PriceListLine."Unit Price";
+                        JobJournalLine."Cost Factor" := PriceListLine."Cost Factor";
+                        if PriceListLine.IsRealLine() then
+                            DiscountIsAllowed := PriceListLine."Allow Line Disc.";
+                        PriceCalculated := true;
+                    end;
+                CurrPriceType::Purchase:
+                    case JobJournalLine.Type of
+                        JobJournalLine.Type::Item:
+                            JobJournalLine."Direct Unit Cost (LCY)" := PriceListLine."Unit Cost";
+                        JobJournalLine.Type::Resource:
+                            begin
+                                JobJournalLine."Unit Cost (LCY)" := PriceListLine."Unit Cost";
+                                JobJournalLine."Direct Unit Cost (LCY)" := PriceListLine."Unit Price";
+                            end;
+                        JobJournalLine.Type::"G/L Account":
+                            JobJournalLine."Unit Cost" := PriceListLine."Unit Cost";
+                    end;
+            end;
         OnAfterSetPrice(JobJournalLine, PriceListLine, AmountType);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
     begin
-        case AmountType of
-            AmountType::Price:
-                JobJournalLine.Validate("Unit Price");
-            AmountType::Discount:
-                JobJournalLine.Validate("Line Discount %");
-            AmountType::Cost:
-                JobJournalLine.Validate("Unit Cost");
-        end;
+        if AmountType = AmountType::Discount then
+            JobJournalLine.Validate("Line Discount %")
+        else
+            case CurrPriceType of
+                CurrPriceType::Sale:
+                    JobJournalLine.Validate("Unit Price");
+                CurrPriceType::Purchase:
+                    case JobJournalLine.Type of
+                        JobJournalLine.Type::Item:
+                            JobJournalLine.Validate("Direct Unit Cost (LCY)");
+                        JobJournalLine.Type::Resource:
+                            begin
+                                JobJournalLine.Validate("Direct Unit Cost (LCY)");
+                                JobJournalLine.Validate("Unit Cost (LCY)");
+                            end;
+                        JobJournalLine.Type::"G/L Account":
+                            JobJournalLine.Validate("Unit Cost");
+                    end;
+            end;
     end;
 
     procedure Update(AmountType: enum "Price Amount Type")

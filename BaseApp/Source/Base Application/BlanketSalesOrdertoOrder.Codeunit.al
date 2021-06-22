@@ -73,7 +73,7 @@ codeunit 87 "Blanket Sales Order to Order"
                     SalesOrderLine."Document No." := SalesOrderHeader."No.";
                     SalesOrderLine."Blanket Order No." := "No.";
                     SalesOrderLine."Blanket Order Line No." := BlanketOrderSalesLine."Line No.";
-                    if (SalesOrderLine."No." <> '') and (SalesOrderLine.Type <> 0) then begin
+                    if (SalesOrderLine."No." <> '') and (SalesOrderLine.Type <> SalesOrderLine.Type::" ") then begin
                         SalesOrderLine.Amount := 0;
                         SalesOrderLine."Amount Including VAT" := 0;
                         SalesOrderLineValidateQuantity(SalesOrderLine, BlanketOrderSalesLine);
@@ -131,7 +131,7 @@ codeunit 87 "Blanket Sales Order to Order"
 
         if SalesSetup."Copy Comments Blanket to Order" then begin
             SalesCommentLine.CopyComments(
-              SalesCommentLine."Document Type"::"Blanket Order", SalesOrderHeader."Document Type", "No.", SalesOrderHeader."No.");
+              SalesCommentLine."Document Type"::"Blanket Order".AsInteger(), SalesOrderHeader."Document Type".AsInteger(), "No.", SalesOrderHeader."No.");
             RecordLinkManagement.CopyLinks(Rec, SalesOrderHeader);
         end;
 
@@ -171,10 +171,12 @@ codeunit 87 "Blanket Sales Order to Order"
         CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         UOMMgt: Codeunit "Unit of Measure Management";
-        HideValidationDialog: Boolean;
         QuantityOnOrders: Decimal;
         Text002: Label 'There is nothing to create.';
         Text003: Label 'Full automatic reservation was not possible.\Reserve items manually?';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     local procedure SalesOrderLineValidateQuantity(var SalesOrderLine: Record "Sales Line"; BlanketOrderSalesLine: Record "Sales Line")
     var

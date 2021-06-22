@@ -5,7 +5,7 @@ page 5471 "Customer Entity"
     DelayedInsert = true;
     EntityName = 'customer';
     EntitySetName = 'customers';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = Customer;
 
@@ -15,7 +15,7 @@ page 5471 "Customer Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -144,8 +144,7 @@ page 5471 "Customer Entity"
                         if "Currency Id" = BlankGUID then
                             "Currency Code" := ''
                         else begin
-                            Currency.SetRange(Id, "Currency Id");
-                            if not Currency.FindFirst then
+                            if not Currency.GetBySystemId("Currency Id") then
                                 Error(CurrencyIdDoesNotMatchACurrencyErr);
 
                             "Currency Code" := Currency.Code;
@@ -178,7 +177,7 @@ page 5471 "Customer Entity"
                             if not Currency.Get("Currency Code") then
                                 Error(CurrencyCodeDoesNotMatchACurrencyErr);
 
-                            "Currency Id" := Currency.Id;
+                            "Currency Id" := Currency.SystemId;
                         end;
 
                         RegisterFieldSet(FieldNo("Currency Id"));
@@ -195,8 +194,7 @@ page 5471 "Customer Entity"
                         if "Payment Terms Id" = BlankGUID then
                             "Payment Terms Code" := ''
                         else begin
-                            PaymentTerms.SetRange(Id, "Payment Terms Id");
-                            if not PaymentTerms.FindFirst then
+                            if not PaymentTerms.GetBySystemId("Payment Terms Id") then
                                 Error(PaymentTermsIdDoesNotMatchAPaymentTermsErr);
 
                             "Payment Terms Code" := PaymentTerms.Code;
@@ -216,8 +214,7 @@ page 5471 "Customer Entity"
                         if "Shipment Method Id" = BlankGUID then
                             "Shipment Method Code" := ''
                         else begin
-                            ShipmentMethod.SetRange(Id, "Shipment Method Id");
-                            if not ShipmentMethod.FindFirst then
+                            if not ShipmentMethod.GetBySystemId("Shipment Method Id") then
                                 Error(ShipmentMethodIdDoesNotMatchAShipmentMethodErr);
 
                             "Shipment Method Code" := ShipmentMethod.Code;
@@ -237,8 +234,7 @@ page 5471 "Customer Entity"
                         if "Payment Method Id" = BlankGUID then
                             "Payment Method Code" := ''
                         else begin
-                            PaymentMethod.SetRange(Id, "Payment Method Id");
-                            if not PaymentMethod.FindFirst then
+                            if not PaymentMethod.GetBySystemId("Payment Method Id") then
                                 Error(PaymentMethodIdDoesNotMatchAPaymentMethodErr);
 
                             "Payment Method Code" := PaymentMethod.Code;
@@ -287,7 +283,7 @@ page 5471 "Customer Entity"
                     Caption = 'picture';
                     EntityName = 'picture';
                     EntitySetName = 'picture';
-                    SubPageLink = Id = FIELD(Id);
+                    SubPageLink = Id = FIELD(SystemId);
                 }
                 part(defaultDimensions; "Default Dimension Entity")
                 {
@@ -295,7 +291,7 @@ page 5471 "Customer Entity"
                     Caption = 'Default Dimensions', Locked = true;
                     EntityName = 'defaultDimensions';
                     EntitySetName = 'defaultDimensions';
-                    SubPageLink = ParentId = FIELD(Id);
+                    SubPageLink = ParentId = FIELD(SystemId);
                 }
             }
         }
@@ -338,14 +334,8 @@ page 5471 "Customer Entity"
     trigger OnModifyRecord(): Boolean
     var
         Customer: Record Customer;
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if xRec.Id <> Id then
-            GraphMgtGeneralTools.ErrorIdImmutable;
-
-        Customer.SetRange(Id, Id);
-        Customer.FindFirst;
-
+        Customer.GetBySystemId(SystemId);
         ProcessPostalAddress;
 
         if "No." = Customer."No." then
@@ -409,7 +399,6 @@ page 5471 "Customer Entity"
 
     local procedure ClearCalculatedFields()
     begin
-        Clear(Id);
         Clear(TaxAreaDisplayName);
         Clear(PostalAddressJSON);
         Clear(OverdueAmount);

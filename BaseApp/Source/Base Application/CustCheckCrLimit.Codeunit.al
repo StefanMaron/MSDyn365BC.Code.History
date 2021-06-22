@@ -54,7 +54,7 @@ codeunit 312 "Cust-Check Cr. Limit"
                 if InstructionMgt.IsEnabled(GetInstructionType(Format(SalesHeader."Document Type"), SalesHeader."No.")) then
                     CreateAndSendNotification(SalesHeader.RecordId, AdditionalContextId, '');
 
-                SalesHeader.CustomerCreditLimitExceeded();
+                SalesHeader.CustomerCreditLimitExceeded(CustCheckCreditLimit.GetNotificationId());
             end;
         end;
     end;
@@ -83,7 +83,7 @@ codeunit 312 "Cust-Check Cr. Limit"
                 if InstructionMgt.IsEnabled(GetInstructionType(Format(SalesLine."Document Type"), SalesLine."Document No.")) then
                     CreateAndSendNotification(SalesHeader.RecordId, AdditionalContextId, '');
 
-            SalesHeader.CustomerCreditLimitExceeded();
+            SalesHeader.CustomerCreditLimitExceeded(CustCheckCreditLimit.GetNotificationId());
         end;
     end;
 

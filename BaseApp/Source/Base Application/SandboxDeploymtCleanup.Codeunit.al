@@ -1,5 +1,8 @@
 codeunit 1882 "Sandbox Deploymt. Cleanup"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Codeunit will be made internal. Use OnClearConfiguration in "Sandbox Cleanup" instead.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -9,8 +12,8 @@ codeunit 1882 "Sandbox Deploymt. Cleanup"
     var
         nullGUID: Guid;
 
-    [EventSubscriber(ObjectType::Codeunit, 1882, 'OnClearConfiguration', '', false, false)]
-    local procedure ClearConfiguration(CompanyToBlock: Text)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sandbox Cleanup", 'OnClearConfiguration', '', false, false)]
+    local procedure ClearConfiguration(CompanyName: Text)
     var
         OCRServiceSetup: Record "OCR Service Setup";
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
@@ -25,47 +28,51 @@ codeunit 1882 "Sandbox Deploymt. Cleanup"
         ExchangeSync: Record "Exchange Sync";
         SatisfactionSurveyMgt: Codeunit "Satisfaction Survey Mgt.";
     begin
-        if CompanyToBlock <> '' then begin
-            OCRServiceSetup.ChangeCompany(CompanyToBlock);
+        if CompanyName <> '' then begin
+            OCRServiceSetup.ChangeCompany(CompanyName);
             OCRServiceSetup.ModifyAll("Password Key", nullGUID);
 
-            DocExchServiceSetup.ChangeCompany(CompanyToBlock);
+            DocExchServiceSetup.ChangeCompany(CompanyName);
             DocExchServiceSetup.ModifyAll(Enabled, false);
 
-            CurrExchRateUpdateSetup.ChangeCompany(CompanyToBlock);
+            CurrExchRateUpdateSetup.ChangeCompany(CompanyName);
             CurrExchRateUpdateSetup.ModifyAll(Enabled, false);
 
-            VATRegNoSrvConfig.ChangeCompany(CompanyToBlock);
+            VATRegNoSrvConfig.ChangeCompany(CompanyName);
             VATRegNoSrvConfig.ModifyAll(Enabled, false);
 
-            GraphMailSetup.ChangeCompany(CompanyToBlock);
+            GraphMailSetup.ChangeCompany(CompanyName);
             GraphMailSetup.ModifyAll(Enabled, false);
 
-            SMTPMailSetup.ChangeCompany(CompanyToBlock);
+            SMTPMailSetup.ChangeCompany(CompanyName);
             SMTPMailSetup.ModifyAll("SMTP Server", '');
 
-            CRMConnectionSetup.ChangeCompany(CompanyToBlock);
+            CRMConnectionSetup.ChangeCompany(CompanyName);
             CRMConnectionSetup.ModifyAll("Is Enabled", false);
 
-            ServiceConnection.ChangeCompany(CompanyToBlock);
+            ServiceConnection.ChangeCompany(CompanyName);
             ServiceConnection.ModifyAll(Status, ServiceConnection.Status::Disabled);
 
-            MarketingSetup.ChangeCompany(CompanyToBlock);
+            MarketingSetup.ChangeCompany(CompanyName);
             MarketingSetup.ModifyAll("Exchange Service URL", '');
 
-            ExchangeSync.ChangeCompany(CompanyToBlock);
+            ExchangeSync.ChangeCompany(CompanyName);
             ExchangeSync.ModifyAll(Enabled, false);
         end else begin
             SatisfactionSurveyMgt.ResetState;
             FlowServiceConfiguration.ModifyAll("Flow Service", FlowServiceConfiguration."Flow Service"::"Testing Service (TIP 1)");
         end;
+
+        OnClearConfiguration(CompanyName);
     end;
 
+    [Obsolete('Use OnClearConfiguration in codeunit "Sandbox Cleanup" from "System Application', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnClearConfiguration(CompanyToBlock: Text)
     begin
     end;
 
+    [Obsolete('Use OnClearConfiguration in codeunit "Sandbox Cleanup" from "System Application', '17.0')]
     local procedure RaiseEventForEveryCompany()
     var
         Company: Record Company;

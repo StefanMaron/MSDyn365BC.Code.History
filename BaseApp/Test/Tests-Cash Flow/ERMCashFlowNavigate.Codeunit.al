@@ -365,7 +365,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
           CFWorksheetLine."Source Type"::"Service Orders");
     end;
 
-    local procedure NavigateJournalNonExistingSourceNo(SourceTableCaption: Text[250]; SourceCaption: Text[250]; SourceType: Option)
+    local procedure NavigateJournalNonExistingSourceNo(SourceTableCaption: Text[250]; SourceCaption: Text[250]; SourceType: Enum "Cash Flow Source Type")
     var
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         CashFlowJournal: TestPage "Cash Flow Worksheet";
@@ -633,7 +633,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
-        InsertJournalLine(CFWorksheetLine, LibraryRandom.RandIntInRange(1, MaxSourceType), '');
+        InsertJournalLine(CFWorksheetLine, "Cash Flow Source Type".FromInteger(LibraryRandom.RandIntInRange(1, MaxSourceType)), '');
 
         // Navigate
         CashFlowJournal.OpenEdit;
@@ -651,7 +651,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         CashFlowJournal: TestPage "Cash Flow Worksheet";
     begin
-        InsertJournalLine(CFWorksheetLine, 0, '');
+        InsertJournalLine(CFWorksheetLine, "Cash Flow Source Type"::" ", '');
 
         // Navigate
         CashFlowJournal.OpenEdit;
@@ -691,7 +691,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
     begin
-        InsertEntryLine(CFForecastEntry, LibraryRandom.RandIntInRange(1, MaxSourceType), '');
+        InsertEntryLine(CFForecastEntry, "Cash Flow Source Type".FromInteger(LibraryRandom.RandIntInRange(1, MaxSourceType)), '');
 
         // Navigate
         CFLedgerEntries.OpenView;
@@ -709,7 +709,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
     begin
-        InsertEntryLine(CFForecastEntry, 0, '');
+        InsertEntryLine(CFForecastEntry, "Cash Flow Source Type"::" ", '');
 
         // Navigate
         CFLedgerEntries.OpenView;
@@ -880,7 +880,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CashFlowManualExpenses.Close;
     end;
 
-    local procedure InsertJournalLine(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; SourceType: Option; SourceNo: Code[20])
+    local procedure InsertJournalLine(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; SourceType: Enum "Cash Flow Source Type"; SourceNo: Code[20])
     var
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowAccount: Record "Cash Flow Account";
@@ -905,7 +905,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         CFWorksheetLine.Modify(true);
     end;
 
-    local procedure InsertEntryLine(var CFForecastEntry: Record "Cash Flow Forecast Entry"; SourceType: Option; SourceNo: Code[20])
+    local procedure InsertEntryLine(var CFForecastEntry: Record "Cash Flow Forecast Entry"; SourceType: Enum "Cash Flow Source Type"; SourceNo: Code[20])
     begin
         CFForecastEntry.DeleteAll();
 

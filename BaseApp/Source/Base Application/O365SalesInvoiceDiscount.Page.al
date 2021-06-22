@@ -118,8 +118,7 @@ page 2155 "O365 Sales Invoice Discount"
             RestoreInvoiceDiscountPercent(OriginalInvoiceDiscount);
 
         if (CloseAction in [ACTION::LookupOK, ACTION::OK]) and (OriginalInvoiceDiscount <> InvoiceDiscountPct) then
-            SendTraceTag('000023Y', InvoiceDiscountCategoryLbl, VERBOSITY::Normal,
-              InvoiceDiscountAppliedTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000023Y', InvoiceDiscountAppliedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvoiceDiscountCategoryLbl);
 
         CalcInvDiscForHeader;
     end;

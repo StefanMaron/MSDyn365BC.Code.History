@@ -13,7 +13,7 @@ codeunit 131330 "Library - Fixed Asset"
         Assert: Codeunit Assert;
         FARegisterGLRegisterErr: Label 'There should be only one FA Register related to the last GL register.';
 
-    procedure CreateCommentLine(var CommentLine: Record "Comment Line"; TableName: Option; No: Code[20])
+    procedure CreateCommentLine(var CommentLine: Record "Comment Line"; TableName: Enum "Comment Line Table Name"; No: Code[20])
     var
         RecRef: RecordRef;
     begin
@@ -457,14 +457,14 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure UpdateFAPostingGroupGLAccounts(var FAPostingGroup: Record "FA Posting Group"; VATPostingSetup: Record "VAT Posting Setup")
     begin
-        FAPostingGroup.Validate("Acquisition Cost Account", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0));
+        FAPostingGroup.Validate("Acquisition Cost Account", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "));
         FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", FAPostingGroup."Acquisition Cost Account");
         FAPostingGroup.Validate("Accum. Depreciation Account", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Accum. Depr. Acc. on Disposal", FAPostingGroup."Accum. Depreciation Account");
         FAPostingGroup.Validate("Depreciation Expense Acc.", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Gains Acc. on Disposal", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Losses Acc. on Disposal", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Sales Bal. Acc.", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0));
+        FAPostingGroup.Validate("Sales Bal. Acc.", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "));
         FAPostingGroup.Modify(true);
     end;
 

@@ -47,7 +47,7 @@ codeunit 550 "VAT Rate Change Conversion"
             Error(Text0015);
         if not AreTablesSelected then
             Error(Text0016);
-        TestVATPostingSetup;
+        TestVATPostingSetup();
         ProgressWindow.Open(Text0001 + Text0002);
         with VATRateChangeSetup do begin
             ProgressWindow.Update;
@@ -61,7 +61,7 @@ codeunit 550 "VAT Rate Change Conversion"
                     TempGenProductPostingGroup.Insert();
                     GenProductPostingGroup."Auto Insert Default" := false;
                     GenProductPostingGroup.Modify();
-                until GenProductPostingGroup.Next = 0;
+                until GenProductPostingGroup.Next() = 0;
             UpdateItem();
             UpdateResource();
             UpdateGLAccount();
@@ -79,7 +79,7 @@ codeunit 550 "VAT Rate Change Conversion"
                     GenProductPostingGroup := TempGenProductPostingGroup;
                     GenProductPostingGroup.Insert();
                     TempGenProductPostingGroup.Delete();
-                until TempGenProductPostingGroup.Next = 0;
+                until TempGenProductPostingGroup.Next() = 0;
         end;
 
         ProgressWindow.Close;
@@ -92,7 +92,7 @@ codeunit 550 "VAT Rate Change Conversion"
                 repeat
                     VATRateChangeConversion."Converted Date" := WorkDate;
                     VATRateChangeConversion.Modify();
-                until VATRateChangeConversion.Next = 0;
+                until VATRateChangeConversion.Next() = 0;
         end;
 
         OnAfterConvert(VATRateChangeSetup);
@@ -170,8 +170,8 @@ codeunit 550 "VAT Rate Change Conversion"
                               VATRateChangeConversion."To Code");
                         if VATPostingSetupOld."VAT Identifier" <> '' then
                             VATPostingSetupNew.TestField("VAT Identifier")
-                    until VATPostingSetupOld.Next = 0;
-            until VATRateChangeConversion.Next = 0;
+                    until VATPostingSetupOld.Next() = 0;
+            until VATRateChangeConversion.Next() = 0;
     end;
 
     local procedure UpdateItem()
@@ -196,7 +196,7 @@ codeunit 550 "VAT Rate Change Conversion"
                     repeat
                         RecRef.GetTable(Item);
                         UpdateRec(RecRef, ConvertVATProdPostGrp("Update Items"), ConvertGenProdPostGrp("Update Items"));
-                    until Item.Next = 0;
+                    until Item.Next() = 0;
             end;
     end;
 
@@ -222,7 +222,7 @@ codeunit 550 "VAT Rate Change Conversion"
                     repeat
                         RecRef.GetTable(GLAccount);
                         UpdateRec(RecRef, ConvertVATProdPostGrp("Update G/L Accounts"), ConvertGenProdPostGrp("Update G/L Accounts"));
-                    until GLAccount.Next = 0;
+                    until GLAccount.Next() = 0;
             end;
     end;
 
@@ -246,7 +246,7 @@ codeunit 550 "VAT Rate Change Conversion"
                     repeat
                         RecRef.GetTable(Resource);
                         UpdateRec(RecRef, ConvertVATProdPostGrp("Update Resources"), ConvertGenProdPostGrp("Update Resources"));
-                    until Resource.Next = 0;
+                    until Resource.Next() = 0;
             end;
     end;
 
@@ -347,7 +347,7 @@ codeunit 550 "VAT Rate Change Conversion"
                 I := I + 1;
                 ProgressWindow.Update(2, I);
                 UpdateRec(RecRef, ConvertVATProdPostingGroup, ConvertGenProdPostingGroup);
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
     end;
 
     local procedure UpdateRec(var RecRef: RecordRef; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean)
@@ -473,7 +473,7 @@ codeunit 550 "VAT Rate Change Conversion"
                                      ConvertVATProdPostingGroup)
                                 then
                                     if (SalesLine."Shipment No." = '') and (SalesLine."Return Receipt No." = '') and
-                                       IncludeLine(SalesLine.Type, SalesLine."No.")
+                                       IncludeLine(SalesLine.Type.AsInteger(), SalesLine."No.")
                                     then
                                         if SalesLine.Quantity = SalesLine."Outstanding Quantity" then begin
                                             RecRef.GetTable(SalesLine);
@@ -526,14 +526,14 @@ codeunit 550 "VAT Rate Change Conversion"
                                                   SalesLine."VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
                                                 WriteLogEntry(VATRateChangeLogEntry);
                                             end;
-                            until SalesLine.Next = 0;
+                            until SalesLine.Next() = 0;
                     end;
                     if SalesHeaderStatusChanged then begin
                         SalesHeader.Status := SalesHeader2.Status;
                         SalesHeader.Modify();
                     end;
                 end;
-            until SalesHeader.Next = 0;
+            until SalesHeader.Next() = 0;
     end;
 
     local procedure CanUpdateSales(SalesHeader: Record "Sales Header"; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean): Boolean
@@ -556,7 +556,7 @@ codeunit 550 "VAT Rate Change Conversion"
                         if "Special Order" and ("Special Order Purchase No." <> '') then
                             DescriptionTxt := StrSubstNo(Text0005, "Line No.");
                         if ("Outstanding Quantity" <> Quantity) and
-                           WhseValidateSourceLine.WhseLinesExist(DATABASE::"Sales Line", "Document Type", "Document No.", "Line No.", 0, Quantity)
+                           WhseValidateSourceLine.WhseLinesExist(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
                         then
                             DescriptionTxt := Text0006;
                         if ("Outstanding Quantity" <> Quantity) and (Type = Type::"Charge (Item)") then
@@ -566,7 +566,7 @@ codeunit 550 "VAT Rate Change Conversion"
                         if "Qty. to Assemble to Order" <> 0 then
                             DescriptionTxt := Text0018;
                     end;
-                until (Next = 0) or (DescriptionTxt <> '');
+                until (Next() = 0) or (DescriptionTxt <> '');
         end;
         if DescriptionTxt = '' then
             exit(true);
@@ -682,7 +682,7 @@ codeunit 550 "VAT Rate Change Conversion"
                 NewReservationEntry := OldReservationEntry;
                 NewReservationEntry."Source Ref. No." := NewLineNo;
                 NewReservationEntry.Modify();
-            until OldReservationEntry.Next = 0;
+            until OldReservationEntry.Next() = 0;
 
         case SalesLine.Type of
             SalesLine.Type::Item:
@@ -711,7 +711,7 @@ codeunit 550 "VAT Rate Change Conversion"
                             OldItemChargeAssignmentSales."Qty. to Assign" := QtyRemainder;
                             OldItemChargeAssignmentSales."Amount to Assign" := AmountRemainder;
                             OldItemChargeAssignmentSales.Modify();
-                        until OldItemChargeAssignmentSales.Next = 0;
+                        until OldItemChargeAssignmentSales.Next() = 0;
                 end;
         end;
 
@@ -762,7 +762,7 @@ codeunit 550 "VAT Rate Change Conversion"
                             SalesLine3.Modify();
                         end;
                     end;
-                until SalesLine2.Next = 0;
+                until SalesLine2.Next() = 0;
         end;
     end;
 
@@ -820,7 +820,7 @@ codeunit 550 "VAT Rate Change Conversion"
                                      ConvertVATProdPostingGroup)
                                 then
                                     if (PurchaseLine."Receipt No." = '') and
-                                       (PurchaseLine."Return Shipment No." = '') and IncludeLine(PurchaseLine.Type, PurchaseLine."No.")
+                                       (PurchaseLine."Return Shipment No." = '') and IncludeLine(PurchaseLine.Type.AsInteger(), PurchaseLine."No.")
                                     then
                                         if PurchaseLine.Quantity = PurchaseLine."Outstanding Quantity" then begin
                                             if PurchaseHeader."Prices Including VAT" then
@@ -876,14 +876,14 @@ codeunit 550 "VAT Rate Change Conversion"
                                                   PurchaseLine."VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
                                                 WriteLogEntry(VATRateChangeLogEntry);
                                             end;
-                            until PurchaseLine.Next = 0;
+                            until PurchaseLine.Next() = 0;
                     end;
                     if StatusChanged then begin
                         PurchaseHeader.Status := PurchaseHeader2.Status;
                         PurchaseHeader.Modify();
                     end;
                 end;
-            until PurchaseHeader.Next = 0;
+            until PurchaseHeader.Next() = 0;
     end;
 
     local procedure CanUpdatePurchase(PurchaseHeader: Record "Purchase Header"; ConvertGenProdPostingGroup: Boolean; ConvertVATProdPostingGroup: Boolean): Boolean
@@ -907,7 +907,7 @@ codeunit 550 "VAT Rate Change Conversion"
                             DescriptionTxt := StrSubstNo(Text0005, "Line No.");
                         if ("Outstanding Quantity" <> Quantity) and
                            WhseValidateSourceLine.WhseLinesExist(
-                             DATABASE::"Purchase Line", "Document Type", "Document No.", "Line No.", 0, Quantity)
+                             DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
                         then
                             DescriptionTxt := Text0006;
                         if ("Outstanding Quantity" <> Quantity) and (Type = Type::"Charge (Item)") then
@@ -915,7 +915,7 @@ codeunit 550 "VAT Rate Change Conversion"
                         if "Prepmt. Amount Inv. (LCY)" <> 0 then
                             DescriptionTxt := Text0011;
                     end;
-                until (Next = 0) or (DescriptionTxt <> '');
+                until (Next() = 0) or (DescriptionTxt <> '');
         end;
         if DescriptionTxt = '' then
             exit(true);
@@ -1039,7 +1039,7 @@ codeunit 550 "VAT Rate Change Conversion"
                 NewReservationEntry := OldReservationEntry;
                 NewReservationEntry."Source Ref. No." := NewLineNo;
                 NewReservationEntry.Modify();
-            until OldReservationEntry.Next = 0;
+            until OldReservationEntry.Next() = 0;
 
         case PurchaseLine.Type of
             PurchaseLine.Type::Item:
@@ -1068,7 +1068,7 @@ codeunit 550 "VAT Rate Change Conversion"
                             OldItemChargeAssignmentPurch."Qty. to Assign" := QtyRemainder;
                             OldItemChargeAssignmentPurch."Amount to Assign" := AmountRemainder;
                             OldItemChargeAssignmentPurch.Modify();
-                        until OldItemChargeAssignmentPurch.Next = 0;
+                        until OldItemChargeAssignmentPurch.Next() = 0;
                 end;
         end;
 
@@ -1137,11 +1137,11 @@ codeunit 550 "VAT Rate Change Conversion"
                             PurchaseLine3.Modify();
                         end;
                     end;
-                until PurchaseLine2.Next = 0;
+                until PurchaseLine2.Next() = 0;
         end;
     end;
 
-    local procedure UpdateUnitPriceInclVAT(Type: Option): Boolean
+    local procedure UpdateUnitPriceInclVAT(Type: Enum "Sales Line Type"): Boolean
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1214,9 +1214,9 @@ codeunit 550 "VAT Rate Change Conversion"
                             end else
                                 VATRateChangeLogEntry.Description := StrSubstNo(Text0009, VATRateChangeSetup.FieldCaption("Perform Conversion"));
                             WriteLogEntry(VATRateChangeLogEntry);
-                        until Next = 0;
+                        until Next() = 0;
                 end;
-            until VatRateChangeConversion.Next = 0;
+            until VatRateChangeConversion.Next() = 0;
     end;
 
     local procedure GetRoundingPrecision(CurrencyCode: Code[10]): Decimal
@@ -1353,7 +1353,7 @@ codeunit 550 "VAT Rate Change Conversion"
                                 ServiceHeaderStatusChanged := false;
                             end;
                         end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1451,7 +1451,7 @@ codeunit 550 "VAT Rate Change Conversion"
                     NewReservationEntry := OldReservationEntry;
                     NewReservationEntry."Source Ref. No." := NewLineNo;
                     NewReservationEntry.Modify();
-                until OldReservationEntry.Next = 0;
+                until OldReservationEntry.Next() = 0;
         end;
 
         OldReservationEntry.Reset();
@@ -1466,7 +1466,7 @@ codeunit 550 "VAT Rate Change Conversion"
                 NewReservationEntry := OldReservationEntry;
                 NewReservationEntry."Source Ref. No." := NewLineNo;
                 NewReservationEntry.Modify();
-            until OldReservationEntry.Next = 0;
+            until OldReservationEntry.Next() = 0;
 
         OldServiceLine.Get(ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.");
         OldServiceLine.Validate(Quantity, ServiceLine."Quantity Shipped");
@@ -1642,7 +1642,7 @@ codeunit 550 "VAT Rate Change Conversion"
         exit(Res.Find);
     end;
 
-    local procedure IncludeServiceLine(Type: Option " ",Item,Resource,Cost,"G/L Account"; No: Code[20]): Boolean
+    local procedure IncludeServiceLine(Type: Enum "Service Line Type"; No: Code[20]): Boolean
     begin
         case Type of
             Type::"G/L Account":

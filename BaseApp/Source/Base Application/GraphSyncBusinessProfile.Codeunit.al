@@ -1,5 +1,8 @@
 codeunit 5441 "Graph Sync. - Business Profile"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be removed. The API that it was integrating to was discontinued.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     var
@@ -85,10 +88,9 @@ codeunit 5441 "Graph Sync. - Business Profile"
     end;
 
     local procedure SyncEnabled(): Boolean
-    var
-        CompanyInformation: Record "Company Information";
     begin
-        exit(CompanyInformation.Get and CompanyInformation."Sync with O365 Bus. profile");
+        // API is discontinued
+        exit(false);
     end;
 
     [EventSubscriber(ObjectType::Table, 5079, 'OnBeforeModifyEvent', '', false, false)]
@@ -104,15 +106,11 @@ codeunit 5441 "Graph Sync. - Business Profile"
             CompanyInformation.LockTable();
             CompanyInformation.Get();
             if Rec."Sync with Microsoft Graph" and not CompanyInformation.IsSyncEnabledForOtherCompany then begin
-                SendTraceTag(
-                  '00001B8', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-                  EnablingBusinessProfileSyncTxt, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00001B8', EnablingBusinessProfileSyncTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
                 CompanyInformation."Sync with O365 Bus. profile" := true;
                 CompanyInformation.Modify();
             end else begin
-                SendTraceTag(
-                  '00001B9', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-                  DisablingBusinessProfileSyncTxt, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00001B9', DisablingBusinessProfileSyncTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
                 CompanyInformation."Sync with O365 Bus. profile" := false;
                 CompanyInformation.Modify();
                 GraphIntBusinessProfile.UpdateCompanyBusinessProfileId('');
@@ -138,13 +136,9 @@ codeunit 5441 "Graph Sync. - Business Profile"
                 end;
 
             if DestinationFound then
-                SendTraceTag(
-                  '00001BA', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-                  FoundUncoupledBusinessProfileTxt, DATACLASSIFICATION::SystemMetadata)
+                Session.LogMessage('00001BA', FoundUncoupledBusinessProfileTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory)
             else
-                SendTraceTag(
-                  '00001BB', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal,
-                  MissingUncoupledBusinessProfileTxt, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00001BB', MissingUncoupledBusinessProfileTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
         end;
     end;
 
@@ -323,8 +317,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
         GraphSyncRunner: Codeunit "Graph Sync. Runner";
     begin
         if SyncEnabled then begin
-            SendTraceTag(
-              '00001BC', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal, DeltaSyncTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00001BC', DeltaSyncTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
             GraphSyncRunner.RunDeltaSyncForEntity(GetEntityTableID);
         end;
     end;
@@ -335,21 +328,8 @@ codeunit 5441 "Graph Sync. - Business Profile"
         GraphSyncRunner: Codeunit "Graph Sync. Runner";
     begin
         if SyncEnabled then begin
-            SendTraceTag(
-              '00001BD', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Normal, FullSyncTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00001BD', FullSyncTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
             GraphSyncRunner.RunFullSyncForEntity(GetEntityTableID);
-        end;
-    end;
-
-    [EventSubscriber(ObjectType::Table, 79, 'OnAfterModifyEvent', '', false, false)]
-    local procedure UpdateGraphOnAfterCompanyInformationModify(var Rec: Record "Company Information"; var xRec: Record "Company Information"; RunTrigger: Boolean)
-    var
-        GraphSubscriptionManagement: Codeunit "Graph Subscription Management";
-        EntityRecordRef: RecordRef;
-    begin
-        if RunTrigger and SyncEnabled then begin
-            EntityRecordRef.GetTable(Rec);
-            GraphSubscriptionManagement.UpdateGraphOnAfterModify(EntityRecordRef);
         end;
     end;
 }

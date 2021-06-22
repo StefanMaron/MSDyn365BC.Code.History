@@ -143,7 +143,7 @@ page 99000860 "Planning Worksheet Line List"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }

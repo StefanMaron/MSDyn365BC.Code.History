@@ -8,11 +8,9 @@ table 99000849 "Action Message Entry"
         {
             Caption = 'Entry No.';
         }
-        field(2; Type; Option)
+        field(2; Type; Enum "Action Message Type")
         {
             Caption = 'Type';
-            OptionCaption = ',New,Change Qty.,Reschedule,Resched. & Chg. Qty.,Cancel';
-            OptionMembers = ,New,"Change Qty.",Reschedule,"Resched. & Chg. Qty.",Cancel;
         }
         field(3; "Reservation Entry"; Integer)
         {
@@ -136,8 +134,8 @@ table 99000849 "Action Message Entry"
             SetRange("Item No.", "Item No.");
             ActionMessageEntry."New Date" := 0D;
             ActionMessageEntry.Quantity := 0;
-            ActionMessageEntry.Type := 0;
-            if FindSet then
+            ActionMessageEntry.Type := ActionMessageEntry.Type::" ";
+            if FindSet() then
                 repeat
                     if Quantity <> 0 then begin
                         ActionMessageEntry.Quantity += Quantity;

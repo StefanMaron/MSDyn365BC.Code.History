@@ -53,8 +53,8 @@ page 40 "Item Journal"
                 field("Entry Type"; "Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.';
                     ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
+                    OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.';
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
@@ -379,7 +379,7 @@ page 40 "Item Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -734,7 +734,7 @@ page 40 "Item Journal"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        if "Entry Type" > "Entry Type"::"Negative Adjmt." then
+        if "Entry Type".AsInteger() > "Entry Type"::"Negative Adjmt.".AsInteger() then
             Error(Text000, "Entry Type");
     end;
 
@@ -775,10 +775,12 @@ page 40 "Item Journal"
         ClientTypeManagement: Codeunit "Client Type Management";
         CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
-        ShortcutDimCode: array[8] of Code[20];
         Text001: Label 'Item Journal lines have been successfully inserted from Standard Item Journal %1.';
         Text002: Label 'Standard Item Journal %1 has been successfully created.';
         IsSaaSExcelAddinEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

@@ -205,7 +205,7 @@ codeunit 134074 "ERM Record Link Management"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Record Link Management");
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -217,7 +217,7 @@ codeunit 134074 "ERM Record Link Management"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
         Item: Record Item;
@@ -229,7 +229,7 @@ codeunit 134074 "ERM Record Link Management"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; DocumentType: Option)
+    local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     var
         ServiceLine: Record "Service Line";
         ServiceItem: Record "Service Item";

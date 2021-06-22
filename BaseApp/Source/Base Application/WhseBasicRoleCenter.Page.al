@@ -1,6 +1,6 @@
 page 9008 "Whse. Basic Role Center"
 {
-    Caption = 'Shipping and Receiving - Order-by-Order', Comment = '{Dependency=Match,"ProfileDescription_SHIPPINGANDRECEIVING"}';
+    Caption = 'Inventory Manager';
     PageType = RoleCenter;
 
     layout
@@ -15,18 +15,35 @@ page 9008 "Whse. Basic Role Center"
             {
                 ApplicationArea = Warehouse;
             }
-            part(Control1907692008; "My Customers")
+            part("WMS Ship and Receive Activities"; "WMS Ship & Receive Activities")
             {
                 ApplicationArea = Warehouse;
+            }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = Suite;
             }
             part(Control52; "Team Member Activities No Msgs")
             {
                 ApplicationArea = Suite;
             }
+            part(Control1907692008; "My Customers")
+            {
+                ApplicationArea = Warehouse;
+            }
             part(Control4; "Trailing Sales Orders Chart")
             {
                 ApplicationArea = Warehouse;
                 Visible = false;
+            }
+            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
+            {
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
             }
             part(Control18; "My Job Queue")
             {
@@ -268,6 +285,181 @@ page 9008 "Whse. Basic Role Center"
                     ToolTip = 'Create purchase return orders to mirror sales return documents that vendors send to you for incorrect or damaged items that you have paid for and then returned to the vendor. Purchase return orders enable you to ship back items from multiple purchase documents with one purchase return and support warehouse documents for the item handling. Purchase return orders can be created automatically from PDF or image files from your vendors by using the Incoming Documents feature. Note: If you have not yet paid for an erroneous purchase, you can simply cancel the posted purchase invoice to automatically revert the financial transaction.';
                 }
             }
+            group("Reference Data")
+            {
+                Caption = 'Reference Data';
+                Image = ReferenceData;
+                action(Items02)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Items';
+                    Image = Item;
+                    RunObject = Page "Item List";
+                    ToolTip = 'View or edit detailed information for the products that you trade in. The item card can be of type Inventory or Service to specify if the item is a physical unit or a labor time unit. Here you also define if items in inventory or on incoming orders are automatically reserved for outbound documents and whether order tracking links are created between demand and supply to reflect planning actions.';
+                }
+                action(Locations)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Locations';
+                    Image = Warehouse;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Location List";
+                    ToolTip = 'View the list of warehouse locations.';
+                }
+                action("Shipping Agents02")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Shipping Agent';
+                    RunObject = Page "Shipping Agents";
+                    ToolTip = 'View the list of shipping companies that you use to transport goods.';
+                }
+                action("Catalog Items")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Catalog Items';
+                    Image = NonStockItem;
+                    RunObject = Page "Catalog Item List";
+                    ToolTip = 'View the list of items that you do not carry in inventory. ';
+                }
+                action("Stockkeeping Units")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Stockkeeping Units';
+                    Image = SKU;
+                    RunObject = Page "Stockkeeping Unit List";
+                    ToolTip = 'Open the list of item SKUs to view or edit instances of item at different locations or with different variants. ';
+                }
+                action(BinContents02)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Bin Contents';
+                    Image = BinContent;
+                    RunObject = Page "Bin Contents List";
+                    ToolTip = 'View items in the bin if the selected line contains a bin code.';
+                }
+            }
+            group(Journals)
+            {
+                Caption = 'Journals';
+                Image = Journals;
+                action(WhseItemJournals)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Warehouse Item Journals';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Whse. Journal Batches List";
+                    RunPageView = WHERE("Template Type" = CONST(Item));
+                    ToolTip = 'Adjust the quantity of an item in a particular bin or bins. For instance, you might find some items in a bin that are not registered in the system, or you might not be able to pick the quantity needed because there are fewer items in a bin than was calculated by the program. The bin is then updated to correspond to the actual quantity in the bin. In addition, it creates a balancing quantity in the adjustment bin, for synchronization with item ledger entries, which you can then post with an item journal.';
+                }
+                action(WhseReclassJournals)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Warehouse Reclassification Journals';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Whse. Journal Batches List";
+                    RunPageView = WHERE("Template Type" = CONST(Reclassification));
+                    ToolTip = 'Change information on warehouse entries, such as zone codes and bin codes.';
+                }
+                action(WhsePhysInvtJournals)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Warehouse Physical Inventory Journals';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Whse. Journal Batches List";
+                    RunPageView = WHERE("Template Type" = CONST("Physical Inventory"));
+                    ToolTip = 'Prepare to count inventories by preparing the documents that warehouse employees use when they perform a physical inventory of selected items or of all the inventory. When the physical count has been made, you enter the number of items that are in the bins in this window, and then you register the physical inventory.';
+                }
+                action(ItemJournals)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Item Journals';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Item Journal Batches";
+                    RunPageView = WHERE("Template Type" = CONST(Item),
+                                        Recurring = CONST(false));
+                    ToolTip = 'Post item transactions directly to the item ledger to adjust inventory in connection with purchases, sales, and positive or negative adjustments without using documents. You can save sets of item journal lines as standard journals so that you can perform recurring postings quickly. A condensed version of the item journal function exists on item cards for quick adjustment of an items inventory quantity.';
+                }
+                action(ItemReclassificationJournals02)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Item Reclassification Journals';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Item Journal Batches";
+                    RunPageView = WHERE("Template Type" = CONST(Transfer),
+                                        Recurring = CONST(false));
+                    ToolTip = 'Change information recorded on item ledger entries. Typical inventory information to reclassify includes dimensions and sales campaign codes, but you can also perform basic inventory transfers by reclassifying location and bin codes. Serial or lot numbers and their expiration dates must be reclassified with the Item Tracking Reclassification journal.';
+                }
+                action(PhysInventoryJournals02)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Phys. Inventory Journals';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Item Journal Batches";
+                    RunPageView = WHERE("Template Type" = CONST("Phys. Inventory"),
+                                        Recurring = CONST(false));
+                    ToolTip = 'Prepare to count the actual items in inventory to check if the quantity registered in the system is the same as the physical quantity. If there are differences, post them to the item ledger with the physical inventory journal before you do the inventory valuation.';
+                }
+            }
+            group(Worksheet)
+            {
+                Caption = 'Worksheet';
+                Image = Worksheets;
+                action(PutawayWorksheets)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Put-away Worksheets';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Worksheet Names List";
+                    RunPageView = WHERE("Template Type" = CONST("Put-away"));
+                    ToolTip = 'Plan and initialize item put-aways.';
+                }
+                action(PickWorksheets)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Pick Worksheets';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Worksheet Names List";
+                    RunPageView = WHERE("Template Type" = CONST(Pick));
+                    ToolTip = 'Plan and initialize picks of items. ';
+                }
+                action(MovementWorksheets)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Movement Worksheets';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Worksheet Names List";
+                    RunPageView = WHERE("Template Type" = CONST(Movement));
+                    ToolTip = 'Plan and initiate movements of items between bins according to an advanced warehouse configuration.';
+                }
+                action("Internal Put-aways")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Internal Put-aways';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Whse. Internal Put-away List";
+                    ToolTip = 'View the list of ongoing put-aways for internal activities, such as production.';
+                }
+                action("Internal Picks")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Internal Picks';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = Page "Whse. Internal Pick List";
+                    ToolTip = 'View the list of ongoing picks for internal activities, such as production.';
+                }
+            }
             group("Posted Documents")
             {
                 Caption = 'Posted Documents';
@@ -362,6 +554,68 @@ page 9008 "Whse. Basic Role Center"
                     Caption = 'Posted Assembly Orders';
                     RunObject = Page "Posted Assembly Orders";
                     ToolTip = 'View completed assembly orders.';
+                }
+                action("Posted Whse Shipments")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Posted Whse Shipments';
+                    RunObject = Page "Posted Whse. Shipment List";
+                    ToolTip = 'Open the list of posted warehouse shipments.';
+                }
+                action("Posted Whse Receipts")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Posted Whse Receipts';
+                    RunObject = Page "Posted Whse. Receipt List";
+                    ToolTip = 'Open the list of posted warehouse receipts.';
+                }
+                action("Registered Picks")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Registered Picks';
+                    Image = RegisteredDocs;
+                    RunObject = Page "Registered Whse. Picks";
+                    ToolTip = 'View warehouse picks that have been performed.';
+                }
+                action("Registered Put-aways")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Registered Put-aways';
+                    Image = RegisteredDocs;
+                    RunObject = Page "Registered Whse. Put-aways";
+                    ToolTip = 'View the list of completed put-away activities.';
+                }
+                action("Registered Movements")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Registered Movements';
+                    Image = RegisteredDocs;
+                    RunObject = Page "Registered Whse. Movements";
+                    ToolTip = 'View the list of completed warehouse movements.';
+                }
+                action("Purchase Quote Archives")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Quote Archives';
+                    RunObject = page "Purchase Quote Archives";
+                }
+                action("Purchase Order Archives")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Order Archives';
+                    RunObject = page "Purchase Order Archives";
+                }
+                action("Purchase Return Order Archives")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Return Order Archives';
+                    RunObject = page "Purchase Return List Archive";
+                }
+                action("Blanket Purchase Order Archives")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Blanket Purchase Order Archives';
+                    RunObject = page "Blanket Purch. Order Archives";
                 }
             }
             group(SetupAndExtensions)
@@ -466,6 +720,24 @@ page 9008 "Whse. Basic Role Center"
                 RunPageMode = Create;
                 ToolTip = 'Create a put-away according to a basic warehouse configuration, for example to put a produced item away. ';
             }
+            action("Whse. &Shipment")
+            {
+                ApplicationArea = Warehouse;
+                Caption = 'Whse. &Shipment';
+                Image = Shipment;
+                RunObject = Page "Warehouse Shipment";
+                RunPageMode = Create;
+                ToolTip = 'Create a new warehouse shipment.';
+            }
+            action("&Whse. Receipt")
+            {
+                ApplicationArea = Warehouse;
+                Caption = '&Whse. Receipt';
+                Image = Receipt;
+                RunObject = Page "Warehouse Receipt";
+                RunPageMode = Create;
+                ToolTip = 'Record the receipt of items according to an advanced warehouse configuration. ';
+            }
         }
         area(processing)
         {
@@ -484,6 +756,59 @@ page 9008 "Whse. Basic Role Center"
                 Image = ItemTracing;
                 RunObject = Page "Item Tracing";
                 ToolTip = 'Trace where a lot or serial number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
+            }
+            action("P&ut-away Worksheet")
+            {
+                ApplicationArea = Warehouse;
+                Caption = 'P&ut-away Worksheet';
+                Image = PutAwayWorksheet;
+                RunObject = Page "Put-away Worksheet";
+                ToolTip = 'Prepare and initialize item put-aways.';
+            }
+            action("Pi&ck Worksheet")
+            {
+                ApplicationArea = Warehouse;
+                Caption = 'Pi&ck Worksheet';
+                Image = PickWorksheet;
+                RunObject = Page "Pick Worksheet";
+                ToolTip = 'Plan and initialize picks of items. ';
+            }
+            action("M&ovement Worksheet")
+            {
+                ApplicationArea = Warehouse;
+                Caption = 'M&ovement Worksheet';
+                Image = MovementWorksheet;
+                RunObject = Page "Movement Worksheet";
+                ToolTip = 'Prepare to move items between bins within the warehouse.';
+            }
+            action("Order Plan&ning")
+            {
+                ApplicationArea = Planning;
+                Caption = 'Order Plan&ning';
+                Image = Planning;
+                RunObject = Page "Order Planning";
+                ToolTip = 'Plan supply orders order by order to fulfill new demand.';
+            }
+            action("Requisition &Worksheet")
+            {
+                ApplicationArea = Planning;
+                Caption = 'Requisition &Worksheet';
+                Image = Worksheet;
+                RunObject = Page "Req. Wksh. Names";
+                RunPageView = WHERE("Template Type" = CONST("Req."),
+                                    Recurring = CONST(false));
+                ToolTip = 'Calculate a supply plan to fulfill item demand with purchases or transfers.';
+            }
+            action(PlanningWorksheets)
+            {
+                ApplicationArea = Planning;
+                Caption = 'Planning Worksheets';
+                Promoted = true;
+                PromotedCategory = Process;
+                RunObject = Page "Req. Wksh. Names";
+                RunPageView = WHERE("Template Type" = CONST(Planning),
+                                        Recurring = CONST(false));
+                ToolTip = 'Plan supply orders automatically to fulfill new demand.';
             }
         }
     }

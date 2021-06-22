@@ -33,6 +33,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         Item.Modify(true);
     end;
 
+    [Obsolete('This procedure will become obsolete after the end of API v1.0 support', '17.0')]
     [Scope('Cloud')]
     procedure InsertItem(var Item: Record Item; var TempFieldSet: Record "Field" temporary; BaseUnitOfMeasureJSON: Text)
     var
@@ -55,6 +56,25 @@ codeunit 5470 "Graph Collection Mgt - Item"
 
         Item.Modify(true);
     end;
+
+    [Scope('Cloud')]
+    procedure InsertItem(var Item: Record Item; var TempFieldSet: Record "Field" temporary)
+    var
+        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+        RecRef: RecordRef;
+    begin
+        If IsNullGuid(Item.SystemId) then
+            Item.Insert(true)
+        else
+            Item.Insert(true, true);
+
+        RecRef.GetTable(Item);
+        GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecRef, TempFieldSet, Item."Last DateTime Modified");
+        RecRef.SetTable(Item);
+
+        Item.Modify(true);
+    end;
+
 
     procedure ProcessComplexTypes(var Item: Record Item; BaseUOMJSON: Text)
     begin
@@ -90,6 +110,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         exit(JSONManagement.WriteObjectToString);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         Item: Record Item;

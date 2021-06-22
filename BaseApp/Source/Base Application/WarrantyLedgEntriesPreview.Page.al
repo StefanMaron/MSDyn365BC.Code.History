@@ -175,7 +175,7 @@ page 163 "Warranty Ledg. Entries Preview"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(SetDimensionFilter)

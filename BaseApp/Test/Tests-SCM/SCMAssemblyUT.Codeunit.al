@@ -468,7 +468,7 @@ codeunit 137928 "SCM Assembly UT"
         MockWhseWorksheetLine(
           WhseWorksheetLine,
           WhseWorksheetLine."Whse. Document Type"::Assembly, DATABASE::"Assembly Line",
-          AssembleToOrderLink."Assembly Document Type", AssembleToOrderLink."Assembly Document No.", '', 0);
+          AssembleToOrderLink."Assembly Document Type".AsInteger(), AssembleToOrderLink."Assembly Document No.", '', 0);
 
         WarehouseActivityLine.TransferFromPickWkshLine(WhseWorksheetLine);
 
@@ -494,7 +494,7 @@ codeunit 137928 "SCM Assembly UT"
         MockWhseWorksheetLine(
           WhseWorksheetLine,
           WhseWorksheetLine."Whse. Document Type"::Shipment, DATABASE::"Sales Line",
-          AssembleToOrderLink."Assembly Document Type", AssembleToOrderLink."Assembly Document No.",
+          AssembleToOrderLink."Assembly Document Type".AsInteger(), AssembleToOrderLink."Assembly Document No.",
           WarehouseShipmentLine."No.", WarehouseShipmentLine."Line No.");
 
         WarehouseActivityLine.TransferFromPickWkshLine(WhseWorksheetLine);
@@ -521,7 +521,7 @@ codeunit 137928 "SCM Assembly UT"
         MockWhseWorksheetLine(
           WhseWorksheetLine,
           WhseWorksheetLine."Whse. Document Type"::Shipment, DATABASE::"Sales Line",
-          AssembleToOrderLink."Assembly Document Type", AssembleToOrderLink."Assembly Document No.",
+          AssembleToOrderLink."Assembly Document Type".AsInteger(), AssembleToOrderLink."Assembly Document No.",
           WarehouseShipmentLine."No.", WarehouseShipmentLine."Line No.");
 
         WarehouseActivityLine.TransferFromPickWkshLine(WhseWorksheetLine);
@@ -652,7 +652,7 @@ codeunit 137928 "SCM Assembly UT"
 
         // [GIVEN] Item had Item Substitution
         ItemNo := LibraryInventory.CreateItemNo;
-        LibraryAssembly.CreateItemSubstitution(ItemSubstitution,ItemNo);
+        LibraryAssembly.CreateItemSubstitution(ItemSubstitution, ItemNo);
 
         // [GIVEN] Assembly Order had Line with the Item
         AssemblyHeader.Init();
@@ -663,7 +663,7 @@ codeunit 137928 "SCM Assembly UT"
         AssemblyLine.Init();
         AssemblyLine."Document Type" := AssemblyHeader."Document Type";
         AssemblyLine."Document No." := AssemblyHeader."No.";
-        AssemblyLine."Line No." := LibraryUtility.GetNewRecNo(AssemblyLine,AssemblyLine.FieldNo("Line No."));
+        AssemblyLine."Line No." := LibraryUtility.GetNewRecNo(AssemblyLine, AssemblyLine.FieldNo("Line No."));
         AssemblyLine.Type := AssemblyLine.Type::Item;
         AssemblyLine."No." := ItemNo;
         AssemblyLine.Insert();
@@ -676,7 +676,7 @@ codeunit 137928 "SCM Assembly UT"
         // done in ItemSubstitutionEntriesModalPageHandler
 
         // [THEN] Assembly Line has No = Item Substitution "Substitute No."
-        AssemblyLine.TestField("No.",ItemSubstitution."Substitute No.");
+        AssemblyLine.TestField("No.", ItemSubstitution."Substitute No.");
     end;
 
     [Test]
@@ -711,7 +711,7 @@ codeunit 137928 "SCM Assembly UT"
         // [FEATURE] [Item Tracking] [Warehouse]
         // [SCENARIO 360240] When you delete assembly line, the related whse. item tracking lines are deleted too.
         Initialize();
-        SetupAssembly();
+        LibraryAssembly.SetStockoutWarning(false);
 
         LibraryAssembly.CreateAssemblyOrder(AssemblyHeader, LibraryRandom.RandDate(30), '', 1);
         FindAssemblyLine(AssemblyLine, AssemblyHeader);
@@ -819,14 +819,14 @@ codeunit 137928 "SCM Assembly UT"
         with WhseItemTrackingLine do begin
             "Entry No." := LibraryUtility.GetNewRecNo(WhseItemTrackingLine, FieldNo("Entry No."));
             "Source Type" := DATABASE::"Assembly Line";
-            "Source Subtype" := AssemblyLine."Document Type";
+            "Source Subtype" := AssemblyLine."Document Type".AsInteger();
             "Source ID" := AssemblyLine."Document No.";
             "Source Ref. No." := AssemblyLine."Line No.";
             Insert();
         end;
     end;
 
-    local procedure ReopenAReleasedAsmDoc(SalesDocType: Option; AsmDocReopens: Boolean)
+    local procedure ReopenAReleasedAsmDoc(SalesDocType: Enum "Sales Document Type"; AsmDocReopens: Boolean)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -847,7 +847,7 @@ codeunit 137928 "SCM Assembly UT"
             Assert.AreEqual(AsmHeader.Status::Released, AsmHeader.Status, 'The status is not changed from released.');
     end;
 
-    local procedure CreateSalesLine(SalesDocType: Option; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    local procedure CreateSalesLine(SalesDocType: Enum "Sales Document Type"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         SalesHeader."Document Type" := SalesDocType;
         SalesHeader."No." := LibraryUtility.GenerateGUID;
@@ -860,7 +860,7 @@ codeunit 137928 "SCM Assembly UT"
         SalesLine.Insert();
     end;
 
-    local procedure CreateATOAssembly(SalesDocType: Option; var AsmHeader: Record "Assembly Header"; SalesLine: Record "Sales Line")
+    local procedure CreateATOAssembly(SalesDocType: Enum "Sales Document Type"; var AsmHeader: Record "Assembly Header"; SalesLine: Record "Sales Line")
     var
         ATOLink: Record "Assemble-to-Order Link";
         AsmLine: Record "Assembly Line";
@@ -936,17 +936,6 @@ codeunit 137928 "SCM Assembly UT"
         ATOWhseShptLine."Qty. to Ship (Base)" := ATOQtyToShip;
         ATOWhseShptLine."Assemble to Order" := true;
         ATOWhseShptLine.Insert();
-    end;
-
-    local procedure SetupAssembly()
-    var
-        AssemblySetup: Record "Assembly Setup";
-    begin
-        AssemblySetup.Get();
-        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-        AssemblySetup.Validate("Stockout Warning", false);
-        AssemblySetup.Modify(true);
     end;
 
     local procedure NoWarningForDueDateWhenEndDateChangesOnATO(ChangeInDays: Integer)

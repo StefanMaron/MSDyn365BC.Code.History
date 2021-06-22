@@ -30,12 +30,11 @@ codeunit 1637 "Office Document Handler"
             CollectDocumentMatches(TempOfficeDocumentSelection, DocNo, TempOfficeAddinContext);
         end;
 
-        SendTraceTag('0000ACS', Officemgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
-            StrSubstNo(DocumentMatchedTelemetryTxt,
+        Session.LogMessage('0000ACS', StrSubstNo(DocumentMatchedTelemetryTxt,
                 TypeHelper.NewLine(),
                 TempOfficeDocumentSelection.Count(),
                 Format(TempOfficeDocumentSelection.Series),
-                Format(TempOfficeDocumentSelection."Document Type")), DataClassification::SystemMetadata);
+                Format(TempOfficeDocumentSelection."Document Type")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', Officemgt.GetOfficeAddinTelemetryCategory());
 
         case TempOfficeDocumentSelection.Count of
             0:
@@ -57,9 +56,9 @@ codeunit 1637 "Office Document Handler"
         with TempOfficeDocumentSelection do
             case DocSeries of
                 Series::Sales:
-                    GetSalesDocuments(TempOfficeDocumentSelection, DocSeries, DocType);
+                    GetSalesDocuments(TempOfficeDocumentSelection, DocSeries, "Sales Document Type".FromInteger(DocType));
                 Series::Purchase:
-                    GetPurchaseDocuments(TempOfficeDocumentSelection, DocSeries, DocType);
+                    GetPurchaseDocuments(TempOfficeDocumentSelection, DocSeries, "Purchase Document Type".FromInteger(DocType));
             end;
         PAGE.Run(PAGE::"Office Document Selection", TempOfficeDocumentSelection);
     end;
@@ -136,7 +135,7 @@ codeunit 1637 "Office Document Handler"
             end;
     end;
 
-    local procedure CreateDocumentMatchRecord(var TempOfficeDocumentSelection: Record "Office Document Selection" temporary; Series: Option; DocType: Option; DocNo: Code[20]; Posted: Boolean; DocDate: Date)
+    local procedure CreateDocumentMatchRecord(var TempOfficeDocumentSelection: Record "Office Document Selection" temporary; Series: Option; DocType: Enum "Incoming Document Type"; DocNo: Code[20]; Posted: Boolean; DocDate: Date)
     begin
         TempOfficeDocumentSelection.Init();
         TempOfficeDocumentSelection.Validate("Document No.", DocNo);
@@ -221,7 +220,7 @@ codeunit 1637 "Office Document Handler"
             DocNo := DocNoRegEx.Replace(Expression, '$2');
     end;
 
-    local procedure GetSalesDocuments(var TempOfficeDocumentSelection: Record "Office Document Selection" temporary; Series: Integer; DocType: Integer)
+    local procedure GetSalesDocuments(var TempOfficeDocumentSelection: Record "Office Document Selection" temporary; Series: Integer; DocType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -252,7 +251,7 @@ codeunit 1637 "Office Document Handler"
                 until SalesCrMemoHeader.Next = 0;
     end;
 
-    local procedure GetPurchaseDocuments(var TempOfficeDocumentSelection: Record "Office Document Selection" temporary; Series: Integer; DocType: Integer)
+    local procedure GetPurchaseDocuments(var TempOfficeDocumentSelection: Record "Office Document Selection" temporary; Series: Integer; DocType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -341,7 +340,7 @@ codeunit 1637 "Office Document Handler"
             end;
     end;
 
-    local procedure SetSalesDocumentMatchRecord(DocNo: Code[20]; DocType: Integer; var TempOfficeDocumentSelection: Record "Office Document Selection" temporary)
+    local procedure SetSalesDocumentMatchRecord(DocNo: Code[20]; DocType: Enum "Incoming Document Type"; var TempOfficeDocumentSelection: Record "Office Document Selection" temporary)
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -357,7 +356,7 @@ codeunit 1637 "Office Document Handler"
         end;
     end;
 
-    local procedure SetPurchDocumentMatchRecord(DocNo: Code[20]; DocType: Integer; var TempOfficeDocumentSelection: Record "Office Document Selection" temporary)
+    local procedure SetPurchDocumentMatchRecord(DocNo: Code[20]; DocType: Enum "Incoming Document Type"; var TempOfficeDocumentSelection: Record "Office Document Selection" temporary)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -437,8 +436,7 @@ codeunit 1637 "Office Document Handler"
         OfficeMgt: Codeunit "Office Management";
     begin
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.AutomaticLineItemsDialogCode);
-        SendTraceTag('00001KG', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
-            SuggestedItemsDisabledTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('00001KG', SuggestedItemsDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
     end;
 
     [EventSubscriber(ObjectType::Table, 38, 'OnAfterInsertEvent', '', false, false)]
@@ -453,8 +451,7 @@ codeunit 1637 "Office Document Handler"
         if not OfficeMgt.IsAvailable then
             exit;
 
-        SendTraceTag('0000ACY', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
-            StrSubstNo(CreatePurchDocTelemetryTxt, Format(Rec."Document Type")), DataClassification::SystemMetadata);
+        Session.LogMessage('0000ACY', StrSubstNo(CreatePurchDocTelemetryTxt, Format(Rec."Document Type")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
 
         HeaderRecRef.GetTable(Rec);
         GenerateLinesForDocument(HeaderRecRef);
@@ -469,8 +466,7 @@ codeunit 1637 "Office Document Handler"
         if not OfficeMgt.IsAvailable then
             exit;
 
-        SendTraceTag('0000ACZ', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
-            StrSubstNo(CreateSalesDocTelemetryTxt, Format(Rec."Document Type")), DataClassification::SystemMetadata);
+        Session.LogMessage('0000ACZ', StrSubstNo(CreateSalesDocTelemetryTxt, Format(Rec."Document Type")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
 
         // Do not generate lines if there was already a quote
         if Rec."Quote No." <> '' then

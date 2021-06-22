@@ -1674,7 +1674,7 @@ codeunit 137064 "SCM Warehouse Management"
         ReservationEntry."Source ID" := SalesLine."Document No.";
         ReservationEntry."Source Ref. No." := SalesLine."Line No.";
         ReservationEntry."Source Type" := DATABASE::"Sales Line";
-        ReservationEntry."Source Subtype" := SalesLine."Document Type";
+        ReservationEntry."Source Subtype" := SalesLine."Document Type".AsInteger();
         ReservationEntry.Positive := false;
         ReservationEntry."Quantity (Base)" := -Qty;
         ReservationEntry."Qty. to Handle (Base)" := ReservationEntry."Quantity (Base)";
@@ -2954,7 +2954,7 @@ codeunit 137064 "SCM Warehouse Management"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo3, Quantity);
     end;
 
-    local procedure CreateAndReleaseSalesOrderWithShippingAdvice(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; ShippingAdvice: Option)
+    local procedure CreateAndReleaseSalesOrderWithShippingAdvice(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; ShippingAdvice: Enum "Sales Header Shipping Advice")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2963,7 +2963,7 @@ codeunit 137064 "SCM Warehouse Management"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LocationCode: Code[10]; ShippingAdvice: Option)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; LocationCode: Code[10]; ShippingAdvice: Enum "Sales Header Shipping Advice")
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("Shipping Advice", ShippingAdvice);

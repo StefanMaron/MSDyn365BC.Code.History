@@ -32,16 +32,23 @@ page 99000786 "Production BOM"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
+                    ShowMandatory = true;
                 }
                 field(Status; Status)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of the production BOM.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Search Name"; "Search Name")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
+                    Importance = Additional;
                 }
                 field("Version Nos."; "Version Nos.")
                 {

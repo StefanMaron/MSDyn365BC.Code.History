@@ -1312,14 +1312,14 @@ codeunit 134772 "Doc. Address Propagation Test"
         Customer.Modify(true);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true);
     end;
 
-    local procedure CreatePurchaseHeaderForVendor(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyFromVendorNo: Code[20])
+    local procedure CreatePurchaseHeaderForVendor(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -1327,7 +1327,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreateSalesHeaderForCustomer(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerCode: Code[20])
+    local procedure CreateSalesHeaderForCustomer(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerCode: Code[20])
     begin
         CreateSalesHeader(SalesHeader, DocumentType);
 
@@ -1336,7 +1336,7 @@ codeunit 134772 "Doc. Address Propagation Test"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Option; CustomerCode: Code[20])
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type"; CustomerCode: Code[20])
     begin
         // Create Service header, return document No
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustomerCode);

@@ -17,9 +17,10 @@ codeunit 230 GenJnlManagement
         LastGenJnlLine: Record "Gen. Journal Line";
         OpenFromBatch: Boolean;
 
-    procedure TemplateSelection(PageID: Integer; PageTemplate: Option General,Sales,Purchases,"Cash Receipts",Payments,Assets,Intercompany,Jobs; RecurringJnl: Boolean; var GenJnlLine: Record "Gen. Journal Line"; var JnlSelected: Boolean)
+    procedure TemplateSelection(PageID: Integer; PageTemplate: Enum "Gen. Journal Template Type"; RecurringJnl: Boolean; var GenJnlLine: Record "Gen. Journal Line"; var JnlSelected: Boolean)
     var
         GenJnlTemplate: Record "Gen. Journal Template";
+        GenJnlTemplateType: Option;
     begin
         JnlSelected := true;
 
@@ -28,7 +29,10 @@ codeunit 230 GenJnlManagement
         GenJnlTemplate.SetRange(Recurring, RecurringJnl);
         if not RecurringJnl then
             GenJnlTemplate.SetRange(Type, PageTemplate);
-        OnTemplateSelectionSetFilter(GenJnlTemplate, PageTemplate, RecurringJnl, PageID);
+
+        GenJnlTemplateType := PageTemplate.AsInteger();
+        OnTemplateSelectionSetFilter(GenJnlTemplate, GenJnlTemplateType, RecurringJnl, PageID);
+        PageTemplate := "Gen. Journal Template Type".FromInteger(GenJnlTemplateType);
 
         JnlSelected := FindTemplateFromSelection(GenJnlTemplate, PageTemplate, RecurringJnl);
 
@@ -387,7 +391,8 @@ codeunit 230 GenJnlManagement
             end;
         end;
         if CurrentClientType in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, CLIENTTYPE::Api] then
-            ShowBalance := false;
+            ShowBalance := false
+
     end;
 
     procedure GetAvailableGeneralJournalTemplateName(TemplateName: Code[10]): Code[10]
@@ -415,7 +420,7 @@ codeunit 230 GenJnlManagement
         end;
     end;
 
-    local procedure FindTemplateFromSelection(var GenJnlTemplate: Record "Gen. Journal Template"; TemplateType: Option; RecurringJnl: Boolean) TemplateSelected: Boolean
+    local procedure FindTemplateFromSelection(var GenJnlTemplate: Record "Gen. Journal Template"; TemplateType: Enum "Gen. Journal Template Type"; RecurringJnl: Boolean) TemplateSelected: Boolean
     begin
         TemplateSelected := true;
         case GenJnlTemplate.Count of
@@ -448,7 +453,7 @@ codeunit 230 GenJnlManagement
     end;
 
     [Scope('OnPrem')]
-    procedure TemplateSelectionSimple(var GenJnlTemplate: Record "Gen. Journal Template"; TemplateType: Option; RecurringJnl: Boolean): Boolean
+    procedure TemplateSelectionSimple(var GenJnlTemplate: Record "Gen. Journal Template"; TemplateType: Enum "Gen. Journal Template Type"; RecurringJnl: Boolean): Boolean
     begin
         GenJnlTemplate.Reset();
         GenJnlTemplate.SetRange(Type, TemplateType);

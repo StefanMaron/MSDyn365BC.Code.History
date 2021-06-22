@@ -324,19 +324,19 @@ table 1270 "OCR Service Setup"
 
     local procedure LogTelemetryWhenServiceEnabled()
     begin
-        SendTraceTag('00008A4', TelemetryCategoryTok, VERBOSITY::Normal, OCRServiceEnabledTxt, DATACLASSIFICATION::SystemMetadata);
-        SendTraceTag('00008A5', TelemetryCategoryTok, VERBOSITY::Normal, "Service URL", DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008A4', OCRServiceEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        Session.LogMessage('00008A5', "Service URL", Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
     local procedure LogTelemetryWhenServiceDisabled()
     begin
-        SendTraceTag('00008A6', TelemetryCategoryTok, VERBOSITY::Normal, OCRServiceDisabledTxt, DATACLASSIFICATION::SystemMetadata);
-        SendTraceTag('00008A7', TelemetryCategoryTok, VERBOSITY::Normal, "Service URL", DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008A6', OCRServiceDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        Session.LogMessage('00008A7', "Service URL", Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
     local procedure LogTelemetryWhenServiceCreated()
     begin
-        SendTraceTag('00008A8', TelemetryCategoryTok, VERBOSITY::Normal, OCRServiceCreatedTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008A8', OCRServiceCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 }
 

@@ -106,7 +106,7 @@ codeunit 136309 "Job Posting"
         CreateJobCardAndVerifyData(Job.Status::Planning);
     end;
 
-    local procedure CreateJobCardAndVerifyData(Status: Option)
+    local procedure CreateJobCardAndVerifyData(Status: Enum "Job Status")
     var
         Job: Record Job;
         JobNo: Code[20];
@@ -464,7 +464,7 @@ codeunit 136309 "Job Posting"
         // 3. Verify: Verification done in 'ItemTrackingLinesCreateSerialNoPageHandler'.
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
         VerifyTrackingLine := true;  // Assign in Global variable.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     [Test]
@@ -544,7 +544,7 @@ codeunit 136309 "Job Posting"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", ItemCharge."No.");
         LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
@@ -1757,7 +1757,7 @@ codeunit 136309 "Job Posting"
         // [GIVEN] "Job Planning Line" for "T1" and 1 unit of "I" at "L" with "Line Type" = "Both Budget and Billable", reserved
         CreateJobPlanningLineWithItemAndLocation(
           JobPlanningLine, JobTask[1], JobPlanningLine."Line Type"::"Both Budget and Billable", Location.Code, Item."No.", 1);
-        JobPlanningLine.AutoReserve;
+        JobPlanningLine.AutoReserve();
 
         // [GIVEN] "Job Journal Line" for "T2" and 1 unit of "I" at "L" with "Line Type" is void, tracking assigned
         LibraryJob.CreateJobTask(Job, JobTask[2]);
@@ -2117,7 +2117,7 @@ codeunit 136309 "Job Posting"
           Bin, Location.Code, LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), '', '');
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; No: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2125,12 +2125,12 @@ codeunit 136309 "Job Posting"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, No);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyFromVendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
     end;
 
-    local procedure CreatePurchLineWithExactQuantityAndJobLink(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; JobPlanningLine: Record "Job Planning Line"; Quantity: Decimal)
+    local procedure CreatePurchLineWithExactQuantityAndJobLink(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; JobPlanningLine: Record "Job Planning Line"; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         UpdatePurchaseLine(PurchaseLine, JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", PurchaseLine."Job Line Type"::Budget);
@@ -2139,7 +2139,7 @@ codeunit 136309 "Job Posting"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20])
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         // Create Purchase Line with Random Quantity and Direct Unit Cost.
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandInt(10));
@@ -2147,9 +2147,9 @@ codeunit 136309 "Job Posting"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseOrderWithJob(var PurchaseLine: Record "Purchase Line"; DcoumentType: Option; JobTask: Record "Job Task"; ItemNo: Code[20]; JobLineType: Option)
+    local procedure CreatePurchaseOrderWithJob(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; JobTask: Record "Job Task"; ItemNo: Code[20]; JobLineType: Option)
     begin
-        CreatePurchaseDocument(PurchaseLine, DcoumentType, ItemNo);
+        CreatePurchaseDocument(PurchaseLine, DocumentType, ItemNo);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));  // Use Random value for Direct Unit Cost.
         PurchaseLine.Validate("Job No.", JobTask."Job No.");
         PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
@@ -2157,7 +2157,7 @@ codeunit 136309 "Job Posting"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentWithJobAndItemTracking(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; JobLineType: Option; LotSpecificTracking: Boolean; SNSpecificTracking: Boolean)
+    local procedure CreatePurchaseDocumentWithJobAndItemTracking(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; JobLineType: Option; LotSpecificTracking: Boolean; SNSpecificTracking: Boolean)
     var
         JobTask: Record "Job Task";
     begin
@@ -2187,9 +2187,9 @@ codeunit 136309 "Job Posting"
         JobCard.OK.Invoke;
     end;
 
-    local procedure CreateJobJournalLine(LineType: Option; Type: Option; var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; No: Code[20]; Quantity: Decimal; UnitCost: Decimal; UnitPrice: Decimal)
+    local procedure CreateJobJournalLine(LineType: Option; ConsumableType: Enum "Job Planning Line Type"; var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; No: Code[20]; Quantity: Decimal; UnitCost: Decimal; UnitPrice: Decimal)
     begin
-        LibraryJob.CreateJobJournalLineForType(LineType, Type, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LineType, ConsumableType, JobTask, JobJournalLine);
         JobJournalLine.Validate("No.", No);
         JobJournalLine.Validate(Quantity, Quantity);
         JobJournalLine.Validate("Unit Cost", UnitCost);
@@ -2238,9 +2238,9 @@ codeunit 136309 "Job Posting"
         JournalTemplateName := JobJournalLine."Journal Template Name";  // Assign in Global variable.
     end;
 
-    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; Type: Option; JobTask: Record "Job Task"; No: Code[20]; Quantity: Decimal; UnitCost: Decimal; UnitPrice: Decimal)
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; ConsumableType: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; No: Code[20]; Quantity: Decimal; UnitCost: Decimal; UnitPrice: Decimal)
     begin
-        LibraryJob.CreateJobPlanningLine(LineType, Type, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LineType, ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", No);
         JobPlanningLine.Validate(Quantity, Quantity);
         JobPlanningLine.Validate("Unit Cost", UnitCost);
@@ -2348,7 +2348,7 @@ codeunit 136309 "Job Posting"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateJob(var Job: Record Job; JobStatus: Option)
+    local procedure CreateJob(var Job: Record Job; JobStatus: Enum "Job Status")
     var
         JobWIPMethod: Record "Job WIP Method";
         Resource: Record Resource;
@@ -2483,7 +2483,7 @@ codeunit 136309 "Job Posting"
         CustomerNo := CreateCustomer(CurrencyCode);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; LocationCode: Code[10]; EntryType: Option)
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; LocationCode: Code[10]; EntryType: Enum "Item Ledger Entry Type")
     begin
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, 1);
@@ -2562,7 +2562,7 @@ codeunit 136309 "Job Posting"
           PurchaseLine, PurchaseLine."Document Type"::Invoice, PurchaseLine."Job Line Type"::" ", false, true);
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         UpdateGeneralPostingSetup(GeneralPostingSetup, GLAccount."No.");
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
     end;
@@ -2574,7 +2574,7 @@ codeunit 136309 "Job Posting"
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateItemWithTrackingCode(false, true));
         LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
 
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -2598,7 +2598,7 @@ codeunit 136309 "Job Posting"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice);
     end;
 
-    local procedure PostedPurchaseOrderWithJob(DocumentType: Option)
+    local procedure PostedPurchaseOrderWithJob(DocumentType: Enum "Purchase Document Type")
     var
         JobTask: Record "Job Task";
         PurchaseHeader: Record "Purchase Header";
@@ -2735,7 +2735,7 @@ codeunit 136309 "Job Posting"
         until ItemJournalLine.Next = 0;
     end;
 
-    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJnlTemplateType: Option)
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJnlTemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -2900,7 +2900,7 @@ codeunit 136309 "Job Posting"
         until TempItemJournalLine.Next = 0;
     end;
 
-    local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; EntryType: Option; RemainingQuantity: Decimal; InvoicedQuantity: Decimal; CostAmount: Decimal)
+    local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; RemainingQuantity: Decimal; InvoicedQuantity: Decimal; CostAmount: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

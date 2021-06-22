@@ -53,11 +53,18 @@ page 2132 "O365 Invoice Send Settings"
 
     trigger OnAfterGetCurrRecord()
     var
+        EmailFeature: Codeunit "Email Feature";
         GraphMail: Codeunit "Graph Mail";
         O365SetupEmail: Codeunit "O365 Setup Email";
+        IsSMTPAvailable: Boolean;
     begin
         if Title = EmailAccountTitleTxt then begin
-            if (O365SetupEmail.SMTPEmailIsSetUp and (not GraphMail.IsEnabled)) or (not GraphMail.HasConfiguration) then
+            if EmailFeature.IsEnabled() then
+                IsSMTPAvailable := false
+            else
+                IsSMTPAvailable := O365SetupEmail.SMTPEmailIsSetUp;
+
+            if (IsSMTPAvailable and (not GraphMail.IsEnabled)) or (not GraphMail.HasConfiguration) then
                 "Page ID" := PAGE::"O365 Email Account Settings"
             else
                 "Page ID" := PAGE::"Graph Mail Setup";
@@ -83,10 +90,17 @@ page 2132 "O365 Invoice Send Settings"
 
     local procedure InsertMenuItems()
     var
+        EmailFeature: Codeunit "Email Feature";
         O365SetupEmail: Codeunit "O365 Setup Email";
         GraphMail: Codeunit "Graph Mail";
+        IsSMTPAvailable: Boolean;
     begin
-        if (O365SetupEmail.SMTPEmailIsSetUp and (not GraphMail.IsEnabled)) or (not GraphMail.HasConfiguration) then
+        if EmailFeature.IsEnabled() then
+            IsSMTPAvailable := false
+        else
+            IsSMTPAvailable := O365SetupEmail.SMTPEmailIsSetUp;
+
+        if (IsSMTPAvailable and (not GraphMail.IsEnabled)) or (not GraphMail.HasConfiguration) then
             InsertPageMenuItem(PAGE::"O365 Email Account Settings", EmailAccountTitleTxt, GetEmailAccountDescription)
         else
             InsertPageMenuItem(PAGE::"Graph Mail Setup", EmailAccountTitleTxt, GetEmailAccountDescription);
@@ -98,11 +112,18 @@ page 2132 "O365 Invoice Send Settings"
 
     local procedure GetEmailAccountDescription(): Text[80]
     var
+        EmailAccount: Record "Email Account";
         GraphMailSetup: Record "Graph Mail Setup";
         SMTPMailSetup: Record "SMTP Mail Setup";
+        EmailScenario: Codeunit "Email Scenario";
         O365SetupEmail: Codeunit "O365 Setup Email";
+        EmailFeature: Codeunit "Email Feature";
         GraphMail: Codeunit "Graph Mail";
     begin
+        if EmailFeature.IsEnabled() then
+            if EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount) then
+                exit(CopyStr(EmailAccount."Email Address", 1, MaxStrLen(Description)));
+
         if GraphMail.IsEnabled and GraphMail.HasConfiguration then
             if GraphMailSetup.Get then
                 if GraphMailSetup."Sender Email" <> '' then

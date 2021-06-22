@@ -2076,7 +2076,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                     if FindSet then
                         repeat
                             PEPPOLMgt.TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
-                            SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineType(Type);
+                            SalesLine.Type := PEPPOLMgt.MapServiceLineTypeToSalesLineTypeEnum(Type);
                             PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
                             PEPPOLMgt.GetTaxCategories(SalesLine, TempVATProductPostingGroup);
                         until Next = 0;

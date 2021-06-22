@@ -382,7 +382,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         with DirectDebitCollection do begin
             if FindLast then;
             LastNo := "No.";
-            CreateNew('A', 'B', "Partner Type"::Company);
+            CreateNew('A', 'B', "Partner Type"::Company.AsInteger());
             Assert.AreEqual(LastNo + 1, "No.", 'No. was not incremented correctly.');
             TestField(Identifier, 'A');
             TestField("To Bank Account No.", 'B');
@@ -1686,7 +1686,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         CustLedgEntry.CalcFields("Remaining Amount");
 
         if DirectDebitCollection."No." = 0 then
-            DirectDebitCollection.CreateNew('A', BankAccount."No.", Customer."Partner Type");
+            DirectDebitCollection.CreateNew('A', BankAccount."No.", Customer."Partner Type".AsInteger());
         with DirectDebitCollectionEntry do begin
             SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
             CreateNew(DirectDebitCollection."No.", CustLedgEntry);

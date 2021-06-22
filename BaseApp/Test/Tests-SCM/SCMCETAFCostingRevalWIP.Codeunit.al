@@ -597,7 +597,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         TestProdOrderAvgCompwithReval(Item."Costing Method"::Standard, WorkDate);
     end;
 
-    local procedure TestProdOrder(ComponentCostingMethod: Option; ProducedItemCostingMethod: Option; StartDate: Date; RevalueBeforeProdOrder1: Boolean; RevalueBeforeProdOrder2: Boolean; RevalueAfterProdOrder2: Boolean; CalcPer: Option "Item Ledger Entry",Item; RevaluationFactor: Decimal)
+    local procedure TestProdOrder(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date; RevalueBeforeProdOrder1: Boolean; RevalueBeforeProdOrder2: Boolean; RevalueAfterProdOrder2: Boolean; CalcPer: Option "Item Ledger Entry",Item; RevaluationFactor: Decimal)
     var
         ComponentItem: Record Item;
         ProducedItem1: Record Item;
@@ -684,7 +684,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         end;
     end;
 
-    local procedure TestProdOrder_ZeroInv(ComponentCostingMethod: Option; ProducedItemCostingMethod: Option; StartDate: Date; CalcPer: Option "Item Ledger Entry",Item)
+    local procedure TestProdOrder_ZeroInv(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date; CalcPer: Option "Item Ledger Entry",Item)
     var
         ComponentItem: Record Item;
         ProducedItem1: Record Item;
@@ -745,7 +745,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         VerifyCost(ComponentItem, ProducedItem1, ProducedItem2, ProductionOrder1, ProductionOrder2, VerifyVariance);
     end;
 
-    local procedure TestProdOrder_RevalPartialILEs(ComponentCostingMethod: Option; ProducedItemCostingMethod: Option; StartDate: Date)
+    local procedure TestProdOrder_RevalPartialILEs(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date)
     var
         ComponentItem: Record Item;
         ProducedItem1: Record Item;
@@ -815,7 +815,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         VerifyCost(ComponentItem, ProducedItem1, ProducedItem2, ProductionOrder1, ProductionOrder2, VerifyVariance);
     end;
 
-    local procedure TestProdOrder_NegConsumption(ComponentCostingMethod: Option; ProducedItemCostingMethod: Option; StartDate: Date; CalcPer: Option "Item Ledger Entry",Item; RevaluationFactor: Decimal)
+    local procedure TestProdOrder_NegConsumption(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date; CalcPer: Option "Item Ledger Entry",Item; RevaluationFactor: Decimal)
     var
         ComponentItem: Record Item;
         ProducedItem: Record Item;
@@ -904,7 +904,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
           RefNegConsmpCostafterReval, NegConsmpCostafterReval, StrSubstNo(TXTIncorrectRevalCost, ItemLedgerEntry."Entry No."));
     end;
 
-    local procedure TestProdOrder_RevalPartialConsumption(ComponentCostingMethod: Option; ProducedItemCostingMethod: Option; StartDate: Date; RevaluationFactor: Decimal)
+    local procedure TestProdOrder_RevalPartialConsumption(ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date; RevaluationFactor: Decimal)
     var
         ComponentItem: Record Item;
         ProducedItem: Record Item;
@@ -970,7 +970,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         VerifyCost(ComponentItem, EmptyItem, EmptyItem, ProductionOrder, EmptyProdOrder, VerifyVariance);
     end;
 
-    local procedure TestProdOrderAverageComponent(ProducedItemCostingMethod: Option; StartDate: Date)
+    local procedure TestProdOrderAverageComponent(ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date)
     var
         ProdOrderLine: Record "Prod. Order Line";
         ItemJnlBatch: Record "Item Journal Batch";
@@ -1035,15 +1035,13 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         LibraryCosting.CheckProductionOrderCost(ProductionOrder, VerifyVariance);
     end;
 
-    local procedure TestProdOrderAvgCompwithReval(ProducedItemCostingMethod: Option; StartDate: Date)
+    local procedure TestProdOrderAvgCompwithReval(ProducedItemCostingMethod: Enum "Costing Method"; StartDate: Date)
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
         ParentItem: Record Item;
         CompItem: Record Item;
-        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
-        Status: Option Quote,Planned,"Firm Planned",Released,Finished;
         Qty: Decimal;
         QtyPer: Decimal;
         CalculatePer: Option "Item Ledger Entry",Item;
@@ -1092,7 +1090,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
 
         // Finish prod. order.
         ProductionOrder.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.");
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, Status::Finished, StartDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, StartDate, false);
 
         // Adjust.
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + CompItem."No.", '');
@@ -1262,7 +1260,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         SetupAvgCostPeriod(OldAvgCostPeriod, NewAvgCostPeriod);
     end;
 
-    local procedure SetupItems(var ComponentItem: Record Item; var ProducedItem1: Record Item; var ProducedItem2: Record Item; ComponentCostingMethod: Option; ProducedItemCostingMethod: Option; QtyCompInProd1: Decimal; QtyCompInProd2: Decimal; QtyProd1InProd2: Decimal)
+    local procedure SetupItems(var ComponentItem: Record Item; var ProducedItem1: Record Item; var ProducedItem2: Record Item; ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; QtyCompInProd1: Decimal; QtyCompInProd2: Decimal; QtyProd1InProd2: Decimal)
     var
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMLine: Record "Production BOM Line";
@@ -1295,7 +1293,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ProducedItem2.Modify();
     end;
 
-    local procedure SetupItems1Comp1ProdItem(var ComponentItem: Record Item; var ProducedItem: Record Item; ComponentCostingMethod: Option; ProducedItemCostingMethod: Option; QtyCompInProdItem: Decimal)
+    local procedure SetupItems1Comp1ProdItem(var ComponentItem: Record Item; var ProducedItem: Record Item; ComponentCostingMethod: Enum "Costing Method"; ProducedItemCostingMethod: Enum "Costing Method"; QtyCompInProdItem: Decimal)
     var
         ProductionBOMHeader: Record "Production BOM Header";
         CostCompItem: Decimal;
@@ -1312,7 +1310,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ProducedItem, ComponentItem, QtyCompInProdItem, '');
     end;
 
-    local procedure CreateItem(var Item: Record Item; CostingMethod: Option)
+    local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         LibraryPatterns.MAKEItemSimple(Item, CostingMethod, 0);
         Item.Description := Format(Item."Costing Method");
@@ -1468,7 +1466,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ItemJnlLine.Modify();
     end;
 
-    local procedure FindFirstILE(var ItemLedgEntry: Record "Item Ledger Entry"; ProductionNo: Code[20]; ItemNo: Code[20]; EntryType: Option): Integer
+    local procedure FindFirstILE(var ItemLedgEntry: Record "Item Ledger Entry"; ProductionNo: Code[20]; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"): Integer
     begin
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
@@ -1512,7 +1510,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ReservEntry.Positive := false;
         ReservEntry."Item No." := ComponentItemNo;
         ReservEntry."Source Type" := DATABASE::"Prod. Order Component";
-        ReservEntry."Source Subtype" := ProdOrderComp.Status;
+        ReservEntry."Source Subtype" := ProdOrderComp.Status.AsInteger();
         ReservEntry."Source ID" := ProdOrderComp."Prod. Order No.";
         ReservEntry."Source Prod. Order Line" := ProdOrderComp."Prod. Order Line No.";
         ReservEntry."Source Ref. No." := ProdOrderComp."Line No.";

@@ -34,6 +34,12 @@ page 9623 "Finish Up Design"
                     Caption = 'Download Code';
                     Enabled = DownloadCodeEnabled;
                 }
+                label(DisclaimerLbl)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Do not add personal data to the designer extension as this is not treated as restricted data';
+                    Visible = NameAndPublisherEnabled;
+                }
             }
         }
     }

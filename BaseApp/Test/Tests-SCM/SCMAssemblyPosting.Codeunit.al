@@ -717,20 +717,20 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyHeader.Validate("Unit of Measure Code", AssemblyItemUnitOfMeasure.Code);
         AssemblyHeader.Modify(true);
         LibraryAssembly.AddAssemblyLineComment(
-          AssemblyCommentLineHeader1, AssemblyHeader."Document Type",
+          AssemblyCommentLineHeader1, AssemblyHeader."Document Type".AsInteger(),
           AssemblyHeader."No.", 0, WorkDate, 'Comment in the header 1.');
         LibraryAssembly.AddAssemblyLineComment(
-          AssemblyCommentLineHeader2, AssemblyHeader."Document Type",
+          AssemblyCommentLineHeader2, AssemblyHeader."Document Type".AsInteger(),
           AssemblyHeader."No.", 0, CalcDate('<-1M>', WorkDate), 'Comment in the header 2.');
 
         CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine1, AssemblyLine1.Type::" ", '', 0, '');
         AssemblyLine1.Validate(Description, 'Text description');
         AssemblyLine1.Modify(true);
         LibraryAssembly.AddAssemblyLineComment(
-          AssemblyCommentLineTextLine1, AssemblyLine1."Document Type",
+          AssemblyCommentLineTextLine1, AssemblyLine1."Document Type".AsInteger(),
           AssemblyLine1."Document No.", AssemblyLine1."Line No.", WorkDate, 'Text comment 1.');
         LibraryAssembly.AddAssemblyLineComment(
-          AssemblyCommentLineTextLine2, AssemblyLine1."Document Type",
+          AssemblyCommentLineTextLine2, AssemblyLine1."Document Type".AsInteger(),
           AssemblyLine1."Document No.", AssemblyLine1."Line No.", CalcDate('<+5D>', WorkDate), 'Text comment 2.');
 
         CreateAssemblyOrderLine(AssemblyHeader, AssemblyLine2, AssemblyLine2.Type::Item, CompItem."No.", 20, '');
@@ -739,10 +739,10 @@ codeunit 137915 "SCM Assembly Posting"
         AssemblyLine2.Validate("Unit of Measure Code", CompItemUnitOfMeasure.Code);
         AssemblyLine2.Modify(true);
         LibraryAssembly.AddAssemblyLineComment(
-          AssemblyCommentLineItemLine1, AssemblyLine2."Document Type",
+          AssemblyCommentLineItemLine1, AssemblyLine2."Document Type".AsInteger(),
           AssemblyLine2."Document No.", AssemblyLine2."Line No.", WorkDate, 'Comment for item line 1.');
         LibraryAssembly.AddAssemblyLineComment(
-          AssemblyCommentLineItemLine2, AssemblyLine2."Document Type",
+          AssemblyCommentLineItemLine2, AssemblyLine2."Document Type".AsInteger(),
           AssemblyLine2."Document No.", AssemblyLine2."Line No.", WorkDate, 'Comment for item line 2.');
 
         CreateAssemblyOrderLine(

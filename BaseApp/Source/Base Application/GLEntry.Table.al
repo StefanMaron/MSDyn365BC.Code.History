@@ -129,11 +129,9 @@ table 17 "G/L Entry"
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
         }
-        field(48; "Gen. Posting Type"; Option)
+        field(48; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
         }
         field(49; "Gen. Bus. Posting Group"; Code[20])
         {
@@ -227,19 +225,19 @@ table 17 "G/L Entry"
         field(68; "Additional-Currency Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Additional-Currency Amount';
         }
         field(69; "Add.-Currency Debit Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Debit Amount';
         }
         field(70; "Add.-Currency Credit Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Credit Amount';
         }
@@ -270,7 +268,7 @@ table 17 "G/L Entry"
         }
         field(76; "G/L Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("G/L Account".Name WHERE("No." = FIELD("G/L Account No.")));
+            CalcFormula = Lookup("G/L Account".Name WHERE("No." = FIELD("G/L Account No.")));
             Caption = 'G/L Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -283,7 +281,7 @@ table 17 "G/L Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5400; "Prod. Order No."; Code[20])
@@ -307,10 +305,10 @@ table 17 "G/L Entry"
         }
         field(8001; "Account Id"; Guid)
         {
-            CalcFormula = Lookup ("G/L Account".Id WHERE("No." = FIELD("G/L Account No.")));
+            CalcFormula = Lookup("G/L Account".SystemId WHERE("No." = FIELD("G/L Account No.")));
             Caption = 'Account Id';
             FieldClass = FlowField;
-            TableRelation = "G/L Account".Id;
+            TableRelation = "G/L Account".SystemId;
 
             trigger OnValidate()
             begin
@@ -501,7 +499,7 @@ table 17 "G/L Entry"
             if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Employee then
                 "Source Type" := "Source Type"::Employee
             else
-                "Source Type" := GenJnlLine."Account Type".AsInteger();
+                "Source Type" := GenJnlLine."Account Type";
             "Source No." := GenJnlLine."Account No.";
         end;
         if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::"IC Partner") or
@@ -566,7 +564,7 @@ table 17 "G/L Entry"
 
     procedure CopyPostingGroupsFromDtldCVBuf(DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenPostingType: Option " ",Purchase,Sale,Settlement)
     begin
-        "Gen. Posting Type" := GenPostingType;
+        "Gen. Posting Type" := "General Posting Type".FromInteger(GenPostingType);
         "Gen. Bus. Posting Group" := DtldCVLedgEntryBuf."Gen. Bus. Posting Group";
         "Gen. Prod. Posting Group" := DtldCVLedgEntryBuf."Gen. Prod. Posting Group";
         "VAT Bus. Posting Group" := DtldCVLedgEntryBuf."VAT Bus. Posting Group";
@@ -612,7 +610,7 @@ table 17 "G/L Entry"
         if not GLAccount.Get("G/L Account No.") then
             exit;
 
-        "Account Id" := GLAccount.Id;
+        "Account Id" := GLAccount.SystemId;
     end;
 
     local procedure UpdateAccountNo()
@@ -622,8 +620,7 @@ table 17 "G/L Entry"
         if IsNullGuid("Account Id") then
             exit;
 
-        GLAccount.SetRange(Id, "Account Id");
-        if not GLAccount.FindFirst then
+        if not GLAccount.GetBySystemId("Account Id") then
             exit;
 
         "G/L Account No." := GLAccount."No.";

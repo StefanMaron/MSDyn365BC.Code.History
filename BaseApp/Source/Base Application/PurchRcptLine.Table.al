@@ -1,4 +1,4 @@
-﻿table 121 "Purch. Rcpt. Line"
+table 121 "Purch. Rcpt. Line"
 {
     Caption = 'Purch. Rcpt. Line';
     DrillDownPageID = "Posted Purchase Receipt Lines";
@@ -275,7 +275,7 @@
         }
         field(91; "Currency Code"; Code[10])
         {
-            CalcFormula = Lookup ("Purch. Rcpt. Header"."Currency Code" WHERE("No." = FIELD("Document No.")));
+            CalcFormula = Lookup("Purch. Rcpt. Header"."Currency Code" WHERE("No." = FIELD("Document No.")));
             Caption = 'Currency Code';
             Editable = false;
             FieldClass = FlowField;
@@ -323,6 +323,11 @@
         {
             Caption = 'Posting Date';
         }
+        field(138; "IC Item Reference No."; Code[50])
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'IC Item Reference No.';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -331,7 +336,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1001; "Job Task No."; Code[20])
@@ -513,21 +518,51 @@
         {
             AccessByPermission = TableData "Item Cross Reference" = R;
             Caption = 'Cross-Reference No.';
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5707; "Cross-Reference Type"; Option)
         {
             Caption = 'Cross-Reference Type';
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
         }
         field(5708; "Cross-Reference Type No."; Code[30])
         {
             Caption = 'Cross-Reference Type No.';
+            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
+        }
+        field(5725; "Item Reference No."; Code[50])
+        {
+            AccessByPermission = TableData "Item Reference" = R;
+            Caption = 'Item Reference No.';
+        }
+        field(5726; "Item Reference Unit of Measure"; Code[10])
+        {
+            Caption = 'Unit of Measure (Item Ref.)';
+            TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
+        }
+        field(5727; "Item Reference Type"; Enum "Item Reference Type")
+        {
+            Caption = 'Item Reference Type';
+        }
+        field(5728; "Item Reference Type No."; Code[30])
+        {
+            Caption = 'Item Reference Type No.';
         }
         field(5709; "Item Category Code"; Code[20])
         {
@@ -1015,7 +1050,7 @@
     var
         PurchCommentLine: Record "Purch. Comment Line";
     begin
-        PurchCommentLine.ShowComments(PurchCommentLine."Document Type"::Receipt, "Document No.", "Line No.");
+        PurchCommentLine.ShowComments(PurchCommentLine."Document Type"::Receipt.AsInteger(), "Document No.", "Line No.");
     end;
 
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])

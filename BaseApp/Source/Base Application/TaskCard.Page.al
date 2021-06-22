@@ -95,7 +95,7 @@ page 5098 "Task Card"
 
                     trigger OnValidate()
                     begin
-                        ContactNoOnAfterValidate;
+                        ContactNoOnAfterValidate();
                     end;
                 }
                 field("Contact Name"; "Contact Name")
@@ -103,6 +103,33 @@ page 5098 "Task Card"
                     ApplicationArea = RelationshipMgmt;
                     Editable = false;
                     ToolTip = 'Specifies the name of the contact to which this task has been assigned.';
+                }
+                field(ContactPhoneNo; Contact."Phone No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Phone No.';
+                    Importance = Additional;
+                    Editable = false;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the telephone number of the contact to which this task has been assigned.';
+                }
+                field(ContactMobilePhoneNo; Contact."Mobile Phone No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Mobile Phone No.';
+                    Importance = Additional;
+                    Editable = false;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the contact to which this task has been assigned.';
+                }
+                field(ContactEmail; Contact."E-Mail")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Email';
+                    Importance = Additional;
+                    Editable = false;
+                    ExtendedDatatype = EMail;
+                    ToolTip = 'Specifies the email address of the contact to which this task has been assigned.';
                 }
                 field("Contact Company Name"; "Contact Company Name")
                 {
@@ -146,7 +173,6 @@ page 5098 "Task Card"
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Type';
-                    OptionCaption = ' ,,Phone Call';
                     ToolTip = 'Specifies the type of the task.';
                     Visible = IsSoftwareAsAService;
 
@@ -159,7 +185,6 @@ page 5098 "Task Card"
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Type';
-                    OptionCaption = ' ,Meeting,Phone Call';
                     ToolTip = 'Specifies the type of the task.';
                     Visible = NOT IsSoftwareAsAService;
 
@@ -247,7 +272,7 @@ page 5098 "Task Card"
 
                     trigger OnValidate()
                     begin
-                        CampaignNoOnAfterValidate;
+                        CampaignNoOnAfterValidate();
                     end;
                 }
                 field("Campaign Description"; "Campaign Description")
@@ -263,7 +288,7 @@ page 5098 "Task Card"
 
                     trigger OnValidate()
                     begin
-                        OpportunityNoOnAfterValidate;
+                        OpportunityNoOnAfterValidate();
                     end;
                 }
                 field("Opportunity Description"; "Opportunity Description")
@@ -448,6 +473,7 @@ page 5098 "Task Card"
         SetRecurringEditable;
         EnableFields;
         ContactNoOnFormat(Format("Contact No."));
+        if Contact.Get("Contact No.") then;
     end;
 
     trigger OnInit()
@@ -486,6 +512,7 @@ page 5098 "Task Card"
     end;
 
     var
+        Contact: Record Contact;
         Text000: Label 'The %1 will always have either the %2 or %3 assigned.';
         Text002: Label 'The %1 of the %2 type must always have the %3 assigned.';
         CannotSelectAttendeesErr: Label 'You cannot select attendees for a task of the ''%1'' type.', Comment = '%1 = Task Type';

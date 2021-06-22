@@ -16,6 +16,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
+        LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         PlannedDeliveryDateErr: Label 'Incorrect Planned Delivery Date on Order Promising Line.';
         EarliestShipmentDateErr: Label 'Incorrect Earliest Shipment Date on Order Promising Line.';
@@ -234,6 +235,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Reserv. & Order Promising E2E");
 
+        LibraryTemplates.DisableTemplatesFeature();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         LibrarySales.SetCreditWarningsToNoWarnings;

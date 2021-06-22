@@ -317,10 +317,10 @@ codeunit 138035 "O365 Correct Purchase Dim."
         LibraryLowerPermissions.SetO365Full;
     end;
 
-    local procedure CreateItemWithCost(var Item: Record Item; Type: Option Inventory,Service; UnitCost: Decimal)
+    local procedure CreateItemWithCost(var Item: Record Item; ItemType: Enum "Item Type"; UnitCost: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate(Type, Type);
+        Item.Validate(Type, ItemType);
         Item."Last Direct Cost" := UnitCost;
         Item.Modify();
     end;

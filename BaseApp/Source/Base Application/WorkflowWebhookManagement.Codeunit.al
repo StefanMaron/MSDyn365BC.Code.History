@@ -260,12 +260,12 @@ codeunit 1543 "Workflow Webhook Management"
             DATABASE::Customer:
                 begin
                     RecRef.SetTable(Customer);
-                    WorkflowWebhookEntry."Data ID" := Customer.Id;
+                    WorkflowWebhookEntry."Data ID" := Customer.SystemId;
                 end;
             DATABASE::"Gen. Journal Batch":
                 begin
                     RecRef.SetTable(GenJournalBatch);
-                    WorkflowWebhookEntry."Data ID" := GenJournalBatch.Id;
+                    WorkflowWebhookEntry."Data ID" := GenJournalBatch.SystemId;
                 end;
             DATABASE::"Gen. Journal Line":
                 begin
@@ -275,22 +275,22 @@ codeunit 1543 "Workflow Webhook Management"
             DATABASE::Item:
                 begin
                     RecRef.SetTable(Item);
-                    WorkflowWebhookEntry."Data ID" := Item.Id;
+                    WorkflowWebhookEntry."Data ID" := Item.SystemId;
                 end;
             DATABASE::"Purchase Header":
                 begin
                     RecRef.SetTable(PurchaseHeader);
-                    WorkflowWebhookEntry."Data ID" := PurchaseHeader.Id;
+                    WorkflowWebhookEntry."Data ID" := PurchaseHeader.SystemId;
                 end;
             DATABASE::"Sales Header":
                 begin
                     RecRef.SetTable(SalesHeader);
-                    WorkflowWebhookEntry."Data ID" := SalesHeader.Id;
+                    WorkflowWebhookEntry."Data ID" := SalesHeader.SystemId;
                 end;
             DATABASE::Vendor:
                 begin
                     RecRef.SetTable(Vendor);
-                    WorkflowWebhookEntry."Data ID" := Vendor.Id;
+                    WorkflowWebhookEntry."Data ID" := Vendor.SystemId;
                 end;
             else
                 Error(UnsupportedRecordTypeErr, RecRef.Caption);

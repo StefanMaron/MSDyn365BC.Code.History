@@ -43,7 +43,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         CreateSimpleVendor(Vendor);
 
         // [WHEN] The user makes a GET request for a given Vendor.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.Id, PAGE::"Vendor Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.SystemId, PAGE::"Vendor Entity", ServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] The response text contains the vendor information.
@@ -65,7 +65,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         CreateVendorWithAddress(Vendor);
 
         // [WHEN] The user calls GET for the given Vendor.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.Id, PAGE::"Vendor Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.SystemId, PAGE::"Vendor Entity", ServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] The response text contains the Vendor information.
@@ -155,11 +155,13 @@ codeunit 135503 "Vendor Entity E2E Test"
 
         // [GIVEN] The user has constructed a vendor object containing a templated payment method code.
         CreateSimpleVendor(TempVendor);
+        Commit();
+
         TempVendor."Payment Method Code" := PaymentMethod.Code;
 
         RequestBody := GetSimpleVendorJSON(TempVendor);
-        RequestBody := LibraryGraphMgt.AddPropertytoJSON(RequestBody, 'paymentMethodId', PaymentMethod.Id);
-        RequestBody := LibraryGraphMgt.AddPropertytoJSON(RequestBody, 'paymentTermsId', PaymentTerms.Id);
+        RequestBody := LibraryGraphMgt.AddPropertytoJSON(RequestBody, 'paymentMethodId', PaymentMethod.SystemId);
+        RequestBody := LibraryGraphMgt.AddPropertytoJSON(RequestBody, 'paymentTermsId', PaymentTerms.SystemId);
 
         // [WHEN] The user sends the request to the endpoint in a POST request.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Vendor Entity", ServiceNameTxt);
@@ -199,7 +201,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         RequestBody := GetSimpleVendorJSON(TempVendor);
 
         // [WHEN] The user makes a patch request to the service.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.Id, PAGE::"Vendor Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.SystemId, PAGE::"Vendor Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, ResponseText);
 
         // [THEN] The response text contains the new values.
@@ -232,7 +234,7 @@ codeunit 135503 "Vendor Entity E2E Test"
 
         // [WHEN] The user makes a patch request to the service and specifies Address field.
         Commit();        // Need to commit transaction to unlock integration record table.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.Id, PAGE::"Vendor Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.SystemId, PAGE::"Vendor Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, ResponseText);
 
         // [THEN] The response contains the new values.
@@ -262,7 +264,7 @@ codeunit 135503 "Vendor Entity E2E Test"
 
         // [WHEN] A user makes a PATCH request to the specific vendor.
         Commit(); // Need to commit in order to unlock integration record table.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.Id, PAGE::"Vendor Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.SystemId, PAGE::"Vendor Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, ResponseText);
 
         // [THEN] The response contains the updated vendor.
@@ -290,7 +292,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         VendorNo := Vendor."No.";
 
         // [WHEN] The user makes a DELETE request to the endpoint for the vendor.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.Id, PAGE::"Vendor Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.SystemId, PAGE::"Vendor Entity", ServiceNameTxt);
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', Responsetext);
 
         // [THEN] The response is empty.
@@ -298,32 +300,6 @@ codeunit 135503 "Vendor Entity E2E Test"
 
         // [THEN] The vendor is no longer in the database.
         Assert.IsFalse(Vendor.Get(VendorNo), 'Vendor should be deleted.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestDemoDataIntegrationRecordIdsForVendors()
-    var
-        IntegrationRecord: Record "Integration Record";
-        Vendor: Record Vendor;
-        BlankGuid: Guid;
-    begin
-        // [SCENARIO 184722] Integration record ids should be set correctly.
-        // [GIVEN] We have demo data applied correctly
-        Vendor.SetRange(Id, BlankGuid);
-        Assert.IsFalse(Vendor.FindFirst, 'No vendors should have null id');
-
-        // [WHEN] We look through all vendors.
-        // [THEN] The integration record for the vendor should have the same record id.
-        Vendor.Reset();
-        if Vendor.Find('-') then begin
-            repeat
-                Assert.IsTrue(IntegrationRecord.Get(Vendor.SystemId), 'The vendor id should exist in the integration record table');
-                Assert.AreEqual(
-                  IntegrationRecord."Record ID", Vendor.RecordId,
-                  'The integration record for the vendor should have the same record id as the vendor.');
-            until Vendor.Next <= 0
-        end;
     end;
 
     local procedure CreateSimpleVendor(var Vendor: Record Vendor)

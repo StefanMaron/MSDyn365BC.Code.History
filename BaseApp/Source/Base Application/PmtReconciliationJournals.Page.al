@@ -84,6 +84,7 @@ page 1294 "Pmt. Reconciliation Journals"
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
+                    PromotedOnly = true;
                     ToolTip = 'To start the process of reconciling new payments, import a bank feed or electronic file containing the related bank transactions.';
 
                     trigger OnAction()
@@ -99,6 +100,7 @@ page 1294 "Pmt. Reconciliation Journals"
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
+                    PromotedOnly = true;
                     ShortCutKey = 'Return';
                     ToolTip = 'Modify an existing payment reconciliation journal for a bank account.';
 
@@ -121,6 +123,7 @@ page 1294 "Pmt. Reconciliation Journals"
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
+                    PromotedOnly = true;
                     ToolTip = 'Create a payment reconciliation journal for a bank account to set up payments that have been recorded as transactions in an electronic bank and need to be applied to related open entries.';
 
                     trigger OnAction()
@@ -140,6 +143,7 @@ page 1294 "Pmt. Reconciliation Journals"
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
+                    PromotedOnly = true;
                     RunObject = Page "Payment Bank Account Card";
                     RunPageLink = "No." = FIELD("Bank Account No.");
                     ToolTip = 'View or edit information about the bank account that is related to the payment reconciliation journal.';
@@ -152,6 +156,7 @@ page 1294 "Pmt. Reconciliation Journals"
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
+                    PromotedOnly = true;
                     RunObject = Page "Payment Bank Account List";
                     ToolTip = 'View and edit information about the bank accounts that are associated with the payment reconciliation journals that you use to reconcile payment transactions.';
                 }

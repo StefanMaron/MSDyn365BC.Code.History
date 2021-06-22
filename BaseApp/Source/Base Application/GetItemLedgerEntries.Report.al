@@ -764,7 +764,7 @@ report 594 "Get Item Ledger Entries"
                 end;
     end;
 
-    local procedure SetJnlLineType(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ValueEntryDocumentType: Option)
+    local procedure SetJnlLineType(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ValueEntryDocumentType: Enum "Item Ledger Document Type")
     begin
         with IntrastatJnlLine do
             if Quantity < 0 then begin

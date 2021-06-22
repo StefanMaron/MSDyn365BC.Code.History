@@ -137,8 +137,9 @@ page 1872 "Item Availability Check"
         InventoryQty: Decimal;
         LocationCode: Code[10];
         Heading: Text;
-        SelectVentorTxt: Label 'Select a vendor to buy from.';
+        SelectVentorTxt: Label 'Select a vendor';
         AvailableInventoryLbl: Label 'Available Inventory';
+        AvailableInventoryCaptionLbl: Label '%1 (%2)', Comment = '%1 = Available Inventory Label, %2 = Location Code';
         AvailableInventoryCaption: Text;
 
     procedure PopulateDataOnNotification(var AvailabilityCheckNotification: Notification; ItemNo: Code[20]; UnitOfMeasureCode: Code[20]; InventoryQty: Decimal; GrossReq: Decimal; ReservedReq: Decimal; SchedRcpt: Decimal; ReservedRcpt: Decimal; CurrentQuantity: Decimal; CurrentReservedQty: Decimal; TotalQuantity: Decimal; EarliestAvailDate: Date; LocationCode: Code[10])
@@ -211,6 +212,30 @@ page 1872 "Item Availability Check"
             AvailableInventoryCaption := StrSubstNo('%1 (%2)', AvailableInventoryLbl, LocationCode);
     end;
 
+    [Scope('OnPrem')]
+    procedure InitializeFromData(ItemNo: Code[20]; UnitOfMeasureCode: Code[20]; InventoryQty2: Decimal; GrossReq: Decimal; ReservedReq: Decimal; SchedRcpt: Decimal; ReservedRcpt: Decimal; CurrentQuantity: Decimal; CurrentReservedQty: Decimal; TotalQuantity2: Decimal; EarliestAvailDate: Date; LocationCode2: Code[10])
+    begin
+        Get(ItemNo);
+        SetRange("No.", ItemNo);
+        TotalQuantity := TotalQuantity2;
+        InventoryQty := InventoryQty2;
+        LocationCode := LocationCode2;
+
+        CurrPage.AvailabilityCheckDetails.PAGE.SetUnitOfMeasureCode(UnitOfMeasureCode);
+        CurrPage.AvailabilityCheckDetails.PAGE.SetGrossReq(GrossReq);
+        CurrPage.AvailabilityCheckDetails.PAGE.SetReservedReq(ReservedReq);
+        CurrPage.AvailabilityCheckDetails.PAGE.SetSchedRcpt(SchedRcpt);
+        CurrPage.AvailabilityCheckDetails.PAGE.SetReservedRcpt(ReservedRcpt);
+        CurrPage.AvailabilityCheckDetails.PAGE.SetCurrentQuantity(CurrentQuantity);
+        CurrPage.AvailabilityCheckDetails.PAGE.SetCurrentReservedQty(CurrentReservedQty);
+        CurrPage.AvailabilityCheckDetails.PAGE.SetEarliestAvailDate(EarliestAvailDate);
+
+        if LocationCode = '' then
+            AvailableInventoryCaption := AvailableInventoryLbl
+        else
+            AvailableInventoryCaption := StrSubstNo(AvailableInventoryCaptionLbl, AvailableInventoryLbl, LocationCode);
+    end;
+
     procedure SetHeading(Value: Text)
     begin
         Heading := Value;
@@ -230,7 +255,7 @@ page 1872 "Item Availability Check"
         exit(false);
     end;
 
-    local procedure ShowNewPurchaseDocument(DocumentType: Integer)
+    local procedure ShowNewPurchaseDocument(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -243,7 +268,7 @@ page 1872 "Item Availability Check"
             end;
     end;
 
-    local procedure CreateNewPurchaseDocument(DocumentType: Integer; var PurchaseHeader: Record "Purchase Header"): Boolean
+    local procedure CreateNewPurchaseDocument(DocumentType: Enum "Purchase Document Type"; var PurchaseHeader: Record "Purchase Header"): Boolean
     var
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;

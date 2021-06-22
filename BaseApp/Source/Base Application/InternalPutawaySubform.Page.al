@@ -22,7 +22,7 @@ page 7355 "Internal Put-away Subform"
 
                     trigger OnValidate()
                     begin
-                        ItemNoOnAfterValidate;
+                        ItemNoOnAfterValidate();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -165,7 +165,7 @@ page 7355 "Internal Put-away Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -207,24 +207,24 @@ page 7355 "Internal Put-away Subform"
         if WhseInternalPutAwayHeader.Get("No.") then
             exit(WhseInternalPutAwayHeader."Sorting Method");
 
-        exit(0);
+        exit("Warehouse Internal Sorting Method"::None);
     end;
 
     local procedure ItemNoOnAfterValidate()
     begin
-        if GetActualSortMethod = SortMethod::Item then
+        if GetActualSortMethod().AsInteger() = SortMethod::Item then
             CurrPage.Update;
     end;
 
     local procedure FromBinCodeOnAfterValidate()
     begin
-        if GetActualSortMethod = SortMethod::"Shelf/Bin No." then
+        if GetActualSortMethod().AsInteger() = SortMethod::"Shelf/Bin No." then
             CurrPage.Update;
     end;
 
     local procedure DueDateOnAfterValidate()
     begin
-        if GetActualSortMethod = SortMethod::"Due Date" then
+        if GetActualSortMethod().AsInteger() = SortMethod::"Due Date" then
             CurrPage.Update;
     end;
 }

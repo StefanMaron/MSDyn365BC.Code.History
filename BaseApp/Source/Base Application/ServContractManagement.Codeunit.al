@@ -1,4 +1,4 @@
-﻿codeunit 5940 ServContractManagement
+codeunit 5940 ServContractManagement
 {
     Permissions = TableData "Service Ledger Entry" = rimd,
                   TableData "Warranty Ledger Entry" = rimd,
@@ -813,7 +813,7 @@
         if ApplyDiscAmt then
             ServLine2.Validate("Line Discount Amount", DiscAmount);
         ServLine2.CreateDim(
-          DimMgt.TypeToTableID5(ServLine2.Type), ServLine2."No.",
+          DimMgt.TypeToTableID5(ServLine2.Type.AsInteger()), ServLine2."No.",
           DATABASE::Job, ServLine2."Job No.",
           DATABASE::"Responsibility Center", ServLine2."Responsibility Center");
         OnBeforeServLineInsert(ServLine2, ServHeader2, ServContract);
@@ -1836,7 +1836,7 @@
 
             Insert;
             CreateDim(
-              DimMgt.TypeToTableID5(Type), "No.",
+              DimMgt.TypeToTableID5(Type.AsInteger()), "No.",
               DATABASE::Job, "Job No.",
               DATABASE::"Responsibility Center", "Responsibility Center");
         end;
@@ -1913,7 +1913,7 @@
         end;
     end;
 
-    procedure GetInvoicePeriodText(InvoicePeriod: Option): Text[4]
+    procedure GetInvoicePeriodText(InvoicePeriod: Enum "Service Contract Header Invoice Period"): Text[4]
     var
         ServiceContractHeader: Record "Service Contract Header";
     begin
@@ -2138,8 +2138,12 @@
         ServLedgEntry."Item No. (Serviced)" := ServContractLine."Item No.";
         ServLedgEntry."Serial No. (Serviced)" := ServContractLine."Serial No.";
         DueDate := NextInvDate;
-        if CheckMParts and (NoOfPayments > 1) then
+        if CheckMParts and (NoOfPayments > 1) then begin
             NoOfPayments := NoOfPayments - 1;
+            // the count of invoice lines should never exceed the count of payments
+            if CountOfEntryLoop > NoOfPayments then
+                CountOfEntryLoop := NoOfPayments;
+        end;
 
         if AddingNewLines then
             DueDate := InvFrom;

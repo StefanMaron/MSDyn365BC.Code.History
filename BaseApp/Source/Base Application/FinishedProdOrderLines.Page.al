@@ -183,7 +183,7 @@ page 99000868 "Finished Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Ro&uting")
@@ -220,7 +220,7 @@ page 99000868 "Finished Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -278,7 +278,7 @@ page 99000868 "Finished Prod. Order Lines"
 
     local procedure OpenItemTrackingLines()
     begin
-        OpenItemTrackingLines;
+        OpenItemTrackingLines();
     end;
 
     local procedure DescriptionOnFormat()

@@ -180,7 +180,7 @@ table 7312 "Warehouse Entry"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 0, "Serial No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
             end;
         }
         field(6501; "Lot No."; Code[50])
@@ -189,7 +189,7 @@ table 7312 "Warehouse Entry"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 1, "Lot No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
             end;
         }
         field(6502; "Warranty Date"; Date)
@@ -278,6 +278,7 @@ table 7312 "Warehouse Entry"
 
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingType: Enum "Item Tracking Type";
 
     procedure ClearTrackingFilter()
     begin
@@ -301,6 +302,16 @@ table 7312 "Warehouse Entry"
         "Lot No." := WhseJnlLine."Lot No.";
 
         OnAfterCopyTrackingFromWhseJnlLine(Rec, WhseJnlLine);
+    end;
+
+    procedure CopyTrackingFromNewWhseJnlLine(WhseJnlLine: Record "Warehouse Journal Line")
+    begin
+        if WhseJnlLine."New Serial No." <> '' then
+            "Serial No." := WhseJnlLine."New Serial No.";
+        if WhseJnlLine."New Lot No." <> '' then
+            "Lot No." := WhseJnlLine."New Lot No.";
+
+        OnAfterCopyTrackingFromNewWhseJnlLine(Rec, WhseJnlLine);
     end;
 
     procedure SetCalculationFilters(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; ExcludeDedicatedBinContent: Boolean)
@@ -358,6 +369,17 @@ table 7312 "Warehouse Entry"
         OnAfterSetTrackingFilterFromBinContentBuffer(Rec, BinContentBuffer);
     end;
 
+    procedure SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No. Required" then
+            SetRange("Serial No.", WhseItemTrackingSetup."Serial No.");
+        if WhseItemTrackingSetup."Lot No. Required" then
+            SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(Rec, WhseItemTrackingSetup);
+    end;
+
+
     procedure SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
         if WhseItemTrackingSetup."Serial No." <> '' then
@@ -402,13 +424,10 @@ table 7312 "Warehouse Entry"
         OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(Rec, WhseItemTrackingSetup);
     end;
 
-    procedure TrackingExists(): Boolean
-    var
-        IsTrackingExists: Boolean;
+    procedure TrackingExists() IsTrackingExists: Boolean
     begin
         IsTrackingExists := ("Lot No." <> '') or ("Serial No." <> '');
         OnAfterTrackingExists(Rec, IsTrackingExists);
-        exit(IsTrackingExists);
     end;
 
     [IntegrationEvent(false, false)]
@@ -423,6 +442,11 @@ table 7312 "Warehouse Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromWhseJnlLine(var WarehouseEntry: Record "Warehouse Entry"; WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromNewWhseJnlLine(var WarehouseEntry: Record "Warehouse Entry"; WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 
@@ -443,6 +467,11 @@ table 7312 "Warehouse Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(var WarehouseEntry: Record "Warehouse Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(var WarehouseEntry: Record "Warehouse Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

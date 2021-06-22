@@ -291,7 +291,7 @@ codeunit 99000856 "Planning Transparency"
                     QtyTracked1 += "Quantity (Base)";
                 until Next = 0;
             Reset;
-            if ReqLine."Action Message" > ReqLine."Action Message"::New then begin
+            if ReqLine."Action Message".AsInteger() > ReqLine."Action Message"::New.AsInteger() then begin
                 case ReqLine."Ref. Order Type" of
                     ReqLine."Ref. Order Type"::Purchase:
                         begin

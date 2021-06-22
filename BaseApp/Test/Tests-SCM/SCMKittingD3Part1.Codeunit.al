@@ -661,7 +661,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
     [Normal]
     [HandlerFunctions('AvailabilityWindowHandler')]
-    local procedure ModifyAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Option; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean; UpdateUnitCost: Boolean; HeaderAdjustFactor: Decimal)
+    local procedure ModifyAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean; UpdateUnitCost: Boolean; HeaderAdjustFactor: Decimal)
     var
         Item: Record Item;
         Resource: Record Resource;
@@ -1017,7 +1017,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
     [Normal]
     [HandlerFunctions('AvailabilityWindowHandler')]
-    local procedure NormalPosting(ParentCostingMethod: Option; CompCostingMethod: Option; HeaderQtyFactor: Decimal; PartialPostFactor: Decimal; ExpectedError: Text[1024]; IndirectCost: Decimal; PostWithoutAdj: Boolean): Code[20]
+    local procedure NormalPosting(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; HeaderQtyFactor: Decimal; PartialPostFactor: Decimal; ExpectedError: Text[1024]; IndirectCost: Decimal; PostWithoutAdj: Boolean): Code[20]
     var
         AssemblyHeader: Record "Assembly Header";
         TempAssemblyLine: Record "Assembly Line" temporary;
@@ -1078,7 +1078,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
     [Normal]
     [HandlerFunctions('AvailabilityWindowHandler')]
-    local procedure NormalPostGL(ParentCostingMethod: Option; CompCostingMethod: Option; HeaderQtyFactor: Decimal; PartialPostFactor: Decimal; PerPostingGroup: Boolean; IndirectCost: Decimal; PostWithoutAdj: Boolean)
+    local procedure NormalPostGL(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; HeaderQtyFactor: Decimal; PartialPostFactor: Decimal; PerPostingGroup: Boolean; IndirectCost: Decimal; PostWithoutAdj: Boolean)
     var
         PostedAssemblyHeader: Record "Posted Assembly Header";
         AssemblyHeaderNo: Code[20];

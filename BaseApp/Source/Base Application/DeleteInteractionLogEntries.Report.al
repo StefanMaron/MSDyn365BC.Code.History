@@ -62,7 +62,7 @@ report 5190 "Delete Interaction Log Entries"
         Text000: Label '%1 %2 has been deleted.';
         NoOfInteractions: Integer;
 
-    local procedure SetPurchDocInteraction(InteractionLogEntry: Record "Interaction Log Entry"; DocumentType: Option)
+    local procedure SetPurchDocInteraction(InteractionLogEntry: Record "Interaction Log Entry"; DocumentType: Enum "Purchase Document Type")
     var
         PurchHeader: Record "Purchase Header";
         PurchHeaderArchive: Record "Purchase Header Archive";
@@ -80,7 +80,7 @@ report 5190 "Delete Interaction Log Entries"
         end;
     end;
 
-    local procedure SetSalesDocInteraction(InteractionLogEntry: Record "Interaction Log Entry"; DocumentType: Option)
+    local procedure SetSalesDocInteraction(InteractionLogEntry: Record "Interaction Log Entry"; DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesHeaderArchive: Record "Sales Header Archive";

@@ -44,12 +44,10 @@ table 5773 "Registered Whse. Activity Line"
             BlankZero = true;
             Caption = 'Source Subline No.';
         }
-        field(9; "Source Document"; Option)
+        field(9; "Source Document"; Enum "Warehouse Activity Source Document")
         {
             BlankZero = true;
             Caption = 'Source Document';
-            OptionCaption = ',Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,Inbound Transfer,Outbound Transfer,Prod. Consumption,,,,,,,Service Order,,Assembly Consumption,Assembly Order';
-            OptionMembers = ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption",,,,,,,"Service Order",,"Assembly Consumption","Assembly Order";
         }
         field(11; "Location Code"; Code[10])
         {
@@ -161,7 +159,7 @@ table 5773 "Registered Whse. Activity Line"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 0, "Serial No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
             end;
         }
         field(6501; "Lot No."; Code[50])
@@ -170,7 +168,7 @@ table 5773 "Registered Whse. Activity Line"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupLotSerialNoInfo("Item No.", "Variant Code", 1, "Lot No.");
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
             end;
         }
         field(6502; "Warranty Date"; Date)
@@ -313,6 +311,7 @@ table 5773 "Registered Whse. Activity Line"
 
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingType: Enum "Item Tracking Type";
 
     procedure ShowRegisteredActivityDoc()
     var
@@ -460,8 +459,11 @@ table 5773 "Registered Whse. Activity Line"
     begin
         SetRange("Serial No.");
         SetRange("Lot No.");
+
+        OnAfterClearTrackingFilter(Rec);
     end;
 
+    [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
     begin
         SetRange("Serial No.", SerialNo);
@@ -472,24 +474,57 @@ table 5773 "Registered Whse. Activity Line"
     begin
         SetRange("Serial No.", WhseItemEntryRelation."Serial No.");
         SetRange("Lot No.", WhseItemEntryRelation."Lot No.");
+
+        OnAfterSetTrackingFilterFromRelation(Rec, WhseItemEntryRelation);
     end;
 
     procedure SetTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         SetRange("Serial No.", TrackingSpecification."Serial No.");
         SetRange("Lot No.", TrackingSpecification."Lot No.");
+
+        OnAfterSetTrackingFilterFromSpec(Rec, TrackingSpecification);
     end;
 
     procedure SetTrackingFilterFromWhseActivityLine(WhseActivLine: Record "Warehouse Activity Line")
     begin
         SetRange("Serial No.", WhseActivLine."Serial No.");
         SetRange("Lot No.", WhseActivLine."Lot No.");
+
+        OnAfterSetTrackingFilterFromWhseActivityLine(Rec, WhseActivLine);
     end;
 
     procedure SetTrackingFilterFromWhseSpec(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
         SetRange("Serial No.", WhseItemTrackingLine."Serial No.");
         SetRange("Lot No.", WhseItemTrackingLine."Lot No.");
+
+        OnAfterSetTrackingFilterFromWhseSpec(Rec, WhseItemTrackingLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearTrackingFilter(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromSpec(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromRelation(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; WhseItemEntryRelation: Record "Whse. Item Entry Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseSpec(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

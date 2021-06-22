@@ -1,4 +1,4 @@
-﻿page 46 "Sales Order Subform"
+page 46 "Sales Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -23,11 +23,11 @@
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        SetLocationCodeMandatory;
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        SetLocationCodeMandatory();
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(FilteredTypeField; TypeAsText)
@@ -42,13 +42,13 @@
 
                     trigger OnValidate()
                     begin
-                        TempOptionLookupBuffer.SetCurrentType(Type);
+                        TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
                         if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Sales) then
                             Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("No."; "No.")
@@ -75,20 +75,48 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CrossReferenceNoLookUp;
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
+                        CrossReferenceNoLookUp();
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        DeltaUpdateTotals();
+                    end;
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        SalesHeader: Record "Sales Header";
+                        ItemReferenceMgt: Codeunit "Item Reference Management";
+                    begin
+                        SalesHeader.Get("Document Type", "Document No.");
+                        ItemReferenceMgt.SalesReferenceNoLookup(Rec, SalesHeader);
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        OnReferenceNoOnAfterLookup(Rec);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("IC Partner Code"; "IC Partner Code")
@@ -109,6 +137,12 @@
                     ToolTip = 'Specifies the IC partner. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item or account in your partner''s company that corresponds to the line.';
                     Visible = false;
                 }
+                field("IC Item Reference"; "IC Item Reference No.")
+                {
+                    ApplicationArea = Intercompany;
+                    ToolTip = 'Specifies the IC item reference. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item or account in your partner''s company that corresponds to the line.';
+                    Visible = false;
+                }
                 field("Variant Code"; "Variant Code")
                 {
                     ApplicationArea = Planning;
@@ -117,8 +151,8 @@
 
                     trigger OnValidate()
                     begin
-                        VariantCodeOnAfterValidate;
-                        DeltaUpdateTotals;
+                        VariantCodeOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Substitution Available"; "Substitution Available")
@@ -147,7 +181,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Description; Description)
@@ -159,15 +193,15 @@
 
                     trigger OnValidate()
                     begin
-                        UpdateEditableOnRow;
+                        UpdateEditableOnRow();
 
                         if "No." = xRec."No." then
                             exit;
 
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                         ShowShortcutDimCode(ShortcutDimCode);
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Drop Shipment"; "Drop Shipment")
@@ -200,8 +234,8 @@
 
                     trigger OnValidate()
                     begin
-                        LocationCodeOnAfterValidate;
-                        DeltaUpdateTotals;
+                        LocationCodeOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Bin Code"; "Bin Code")
@@ -218,7 +252,7 @@
 
                     trigger OnValidate()
                     begin
-                        ReserveOnAfterValidate;
+                        ReserveOnAfterValidate();
                     end;
                 }
                 field(Quantity; Quantity)
@@ -232,8 +266,8 @@
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
-                        DeltaUpdateTotals;
+                        QuantityOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Qty. to Assemble to Order"; "Qty. to Assemble to Order")
@@ -245,12 +279,12 @@
 
                     trigger OnDrillDown()
                     begin
-                        ShowAsmToOrderLines;
+                        ShowAsmToOrderLines();
                     end;
 
                     trigger OnValidate()
                     begin
-                        QtyToAsmToOrderOnAfterValidate;
+                        QtyToAsmToOrderOnAfterValidate();
                     end;
                 }
                 field("Reserved Quantity"; "Reserved Quantity")
@@ -270,7 +304,7 @@
 
                     trigger OnValidate()
                     begin
-                        UnitofMeasureCodeOnAfterValida;
+                        UnitofMeasureCodeOnAfterValidate();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -304,7 +338,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Liable"; "Tax Liable")
@@ -321,7 +355,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Group Code"; "Tax Group Code")
@@ -334,7 +368,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Discount %"; "Line Discount %")
@@ -347,7 +381,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Amount"; "Line Amount")
@@ -361,7 +395,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(SalesLineDiscExists; LineDiscExists)
@@ -380,7 +414,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Prepayment %"; "Prepayment %")
@@ -409,10 +443,10 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         AmountWithDiscountAllowed := DocumentTotals.CalcTotalSalesAmountOnlyDiscountAllowed(Rec);
                         InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                        ValidateInvoiceDiscountAmount;
+                        ValidateInvoiceDiscountAmount();
                     end;
                 }
                 field("Inv. Discount Amount"; "Inv. Discount Amount")
@@ -423,7 +457,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Inv. Disc. Amount to Invoice"; "Inv. Disc. Amount to Invoice")
@@ -441,7 +475,7 @@
                     trigger OnValidate()
                     begin
                         if "Qty. to Asm. to Order (Base)" <> 0 then begin
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                             CurrPage.Update(false);
                         end;
                     end;
@@ -492,8 +526,8 @@
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        CurrPage.SaveRecord();
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -506,8 +540,8 @@
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        CurrPage.SaveRecord();
+                        ShowItemChargeAssgnt();
                         CurrPage.Update(false);
                     end;
                 }
@@ -827,8 +861,8 @@
 
                         trigger OnValidate()
                         begin
-                            DocumentTotals.SalesDocTotalsNotUpToDate;
-                            ValidateInvoiceDiscountAmount;
+                            DocumentTotals.SalesDocTotalsNotUpToDate();
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                     field("Invoice Disc. Pct."; InvoiceDiscountPct)
@@ -841,10 +875,10 @@
 
                         trigger OnValidate()
                         begin
-                            DocumentTotals.SalesDocTotalsNotUpToDate;
+                            DocumentTotals.SalesDocTotalsNotUpToDate();
                             AmountWithDiscountAllowed := DocumentTotals.CalcTotalSalesAmountOnlyDiscountAllowed(Rec);
                             InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                            ValidateInvoiceDiscountAmount;
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                 }
@@ -902,7 +936,7 @@
 
                 trigger OnAction()
                 begin
-                    SelectMultipleItems;
+                    SelectMultipleItems();
                 end;
             }
             group("&Line")
@@ -921,10 +955,14 @@
                         Ellipsis = true;
                         Image = Price;
                         ToolTip = 'Insert the lowest possible price in the Unit Price field according to any special price that you have set up.';
+                        Visible = not ExtendedPriceEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                        ObsoleteTag = '17.0';
 
                         trigger OnAction()
                         begin
-                            ShowPrices;
+                            ShowPrices();
                         end;
                     }
                     action("Get Li&ne Discount")
@@ -935,10 +973,42 @@
                         Ellipsis = true;
                         Image = LineDiscount;
                         ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
+                        Visible = not ExtendedPriceEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                        ObsoleteTag = '17.0';
 
                         trigger OnAction()
                         begin
-                            ShowLineDisc
+                            ShowLineDisc();
+                        end;
+                    }
+                    action(GetPrices)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Get Price';
+                        Ellipsis = true;
+                        Image = Price;
+                        Visible = ExtendedPriceEnabled;
+                        ToolTip = 'Insert the lowest possible price in the Unit Price field according to any special price that you have set up.';
+
+                        trigger OnAction()
+                        begin
+                            ShowPrices();
+                        end;
+                    }
+                    action(GetLineDiscount)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Get Li&ne Discount';
+                        Ellipsis = true;
+                        Image = LineDiscount;
+                        Visible = ExtendedPriceEnabled;
+                        ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
+
+                        trigger OnAction()
+                        begin
+                            ShowLineDisc();
                         end;
                     }
                     action(ExplodeBOM_Functions)
@@ -952,7 +1022,7 @@
 
                         trigger OnAction()
                         begin
-                            ExplodeBOM;
+                            ExplodeBOM();
                         end;
                     }
                     action("Insert Ext. Texts")
@@ -979,8 +1049,8 @@
 
                         trigger OnAction()
                         begin
-                            Find;
-                            ShowReservation;
+                            Find();
+                            ShowReservation();
                         end;
                     }
                     action(OrderTracking)
@@ -993,7 +1063,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowTracking;
+                            ShowTracking();
                         end;
                     }
                     action("Select Nonstoc&k Items")
@@ -1006,7 +1076,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowNonstockItems;
+                            ShowNonstockItems();
                         end;
                     }
                 }
@@ -1118,7 +1188,7 @@
 
                         trigger OnAction()
                         begin
-                            OpenItemTrackingLines;
+                            OpenItemTrackingLines();
                         end;
                     }
                     action(SelectItemSubstitution)
@@ -1131,11 +1201,11 @@
 
                         trigger OnAction()
                         begin
-                            CurrPage.SaveRecord;
-                            ShowItemSub;
+                            CurrPage.SaveRecord();
+                            ShowItemSub();
                             CurrPage.Update(true);
                             if (Reserve = Reserve::Always) and ("No." <> xRec."No.") then begin
-                                AutoReserve;
+                                AutoReserve();
                                 CurrPage.Update(false);
                             end;
                         end;
@@ -1151,7 +1221,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowDimensions;
+                            ShowDimensions();
                         end;
                     }
                     action("Co&mments")
@@ -1163,7 +1233,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowLineComments;
+                            ShowLineComments();
                         end;
                     }
                     action("Item Charge &Assignment")
@@ -1177,8 +1247,8 @@
 
                         trigger OnAction()
                         begin
-                            ItemChargeAssgnt;
-                            SetItemChargeFieldsStyle;
+                            ItemChargeAssgnt();
+                            SetItemChargeFieldsStyle();
                         end;
                     }
                     action(OrderPromising)
@@ -1191,7 +1261,7 @@
 
                         trigger OnAction()
                         begin
-                            OrderPromisingLine;
+                            OrderPromisingLine();
                         end;
                     }
                     action(DocAttach)
@@ -1208,7 +1278,7 @@
                         begin
                             RecRef.GetTable(Rec);
                             DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                            DocumentAttachmentDetails.RunModal;
+                            DocumentAttachmentDetails.RunModal();
                         end;
                     }
                     group("Assemble to Order")
@@ -1224,7 +1294,7 @@
 
                             trigger OnAction()
                             begin
-                                ShowAsmToOrderLines;
+                                ShowAsmToOrderLines();
                             end;
                         }
                         action("Roll Up &Price")
@@ -1237,7 +1307,7 @@
 
                             trigger OnAction()
                             begin
-                                RollupAsmPrice;
+                                RollupAsmPrice();
                             end;
                         }
                         action("Roll Up &Cost")
@@ -1250,7 +1320,7 @@
 
                             trigger OnAction()
                             begin
-                                RollUpAsmCost;
+                                RollUpAsmCost();
                             end;
                         }
                     }
@@ -1263,7 +1333,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowDocumentLineTracking;
+                            ShowDocumentLineTracking();
                         end;
                     }
                     action(DeferralSchedule)
@@ -1276,7 +1346,7 @@
 
                         trigger OnAction()
                         begin
-                            ShowDeferralSchedule;
+                            ShowDeferralSchedule();
                         end;
                     }
                 }
@@ -1299,7 +1369,7 @@
 
                         trigger OnAction()
                         begin
-                            OpenPurchOrderForm;
+                            OpenPurchOrderForm();
                         end;
                     }
                 }
@@ -1317,7 +1387,7 @@
 
                         trigger OnAction()
                         begin
-                            OpenSpecialPurchOrderForm;
+                            OpenSpecialPurchOrderForm();
                         end;
                     }
                 }
@@ -1338,13 +1408,15 @@
                         if not SalesHeader.IsEmpty then begin
                             BlanketSalesOrder.SetTableView(SalesHeader);
                             BlanketSalesOrder.Editable := false;
-                            BlanketSalesOrder.Run;
+                            BlanketSalesOrder.Run();
                         end;
                     end;
                 }
             }
             group("Page")
             {
+                Caption = 'Page';
+
                 action(EditInExcel)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1372,19 +1444,19 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetTotalSalesHeader;
-        CalculateTotals;
-        SetLocationCodeMandatory;
-        UpdateEditableOnRow;
-        UpdateTypeText;
-        SetItemChargeFieldsStyle;
+        GetTotalSalesHeader();
+        CalculateTotals();
+        SetLocationCodeMandatory();
+        UpdateEditableOnRow();
+        UpdateTypeText();
+        SetItemChargeFieldsStyle();
     end;
 
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
-        UpdateTypeText;
-        SetItemChargeFieldsStyle;
+        UpdateTypeText();
+        SetItemChargeFieldsStyle();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1399,7 +1471,7 @@
             OnBeforeDeleteReservationEntries(Rec);
             ReserveSalesLine.DeleteLine(Rec);
         end;
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -1413,10 +1485,9 @@
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         SalesSetup.Get();
-        InventorySetup.Get();
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
+        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1426,28 +1497,32 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitType;
+        InitType();
+        SetDefaultType();
 
         // Default to Item for the first line and to previous line type for the others
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
             if xRec."Document No." = '' then
                 Type := Type::Item;
         Clear(ShortcutDimCode);
-        UpdateTypeText;
+        UpdateTypeText();
     end;
 
     trigger OnOpenPage()
     var
         ServerSetting: Codeunit "Server Setting";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         Location: Record Location;
     begin
         if Location.ReadPermission then
-            LocationCodeVisible := not Location.IsEmpty;
+            LocationCodeVisible := not Location.IsEmpty();
 
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
 
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     var
@@ -1455,7 +1530,6 @@
         TotalSalesHeader: Record "Sales Header";
         TotalSalesLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
-        InventorySetup: Record "Inventory Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         TransferExtendedText: Codeunit "Transfer Extended Text";
@@ -1464,7 +1538,6 @@
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
         AmountWithDiscountAllowed: Decimal;
-        ShortcutDimCode: array[8] of Code[20];
         Text001: Label 'You cannot use the Explode BOM function because a prepayment of the sales order has been invoiced.';
         LocationCodeMandatory: Boolean;
         InvDiscAmountEditable: Boolean;
@@ -1473,11 +1546,18 @@
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
+        ExtendedPriceEnabled: Boolean;
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         ItemChargeStyleExpression: Text;
         TypeAsText: Text[30];
+        SuppressTotals: Boolean;
+		[InDataSet]
+        ItemReferenceVisible: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1486,16 +1566,13 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
-        SuppressTotals: Boolean;
-
-    protected var
         IsCommentLine: Boolean;
         IsBlankNumber: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Disc. (Yes/No)", Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     local procedure ValidateInvoiceDiscountAmount()
@@ -1505,14 +1582,14 @@
     begin
         if SuppressTotals then
             exit;
-            
+
         SalesHeader.Get("Document Type", "Document No.");
         if SalesHeader.InvoicedLineExists then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
                 exit;
 
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
         CurrPage.Update(false);
     end;
 
@@ -1521,7 +1598,7 @@
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
     begin
         SalesCalcDiscount.CalculateInvoiceDiscountOnLine(Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     procedure ExplodeBOM()
@@ -1529,7 +1606,7 @@
         if "Prepmt. Amt. Inv." <> 0 then
             Error(Text001);
         CODEUNIT.Run(CODEUNIT::"Sales-Explode BOM", Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     procedure OpenPurchOrderForm()
@@ -1541,7 +1618,7 @@
         PurchHeader.SetRange("No.", "Purchase Order No.");
         PurchOrder.SetTableView(PurchHeader);
         PurchOrder.Editable := false;
-        PurchOrder.Run;
+        PurchOrder.Run();
     end;
 
     procedure OpenSpecialPurchOrderForm()
@@ -1555,7 +1632,7 @@
         if not PurchHeader.IsEmpty then begin
             PurchOrder.SetTableView(PurchHeader);
             PurchOrder.Editable := false;
-            PurchOrder.Run;
+            PurchOrder.Run();
         end else begin
             PurchRcptHeader.SetRange("Order No.", "Special Order Purchase No.");
             if PurchRcptHeader.Count = 1 then
@@ -1569,7 +1646,7 @@
     begin
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             Commit();
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
@@ -1579,7 +1656,7 @@
 
     procedure ShowNonstockItems()
     begin
-        ShowNonstock;
+        ShowNonstock();
     end;
 
     procedure ShowTracking()
@@ -1587,12 +1664,12 @@
         TrackingForm: Page "Order Tracking";
     begin
         TrackingForm.SetSalesLine(Rec);
-        TrackingForm.RunModal;
+        TrackingForm.RunModal();
     end;
 
     procedure ItemChargeAssgnt()
     begin
-        ShowItemChargeAssgnt;
+        ShowItemChargeAssgnt();
     end;
 
     procedure UpdateForm(SetSaveRecord: Boolean)
@@ -1619,9 +1696,9 @@
         OrderPromisingLine.SetRange("Source ID", "Document No.");
         OrderPromisingLine.SetRange("Source Line No.", "Line No.");
 
-        OrderPromisingLines.SetSourceType(OrderPromisingLine."Source Type"::Sales);
+        OrderPromisingLines.SetSourceType(OrderPromisingLine."Source Type"::Sales.AsInteger());
         OrderPromisingLines.SetTableView(OrderPromisingLine);
-        OrderPromisingLines.RunModal;
+        OrderPromisingLines.RunModal();
     end;
 
     procedure NoOnAfterValidate()
@@ -1637,9 +1714,9 @@
         SaveAndAutoAsmToOrder();
 
         if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             if ("Outstanding Qty. (Base)" <> 0) and ("No." <> xRec."No.") then begin
-                AutoReserve;
+                AutoReserve();
                 CurrPage.Update(false);
             end;
         end;
@@ -1647,47 +1724,47 @@
         OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
-    local procedure VariantCodeOnAfterValidate()
+    protected procedure VariantCodeOnAfterValidate()
     begin
-        SaveAndAutoAsmToOrder;
+        SaveAndAutoAsmToOrder();
     end;
 
     procedure LocationCodeOnAfterValidate()
     begin
-        SaveAndAutoAsmToOrder;
+        SaveAndAutoAsmToOrder();
 
         if (Reserve = Reserve::Always) and
            ("Outstanding Qty. (Base)" <> 0) and
            ("Location Code" <> xRec."Location Code")
         then begin
-            CurrPage.SaveRecord;
-            AutoReserve;
+            CurrPage.SaveRecord();
+            AutoReserve();
             CurrPage.Update(false);
         end;
     end;
 
-    local procedure ReserveOnAfterValidate()
+    protected procedure ReserveOnAfterValidate()
     begin
         if (Reserve = Reserve::Always) and ("Outstanding Qty. (Base)" <> 0) then begin
-            CurrPage.SaveRecord;
-            AutoReserve;
+            CurrPage.SaveRecord();
+            AutoReserve();
         end;
     end;
 
-    local procedure QuantityOnAfterValidate()
+    protected procedure QuantityOnAfterValidate()
     begin
         if Type = Type::Item then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             case Reserve of
                 Reserve::Always:
-                    AutoReserve;
+                    AutoReserve();
             end;
         end;
 
         OnAfterQuantityOnAfterValidate(Rec, xRec);
     end;
 
-    local procedure QtyToAsmToOrderOnAfterValidate()
+    protected procedure QtyToAsmToOrderOnAfterValidate()
     var
         IsHandled: Boolean;
     begin
@@ -1696,40 +1773,40 @@
         if IsHandled then
             exit;
 
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         if Reserve = Reserve::Always then
-            AutoReserve;
+            AutoReserve();
         CurrPage.Update(true);
     end;
 
-    local procedure UnitofMeasureCodeOnAfterValida()
+    protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
-        DeltaUpdateTotals;
+        DeltaUpdateTotals();
         if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
-            AutoReserve;
+            CurrPage.SaveRecord();
+            AutoReserve();
             CurrPage.Update(false);
         end;
     end;
 
-    local procedure ShipmentDateOnAfterValidate()
+    protected procedure ShipmentDateOnAfterValidate()
     begin
         if (Reserve = Reserve::Always) and
            ("Outstanding Qty. (Base)" <> 0) and
            ("Shipment Date" <> xRec."Shipment Date")
         then begin
-            CurrPage.SaveRecord;
-            AutoReserve;
+            CurrPage.SaveRecord();
+            AutoReserve();
             CurrPage.Update(false);
         end else
             CurrPage.Update(true);
     end;
 
-    local procedure SaveAndAutoAsmToOrder()
+    protected procedure SaveAndAutoAsmToOrder()
     begin
         if (Type = Type::Item) and IsAsmToOrderRequired then begin
-            CurrPage.SaveRecord;
-            AutoAsmToOrder;
+            CurrPage.SaveRecord();
+            AutoAsmToOrder();
             CurrPage.Update(false);
         end;
     end;
@@ -1740,10 +1817,12 @@
     begin
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(0, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", '', 0);
-        DocumentLineTracking.RunModal;
+        DocumentLineTracking.RunModal();
     end;
 
     local procedure SetLocationCodeMandatory()
+    var
+        InventorySetup: Record "Inventory Setup";
     begin
         LocationCodeMandatory := InventorySetup."Location Mandatory" and (Type = Type::Item);
     end;
@@ -1770,7 +1849,7 @@
 
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if "Line Amount" <> xRec."Line Amount" then
-            SendLineInvoiceDiscountResetNotification;
+            SendLineInvoiceDiscountResetNotification();
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1780,7 +1859,7 @@
         if SuppressTotals then
             exit;
 
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
 
         SalesHeader.Get("Document Type", "Document No.");
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalSalesLine);
@@ -1836,6 +1915,13 @@
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     local procedure SetDefaultType()
@@ -1902,6 +1988,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReferenceNoOnAfterLookup(var SalesLine: Record "Sales Line")
     begin
     end;
 

@@ -1,4 +1,4 @@
-﻿codeunit 99000854 "Inventory Profile Offsetting"
+codeunit 99000854 "Inventory Profile Offsetting"
 {
     Permissions = TableData "Reservation Entry" = id,
                   TableData "Prod. Order Capacity Need" = rmd;
@@ -182,7 +182,7 @@
         Item.Copy(CopyOfItem);
     end;
 
-    local procedure InsertSupplyProfile(var InventoryProfile: Record "Inventory Profile"; ToDate: Date)
+    procedure InsertSupplyInvtProfile(var InventoryProfile: Record "Inventory Profile"; ToDate: Date)
     begin
         if InventoryProfile.IsSupply then begin
             if InventoryProfile."Due Date" > ToDate then
@@ -283,7 +283,7 @@
             repeat
                 if ProdOrderComp."Due Date" <> 0D then begin
                     ReqLine.SetRefFilter(
-                      ReqLine."Ref. Order Type"::"Prod. Order", ProdOrderComp.Status,
+                      ReqLine."Ref. Order Type"::"Prod. Order", ProdOrderComp.Status.AsInteger(),
                       ProdOrderComp."Prod. Order No.", ProdOrderComp."Prod. Order Line No.");
                     ReqLine.SetRange("Operation No.", '');
                     if not ReqLine.FindFirst then begin
@@ -325,21 +325,22 @@
         AsmLine: Record "Assembly Line";
         RemRatio: Decimal;
     begin
-        if AsmLine.FindLinesWithItemToPlan(Item, AsmLine."Document Type"::Order) then
+        if AsmLine.FindItemToPlanLines(Item, AsmLine."Document Type"::Order) then
             repeat
                 if AsmLine."Due Date" <> 0D then begin
                     ReqLine.SetRefFilter(
-                      ReqLine."Ref. Order Type"::Assembly, AsmLine."Document Type", AsmLine."Document No.", 0);
+                      ReqLine."Ref. Order Type"::Assembly, AsmLine."Document Type".AsInteger(), AsmLine."Document No.", 0);
                     ReqLine.SetRange("Operation No.", '');
                     if not ReqLine.FindFirst then
                         InsertAsmLineToProfile(InventoryProfile, AsmLine, 1);
                 end;
             until AsmLine.Next = 0;
 
-        if AsmLine.FindLinesWithItemToPlan(Item, AsmLine."Document Type"::"Blanket Order") then
+        if AsmLine.FindItemToPlanLines(Item, AsmLine."Document Type"::"Blanket Order") then
             repeat
                 if AsmLine."Due Date" <> 0D then begin
-                    ReqLine.SetRefFilter(ReqLine."Ref. Order Type"::Assembly, AsmLine."Document Type", AsmLine."Document No.", 0);
+                    ReqLine.SetRefFilter(
+                        ReqLine."Ref. Order Type"::Assembly, AsmLine."Document Type".AsInteger(), AsmLine."Document No.", 0);
                     ReqLine.SetRange("Operation No.", '');
                     if not ReqLine.FindFirst then begin
                         AsmHeader.Get(AsmLine."Document Type", AsmLine."Document No.");
@@ -415,7 +416,7 @@
                     InventoryProfile."Line No." := NextLineNo;
                     InventoryProfile."Item No." := Item."No.";
                     InventoryProfile.TransferFromRequisitionLine(ReqLine, TempItemTrkgEntry);
-                    InsertSupplyProfile(InventoryProfile, ToDate);
+                    InsertSupplyInvtProfile(InventoryProfile, ToDate);
                 end;
             until ReqLine.Next = 0;
     end;
@@ -472,7 +473,7 @@
                                 InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None;
                         end;
                     end;
-                    InsertSupplyProfile(InventoryProfile, ToDate);
+                    InsertSupplyInvtProfile(InventoryProfile, ToDate);
                 end;
             until ProdOrderLine.Next = 0;
     end;
@@ -481,7 +482,7 @@
     var
         AsmHeader: Record "Assembly Header";
     begin
-        if AsmHeader.FindLinesWithItemToPlan(Item, AsmHeader."Document Type"::Order) then
+        if AsmHeader.FindItemToPlanLines(Item, AsmHeader."Document Type"::Order) then
             repeat
                 if AsmHeader."Due Date" <> 0D then begin
                     InventoryProfile.Init();
@@ -489,7 +490,7 @@
                     InventoryProfile.TransferFromAsmHeader(AsmHeader, TempItemTrkgEntry);
                     if InventoryProfile."Finished Quantity" > 0 then
                         InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None;
-                    InsertSupplyProfile(InventoryProfile, ToDate);
+                    InsertSupplyInvtProfile(InventoryProfile, ToDate);
                 end;
             until AsmHeader.Next = 0;
     end;
@@ -520,7 +521,7 @@
                         end;
                     if FilterIsSetOnLocation then
                         InventoryProfile."Transfer Location Not Planned" := TransferLocationIsFilteredOut(Item, TransLine);
-                    InsertSupplyProfile(InventoryProfile, ToDate);
+                    InsertSupplyInvtProfile(InventoryProfile, ToDate);
                     InsertTempTransferSKU(TransLine);
                 end;
             until TransLine.Next = 0;
@@ -544,7 +545,7 @@
         InventoryProfile.TransferFromPurchaseLine(PurchLine, TempItemTrkgEntry);
         if InventoryProfile."Finished Quantity" > 0 then
             InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None;
-        InsertSupplyProfile(InventoryProfile, ToDate);
+        InsertSupplyInvtProfile(InventoryProfile, ToDate);
     end;
 
     local procedure InsertAsmLineToProfile(var InventoryProfile: Record "Inventory Profile"; AsmLine: Record "Assembly Line"; RemRatio: Decimal)
@@ -1014,9 +1015,7 @@
         DeleteCondition: Boolean;
     begin
         IsReservedForProdComponent := ReservedForProdComponent(ReservEntry);
-        if IsReservedForProdComponent and IsProdOrderPlanned(ReservEntry) and
-           (ReservEntry."Reservation Status" > ReservEntry."Reservation Status"::Tracking)
-        then
+        if IsReservedForProdComponent and IsProdOrderPlanned(ReservEntry) and not ReservEntry.IsReservationOrTracking() then
             exit(false);
 
         Item.Get(ReservEntry."Item No.");
@@ -1046,7 +1045,7 @@
             exit;
 
         RequisitionLine.SetRefFilter(
-          RequisitionLine."Ref. Order Type"::"Prod. Order", ProdOrderComp.Status,
+          RequisitionLine."Ref. Order Type"::"Prod. Order", ProdOrderComp.Status.AsInteger(),
           ProdOrderComp."Prod. Order No.", ProdOrderComp."Prod. Order Line No.");
         RequisitionLine.SetRange("Operation No.", '');
 
@@ -1565,7 +1564,7 @@
                     Track(SupplyInvtProfile, DemandInvtProfile, false, false, SupplyInvtProfile.Binding)
                 else
                     Track(SupplyInvtProfile, DemandInvtProfile, true, false, SupplyInvtProfile.Binding::" ");
-                SupplyInvtProfile.Delete();
+            SupplyInvtProfile.Delete();
 
             // Planning Transparency
             if DemandExists then begin
@@ -2063,7 +2062,7 @@
         DemandInvtProfile.Insert();
     end;
 
-    local procedure Track(FromProfile: Record "Inventory Profile"; ToProfile: Record "Inventory Profile"; IsSurplus: Boolean; IssueActionMessage: Boolean; Binding: Option " ","Order-to-Order")
+    local procedure Track(FromProfile: Record "Inventory Profile"; ToProfile: Record "Inventory Profile"; IsSurplus: Boolean; IssueActionMessage: Boolean; Binding: Enum "Reservation Binding")
     var
         TrkgReservEntryArray: array[6] of Record "Reservation Entry";
         SplitState: Option NoSplit,SplitFromProfile,SplitToProfile,Cancel;
@@ -2239,7 +2238,7 @@
         end;
     end;
 
-    local procedure PrepareTempTracking(var FromTrkgReservEntry: Record "Reservation Entry"; var ToTrkgReservEntry: Record "Reservation Entry"; IsSurplus: Boolean; IssueActionMessage: Boolean; Binding: Option " ","Order-to-Order")
+    local procedure PrepareTempTracking(var FromTrkgReservEntry: Record "Reservation Entry"; var ToTrkgReservEntry: Record "Reservation Entry"; IsSurplus: Boolean; IssueActionMessage: Boolean; Binding: Enum "Reservation Binding")
     begin
         if not IsSurplus then begin
             ToTrkgReservEntry."Quantity (Base)" := -FromTrkgReservEntry."Quantity (Base)";
@@ -4042,7 +4041,7 @@
                                         "Ref. Order No.", PurchHeader.Status));
                                 end;
                             "Ref. Order Type"::"Prod. Order":
-                                if "Ref. Order Status" = ProdOrder.Status::Released then begin
+                                if "Ref. Order Status" = ProdOrder.Status::Released.AsInteger() then begin
                                     AcceptActionMsg := false;
                                     PlanningTransparency.LogWarning(
                                       0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
@@ -4490,7 +4489,7 @@
         end;
     end;
 
-    local procedure CloseInventoryProfile(var ClosedInvtProfile: Record "Inventory Profile"; var OpenInvtProfile: Record "Inventory Profile"; ActionMessage: Option " ",New,"Change Qty.",Reschedule,"Resched.& Chg. Qty.",Cancel)
+    local procedure CloseInventoryProfile(var ClosedInvtProfile: Record "Inventory Profile"; var OpenInvtProfile: Record "Inventory Profile"; ActionMessage: Enum "Action Message Type")
     var
         PlanningStageToMaintain: Option " ","Line Created","Routing Created",Exploded,Obsolete;
     begin

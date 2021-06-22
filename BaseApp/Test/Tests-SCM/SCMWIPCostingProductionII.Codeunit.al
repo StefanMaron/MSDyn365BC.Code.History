@@ -23,11 +23,9 @@ codeunit 137004 "SCM WIP Costing Production-II"
         isInitialized: Boolean;
         ErrMessageNotFoundZeroAmt: Label 'The sum of amounts must be zero.';
         ErrMessageAmountDoNotMatch: Label 'The WIP amount totals must be equal.';
-        FlushingMethod: Option Manual,Forward,Backward;
-        SubcontractFlushingMethod: Option Manual,Forward,Backward;
-        CostingMethod: Option FIFO,LIFO,Specific,"Average",Standard;
+        FlushingMethod: Enum "Flushing Method";
+        SubcontractFlushingMethod: Enum "Flushing Method";
         UnitCostCalculation: Option Time,Units;
-        ProductionOrderStatus: Option Simulated,Planned,"Firm Planned",Released,Finished;
 
     [Test]
     [HandlerFunctions('CalcStdCostMenuHandler,ConfirmHandler,MessageHandler')]
@@ -38,8 +36,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Standard Costing of Subcontracting Order with Flushing method - Manual.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Manual, SubcontractFlushingMethod::Manual, CostingMethod::Standard,
-          ProductionOrderStatus::Released, true, false, false, false, false, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Manual, "Flushing Method"::Manual, "Costing Method"::Standard,
+          "Production Order Status"::Released, true, false, false, false, false, false, false, false, false, false);
     end;
 
     [Test]
@@ -51,8 +49,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Standard Costing of Flushing method - Manual Cost different from Expected.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Units, FlushingMethod::Manual, SubcontractFlushingMethod, CostingMethod::Standard,
-          ProductionOrderStatus::Released, false, false, false, false, true, false, false, false, false, false);
+          UnitCostCalculation::Units, "Flushing Method"::Manual, SubcontractFlushingMethod, "Costing Method"::Standard,
+          "Production Order Status"::Released, false, false, false, false, true, false, false, false, false, false);
     end;
 
     [Test]
@@ -63,8 +61,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [FEATURE] [Cost Standard]
         // [SCENARIO] Test Standard Costing of Subcontracting Order with Flushing method - Manual. Subcontract and Output Cost different from Expected.
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Units, FlushingMethod::Manual, SubcontractFlushingMethod::Manual, CostingMethod::Standard,
-          ProductionOrderStatus::Released, true, false, false, true, true, false, false, false, false, false);
+          UnitCostCalculation::Units, "Flushing Method"::Manual, "Flushing Method"::Manual, "Costing Method"::Standard,
+          "Production Order Status"::Released, true, false, false, true, true, false, false, false, false, false);
     end;
 
     [Test]
@@ -75,8 +73,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [FEATURE] [Cost Standard]
         // [SCENARIO] Test Standard Costing of Subcontracting Order with Flushing method - Backward and of Subcontract Work center as Manual.
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Backward, SubcontractFlushingMethod::Manual, CostingMethod::Standard,
-          ProductionOrderStatus::Released, true, false, false, false, false, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Backward, "Flushing Method"::Manual, "Costing Method"::Standard,
+          "Production Order Status"::Released, true, false, false, false, false, false, false, false, false, false);
     end;
 
     [Test]
@@ -88,8 +86,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Standard Costing with Flushing method Forward for Planned Production Order.Replace Production Component.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Units, FlushingMethod::Forward, SubcontractFlushingMethod, CostingMethod::Standard,
-          ProductionOrderStatus::Planned, false, true, false, false, false, false, false, false, false, false);
+          UnitCostCalculation::Units, "Flushing Method"::Forward, SubcontractFlushingMethod, "Costing Method"::Standard,
+          "Production Order Status"::Planned, false, true, false, false, false, false, false, false, false, false);
     end;
 
     [Test]
@@ -101,8 +99,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Average Costing of Subcontracting Order with Flushing method - Backward and of Subcontract Work center as Manual.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Backward, SubcontractFlushingMethod::Manual, CostingMethod::Average,
-          ProductionOrderStatus::Released, true, false, false, false, false, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Backward, "Flushing Method"::Manual, "Costing Method"::Average,
+          "Production Order Status"::Released, true, false, false, false, false, false, false, false, false, false);
     end;
 
     [Test]
@@ -114,8 +112,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Average Costing of Subcontracting Order with Flushing method - Manual. Subcontract and Output Cost different from Expected.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Units, FlushingMethod::Manual, SubcontractFlushingMethod::Backward, CostingMethod::Average,
-          ProductionOrderStatus::Released, false, false, false, true, true, false, false, false, false, false);
+          UnitCostCalculation::Units, "Flushing Method"::Manual, "Flushing Method"::Backward, "Costing Method"::Average,
+          "Production Order Status"::Released, false, false, false, true, true, false, false, false, false, false);
     end;
 
     [Test]
@@ -127,8 +125,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Standard Costing for Additional Currency of Subcontracting Order with Flushing method - Manual. Subcontract and Output Cost different from Expected.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Units, FlushingMethod::Manual, SubcontractFlushingMethod::Manual, CostingMethod::Standard,
-          ProductionOrderStatus::Released, true, false, true, true, true, false, false, false, false, false);
+          UnitCostCalculation::Units, "Flushing Method"::Manual, "Flushing Method"::Manual, "Costing Method"::Standard,
+          "Production Order Status"::Released, true, false, true, true, true, false, false, false, false, false);
     end;
 
     [Test]
@@ -140,8 +138,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Standard Costing for Additional Currency of Subcontracting Order with Flushing method - Backward and of Subcontract Work center as Manual.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Backward, SubcontractFlushingMethod::Manual, CostingMethod::Standard,
-          ProductionOrderStatus::Released, true, false, true, false, false, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Backward, "Flushing Method"::Manual, "Costing Method"::Standard,
+          "Production Order Status"::Released, true, false, true, false, false, false, false, false, false, false);
     end;
 
     [Test]
@@ -153,8 +151,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test FIFO Costing of Flushing method - Forward.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Forward, SubcontractFlushingMethod, CostingMethod::FIFO,
-          ProductionOrderStatus::Planned, false, false, false, false, false, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Forward, SubcontractFlushingMethod, "Costing Method"::FIFO,
+          "Production Order Status"::Planned, false, false, false, false, false, false, false, false, false, false);
     end;
 
     [Test]
@@ -166,8 +164,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test FIFO Costing of Flushing method - Manual, Cost, consumption Run Time and Setup Time is  different from Expected.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Manual, SubcontractFlushingMethod, CostingMethod::FIFO,
-          ProductionOrderStatus::Released, false, false, false, false, true, true, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Manual, SubcontractFlushingMethod, "Costing Method"::FIFO,
+          "Production Order Status"::Released, false, false, false, false, true, true, false, false, false, false);
     end;
 
     [Test]
@@ -179,8 +177,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test FIFO Costing with Flushing method Forward, replacing production order component.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Forward, SubcontractFlushingMethod, CostingMethod::FIFO,
-          ProductionOrderStatus::Planned, false, true, false, false, false, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Forward, SubcontractFlushingMethod, "Costing Method"::FIFO,
+          "Production Order Status"::Planned, false, true, false, false, false, false, false, false, false, false);
     end;
 
     [Test]
@@ -192,8 +190,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test FIFO Costing of Subcontracting Order with Flushing method - Backward and of Subcontract Work center as Manual.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Backward, SubcontractFlushingMethod::Manual, CostingMethod::FIFO,
-          ProductionOrderStatus::Released, true, false, false, false, false, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Backward, "Flushing Method"::Manual, "Costing Method"::FIFO,
+          "Production Order Status"::Released, true, false, false, false, false, false, false, false, false, false);
     end;
 
     [Test]
@@ -205,8 +203,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test FIFO Costing of Subcontracting Order with Flushing method - Manual. Output Cost and Subcontract Cost are different from expected.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Manual, SubcontractFlushingMethod::Manual, CostingMethod::FIFO,
-          ProductionOrderStatus::Released, true, false, false, true, true, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Manual, "Flushing Method"::Manual, "Costing Method"::FIFO,
+          "Production Order Status"::Released, true, false, false, true, true, false, false, false, false, false);
     end;
 
     [Test]
@@ -218,8 +216,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Average Costing for Additional Currency of Flushing method - Forward.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Forward, SubcontractFlushingMethod, CostingMethod::Average,
-          ProductionOrderStatus::Planned, false, false, true, false, false, false, false, false, false, true);
+          UnitCostCalculation::Time, "Flushing Method"::Forward, SubcontractFlushingMethod, "Costing Method"::Average,
+          "Production Order Status"::Planned, false, false, true, false, false, false, false, false, false, true);
     end;
 
     [Test]
@@ -231,8 +229,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Average Costing for Additional Currency of Flushing method - Manual. Output cost, consumption Cost, Run Time and Setup Time is  different from Expected.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Manual, SubcontractFlushingMethod, CostingMethod::Average,
-          ProductionOrderStatus::Released, false, false, true, false, true, true, false, true, false, true);
+          UnitCostCalculation::Time, "Flushing Method"::Manual, SubcontractFlushingMethod, "Costing Method"::Average,
+          "Production Order Status"::Released, false, false, true, false, true, true, false, true, false, true);
     end;
 
     [Test]
@@ -244,8 +242,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Average Costing for Additional Currency Of Flushing method Forward for Planned Production Order. Delete one Production Component.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Units, FlushingMethod::Forward, SubcontractFlushingMethod, CostingMethod::Average,
-          ProductionOrderStatus::Planned, false, true, true, false, false, false, false, false, false, true);
+          UnitCostCalculation::Units, "Flushing Method"::Forward, SubcontractFlushingMethod, "Costing Method"::Average,
+          "Production Order Status"::Planned, false, true, true, false, false, false, false, false, false, true);
     end;
 
     [Test]
@@ -257,8 +255,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Average Costing for Additional Currency of Flushing method - Manual. Update Production order routing.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Manual, SubcontractFlushingMethod, CostingMethod::FIFO,
-          ProductionOrderStatus::Released, false, false, true, false, false, false, false, false, true, true);
+          UnitCostCalculation::Time, "Flushing Method"::Manual, SubcontractFlushingMethod, "Costing Method"::FIFO,
+          "Production Order Status"::Released, false, false, true, false, false, false, false, false, true, true);
     end;
 
     [Test]
@@ -270,8 +268,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Average Costing for Additional Currency of Subcontracting Order with Flushing method - Backward. Subcontract Work center as Manual.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Backward, SubcontractFlushingMethod::Manual, CostingMethod::Average,
-          ProductionOrderStatus::Released, true, false, true, false, false, false, false, false, false, true);
+          UnitCostCalculation::Time, "Flushing Method"::Backward, "Flushing Method"::Manual, "Costing Method"::Average,
+          "Production Order Status"::Released, true, false, true, false, false, false, false, false, false, true);
     end;
 
     [Test]
@@ -283,8 +281,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Average Costing for Additional Currency of Subcontracting Order with Flushing method - Manual. Subcontract Work center as Backward.Subcontract and Output Cost different from Expected.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Units, FlushingMethod::Manual, SubcontractFlushingMethod::Backward, CostingMethod::Average,
-          ProductionOrderStatus::Released, false, false, true, true, true, false, false, false, false, true);
+          UnitCostCalculation::Units, "Flushing Method"::Manual, "Flushing Method"::Backward, "Costing Method"::Average,
+          "Production Order Status"::Released, false, false, true, true, true, false, false, false, false, true);
     end;
 
     [Test]
@@ -296,8 +294,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Average Costing for Additional Currency of Flushing method - Manual. Output cost, consumption Cost, Run Time and Setup Time is  different from Expected.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Manual, SubcontractFlushingMethod, CostingMethod::FIFO,
-          ProductionOrderStatus::Released, false, false, true, false, true, true, false, true, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Manual, SubcontractFlushingMethod, "Costing Method"::FIFO,
+          "Production Order Status"::Released, false, false, true, false, true, true, false, true, false, false);
     end;
 
     [Test]
@@ -309,8 +307,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test Average Costing for Additional Currency of Subcontracting Order with Flushing method - Manual. Subcontract Work center as Backward.Subcontract and Output Cost different from Expected.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Units, FlushingMethod::Manual, SubcontractFlushingMethod::Backward, CostingMethod::FIFO,
-          ProductionOrderStatus::Released, false, false, true, true, true, false, false, false, false, false);
+          UnitCostCalculation::Units, "Flushing Method"::Manual, "Flushing Method"::Backward, "Costing Method"::FIFO,
+          "Production Order Status"::Released, false, false, true, true, true, false, false, false, false, false);
     end;
 
     [Test]
@@ -322,8 +320,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test FIFO Costing of Flushing method - Forward.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Forward, SubcontractFlushingMethod, CostingMethod::FIFO,
-          ProductionOrderStatus::Planned, false, false, true, false, false, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Forward, SubcontractFlushingMethod, "Costing Method"::FIFO,
+          "Production Order Status"::Planned, false, false, true, false, false, false, false, false, false, false);
     end;
 
     [Test]
@@ -335,8 +333,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test FIFO Costing Flushing method - Manual, Cost, consumption Run Time and Setup Time different from Expected.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Manual, SubcontractFlushingMethod, CostingMethod::FIFO,
-          ProductionOrderStatus::Released, false, false, true, false, true, true, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Manual, SubcontractFlushingMethod, "Costing Method"::FIFO,
+          "Production Order Status"::Released, false, false, true, false, true, true, false, false, false, false);
     end;
 
     [Test]
@@ -348,8 +346,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test FIFO Costing Flushing method - Forward, replace old Production component with a new one.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Forward, SubcontractFlushingMethod, CostingMethod::FIFO,
-          ProductionOrderStatus::Planned, false, true, true, false, false, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Forward, SubcontractFlushingMethod, "Costing Method"::FIFO,
+          "Production Order Status"::Planned, false, true, true, false, false, false, false, false, false, false);
     end;
 
     [Test]
@@ -361,8 +359,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test FIFO Costing : Subcontracting Order with Flushing method - Backward and Subcontract Work center - Manual.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Backward, SubcontractFlushingMethod::Manual, CostingMethod::FIFO,
-          ProductionOrderStatus::Released, true, false, true, false, false, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Backward, "Flushing Method"::Manual, "Costing Method"::FIFO,
+          "Production Order Status"::Released, true, false, true, false, false, false, false, false, false, false);
     end;
 
     [Test]
@@ -374,8 +372,8 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // [SCENARIO] Test FIFO Costing : Subcontracting Order with Flushing method - Manual. Output Cost and Subcontract Cost are different from expected.
 
         SCMWIPCostingProductionII(
-          UnitCostCalculation::Time, FlushingMethod::Manual, SubcontractFlushingMethod::Manual, CostingMethod::FIFO,
-          ProductionOrderStatus::Released, true, false, true, true, true, false, false, false, false, false);
+          UnitCostCalculation::Time, "Flushing Method"::Manual, "Flushing Method"::Manual, "Costing Method"::FIFO,
+          "Production Order Status"::Released, true, false, true, true, true, false, false, false, false, false);
     end;
 
     [Test]
@@ -701,7 +699,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Normal]
-    local procedure SCMWIPCostingProductionII(UnitCostCalculation: Option; FlushingMethod: Option; SubcontractFlushingMethod: Option; CostingMethod: Option FIFO,LIFO,Specific,"Average",Standard; ProductionOrderStatus: Option; Subcontract: Boolean; UpdateProductionComponent: Boolean; AdditionalCurrencyExist: Boolean; SubcontractCostDiff: Boolean; OutputCostDiff: Boolean; RunSetupTimeCostDiff: Boolean; DeleteConsumptionJrnl: Boolean; ConsumptionCostDiff: Boolean; UpdateProdOrderRouting: Boolean; AdjustExchangeRatesGLSetup: Boolean)
+    local procedure SCMWIPCostingProductionII(UnitCostCalculation: Option; FlushingMethod: Enum "Flushing Method"; SubcontractFlushingMethod: Enum "Flushing Method"; CostingMethod: Enum "Costing Method"; ProductionOrderStatus: Enum "Production Order Status"; Subcontract: Boolean; UpdateProductionComponent: Boolean; AdditionalCurrencyExist: Boolean; SubcontractCostDiff: Boolean; OutputCostDiff: Boolean; RunSetupTimeCostDiff: Boolean; DeleteConsumptionJrnl: Boolean; ConsumptionCostDiff: Boolean; UpdateProdOrderRouting: Boolean; AdjustExchangeRatesGLSetup: Boolean)
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
         InventorySetup: Record "Inventory Setup";
@@ -731,11 +729,9 @@ codeunit 137004 "SCM WIP Costing Production-II"
         ItemNo3: Code[20];
         CurrencyCode: Code[10];
         ProductionOrderNo: Code[20];
-        Type: Option " ","100/Hour",Minutes,Hours,Days;
         AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
         AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
-        ProductionOrderRoutingType: Option "Work Center","Machine Center";
         SetupTime: Decimal;
         RunTime: Decimal;
     begin
@@ -746,7 +742,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         Initialize;
         RaiseConfirmHandler;
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
-        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, Type::Minutes);
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
@@ -815,7 +811,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         if UpdateProdOrderRouting then begin
             MachineCenter.Get(MachineCenterNo3);
             LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
-            AddProdOrderRoutingLine(ProductionOrder, ProductionOrderRoutingType::"Machine Center", MachineCenterNo3);
+            AddProdOrderRoutingLine(ProductionOrder, "Capacity Type"::"Machine Center", MachineCenterNo3);
             LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, false, true, false);
         end;
 
@@ -902,7 +898,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Normal]
-    local procedure CreateWorkCenter(var WorkCenterNo: Code[20]; ShopCalendarCode: Code[10]; FlushingMethod: Option; Subcontract: Boolean; UnitCostCalculation: Option; CurrencyCode: Code[10])
+    local procedure CreateWorkCenter(var WorkCenterNo: Code[20]; ShopCalendarCode: Code[10]; FlushingMethod: Enum "Flushing Method"; Subcontract: Boolean; UnitCostCalculation: Option; CurrencyCode: Code[10])
     var
         WorkCenter: Record "Work Center";
         GenProductPostingGroup: Record "Gen. Product Posting Group";
@@ -948,7 +944,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Normal]
-    local procedure CreateMachineCenter(var MachineCenterNo: Code[20]; WorkCenterNo: Code[20]; FlushingMethod: Option)
+    local procedure CreateMachineCenter(var MachineCenterNo: Code[20]; WorkCenterNo: Code[20]; FlushingMethod: Enum "Flushing Method")
     var
         MachineCenter: Record "Machine Center";
         GenProductPostingGroup: Record "Gen. Product Posting Group";
@@ -1024,7 +1020,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Normal]
-    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Option Standard,"Average"; ItemReorderPolicy: Option; FlushingMethod: Option; RoutingNo: Code[20]; ProductionBOMNo: Code[20])
+    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Enum "Costing Method"; ItemReorderPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20])
     begin
         // Create Item with required fields where random values not important for test.
         LibraryManufacturing.CreateItemManufacturing(
@@ -1034,7 +1030,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         Item.Modify(true);
     end;
 
-    local procedure CreateItemNoIndirectCost(var Item: Record Item; CostingMethod: Option; RoundingPrecision: Decimal; RoutingNo: Code[20]; ProdBOMNo: Code[20]; ReplenishmentSystem: Option)
+    local procedure CreateItemNoIndirectCost(var Item: Record Item; CostingMethod: Enum "Costing Method"; RoundingPrecision: Decimal; RoutingNo: Code[20]; ProdBOMNo: Code[20]; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -1045,7 +1041,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         Item.Modify(true);
     end;
 
-    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Option)
+    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -1054,14 +1050,12 @@ codeunit 137004 "SCM WIP Costing Production-II"
 
     [Normal]
     local procedure CreatePurchaseOrderAddnlCurr(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CurrencyCode: Code[10]; ItemNo: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20]; Qty: Decimal; UpdateProductionComponent: Boolean)
-    var
-        Type: Option " ","G/L Account",Item,,"Fixed Asset","Charge (Item)";
     begin
         CreatePurchaseHeaderAddnlCurr(PurchaseHeader, CurrencyCode);
-        CreatePurchaseLine(PurchaseHeader, PurchaseLine, Type::Item, ItemNo, Qty);
-        CreatePurchaseLine(PurchaseHeader, PurchaseLine, Type::Item, ItemNo2, Qty);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, ItemNo, Qty);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, ItemNo2, Qty);
         if UpdateProductionComponent then
-            CreatePurchaseLine(PurchaseHeader, PurchaseLine, Type::Item, ItemNo3, Qty);
+            CreatePurchaseLine(PurchaseHeader, PurchaseLine, "Purchase Line Type"::Item, ItemNo3, Qty);
     end;
 
     [Normal]
@@ -1071,7 +1065,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
           PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateSubcontractorWithCurrency(CurrencyCode));
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; ItemNo: Code[20]; Qty: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, ItemNo, Qty);
     end;
@@ -1128,7 +1122,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
             exit(RoutingLine."Operation No.");
     end;
 
-    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Option; ProdOrderNo: Code[20])
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, ProdOrderStatus);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
@@ -1176,7 +1170,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Normal]
-    local procedure AddProdOrderRoutingLine(ProductionOrder: Record "Production Order"; ProdOrderRoutingLineType: Option; MachineCenterNo: Code[20])
+    local procedure AddProdOrderRoutingLine(ProductionOrder: Record "Production Order"; CapacityType: Enum "Capacity Type"; MachineCenterNo: Code[20])
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
@@ -1191,7 +1185,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
             LibraryUtility.GenerateRandomCode(ProdOrderRoutingLine.FieldNo("Operation No."), DATABASE::"Prod. Order Routing Line"), 1,
             MaxStrLen(ProdOrderRoutingLine."Operation No.") - 1));
         ProdOrderRoutingLine.Insert(true);
-        ProdOrderRoutingLine.Validate(Type, ProdOrderRoutingLineType);
+        ProdOrderRoutingLine.Validate(Type, CapacityType);
         ProdOrderRoutingLine.Validate("No.", MachineCenterNo);
         ProdOrderRoutingLine.Validate("Setup Time", LibraryRandom.RandInt(5));
         ProdOrderRoutingLine.Validate("Run Time", LibraryRandom.RandInt(5));
@@ -1689,7 +1683,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
           AdditionalCurrencyExist);
     end;
 
-    local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; EntryType: Option; PostingDate: Date; CostAmount: Decimal)
+    local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; CostAmount: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -1716,7 +1710,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         Assert.AreEqual(TotalAmount, 0, ErrMessageNotFoundZeroAmt);
     end;
 
-    local procedure VerifyValueEntryValuationDate(ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; EntryType: Option; PostingDate: Date; ExpectedValuationDate: Date)
+    local procedure VerifyValueEntryValuationDate(ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ExpectedValuationDate: Date)
     var
         ValueEntry: Record "Value Entry";
     begin

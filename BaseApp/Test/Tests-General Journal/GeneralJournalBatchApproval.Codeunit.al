@@ -1259,7 +1259,7 @@ codeunit 134321 "General Journal Batch Approval"
         ApprovalCommentLine.Init();
         ApprovalCommentLine."Table ID" := ApprovalEntry."Table ID";
         ApprovalCommentLine.SetRange("Table ID", ApprovalEntry."Table ID");
-        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type";
+        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type".AsInteger();
         ApprovalCommentLine."Document No." := ApprovalEntry."Document No.";
         ApprovalCommentLine."Record ID to Approve" := ApprovalEntry."Record ID to Approve";
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");

@@ -119,7 +119,7 @@ table 407 "Graph Mail Setup"
     var
         AzureADMgt: Codeunit "Azure AD Mgt.";
     begin
-        SendTraceTag('00001QL', GraphMailCategoryTxt, VERBOSITY::Normal, GraphMailGetTokenMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001QL', GraphMailGetTokenMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphMailCategoryTxt);
         AccessToken := AzureADMgt.GetTokenFromTokenCacheState(ResourceId, AadUserId, GetTokenCacheState, TokenCacheState);
 
         if AccessToken = '' then
@@ -166,7 +166,7 @@ table 407 "Graph Mail Setup"
         Payload := GraphMail.PrepareMessage(TempEmailItem);
 
         SendWebRequest(Payload, Token);
-        SendTraceTag('00001QM', GraphMailCategoryTxt, VERBOSITY::Normal, GraphMailSentMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001QM', GraphMailSentMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphMailCategoryTxt);
     end;
 
     [NonDebuggable]
@@ -228,7 +228,7 @@ table 407 "Graph Mail Setup"
         if ResourceId = '' then
             Error(MissingClientInfoErr);
 
-        SendTraceTag('00001QN', GraphMailCategoryTxt, VERBOSITY::Normal, GraphMailSetupStartMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001QN', GraphMailSetupStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphMailCategoryTxt);
         Token := AzureADMgt.GetOnBehalfAccessTokenAndTokenCacheState(ResourceId, TokenCacheState);
 
         if Token = '' then
@@ -241,11 +241,11 @@ table 407 "Graph Mail Setup"
             if GuiAllowed and ShowDialogs then
                 Message(MissingEmailMsg);
             Init; // clean the rec
-            SendTraceTag('00007IB', GraphMailCategoryTxt, VERBOSITY::Warning, UserInfoFailedErr, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00007IB', UserInfoFailedErr, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphMailCategoryTxt);
             exit(false);
         end;
 
-        SendTraceTag('00001QO', GraphMailCategoryTxt, VERBOSITY::Normal, GraphMailSetupFinishMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001QO', GraphMailSetupFinishMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphMailCategoryTxt);
 
         exit(true);
     end;

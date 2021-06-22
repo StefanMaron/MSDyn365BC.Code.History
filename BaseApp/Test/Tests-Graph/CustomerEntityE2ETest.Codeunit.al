@@ -52,7 +52,7 @@ codeunit 135502 "Customer Entity E2E Test"
         CreateSimpleCustomer(Customer);
 
         // [WHEN] The user makes a GET request for a given Customer.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.SystemId, PAGE::"Customer Entity", ServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(Response, TargetURL);
 
         // [THEN] The response text contains the customer information.
@@ -75,7 +75,7 @@ codeunit 135502 "Customer Entity E2E Test"
         Commit();
 
         // [WHEN] The user calls GET for the given Customer.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.SystemId, PAGE::"Customer Entity", ServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(Response, TargetURL);
 
         // [THEN] The response text contains the customer information.
@@ -101,7 +101,7 @@ codeunit 135502 "Customer Entity E2E Test"
         Commit();
 
         // [WHEN] The user calls GET for the given Customer.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.SystemId, PAGE::"Customer Entity", ServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(Response, TargetURL);
 
         // [THEN] The response text contains the customer information.
@@ -132,10 +132,10 @@ codeunit 135502 "Customer Entity E2E Test"
         // [GIVEN] The user has constructed a detailed customer JSON object to send to the service
         if GeneralLedgerSetup.UseVat then begin
             LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
-            TaxAreaID := VATBusinessPostingGroup.Id;
+            TaxAreaID := VATBusinessPostingGroup.SystemId;
         end else begin
             TaxArea.CreateTaxArea(LibraryUtility.GenerateGUID, '', '');
-            TaxAreaID := TaxArea.Id;
+            TaxAreaID := TaxArea.SystemId;
         end;
 
         Assert.IsFalse(IsNullGuid(TaxAreaID), 'Id was not generated for VAT / Sales Tax');
@@ -249,7 +249,7 @@ codeunit 135502 "Customer Entity E2E Test"
         CustNo := Customer."No.";
 
         // [WHEN] The user makes a DELETE request to the endpoint for the customer.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.SystemId, PAGE::"Customer Entity", ServiceNameTxt);
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', Response);
 
         // [THEN] The response is empty.
@@ -279,7 +279,7 @@ codeunit 135502 "Customer Entity E2E Test"
         RequestBody := GetSimpleCustomerJSON(TempCustomer);
 
         // [WHEN] The user makes a patch request to the service.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.SystemId, PAGE::"Customer Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, Response);
 
         // [THEN] The response text contains the new values.
@@ -312,7 +312,7 @@ codeunit 135502 "Customer Entity E2E Test"
 
         // [WHEN] The user makes a patch request to the service and specifies address fields.
         Commit(); // Need to commit transaction to unlock integration record table.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.SystemId, PAGE::"Customer Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, Response);
 
         // [THEN] The response contains the new values.
@@ -342,7 +342,7 @@ codeunit 135502 "Customer Entity E2E Test"
 
         // [WHEN] A user makes a PATCH request to the specific customer.
         Commit(); // Need to commit in order to unlock integration record table.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.SystemId, PAGE::"Customer Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, Response);
 
         // [THEN] The response contains the updated customer.
@@ -357,32 +357,6 @@ codeunit 135502 "Customer Entity E2E Test"
         Customer.TestField(County, '');
         Customer.TestField("Country/Region Code", '');
         Customer.TestField("Post Code", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestDemoDataIntegrationRecordIdsForCustomers()
-    var
-        IntegrationRecord: Record "Integration Record";
-        Customer: Record Customer;
-        BlankGuid: Guid;
-    begin
-        // [SCENARIO 184722] Integration record ids should be set correctly.
-        // [GIVEN] We have demo data applied correctly
-        Customer.SetRange(Id, BlankGuid);
-        Assert.IsFalse(Customer.FindFirst, 'No customers should have null id');
-
-        // [WHEN] We look through all customers.
-        // [THEN] The integration record for the customer should have the same record id.
-        Customer.Reset();
-        if Customer.Find('-') then begin
-            repeat
-                Assert.IsTrue(IntegrationRecord.Get(Customer.Id), 'The Customer id should exist in the integration record table');
-                Assert.AreEqual(
-                  IntegrationRecord."Record ID", Customer.RecordId,
-                  'The integration record for the Customer should have the same record id as the Customer.');
-            until Customer.Next <= 0
-        end;
     end;
 
     local procedure CreateCustomerWithAddress(var Customer: Record Customer)
@@ -463,9 +437,9 @@ codeunit 135502 "Customer Entity E2E Test"
         LineJSON := LibraryGraphMgt.AddComplexTypetoJSON(LineJSON, TaxLiableNameTxt, 'true');
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, TaxAreaIdNameTxt, LibraryGraphMgt.StripBrackets(TaxAreaID));
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, CurrencyCodeNameTxt, Currency.Code);
-        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, PaymentTermsIdNameTxt, PaymentTerms.Id);
-        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, ShipmentMethodIdNameTxt, ShipmentMethod.Id);
-        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, PaymentMethodIdNameTxt, PaymentMethod.Id);
+        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, PaymentTermsIdNameTxt, PaymentTerms.SystemId);
+        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, ShipmentMethodIdNameTxt, ShipmentMethod.SystemId);
+        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, PaymentMethodIdNameTxt, PaymentMethod.SystemId);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, BlockedNameTxt, Format(Customer.Blocked::All));
 
         exit(LineJSON)

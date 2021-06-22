@@ -46,7 +46,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         ApplyAmountToAllClose(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -1);
     end;
 
-    local procedure ApplyAmountToAllClose(DocumentType: Option; DocumentType2: Option; AmountSign: Integer)
+    local procedure ApplyAmountToAllClose(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; AmountSign: Integer)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
@@ -95,7 +95,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         ApplyAmountToAllOpen(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -1);
     end;
 
-    local procedure ApplyAmountToAllOpen(DocumentType: Option; DocumentType2: Option; AmountSign: Integer)
+    local procedure ApplyAmountToAllOpen(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; AmountSign: Integer)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
@@ -152,7 +152,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         ApplyAmoutToPartialClose(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -1);
     end;
 
-    local procedure ApplyAmoutToPartialClose(DocumentType: Option; DocumentType2: Option; AmountSign: Integer)
+    local procedure ApplyAmoutToPartialClose(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; AmountSign: Integer)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
@@ -203,7 +203,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         ApplyAmoutToSameDocumentType(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -1);
     end;
 
-    local procedure ApplyAmoutToSameDocumentType(DocumentType: Option; DocumentType2: Option; AmountSign: Integer)
+    local procedure ApplyAmoutToSameDocumentType(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; AmountSign: Integer)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
@@ -268,7 +268,7 @@ codeunit 134002 "ERM Partial Payment Customer"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(1000, 2));
     end;
 
-    local procedure SetAppliesIDOnCustomerEntry(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure SetAppliesIDOnCustomerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -399,7 +399,7 @@ codeunit 134002 "ERM Partial Payment Customer"
           -LibraryRandom.RandDec(50, 2));
     end;
 
-    local procedure ChangeAmountToApply(DocumentType: Option; DocumentType2: Option; InvAmount: Decimal; PmtAmount: Decimal; AmountToApply: Decimal)
+    local procedure ChangeAmountToApply(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; InvAmount: Decimal; PmtAmount: Decimal; AmountToApply: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -523,7 +523,7 @@ codeunit 134002 "ERM Partial Payment Customer"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure SameSignApplicationError(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure SameSignApplicationError(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -565,7 +565,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         SetApplyIdToDocument(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -1);
     end;
 
-    local procedure SetApplyIdToDocument(DocumentType: Option; DocumentType2: Option; AmountSign: Integer)
+    local procedure SetApplyIdToDocument(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; AmountSign: Integer)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -656,7 +656,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         Commit();
     end;
 
-    local procedure ApplyAndPostGeneralJournal(GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option)
+    local procedure ApplyAndPostGeneralJournal(GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine2: Record "Gen. Journal Line";
@@ -677,7 +677,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         GeneralJournal.Post.Invoke;  // Post General Journal.
     end;
 
-    local procedure ApplyPaymentToCustomer(CustomerNo: Code[20]; NumberOfLines: Integer; DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyPaymentToCustomer(CustomerNo: Code[20]; NumberOfLines: Integer; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -692,7 +692,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
     end;
 
-    local procedure ApplyCustomerLedgerEntry(var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; AmountToApply: Decimal)
+    local procedure ApplyCustomerLedgerEntry(var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AmountToApply: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GLRegister: Record "G/L Register";
@@ -723,7 +723,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
     end;
 
-    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; NumberOfLines: Integer; DocumentType: Option; CustomerNo: Code[20]; Amount: Decimal)
+    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; NumberOfLines: Integer; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; Amount: Decimal)
     var
         Counter: Integer;
     begin
@@ -740,7 +740,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         exit(Customer."No.");
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; InvoiceAmount: Decimal; PaymentAmount: Decimal) DocumentNo: Code[20]
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; InvoiceAmount: Decimal; PaymentAmount: Decimal) DocumentNo: Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -764,7 +764,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; Amount: Decimal; CustomerNo: Code[20]; DocumentNo: Code[20])
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CustomerNo: Code[20]; DocumentNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
@@ -776,7 +776,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         end;
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         Customer: Record Customer;
@@ -847,7 +847,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         until TempGenJournalLine.Next = 1;
     end;
 
-    local procedure CreatePostMultipleGenJnlLine(var TempGenJournalLine: Record "Gen. Journal Line" temporary; DocumentType: Option; DocumentType2: Option; NoOfLines: Integer; Amount: Decimal; Amount2: Decimal)
+    local procedure CreatePostMultipleGenJnlLine(var TempGenJournalLine: Record "Gen. Journal Line" temporary; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; NoOfLines: Integer; Amount: Decimal; Amount2: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -879,14 +879,14 @@ codeunit 134002 "ERM Partial Payment Customer"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.FindFirst;
     end;
 
-    local procedure LargeAmountApplicationError(DocumentType: Option; DocumentType2: Option; Amount: Decimal; AmountToApply: Decimal)
+    local procedure LargeAmountApplicationError(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; AmountToApply: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -953,7 +953,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CustLedgerEntry.TestField("Amount to Apply", AmountToApply);
     end;
 
-    local procedure VerifyRemainingAmountOnLedger(DocumentType: Option; CustomerNo: Code[20]; RemainingAmount: Decimal)
+    local procedure VerifyRemainingAmountOnLedger(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; RemainingAmount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

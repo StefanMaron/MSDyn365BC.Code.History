@@ -883,7 +883,7 @@ codeunit 134264 "Applied Payment Entries Test"
         CustomerCard.Close;
     end;
 
-    local procedure VerifyAppliedPaymentEntryCount(BankAccRecon: Record "Bank Acc. Reconciliation"; ExpectedMatchedLineNo: Integer; ExpectedMatchedEntryNo: Integer; ExpectedMatchedAccType: Option; ExpectedMatchedAccNo: Code[50]; ExpectedAppliedAmount: Decimal; ExpectedCount: Integer)
+    local procedure VerifyAppliedPaymentEntryCount(BankAccRecon: Record "Bank Acc. Reconciliation"; ExpectedMatchedLineNo: Integer; ExpectedMatchedEntryNo: Integer; ExpectedMatchedAccType: Enum "Gen. Journal Account Type"; ExpectedMatchedAccNo: Code[50]; ExpectedAppliedAmount: Decimal; ExpectedCount: Integer)
     var
         AppliedPmtEntry: Record "Applied Payment Entry";
     begin
@@ -901,14 +901,14 @@ codeunit 134264 "Applied Payment Entries Test"
         end;
     end;
 
-    local procedure VerifyAppliedPaymentEntry(BankAccRecon: Record "Bank Acc. Reconciliation"; BankAccReconLineNo: Integer; ExpectedMatchedEntryNo: Integer; ExpectedMatchedAccType: Option; ExpectedMatchedAccNo: Code[50]; ExpectedAppliedAmount: Decimal)
+    local procedure VerifyAppliedPaymentEntry(BankAccRecon: Record "Bank Acc. Reconciliation"; BankAccReconLineNo: Integer; ExpectedMatchedEntryNo: Integer; ExpectedMatchedAccType: Enum "Gen. Journal Account Type"; ExpectedMatchedAccNo: Code[50]; ExpectedAppliedAmount: Decimal)
     begin
         VerifyAppliedPaymentEntryCount(
           BankAccRecon, BankAccReconLineNo,
           ExpectedMatchedEntryNo, ExpectedMatchedAccType, ExpectedMatchedAccNo, ExpectedAppliedAmount, 1);
     end;
 
-    local procedure VerifyNoAppliedPaymentEntry(BankAccRecon: Record "Bank Acc. Reconciliation"; BankAccReconLineNo: Integer; ExpectedMatchedEntryNo: Integer; ExpectedMatchedAccType: Option; ExpectedMatchedAccNo: Code[50]; ExpectedMatchedAmount: Decimal)
+    local procedure VerifyNoAppliedPaymentEntry(BankAccRecon: Record "Bank Acc. Reconciliation"; BankAccReconLineNo: Integer; ExpectedMatchedEntryNo: Integer; ExpectedMatchedAccType: Enum "Gen. Journal Account Type"; ExpectedMatchedAccNo: Code[50]; ExpectedMatchedAmount: Decimal)
     begin
         VerifyAppliedPaymentEntryCount(
           BankAccRecon, BankAccReconLineNo,

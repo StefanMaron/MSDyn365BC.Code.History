@@ -37,11 +37,11 @@ page 176 "Standard Purchase Code Subform"
 
                     trigger OnValidate()
                     begin
-                        TempOptionLookupBuffer.SetCurrentType(Type);
+                        TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
                         if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Purchases) then
                             Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
-                        UpdateTypeText;
+                        UpdateTypeText();
                         TypeOnAfterValidate;
                     end;
                 }
@@ -58,7 +58,7 @@ page 176 "Standard Purchase Code Subform"
                         if "No." = xRec."No." then
                             exit;
 
-                        UpdateTypeText;
+                        UpdateTypeText();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -79,7 +79,7 @@ page 176 "Standard Purchase Code Subform"
 
                         if "No." = '' then
                             Type := Type::" ";
-                        UpdateTypeText;
+                        UpdateTypeText();
                     end;
                 }
                 field(Quantity; Quantity)
@@ -218,7 +218,7 @@ page 176 "Standard Purchase Code Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }
@@ -233,7 +233,7 @@ page 176 "Standard Purchase Code Subform"
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
-        UpdateTypeText;
+        UpdateTypeText();
     end;
 
     trigger OnInit()
@@ -248,7 +248,7 @@ page 176 "Standard Purchase Code Subform"
             Type := xRec.Type;
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             Type := Type::Item;
-        UpdateTypeText;
+        UpdateTypeText();
 
         Clear(ShortcutDimCode);
     end;
@@ -261,10 +261,12 @@ page 176 "Standard Purchase Code Subform"
     var
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        ShortcutDimCode: array[8] of Code[20];
         TypeAsText: Text[30];
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

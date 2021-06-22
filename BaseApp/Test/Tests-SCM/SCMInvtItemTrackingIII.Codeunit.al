@@ -27,7 +27,6 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryRandom: Codeunit "Library - Random";
         LibraryPatterns: Codeunit "Library - Patterns";
         TrackingOption: Option AssignSerialLot,AssignLotNo,SelectEntries,SetLotNo,SetQuantity,SetLotNoAndQty,SetSerialNoAndQty,SelectAndApplyToItemEntry,SetEntriesToInvoice,InvokeOK;
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         isInitialized: Boolean;
         ItemTrackingExistErr: Label 'You must delete the existing item tracking before modifying';
         ItemTrackingQuantityError: Label 'Item tracking defined for item %1 in the %2 accounts for more than the quantity you have entered.';
@@ -589,7 +588,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     end;
 
     [Normal]
-    local procedure LOTNoForLongTransferChain(TraceMethod: Option; CostingMethod: Option)
+    local procedure LOTNoForLongTransferChain(TraceMethod: Option; CostingMethod: Enum "Costing Method")
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         ItemTracing: TestPage "Item Tracing";
@@ -1305,7 +1304,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemJournalLine.Validate("Bin Code", '');
     end;
 
-    local procedure ChangeBinWithLotITOnItemJournalS1(WhseTracking: Boolean; SignFactor: Integer; EntryType: Option)
+    local procedure ChangeBinWithLotITOnItemJournalS1(WhseTracking: Boolean; SignFactor: Integer; EntryType: Enum "Item Ledger Document Type")
     var
         ItemJournalLine: Record "Item Journal Line";
         BinCode: Code[20];
@@ -1321,7 +1320,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ChangeBinAndVerifyOnItemJournalLine(ItemJournalLine, BinCode, WhseTracking, SignFactor);
     end;
 
-    local procedure ChangeBinWithLotITOnItemJournalS2(WhseTracking: Boolean; SignFactor: Integer; EntryType: Option)
+    local procedure ChangeBinWithLotITOnItemJournalS2(WhseTracking: Boolean; SignFactor: Integer; EntryType: Enum "Item Ledger Document Type")
     var
         ItemJournalLine: Record "Item Journal Line";
         BinCode: Code[20];
@@ -1337,7 +1336,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemJournalLine.Validate("Bin Code", BinCode);
     end;
 
-    local procedure ChangeBinWithLotITOnItemJournalS3(WhseTracking: Boolean; SignFactor: Integer; EntryType: Option)
+    local procedure ChangeBinWithLotITOnItemJournalS3(WhseTracking: Boolean; SignFactor: Integer; EntryType: Enum "Item Ledger Document Type")
     var
         ItemJournalLine: Record "Item Journal Line";
         BinCode: Code[20];
@@ -1470,7 +1469,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ChangeBinWithSerialITOnItemJournalS3(true, -1, ItemJournalLine."Entry Type"::"Negative Adjmt.");
     end;
 
-    local procedure ChangeBinWithSerialITOnItemJournalS1(WhseTracking: Boolean; SignFactor: Integer; EntryType: Option)
+    local procedure ChangeBinWithSerialITOnItemJournalS1(WhseTracking: Boolean; SignFactor: Integer; EntryType: Enum "Item Ledger Document Type")
     var
         ItemJournalLine: Record "Item Journal Line";
         BinCode: Code[20];
@@ -1486,7 +1485,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ChangeBinAndVerifyOnItemJournalLine(ItemJournalLine, BinCode, WhseTracking, SignFactor);
     end;
 
-    local procedure ChangeBinWithSerialITOnItemJournalS2(WhseTracking: Boolean; SignFactor: Integer; EntryType: Option)
+    local procedure ChangeBinWithSerialITOnItemJournalS2(WhseTracking: Boolean; SignFactor: Integer; EntryType: Enum "Item Ledger Document Type")
     var
         ItemJournalLine: Record "Item Journal Line";
         BinCode: Code[20];
@@ -1502,7 +1501,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemJournalLine.Validate("Bin Code", BinCode);
     end;
 
-    local procedure ChangeBinWithSerialITOnItemJournalS3(WhseTracking: Boolean; SignFactor: Integer; EntryType: Option)
+    local procedure ChangeBinWithSerialITOnItemJournalS3(WhseTracking: Boolean; SignFactor: Integer; EntryType: Enum "Item Ledger Document Type")
     var
         ItemJournalLine: Record "Item Journal Line";
         BinCode: Code[20];
@@ -2554,7 +2553,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         CreatePurchInvoiceFromReceipt(PurchaseHeader, PurchaseHeader."No.");
 
         // [THEN] "Quantity per Unit of Measure" in purchase invoice tracking lines is "X"
-        VerifyQtyPerUoMOnReservation(PurchaseHeader."Document Type", PurchaseHeader."No.", ItemUOM."Qty. per Unit of Measure");
+        VerifyQtyPerUoMOnReservation(PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", ItemUOM."Qty. per Unit of Measure");
     end;
 
     [Test]
@@ -2674,7 +2673,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // [GIVEN] Receive 2 Boxes (24 base UoM)
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialLot);
         LibraryVariableStorage.Enqueue(2 * QtyPerUoM);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         PurchaseLine.Find;
         SetPurchaseLineQtyToReceive(PurchaseLine, 2);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2911,7 +2910,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, LibraryRandom.RandDate(10), AsmItem."No.", '', LibraryRandom.RandIntInRange(5, 10), '');
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialLot);
-        AssemblyHeader.OpenItemTrackingLines;
+        AssemblyHeader.OpenItemTrackingLines();
 
         // [GIVEN] Set "Quantity to Assemble" to 1 pc in the assembly order and post it. The first assembled serial no. = "S1".
         // [GIVEN] Set "Quantity to Assemble" to 1 pc in the assembly order again and post it. The second assembled serial no. = "S2".
@@ -2977,7 +2976,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryAssembly.FindLinkedAssemblyOrder(
           AssemblyHeader, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);
-        AssemblyHeader.OpenItemTrackingLines;
+        AssemblyHeader.OpenItemTrackingLines();
 
         // [GIVEN] Ship and invoice the sales order.
         PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -3059,7 +3058,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // [GIVEN] Item Tracking Line page opened from Warehouse Shipment
         SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", WarehouseActivityLine."Source Line No.");
         LibraryVariableStorage.Enqueue(TrackingOption::InvokeOK);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // [WHEN] Item Tracking Lines page closed at ItemTrackingLinesPageHandler
         // [THEN] Item Tracking Lines page closed with no errors
@@ -3182,7 +3181,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
             Assert.AreEqual('', ProdOrderComponents.GetValidationError, 'Validation Error should not exist');
     end;
 
-    local procedure CreateAndModifyItem(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateAndModifyItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
@@ -3307,14 +3306,14 @@ codeunit 137262 "SCM Invt Item Tracking III"
           PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, LocationCode, Qty, false);
     end;
 
-    local procedure CreatePurchaseOrderWithReservation(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; Reserve: Boolean)
+    local procedure CreatePurchaseOrderWithReservation(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; Reserve: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, ItemNo, LocationCode, Qty);
         if Reserve then
-            PurchaseLine.ShowReservation;
+            PurchaseLine.ShowReservation();
     end;
 
     [Normal]
@@ -3333,7 +3332,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ParentItem.Modify(true);
     end;
 
-    local procedure CreateItemJournalLineWithIT(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; TrackingOption: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateItemJournalLineWithIT(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; TrackingOption: Option; ItemNo: Code[20]; Quantity: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
@@ -3343,7 +3342,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);  // Using Random value for Quantity.
     end;
 
-    local procedure CreateItemJournalLineWithBin(var ItemJournalLine: Record "Item Journal Line"; Bin: Record Bin; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateItemJournalLineWithBin(var ItemJournalLine: Record "Item Journal Line"; Bin: Record Bin; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
@@ -3363,7 +3362,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryJob.CreateJobTask(Job, JobTask);
     end;
 
-    local procedure CreateJobJournalLineWithBin(var JobJournalLine: Record "Job Journal Line"; Bin: Record Bin; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateJobJournalLineWithBin(var JobJournalLine: Record "Job Journal Line"; Bin: Record Bin; Type: Enum "Job Journal Line Type"; No: Code[20]; Quantity: Decimal)
     var
         JobTask: Record "Job Task";
     begin
@@ -3440,7 +3439,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         CreatePurchaseOrder(PurchaseLine, ItemNo, LocationCode, Qty);
         UpdateGeneralPostingSetup(PurchaseLine);
         LibraryVariableStorage.Enqueue(TrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
     end;
 
@@ -3449,7 +3448,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         CreatePurchaseOrder(PurchaseLine, ItemNo, LocationCode, Qty);
         LibraryVariableStorage.Enqueue(TrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(QtyToTrack);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
     end;
 
@@ -3491,7 +3490,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure CreateAndRefreshProductionOrderWithIT(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20]; Quantity: Decimal; TrackingOption: Option)
+    local procedure CreateAndRefreshProductionOrderWithIT(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; TrackingOption: Option)
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
@@ -3501,7 +3500,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst;
-        ProdOrderLine.OpenItemTrackingLines;
+        ProdOrderLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateItemTrackingCode(SNSpecific: Boolean; LOTSpecific: Boolean): Code[10]
@@ -3555,9 +3554,9 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComponent.FindFirst;
-        ProdOrderComponent.AutoReserve;
+        ProdOrderComponent.AutoReserve();
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
-        ProdOrderComponent.OpenItemTrackingLines;
+        ProdOrderComponent.OpenItemTrackingLines();
     end;
 
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
@@ -3605,7 +3604,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     begin
         CreateSalesDocument(SalesLine, No, LocationCode, Quantity);
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);  // Enqueue value for ItemTrackingLinesPageHandler.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, Invoice));
     end;
@@ -3651,34 +3650,31 @@ codeunit 137262 "SCM Invt Item Tracking III"
     local procedure CreateTransferOrder(var TransferLine: Record "Transfer Line"; LocationFromCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
     var
         TransferHeader: Record "Transfer Header";
-        Direction: Option Outbound,Inbound;
     begin
         PrepareTransferOrder(TransferHeader, TransferLine, LocationFromCode, ItemNo, Quantity);
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);  // Enqueue value for ItemTrackingLinesPageHandler.
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
     end;
 
     local procedure CreateTransferOrderApplyToItemEntry(var TransferLine: Record "Transfer Line"; LocationFromCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; ItemLedgEntryNo: Integer)
     var
         TransferHeader: Record "Transfer Header";
-        Direction: Option Outbound,Inbound;
     begin
         PrepareTransferOrder(TransferHeader, TransferLine, LocationFromCode, ItemNo, Quantity);
         LibraryVariableStorage.Enqueue(TrackingOption::SelectAndApplyToItemEntry);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(ItemLedgEntryNo); // Enqueue value for SelectApplyToItemEntry.
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
     end;
 
     local procedure CreateAndPostTransferOrderWithIT(var TransferLine: Record "Transfer Line"; LocationFromCode: Code[10]; LocationToCode: Code[10]; InTransitCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
     var
         TransferHeader: Record "Transfer Header";
-        Direction: Option Outbound,Inbound;
         TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotNo,SetQuantity,AssignSerialLot;
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationFromCode, LocationToCode, InTransitCode);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);  // Enqueue value for ItemTrackingLinesPageHandler.
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
     end;
 
@@ -3687,7 +3683,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         SalesHeader: Record "Sales Header";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        SalesHeaderCopySalesDoc(SalesHeader, DocType::"Posted Credit Memo", DocNo, true, true);
+        SalesHeaderCopySalesDoc(SalesHeader, "Sales Document Type From"::"Posted Credit Memo", DocNo, true, true);
         exit(SalesHeader."No.");
     end;
 
@@ -3696,7 +3692,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         PurchHeader: Record "Purchase Header";
     begin
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
-        PurchaseHeaderCopyPurchDoc(PurchHeader, DocType::"Posted Credit Memo", DocNo, true, true);
+        PurchaseHeaderCopyPurchDoc(PurchHeader, "Purchase Document Type From"::"Posted Credit Memo", DocNo, true, true);
         exit(PurchHeader."No.");
     end;
 
@@ -3910,7 +3906,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         WhseShipmentRelease.Release(WhseShptHeader);
     end;
 
-    local procedure FindAndUpdateSalesLine(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindAndUpdateSalesLine(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -3921,7 +3917,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         SalesLine.Validate(Quantity, SalesLine.Quantity / 2);  // Take Partial Quantity.
     end;
 
-    local procedure FindAndUpdatePurchaseLine(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindAndUpdatePurchaseLine(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -4114,7 +4110,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
         LibraryVariableStorage.Enqueue(PurchaseLine."No.");
         LibraryVariableStorage.Enqueue(QtyToInvoiceBase);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
     end;
 
@@ -4126,7 +4122,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
         LibraryVariableStorage.Enqueue(SalesLine."No.");
         LibraryVariableStorage.Enqueue(QtyToInvoiceBase);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
     end;
 
@@ -4134,11 +4130,11 @@ codeunit 137262 "SCM Invt Item Tracking III"
     begin
         LibraryVariableStorage.Enqueue(SalesTrackingOption);
         LibraryVariableStorage.Enqueue(QtyToTrack);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
-    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Option)
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -4211,7 +4207,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         end;
     end;
 
-    local procedure SetupLotTrackingItemJournalLineForChangeBin(var ItemJournalLine: Record "Item Journal Line"; SignFactor: Integer; WhseTracking: Boolean; EntryType: Option; SetNoOption: Option): Code[20]
+    local procedure SetupLotTrackingItemJournalLineForChangeBin(var ItemJournalLine: Record "Item Journal Line"; SignFactor: Integer; WhseTracking: Boolean; EntryType: Enum "Item Ledger Document Type"; SetNoOption: Option): Code[20]
     var
         Bin: array[2] of Record Bin;
         ItemNo: Code[20];
@@ -4258,7 +4254,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Create purchase line and add Lot No for tracking
         CreatePurchaseLineWithBin(PurchaseLine, Bin[1], ItemNo, SignFactor * Qty[1]);
         EnqueueVariablesForSetLotTrackingNo(LotNo, Qty, SignFactor, SetNoOption);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         exit(Bin[2].Code);
     end;
 
@@ -4275,7 +4271,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Create Prod. Order Component line and add Lot No for tracking
         CreateProdOrderCompWithBin(ProdOrderComp, Bin[1], ItemNo, SignFactor * Qty[1]);
         EnqueueVariablesForSetLotTrackingNo(LotNo, Qty, SignFactor, SetNoOption);
-        ProdOrderComp.OpenItemTrackingLines;
+        ProdOrderComp.OpenItemTrackingLines();
         exit(Bin[2].Code);
     end;
 
@@ -4310,7 +4306,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
             ItemNo, IncreaseItemInventoryWithBin(Bin[2], ItemNo, Qty[1] - Qty[2], TrackingOption::AssignLotNo));
     end;
 
-    local procedure SetupSerialTrackingItemJournalLineForChangeBin(var ItemJournalLine: Record "Item Journal Line"; SignFactor: Integer; WhseTracking: Boolean; EntryType: Option; SetNoOption: Option): Code[20]
+    local procedure SetupSerialTrackingItemJournalLineForChangeBin(var ItemJournalLine: Record "Item Journal Line"; SignFactor: Integer; WhseTracking: Boolean; EntryType: Enum "Item Ledger Document Type"; SetNoOption: Option): Code[20]
     var
         Bin: array[2] of Record Bin;
         ItemJournalDocNo: array[2] of Code[20];
@@ -4357,7 +4353,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Create purchase line and add Serial No for tracking
         CreatePurchaseLineWithBin(PurchaseLine, Bin[1], ItemNo, SignFactor * Qty);
         EnqueueVariablesForSetSerialTrackingNo(ItemJournalDocNo, ItemNo, PurchaseLine.Quantity, SignFactor, SetNoOption);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         exit(Bin[2].Code);
     end;
 
@@ -4374,7 +4370,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Create Prod. Order component and add Serial No for tracking
         CreateProdOrderCompWithBin(ProdOrderComp, Bin[1], ItemNo, SignFactor * Qty);
         EnqueueVariablesForSetSerialTrackingNo(ItemJournalDocNo, ItemNo, ProdOrderComp.Quantity, SignFactor, SetNoOption);
-        ProdOrderComp.OpenItemTrackingLines;
+        ProdOrderComp.OpenItemTrackingLines();
         exit(Bin[2].Code);
     end;
 
@@ -4414,7 +4410,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         FindItemLedgerEntry(ItemLedgerEntry, Item."No.");
     end;
 
-    local procedure SetupLongChainWithTransferAndLot(var ItemLedgerEntry: Record "Item Ledger Entry"; CostingMethod: Option)
+    local procedure SetupLongChainWithTransferAndLot(var ItemLedgerEntry: Record "Item Ledger Entry"; CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         Location: Record Location;
@@ -4588,22 +4584,22 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemTrackingLines."Appl.-to Item Entry".SetValue(EntryNo);
     end;
 
-    local procedure SalesHeaderCopySalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option; DocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
+    local procedure SalesHeaderCopySalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From"; DocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.InitializeRequest(DocType, DocNo, IncludeHeader, RecalcLines);
+        CopySalesDocument.SetParameters(DocType, DocNo, IncludeHeader, RecalcLines);
         CopySalesDocument.UseRequestPage(false);
         CopySalesDocument.Run;
     end;
 
-    local procedure PurchaseHeaderCopyPurchDoc(var PurchHeader: Record "Purchase Header"; DocType: Option; DocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
+    local procedure PurchaseHeaderCopyPurchDoc(var PurchHeader: Record "Purchase Header"; DocType: Enum "Sales Document Type From"; DocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
     var
         CopyPurchDocument: Report "Copy Purchase Document";
     begin
         CopyPurchDocument.SetPurchHeader(PurchHeader);
-        CopyPurchDocument.InitializeRequest(DocType, DocNo, IncludeHeader, RecalcLines);
+        CopyPurchDocument.SetParameters(DocType, DocNo, IncludeHeader, RecalcLines);
         CopyPurchDocument.UseRequestPage(false);
         CopyPurchDocument.Run;
     end;
@@ -4631,11 +4627,10 @@ codeunit 137262 "SCM Invt Item Tracking III"
     local procedure UpdateQuantityOnItemTrackingLines(var TransferLine: Record "Transfer Line"; Quantity: Decimal)
     var
         TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotNo,SetQuantity,AssignSerialLot;
-        Direction: Option Outbound,Inbound;
     begin
         LibraryVariableStorage.Enqueue(TrackingOption::SetQuantity);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(Quantity);
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
     end;
 
     local procedure UpdateGeneralPostingSetup(PurchaseLine: Record "Purchase Line")
@@ -4722,7 +4717,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         end;
     end;
 
-    local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; LocationCode: Code[10]; EntryType: Option; Quantity: Decimal)
+    local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; LocationCode: Code[10]; EntryType: Enum "Item Ledger Document Type"; Quantity: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

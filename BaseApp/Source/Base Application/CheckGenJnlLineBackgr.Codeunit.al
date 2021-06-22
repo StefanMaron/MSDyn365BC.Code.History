@@ -1,0 +1,169 @@
+codeunit 9081 "Check Gen. Jnl. Line. Backgr."
+{
+    trigger OnRun()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        Args: Dictionary of [Text, Text];
+        Results: Dictionary of [Text, Text];
+    begin
+        Args := Page.GetBackgroundParameters();
+
+        RunCheck(Args, TempErrorMessage);
+
+        PackErrorMessagesToResults(TempErrorMessage, Results);
+
+        Page.SetBackgroundTaskResult(Results);
+    end;
+
+    var
+        DocumentOutOfBalanceErr: Label 'Document No. %1 is out of balance by %2', Comment = '%1 - document number, %2 = amount';
+
+    procedure RunCheck(Args: Dictionary of [Text, Text]; var TempErrorMessage: Record "Error Message" temporary)
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        TempGenJnlLine: Record "Gen. Journal Line" temporary;
+        ErrorHandlingParameters: Record "Error Handling Parameters";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+    begin
+        ErrorHandlingParameters.FromArgs(Args);
+
+        GenJnlLine.SetRange("Journal Template Name", ErrorHandlingParameters."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", ErrorHandlingParameters."Journal Batch Name");
+        if ErrorHandlingParameters."Full Batch Check" then
+            CheckGenJnlLines(GenJnlLine, TempErrorMessage)
+        else
+            if ErrorHandlingParameters."Line Modified" then begin
+                CheckDocument(GenJnlLine, ErrorHandlingParameters."Previous Document No.", ErrorHandlingParameters."Previous Posting Date", TempErrorMessage);
+
+                if ErrorHandlingParameters.IsGenJnlDocumentChanged() then
+                    CheckDocument(GenJnlLine, ErrorHandlingParameters."Document No.", ErrorHandlingParameters."Posting Date", TempErrorMessage);
+            end;
+
+        if JournalErrorsMgt.GetDeletedGenJnlLine(TempGenJnlLine, false) then begin
+            TempGenJnlLine.FindSet();
+            repeat
+                CheckDocument(GenJnlLine, TempGenJnlLine."Document No.", TempGenJnlLine."Posting Date", TempErrorMessage);
+            until TempGenJnlLine.Next() = 0;
+        end;
+    end;
+
+    local procedure CheckDocument(var GenJnlLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PostingDate: Date; var TempErrorMessage: Record "Error Message" temporary)
+    begin
+        GenJnlLine.SetRange("Document No.", DocumentNo);
+        GenJnlLine.SetRange("Posting Date", PostingDate);
+        CheckGenJnlLines(GenJnlLine, TempErrorMessage);
+    end;
+
+    local procedure CheckGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; var TempErrorMessage: Record "Error Message" temporary)
+    begin
+        if GenJnlLine.FindSet() then
+            repeat
+                CheckGenJnlLine(GenJnlLine, TempErrorMessage);
+            until GenJnlLine.Next() = 0;
+    end;
+
+    local procedure CheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var TempErrorMessage: Record "Error Message" temporary)
+    begin
+        RunGenJnlCheckLineCodeunit(GenJnlLine, TempErrorMessage);
+        CheckGenJnlLineDocBalance(GenJnlLine, TempErrorMessage);
+
+        OnAfterCheckGenJnlLine(GenJnlLine, TempErrorMessage);
+    end;
+
+    local procedure RunGenJnlCheckLineCodeunit(GenJnlLine: Record "Gen. Journal Line"; var TempErrorMessage: Record "Error Message" temporary)
+    var
+        TempLineErrorMessage: Record "Error Message" temporary;
+        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
+    begin
+        GenJnlCheckLine.SetLogErrorMode(true);
+
+        if GenJnlCheckLine.Run(GenJnlLine) then begin
+            GenJnlCheckLine.GetErrors(TempLineErrorMessage);
+            CopyErrorsToBuffer(TempLineErrorMessage, TempErrorMessage);
+        end else begin
+            InsertTempLineErrorMessage(
+                TempLineErrorMessage,
+                GenJnlLine.RecordId(),
+                0,
+                GetLastErrorText(),
+                false);
+
+            CopyErrorsToBuffer(TempLineErrorMessage, TempErrorMessage);
+        end;
+    end;
+
+    local procedure CheckGenJnlLineDocBalance(GenJnlLine: Record "Gen. Journal Line"; var TempErrorMessage: Record "Error Message" temporary)
+    var
+        TempLineErrorMessage: Record "Error Message" temporary;
+        DocumentBalance: Decimal;
+        Description: Text;
+    begin
+        GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        DocumentBalance := GenJnlLine.GetDocumentBalance(GenJnlLine);
+        if DocumentBalance <> 0 then begin
+            Description := StrSubstNo(DocumentOutOfBalanceErr, GenJnlLine."Document No.", DocumentBalance);
+            InsertTempLineErrorMessage(
+                TempLineErrorMessage,
+                GenJnlLine.RecordId(),
+                GenJnlLine.FieldNo("Balance (LCY)"),
+                Description,
+                DocumentBalanceErrorExists(Description, TempErrorMessage));
+
+            TempErrorMessage.Reset();
+            CopyErrorsToBuffer(TempLineErrorMessage, TempErrorMessage);
+        end;
+    end;
+
+    local procedure DocumentBalanceErrorExists(Description: Text; var TempErrorMessage: Record "Error Message" temporary): Boolean
+    begin
+        TempErrorMessage.SetRange(Description, Description);
+        exit(not TempErrorMessage.IsEmpty());
+    end;
+
+    local procedure InsertTempLineErrorMessage(var TempLineErrorMessage: Record "Error Message" temporary; ContextRecordId: RecordId; ContextFieldNo: Integer; Description: Text; Duplicate: Boolean)
+    begin
+        TempLineErrorMessage."Record ID" := ContextRecordId;
+        TempLineErrorMessage."Field Number" := ContextFieldNo;
+        TempLineErrorMessage."Table Number" := Database::"Gen. Journal Line";
+        TempLineErrorMessage."Context Record ID" := ContextRecordId;
+        TempLineErrorMessage."Context Field Number" := ContextFieldNo;
+        TempLineErrorMessage."Context Table Number" := Database::"Gen. Journal Line";
+        TempLineErrorMessage.Description := CopyStr(Description, 1, MaxStrLen(TempLineErrorMessage.Description));
+        TempLineErrorMessage.Duplicate := Duplicate;
+        TempLineErrorMessage.Insert();
+    end;
+
+    local procedure CopyErrorsToBuffer(var TempLineErrorMessage: Record "Error Message" temporary; var TempErrorMessage: Record "Error Message" temporary)
+    var
+        ID: Integer;
+    begin
+        If TempErrorMessage.FindLast() then;
+        ID := TempErrorMessage.ID + 1;
+
+        if TempLineErrorMessage.FindSet() then
+            repeat
+                TempErrorMessage.TransferFields(TempLineErrorMessage);
+                TempErrorMessage.ID := ID;
+                TempErrorMessage.Insert();
+                ID += 1;
+            until TempLineErrorMessage.Next() = 0;
+    end;
+
+    local procedure PackErrorMessagesToResults(var TempErrorMessage: Record "Error Message" temporary; var Results: Dictionary of [Text, Text])
+    var
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        JSON: Text;
+    begin
+        if TempErrorMessage.FindSet() then
+            repeat
+                JSON := ErrorMessageMgt.ErrorMessage2JSON(TempErrorMessage);
+                Results.Add(Format(TempErrorMessage.ID), JSON);
+            until TempErrorMessage.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var TempErrorMessage: Record "Error Message" temporary)
+    begin
+    end;
+}

@@ -18,7 +18,6 @@ codeunit 212 "Res. Jnl.-Post Line"
         ResLedgEntry: Record "Res. Ledger Entry";
         Res: Record Resource;
         ResReg: Record "Resource Register";
-        GenPostingSetup: Record "General Posting Setup";
         ResUOM: Record "Resource Unit of Measure";
         ResJnlCheckLine: Codeunit "Res. Jnl.-Check Line";
         NextEntryNo: Integer;
@@ -79,11 +78,6 @@ codeunit 212 "Res. Jnl.-Post Line"
 
             IsHandled := false;
             OnBeforeGenPostingSetupGet(ResJnlLine, IsHandled);
-            if not IsHandled then
-                if (GenPostingSetup."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group") or
-                    (GenPostingSetup."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group")
-                then
-                    GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
 
             "Resource Group No." := Res."Resource Group No.";
 
@@ -178,6 +172,7 @@ codeunit 212 "Res. Jnl.-Post Line"
     begin
     end;
 
+    [Obsolete('The event was introduced to bypass dead code that imposed strict setup. Dead code is now removed', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenPostingSetupGet(var ResJournalLine: Record "Res. Journal Line"; var IsHandled: Boolean)
     begin

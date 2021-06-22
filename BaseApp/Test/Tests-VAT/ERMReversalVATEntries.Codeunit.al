@@ -181,7 +181,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
         exit(Currency.Code);
     end;
 
-    local procedure CreateAndPostGenJournalLines(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; AccountType: Option; DocumentType: Option; DocumentType2: Option)
+    local procedure CreateAndPostGenJournalLines(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -250,7 +250,7 @@ codeunit 134126 "ERM Reversal VAT Entries"
             Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
-    local procedure VerifyCustomerAndGLEntry(DoumentNo: Code[20]; BalAccountNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure VerifyCustomerAndGLEntry(DoumentNo: Code[20]; BalAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GLEntry: Record "G/L Entry";

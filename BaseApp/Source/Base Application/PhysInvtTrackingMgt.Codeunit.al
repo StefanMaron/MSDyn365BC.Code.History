@@ -101,7 +101,7 @@ codeunit 5889 "Phys. Invt. Tracking Mgt."
                 Qty :=
                   CreateReservEntry.TransferReservEntry(
                     DATABASE::"Item Journal Line",
-                    ItemJnlLine."Entry Type",
+                    ItemJnlLine."Entry Type".AsInteger(),
                     ItemJnlLine."Journal Template Name",
                     ItemJnlLine."Journal Batch Name",
                     0,

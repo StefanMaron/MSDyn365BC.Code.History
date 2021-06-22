@@ -55,6 +55,7 @@ codeunit 5478 "Graph Mgt - Journal Lines"
         end
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";

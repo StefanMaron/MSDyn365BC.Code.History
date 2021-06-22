@@ -178,7 +178,7 @@ page 526 "Posted Sales Invoice Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")

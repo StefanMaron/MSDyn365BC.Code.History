@@ -69,7 +69,7 @@ codeunit 137307 "SCM Assembly Reports"
         // 1. Verify print of sales orders (report 205)
         CleanSetupData;
         CheckInit;
-        SalesOrderNo := CreateAssemblySalesDocument(1, 1, false);
+        SalesOrderNo := CreateAssemblySalesDocument(1, "Assembly Document Type"::Order, false);
         SalesHeader2.Get(SalesHeader2."Document Type"::Order, SalesOrderNo);
         ActualReportLanguage := Language.GetLanguageIdOrDefault(SalesHeader2."Language Code");
         ActualGlobalLanguage := GlobalLanguage;
@@ -101,7 +101,7 @@ codeunit 137307 "SCM Assembly Reports"
         Initialize;
         CleanSetupData;
         CheckInit;
-        SalesOrderNo := CreateAssemblySalesDocument(1, 1, false);
+        SalesOrderNo := CreateAssemblySalesDocument(1, "Assembly Document Type"::Order, false);
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrderNo);
         ActualReportLanguage := Language.GetLanguageIdOrDefault(SalesHeader."Language Code");
         ActualGlobalLanguage := GlobalLanguage;
@@ -135,7 +135,7 @@ codeunit 137307 "SCM Assembly Reports"
         Initialize;
         CleanSetupData;
         CheckInit;
-        SalesOrderNo := CreateAssemblySalesDocument(1, 1, false);
+        SalesOrderNo := CreateAssemblySalesDocument(1, "Assembly Document Type"::Order, false);
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrderNo);
         ActualReportLanguage := Language.GetLanguageIdOrDefault(SalesHeader."Language Code");
         ActualGlobalLanguage := GlobalLanguage;
@@ -362,14 +362,14 @@ codeunit 137307 "SCM Assembly Reports"
         BOMComponent.DeleteAll(true);
         GetSerialNoLotNoCode;
         // Create serialno item and provide supply
-        AssemblyItemNo[5] := LibraryAssembly.CreateItem(Item, 0, 0, '', '');
+        AssemblyItemNo[5] := LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::" ", '', '');
         Item.Get(AssemblyItemNo[5]);
         Item."Item Tracking Code" := SerialNoCode;
         Item.Modify();
         SerialNoComponentQuantity := 6; // Quantity to put in stock of the serial no. item
         CreateAssemblyComponent(AssemblyItemNo[1], AssemblyItemNo[5], 2, 5, 1);  // Quantity = SerialNoComponentQuantity, Line = 5, Type = 1 = item
         LibraryInventory.CreateItemJournalLine(
-          ItemJournalLine, AssemblyTemplate, AssemblyBatch, 0, AssemblyItemNo[5], SerialNoComponentQuantity);
+          ItemJournalLine, AssemblyTemplate, AssemblyBatch, "Item Ledger Document Type"::" ", AssemblyItemNo[5], SerialNoComponentQuantity);
         ItemJournalLine.Validate("Location Code", BlueLocation);
         ItemJournalLine.Modify();
         SN := 'SN000';
@@ -380,14 +380,15 @@ codeunit 137307 "SCM Assembly Reports"
         SN := 'SN000';
         LibraryInventory.PostItemJournalLine(AssemblyTemplate, AssemblyBatch);
         // Create LotNo Item and provide supply
-        AssemblyItemNo[6] := LibraryAssembly.CreateItem(Item, 0, 0, '', '');
+        AssemblyItemNo[6] := LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::" ", '', '');
         Item.Get(AssemblyItemNo[6]);
         Item."Item Tracking Code" := LotNoCode;
         Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
         Item.Modify();
         LotNoComponentQuantity := 8;
         CreateAssemblyComponent(AssemblyItemNo[1], AssemblyItemNo[6], LotNoComponentQuantity, 6, 1);  // Quantity = LotNoComponentQuantity, Line = 6, Type = 1 = item
-        LibraryInventory.CreateItemJournalLine(ItemJournalLine, AssemblyTemplate, AssemblyBatch, 0, AssemblyItemNo[6], 100);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, AssemblyTemplate, AssemblyBatch, "Item Ledger Document Type"::" ", AssemblyItemNo[6], 100);
         ItemJournalLine.Validate("Location Code", BlueLocation);
         ItemJournalLine.Modify();
         InsertReservationEntry(ItemJournalLine, '', 'LOT001');
@@ -480,14 +481,14 @@ codeunit 137307 "SCM Assembly Reports"
         LibraryAssembly: Codeunit "Library - Assembly";
         i: Integer;
     begin
-        LibraryAssembly.CreateItem(Item, 0, 3, '', '');
+        LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::Assembly, '', '');
         Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
         Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
         Item.Modify();
         AssemblyItemNo[1] := Item."No.";
         CreateVariant(1);
         for i := 2 to 4 do begin
-            LibraryAssembly.CreateItem(Item, 0, 0, '', '');
+            LibraryAssembly.CreateItem(Item, "Costing Method"::FIFO, "Replenishment System"::" ", '', '');
             AssemblyItemNo[i] := Item."No.";
             CreateVariant(i);
             CreateAssemblyComponent(AssemblyItemNo[1], AssemblyItemNo[i], i, i, 1);
@@ -565,7 +566,8 @@ codeunit 137307 "SCM Assembly Reports"
         AssemblyBatch := ItemJournalBatch.Name;
         ItemJournalBatch.Insert(true);
         for i := 2 to 4 do begin
-            LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, AssemblyBatch, 0, AssemblyItemNo[i], 1000);
+            LibraryInventory.CreateItemJournalLine(
+                ItemJournalLine, ItemJournalTemplate.Name, AssemblyBatch, "Item Ledger Document Type"::" ", AssemblyItemNo[i], 1000);
             ItemJournalLine.Validate("Location Code", BlueLocation);
             ItemJournalLine.Validate("Variant Code", UsedVariantCode[i]);
             ItemJournalLine.Modify();
@@ -573,7 +575,7 @@ codeunit 137307 "SCM Assembly Reports"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, AssemblyBatch);
     end;
 
-    local procedure CreateAssemblySalesDocument(AssemblyItemQuantity: Decimal; HeaderType: Option Quote,"Order",BlanketOrder; CustomizeOrder: Boolean): Code[20]
+    local procedure CreateAssemblySalesDocument(AssemblyItemQuantity: Decimal; DocumentType: Enum "Assembly Document Type"; CustomizeOrder: Boolean): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -581,12 +583,12 @@ codeunit 137307 "SCM Assembly Reports"
         LibrarySales: Codeunit "Library - Sales";
     begin
         SalesHeader.Init();
-        case HeaderType of
-            HeaderType::Quote:
+        case DocumentType of
+            DocumentType::Quote:
                 SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
-            HeaderType::Order:
+            DocumentType::Order:
                 SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-            HeaderType::BlanketOrder:
+            DocumentType::"Blanket Order":
                 SalesHeader."Document Type" := SalesHeader."Document Type"::"Blanket Order";
         end;
         SalesHeader."No." := NoSeriesMgt.GetNextNo(NoSeriesName, Today, true);
@@ -595,13 +597,13 @@ codeunit 137307 "SCM Assembly Reports"
         SalesHeader.Validate("Location Code", BlueLocation);
         SalesHeader.Modify();
         if AssemblyItemQuantity > 0 then begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, 2, AssemblyItemNo[1], AssemblyItemQuantity); // 2 -> Item
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Item, AssemblyItemNo[1], AssemblyItemQuantity); // 2 -> Item
             SalesLine.Validate("Location Code", BlueLocation);
             SalesLine.Validate("Variant Code", UsedVariantCode[1]);
             SalesLine.Modify(true);
             if CustomizeOrder then
                 CustomizeAssemblyOrder(SalesLine);
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, 3, ResourceNo, 1);                           // 3 -> Resource
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Resource, ResourceNo, 1);                           // 3 -> Resource
         end;
         exit(SalesHeader."No.");
     end;

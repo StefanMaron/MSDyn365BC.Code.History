@@ -535,7 +535,7 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         CheckLedgerEntry.Modify();
     end;
 
-    local procedure CreateAndPostCheckLedgerEntry(AccountType: Option; AccountNo: Code[20]) DocumentNo: Code[20]
+    local procedure CreateAndPostCheckLedgerEntry(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]) DocumentNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         BankAccount: Record "Bank Account";
@@ -561,14 +561,14 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
             exit(CheckLedgerEntry."Positive Pay Exported");
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BankPaymentType: Option; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
     begin
         CreateGenJournalLine(
           GenJournalLine, DocumentType, AccountType, AccountNo, BankPaymentType, CurrencyCode, BalAccountNo, Amount, AppliesToDocNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BankPaymentType: Option; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";

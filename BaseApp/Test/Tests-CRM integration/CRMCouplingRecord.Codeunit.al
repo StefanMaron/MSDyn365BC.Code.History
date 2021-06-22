@@ -793,7 +793,7 @@ codeunit 139174 "CRM Coupling Record"
         // [WHEN] Type the name of a non existing account
         asserterror CRMCouplingRecord.CRMName.SetValue('WrongName');
         // [THEN] Error message: "does not exist in Dynamics CRM."
-        Assert.ExpectedError(StrSubstNo('does not exist in %1.', CRMProductName.SHORT));
+        Assert.ExpectedError(StrSubstNo('does not exist in %1.', CRMProductName.CDSServiceName()));
     end;
 
     [Test]
@@ -1147,7 +1147,8 @@ codeunit 139174 "CRM Coupling Record"
           'The Enabled setting of the CRM Name Control should be opposite to the value of the Create New in CRM Control');
     end;
 
-    [Test]
+    //[Test]
+    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
     [Scope('OnPrem')]
     procedure TestDeletedCustomerCouplingKeptUndeleted()
     var
@@ -1209,6 +1210,8 @@ codeunit 139174 "CRM Coupling Record"
         JobID: Guid;
         ErrorMsg: Text;
     begin
+        Initialize();
+        ResetDefaultCRMSetupConfiguration();
         // [FEATURE] [UT]
         // [SCENARIO] GetLatestError() returns error message from the synch. job to CRM if both directions failed.
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
@@ -1241,6 +1244,8 @@ codeunit 139174 "CRM Coupling Record"
         JobID: Guid;
         ErrorMsg: Text;
     begin
+        Initialize();
+        ResetDefaultCRMSetupConfiguration();
         // [FEATURE] [UT]
         // [SCENARIO] GetLatestError() returns error message from the synch. job to CRM if 'to CRM' direction failed.
         JobQueueEntry.DeleteAll();
@@ -1271,6 +1276,8 @@ codeunit 139174 "CRM Coupling Record"
         JobID: Guid;
         ErrorMsg: Text;
     begin
+        Initialize();
+        ResetDefaultCRMSetupConfiguration();
         // [FEATURE] [UT]
         // [SCENARIO] GetLatestError() returns error message from the synch. job to NAV if 'to NAV' direction failed.
         JobQueueEntry.DeleteAll();
@@ -1301,6 +1308,8 @@ codeunit 139174 "CRM Coupling Record"
         JobID: Guid;
         ErrorMsg: Text;
     begin
+        Initialize();
+        ResetDefaultCRMSetupConfiguration();
         // [FEATURE] [UT] [Skipped Record]
         // [SCENARIO] Skipped is set to 'Yes' if sync to NAV failed twice with the same error.
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(

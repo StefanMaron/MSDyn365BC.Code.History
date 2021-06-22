@@ -25,6 +25,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         UnexpectedValueMsg: Label 'Unexpected %1 value in %2.';
         CalcStdCostOptionTxt: Label '&Top level,&All levels';
         MissingOutputQst: Label 'Some output is still missing.';
@@ -32,7 +33,6 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         RunAdjCostMsg: Label 'You must run the Adjust Cost - Item Entries batch job once to adjust these.';
         ItemFilterTok: Label '%1|%2|%3';
         ApplyItemEntryErr: Label '%1 must have a value in %2: Document Type=%3, Document No.=%4';
-        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         CalculatePer: Option "Item Ledger Entry",Item;
         CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
         isInitialized: Boolean;
@@ -820,7 +820,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemJournalLine: Record "Item Journal Line";
         Quantity: Decimal;
         Amount: Decimal;
-        "count": Integer;
+        Counter: Integer;
     begin
         // Setup: Create Item with SN Specific Tracking, Create and Post ItemJournal with Positive Adjustment.
         Initialize;
@@ -831,7 +831,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         CreateItemJnlLinewFixQtyAndAmt(
           ItemJournalBatch, ItemJournalLine, Item, WorkDate, ItemJournalLine."Entry Type"::"Positive Adjmt.", Quantity, Amount);
 
-        for count := 1 to 3 do
+        for Counter := 1 to 3 do
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine,
               LibraryUtility.GenerateRandomCode(ItemLedgerEntry.FieldNo("Serial No."), DATABASE::"Item Ledger Entry"), '', 1);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -851,7 +851,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemJournalLine: Record "Item Journal Line";
         Quantity: Decimal;
         Amount: Decimal;
-        "count": Integer;
+        Counter: Integer;
     begin
         // Setup: Create Item with SN Specific Tracking, Create and Post ItemJournal with Purchase.
         Initialize;
@@ -863,7 +863,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         CreateItemJnlLinewFixQtyAndAmt(
           ItemJournalBatch, ItemJournalLine, Item, WorkDate, ItemJournalLine."Entry Type"::Purchase, Quantity, Amount);
 
-        for count := 1 to 3 do
+        for Counter := 1 to 3 do
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine,
               LibraryUtility.GenerateRandomCode(ItemLedgerEntry.FieldNo("Serial No."), DATABASE::"Item Ledger Entry"), '', 1);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -1200,7 +1200,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryManufacturing.UpdateManufacturingSetup(MfgSetup, '', Location.Code, true, true, true);
     end;
 
-    local procedure CreateAndModifyItem(ReplenishmentSystem: Option; CostingMethod: Option): Code[20]
+    local procedure CreateAndModifyItem(ReplenishmentSystem: Enum "Replenishment System"; CostingMethod: Enum "Costing Method"): Code[20]
     var
         Item: Record Item;
     begin
@@ -1235,7 +1235,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
-    local procedure CreateItem(CostingMethod: Option; ReplenishmentSystem: Option; StandardCost: Decimal; OrderTrackingPolicy: Option): Code[20]
+    local procedure CreateItem(CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; StandardCost: Decimal; OrderTrackingPolicy: Enum "Order Tracking Policy"): Code[20]
     var
         Item: Record Item;
     begin
@@ -1256,20 +1256,17 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     end;
 
     [Normal]
-    local procedure CreateItemWithAdditionalUOM_FixedVal(var Item: Record Item; var NewItemUOM: Record "Item Unit of Measure"; CostingMethod: Option; UnitCost: Decimal; QtyperUoM: Decimal)
+    local procedure CreateItemWithAdditionalUOM_FixedVal(var Item: Record Item; var NewItemUOM: Record "Item Unit of Measure"; CostingMethod: Enum "Costing Method"; UnitCost: Decimal; QtyperUoM: Decimal)
     begin
         LibraryPatterns.MAKEItem(Item, CostingMethod, UnitCost, 0, 0, '');
         LibraryInventory.CreateItemUnitOfMeasureCode(NewItemUOM, Item."No.", QtyperUoM);
     end;
 
-    local procedure CreateItemWithAvgCosting(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateItemWithAvgCosting(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
-        with Item do
-            Get(
-              CreateItem(
-                "Costing Method"::Average,
-                ReplenishmentSystem,
-                LibraryRandom.RandDec(10, 2),
+        Item.Get(
+            CreateItem(
+                Item."Costing Method"::Average, ReplenishmentSystem, LibraryRandom.RandDec(10, 2),
                 "Order Tracking Policy"::None));
     end;
 
@@ -1283,13 +1280,13 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         exit(ItemTrackingCode.Code);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Option; ItemNo: Code[20])
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     begin
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, JournalTemplateName, JournalBatchName, EntryType, ItemNo, LibraryRandom.RandInt(100));  // Taking Random Quantity.
     end;
 
-    local procedure CreateItemJnlLinewFixQtyAndAmt(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; Item: Record Item; PostingDate: Date; EntryType: Option; Quantity: Decimal; Amount: Decimal)
+    local procedure CreateItemJnlLinewFixQtyAndAmt(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; Item: Record Item; PostingDate: Date; EntryType: Enum "Item Ledger Document Type"; Quantity: Decimal; Amount: Decimal)
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
         LibraryInventory.MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, PostingDate, EntryType, Quantity);
@@ -1373,7 +1370,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ProducedItem.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyFromVendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -1381,7 +1378,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocWithDirectUnitCost(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure CreatePurchaseDocWithDirectUnitCost(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         CreatePurchaseHeader(PurchaseHeader, DocumentType, VendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
@@ -1395,12 +1392,12 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ReservationEntry: Record "Reservation Entry";
         PurchaseLine: Record "Purchase Line";
         TrackingSpecification: Record "Tracking Specification";
-        "count": Integer;
+        Counter: Integer;
         SerialNoAssgnCount: Integer;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
 
-        for count := 1 to 2 do begin
+        for Counter := 1 to 2 do begin
             LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo,
               LibraryRandom.RandInt(100));
             PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // Use Random Direct Unit Cost.
@@ -1444,7 +1441,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
           VendorNo, PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", Quantity, LocationCode);
 
         LibraryVariableStorage.Enqueue(ItemNo); // ItemNo used in PostedTransferReceiptLinePageHandler.
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -1669,7 +1666,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemLedgerEntry.FindFirst;
     end;
 
-    local procedure FilterValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; ItemLedgerEntryType: Option)
+    local procedure FilterValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type")
     begin
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
         ValueEntry.SetRange("Document No.", DocumentNo);
@@ -1722,7 +1719,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         RequisitionLine.FindFirst;
     end;
 
-    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Option)
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -1913,7 +1910,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemLedgerEntry.TestField("Cost Amount (Actual) (ACY)", 0);
     end;
 
-    local procedure VerifyItemLedgerCostAmount(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntryType: Option; ItemNo: Code[20]; Quantity: Decimal; ExpectedCostAmount: Decimal; Positive: Boolean)
+    local procedure VerifyItemLedgerCostAmount(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; ExpectedCostAmount: Decimal; Positive: Boolean)
     begin
         FindItemLedgerEntry(ItemLedgerEntry, ItemNo, Positive);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
@@ -1925,7 +1922,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     end;
 
     [Normal]
-    local procedure VerifyILETotalCost(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntryType: Option; ItemNo: Code[20]; Positive: Boolean; ExpCostAmount: Decimal)
+    local procedure VerifyILETotalCost(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Positive: Boolean; ExpCostAmount: Decimal)
     var
         ActualCostAmount: Decimal;
     begin
@@ -1969,7 +1966,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         until ValueEntry.Next = 0;
     end;
 
-    local procedure VerifyValueEntry(ItemNo: Code[20]; DocumentNo: Code[20]; ItemLedgerEntryType: Option; CostAmountActual: Decimal)
+    local procedure VerifyValueEntry(ItemNo: Code[20]; DocumentNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type"; CostAmountActual: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin

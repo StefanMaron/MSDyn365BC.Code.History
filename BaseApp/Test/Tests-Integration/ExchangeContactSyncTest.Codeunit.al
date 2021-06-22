@@ -752,7 +752,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         PrepareExchangeContactWithCompanyName(Contact, CompanyName);
     end;
 
-    local procedure PrepareContactWithType(var Contact: Record Contact; ContactType: Integer; ContactName: Text[50])
+    local procedure PrepareContactWithType(var Contact: Record Contact; ContactType: Enum "Contact Type"; ContactName: Text[50])
     begin
         Contact.Init();
         Contact."No." := '';
@@ -1056,7 +1056,7 @@ codeunit 133780 "Exchange Contact Sync Test"
         ExchangeContact.Insert(true);
     end;
 
-    local procedure VerifyImportedContact(var ImportedContact: Record Contact; Name: Text[100]; Email: Text[80]; Type: Integer; CompanyNo: Code[20]; CompanyName: Text[100])
+    local procedure VerifyImportedContact(var ImportedContact: Record Contact; Name: Text[100]; Email: Text[80]; Type: Enum "Contact Type"; CompanyNo: Code[20]; CompanyName: Text[100])
     begin
         Assert.AreEqual(Type, ImportedContact.Type, '');
         Assert.AreEqual(Email, ImportedContact."E-Mail", '');

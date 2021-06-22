@@ -90,12 +90,8 @@ codeunit 5816 "Undo Return Receipt Line"
                     PostedWhseRcptLineFound :=
                     WhseUndoQty.FindPostedWhseRcptLine(
                         PostedWhseRcptLine,
-                        DATABASE::"Return Receipt Line",
-                        "Document No.",
-                        DATABASE::"Sales Line",
-                        SalesLine."Document Type"::"Return Order",
-                        "Return Order No.",
-                        "Return Order Line No.");
+                        DATABASE::"Return Receipt Line", "Document No.",
+                        DATABASE::"Sales Line", SalesLine."Document Type"::"Return Order".AsInteger(), "Return Order No.", "Return Order Line No.");
 
                     ItemShptEntryNo := PostItemJnlLine(ReturnRcptLine, DocLineNo);
                 end else
@@ -234,24 +230,20 @@ codeunit 5816 "Undo Return Receipt Line"
 
             OnAfterCopyItemJnlLineFromReturnRcpt(ItemJnlLine, ReturnRcptHeader, ReturnRcptLine);
 
-            WhseUndoQty.InsertTempWhseJnlLine(ItemJnlLine,
-              DATABASE::"Sales Line",
-              SalesLine."Document Type"::"Return Order",
-              "Return Order No.",
-              "Return Order Line No.",
-              TempWhseJnlLine."Reference Document"::"Posted Rtrn. Rcpt.",
-              TempWhseJnlLine,
-              NextLineNo);
+            WhseUndoQty.InsertTempWhseJnlLine(
+                ItemJnlLine,
+                DATABASE::"Sales Line", SalesLine."Document Type"::"Return Order".AsInteger(), "Return Order No.", "Return Order Line No.",
+                TempWhseJnlLine."Reference Document"::"Posted Rtrn. Rcpt.", TempWhseJnlLine, NextLineNo);
 
             if "Item Rcpt. Entry No." <> 0 then begin
                 ItemJnlPostLine.Run(ItemJnlLine);
                 exit(ItemJnlLine."Item Shpt. Entry No.");
             end;
-            UndoPostingMgt.CollectItemLedgEntries(TempApplyToEntryList, DATABASE::"Return Receipt Line",
-              "Document No.", "Line No.", "Quantity (Base)", "Item Rcpt. Entry No.");
+            UndoPostingMgt.CollectItemLedgEntries(
+                TempApplyToEntryList, DATABASE::"Return Receipt Line", "Document No.", "Line No.", "Quantity (Base)", "Item Rcpt. Entry No.");
 
-            UndoPostingMgt.PostItemJnlLineAppliedToList(ItemJnlLine, TempApplyToEntryList,
-              Quantity, "Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation);
+            UndoPostingMgt.PostItemJnlLineAppliedToList(
+                ItemJnlLine, TempApplyToEntryList, Quantity, "Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation);
 
             exit(0); // "Item Shpt. Entry No."
         end;

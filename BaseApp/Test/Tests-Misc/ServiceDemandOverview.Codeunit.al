@@ -370,7 +370,7 @@ codeunit 136131 "Service Demand Overview"
 
         // [WHEN] Filter Planning Worksheet Lines for Item and run Reserve.
         FilterRequisitionLine(RequisitionLine, Item."No.");
-        RequisitionLine.ShowReservation;
+        RequisitionLine.ShowReservation();
 
         // [THEN] Demand is fully reserved
         // Verification Done on ReservationPageHandler.
@@ -397,7 +397,7 @@ codeunit 136131 "Service Demand Overview"
 
         // [WHEN] Filter Planning Worksheet Lines for Item and run Reserve.
         FilterRequisitionLine(RequisitionLine, Item."No.");
-        RequisitionLine.ShowReservation;
+        RequisitionLine.ShowReservation();
 
         // [THEN] Demand is fully reserved
         // Verification Done on AvailableJobPlanningLinesPageHandler and ReservationEntriesPageHandler.
@@ -426,7 +426,7 @@ codeunit 136131 "Service Demand Overview"
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
 
         // [WHEN] Open "Available - Job Planning Lines" page and run "Reserve" action
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // [THEN] Full supply quantity is reserved
     end;
@@ -452,7 +452,7 @@ codeunit 136131 "Service Demand Overview"
 
         // [WHEN] Filter Planning Worksheet Lines for Item and run Reserve.
         FilterRequisitionLine(RequisitionLine, Item."No.");
-        RequisitionLine.ShowReservation;
+        RequisitionLine.ShowReservation();
 
         // [THEN] Demand is fully reserved
     end;
@@ -482,7 +482,7 @@ codeunit 136131 "Service Demand Overview"
         AutoReservePurchaseLine(PurchaseLine, OriginalQuantity);
 
         // [WHEN] Open "Available - Job Planning Lines" page and cancel reservation
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // [THEN] Reserved quantity is 0
     end;
@@ -512,7 +512,7 @@ codeunit 136131 "Service Demand Overview"
         AutoReservePurchaseLine(PurchaseLine, OriginalQuantity);
 
         // [WHEN] Open "Available - Service Lines" page and cancel reservation
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // [THEN] Reserved quantity is 0
     end;
@@ -538,7 +538,7 @@ codeunit 136131 "Service Demand Overview"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
 
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
     end;
 
     [Test]
@@ -562,7 +562,7 @@ codeunit 136131 "Service Demand Overview"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate);
 
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
     end;
 
     [Test]
@@ -587,7 +587,7 @@ codeunit 136131 "Service Demand Overview"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate);
 
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
     end;
 
     [Test]
@@ -611,7 +611,7 @@ codeunit 136131 "Service Demand Overview"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate);
 
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
     end;
 
     [Test]
@@ -636,7 +636,7 @@ codeunit 136131 "Service Demand Overview"
 
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', ItemNo, OriginalQuantity, '', WorkDate);
-        JobPlanningLine.ShowReservation;
+        JobPlanningLine.ShowReservation();
     end;
 
     [Test]
@@ -660,7 +660,7 @@ codeunit 136131 "Service Demand Overview"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
     end;
 
     [Test]
@@ -685,7 +685,7 @@ codeunit 136131 "Service Demand Overview"
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, OriginalQuantity, '', WorkDate);
-        JobPlanningLine.ShowReservation;
+        JobPlanningLine.ShowReservation();
     end;
 
     [Test]
@@ -708,7 +708,7 @@ codeunit 136131 "Service Demand Overview"
         CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", OriginalQuantity);
         FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
 
-        ProdOrderLine.ShowReservation;
+        ProdOrderLine.ShowReservation();
     end;
 
     [Test]
@@ -731,7 +731,7 @@ codeunit 136131 "Service Demand Overview"
         CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", OriginalQuantity);
         FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
 
-        ProdOrderLine.ShowReservation;
+        ProdOrderLine.ShowReservation();
     end;
 
     [Test]
@@ -753,7 +753,7 @@ codeunit 136131 "Service Demand Overview"
 
         CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", OriginalQuantity);
 
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
     end;
 
     [Test]
@@ -776,7 +776,7 @@ codeunit 136131 "Service Demand Overview"
 
         CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", OriginalQuantity);
 
-        JobPlanningLine.ShowReservation;
+        JobPlanningLine.ShowReservation();
     end;
 
     [Test]
@@ -801,7 +801,7 @@ codeunit 136131 "Service Demand Overview"
         CreateServiceDemandBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate);
         CreateTransferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", OriginalQuantity);
 
-        TransferLine.ShowReservation;
+        TransferLine.ShowReservation();
     end;
 
     [Test]
@@ -828,7 +828,7 @@ codeunit 136131 "Service Demand Overview"
         CreateJobDemandAtBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate);
         CreateTransferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", OriginalQuantity);
 
-        TransferLine.ShowReservation;
+        TransferLine.ShowReservation();
     end;
 
     [Test]
@@ -857,7 +857,7 @@ codeunit 136131 "Service Demand Overview"
           CreateServiceDemandBasis(Item."No.", OriginalQuantity, ToLocation.Code, '', WorkDate));
         CreateTransferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", OriginalQuantity);
 
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
     end;
 
     [Test]
@@ -887,7 +887,7 @@ codeunit 136131 "Service Demand Overview"
 
         CreateTransferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", OriginalQuantity);
 
-        JobPlanningLine.ShowReservation;
+        JobPlanningLine.ShowReservation();
     end;
 
     [Test]
@@ -907,7 +907,7 @@ codeunit 136131 "Service Demand Overview"
         CreateServiceDemand(Item."No.", OriginalQuantity);
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', OriginalQuantity, '');
-        AssemblyHeader.ShowReservation;
+        AssemblyHeader.ShowReservation();
     end;
 
     [Test]
@@ -927,7 +927,7 @@ codeunit 136131 "Service Demand Overview"
         CreateJobDemand(Item."No.", OriginalQuantity);
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', OriginalQuantity, '');
-        AssemblyHeader.ShowReservation;
+        AssemblyHeader.ShowReservation();
     end;
 
     [Test]
@@ -950,7 +950,7 @@ codeunit 136131 "Service Demand Overview"
           ServiceLine, ServiceLine."Document Type"::Order, CreateServiceDemand(Item."No.", OriginalQuantity));
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', OriginalQuantity, '');
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
     end;
 
     [Test]
@@ -973,7 +973,7 @@ codeunit 136131 "Service Demand Overview"
         JobPlanningLine.FindFirst;
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', OriginalQuantity, '');
-        JobPlanningLine.ShowReservation;
+        JobPlanningLine.ShowReservation();
     end;
 
     [Test]
@@ -1000,7 +1000,7 @@ codeunit 136131 "Service Demand Overview"
         AutoReservePurchaseLine(PurchaseLine, OriginalQuantity);
 
         // [WHEN] Open "Available - Job Planning Lines" page and run drill down action in "Current Reserved Quantity" field
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // [THEN] Total quantity in reservation entries = "X"
     end;
@@ -1030,7 +1030,7 @@ codeunit 136131 "Service Demand Overview"
         AutoReservePurchaseLine(PurchaseLine, OriginalQuantity);
 
         // [WHEN] Open "Available - Service Lines" page and run drill down action in "Current Reserved Quantity" field
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // [THEN] Total quantity in reservation entries = "X"
     end;
@@ -1098,7 +1098,7 @@ codeunit 136131 "Service Demand Overview"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReorderingPolicy: Option)
+    local procedure CreateItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy")
     begin
         // Creates a new item. Wrapper for the library method.
         LibraryInventory.CreateItem(Item);
@@ -1318,7 +1318,7 @@ codeunit 136131 "Service Demand Overview"
         RequisitionLine.FindSet;
     end;
 
-    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Option; ProdOrderNo: Code[20])
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
@@ -1341,7 +1341,7 @@ codeunit 136131 "Service Demand Overview"
         Error(NoDataForExecutionError);
     end;
 
-    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20])
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);

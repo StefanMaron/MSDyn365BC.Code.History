@@ -120,7 +120,7 @@ table 7331 "Whse. Internal Put-away Header"
 
                         "From Zone Code" := Bin."Zone Code";
                     end;
-                    MessageIfIntPutawayLinesExist(FieldCaption("From Bin Code"));
+                    MessageIfInternalPutawayLinesExist(FieldCaption("From Bin Code"));
                 end;
             end;
         }
@@ -136,7 +136,7 @@ table 7331 "Whse. Internal Put-away Header"
                     if "From Zone Code" <> '' then
                         Location.TestField("Directed Put-away and Pick");
                     "From Bin Code" := '';
-                    MessageIfIntPutawayLinesExist(FieldCaption("From Zone Code"));
+                    MessageIfInternalPutawayLinesExist(FieldCaption("From Zone Code"));
                 end;
             end;
         }
@@ -146,7 +146,7 @@ table 7331 "Whse. Internal Put-away Header"
 
             trigger OnValidate()
             begin
-                MessageIfIntPutawayLinesExist(FieldCaption("Due Date"));
+                MessageIfInternalPutawayLinesExist(FieldCaption("Due Date"));
             end;
         }
         field(11; "Document Status"; Option)
@@ -229,13 +229,15 @@ table 7331 "Whse. Internal Put-away Header"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         WmsManagement: Codeunit "WMS Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        HideValidationDialog: Boolean;
         Text001: Label 'must not be the %1 of the %2';
         Text002: Label 'You have changed %1 on the %2, but it has not been changed on the existing Warehouse Internal Put-Away Lines.\';
         Text003: Label 'You must update the existing Warehouse Internal Put-Away Lines manually.';
         Text004: Label 'You cannot rename a %1.';
         Text005: Label 'You cannot change the %1, because the document has one or more lines.';
         Text006: Label 'You are not allowed to use %1 %2.';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     local procedure SortWhseDoc()
     var
@@ -270,7 +272,7 @@ table 7331 "Whse. Internal Put-away Header"
         end;
     end;
 
-    local procedure MessageIfIntPutawayLinesExist(ChangedFieldName: Text[80])
+    procedure MessageIfInternalPutawayLinesExist(ChangedFieldName: Text[80])
     var
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
     begin

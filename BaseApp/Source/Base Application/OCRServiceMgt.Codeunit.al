@@ -121,19 +121,16 @@ codeunit 1294 "OCR Service Mgt."
         AuthenticationSucceeded: Boolean;
     begin
         if not TryAuthenticate(AuthenticationSucceeded) then begin
-            SendTraceTag('00008K8', TelemetryCategoryTok, VERBOSITY::Warning, ConnectionFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008K8', ConnectionFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit(false);
         end;
 
         if not AuthenticationSucceeded then begin
-            SendTraceTag('00008K9', TelemetryCategoryTok, VERBOSITY::Warning, ConnectionFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008K9', ConnectionFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivityFailed(OCRServiceSetup.RecordId, AuthenticateMsg, ConnectionFailedErr); // throws error
         end;
 
-        SendTraceTag('00008KA', TelemetryCategoryTok, VERBOSITY::Normal, ConnectionSucceedTxt,
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008KA', ConnectionSucceedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
 
         LogActivitySucceeded(OCRServiceSetup.RecordId, AuthenticateMsg, '');
         exit(true);
@@ -182,8 +179,7 @@ codeunit 1294 "OCR Service Mgt."
         ResponseStr: InStream;
     begin
         if not RsoGetRequest('accounts/rest/currentcustomer', ResponseStr) then begin
-            SendTraceTag('00008KB', TelemetryCategoryTok, VERBOSITY::Warning, GettingCurrentCustomerFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KB', GettingCurrentCustomerFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             Error(GetLastErrorText);
         end;
         XMLDOMManagement.LoadXMLNodeFromInStream(ResponseStr, XMLRootNode);
@@ -194,8 +190,7 @@ codeunit 1294 "OCR Service Mgt."
         if XMLDOMManagement.FindNode(XMLRootNode, 'ActivationStatus', XMLNode) then
             OCRServiceSetup."Customer Status" := CopyStr(XMLNode.InnerText, 1, MaxStrLen(OCRServiceSetup."Customer Status"));
         if not RsoGetRequest('users/rest/currentuser', ResponseStr) then
-            SendTraceTag('00008KC', TelemetryCategoryTok, VERBOSITY::Warning, GettingCurrentUserFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KC', GettingCurrentUserFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         XMLDOMManagement.LoadXMLNodeFromInStream(ResponseStr, XMLRootNode);
 
         if XMLDOMManagement.FindNode(XMLRootNode, 'OrganizationId', XMLNode) then
@@ -217,8 +212,7 @@ codeunit 1294 "OCR Service Mgt."
         OCRServiceSetup.TestField("Organization ID");
 
         if not RsoGetRequest(StrSubstNo('accounts/rest/customers/%1/userconfiguration', OCRServiceSetup."Organization ID"), ResponseStr) then
-            SendTraceTag('00008KD', TelemetryCategoryTok, VERBOSITY::Warning, GettingUserConfigurationFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KD', GettingUserConfigurationFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         XMLDOMManagement.LoadXMLNodeFromInStream(ResponseStr, XMLRootNode);
 
         OCRServiceDocumentTemplate.LockTable();
@@ -320,8 +314,8 @@ codeunit 1294 "OCR Service Mgt."
         Result := HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders);
         if not Result then begin
             StatusCode := HttpStatusCode;
-            SendTraceTag('0000BBJ', TelemetryCategoryTok, VERBOSITY::Warning, StrSubstNo(FailedRequestResultTxt, StatusCode, ErrorMessage, ErrorDetails), DATACLASSIFICATION::SystemMetadata);
-            SendTraceTag('0000BBK', TelemetryCategoryTok, VERBOSITY::Warning, StrSubstNo(FailedRequestBodyTxt, RequestAction, RequestUrl, RequestBody), DATACLASSIFICATION::CustomerContent);
+            Session.LogMessage('0000BBJ', StrSubstNo(FailedRequestResultTxt, StatusCode, ErrorMessage, ErrorDetails), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            Session.LogMessage('0000BBK', StrSubstNo(FailedRequestBodyTxt, RequestAction, RequestUrl, RequestBody), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         end;
         exit(Result);
     end;
@@ -389,28 +383,24 @@ codeunit 1294 "OCR Service Mgt."
         ResponseText: Text;
     begin
         if NumberOfUploads < 1 then begin
-            SendTraceTag('00008L9', TelemetryCategoryTok, VERBOSITY::Warning, InitializingUploadFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008L9', InitializingUploadFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit(false);
         end;
 
         // Initialize upload
         if not RsoGetRequest(StrSubstNo('files/rest/requestupload?targetCount=%1', NumberOfUploads), ResponseStr) then begin
-            SendTraceTag('00008KE', TelemetryCategoryTok, VERBOSITY::Warning, InitializingUploadFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KE', InitializingUploadFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivityFailed(OCRServiceSetup.RecordId, InitiateUploadMsg, '');
             exit(false);
         end;
         ResponseStr.ReadText(ResponseText);
         if ResponseText = '' then begin
-            SendTraceTag('00008KF', TelemetryCategoryTok, VERBOSITY::Warning, InitializingUploadFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KF', InitializingUploadFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivityFailed(OCRServiceSetup.RecordId, InitiateUploadMsg, '');
             exit(false);
         end;
 
-        SendTraceTag('00008KG', TelemetryCategoryTok, VERBOSITY::Normal, StrSubstNo(UploadTotalSuccessMsg, NumberOfUploads),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008KG', StrSubstNo(UploadTotalSuccessMsg, NumberOfUploads), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         LogActivitySucceeded(OCRServiceSetup.RecordId, InitiateUploadMsg, StrSubstNo(UploadTotalSuccessMsg, NumberOfUploads));
         exit(true);
     end;
@@ -427,12 +417,10 @@ codeunit 1294 "OCR Service Mgt."
             URLEncode(FileName), ExternalReference, Template);
         HttpRequestURL := StrSubstNo('%1/%2', OCRServiceSetup."Service URL", APIPart);
         if UploadFile(TempBlob, HttpRequestURL, '*/*', 'application/octet-stream', LoggingRecordId) then begin
-            SendTraceTag('000089H', TelemetryCategoryTok, VERBOSITY::Normal,
-              OCRServiceUserSuccessfullyUploadedDocumentTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000089H', OCRServiceUserSuccessfullyUploadedDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit(true)
         end;
-        SendTraceTag('000089I', TelemetryCategoryTok, VERBOSITY::Normal,
-          OCRServiceUserFailedToUploadDocumentTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000089I', OCRServiceUserFailedToUploadDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         exit(false);
     end;
 
@@ -446,12 +434,10 @@ codeunit 1294 "OCR Service Mgt."
         APIPart := StrSubstNo('documents/rest/%1/learningdocument', DocumentId);
         HttpRequestURL := StrSubstNo('%1/%2', OCRServiceSetup."Service URL", APIPart);
         if UploadFile(TempBlob, HttpRequestURL, '', '', LoggingRecordId) then begin
-            SendTraceTag('000089J', TelemetryCategoryTok, VERBOSITY::Normal,
-              OCRServiceUserSuccessfullyUploadedLearningDocumentTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000089J', OCRServiceUserSuccessfullyUploadedLearningDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit(true)
         end;
-        SendTraceTag('000089K', TelemetryCategoryTok, VERBOSITY::Normal,
-          OCRServiceUserFailedToUploadLearningDocumentTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000089K', OCRServiceUserFailedToUploadLearningDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         exit(false);
     end;
 
@@ -465,8 +451,7 @@ codeunit 1294 "OCR Service Mgt."
         ResponseText: Text;
     begin
         if not TempBlob.HasValue then begin
-            SendTraceTag('00008KH', TelemetryCategoryTok, VERBOSITY::Error, NoFileContentTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KH', NoFileContentTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivityFailed(LoggingRecordId, UploadFileMsg, NoFileContentErr); // throws error
         end;
 
@@ -487,8 +472,7 @@ codeunit 1294 "OCR Service Mgt."
 
         if not HttpWebRequestMgt.GetResponse(ResponseStr, HttpStatusCode, ResponseHeaders) then begin
             if HttpWebRequestMgt.ProcessFaultXMLResponse('', '/ServiceError/Message', '', '') then;
-            SendTraceTag('000089L', TelemetryCategoryTok, VERBOSITY::Error,
-              UploadFileFailedWithNoResponseMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000089L', UploadFileFailedWithNoResponseMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivityFailed(LoggingRecordId, UploadFileMsg, '');
             exit(false); // in case error text is empty
         end;
@@ -496,16 +480,14 @@ codeunit 1294 "OCR Service Mgt."
         ResponseStr.ReadText(ResponseText);
 
         if ResponseText = '<BoolValue xmlns:i="http://www.w3.org/2001/XMLSchema-instance"><Value>true</Value></BoolValue>' then begin
-            SendTraceTag('00008KI', TelemetryCategoryTok, VERBOSITY::Normal, UploadFileSucceedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KI', UploadFileSucceedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivitySucceeded(LoggingRecordId, UploadFileMsg, '');
             if GuiAllowed and (not OfficeMgt.IsAvailable) then
                 Message(UploadSuccessMsg);
             exit(true);
         end;
 
-        SendTraceTag('000089M', TelemetryCategoryTok, VERBOSITY::Error,
-          StrSubstNo(UploadFileFailedTelemetryMsg, ResponseText), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000089M', StrSubstNo(UploadFileFailedTelemetryMsg, ResponseText), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         LogActivityFailed(LoggingRecordId, UploadFileMsg, StrSubstNo(UploadFileFailedMsg, ResponseText)); // throws error
     end;
 
@@ -513,8 +495,7 @@ codeunit 1294 "OCR Service Mgt."
     procedure UploadAttachment(var TempBlob: Codeunit "Temp Blob"; FileName: Text; ExternalReference: Text[50]; Template: Code[20]; RelatedRecordId: RecordID): Boolean
     begin
         if not TempBlob.HasValue then begin
-            SendTraceTag('00008LA', TelemetryCategoryTok, VERBOSITY::Error, NoFileContentTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008LA', NoFileContentTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             Error(NoFileContentErr);
         end;
 
@@ -672,8 +653,7 @@ codeunit 1294 "OCR Service Mgt."
     procedure GetDocumentList(var ResponseStr: InStream): Boolean
     begin
         if not RsoGetRequest('currentuser/documents?pageIndex=0&pageSize=1000', ResponseStr) then begin
-            SendTraceTag('00008KJ', TelemetryCategoryTok, VERBOSITY::Warning, GettingDocumentsForUserFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KJ', GettingDocumentsForUserFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit(false);
         end;
         exit(true);
@@ -695,8 +675,7 @@ codeunit 1294 "OCR Service Mgt."
         GetOcrServiceSetup(true);
 
         if not RsoGetRequest(StrSubstNo('documents/rest/customers/%1/outputdocuments', OCRServiceSetup."Customer ID"), ResponseStr) then
-            SendTraceTag('00008KK', TelemetryCategoryTok, VERBOSITY::Warning, GettingDocumentsForCustomerFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KK', GettingDocumentsForCustomerFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
 
         XMLDOMManagement.LoadXMLNodeFromInStream(ResponseStr, XMLRootNode);
 
@@ -709,24 +688,21 @@ codeunit 1294 "OCR Service Mgt."
 
                     DotNet_Regex.Regex('^[a-zA-Z0-9\-\{\}]*$');
                     if not DotNet_Regex.IsMatch(DocId) then begin
-                        SendTraceTag('00008LB', TelemetryCategoryTok, VERBOSITY::Warning, InvalidDocumentIdTxt,
-                          DATACLASSIFICATION::SystemMetadata);
+                        Session.LogMessage('00008LB', InvalidDocumentIdTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                         Error(NotValidDocIDErr, DocId);
                     end;
 
                     DocCount += DownloadDocument(ExternalBatchId, DocId);
 
                     if DocCount > GetMaxDocDownloadCount then begin
-                        SendTraceTag('00008KL', TelemetryCategoryTok, VERBOSITY::Normal, StrSubstNo(DocumentsDownloadedTxt, DocCount),
-                          DATACLASSIFICATION::SystemMetadata);
+                        Session.LogMessage('00008KL', StrSubstNo(DocumentsDownloadedTxt, DocCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                         LogActivitySucceeded(OCRServiceSetup.RecordId, GetNewDocumentsMsg, StrSubstNo(NewDocumentsTotalMsg, DocCount));
                         exit(DocCount);
                     end;
                 end;
         end;
 
-        SendTraceTag('00008KM', TelemetryCategoryTok, VERBOSITY::Normal, StrSubstNo(DocumentsDownloadedTxt, DocCount),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008KM', StrSubstNo(DocumentsDownloadedTxt, DocCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
 
         LogActivitySucceeded(OCRServiceSetup.RecordId, GetNewDocumentsMsg, StrSubstNo(NewDocumentsTotalMsg, DocCount));
 
@@ -795,8 +771,7 @@ codeunit 1294 "OCR Service Mgt."
         Status: Integer;
     begin
         if IncomingDocumentAttachment."External Document Reference" = '' then begin
-            SendTraceTag('00008LC', TelemetryCategoryTok, VERBOSITY::Warning, DocumentNotUploadedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008LC', DocumentNotUploadedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             Error(NotUploadedErr);
         end;
 
@@ -837,8 +812,7 @@ codeunit 1294 "OCR Service Mgt."
             'documents/rest/customers/%1/batches/%2/documents?pageIndex=%3&pageSize=%4', OCRServiceSetup."Customer ID",
             BatchFilter, CurrentPage, PageSize);
         if not RsoGetRequest(Path, ResponseStr) then begin
-            SendTraceTag('00008KN', TelemetryCategoryTok, VERBOSITY::Warning, GettingBatchDocumentsFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KN', GettingBatchDocumentsFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit(false);
         end;
         XMLDOMManagement.LoadXMLNodeFromInStream(ResponseStr, XMLRootNode);
@@ -865,8 +839,7 @@ codeunit 1294 "OCR Service Mgt."
                 CurrentPage, PageSize);
 
         if not RsoGetRequest(Path, ResponseStr) then begin
-            SendTraceTag('00008KO', TelemetryCategoryTok, VERBOSITY::Warning, GettingBatchesFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KO', GettingBatchesFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit(false);
         end;
 
@@ -888,8 +861,7 @@ codeunit 1294 "OCR Service Mgt."
                 exit(false);
 
             if not Evaluate(TotalPages, XMLDOMManagement.FindNodeText(XMLRootNode, '//PageCount')) then begin
-                SendTraceTag('00008LD', TelemetryCategoryTok, VERBOSITY::Warning, GettingBatchesFailedTxt,
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00008LD', GettingBatchesFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                 exit(false);
             end;
 
@@ -944,13 +916,11 @@ codeunit 1294 "OCR Service Mgt."
         ContentType: Text[50];
     begin
         if not RsoGetRequest(StrSubstNo('documents/rest/%1', DocId), ResponseStr) then begin
-            SendTraceTag('00008KP', TelemetryCategoryTok, VERBOSITY::Warning, OCRServiceUserFailedToDownloadDocumentTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KP', OCRServiceUserFailedToDownloadDocumentTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit(0);
         end;
         if not XMLDOMManagement.LoadXMLNodeFromInStream(ResponseStr, XMLRootNode) then begin
-            SendTraceTag('000089N', TelemetryCategoryTok, VERBOSITY::Warning,
-              OCRServiceUserFailedToDownloadDocumentTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000089N', OCRServiceUserFailedToDownloadDocumentTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivityFailed(OCRServiceSetup.RecordId, GetDocumentMsg, '');
             exit(0);
         end;
@@ -958,20 +928,17 @@ codeunit 1294 "OCR Service Mgt."
         if ExternalBatchId <> '' then
             IncomingDocumentAttachment.SetRange("External Document Reference", ExternalBatchId);
         if (ExternalBatchId <> '') and IncomingDocumentAttachment.FindFirst then begin
-            SendTraceTag('00008KQ', TelemetryCategoryTok, VERBOSITY::Normal, UpdatingIncomingDocumentTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KQ', UpdatingIncomingDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
             AttachmentName := IncomingDocumentAttachment.Name;
         end else begin  // New Incoming Document
-            SendTraceTag('00008KR', TelemetryCategoryTok, VERBOSITY::Normal, InsertingIncomingDocumentTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KR', InsertingIncomingDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             AttachmentName := CopyStr(XMLDOMManagement.FindNodeText(XMLRootNode, 'OriginalFilename'), 1, MaxStrLen(AttachmentName));
             IncomingDocument.Init();
             IncomingDocument.CreateIncomingDocument(AttachmentName, '');
             IncomingDocumentAttachment.SetRange("External Document Reference");
             if not RsoGetRequestBinary(StrSubstNo('documents/rest/file/%1/image', DocId), ImageInStr, ContentType) then begin
-                SendTraceTag('00008KS', TelemetryCategoryTok, VERBOSITY::Warning, OCRServiceUserFailedToDownloadDocumentTxt,
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00008KS', OCRServiceUserFailedToDownloadDocumentTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                 exit(0);
             end;
 
@@ -990,21 +957,18 @@ codeunit 1294 "OCR Service Mgt."
         SendIncomingDocumentToOCR.SetStatusToReceived(IncomingDocument);
 
         UpdateIncomingDocWithOCRData(IncomingDocument, XMLRootNode);
-        SendTraceTag('000089O', TelemetryCategoryTok, VERBOSITY::Normal,
-          OCRServiceUserSuccessfullyDownloadedDocumentTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000089O', OCRServiceUserSuccessfullyDownloadedDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         LogActivitySucceeded(IncomingDocument.RecordId, GetDocumentMsg, StrSubstNo(DocumentDownloadedTxt, DocId));
 
         if not RsoPutRequest(
              StrSubstNo('documents/rest/%1/downloaded', DocId),
              '<UploadDataCollection xmlns:i="http://www.w3.org/2001/XMLSchema-instance" />', ResponseStr)
         then begin
-            SendTraceTag('00008KU', TelemetryCategoryTok, VERBOSITY::Warning, RegisteringDownloadFailedTxt,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008KU', RegisteringDownloadFailedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             exit(0);
         end;
 
-        SendTraceTag('00008KV', TelemetryCategoryTok, VERBOSITY::Normal, RegisteringDownloadSucceedTxt,
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00008KV', RegisteringDownloadSucceedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         LogActivitySucceeded(IncomingDocument.RecordId, GetDocumentConfirmMsg, StrSubstNo(DocumentDownloadedTxt, DocId));
         exit(1);
     end;
@@ -1024,8 +988,7 @@ codeunit 1294 "OCR Service Mgt."
             IncomingDocumentAttachment.SetRange("Generated from OCR", true);
             IncomingDocumentAttachment.SetRange(Default, true);
             if not IncomingDocumentAttachment.FindFirst then begin
-                SendTraceTag('00008KT', TelemetryCategoryTok, VERBOSITY::Warning, CannotFindAttachmentTxt,
-                  DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00008KT', CannotFindAttachmentTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                 exit;
             end;
 
@@ -1040,8 +1003,7 @@ codeunit 1294 "OCR Service Mgt."
             "OCR Track ID" := CopyStr(XMLDOMManagement.FindNodeText(XMLRootNode, 'TrackId'), 1, MaxStrLen("OCR Track ID"));
 
             if not IsNullGuid("Vendor Id") then begin
-                Vendor.SetRange(Id, "Vendor Id");
-                if Vendor.FindFirst then
+                if Vendor.GetBySystemId("Vendor Id") then
                     Validate("Vendor No.", Vendor."No.");
             end else
                 if "Vendor VAT Registration No." <> '' then begin
@@ -1276,16 +1238,14 @@ codeunit 1294 "OCR Service Mgt."
     local procedure LogTelemetryOnAfterCreateGenJnlLineFromIncomingDocSuccess(var IncomingDocument: Record "Incoming Document")
     begin
         if IncomingDocument."OCR Status" = IncomingDocument."OCR Status"::Success then
-            SendTraceTag('000089P', TelemetryCategoryTok, VERBOSITY::Normal,
-              OCRServiceUserCreatedGenJnlLineOutOfOCRedDocumentTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000089P', OCRServiceUserCreatedGenJnlLineOutOfOCRedDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 132, 'OnAfterCreateDocFromIncomingDocSuccess', '', false, false)]
     local procedure LogTelemetryOnAfterCreateDocFromIncomingDocSuccess(var IncomingDocument: Record "Incoming Document")
     begin
         if IncomingDocument."OCR Status" = IncomingDocument."OCR Status"::Success then
-            SendTraceTag('000089Q', TelemetryCategoryTok, VERBOSITY::Normal,
-              OCRServiceUserCreatedInvoiceOutOfOCRedDocumentTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000089Q', OCRServiceUserCreatedInvoiceOutOfOCRedDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 }
 

@@ -19,10 +19,25 @@ codeunit 9510 "Document Service Management"
         RequiredTargetNameErr: Label 'You must specify a name for the document.';
         RequiredTargetURIErr: Label 'You must specify the URI that you want to open.';
         ValidateConnectionErr: Label 'Cannot connect because the user name and password have not been specified, or because the connection was canceled.';
+        AccessTokenErrMsg: Label 'Failed to acquire an access token.';
+        MissingClientIdOrSecretErr: Label 'The client ID or client secret have not been initialized.';
+        SharePointIsoStorageSecretNotConfiguredErr: Label 'Client secret for SharePoint has not been configured.';
+        SharePointIsoStorageSecretNotConfiguredLbl: Label 'Client secret for SharePoint has not been configured.', Locked = true;
+        AuthTokenOrCodeNotReceivedErr: Label 'No access token or authorization error code received. The authorization failure error is: %1.', Comment = '%1=Authentiaction Failure Error', Locked = true;
+        AccessTokenAcquiredFromCacheErr: Label 'The attempt to acquire the access token form cache has failed.', Locked = false;
+        OAuthAuthorityUrlLbl: Label 'https://login.microsoftonline.com/common/oauth2', Locked = true;
+        SharePointTelemetryCategoryTxt: Label 'AL Sharepoint Integration', Locked = true;
+        SharePointClientIdAKVSecretNameLbl: Label 'sharepoint-clientid', Locked = true;
+        SharePointClientSecretAKVSecretNameLbl: Label 'sharepoint-clientsecret', Locked = true;
+        MissingClientIdTelemetryTxt: Label 'The client ID has not been initialized.', Locked = true;
+        MissingClientSecretTelemetryTxt: Label 'The client secret has not been initialized.', Locked = true;
+        InitializedClientIdTelemetryTxt: Label 'The client ID has been initialized.', Locked = true;
+        InitializedClientSecretTelemetryTxt: Label 'The client secret has been initialized.', Locked = true;
 
     [Scope('OnPrem')]
     procedure TestConnection()
     var
+        DocumentServiceRec: Record "Document Service";
         DocumentServiceHelper: DotNet NavDocumentServiceHelper;
     begin
         // Tests connectivity to the Document Service using the current configuration in Dynamics NAV.
@@ -31,9 +46,11 @@ codeunit 9510 "Document Service Management"
             Error(NoConfigErr);
         DocumentServiceHelper.Reset();
         SetDocumentService;
-        SetProperties;
-        if IsNull(DocumentService.Credentials) then
-            Error(ValidateConnectionErr);
+        SetProperties(false);
+        if DocumentServiceRec.FindFirst() then
+            if DocumentServiceRec."Authentication Type" = DocumentServiceRec."Authentication Type"::Legacy then
+                if IsNull(DocumentService.Credentials) then
+                    Error(ValidateConnectionErr);
         DocumentService.ValidateConnection;
         CheckError;
     end;
@@ -103,7 +120,7 @@ codeunit 9510 "Document Service Management"
             if FindLast then
                 if Location <> '' then begin
                     SetDocumentService;
-                    SetProperties;
+                    SetProperties(true);
                     IsValid := DocumentService.IsValidUri(TargetURI);
                     CheckError;
                     exit(IsValid);
@@ -149,10 +166,12 @@ codeunit 9510 "Document Service Management"
         CheckError;
     end;
 
-    local procedure SetProperties()
+    [NonDebuggable]
+    local procedure SetProperties(GetTokenFromCache: Boolean)
     var
         DocumentServiceRec: Record "Document Service";
         DocumentServiceHelper: DotNet NavDocumentServiceHelper;
+        AccessToken: Text;
     begin
         with DocumentServiceRec do begin
             if not FindFirst then
@@ -161,12 +180,19 @@ codeunit 9510 "Document Service Management"
             // The Document Service will throw an exception if the property is not known to the service type provider.
             DocumentService.Properties.SetProperty(FieldName(Description), Description);
             DocumentService.Properties.SetProperty(FieldName(Location), Location);
-            DocumentService.Properties.SetProperty(FieldName("User Name"), "User Name");
-            DocumentService.Properties.SetProperty(FieldName(Password), Password);
             DocumentService.Properties.SetProperty(FieldName("Document Repository"), "Document Repository");
             DocumentService.Properties.SetProperty(FieldName(Folder), Folder);
+            DocumentService.Properties.SetProperty(FieldName("Authentication Type"), "Authentication Type");
+            DocumentService.Properties.SetProperty(FieldName("User Name"), "User Name");
 
-            DocumentService.Credentials := DocumentServiceHelper.ProvideCredentials;
+            if ("Authentication Type" = "Authentication Type"::Legacy) then begin
+                DocumentService.Properties.SetProperty(FieldName(Password), Password);
+                DocumentService.Credentials := DocumentServiceHelper.ProvideCredentials;
+            end else begin
+                GetAccessToken(Location, AccessToken, GetTokenFromCache);
+                DocumentService.Properties.SetProperty('Token', AccessToken);
+            end;
+
             if not (DocumentServiceHelper.LastErrorMessage = '') then
                 Error(DocumentServiceHelper.LastErrorMessage);
         end;
@@ -203,12 +229,220 @@ codeunit 9510 "Document Service Management"
     begin
         // Saves a stream to the Document Service using the configured location specified in Dynamics NAV.
         SetDocumentService;
-        SetProperties;
+        SetProperties(true);
 
         DocumentURI := DocumentService.Save(Stream, TargetName, Overwrite);
         CheckError;
 
         exit(DocumentURI);
+    end;
+
+    [NonDebuggable]
+    local procedure GetAccessToken(Location: Text; var AccessToken: Text; GetTokenFromCache: Boolean)
+    var
+        OAuth2: Codeunit OAuth2;
+        PromptInteraction: Enum "Prompt Interaction";
+        ClientId: Text;
+        ClientSecret: Text;
+        RedirectURL: Text;
+        ResourceURL: Text;
+        AuthError: Text;
+    begin
+        ResourceURL := GetResourceUrl(Location);
+
+        ClientId := GetClientId();
+        ClientSecret := GetClientSecret();
+        RedirectURL := GetRedirectURL();
+
+        if GetTokenFromCache then
+            OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, ClientSecret, RedirectURL, OAuthAuthorityUrlLbl, ResourceURL, AccessToken);
+
+        if AccessToken <> '' then
+            exit;
+
+        Session.LogMessage('0000DB7', AccessTokenAcquiredFromCacheErr, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+        OAuth2.AcquireTokenByAuthorizationCode(
+                    ClientId,
+                    ClientSecret,
+                    OAuthAuthorityUrlLbl,
+                    RedirectURL,
+                    ResourceURL,
+                    PromptInteraction::Consent,
+                    AccessToken,
+                    AuthError
+                );
+
+        if AccessToken = '' then begin
+            Session.LogMessage('0000DB8', StrSubstNo(AuthTokenOrCodeNotReceivedErr, AuthError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+            Error(AccessTokenErrMsg);
+        end;
+    end;
+
+    [NonDebuggable]
+    local procedure GetClientId(): Text
+    var
+        DocumentServiceRec: Record "Document Service";
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        EnvironmentInformation: Codeunit "Environment Information";
+        ClientId: Text;
+    begin
+        if EnvironmentInformation.IsSaaS() then
+            if not AzureKeyVault.GetAzureKeyVaultSecret(SharePointClientIdAKVSecretNameLbl, ClientId) then
+                Session.LogMessage('0000DB9', MissingClientIdTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt)
+            else begin
+                Session.LogMessage('0000DBA', InitializedClientIdTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+                exit(ClientId);
+            end;
+
+        if DocumentServiceRec.FindFirst() then begin
+            ClientId := DocumentServiceRec."Client Id";
+            OnGetSharePointClientId(ClientId);
+            if ClientId <> '' then begin
+                Session.LogMessage('0000DBB', InitializedClientIdTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+                exit(ClientId);
+            end;
+        end;
+
+        Error(MissingClientIdOrSecretErr);
+    end;
+
+    [NonDebuggable]
+    local procedure GetClientSecret(): Text
+    var
+        DocumentServiceRec: Record "Document Service";
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        EnvironmentInformation: Codeunit "Environment Information";
+        ClientSecret: Text;
+    begin
+        if EnvironmentInformation.IsSaaS() then
+            if not AzureKeyVault.GetAzureKeyVaultSecret(SharePointClientSecretAKVSecretNameLbl, ClientSecret) then
+                Session.LogMessage('0000DBC', MissingClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt)
+            else begin
+                Session.LogMessage('0000DBD', InitializedClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+                exit(ClientSecret);
+            end;
+
+        if not DocumentServiceRec.IsEmpty() then begin
+            ClientSecret := GetClientSecretFromIsolatedStorage();
+            if ClientSecret <> '' then begin
+                Session.LogMessage('0000DBE', InitializedClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+                exit(ClientSecret);
+            end;
+        end;
+
+        OnGetSharePointClientSecret(ClientSecret);
+        if ClientSecret <> '' then begin
+            Session.LogMessage('0000DBF', InitializedClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+            exit(ClientSecret);
+        end;
+
+        Error(MissingClientIdOrSecretErr);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    local procedure GetRedirectURL(): Text
+    var
+        DocumentServiceRec: Record "Document Service";
+        EnvironmentInformation: Codeunit "Environment Information";
+        RedirectURL: Text;
+    begin
+        if EnvironmentInformation.IsSaaS() then
+            exit(RedirectURL);
+
+        if DocumentServiceRec.FindFirst() then
+            RedirectURL := DocumentServiceRec."Redirect URL";
+
+        if RedirectURL = '' then
+            OnGetSharePointRedirectURL(RedirectURL);
+
+        exit(RedirectURL);
+    end;
+
+    [NonDebuggable]
+    local procedure GetResourceUrl(Location: Text): Text
+    begin
+        exit(Location.Substring(1, Location.IndexOf('.com') + 3));
+    end;
+
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    internal procedure SetClientSecret(ClientSecret: Text)
+    var
+        DocumentServiceRec: Record "Document Service";
+        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+    begin
+        if not DocumentServiceRec.FindFirst() then
+            Error(NoConfigErr);
+
+        if ClientSecret = '' then
+            if not IsNullGuid(DocumentServiceRec."Client Secret Key") then begin
+                IsolatedStorageManagement.Delete(DocumentServiceRec."Client Secret Key", DATASCOPE::Company);
+                exit;
+            end;
+
+        if IsNullGuid(DocumentServiceRec."Client Secret Key") then begin
+            DocumentServiceRec."Client Secret Key" := CreateGuid();
+            DocumentServiceRec.Modify();
+        end;
+
+        IsolatedStorageManagement.Set(DocumentServiceRec."Client Secret Key", ClientSecret, DATASCOPE::Company);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    local procedure GetClientSecretFromIsolatedStorage(): Text
+    var
+        DocumentServiceRec: Record "Document Service";
+        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+        ClientSecret: Text;
+    begin
+        if not DocumentServiceRec.FindFirst() then
+            Error(NoConfigErr);
+
+        if IsNullGuid(DocumentServiceRec."Client Secret Key") or
+           not IsolatedStorage.Contains(DocumentServiceRec."Client Secret Key", DATASCOPE::Company)
+        then begin
+            Session.LogMessage('0000DBG', SharePointIsoStorageSecretNotConfiguredLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+            Error(SharePointIsoStorageSecretNotConfiguredErr);
+        end;
+
+        IsolatedStorageManagement.Get(DocumentServiceRec."Client Secret Key", DATASCOPE::Company, ClientSecret);
+        exit(ClientSecret);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    [TryFunction]
+    internal procedure TryGetClientSecretFromIsolatedStorage(var ClientSecret: Text)
+    begin
+        ClientSecret := GetClientSecretFromIsolatedStorage();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'OnOpenInExcel', '', false, false)]
+    [NonDebuggable]
+    local procedure OnTryAcquireAccessTokenOnOpenInExcel(Location: Text)
+    var
+        Token: Text;
+    begin
+        GetAccessToken(Location, Token, true);
+        Session.SetDocumentServiceToken(Token);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSharePointClientId(var ClientId: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSharePointClientSecret(var ClientSecret: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSharePointRedirectURL(var RedirectURL: Text)
+    begin
     end;
 }
 

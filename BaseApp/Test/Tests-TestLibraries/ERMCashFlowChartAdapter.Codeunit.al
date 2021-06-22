@@ -14,7 +14,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         CurrSourceType: Enum "Cash Flow Source Type";
-        MaxSourceType: Integer;
+        MaxSourceType: Enum "Cash Flow Source Type";
         IsInitialized: Boolean;
         UnexpectedCFAmountInPeriod: Label 'Unexpected Cash Flow amount in period %1.';
         UnexpectedPositiveCFAmountInPeriod: Label 'Unexpected positive Cash Flow amount in period %1.';
@@ -81,7 +81,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
     [Scope('OnPrem')]
     procedure MultiSource()
     begin
-        CurrSourceType := 0;
+        CurrSourceType := CurrSourceType::" ";
     end;
 
     [Scope('OnPrem')]
@@ -195,8 +195,8 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         ConsiderSource: array[16] of Boolean;
     begin
         // If no source type has been explicitly specified, fill and post journal with demo data
-        if CurrSourceType = 0 then begin
-            for I := 1 to MaxSourceType do
+        if CurrSourceType = CurrSourceType::" " then begin
+            for I := 1 to MaxSourceType.AsInteger() do
                 ConsiderSource[I] := true;
             LibraryCF.FillJournal(ConsiderSource, CashFlowForecast."No.", false);
             LibraryCF.PostJournal;
@@ -398,13 +398,13 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         end
     end;
 
-    local procedure GetCFAccountFromSourceType(SourceType: Option): Code[20]
+    local procedure GetCFAccountFromSourceType(SourceType: Enum "Cash Flow Source Type"): Code[20]
     var
         CFAccount: Record "Cash Flow Account";
     begin
         CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
         CFAccount.FindSet;
-        CFAccount.Next(SourceType);
+        CFAccount.Next(SourceType.AsInteger());
         exit(CFAccount."No.");
     end;
 
@@ -428,7 +428,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         CalcFromAndToDateFromLedgerEntries(FromDate, ToDate);
         if CashFlowChartSetup."Start Date" = CashFlowChartSetup."Start Date"::"Working Date" then
             FromDate := WorkDate;
-        if CurrSourceType <> 0 then begin
+        if CurrSourceType <> CurrSourceType::" " then begin
             BusChartBuf."Period Length" := CashFlowChartSetup."Period Length";
             exit(BusChartBuf.CalcNumberOfPeriods(FromDate, ToDate));
         end else begin
@@ -452,7 +452,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         SetChartCFNoInSetup(CashFlowForecast."No.");
         CFForecastEntry.Reset();
         CFForecastEntry.DeleteAll();
-        CurrSourceType := 0; // Multi-Source
+        CurrSourceType := CurrSourceType::" "; // Multi-Source
         MaxSourceType := CFForecastEntry."Source Type"::Job;
     end;
 
@@ -471,7 +471,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         end;
     end;
 
-    local procedure InsertCFLedgerEntry(CFNo: Code[20]; SourceType: Integer; CFDate: Date; Amount: Decimal)
+    local procedure InsertCFLedgerEntry(CFNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; CFDate: Date; Amount: Decimal)
     var
         EntryNo: Integer;
     begin
@@ -576,7 +576,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
             EvaluateCFDateRangeByPeriod(I + (I div 2), FromDate, ToDate);
             CFForecastEntry.SetRange("Cash Flow Date", FromDate, ToDate);
             // loop through all source types
-            for J := 1 to MaxSourceType do begin
+            for J := 1 to MaxSourceType.AsInteger() do begin
                 // find all related cf entries
                 CFForecastEntry.SetRange("Source Type", J);
                 if CFForecastEntry.FindSet then begin

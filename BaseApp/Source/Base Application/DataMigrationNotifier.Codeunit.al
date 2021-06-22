@@ -56,7 +56,7 @@ codeunit 1802 "Data Migration Notifier"
     [EventSubscriber(ObjectType::Table, 1800, 'OnGetInstructions', '', true, true)]
     local procedure OnGetInstructionsSubscriber(var Sender: Record "Data Migrator Registration"; var Instructions: Text; var Handled: Boolean)
     begin
-        SendTraceTag('00001DB', 'AL ' + Sender.TableName, VERBOSITY::Normal, Sender.Description, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001DB', Sender.Description, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL ' + Sender.TableName);
     end;
 
     procedure RunCreateContactsFromCustomersReport(ListEmptyNotification: Notification)

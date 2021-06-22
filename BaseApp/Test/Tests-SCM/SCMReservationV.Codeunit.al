@@ -30,7 +30,6 @@ codeunit 137272 "SCM Reservation V"
         WrongQuantityErr: Label 'Wrong Quantity in Purchase Line for Item %1.';
         ReservEntryExistenceErr: Label 'Reservation entry existence is wrong.';
         ReservEntryQtyErr: Label 'Wrong Quantity in Reservation Entry.';
-        SourceDocument: Option ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output","Service Order",,,,,,,"Assembly Consumption","Assembly Order";
         TrackingAction: Option "Assign Lot No.","Set Qty. to Handle","Set QTH with AtE";
 
     [Test]
@@ -254,7 +253,7 @@ codeunit 137272 "SCM Reservation V"
         CreateSalesOrder(SalesHeader, SalesLine, '', '', 1, 1);
 
         SalesLines.Trap;
-        ReservationManagement.LookupLine(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.", '', 0, SalesLine."Line No.");
+        ReservationManagement.LookupLine(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", '', 0, SalesLine."Line No.");
         SalesLines."No.".AssertEquals(SalesLine."No.");
     end;
 
@@ -299,7 +298,7 @@ codeunit 137272 "SCM Reservation V"
 
         PurchaseLines.Trap;
         ReservationManagement.LookupLine(
-          DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", '', 0, PurchaseLine."Line No.");
+          DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", '', 0, PurchaseLine."Line No.");
         PurchaseLines."No.".AssertEquals(PurchaseLine."No.");
     end;
 
@@ -323,7 +322,7 @@ codeunit 137272 "SCM Reservation V"
 
         ItemJournalLines.Trap;
         ReservationManagement.LookupLine(
-          DATABASE::"Item Journal Line", ItemJournalLine."Entry Type", ItemJournalLine."Journal Template Name",
+          DATABASE::"Item Journal Line", ItemJournalLine."Entry Type".AsInteger(), ItemJournalLine."Journal Template Name",
           ItemJournalLine."Journal Batch Name", 0, ItemJournalLine."Line No.");
         ItemJournalLines."Item No.".AssertEquals(ItemJournalLine."Item No.");
     end;
@@ -367,7 +366,7 @@ codeunit 137272 "SCM Reservation V"
             Insert;
 
             ProdOrderLineList.Trap;
-            ReservationManagement.LookupLine(DATABASE::"Prod. Order Line", Status, "Prod. Order No.", '', "Line No.", 0);
+            ReservationManagement.LookupLine(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", '', "Line No.", 0);
         end;
 
         ProdOrderLineList."Item No.".AssertEquals(ProdOrderLine."Item No.");
@@ -393,7 +392,7 @@ codeunit 137272 "SCM Reservation V"
 
             ProdOrderCompLineList.Trap;
             ReservationManagement.LookupLine(
-              DATABASE::"Prod. Order Component", Status, "Prod. Order No.", '', "Prod. Order Line No.", "Line No.");
+              DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", '', "Prod. Order Line No.", "Line No.");
         end;
 
         ProdOrderCompLineList."Item No.".AssertEquals(ProdOrderComponent."Item No.");
@@ -442,7 +441,7 @@ codeunit 137272 "SCM Reservation V"
             Insert;
 
             ServiceLineList.Trap;
-            ReservationManagement.LookupLine(DATABASE::"Service Line", "Document Type", "Document No.", '', 0, "Line No.");
+            ReservationManagement.LookupLine(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No.");
         end;
 
         ServiceLineList."No.".AssertEquals(ServiceLine."No.");
@@ -493,7 +492,7 @@ codeunit 137272 "SCM Reservation V"
             Insert;
 
             AssemblyOrders.Trap;
-            ReservationManagement.LookupLine(DATABASE::"Assembly Header", "Document Type", "No.", '', 0, 0);
+            ReservationManagement.LookupLine(DATABASE::"Assembly Header", "Document Type".AsInteger(), "No.", '', 0, 0);
         end;
 
         AssemblyOrders."No.".AssertEquals(AssemblyHeader."No.");
@@ -517,7 +516,7 @@ codeunit 137272 "SCM Reservation V"
             Insert;
 
             AssemblyLines.Trap;
-            ReservationManagement.LookupLine(DATABASE::"Assembly Line", "Document Type", "Document No.", '', 0, "Line No.");
+            ReservationManagement.LookupLine(DATABASE::"Assembly Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No.");
         end;
 
         AssemblyLines."No.".AssertEquals(AssemblyLine."No.");
@@ -549,19 +548,19 @@ codeunit 137272 "SCM Reservation V"
         LotNo := LibraryUtility.GenerateGUID;
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(1);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         // [GIVEN] Create sales order with item "I" and assign the same lot number "L"
         CreateSalesOrder(SalesHeader, SalesLine, '', Item."No.", 1, 1);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(1);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // [GIVEN] From sales line, run "Reserve" action and choose to reserve specific lot no.
         // [WHEN] Run "Avail. - Item Tracking Lines" page
         // [THEN] Lot "L" is available to reserve
         LibraryVariableStorage.Enqueue(LotNo);
-        SalesLine.ShowReservation;  // Lot No. is validated in AvailItemTrackingHandler
+        SalesLine.ShowReservation();  // Lot No. is validated in AvailItemTrackingHandler
     end;
 
     [Test]
@@ -606,7 +605,7 @@ codeunit 137272 "SCM Reservation V"
         OpenSalesItemTrackingLines(SalesLine, SN);
 
         // [WHEN] Run "Reserve" action and choose to reserve specific serial number "SN2"
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // [THEN] Serial no. "SN2" is reserved
         ReservationEntry.SetRange("Serial No.", SN[2]);
@@ -640,7 +639,7 @@ codeunit 137272 "SCM Reservation V"
         LibraryVariableStorage.Enqueue(TrackingAction::"Assign Lot No.");
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibrarySales.AutoReserveSalesLine(SalesLine);
 
         // [GIVEN] Set "Qty. to Ship" in sales order = "Q" / 2
@@ -650,11 +649,11 @@ codeunit 137272 "SCM Reservation V"
         // [WHEN] Open "Item Tracking Lines" page and set "Qty. to Handle" = "Q" / 2
         LibraryVariableStorage.Enqueue(TrackingAction::"Set Qty. to Handle");
         LibraryVariableStorage.Enqueue(SalesLine."Qty. to Ship");
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // [THEN] "Qty. to Handle" in reservation entry is "Q" / 2
         VerifyItemTrackingQtyToHandle(
-          Item."No.", DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", -SalesLine."Qty. to Ship", 0);
+          Item."No.", DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", -SalesLine."Qty. to Ship", 0);
     end;
 
     [Test]
@@ -773,7 +772,7 @@ codeunit 137272 "SCM Reservation V"
           SalesHeader, SalesLine, ItemNo, Qty, ToLocationCode, LibraryRandom.RandDateFrom(TransferHeader."Shipment Date", 10));
 
         // [WHEN] Auto Reserve Sales Line
-        SalesLine.AutoReserve;
+        SalesLine.AutoReserve();
 
         // [THEN] Transfer Line Reservation Entry for the Item has Source ID = "T2"
         VerifyReservationEntrySourceID(ItemNo, DATABASE::"Transfer Line", TransferHeader."No.");
@@ -870,7 +869,8 @@ codeunit 137272 "SCM Reservation V"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
         // [WHEN] Create Inventory Pick from Released Production Order
-        LibraryWarehouse.CreateInvtPutPickMovement(SourceDocument::"Prod. Consumption", ProductionOrder."No.", false, true, false);
+        LibraryWarehouse.CreateInvtPutPickMovement(
+            "Warehouse Activity Source Document"::"Prod. Consumption", ProductionOrder."No.", false, true, false);
 
         // [THEN] Inventory Pick has 2 PCS of Item "I1" and 1 PCS of Item "I2"; no Warehouse Activity Lines for Item "I3"
         VerifyWarehouseActivityLine(ComponentItemNo[1], Qty[1]);
@@ -927,7 +927,8 @@ codeunit 137272 "SCM Reservation V"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
         // [WHEN] Create Inventory Pick from Released Production Order
-        LibraryWarehouse.CreateInvtPutPickMovement(SourceDocument::"Prod. Consumption", ProductionOrder."No.", false, true, false);
+        LibraryWarehouse.CreateInvtPutPickMovement(
+            "Warehouse Activity Source Document"::"Prod. Consumption", ProductionOrder."No.", false, true, false);
 
         // [THEN] Inventory Pick has 2 PCS of Item "I1" and 1 PCS of Item "I2"; no Warehouse Activity Lines for Item "I3"
         VerifyWarehouseActivityLine(ComponentItemNo[1], Qty[1]);
@@ -1065,14 +1066,14 @@ codeunit 137272 "SCM Reservation V"
         exit(CustInvoiceDisc.Code);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(20, 2),
           LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -1272,7 +1273,7 @@ codeunit 137272 "SCM Reservation V"
         CreateSalesOrder(SalesHeader, SalesLine, CustomerNo, ItemNo, Quantity, QtyToShip);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(SalesLine."Quantity (Base)");
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         exit(LibrarySales.PostSalesDocument(SalesHeader, Ship, Invoice));
     end;
 
@@ -1401,7 +1402,7 @@ codeunit 137272 "SCM Reservation V"
         if Confirm(StrSubstNo(ExpectedMessage)) then;
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; No: Code[20])
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("No.", No);
@@ -1420,7 +1421,7 @@ codeunit 137272 "SCM Reservation V"
         WarehouseReceiptHeader.FindFirst
     end;
 
-    local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; DocumentType: Option)
+    local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; DocumentType: Enum "Item Ledger Document Type")
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Document Type", DocumentType);
@@ -1436,13 +1437,13 @@ codeunit 137272 "SCM Reservation V"
     local procedure OpenPurchaseItemTrackingLines(PurchaseLine: Record "Purchase Line"; TrackingNo: array[2] of Code[20])
     begin
         EnqueueTrackingNumbers(TrackingNo);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure OpenSalesItemTrackingLines(SalesLine: Record "Sales Line"; TrackingNo: array[2] of Code[20])
     begin
         EnqueueTrackingNumbers(TrackingNo);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
     end;
 
     local procedure PostInventoryAdjustment(ItemNo: Code[20]; Quantity: Decimal)
@@ -1460,7 +1461,7 @@ codeunit 137272 "SCM Reservation V"
         LibraryInventory.PostItemJournalLine(ItemJnlTemplate.Name, ItemJnlBatch.Name);
     end;
 
-    local procedure PostSalesDocument(DocumentType: Option; DocumentNo: Code[20])
+    local procedure PostSalesDocument(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1479,12 +1480,12 @@ codeunit 137272 "SCM Reservation V"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
-    local procedure ReleasePurchaseReturnOrderWithReserve(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; No: Code[20])
+    local procedure ReleasePurchaseReturnOrderWithReserve(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
         FindPurchaseLine(PurchaseLine, DocumentType, No);
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
@@ -1495,7 +1496,7 @@ codeunit 137272 "SCM Reservation V"
     begin
         SalesLine.SetRange("No.", No);
         SalesLine.FindFirst;
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;

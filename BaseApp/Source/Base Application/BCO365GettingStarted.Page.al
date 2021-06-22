@@ -47,26 +47,22 @@ page 2300 "BC O365 Getting Started"
                             case selection of
                                 1:
                                     begin
-                                        SendTraceTag('000027X', GettingStartedCategoryLbl,
-                                          VERBOSITY::Normal, IntroTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                                        Session.LogMessage('000027X', IntroTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GettingStartedCategoryLbl);
                                         Video.Play('https://go.microsoft.com/fwlink/?linkid=2008767');
                                     end;
                                 2:
                                     begin
-                                        SendTraceTag('000027Y', GettingStartedCategoryLbl,
-                                          VERBOSITY::Normal, SendInvoicesTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                                        Session.LogMessage('000027Y', SendInvoicesTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GettingStartedCategoryLbl);
                                         Video.Play('https://go.microsoft.com/fwlink/?linkid=2008768');
                                     end;
                                 3:
                                     begin
-                                        SendTraceTag('000027Z', GettingStartedCategoryLbl,
-                                          VERBOSITY::Normal, PaymentsTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                                        Session.LogMessage('000027Z', PaymentsTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GettingStartedCategoryLbl);
                                         Video.Play('https://go.microsoft.com/fwlink/?linkid=2008680');
                                     end;
                                 4:
                                     begin
-                                        SendTraceTag('0000280', GettingStartedCategoryLbl,
-                                          VERBOSITY::Normal, SetupTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                                        Session.LogMessage('0000280', SetupTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GettingStartedCategoryLbl);
                                         PAGE.RunModal(PAGE::"BC O365 My Settings");
                                     end;
                             end;

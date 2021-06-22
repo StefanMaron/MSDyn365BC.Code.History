@@ -319,6 +319,8 @@ codeunit 1002 "Job Create-Invoice"
         Cust: Record Customer;
         IsHandled: Boolean;
     begin
+        OnBeforeCreateSalesHeader(Job, PostingDate, SalesHeader2);
+
         SalesSetup.Get();
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader2."Document Type";
@@ -355,6 +357,8 @@ codeunit 1002 "Job Create-Invoice"
         Factor: Integer;
         DimSetIDArr: array[10] of Integer;
     begin
+        OnBeforeCreateSalesLine(JobPlanningLine, SalesHeader, SalesHeader2, JobInvCurrency);
+
         Factor := 1;
         if SalesHeader2."Document Type" = SalesHeader2."Document Type"::"Credit Memo" then
             Factor := -1;
@@ -784,6 +788,8 @@ codeunit 1002 "Job Create-Invoice"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
+        OnBeforeTestExchangeRate(JobPlanningLine, PostingDate, UpdateExchangeRates);
+
         if JobPlanningLine."Currency Code" <> '' then
             if (CurrencyExchangeRate.ExchangeRate(PostingDate, JobPlanningLine."Currency Code") <> JobPlanningLine."Currency Factor")
             then begin
@@ -847,6 +853,16 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesInvoiceLines(SalesHeader: Record "Sales Header"; NewInvoice: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSalesHeader(Job: Record Job; PostingDate: Date; var SalesHeader2: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSalesLine(var JobPlanningLine: Record "Job Planning Line"; var SalesHeader: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; var JobInvCurrency: Boolean)
     begin
     end;
 
@@ -937,6 +953,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindInvoices(var TempJobPlanningLineInvoice: Record "Job Planning Line Invoice" temporary; JobNo: Code[20]; JobTaskNo: Code[20]; JobPlanningLineNo: Integer; DetailLevel: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestExchangeRate(var JobPlanningLine: Record "Job Planning Line"; PostingDate: Date; var UpdateExchangeRates: Boolean)
     begin
     end;
 

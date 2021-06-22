@@ -13,6 +13,7 @@ codeunit 5471 "Graph Mgt - Customer"
             GraphMgtComplexTypes.GetPostalAddressJSON(Address, "Address 2", City, County, "Country/Region Code", "Post Code", JSON);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyCustomersWithoutId: Boolean)
     var
         DummyCustomer: Record Customer;
@@ -20,7 +21,7 @@ codeunit 5471 "Graph Mgt - Customer"
         CustomerRecordRef: RecordRef;
     begin
         CustomerRecordRef.Open(DATABASE::Customer);
-        GraphMgtGeneralTools.UpdateIntegrationRecords(CustomerRecordRef, DummyCustomer.FieldNo(Id), OnlyCustomersWithoutId);
+        GraphMgtGeneralTools.UpdateIntegrationRecords(CustomerRecordRef, DummyCustomer.FieldNo(SystemId), OnlyCustomersWithoutId);
     end;
 
     procedure UpdatePostalAddress(PostalAddressJSON: Text; var Customer: Record Customer)

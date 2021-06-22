@@ -45,7 +45,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
     end;
 
     [Normal]
-    local procedure MoveNegativeSalesLines(FromDocType: Option; ToDocType: Option; FromDocTypeRep: Option; ToDocTypeRep: Option; InitialSign: Integer)
+    local procedure MoveNegativeSalesLines(FromDocType: Enum "Sales Document Type"; ToDocType: Enum "Sales Document Type"; FromDocTypeRep: Option; ToDocTypeRep: Option; InitialSign: Integer)
     var
         SalesHeader: Record "Sales Header";
         TempSalesLine: Record "Sales Line" temporary;
@@ -130,7 +130,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
     end;
 
     [Normal]
-    local procedure CreateSalesDocWithMixedLines(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; DocumentType: Option; InitialSign: Integer)
+    local procedure CreateSalesDocWithMixedLines(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; DocumentType: Enum "Sales Document Type"; InitialSign: Integer)
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -169,7 +169,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
     end;
 
     [Normal]
-    local procedure VerifyNegSalesLines(var TempSalesLine: Record "Sales Line" temporary; NewDocumentType: Option; NewSalesHeaderNo: Code[20])
+    local procedure VerifyNegSalesLines(var TempSalesLine: Record "Sales Line" temporary; NewDocumentType: Enum "Sales Document Type"; NewSalesHeaderNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";

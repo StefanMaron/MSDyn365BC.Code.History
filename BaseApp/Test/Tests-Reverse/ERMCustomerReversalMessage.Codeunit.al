@@ -207,7 +207,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         ReverseFromLedgerPrivacyBlocked(GenJournalLine."Document Type"::Reminder, Customer.Blocked::All, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure ReverseFromLedgerPrivacyBlocked(DocumentType: Option; BlockedType: Option; Amount: Decimal)
+    local procedure ReverseFromLedgerPrivacyBlocked(DocumentType: Enum "Gen. Journal Document Type"; BlockedType: Enum "Customer Blocked"; Amount: Decimal)
     var
         Customer: Record Customer;
         ReversalEntry: Record "Reversal Entry";
@@ -226,7 +226,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         Assert.ExpectedError(StrSubstNo(ReversalFromLedgerPrivacyBlockedErr, Customer."No."));
     end;
 
-    local procedure ReverseFromLedger(DocumentType: Option; BlockedType: Option; Amount: Decimal)
+    local procedure ReverseFromLedger(DocumentType: Enum "Gen. Journal Document Type"; BlockedType: Enum "Customer Blocked"; Amount: Decimal)
     var
         Customer: Record Customer;
         ReversalEntry: Record "Reversal Entry";
@@ -433,7 +433,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Reversal Message");
     end;
 
-    local procedure ReversalSetup(DocumentType: Option; BlockedType: Option; Amount: Decimal): Code[20]
+    local procedure ReversalSetup(DocumentType: Enum "Gen. Journal Document Type"; BlockedType: Enum "Customer Blocked"; Amount: Decimal): Code[20]
     var
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
@@ -447,7 +447,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         exit(GenJournalLine."Document No.")
     end;
 
-    local procedure CommonReversalSetup(var Customer: Record Customer; DocumentType: Option; BlockedType: Option; Amount: Decimal): Integer
+    local procedure CommonReversalSetup(var Customer: Record Customer; DocumentType: Enum "Gen. Journal Document Type"; BlockedType: Enum "Customer Blocked"; Amount: Decimal): Integer
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -534,7 +534,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         CurrencyExchangeRate.Modify(true);
     end;
 
-    local procedure CreateGeneralJounalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; CustomerNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJounalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -546,7 +546,7 @@ codeunit 134127 "ERM Customer Reversal Message"
           GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
     end;
 
-    local procedure CreateAndPostApplnDateCompress(DocumentNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostApplnDateCompress(DocumentNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -567,7 +567,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         exit(BankAccount."No.");
     end;
 
-    local procedure CreateGenJnlLineForBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; BalAccountType: Option; BalAccountNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJnlLineForBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -581,7 +581,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJnlLineForInvoice(var GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Option; BalAccountNo: Code[20]; AccountNo: Code[20])
+    local procedure CreateGenJnlLineForInvoice(var GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AccountNo: Code[20])
     begin
         CreateGenJnlLineForBalAccount(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, BalAccountType, BalAccountNo, AccountNo,

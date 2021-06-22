@@ -73,6 +73,7 @@ codeunit 1641 "Setup Email Logging"
         CannotExtractTenantIdErr: Label 'Cannot extract tenant ID from the access token.';
 
     [TryFunction]
+    [Obsolete('Will be removed', '17.0')]
     [Scope('OnPrem')]
     procedure InitializeExchangePSConnection()
     var
@@ -80,10 +81,10 @@ codeunit 1641 "Setup Email Logging"
         NetworkCredential: DotNet NetworkCredential;
     begin
         if not Initialized then begin
-            SendTraceTag('0000BY5', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializeConnectionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BY5', InitializeConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
             if not ExchangePowerShellRunner.PromptForCredentials() then begin
-                SendTraceTag('0000BY6', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ConnectionNotInitializedTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000BY6', ConnectionNotInitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 Error(GetLastErrorText);
             end;
             ExchangePowerShellRunner.GetCredentials(TempOfficeAdminCredentials);
@@ -95,12 +96,13 @@ codeunit 1641 "Setup Email Logging"
               TempOfficeAdminCredentials.Email, GetDomainFromEmail(TempOfficeAdminCredentials.Email), NetworkCredential);
             ExchangeWebServicesClient.ValidateCredentialsOnServer();
         end else
-            SendTraceTag('0000BY7', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ConnectionAlreadyInitializedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BY7', ConnectionAlreadyInitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         Initialized := true;
     end;
 
     [TryFunction]
+    [Obsolete('Will be removed', '17.0')]
     [Scope('OnPrem')]
     procedure CreatePublicFolders(PublicMailBoxName: Text; RootFolderName: Text; QueueFolderName: Text; StorageFolderName: Text)
     var
@@ -109,172 +111,173 @@ codeunit 1641 "Setup Email Logging"
         QueueFolderPath: Text;
         StorageFolderPath: Text;
     begin
-        SendTraceTag('0000BY8', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreatePublicFoldersTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BY8', CreatePublicFoldersTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         Window.Open(PublicFoldersCreationProgressMsg);
 
         // Enabling Organization Customization to be able to add new Role Group
-        SendTraceTag('0000BYT', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EnableOrganizationCustomizationTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYT', EnableOrganizationCustomizationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         Window.Update(1, 0);
         ExchangePowerShellRunner.AddCommand('Enable-OrganizationCustomization', true);
-        ExchangePowerShellRunner.Invoke;
-        ExchangePowerShellRunner.AwaitCompletion;
+        ExchangePowerShellRunner.Invoke();
+        ExchangePowerShellRunner.AwaitCompletion();
 
         // Add new Role Group for Public Folders
-        SendTraceTag('0000BYU', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AddRoleGroupForPublicFoldersTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYU', AddRoleGroupForPublicFoldersTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         Window.Update(1, 2000);
         ExchangePowerShellRunner.AddCommand('New-RoleGroup', true);
         ExchangePowerShellRunner.AddParameter('Name', 'Public Folders Management');
         ExchangePowerShellRunner.AddParameter('Roles', 'Public Folders');
-        ExchangePowerShellRunner.Invoke;
-        ExchangePowerShellRunner.AwaitCompletion;
+        ExchangePowerShellRunner.Invoke();
+        ExchangePowerShellRunner.AwaitCompletion();
 
         // Add user as a member of created Role Group
-        SendTraceTag('0000BYV', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AddUserAsMemberOfRoleGroupTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYV', AddUserAsMemberOfRoleGroupTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         Window.Update(1, 3000);
         ExchangePowerShellRunner.AddCommand('Add-RoleGroupMember', true);
         ExchangePowerShellRunner.AddParameter('Identity', 'Public Folders Management');
         ExchangePowerShellRunner.AddParameter('Member', TempOfficeAdminCredentials.Email);
-        ExchangePowerShellRunner.Invoke;
-        ExchangePowerShellRunner.AwaitCompletion;
+        ExchangePowerShellRunner.Invoke();
+        ExchangePowerShellRunner.AwaitCompletion();
 
         // Creation of new Mail Box
-        SendTraceTag('0000BYW', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateNewMailBoxTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYW', CreateNewMailBoxTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         Window.Update(1, 4000);
         ExchangePowerShellRunner.AddCommand('New-Mailbox', true);
         ExchangePowerShellRunner.AddParameterFlag('PublicFolder');
         ExchangePowerShellRunner.AddParameter('Name', PublicMailBoxName);
-        ExchangePowerShellRunner.Invoke;
-        ExchangePowerShellRunner.AwaitCompletion;
+        ExchangePowerShellRunner.Invoke();
+        ExchangePowerShellRunner.AwaitCompletion();
 
         // Creation of new Root public Folder
-        SendTraceTag('0000BYX', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateNewPublicRootFolderTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYX', CreateNewPublicRootFolderTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         Window.Update(1, 5000);
         ExchangePowerShellRunner.AddCommand('New-PublicFolder', true);
         ExchangePowerShellRunner.AddParameter('Name', RootFolderName);
         ExchangePowerShellRunner.AddParameter('Mailbox', PublicMailBoxName);
-        ExchangePowerShellRunner.Invoke;
-        ExchangePowerShellRunner.AwaitCompletion;
+        ExchangePowerShellRunner.Invoke();
+        ExchangePowerShellRunner.AwaitCompletion();
 
         ExchangePowerShellRunner.GetResultEnumerator(Enum);
 
         // If returned nothing then check if folder already exists
-        if not Enum.MoveNext then begin
-            SendTraceTag('0000BY9', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CheckIfFolderAlreadyExistsTxt, DataClassification::SystemMetadata);
-            ExchangePowerShellRunner.ClearLog;
+        if not Enum.MoveNext() then begin
+            Session.LogMessage('0000BY9', CheckIfFolderAlreadyExistsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+            ExchangePowerShellRunner.ClearLog();
             ExchangePowerShellRunner.AddCommand('Get-PublicFolder', true);
             ExchangePowerShellRunner.AddParameter('Identity', StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
-            ExchangePowerShellRunner.Invoke;
-            ExchangePowerShellRunner.AwaitCompletion;
+            ExchangePowerShellRunner.Invoke();
+            ExchangePowerShellRunner.AwaitCompletion();
 
             ExchangePowerShellRunner.GetResultEnumerator(Enum);
             // If Public Folder does not exist then user has no admin rights
-            if not Enum.MoveNext then begin
-                SendTraceTag('0000BYA', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AdminCredentialsRequiredTxt, DataClassification::SystemMetadata);
-                ClosePSConnection;
+            if not Enum.MoveNext() then begin
+                Session.LogMessage('0000BYA', AdminCredentialsRequiredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+                ClosePSConnection();
                 Error(AdminCredentialsRequiredErr);
             end;
         end;
 
         // Creation of new Queue public Folder /Root/Queue
-        SendTraceTag('0000BY9', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateQueuePublicFolderTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BY9', CreateQueuePublicFolderTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         Window.Update(1, 6000);
         ExchangePowerShellRunner.AddCommand('New-PublicFolder', true);
         ExchangePowerShellRunner.AddParameter('Name', QueueFolderName);
         ExchangePowerShellRunner.AddParameter('Path', StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
         ExchangePowerShellRunner.AddParameter('Mailbox', PublicMailBoxName);
-        ExchangePowerShellRunner.Invoke;
-        ExchangePowerShellRunner.AwaitCompletion;
+        ExchangePowerShellRunner.Invoke();
+        ExchangePowerShellRunner.AwaitCompletion();
 
         // Creation of new Storage public Folder /Root/Storage
-        SendTraceTag('0000BY9', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateStoragePublicFolderTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BY9', CreateStoragePublicFolderTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         Window.Update(1, 7000);
         ExchangePowerShellRunner.AddCommand('New-PublicFolder', true);
         ExchangePowerShellRunner.AddParameter('Name', StorageFolderName);
         ExchangePowerShellRunner.AddParameter('Path', StrSubstNo(RootFolderPathTemplateTxt, RootFolderName));
         ExchangePowerShellRunner.AddParameter('Mailbox', PublicMailBoxName);
-        ExchangePowerShellRunner.Invoke;
-        ExchangePowerShellRunner.AwaitCompletion;
+        ExchangePowerShellRunner.Invoke();
+        ExchangePowerShellRunner.AwaitCompletion();
 
         // Grant Queue public folder Mail Settings (email address)
-        SendTraceTag('0000BY9', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreatePublicFolderEmailSettingsTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BY9', CreatePublicFolderEmailSettingsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         Window.Update(1, 8000);
         QueueFolderPath := StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, QueueFolderName);
         StorageFolderPath := StrSubstNo(PublicFolderPathTemplateTxt, RootFolderName, StorageFolderName);
         ExchangePowerShellRunner.AddCommand('Enable-MailPublicFolder', true);
         ExchangePowerShellRunner.AddParameter('Identity', QueueFolderPath);
-        ExchangePowerShellRunner.Invoke;
-        ExchangePowerShellRunner.AwaitCompletion;
+        ExchangePowerShellRunner.Invoke();
+        ExchangePowerShellRunner.AwaitCompletion();
 
         // Grant users to send email to mail enabled folder
-        SendTraceTag('0000BY9', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AddPublicFolderClientPermissionTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BY9', AddPublicFolderClientPermissionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         Window.Update(1, 9000);
         ExchangePowerShellRunner.AddCommand('Add-PublicFolderClientPermission', true);
         ExchangePowerShellRunner.AddParameter('Identity', QueueFolderPath);
         ExchangePowerShellRunner.AddParameter('AccessRights', 'CreateItems');
         ExchangePowerShellRunner.AddParameter('User', 'Anonymous');
-        ExchangePowerShellRunner.Invoke;
-        ExchangePowerShellRunner.AwaitCompletion;
+        ExchangePowerShellRunner.Invoke();
+        ExchangePowerShellRunner.AwaitCompletion();
 
-        SendTraceTag('0000BYY', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AddPublicFolderClientPermissionTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYY', AddPublicFolderClientPermissionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         ExchangePowerShellRunner.AddCommand('Add-PublicFolderClientPermission', true);
         ExchangePowerShellRunner.AddParameter('Identity', QueueFolderPath);
         ExchangePowerShellRunner.AddParameter('AccessRights', 'Owner');
         ExchangePowerShellRunner.AddParameter('User', TempOfficeAdminCredentials.Email);
-        ExchangePowerShellRunner.Invoke;
-        ExchangePowerShellRunner.AwaitCompletion;
+        ExchangePowerShellRunner.Invoke();
+        ExchangePowerShellRunner.AwaitCompletion();
 
-        SendTraceTag('0000BYZ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AddPublicFolderClientPermissionTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYZ', AddPublicFolderClientPermissionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         ExchangePowerShellRunner.AddCommand('Add-PublicFolderClientPermission', true);
         ExchangePowerShellRunner.AddParameter('Identity', StorageFolderPath);
         ExchangePowerShellRunner.AddParameter('AccessRights', 'Owner');
         ExchangePowerShellRunner.AddParameter('User', TempOfficeAdminCredentials.Email);
-        ExchangePowerShellRunner.Invoke;
-        ExchangePowerShellRunner.AwaitCompletion;
+        ExchangePowerShellRunner.Invoke();
+        ExchangePowerShellRunner.AwaitCompletion();
 
-        Window.Close;
+        Window.Close();
 
-        SendTraceTag('0000BYB', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, PublicFoldersCreatedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYB', PublicFoldersCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
     end;
 
     [TryFunction]
+    [Obsolete('Will be removed', '17.0')]
     [Scope('OnPrem')]
     procedure CreateEmailLoggingRules(QueueEmailAddress: Text; IncomingRuleName: Text; OutgoingRuleName: Text)
     begin
-        SendTraceTag('0000BYC', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateEmailLoggingRulesTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYC', CreateEmailLoggingRulesTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         // Create new Transport Rule for Ingoing mail from outside organization
         if IncomingRuleName <> '' then begin
-            SendTraceTag('0000BYD', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateEmailLoggingIncomingRuleTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BYD', CreateEmailLoggingIncomingRuleTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             ExchangePowerShellRunner.AddCommand('New-TransportRule', true);
             ExchangePowerShellRunner.AddParameter('Name', IncomingRuleName);
             ExchangePowerShellRunner.AddParameter('FromScope', 'NotInOrganization');
             ExchangePowerShellRunner.AddParameter('SentToScope', 'InOrganization');
             ExchangePowerShellRunner.AddParameter('BlindCopyTo', QueueEmailAddress);
-            ExchangePowerShellRunner.Invoke;
-            ExchangePowerShellRunner.AwaitCompletion;
+            ExchangePowerShellRunner.Invoke();
+            ExchangePowerShellRunner.AwaitCompletion();
         end;
 
         // Create new Transport Rule for Outgoing mail to outside organization
         if OutgoingRuleName <> '' then begin
-            SendTraceTag('0000BYE', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateEmailLoggingOutgoingRuleTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BYE', CreateEmailLoggingOutgoingRuleTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             ExchangePowerShellRunner.AddCommand('New-TransportRule', true);
             ExchangePowerShellRunner.AddParameter('Name', OutgoingRuleName);
             ExchangePowerShellRunner.AddParameter('FromScope', 'InOrganization');
             ExchangePowerShellRunner.AddParameter('SentToScope', 'NotInOrganization');
             ExchangePowerShellRunner.AddParameter('BlindCopyTo', QueueEmailAddress);
-            ExchangePowerShellRunner.Invoke;
-            ExchangePowerShellRunner.AwaitCompletion;
+            ExchangePowerShellRunner.Invoke();
+            ExchangePowerShellRunner.AwaitCompletion();
         end;
-        ClosePSConnection;
+        ClosePSConnection();
 
-        SendTraceTag('0000BYF', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingRulesCreatedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYF', EmailLoggingRulesCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
     end;
 
     [Scope('OnPrem')]
     procedure ClearEmailLoggingSetup(var MarketingSetup: Record "Marketing Setup")
     begin
-        SendTraceTag('0000BYG', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ClearEmailLoggingSetupTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYG', ClearEmailLoggingSetupTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         Clear(MarketingSetup."Queue Folder Path");
         if MarketingSetup."Queue Folder UID".HasValue then
@@ -293,11 +296,24 @@ codeunit 1641 "Setup Email Logging"
             IsolatedStorageManagement.Delete(MarketingSetup."Exchange Account Password Key", DATASCOPE::Company);
         Clear(MarketingSetup."Exchange Account Password Key");
 
+        Clear(MarketingSetup."Exchange Client Id");
+        Clear(MarketingSetup."Exchange Redirect URL");
+
+        if not IsNullGuid(MarketingSetup."Exchange Client Secret Key") then
+            IsolatedStorageManagement.Delete(MarketingSetup."Exchange Client Secret Key", DATASCOPE::Company);
+        Clear(MarketingSetup."Exchange Client Secret Key");
+
+        if not IsNullGuid(MarketingSetup."Exchange Tenant Id Key") then
+            IsolatedStorageManagement.Delete(MarketingSetup."Exchange Tenant Id Key", DATASCOPE::Company);
+        Clear(MarketingSetup."Exchange Tenant Id Key");
+
+        Clear(MarketingSetup."Email Logging Enabled");
+
         MarketingSetup.Modify();
-        Commit();
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Will be removed', '17.0')]
     [NonDebuggable]
     procedure SetupEmailLoggingFolderMarketingSetup(RootFolderName: Text; QueueFolderName: Text; StorageFolderName: Text)
     var
@@ -307,10 +323,10 @@ codeunit 1641 "Setup Email Logging"
         OAuthCredentials: DotNet OAuthCredentials;
         Token: Text;
     begin
-        SendTraceTag('0000BYH', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SetupEmailLoggingTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYH', SetupEmailLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
-        if not MarketingSetup.Get then begin
-            SendTraceTag('0000BYI', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CannotFindMarketingSetupTxt, DataClassification::SystemMetadata);
+        if not MarketingSetup.Get() then begin
+            Session.LogMessage('0000BYI', CannotFindMarketingSetupTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit;
         end;
 
@@ -342,7 +358,7 @@ codeunit 1641 "Setup Email Logging"
             ExchangeFoldersPage.GetRecord(ExchangeFolder);
             FolderID := ExchangeFolder.ReadUniqueID();
             if not ExchangeWebServicesClient.FolderExists(FolderID) then begin
-                SendTraceTag('0000D9L', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(FolderDoesNotExistTxt, FolderID, ExchangeFolder.FullPath), DataClassification::CustomerContent);
+                Session.LogMessage('0000D9L', StrSubstNo(FolderDoesNotExistTxt, FolderID, ExchangeFolder.FullPath), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 Error(FolderDoesNotExistErr);
             end;
             exit(true);
@@ -355,9 +371,10 @@ codeunit 1641 "Setup Email Logging"
         exit(DelStr(Email, 1, StrPos(Email, '@')));
     end;
 
+    [Obsolete('Will be removed', '17.0')]
     procedure SetDeployCredentials(Username: Text[80]; Password: Text[30])
     begin
-        SendTraceTag('0000BYJ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SetDeployCredentialsTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYJ', SetDeployCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         ExchangePowerShellRunner.SetCredentials(Username, Password);
     end;
 
@@ -366,7 +383,7 @@ codeunit 1641 "Setup Email Logging"
         JobQueueEntry: Record "Job Queue Entry";
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
-        SendTraceTag('0000BYK', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateEmailLoggingJobTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYK', CreateEmailLoggingJobTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Email Logging Context Adapter");
@@ -385,18 +402,19 @@ codeunit 1641 "Setup Email Logging"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        SendTraceTag('0000CIO', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, DeleteEmailLoggingJobTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000CIO', DeleteEmailLoggingJobTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Email Logging Context Adapter");
         JobQueueEntry.DeleteTasks();
     end;
 
+    [Obsolete('End of support for Exchange Online PowerShell', '17.0')]
     [Scope('OnPrem')]
     procedure ClosePSConnection()
     begin
-        SendTraceTag('0000BYL', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CloseConnectionTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYL', CloseConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         if Initialized then
-            ExchangePowerShellRunner.RemoveRemoteConnectionInformation;
+            ExchangePowerShellRunner.RemoveRemoteConnectionInformation();
         Initialized := false;
     end;
 
@@ -416,15 +434,15 @@ codeunit 1641 "Setup Email Logging"
         TempNameValueBuffer.Insert();
         Commit();
         if Page.RunModal(Page::"Exchange Client Credentials", TempNameValueBuffer) <> Action::LookupOK then begin
-            SendTraceTag('0000CIH', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, IgnoredClientCredentialsTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000CIH', IgnoredClientCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
         if (TempNameValueBuffer.Name = '') or (TempNameValueBuffer.Value = '') then begin
-            SendTraceTag('0000CII', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InvalidClientCredentialsTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000CII', InvalidClientCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
         if TempNameValueBuffer."Value Long" = '' then
-            SendTraceTag('0000CL6', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyRedirectUrlTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000CL6', EmptyRedirectUrlTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         ClientId := TempNameValueBuffer.Name;
         ClientSecret := TempNameValueBuffer.Value;
@@ -454,23 +472,24 @@ codeunit 1641 "Setup Email Logging"
         if RedirectURL = '' then
             RedirectURL := GetRedirectURL();
 
-        SendTraceTag('0000D9M', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AcquireAccessTokenTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D9M', AcquireAccessTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+
         OAuth2.AcquireTokenByAuthorizationCode(
-                    ClientId,
-                    ClientSecret,
-                    CommonOAuthAuthorityUrlLbl,
-                    RedirectURL,
-                    ResourceUrlLbl,
-                    PromptInteraction::Consent, AccessToken, AuthError
-                );
+            ClientId,
+            ClientSecret,
+            CommonOAuthAuthorityUrlLbl,
+            RedirectURL,
+            ResourceUrlLbl,
+            PromptInteraction::Consent, AccessToken, AuthError
+        );
         if AccessToken = '' then begin
             if AuthError <> '' then
-                SendTraceTag('0000CFA', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, AuthError, DataClassification::SystemMetadata)
+                Session.LogMessage('0000CFA', AuthError, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
             else
-                SendTraceTag('0000CFB', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, AuthTokenOrCodeNotReceivedErr, DataClassification::SystemMetadata);
+                Session.LogMessage('0000CFB', AuthTokenOrCodeNotReceivedErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(AccessTokenErrMsg);
         end;
-        SendTraceTag('0000D9N', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AdminAccessTokenReceivedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D9N', AdminAccessTokenReceivedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
     end;
 
     [Scope('OnPrem')]
@@ -502,10 +521,10 @@ codeunit 1641 "Setup Email Logging"
                     AccessToken
                 );
         if AccessToken = '' then begin
-            SendTraceTag('0000CFC', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, ClientCredentialsAccessTokenErr, DataClassification::SystemMetadata);
+            Session.LogMessage('0000CFC', ClientCredentialsAccessTokenErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(AccessTokenErrMsg);
         end;
-        SendTraceTag('0000D9O', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ClientAccessTokenReceivedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D9O', ClientAccessTokenReceivedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
     end;
 
     [Scope('OnPrem')]
@@ -515,14 +534,14 @@ codeunit 1641 "Setup Email Logging"
         if AccessToken <> '' then begin
             if TryExtractTenantIdFromAccessToken(TenantId, AccessToken) then begin
                 if TenantId <> '' then begin
-                    SendTraceTag('0000D9P', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(TenantIdExtractedTxt, TenantId), DataClassification::CustomerContent);
+                    Session.LogMessage('0000D9P', StrSubstNo(TenantIdExtractedTxt, TenantId), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                     exit;
                 end;
-                SendTraceTag('0000CR1', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, StrSubstNo(CannotExtractTenantIdTxt, AccessToken), DataClassification::CustomerContent);
+                Session.LogMessage('0000CR1', StrSubstNo(CannotExtractTenantIdTxt, AccessToken), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             end else
-                SendTraceTag('0000CR2', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, StrSubstNo(CannotExtractTenantIdTxt, AccessToken), DataClassification::CustomerContent)
+                Session.LogMessage('0000CR2', StrSubstNo(CannotExtractTenantIdTxt, AccessToken), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
         end else
-            SendTraceTag('0000CR3', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, EmptyAccessTokenTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000CR3', EmptyAccessTokenTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         Error(CannotExtractTenantIdErr);
     end;
@@ -548,29 +567,29 @@ codeunit 1641 "Setup Email Logging"
         EnvironmentInformation: Codeunit "Environment Information";
         ClientId: Text;
     begin
+        OnGetEmailLoggingClientId(ClientId);
+        if ClientId <> '' then begin
+            Session.LogMessage('0000CMF', InitializedClientIdTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+            exit(ClientId);
+        end;
+
         if EnvironmentInformation.IsSaaS() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(EmailLoggingClientIdAKVSecretNameLbl, ClientId) then
-                SendTraceTag('0000CFD', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientIdTelemetryTxt, DataClassification::SystemMetadata)
+                Session.LogMessage('0000CFD', MissingClientIdTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
             else begin
-                SendTraceTag('0000CMD', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientIdTelemetryTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000CMD', InitializedClientIdTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 exit(ClientId);
             end;
 
         if MarketingSetup.Get() then begin
             ClientId := MarketingSetup."Exchange Client Id";
             if ClientId <> '' then begin
-                SendTraceTag('0000CME', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientIdTelemetryTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000CME', InitializedClientIdTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 exit(ClientId);
             end;
         end;
 
-        OnGetEmailLoggingClientId(ClientId);
-        if ClientId <> '' then begin
-            SendTraceTag('0000CMF', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientIdTelemetryTxt, DataClassification::SystemMetadata);
-            exit(ClientId);
-        end;
-
-        SendTraceTag('0000D9Q', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientIdTelemetryTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D9Q', MissingClientIdTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         Error(MissingClientIdOrSecretErr);
     end;
 
@@ -583,29 +602,29 @@ codeunit 1641 "Setup Email Logging"
         EnvironmentInformation: Codeunit "Environment Information";
         ClientSecret: Text;
     begin
+        OnGetEmailLoggingClientSecret(ClientSecret);
+        if ClientSecret <> '' then begin
+            Session.LogMessage('0000CMI', InitializedClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+            exit(ClientSecret);
+        end;
+
         if EnvironmentInformation.IsSaaS() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(EmailLoggingClientSecretAKVSecretNameLbl, ClientSecret) then
-                SendTraceTag('0000CFE', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientSecretTelemetryTxt, DataClassification::SystemMetadata)
+                Session.LogMessage('0000CFE', MissingClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
             else begin
-                SendTraceTag('0000CMG', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientSecretTelemetryTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000CMG', InitializedClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 exit(ClientSecret);
             end;
 
         if MarketingSetup.Get() then begin
             ClientSecret := MarketingSetup.GetExchangeClientSecret();
             if ClientSecret <> '' then begin
-                SendTraceTag('0000CMH', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientSecretTelemetryTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000CMH', InitializedClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 exit(ClientSecret);
             end;
         end;
 
-        OnGetEmailLoggingClientSecret(ClientSecret);
-        if ClientSecret <> '' then begin
-            SendTraceTag('0000CMI', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientSecretTelemetryTxt, DataClassification::SystemMetadata);
-            exit(ClientSecret);
-        end;
-
-        SendTraceTag('0000D9R', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientSecretTelemetryTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D9R', MissingClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         Error(MissingClientIdOrSecretErr);
     end;
 

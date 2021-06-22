@@ -211,7 +211,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         CheckCurrencyOnHeader(PurchaseHeader."Document Type"::Quote);
     end;
 
-    local procedure CheckCurrencyOnHeader(DocumentType: Option)
+    local procedure CheckCurrencyOnHeader(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
@@ -321,7 +321,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         VerifyLedgerPurchaseOrder(PurchaseHeader."No.", PurchaseHeader."Currency Code");
     end;
 
-    local procedure PostDocumentWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; Ship: Boolean; Invoice: Boolean)
+    local procedure PostDocumentWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; Ship: Boolean; Invoice: Boolean)
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
@@ -364,22 +364,18 @@ codeunit 134086 "ERM Update Currency - Purchase"
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorPaymentWithManualCheck()
-    var
-        BankPaymentType: Option " ","Computer Check","Manual Check";
     begin
         // Create and Post General Journal Lines and Suggest Vendor Payments with Manual Check.
-        SetupVendorPayment(BankPaymentType::"Manual Check");
+        SetupVendorPayment("Bank Payment Type"::"Manual Check");
     end;
 
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorPaymentWithComputerCheck()
-    var
-        BankPaymentType: Option " ","Computer Check","Manual Check";
     begin
         // Create and Post General Journal Lines and Suggest Vendor Payments with Computer Check.
-        SetupVendorPayment(BankPaymentType::"Computer Check");
+        SetupVendorPayment("Bank Payment Type"::"Computer Check");
     end;
 
     [Test]
@@ -550,7 +546,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::"Return Order", DocumentNo, GLAccount."No.", Currency.Code);
     end;
 
-    local procedure SetupVendorPayment(CheckType: Option)
+    local procedure SetupVendorPayment(CheckType: Enum "Bank Payment Type")
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GenJournalLine: Record "Gen. Journal Line";
@@ -655,7 +651,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         AdjustExchangeRates.Run;
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Enum "Purchase Document Type")
     begin
         CreatePurchaseHeader(PurchaseHeader, CurrencyExchangeRate, DocumentType);
         CreatePurchaseLines(PurchaseHeader);
@@ -667,7 +663,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         CreatePurchaseLines(PurchHeader);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Option)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Enum "Purchase Document Type")
     begin
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
@@ -793,7 +789,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateDocumentExchangeRate(var PurchaseHeader: Record "Purchase Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Option)
+    local procedure CreateDocumentExchangeRate(var PurchaseHeader: Record "Purchase Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Enum "Purchase Document Type")
     begin
         // 1. Setup: Create Purchase Document and new Currency with Exchange Rate.
         CreatePurchaseHeader(PurchaseHeader, CurrencyExchangeRate, DocumentType);
@@ -815,7 +811,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         exit(LibraryERM.FindDirectPostingGLAccount(GLAccount));
     end;
 
-    local procedure FindPurchaseLines(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindPurchaseLines(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
@@ -823,14 +819,13 @@ codeunit 134086 "ERM Update Currency - Purchase"
     end;
 
     [Normal]
-    local procedure SuggestVendorPayment(VendorNo: Code[20]; BankAccountNo: Code[20]; BankPmtType: Option)
+    local procedure SuggestVendorPayment(VendorNo: Code[20]; BankAccountNo: Code[20]; BankPmtType: Enum "Bank Payment Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
         Vendor: Record Vendor;
         GenJournalLine: Record "Gen. Journal Line";
         SuggestVendorPayments: Report "Suggest Vendor Payments";
-        BalanceAccuntType: Option "G/L Account",Customer,Vendor,"Bank Account";
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
@@ -845,7 +840,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         SuggestVendorPayments.SetTableView(Vendor);
         // Required Random Value for "Document No." field value is not important.
         SuggestVendorPayments.InitializeRequest(
-          WorkDate, false, 0, false, WorkDate, VendorNo, true, BalanceAccuntType::"Bank Account", BankAccountNo, BankPmtType);
+          WorkDate, false, 0, false, WorkDate, VendorNo, true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo, BankPmtType);
         SuggestVendorPayments.UseRequestPage(false);
         Commit();
         SuggestVendorPayments.Run;
@@ -865,7 +860,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure UpdatePurchaseLines(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UpdatePurchaseLines(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         ItemNo: code[20];
@@ -1015,7 +1010,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
             CurrencyExchangeRate."Exchange Rate Amount" - GenJournalLine."Amount (LCY)", Currency."Amount Rounding Precision"));
     end;
 
-    local procedure VerifyCurrencyInPurchaseLine(DocumentType: Option; DocumentNo: Code[20]; No: Code[20]; CurrencyCode: Code[10])
+    local procedure VerifyCurrencyInPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; No: Code[20]; CurrencyCode: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
     begin

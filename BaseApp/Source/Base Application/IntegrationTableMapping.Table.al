@@ -126,6 +126,19 @@ table 5335 "Integration Table Mapping"
         {
             Caption = 'The Id of the Common Data Service Record Page';
         }
+        field(25; "Deletion-Conflict Resolution"; Enum "Integration Deletion Conflict Resolution")
+        {
+            Caption = 'Resolve Deletion Conflicts';
+        }
+        field(26; "Update-Conflict Resolution"; Enum "Integration Update Conflict Resolution")
+        {
+            Caption = 'Resolve Update Conflicts';
+        }
+        field(27; "Uncouple Codeunit ID"; Integer)
+        {
+            Caption = 'Uncouple Codeunit ID';
+            TableRelation = "Table Metadata".ID;
+        }
         field(30; "Dependency Filter"; Text[250])
         {
             Caption = 'Dependency Filter';
@@ -192,7 +205,8 @@ table 5335 "Integration Table Mapping"
                                 Database::Resource, Database::Opportunity, Database::Currency, Database::"Customer Price Group",
                                 Database::"Sales Invoice Header", Database::"Sales Invoice Line", Database::"Sales Price",
                                 Database::"Unit of Measure", Database::"Payment Terms", Database::"Shipment Method", Database::"Shipping Agent", DATABASE::"Salesperson/Purchaser"]) then
-            IntegrationManagement.InitializeIntegrationRecords("Table ID");
+            if IntegrationManagement.IsIntegrationActivated() then
+                IntegrationManagement.InitializeIntegrationRecords("Table ID");
     end;
 
     var
@@ -362,33 +376,80 @@ table 5335 "Integration Table Mapping"
     end;
 
     procedure ShowLog(JobIDFilter: Text)
+    begin
+        ShowLog('', JobIDFilter, '');
+    end;
+
+    internal procedure ShowSynchronizationLog(var IntegrationTableMapping: Record "Integration Table Mapping")
+    var
+        TempIntegrationSynchJob: Record "Integration Synch. Job" temporary;
+        NameFilter: Text;
+    begin
+        NameFilter := GetNameFilter(IntegrationTableMapping);
+        TempIntegrationSynchJob.SetRange(Type, TempIntegrationSynchJob.Type::Synchronization);
+        ShowLog(NameFilter, '', TempIntegrationSynchJob.GetFilter(Type));
+    end;
+
+    internal procedure ShowUncouplingLog(var IntegrationTableMapping: Record "Integration Table Mapping")
+    var
+        TempIntegrationSynchJob: Record "Integration Synch. Job" temporary;
+        NameFilter: Text;
+    begin
+        NameFilter := GetNameFilter(IntegrationTableMapping);
+        TempIntegrationSynchJob.SetRange(Type, TempIntegrationSynchJob.Type::Uncoupling);
+        ShowLog(NameFilter, '', TempIntegrationSynchJob.GetFilter(Type));
+    end;
+
+    local procedure ShowLog(NameFilter: Text; JobIDFilter: Text; JobTypeFilter: Text)
     var
         IntegrationSynchJob: Record "Integration Synch. Job";
     begin
-        if Name = '' then
+        if (NameFilter = '') and (Name = '') then
             exit;
 
         IntegrationSynchJob.SetCurrentKey("Start Date/Time", ID);
         IntegrationSynchJob.Ascending := false;
         IntegrationSynchJob.FilterGroup(2);
-        IntegrationSynchJob.SetRange("Integration Table Mapping Name", Name);
+        if NameFilter <> '' then
+            IntegrationSynchJob.SetFilter("Integration Table Mapping Name", NameFilter)
+        else
+            IntegrationSynchJob.SetRange("Integration Table Mapping Name", Name);
         IntegrationSynchJob.FilterGroup(0);
         if JobIDFilter <> '' then
             IntegrationSynchJob.SetFilter(ID, JobIDFilter);
+        if JobTypeFilter <> '' then
+            IntegrationSynchJob.SetFilter(Type, JobTypeFilter);
         if IntegrationSynchJob.FindFirst then;
-        PAGE.Run(PAGE::"Integration Synch. Job List", IntegrationSynchJob);
+        Page.Run(Page::"Integration Synch. Job List", IntegrationSynchJob);
+    end;
+
+    local procedure GetNameFilter(var IntegrationTableMapping: Record "Integration Table Mapping"): Text
+    var
+        NameFilter: Text;
+    begin
+        if IntegrationTableMapping.FindSet() then
+            repeat
+                if Name <> '' then begin
+                    if NameFilter <> '' then
+                        NameFilter += '|';
+                    NameFilter += IntegrationTableMapping.Name;
+                end;
+            until IntegrationTableMapping.Next() = 0;
+        exit(NameFilter);
     end;
 
     procedure SynchronizeNow(ResetLastSynchModifiedOnDateTime: Boolean)
+    var
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
     begin
         Codeunit.Run(Codeunit::"CRM Integration Management");
         if ResetLastSynchModifiedOnDateTime then begin
             Clear("Synch. Modified On Filter");
             Clear("Synch. Int. Tbl. Mod. On Fltr.");
             Modify;
-            Commit();
         end;
-        CODEUNIT.Run("Synch. Codeunit ID", Rec);
+        Commit();
+        CRMSetupDefaults.CreateJobQueueEntry(Rec);
     end;
 
     procedure GetRecordRef(ID: Variant; var IntegrationRecordRef: RecordRef): Boolean
@@ -451,7 +512,14 @@ table 5335 "Integration Table Mapping"
         Modify;
     end;
 
+    [Obsolete('Use another implementation of CreateRecord', '17.0')]
     procedure CreateRecord(MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean; DirectionArg: Option; Prefix: Text[30])
+    begin
+        CreateRecord(MappingName, TableNo, IntegrationTableNo, IntegrationTableUIDFieldNo, IntegrationTableModifiedFieldNo, TableConfigTemplateCode, IntegrationTableConfigTemplateCode, SynchOnlyCoupledRecords, DirectionArg, Prefix, Codeunit::"CRM Integration Table Synch.", Codeunit::"CDS Int. Table Uncouple");
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateRecord(MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean; DirectionArg: Option; Prefix: Text[30]; SynchCodeunitId: Integer; UncoupleCodeunitId: Integer)
     begin
         if Get(MappingName) then
             Delete(true);
@@ -459,7 +527,8 @@ table 5335 "Integration Table Mapping"
         Name := MappingName;
         "Table ID" := TableNo;
         "Integration Table ID" := IntegrationTableNo;
-        "Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
+        "Synch. Codeunit ID" := SynchCodeunitId;
+        "Uncouple Codeunit ID" := UncoupleCodeunitId;
         Validate("Integration Table UID Fld. No.", IntegrationTableUIDFieldNo);
         "Int. Tbl. Modified On Fld. No." := IntegrationTableModifiedFieldNo;
         "Table Config Template Code" := TableConfigTemplateCode;

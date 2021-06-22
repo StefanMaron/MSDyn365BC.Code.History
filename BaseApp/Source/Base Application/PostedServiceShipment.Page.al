@@ -97,6 +97,33 @@ page 5975 "Posted Service Shipment"
                         Editable = false;
                         ToolTip = 'Specifies the name of the contact person at the customer company.';
                     }
+                    field(SellToPhoneNo; SellToContact."Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person at the customer company.';
+                    }
+                    field(SellToMobilePhoneNo; SellToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person at the customer company.';
+                    }
+                    field(SellToEmail; SellToContact."E-Mail")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person at the customer company.';
+                    }
                 }
                 field("Phone No."; "Phone No.")
                 {
@@ -249,6 +276,33 @@ page 5975 "Posted Service Shipment"
                         Caption = 'Contact';
                         Editable = false;
                         ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the contact person at the customer''s billing address.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
                 }
                 field("Your Reference"; "Your Reference")
@@ -588,7 +642,7 @@ page 5975 "Posted Service Shipment"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -605,8 +659,8 @@ page 5975 "Posted Service Shipment"
                     begin
                         TempServDocLog.Reset();
                         TempServDocLog.DeleteAll();
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Shipment, "No.");
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Order, "Order No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Shipment.AsInteger(), "No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Order.AsInteger(), "Order No.");
 
                         TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
@@ -679,11 +733,12 @@ page 5975 "Posted Service Shipment"
             action("&Navigate")
             {
                 ApplicationArea = Service;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -707,6 +762,12 @@ page 5975 "Posted Service Shipment"
         exit(false);
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        if SellToContact.Get("Contact No.") then;
+        if BillToContact.Get("Bill-to Contact No.") then;
+    end;
+
     trigger OnOpenPage()
     begin
         SetSecurityFilterOnRespCenter;
@@ -716,6 +777,8 @@ page 5975 "Posted Service Shipment"
 
     var
         ServShptHeader: Record "Service Shipment Header";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;

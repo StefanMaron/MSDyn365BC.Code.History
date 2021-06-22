@@ -43,9 +43,9 @@ codeunit 1510 "Notification Management"
                 if ApprovalEntry.FindSet then
                     repeat
                         InsertOverdueEntry(ApprovalEntry, OverdueApprovalEntry);
-                        NotificationEntry.CreateNew(NotificationEntry.Type::Overdue,
+                        NotificationEntry.CreateNotificationEntry(NotificationEntry.Type::Overdue,
                           UserSetup."User ID", OverdueApprovalEntry, WorkflowStepArgument."Link Target Page",
-                          WorkflowStepArgument."Custom Link");
+                          WorkflowStepArgument."Custom Link", '');
                     until ApprovalEntry.Next = 0;
             until UserSetup.Next = 0;
 
@@ -67,7 +67,7 @@ codeunit 1510 "Notification Management"
             end;
 
             "Table ID" := ApprovalEntry."Table ID";
-            "Document Type" := ApprovalEntry."Document Type";
+            "Document Type" := ApprovalEntry."Document Type".AsInteger();
             "Document No." := ApprovalEntry."Document No.";
             "Sent to ID" := ApprovalEntry."Approver ID";
             "Sent Date" := Today;
@@ -83,7 +83,13 @@ codeunit 1510 "Notification Management"
         end;
     end;
 
+    [Obsolete('Replaced by CreateDefaultNotificationTypeSetup().', '17.0')]
     procedure CreateDefaultNotificationSetup(NotificationType: Option)
+    begin
+        CreateDefaultNotificationTypeSetup("Notification Entry Type".FromInteger(NotificationType));
+    end;
+
+    procedure CreateDefaultNotificationTypeSetup(NotificationType: Enum "Notification Entry Type")
     var
         NotificationSetup: Record "Notification Setup";
     begin
@@ -96,7 +102,7 @@ codeunit 1510 "Notification Management"
         NotificationSetup.Insert(true);
     end;
 
-    local procedure DefaultNotificationEntryExists(NotificationType: Option): Boolean
+    local procedure DefaultNotificationEntryExists(NotificationType: Enum "Notification Entry Type"): Boolean
     var
         NotificationSetup: Record "Notification Setup";
     begin

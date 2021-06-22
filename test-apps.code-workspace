@@ -12,6 +12,9 @@
                         "path":  ".\\APIV1\\Test\\_Exclude_APIV1_ Tests"
                     },
                     {
+                        "path":  ".\\APIV2\\Test\\_Exclude_APIV2_ Tests"
+                    },
+                    {
                         "path":  ".\\BaseApp\\Test\\Tests-Bank"
                     },
                     {
@@ -111,12 +114,6 @@
                         "path":  ".\\EssentialBusinessHeadlines\\Test\\Essential Business Headlines Test"
                     },
                     {
-                        "path":  ".\\HybridBaseDeployment\\Test\\Intelligent Cloud Base Tests"
-                    },
-                    {
-                        "path":  ".\\HybridBC\\Test\\Business Central Intelligent Cloud Tests"
-                    },
-                    {
                         "path":  ".\\LatePaymentPredictor\\Test\\Late Payment Prediction Tests"
                     },
                     {
@@ -124,6 +121,9 @@
                     },
                     {
                         "path":  ".\\salesandinventoryforecast\\test\\Sales and Inventory Forecast Tests"
+                    },
+                    {
+                        "path":  ".\\system application\\source\\System Application\\Email\\src\\Test Email"
                     },
                     {
                         "path":  ".\\system application\\test\\System Application Test"

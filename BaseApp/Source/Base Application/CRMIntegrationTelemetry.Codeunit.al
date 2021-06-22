@@ -1,5 +1,8 @@
 codeunit 5333 "CRM Integration Telemetry"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Changed Access property to Internal';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -12,7 +15,7 @@ codeunit 5333 "CRM Integration Telemetry"
         EnabledConnectionTelemetryTxt: Label '{"Enabled": "Yes", "AuthenticationType": "%1", "CRMVersion": "%2", "ProxyVersion": "%3", "CRMSolutionInstalled": "%4", "SOIntegration": "%5", "AutoCreateSO": "%6", "AutoProcessSQ": "%7", "UsersMapRequired": "%8", "ItemAvailablityEnabled": "%9"}', Locked = true;
         DisabledConnectionTelemetryTxt: Label '{"Enabled": "No", "DisableReason": "%1","AuthenticationType": "%2", "ProxyVersion": "%3", "AutoCreateSO": "%4", "UsersMapRequired": "%5"}', Locked = true;
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        IntegrationTableStatsTxt: Label '{"TableID": "%1", "IntTableID": "%2", "Direction": "%3", "SyncCoupledOnly": "%4", "SyncJobsTotal": "%5", "TotalRecords": "%6", "CoupledRecords": "%7", "CoupledErrors": "%8"}', Locked = true;
+        IntegrationTableStatsTxt: Label '{"IntegrationName": "%1", "TableID": "%2", "IntTableID": "%3", "TableName": "%4", "IntegrationTableName": "%5", Direction": "%6", "SyncCoupledOnly": "%7", "SyncJobsTotal": "%8", "TotalRecords": "%9", "CoupledRecords": "%10", "CoupledErrors": "%11"}', Locked = true;
         NoPermissionTxt: Label '{"READPERMISSION": "No"}', Locked = true;
         UserOpenedSetupPageTxt: Label 'User is attempting to set up the connection via %1 page.', Locked = true;
         UserDisabledConnectionTxt: Label 'User disabled the connection to %1.', Locked = true;
@@ -41,6 +44,8 @@ codeunit 5333 "CRM Integration Telemetry"
     local procedure GetIntegrationStatsTelemetryData() Data: Text
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        TableRecRef: RecordRef;
+        IntTableRecRef: RecordRef;
         TableData: Text;
         Comma: Text;
     begin
@@ -51,10 +56,13 @@ codeunit 5333 "CRM Integration Telemetry"
         with IntegrationTableMapping do
             if FindSet then
                 repeat
+                    TableRecRef.Open("Table ID");
+                    IntTableRecRef.Open("Integration Table ID");
                     TableData :=
                       StrSubstNo(
-                        IntegrationTableStatsTxt,
-                        "Table ID", "Integration Table ID", Format(Direction), "Synch. Only Coupled Records",
+                        IntegrationTableStatsTxt, Name, "Table ID", "Integration Table ID",
+                        TableRecRef.Name(), IntTableRecRef.Name(),
+                        Format(Direction), "Synch. Only Coupled Records",
                         GetSyncJobsTotal(Name), GetTotalRecords("Table ID"),
                         GetCoupledRecords("Table ID"), GetCoupledErrors("Table ID"));
                     Data += Comma + TableData;
@@ -110,20 +118,14 @@ codeunit 5333 "CRM Integration Telemetry"
     begin
         with CRMConnectionSetup do
             if "Is Enabled" then
-                SendTraceTag(
-                  '000024X', CRMConnectionCategoryTxt, VERBOSITY::Normal,
-                  GetEnabledConnectionTelemetryData(CRMConnectionSetup), DATACLASSIFICATION::SystemMetadata)
+                Session.LogMessage('000024X', GetEnabledConnectionTelemetryData(CRMConnectionSetup), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMConnectionCategoryTxt)
             else
-                SendTraceTag(
-                  '000024Y', CRMConnectionCategoryTxt, VERBOSITY::Normal,
-                  GetDisabledConnectionTelemetryData(CRMConnectionSetup), DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('000024Y', GetDisabledConnectionTelemetryData(CRMConnectionSetup), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMConnectionCategoryTxt);
     end;
 
     local procedure SendIntegrationStatsTelemetry()
     begin
-        SendTraceTag(
-          '000024Z', CRMIntegrationCategoryTxt, VERBOSITY::Normal,
-          GetIntegrationStatsTelemetryData, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000024Z', GetIntegrationStatsTelemetryData, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMIntegrationCategoryTxt);
     end;
 
     [EventSubscriber(ObjectType::Table, 5330, 'OnAfterInsertEvent', '', false, false)]
@@ -142,6 +144,17 @@ codeunit 5333 "CRM Integration Telemetry"
 
     [EventSubscriber(ObjectType::Codeunit, 5330, 'OnAfterCRMIntegrationEnabled', '', true, true)]
     local procedure ScheduleCRMIntTelemetryAfterIntegrationEnabled()
+    begin
+        ScheduleIntegrationTelemetryAfterIntegrationEnabled();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 7201, 'OnAfterIntegrationEnabled', '', true, true)]
+    local procedure ScheduleIntegrationtTelemetryAfterIntegrationEnabled()
+    begin
+        ScheduleIntegrationTelemetryAfterIntegrationEnabled();
+    end;
+
+    local procedure ScheduleIntegrationTelemetryAfterIntegrationEnabled()
     var
         CodeUnitMetadata: Record "CodeUnit Metadata";
         TelemetryManagement: Codeunit "Telemetry Management";
@@ -153,9 +166,7 @@ codeunit 5333 "CRM Integration Telemetry"
     [Scope('OnPrem')]
     procedure LogTelemetryWhenConnectionEnabled()
     begin
-        SendTraceTag(
-          '0000CE2', CRMConnectionCategoryTxt, VERBOSITY::Normal,
-          UserEnabledConnectionTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000CE2', UserEnabledConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMConnectionCategoryTxt);
     end;
 
     [Scope('OnPrem')]
@@ -163,9 +174,7 @@ codeunit 5333 "CRM Integration Telemetry"
     var
         CRMProductName: Codeunit "CRM Product Name";
     begin
-        SendTraceTag(
-          '00008A0', CRMConnectionCategoryTxt, VERBOSITY::Normal,
-          StrSubstNo(UserDisabledConnectionTxt, CRMProductName.SHORT), DATACLASSIFICATION::SystemMetadata)
+        Session.LogMessage('00008A0', StrSubstNo(UserDisabledConnectionTxt, CRMProductName.SHORT), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMConnectionCategoryTxt)
     end;
 
     [EventSubscriber(ObjectType::Page, 5330, 'OnOpenPageEvent', '', false, false)]
@@ -173,9 +182,7 @@ codeunit 5333 "CRM Integration Telemetry"
     var
         CRMConnectionSetup: Page "CRM Connection Setup";
     begin
-        SendTraceTag(
-          '00008A1', CRMConnectionCategoryTxt, VERBOSITY::Normal,
-          StrSubstNo(UserOpenedSetupPageTxt, CRMConnectionSetup.Caption), DATACLASSIFICATION::SystemMetadata)
+        Session.LogMessage('00008A1', StrSubstNo(UserOpenedSetupPageTxt, CRMConnectionSetup.Caption), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMConnectionCategoryTxt)
     end;
 
     [EventSubscriber(ObjectType::Page, 1817, 'OnOpenPageEvent', '', false, false)]
@@ -183,9 +190,7 @@ codeunit 5333 "CRM Integration Telemetry"
     var
         CRMConnectionSetupWizard: Page "CRM Connection Setup Wizard";
     begin
-        SendTraceTag(
-          '00008A2', CRMConnectionCategoryTxt, VERBOSITY::Normal,
-          StrSubstNo(UserOpenedSetupPageTxt, CRMConnectionSetupWizard.Caption), DATACLASSIFICATION::SystemMetadata)
+        Session.LogMessage('00008A2', StrSubstNo(UserOpenedSetupPageTxt, CRMConnectionSetupWizard.Caption), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMConnectionCategoryTxt)
     end;
 }
 

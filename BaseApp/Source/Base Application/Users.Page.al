@@ -575,7 +575,7 @@ page 9800 Users
 
         OriginalFilterGroup := FilterGroup;
         FilterGroup := 2;
-        SetFilter("License Type", '<>%1', "License Type"::"External User");
+        SetFilter("License Type", '<>%1&<>%2', "License Type"::"External User", "License Type"::Application);
         FilterGroup := OriginalFilterGroup;
     end;
 }

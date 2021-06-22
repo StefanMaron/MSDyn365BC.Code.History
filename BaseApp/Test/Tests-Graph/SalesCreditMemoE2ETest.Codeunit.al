@@ -18,7 +18,6 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
-        GraphContactIdFieldTxt: Label 'contactId';
         CustomerIdFieldTxt: Label 'customerId';
         CustomerNameFieldTxt: Label 'customerName';
         CustomerNumberFieldTxt: Label 'customerNumber';
@@ -382,130 +381,6 @@ codeunit 135536 "Sales Credit Memo E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestGetCreditMemosWithContactId()
-    var
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        CreditMemoID: Code[20];
-        TargetURL: Text;
-        ResponseText: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO] Create an credit memo with a contact with graph ID (GET method should return Graph Contact ID)
-        // [GIVEN] One credit memo with contact ID
-        Initialize;
-
-        CreateSalesCreditMemoWithGraphContactID(SalesHeader, GraphIntegrationRecord);
-        CreditMemoID := SalesHeader.SystemId;
-
-        // [WHEN] We get credit memo from web service
-        TargetURL := LibraryGraphMgt.CreateTargetURL(CreditMemoID, PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
-        LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
-
-        // [THEN] The credit memo should contain the Contact ID
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestPostCreditMemosWithGraphContactId()
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        CreditMemoWithComplexJSON: Text;
-        TargetURL: Text;
-        ResponseText: Text;
-        CreditMemoNumber: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO] Posting an credit memo with Graph Contact ID (POST method should find the customer based on Contact ID)
-        // [GIVEN] One credit memo with contact ID
-        Initialize;
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-        CreditMemoWithComplexJSON := CreateCreditMemoJSONWithContactId(GraphIntegrationRecord);
-
-        TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
-        Commit();
-
-        // [WHEN] We post an credit memo to web service
-        LibraryGraphMgt.PostToWebService(TargetURL, CreditMemoWithComplexJSON, ResponseText);
-
-        // [THEN] The credit memo should have a customer found based on contact ID
-        VerifyValidPostRequest(ResponseText, CreditMemoNumber);
-        VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(Customer, ResponseText);
-        VerifyContactFieldsUpdatedOnSalesHeader(CreditMemoNumber, SalesHeader."Document Type"::"Credit Memo", Contact);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestModifyingContactIdUpdatesSellToCustomer()
-    var
-        SalesHeader: Record "Sales Header";
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        SecondCustomer: Record Customer;
-        SecondContact: Record Contact;
-        SecondGraphIntegrationRecord: Record "Graph Integration Record";
-        CreditMemoID: Code[20];
-        TargetURL: Text;
-        ResponseText: Text;
-        CreditMemoWithComplexJSON: Text;
-        CreditMemoNumber: Text;
-    begin
-        // [FEATURE] [Contact] [ID]
-        // [SCENARIO] Create an credit memo with a contact with graph ID (Selecting a different contact will change sell-to customer)
-        // [GIVEN] One credit memo with contact ID
-        Initialize;
-
-        CreateSalesCreditMemoWithGraphContactID(SalesHeader, GraphIntegrationRecord);
-        CreditMemoID := SalesHeader.SystemId;
-
-        LibraryGraphDocumentTools.CreateContactWithGraphId(SecondContact, SecondGraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(SecondCustomer, SecondContact);
-
-        TargetURL := LibraryGraphMgt.CreateTargetURL(CreditMemoID, PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
-        CreditMemoWithComplexJSON := CreateCreditMemoJSONWithContactId(SecondGraphIntegrationRecord);
-
-        Commit();
-
-        // [WHEN] We Patch to web service
-        LibraryGraphMgt.PatchToWebService(TargetURL, CreditMemoWithComplexJSON, ResponseText);
-
-        // [THEN] The credit memo should have a new customer
-        VerifyValidPostRequest(ResponseText, CreditMemoNumber);
-        VerifyContactId(ResponseText, SecondGraphIntegrationRecord."Graph ID");
-        VerifyCustomerFields(SecondCustomer, ResponseText);
-        VerifyContactFieldsUpdatedOnSalesHeader(CreditMemoNumber, SalesHeader."Document Type"::"Credit Memo", SecondContact);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestDemoDataIntegrationRecordIdsForCreditMemos()
-    var
-        SalesHeader: Record "Sales Header";
-        BlankGuid: Guid;
-    begin
-        // [SCENARIO] Integration record ids should be set correctly.
-        // [GIVEN] We have demo data applied correctly
-        SalesHeader.SetRange(Id, BlankGuid);
-        Assert.IsFalse(SalesHeader.FindFirst, 'No sales headers should have null id');
-
-        // [WHEN] We look through all sales headers.
-        // [THEN] The integration record for the sales header should have the same record id.
-        SalesHeader.Reset();
-        if SalesHeader.Find('-') then begin
-            repeat
-                VerifySalesHeaderRegisteredInIntegrationTable(SalesHeader);
-            until SalesHeader.Next <= 0
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestModifyCreditMemoSetManualDiscount()
     var
         Customer: Record Customer;
@@ -684,43 +559,10 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         SalesLine.FindFirst;
     end;
 
-    local procedure CreateSalesCreditMemoWithGraphContactID(var SalesHeader: Record "Sales Header"; var GraphIntegrationRecord: Record "Graph Integration Record")
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-    begin
-        LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
-        LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-    end;
-
-    local procedure CreateCreditMemoJSONWithContactId(GraphIntegrationRecord: Record "Graph Integration Record"): Text
-    var
-        JSONManagement: Codeunit "JSON Management";
-        JObject: DotNet JObject;
-        CreditMemoJSON: Text;
-    begin
-        JSONManagement.InitializeEmptyObject;
-        JSONManagement.GetJSONObject(JObject);
-
-        JSONManagement.AddJPropertyToJObject(JObject, GraphContactIdFieldTxt, GraphIntegrationRecord."Graph ID");
-        CreditMemoJSON := JSONManagement.WriteObjectToString;
-
-        exit(CreditMemoJSON);
-    end;
-
     local procedure ModifySalesHeaderPostingDate(var SalesHeader: Record "Sales Header"; PostingDate: Date)
     begin
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
-    end;
-
-    local procedure VerifyContactId(ResponseText: Text; ExpectedContactId: Text)
-    var
-        contactId: Text;
-    begin
-        LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, GraphContactIdFieldTxt, contactId);
-        Assert.AreEqual(ExpectedContactId, contactId, 'Wrong contact id was returned');
     end;
 
     local procedure VerifyValidPostRequest(ResponseText: Text; var CreditMemoNumber: Text)
@@ -744,27 +586,9 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, CustomerNumberFieldTxt, customerNumberValue);
 
         Assert.AreEqual(
-          IntegrationManagement.GetIdWithoutBrackets(ExpectedCustomer.Id), UpperCase(customerIdValue), 'Wrong setting for Customer Id');
+          IntegrationManagement.GetIdWithoutBrackets(ExpectedCustomer.SystemId), UpperCase(customerIdValue), 'Wrong setting for Customer Id');
         Assert.AreEqual(ExpectedCustomer."No.", customerNumberValue, 'Wrong setting for Customer Number');
         Assert.AreEqual(ExpectedCustomer.Name, customerNameValue, 'Wrong setting for Customer Name');
-    end;
-
-    local procedure VerifyContactFieldsUpdatedOnSalesHeader(DocumentNumber: Text; DocumentType: Option; ExpectedContact: Record Contact)
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        Assert.IsTrue(SalesHeader.Get(DocumentType, DocumentNumber), 'Could not find the sales header for ' + DocumentNumber);
-        Assert.AreEqual(ExpectedContact."No.", SalesHeader."Sell-to Contact No.", 'Wrong sell to contact no');
-    end;
-
-    local procedure VerifySalesHeaderRegisteredInIntegrationTable(var SalesHeader: Record "Sales Header")
-    var
-        IntegrationRecord: Record "Integration Record";
-    begin
-        Assert.IsTrue(IntegrationRecord.Get(SalesHeader.SystemId), 'The SalesHeader id should exist in the integration record table');
-        Assert.AreEqual(
-          IntegrationRecord."Record ID", SalesHeader.RecordId,
-          'The integration record for the SalesHeader should have the same record id as the SalesHeader.');
     end;
 
     local procedure GetSalesCreditMemoHeaderByCustomerNumberAndDate(CustomerNo: Text; CreditMemoNo: Text; CreditMemoDate: Date; var SalesHeader: Record "Sales Header"; ErrorMessage: Text)

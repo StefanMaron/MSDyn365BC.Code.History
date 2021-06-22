@@ -722,7 +722,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         DataExchColumnDef.Modify(true);
     end;
 
-    local procedure CreateVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; Exported: Boolean; VendorCode: Code[20]; BankAccountCode: Code[20]; VendorBankAccountCode: Code[20]; VendorPaymentMethodCode: Code[10]; Currency: Record Currency)
+    local procedure CreateVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; Exported: Boolean; VendorCode: Code[20]; BankAccountCode: Code[20]; VendorBankAccountCode: Code[20]; VendorPaymentMethodCode: Code[10]; Currency: Record Currency)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

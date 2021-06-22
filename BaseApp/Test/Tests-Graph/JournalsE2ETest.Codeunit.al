@@ -119,7 +119,7 @@ codeunit 135535 "Journals E2E Test"
         JournalNames[1] := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
         LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalNames[1]);
         GenJournalBatch.Get(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalNames[1]);
-        JournalGUID := GenJournalBatch.Id;
+        JournalGUID := GenJournalBatch.SystemId;
 
         // [GIVEN] a journal json
         JournalJSON := CreateJournalJSON(JournalNames[2], JournalDescription, JournalBalAccountNo);
@@ -157,7 +157,7 @@ codeunit 135535 "Journals E2E Test"
         JournalName := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
         LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalName);
         GenJournalBatch.Get(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalName);
-        JournalGUID := GenJournalBatch.Id;
+        JournalGUID := GenJournalBatch.SystemId;
 
         // [WHEN] we DELETE the journal line from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(JournalGUID, PAGE::"Journal Entity", ServiceNameTxt);
@@ -181,7 +181,7 @@ codeunit 135535 "Journals E2E Test"
         GLAccount.Get(JournalBalAccountNo);
         JournalJSON := LibraryGraphMgt.AddPropertytoJSON('', JournalNameTxt, JournalName);
         JournalJSON := LibraryGraphMgt.AddPropertytoJSON(JournalJSON, JournalDescriptionNameTxt, JournalDescription);
-        JournalJSON := LibraryGraphMgt.AddPropertytoJSON(JournalJSON, JournalBalAccountIdTxt, TypeHelper.GetGuidAsString(GLAccount.Id));
+        JournalJSON := LibraryGraphMgt.AddPropertytoJSON(JournalJSON, JournalBalAccountIdTxt, TypeHelper.GetGuidAsString(GLAccount.SystemId));
 
         exit(JournalJSON);
     end;

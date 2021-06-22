@@ -609,16 +609,16 @@ report 5805 "Item Register - Value"
                     else
                         UnitAmount := 0;
 
-                    ItemEntryTypeTotalCost["Item Ledger Entry Type" + 1] := "Cost Amount (Actual)";
-                    ItemEntryTypeTotalCostExp["Item Ledger Entry Type" + 1] := "Cost Amount (Expected)";
-                    ItemEntryTypeTotalAmount["Item Ledger Entry Type" + 1] := "Sales Amount (Actual)";
-                    ShowItemLineSummary["Item Ledger Entry Type" + 1] := true;
-                    ShowTotalLineSummary["Item Ledger Entry Type" + 1] := true;
+                    ItemEntryTypeTotalCost["Item Ledger Entry Type".AsInteger() + 1] := "Cost Amount (Actual)";
+                    ItemEntryTypeTotalCostExp["Item Ledger Entry Type".AsInteger() + 1] := "Cost Amount (Expected)";
+                    ItemEntryTypeTotalAmount["Item Ledger Entry Type".AsInteger() + 1] := "Sales Amount (Actual)";
+                    ShowItemLineSummary["Item Ledger Entry Type".AsInteger() + 1] := true;
+                    ShowTotalLineSummary["Item Ledger Entry Type".AsInteger() + 1] := true;
 
-                    EntryTypeTotalCost["Entry Type" + 1] := "Cost Amount (Actual)";
-                    EntryTypeTotalCostExp["Entry Type" + 1] := "Cost Amount (Expected)";
-                    ShowItemLineSummary["Entry Type" + 1] := true;
-                    ShowTotalLineSummary["Entry Type" + 1] := true;
+                    EntryTypeTotalCost["Entry Type".AsInteger() + 1] := "Cost Amount (Actual)";
+                    EntryTypeTotalCostExp["Entry Type".AsInteger() + 1] := "Cost Amount (Expected)";
+                    ShowItemLineSummary["Entry Type".AsInteger() + 1] := true;
+                    ShowTotalLineSummary["Entry Type".AsInteger() + 1] := true;
                 end;
 
                 trigger OnPreDataItem()
@@ -666,12 +666,12 @@ report 5805 "Item Register - Value"
     begin
         ItemRegFilter := "Item Register".GetFilters;
         for i := 1 to ArrayLen(ItemEntryTypeDescription) do begin
-            "Value Entry"."Item Ledger Entry Type" := i - 1;
+            "Value Entry"."Item Ledger Entry Type" := "Item Ledger Entry Type".FromInteger(i - 1);
             ItemEntryTypeDescription[i] := Format("Value Entry"."Item Ledger Entry Type");
         end;
 
         for i := 1 to ArrayLen(EntryTypeDescription) do begin
-            "Value Entry"."Entry Type" := i - 1;
+            "Value Entry"."Entry Type" := "Cost Entry Type".FromInteger(i - 1);
             EntryTypeDescription[i] := Format("Value Entry"."Entry Type");
         end;
     end;

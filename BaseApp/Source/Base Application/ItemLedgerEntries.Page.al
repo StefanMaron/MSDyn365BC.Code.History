@@ -96,7 +96,7 @@ page 38 "Item Ledger Entries"
                     var
                         ItemTrackingManagement: Codeunit "Item Tracking Management";
                     begin
-                        ItemTrackingManagement.LookupLotSerialNoInfo("Item No.", "Variant Code", 0, "Serial No.");
+                        ItemTrackingManagement.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
                     end;
                 }
                 field("Lot No."; "Lot No.")
@@ -109,7 +109,7 @@ page 38 "Item Ledger Entries"
                     var
                         ItemTrackingManagement: Codeunit "Item Tracking Management";
                     begin
-                        ItemTrackingManagement.LookupLotSerialNoInfo("Item No.", "Variant Code", 1, "Lot No.");
+                        ItemTrackingManagement.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -150,6 +150,12 @@ page 38 "Item Ledger Entries"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the quantity per item unit of measure.';
+                    Visible = false;
+                }
+                field("Unit of Measure Code"; "Unit of Measure Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     Visible = false;
                 }
                 field("Sales Amount (Expected)"; "Sales Amount (Expected)")
@@ -310,7 +316,7 @@ page 38 "Item Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(SetDimensionFilter)
@@ -414,11 +420,12 @@ page 38 "Item Ledger Entries"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -438,6 +445,7 @@ page 38 "Item Ledger Entries"
     var
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
+        ItemTrackingType: Enum "Item Tracking Type";
 
     local procedure GetCaption(): Text
     var

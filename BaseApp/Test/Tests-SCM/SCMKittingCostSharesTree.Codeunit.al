@@ -26,7 +26,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         ERRWrongWarningParent: Label 'Warning were not issued for parent item.';
         ERRWrongWarningElement: Label 'Wrong BOM Warning Log found for entity %1.';
 
-    local procedure CostSharesTreeBasic(TopItemReplSystem: Option; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
+    local procedure CostSharesTreeBasic(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
     var
         Item: Record Item;
         TempItem: Record Item temporary;
@@ -67,7 +67,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CostSharesTreeBasic(Item."Replenishment System"::"Prod. Order", 2, 1, 2);
     end;
 
-    local procedure CostSharesTreeOverhead(TopItemReplSystem: Option; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
+    local procedure CostSharesTreeOverhead(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
     var
         Item: Record Item;
         TempItem: Record Item temporary;
@@ -109,7 +109,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CostSharesTreeOverhead(Item."Replenishment System"::"Prod. Order", 2, 1, 2);
     end;
 
-    local procedure CostSharesTreeItemScrap(TopItemReplSystem: Option; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
+    local procedure CostSharesTreeItemScrap(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
     var
         Item: Record Item;
         TempItem: Record Item temporary;
@@ -151,7 +151,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CostSharesTreeItemScrap(Item."Replenishment System"::"Prod. Order", 2, 2, 0);
     end;
 
-    local procedure CostSharesTreeBOMScrap(TopItemReplSystem: Option; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
+    local procedure CostSharesTreeBOMScrap(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
     var
         Item: Record Item;
         TempItem: Record Item temporary;
@@ -193,7 +193,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CostSharesTreeBOMScrap(Item."Replenishment System"::"Prod. Order", 1, 2, 1);
     end;
 
-    local procedure CostSharesTreeRoutingScrap(TopItemReplSystem: Option; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
+    local procedure CostSharesTreeRoutingScrap(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
     var
         Item: Record Item;
         TempItem: Record Item temporary;
@@ -235,7 +235,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CostSharesTreeRoutingScrap(Item."Replenishment System"::"Prod. Order", 1, 1, 3);
     end;
 
-    local procedure CostSharesTreeMachineCenterScrap(TopItemReplSystem: Option; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
+    local procedure CostSharesTreeMachineCenterScrap(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
     var
         Item: Record Item;
         TempItem: Record Item temporary;
@@ -277,7 +277,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CostSharesTreeMachineCenterScrap(Item."Replenishment System"::"Prod. Order", 1, 1, 2);
     end;
 
-    local procedure CostSharesTreeSubcontracting(TopItemReplSystem: Option; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
+    local procedure CostSharesTreeSubcontracting(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
     var
         Item: Record Item;
         TempItem: Record Item temporary;
@@ -319,7 +319,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         CostSharesTreeSubcontracting(Item."Replenishment System"::"Prod. Order", 1, 1, 2);
     end;
 
-    local procedure CostSharesTreeWarning(TopItemReplSystem: Option; WarningTableID: Integer; ChangeType: Option)
+    local procedure CostSharesTreeWarning(TopItemReplSystem: Enum "Replenishment System"; WarningTableID: Integer; ChangeType: Option)
     var
         Item: Record Item;
         Item1: Record Item;
@@ -628,7 +628,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Cost Shares Tree");
     end;
 
-    local procedure ZeroQtyPerTree(TopItemReplSystem: Option; Indentation: Integer; IsLeaf: Boolean)
+    local procedure ZeroQtyPerTree(TopItemReplSystem: Enum "Replenishment System"; Indentation: Integer; IsLeaf: Boolean)
     var
         BOMComponent: Record "BOM Component";
         Item: Record Item;

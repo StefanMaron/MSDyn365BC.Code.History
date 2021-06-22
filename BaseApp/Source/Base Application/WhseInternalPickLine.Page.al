@@ -21,7 +21,7 @@ page 7358 "Whse. Internal Pick Line"
 
                     trigger OnValidate()
                     begin
-                        ItemNoOnAfterValidate;
+                        ItemNoOnAfterValidate();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -67,7 +67,7 @@ page 7358 "Whse. Internal Pick Line"
 
                     trigger OnValidate()
                     begin
-                        ShelfNoOnAfterValidate;
+                        ShelfNoOnAfterValidate();
                     end;
                 }
                 field(Quantity; Quantity)
@@ -171,7 +171,7 @@ page 7358 "Whse. Internal Pick Line"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -184,7 +184,7 @@ page 7358 "Whse. Internal Pick Line"
     end;
 
     var
-        SortMethod: Option " ",Item,"Bin Code","Due Date";
+        SortMethod: Enum "Warehouse Internal Sorting Method";
 
     local procedure ShowBinContents()
     var
@@ -208,7 +208,7 @@ page 7358 "Whse. Internal Pick Line"
 
     local procedure OpenItemTrackingLines()
     begin
-        OpenItemTrackingLines;
+        OpenItemTrackingLines();
     end;
 
     local procedure GetActualSortMethod(): Enum "Warehouse Internal Sorting Method"
@@ -229,13 +229,13 @@ page 7358 "Whse. Internal Pick Line"
 
     local procedure ToBinCodeOnAfterValidate()
     begin
-        if GetActualSortMethod = SortMethod::"Bin Code" then
+        if GetActualSortMethod = SortMethod::"Shelf or Bin" then
             CurrPage.Update;
     end;
 
     local procedure ShelfNoOnAfterValidate()
     begin
-        if GetActualSortMethod = SortMethod::"Bin Code" then
+        if GetActualSortMethod = SortMethod::"Shelf or Bin" then
             CurrPage.Update;
     end;
 

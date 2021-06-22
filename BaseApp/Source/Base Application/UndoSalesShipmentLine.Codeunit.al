@@ -111,13 +111,8 @@ codeunit 5815 "Undo Sales Shipment Line"
                 if Type = Type::Item then begin
                     PostedWhseShptLineFound :=
                     WhseUndoQty.FindPostedWhseShptLine(
-                        PostedWhseShptLine,
-                        DATABASE::"Sales Shipment Line",
-                        "Document No.",
-                        DATABASE::"Sales Line",
-                        SalesLine."Document Type"::Order,
-                        "Order No.",
-                        "Order Line No.");
+                        PostedWhseShptLine, DATABASE::"Sales Shipment Line", "Document No.",
+                        DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
 
                     Clear(ItemJnlPostLine);
                     ItemShptEntryNo := PostItemJnlLine(SalesShptLine, DocLineNo);
@@ -269,14 +264,10 @@ codeunit 5815 "Undo Sales Shipment Line"
 
             OnAfterCopyItemJnlLineFromSalesShpt(ItemJnlLine, SalesShptHeader, SalesShptLine, TempWhseJnlLine);
 
-            WhseUndoQty.InsertTempWhseJnlLine(ItemJnlLine,
-              DATABASE::"Sales Line",
-              SalesLine."Document Type"::Order,
-              "Order No.",
-              "Order Line No.",
-              TempWhseJnlLine."Reference Document"::"Posted Shipment",
-              TempWhseJnlLine,
-              NextLineNo);
+            WhseUndoQty.InsertTempWhseJnlLine(
+                ItemJnlLine,
+                DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.",
+                TempWhseJnlLine."Reference Document"::"Posted Shipment", TempWhseJnlLine, NextLineNo);
 
             if GetUnvoicedShptEntries(SalesShptLine, ItemLedgEntryNotInvoiced) then begin
                 RemQtyBase := -("Quantity (Base)" - "Qty. Invoiced (Base)");
@@ -291,8 +282,10 @@ codeunit 5815 "Undo Sales Shipment Line"
                 until (RemQtyBase = 0);
                 exit(ItemJnlLine."Item Shpt. Entry No.");
             end;
-            UndoPostingMgt.CollectItemLedgEntries(TempApplyToEntryList, DATABASE::"Sales Shipment Line",
-              "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
+
+            UndoPostingMgt.CollectItemLedgEntries(
+                TempApplyToEntryList, DATABASE::"Sales Shipment Line", "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
+
             UndoPostingMgt.PostItemJnlLineAppliedToList(
                 ItemJnlLine, TempApplyToEntryList, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, "Qty. Shipped Not Invoiced" <> Quantity);
 

@@ -35,7 +35,7 @@ codeunit 134115 "ERM Employee Application"
         ApplyEmployeeEntry(GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::Payment, '', '');
     end;
 
-    local procedure ApplyEmployeeEntry(DocumentType: Option; DocumentType2: Option; CurrencyCode3: Code[10]; CurrencyCode2: Code[10])
+    local procedure ApplyEmployeeEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; CurrencyCode3: Code[10]; CurrencyCode2: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -81,7 +81,7 @@ codeunit 134115 "ERM Employee Application"
         ApplyAndPostEmployeeEntry(GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::Payment);
     end;
 
-    local procedure ApplyAndPostEmployeeEntry(DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyAndPostEmployeeEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -205,7 +205,7 @@ codeunit 134115 "ERM Employee Application"
         CreateGeneralLineAndApplyEntries(GenJournalLine."Account Type"::Employee, CreateEmployeeNo, -LibraryRandom.RandDec(100, 2)); // Take Random Amount for General Line.
     end;
 
-    local procedure CreateGeneralLineAndApplyEntries(AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralLineAndApplyEntries(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -458,7 +458,7 @@ codeunit 134115 "ERM Employee Application"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Employee Application");
     end;
 
-    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; DocumentType: Option; Amount: Decimal; CurrencyCode: Code[10]; AccountType: Option)
+    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CurrencyCode: Code[10]; AccountType: Enum "Gen. Journal Account Type")
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
@@ -485,7 +485,7 @@ codeunit 134115 "ERM Employee Application"
         exit(Employee."No.");
     end;
 
-    local procedure CreateAndPostThreeEmployeeExpensesAndOnePayment(var PaymentNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Sign: Integer)
+    local procedure CreateAndPostThreeEmployeeExpensesAndOnePayment(var PaymentNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Sign: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         InvAmount: Decimal;
@@ -535,7 +535,7 @@ codeunit 134115 "ERM Employee Application"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure OpenEmployeeLedgerEntryPage(DocumentType: Option; EmployeeNo: Code[20])
+    local procedure OpenEmployeeLedgerEntryPage(DocumentType: Enum "Gen. Journal Document Type"; EmployeeNo: Code[20])
     var
         EmployeeLedgerEntries: TestPage "Employee Ledger Entries";
     begin
@@ -566,7 +566,7 @@ codeunit 134115 "ERM Employee Application"
           Employee."No.", LibraryRandom.RandIntInRange(100, 500));
     end;
 
-    local procedure CreateAndPostJournalLine(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; LineAmount: Decimal)
+    local procedure CreateAndPostJournalLine(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; LineAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin

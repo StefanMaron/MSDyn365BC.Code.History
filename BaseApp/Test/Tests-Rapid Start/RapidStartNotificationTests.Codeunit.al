@@ -128,7 +128,7 @@ codeunit 139171 "RapidStart Notification Tests"
     [SendNotificationHandler]
     procedure SendNotificationHandler(var Notification: Notification): Boolean
     begin
-        Assert.ExpectedMessage('This page is intented for setting up new companies', Notification.Message);
+        Assert.ExpectedMessage('Use configuration packages to import data when setting up new companies', Notification.Message);
     end;
 
     [SendNotificationHandler]

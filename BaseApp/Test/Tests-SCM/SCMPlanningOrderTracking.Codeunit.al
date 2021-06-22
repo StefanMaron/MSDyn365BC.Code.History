@@ -323,7 +323,7 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         // [GIVEN] Create and Reserve Sales Order.
         CreateSalesOrder(SalesLine, Item."No.", '');
-        SalesLine.ShowReservation;  // Open Resrevation Page - ReservationFromCurrentLineHandler
+        SalesLine.ShowReservation();  // Open Resrevation Page - ReservationFromCurrentLineHandler
 
         // [WHEN] Calculate regenerative Plan for Planning Worksheet.
         CalculateRegenPlanForPlanningWorksheet(Item);
@@ -487,14 +487,14 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         // [GIVEN] From Item tracking lines (Purchase Order), add a SN to the item, then post receipt
         LibraryVariableStorage.Enqueue(ControlOptions::Purchase);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         LibraryVariableStorage.Dequeue(SerialNo);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] From Item Tracking Lines (Sales Order), assign same SN to the item
         LibraryVariableStorage.Enqueue(ControlOptions::Sale);
         LibraryVariableStorage.Enqueue(SerialNo);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // [WHEN] open the Requisition Worksheets and Calculate a Plan for the item
         CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, CalcDate('<-1M>', WorkDate), CalcDate('<+1M>', WorkDate));
@@ -502,7 +502,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         // [THEN] Review the Sales Order, open the Item Tracking and notice the Serial No. disappeared.
         LibraryVariableStorage.Enqueue(ControlOptions::Verification);
         LibraryVariableStorage.Enqueue(SerialNo);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
     end;
 
     [Test]
@@ -626,7 +626,7 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         LibraryVariableStorage.Enqueue(ControlOptions::Sale);
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Create requisition line via "Get Special Order" in Requisition Worksheet
@@ -685,7 +685,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ProdOrderLine.SetRange("Item No.", ComponentItem."No.");
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder[3]."No.");
         ProdOrderLine.FindFirst;
-        ProdOrderLine.OpenItemTrackingLines;
+        ProdOrderLine.OpenItemTrackingLines();
 
         // [WHEN] Calculate regenerative plan for the component item "COMP"
         CalculateRegenPlanForPlanningWorksheet(ComponentItem);
@@ -930,7 +930,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryWarehouse.CreateInTransitLocation(LocationInTransit);
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReorderingPolicy: Option; ReplenishmentSystem: Option)
+    local procedure CreateItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -939,7 +939,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         Item.Modify(true);
     end;
 
-    local procedure CreateLotForLotItem(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateLotForLotItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         // Create Lot-for-Lot Item.
         CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", ReplenishmentSystem);
@@ -968,7 +968,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         Item.Modify(true);
     end;
 
-    local procedure CreateLotForLotItemSetup(var Item: Record Item; var ChildItem: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateLotForLotItemSetup(var Item: Record Item; var ChildItem: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
@@ -1055,7 +1055,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, StartDate, EndDate);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateItemJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
@@ -1097,7 +1097,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
     end;
 
-    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; Status: Option; ProdOrderNo: Code[20]; ItemNo: Code[20])
+    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; ItemNo: Code[20])
     begin
         ProdOrderComponent.SetRange(Status, Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
@@ -1105,7 +1105,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ProdOrderComponent.FindFirst;
     end;
 
-    local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; ActionMessage: Option; No: Code[20]; LocationCode: Code[10]): Boolean
+    local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; ActionMessage: Enum "Action Message Type"; No: Code[20]; LocationCode: Code[10]): Boolean
     begin
         FilterRequisitionLine(RequisitionLine, No, LocationCode);
         RequisitionLine.SetRange("Action Message", ActionMessage);
@@ -1344,7 +1344,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationCode, ItemNo, ItemVariant.Code);
     end;
 
-    local procedure UpdateSKUReplenishmentSystem(StockkeepingUnit: Record "Stockkeeping Unit"; ReplenishmentSystem: Option)
+    local procedure UpdateSKUReplenishmentSystem(StockkeepingUnit: Record "Stockkeeping Unit"; ReplenishmentSystem: Enum "Replenishment System")
     begin
         StockkeepingUnit.Validate("Replenishment System", ReplenishmentSystem);
         StockkeepingUnit.Modify(true);

@@ -215,7 +215,7 @@ codeunit 1104 "Cost Account Allocation"
         CalcItemShare(CostAllocationTarget, ValueEntry."Item Ledger Entry Type"::Purchase, ValueEntry.FieldNo("Purchase Amount (Actual)"));
     end;
 
-    local procedure CalcItemShare(CostAllocationTarget: Record "Cost Allocation Target"; EntryType: Option; SumFieldNo: Integer)
+    local procedure CalcItemShare(CostAllocationTarget: Record "Cost Allocation Target"; EntryType: Enum "Item Ledger Entry Type"; SumFieldNo: Integer)
     var
         ValueEntry: Record "Value Entry";
         DimFilter: Text;

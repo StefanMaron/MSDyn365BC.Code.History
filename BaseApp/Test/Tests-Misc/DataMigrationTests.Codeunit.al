@@ -338,7 +338,7 @@ codeunit 135020 "Data Migration Tests"
             Error(FakeErrorErr);
 
         Sender.CreateItemIfNeeded(DataMigItemStagingTable."Item Key", DataMigItemStagingTable."Item Description", '',
-          Item.Type::Inventory);
+          Item.Type::Inventory.AsInteger());
     end;
 
     [Test]

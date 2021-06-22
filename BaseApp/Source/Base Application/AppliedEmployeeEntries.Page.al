@@ -138,7 +138,7 @@ page 63 "Applied Employee Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Detailed &Ledger Entries")
@@ -160,11 +160,12 @@ page 63 "Applied Employee Entries"
             action("&Navigate")
             {
                 ApplicationArea = BasicHR;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -187,7 +188,7 @@ page 63 "Applied Employee Entries"
 
         if "Entry No." <> 0 then begin
             CreateEmplLedgEntry := Rec;
-            if CreateEmplLedgEntry."Document Type" = 0 then
+            if CreateEmplLedgEntry."Document Type" = CreateEmplLedgEntry."Document Type"::" " then
                 Heading := DocumentTxt
             else
                 Heading := Format(CreateEmplLedgEntry."Document Type");

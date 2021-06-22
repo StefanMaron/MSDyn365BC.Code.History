@@ -35,15 +35,27 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
     end;
 
     procedure ApplyDiscount()
+    var
+        PriceType: Enum "Price Type";
     begin
-        ApplyDiscountSalesHandler();
-        ApplyDiscountPurchHandler();
+        case CurrLineWithPrice.GetPriceType() of
+            PriceType::Sale:
+                ApplyDiscountSalesHandler();
+            PriceType::Purchase:
+                ApplyDiscountPurchHandler();
+        end;
     end;
 
     procedure ApplyPrice(CalledByFieldNo: Integer)
+    var
+        PriceType: Enum "Price Type";
     begin
-        ApplyPriceSalesHandler(CalledByFieldNo);
-        ApplyPricePurchHandler(CalledByFieldNo);
+        case CurrLineWithPrice.GetPriceType() of
+            PriceType::Sale:
+                ApplyPriceSalesHandler(CalledByFieldNo);
+            PriceType::Purchase:
+                ApplyPricePurchHandler(CalledByFieldNo);
+        end;
     end;
 
     procedure CountDiscount(ShowAll: Boolean) Result: Integer;
@@ -264,6 +276,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
         ItemJournalLine: Record "Item Journal Line";
         JobJournalLine: Record "Job Journal Line";
         JobPlanningLine: Record "Job Planning Line";
+        ResJournalLine: Record "Res. Journal Line";
         SalesLine: Record "Sales Line";
         ServiceLine: Record "Service Line";
         StandardItemJournalLine: Record "Standard Item Journal Line";
@@ -299,6 +312,12 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                     else
                         SalesPriceCalcMgt.FindJobPlanningLinePrice(JobPlanningLine, CalledByFieldNo);
                     CurrLineWithPrice.SetLine(PriceType::Sale, JobPlanningLine);
+                end;
+            Database::"Res. Journal Line":
+                begin
+                    ResJournalLine := Line;
+                    SalesPriceCalcMgt.FindResPrice(ResJournalLine);
+                    CurrLineWithPrice.SetLine(PriceType::Sale, ResJournalLine);
                 end;
             Database::"Sales Line":
                 begin
@@ -356,8 +375,12 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
         ItemJournalLine: Record "Item Journal Line";
         JobJournalLine: Record "Job Journal Line";
         JobPlanningLine: Record "Job Planning Line";
+        ResJournalLine: Record "Res. Journal Line";
+        PriceListLine: Record "Price List Line";
         PurchaseLine: Record "Purchase Line";
         RequisitionLine: Record "Requisition Line";
+        SalesLine: Record "Sales Line";
+        ServiceLine: Record "Service Line";
         StandardItemJournalLine: Record "Standard Item Journal Line";
         Header: Variant;
         Line: Variant;
@@ -395,11 +418,35 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                     PurchPriceCalcMgt.FindPurchLinePrice(Header, PurchaseLine, CalledByFieldNo);
                     CurrLineWithPrice.SetLine(PriceType::Purchase, PurchaseLine);
                 end;
+            Database::"Price List Line":
+                begin
+                    PriceListLine := Line;
+                    FindPriceListLine(PriceListLine);
+                    CurrLineWithPrice.SetLine(PriceType::Purchase, PriceListLine);
+                end;
+            Database::"Res. Journal Line":
+                begin
+                    ResJournalLine := Line;
+                    PurchPriceCalcMgt.FindResUnitCost(ResJournalLine);
+                    CurrLineWithPrice.SetLine(PriceType::Purchase, ResJournalLine);
+                end;
             Database::"Requisition Line":
                 begin
                     RequisitionLine := Line;
                     PurchPriceCalcMgt.FindReqLinePrice(RequisitionLine, CalledByFieldNo);
                     CurrLineWithPrice.SetLine(PriceType::Purchase, RequisitionLine);
+                end;
+            Database::"Sales Line":
+                begin
+                    SalesLine := Line;
+                    PurchPriceCalcMgt.FindResUnitCost(SalesLine);
+                    CurrLineWithPrice.SetLine(PriceType::Purchase, SalesLine);
+                end;
+            Database::"Service Line":
+                begin
+                    ServiceLine := Line;
+                    PurchPriceCalcMgt.FindResUnitCost(ServiceLine);
+                    CurrLineWithPrice.SetLine(PriceType::Purchase, ServiceLine);
                 end;
             Database::"Standard Item Journal Line":
                 begin
@@ -411,6 +458,26 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                         PurchPriceCalcMgt.FindStdItemJnlLinePrice(StandardItemJournalLine, CalledByFieldNo);
                         CurrLineWithPrice.SetLine(PriceType::Purchase, StandardItemJournalLine);
                     end;
+                end;
+        end;
+    end;
+
+    local procedure FindPriceListLine(var PriceListLine: Record "Price List Line")
+    var
+        ResourceCost: Record "Resource Cost";
+    begin
+        case PriceListLine."Price Type" of
+            PriceListLine."Price Type"::Purchase:
+                case PriceListLine."Asset Type" of
+                    PriceListLine."Asset Type"::Resource:
+                        begin
+                            ResourceCost.Init();
+                            ResourceCost.Code := PriceListLine."Asset No.";
+                            ResourceCost."Work Type Code" := '';
+                            CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResourceCost);
+                            PriceListLine."Unit Cost" := ResourceCost."Unit Cost";
+                            PriceListLine."Unit Price" := ResourceCost."Direct Unit Cost";
+                        end;
                 end;
         end;
     end;

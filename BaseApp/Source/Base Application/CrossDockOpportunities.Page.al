@@ -325,7 +325,7 @@ page 5783 "Cross-Dock Opportunities"
 
                     trigger OnAction()
                     begin
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
             }

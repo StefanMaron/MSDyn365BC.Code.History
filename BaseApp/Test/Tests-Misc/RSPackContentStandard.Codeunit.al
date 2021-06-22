@@ -161,7 +161,7 @@ codeunit 138300 "RS Pack Content - Standard"
         Assert.TableIsNotEmpty(DATABASE::"FA Posting Group");
     end;
 
-    local procedure VerifyContactCompany(var CompanyNo: Code[20]; LinkToTable: Option; No: Code[20])
+    local procedure VerifyContactCompany(var CompanyNo: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table"; No: Code[20])
     var
         ContactBusinessRelation: Record "Contact Business Relation";
     begin

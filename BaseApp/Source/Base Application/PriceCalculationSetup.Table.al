@@ -20,13 +20,19 @@ table 7006 "Price Calculation Setup"
         }
         field(4; "Asset Type"; Enum "Price Asset Type")
         {
+            Caption = 'Product Type';
             DataClassification = CustomerContent;
         }
         field(5; Details; Integer)
         {
+            Caption = 'Exceptions';
             FieldClass = FlowField;
-            CalcFormula = count ("Dtld. Price Calculation Setup" where("Setup Code" = field(Code)));
+            CalcFormula = count("Dtld. Price Calculation Setup" where("Setup Code" = field(Code)));
             Editable = false;
+        }
+        field(9; "Group Id"; Code[100])
+        {
+            DataClassification = SystemMetadata;
         }
         field(10; Implementation; Enum "Price Calculation Handler")
         {
@@ -56,11 +62,11 @@ table 7006 "Price Calculation Setup"
                     exit; // cannot remove Default flag, pick another record to become Default
                 end;
 
-                if Default then
-                    if PriceCalculationSetup.FindDefault(Method, Type) then begin
-                        PriceCalculationSetup.Default := false;
-                        PriceCalculationSetup.Modify();
-                    end;
+                if Default then begin
+                    if PriceCalculationSetup.FindDefault("Group Id") then
+                        PriceCalculationSetup.ModifyAll(Default, false);
+                    RemoveExceptions();
+                end;
             end;
         }
     }
@@ -69,6 +75,9 @@ table 7006 "Price Calculation Setup"
         key(PK; Code)
         {
             Clustered = true;
+        }
+        key(Key2; "Group Id", Default, Enabled)
+        {
         }
     }
     fieldgroups
@@ -85,13 +94,14 @@ table 7006 "Price Calculation Setup"
 
     local procedure DefineCode()
     begin
-        Code := CopyStr(StrSubstNo('[%1]-%2', GetUID(), Implementation.AsInteger()), 1, MaxStrLen(Code));
+        "Group Id" := CopyStr(GetUID(), 1, MaxStrLen("Group Id"));
+        Code := CopyStr(StrSubstNo('[%1]-%2', "Group Id", Implementation.AsInteger()), 1, MaxStrLen(Code));
         OnAfterDefineCode();
     end;
 
-    procedure GetUID() UID: text;
+    procedure GetUID(): Text;
     begin
-        UID := StrSubstNo('%1-%2-%3', Method.AsInteger(), Type.AsInteger(), "Asset Type".AsInteger());
+        exit(StrSubstNo('%1-%2-%3', Method.AsInteger(), Type.AsInteger(), "Asset Type".AsInteger()));
     end;
 
     [Scope('OnPrem')]
@@ -102,10 +112,26 @@ table 7006 "Price Calculation Setup"
         if FindSet() then
             repeat
                 if ToRec.Get(Code) then begin
-                    ToRec.Default := true;
+                    ToRec.Validate(Default, true);
                     ToRec.Modify();
                 end;
             until Next() = 0;
+    end;
+
+    procedure CountEnabledExeptions() Result: Integer;
+    var
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
+    begin
+        PriceCalculationSetup.SetRange("Group Id", "Group Id");
+        PriceCalculationSetup.SetRange(Default, false);
+        PriceCalculationSetup.SetRange(Enabled, true);
+        if PriceCalculationSetup.FindSet() then
+            repeat
+                DtldPriceCalculationSetup.SetRange("Setup Code", PriceCalculationSetup.Code);
+                DtldPriceCalculationSetup.SetRange(Enabled, true);
+                Result += DtldPriceCalculationSetup.Count();
+            until PriceCalculationSetup.Next() = 0;
     end;
 
     procedure FindDefault(CalculationMethod: enum "Price Calculation Method"; PriceType: Enum "Price Type"): Boolean;
@@ -117,16 +143,38 @@ table 7006 "Price Calculation Setup"
         exit(FindFirst());
     end;
 
-    procedure MoveFrom(var PriceCalculationSetup: Record "Price Calculation Setup")
+    procedure FindDefault(GroupId: Text): Boolean;
     begin
         Reset();
-        DeleteAll();
-        if PriceCalculationSetup.FindSet() then
+        SetCurrentKey("Group Id", Default);
+        SetRange("Group Id", GroupId);
+        SetRange(Default, true);
+        exit(FindFirst());
+    end;
+
+    procedure MoveFrom(var TempPriceCalculationSetup: Record "Price Calculation Setup" temporary) Inserted: Boolean;
+    var
+        DefaultPriceCalculationSetup: Record "Price Calculation Setup";
+    begin
+        if TempPriceCalculationSetup.FindSet() then
             repeat
-                Rec := PriceCalculationSetup;
-                Insert();
-            until PriceCalculationSetup.Next() = 0;
-        PriceCalculationSetup.DeleteAll();
+                Rec := TempPriceCalculationSetup;
+                if Default then
+                    if DefaultPriceCalculationSetup.FindDefault("Group Id") then
+                        Default := false;
+                Insert(true);
+                Inserted := true;
+            until TempPriceCalculationSetup.Next() = 0;
+        TempPriceCalculationSetup.DeleteAll();
+    end;
+
+    local procedure RemoveExceptions()
+    var
+        DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
+    begin
+        DtldPriceCalculationSetup.SetRange("Setup Code", Code);
+        if not DtldPriceCalculationSetup.IsEmpty() then
+            DtldPriceCalculationSetup.DeleteAll();
     end;
 
     [IntegrationEvent(true, false)]

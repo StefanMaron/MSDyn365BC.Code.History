@@ -1421,17 +1421,17 @@ codeunit 134097 "ERM Check Posting Groups"
         // [GIVEN] Created a VAT Posting Setup with "Adjust for Payment Discount"=TRUE
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
-        LibraryERM.CreateVATPostingSetup(VATPostingSetup,VATBusinessPostingGroup.Code,VATProductPostingGroup.Code);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("VAT Tolerance %",0);
+        GeneralLedgerSetup.Validate("VAT Tolerance %", 0);
         GeneralLedgerSetup.Modify(true);
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(false);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        VATPostingSetup.Validate("Adjust for Payment Discount",true);
+        VATPostingSetup.Validate("Adjust for Payment Discount", true);
         VATPostingSetup.Modify(true);
 
         // [GIVEN] Created a Gen Journal Line Invoice for G/L Account
-        CreateGenJnlLineWithAccountVATPostingSetup(GenJournalLine,VATPostingSetup,GenJournalLine."Document Type"::Invoice);
+        CreateGenJnlLineWithAccountVATPostingSetup(GenJournalLine, VATPostingSetup, GenJournalLine."Document Type"::Invoice);
 
         // [GIVEN] Set an empty "Gen. Prod. Posting Group" for the Gen Journal Line
         GenJournalLine."Gen. Prod. Posting Group" := '';
@@ -1442,8 +1442,8 @@ codeunit 134097 "ERM Check Posting Groups"
 
         // [THEN] The error is thrown: 'Gen. Prod. Posting Group must have a value in Gen. Journal Line'
         Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(EmptyGenProdPostingGroupErr,GenJournalLine."Journal Template Name",
-            GenJournalLine."Journal Batch Name",GenJournalLine."Line No."));
+        Assert.ExpectedError(StrSubstNo(EmptyGenProdPostingGroupErr, GenJournalLine."Journal Template Name",
+            GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
     end;
 
     [Test]
@@ -1463,17 +1463,17 @@ codeunit 134097 "ERM Check Posting Groups"
         // [GIVEN] Created a VAT Posting Setup with "Adjust for Payment Discount"=TRUE
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
-        LibraryERM.CreateVATPostingSetup(VATPostingSetup,VATBusinessPostingGroup.Code,VATProductPostingGroup.Code);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("VAT Tolerance %",0);
+        GeneralLedgerSetup.Validate("VAT Tolerance %", 0);
         GeneralLedgerSetup.Modify(true);
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(false);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        VATPostingSetup.Validate("Adjust for Payment Discount",true);
+        VATPostingSetup.Validate("Adjust for Payment Discount", true);
         VATPostingSetup.Modify(true);
 
         // [GIVEN] Created a Gen Journal Line Invoice for G/L Account
-        CreateGenJnlLineWithBalAccountVATPostingSetup(GenJournalLine,VATPostingSetup,GenJournalLine."Document Type"::Invoice);
+        CreateGenJnlLineWithBalAccountVATPostingSetup(GenJournalLine, VATPostingSetup, GenJournalLine."Document Type"::Invoice);
 
         // [GIVEN] Set an empty "Bal. Gen. Prod. Posting Group" for the Gen Journal Line
         GenJournalLine."Bal. Gen. Prod. Posting Group" := '';
@@ -1484,8 +1484,8 @@ codeunit 134097 "ERM Check Posting Groups"
 
         // [THEN] The error is thrown: 'Bal. Gen. Prod. Posting Group must have a value in Gen. Journal Line'
         Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(EmptyBalGenProdPostingGroupErr,GenJournalLine."Journal Template Name",
-            GenJournalLine."Journal Batch Name",GenJournalLine."Line No."));
+        Assert.ExpectedError(StrSubstNo(EmptyBalGenProdPostingGroupErr, GenJournalLine."Journal Template Name",
+            GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
     end;
 
     [Test]
@@ -1505,17 +1505,17 @@ codeunit 134097 "ERM Check Posting Groups"
         // [GIVEN] Created a VAT Posting Setup with "Adjust for Payment Discount"=TRUE
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
-        LibraryERM.CreateVATPostingSetup(VATPostingSetup,VATBusinessPostingGroup.Code,VATProductPostingGroup.Code);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("VAT Tolerance %",0);
+        GeneralLedgerSetup.Validate("VAT Tolerance %", 0);
         GeneralLedgerSetup.Modify(true);
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(false);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        VATPostingSetup.Validate("Adjust for Payment Discount",true);
+        VATPostingSetup.Validate("Adjust for Payment Discount", true);
         VATPostingSetup.Modify(true);
 
         // [GIVEN] Created a Gen Journal Line Credit Memo for G/L Account
-        CreateGenJnlLineWithAccountVATPostingSetup(GenJournalLine,VATPostingSetup,GenJournalLine."Document Type"::"Credit Memo");
+        CreateGenJnlLineWithAccountVATPostingSetup(GenJournalLine, VATPostingSetup, GenJournalLine."Document Type"::"Credit Memo");
 
         // [GIVEN] Set an empty "Gen. Prod. Posting Group" for the Gen Journal Line
         GenJournalLine."Gen. Prod. Posting Group" := '';
@@ -1526,8 +1526,8 @@ codeunit 134097 "ERM Check Posting Groups"
 
         // [THEN] The error is thrown: 'Gen. Prod. Posting Group must have a value in Gen. Journal Line'
         Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(STRSUBSTNO(EmptyGenProdPostingGroupErr,GenJournalLine."Journal Template Name",
-            GenJournalLine."Journal Batch Name",GenJournalLine."Line No."));
+        Assert.ExpectedError(STRSUBSTNO(EmptyGenProdPostingGroupErr, GenJournalLine."Journal Template Name",
+            GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
     end;
 
     [Test]
@@ -1547,17 +1547,17 @@ codeunit 134097 "ERM Check Posting Groups"
         // [GIVEN] Created a VAT Posting Setup with "Adjust for Payment Discount"=TRUE
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
-        LibraryERM.CreateVATPostingSetup(VATPostingSetup,VATBusinessPostingGroup.Code,VATProductPostingGroup.Code);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("VAT Tolerance %",0);
+        GeneralLedgerSetup.Validate("VAT Tolerance %", 0);
         GeneralLedgerSetup.Modify(true);
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(false);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        VATPostingSetup.Validate("Adjust for Payment Discount",true);
+        VATPostingSetup.Validate("Adjust for Payment Discount", true);
         VATPostingSetup.Modify(true);
 
         // [GIVEN] Created a Gen Journal Line Credit Memo for G/L Account
-        CreateGenJnlLineWithBalAccountVATPostingSetup(GenJournalLine,VATPostingSetup,GenJournalLine."Document Type"::"Credit Memo");
+        CreateGenJnlLineWithBalAccountVATPostingSetup(GenJournalLine, VATPostingSetup, GenJournalLine."Document Type"::"Credit Memo");
 
         // [GIVEN] Set an empty "Bal. Gen. Prod. Posting Group" for the Gen Journal Line
         GenJournalLine."Bal. Gen. Prod. Posting Group" := '';
@@ -1568,8 +1568,8 @@ codeunit 134097 "ERM Check Posting Groups"
 
         // [THEN] The error is thrown: 'Bal. Gen. Prod. Posting Group must have a value in Gen. Journal Line'
         Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(STRSUBSTNO(EmptyBalGenProdPostingGroupErr,GenJournalLine."Journal Template Name",
-            GenJournalLine."Journal Batch Name",GenJournalLine."Line No."));
+        Assert.ExpectedError(STRSUBSTNO(EmptyBalGenProdPostingGroupErr, GenJournalLine."Journal Template Name",
+            GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
     end;
 
     local procedure Initialize()
@@ -1578,7 +1578,7 @@ codeunit 134097 "ERM Check Posting Groups"
         LibrarySetupStorage.Restore;
 
         if IsInitialized then
-          exit;
+            exit;
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
@@ -1586,43 +1586,43 @@ codeunit 134097 "ERM Check Posting Groups"
         Commit();
     end;
 
-    local procedure CreateGenJnlLineWithAccountVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line";VATPostingSetup: Record "VAT Posting Setup";GenJournalLineType: Option)
+    local procedure CreateGenJnlLineWithAccountVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLineType: Enum "Gen. Journal Document Type")
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch,GenJournalTemplate.Name);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.FindBankAccount(BankAccount);
-        GenJournalBatch.Validate("Bal. Account Type",GenJournalLine."Bal. Account Type"::"Bank Account");
-        GenJournalBatch.Validate("Bal. Account No.",BankAccount."No.");
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
         GenJournalBatch.Modify(true);
         LibraryERM.CreateGeneralJnlLine(
-        GenJournalLine,GenJournalBatch."Journal Template Name",GenJournalBatch.Name,GenJournalLineType,
-          GenJournalLine."Account Type"::"G/L Account",LibraryERM.CreateGLAccountWithPurchSetup,LibraryRandom.RandDec(10,2));
-        GenJournalLine.Validate("VAT Bus. Posting Group",VATPostingSetup."VAT Bus. Posting Group");
-        GenJournalLine.Validate("VAT Prod. Posting Group",VATPostingSetup."VAT Prod. Posting Group");
+        GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLineType,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandDec(10, 2));
+        GenJournalLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GenJournalLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJnlLineWithBalAccountVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line";VATPostingSetup: Record "VAT Posting Setup";GenJournalLineType: Option)
+    local procedure CreateGenJnlLineWithBalAccountVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLineType: Enum "Gen. Journal Document Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch,GenJournalTemplate.Name);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
-        GenJournalBatch.Validate("Bal. Account Type",GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalBatch.Validate("Bal. Account No.",GLAccount."No.");
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalBatch.Validate("Bal. Account No.", GLAccount."No.");
         GenJournalBatch.Modify(true);
         LibraryERM.CreateGeneralJnlLine(
-        GenJournalLine,GenJournalBatch."Journal Template Name",GenJournalBatch.Name,GenJournalLineType,
-          GenJournalLine."Account Type"::"G/L Account",LibraryERM.CreateGLAccountWithPurchSetup,LibraryRandom.RandDec(10,2));
-        GenJournalLine.Validate("Bal. VAT Bus. Posting Group",VATPostingSetup."VAT Bus. Posting Group");
-        GenJournalLine.Validate("Bal. VAT Prod. Posting Group",VATPostingSetup."VAT Prod. Posting Group");
+        GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLineType,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandDec(10, 2));
+        GenJournalLine.Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GenJournalLine.Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GenJournalLine.Modify(true);
     end;
 

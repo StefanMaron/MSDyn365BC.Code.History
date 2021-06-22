@@ -28,15 +28,10 @@ codeunit 7201 "CDS Integration Impl."
         HasConnectionTxt: Label 'Connection is registered.', Locked = true;
         OnBeforeRegisterConnectionTxt: Label 'On before register connection.', Locked = true;
         OnAfterRegisterConnectionTxt: Label 'On after register connection.', Locked = true;
-        UnregisterConnectionTxt: Label 'Unregister connection.', Locked = true;
         OnBeforeUnregisterConnectionTxt: Label 'On before unregister connection.', Locked = true;
         OnAfterUnregisterConnectionTxt: Label 'On after unregister connection.', Locked = true;
-        ConnectionUnregisteredTxt: Label 'Connection has been unregistered.', Locked = true;
         OnEnableIntegrationTxt: Label 'On enable integration.', Locked = true;
         OnDisableIntegrationTxt: Label 'On disable integration.', Locked = true;
-        RegisterConnectionTxt: Label 'Register connection.', Locked = true;
-        ConnectionRegisteredTxt: Label 'Connection has been registered.', Locked = true;
-        IntegrationEnabledTxt: Label 'Integration is enabled.', Locked = true;
         DisableIntegrationTxt: Label 'Disable integration.', Locked = true;
         NoPermissionsTxt: Label 'No permissions.', Locked = true;
         UpdateSetupTxt: Label 'Update setup.', Locked = true;
@@ -79,6 +74,7 @@ codeunit 7201 "CDS Integration Impl."
         CannotAssignRoleToTeamTxt: Label 'Cannot assign role to team.', Locked = true;
         CannotAddUserToTeamTxt: Label 'Cannot add user to team.', Locked = true;
         ConnectionRequiredFieldsTxt: Label 'A URL, user name and password are required.', Locked = true;
+        Office365ConnectionRequiredFieldsTxt: Label 'A URL is required.', Locked = true;
         ConnectionRequiredFieldsMismatchTxt: Label 'The URL, user name, password, and authentication type must be the same on the Common Data Service Connection Setup and Microsoft Dynamics 365 Connection Setup pages.', Locked = true;
         IgnoredAdminCredentialsTxt: Label 'Ignored administrator credentials.', Locked = true;
         InvalidAdminCredentialsTxt: Label 'Invalid administrator credentials.', Locked = true;
@@ -134,7 +130,7 @@ codeunit 7201 "CDS Integration Impl."
         IntegrationUserFullNameTxt: Label 'Business Central Integration', Locked = true;
         IntegrationUserFirstNameTxt: Label 'Business Central', Locked = true;
         IntegrationUserLastNameTxt: Label 'Integration', Locked = true;
-        IntegrationUserPrimaryEmailTxt: Label 'john@contoso.com', Locked = true;
+        IntegrationUserPrimaryEmailTxt: Label 'john%1@contoso.com', Locked = true;
         CompanyAlreadyExistsTxt: Label 'Company already exists.', Locked = true;
         BusinessUnitAlreadyExistsTxt: Label 'Business unit already exists.', Locked = true;
         TeamAlreadyExistsTxt: Label 'Team already exists.', Locked = true;
@@ -192,6 +188,7 @@ codeunit 7201 "CDS Integration Impl."
         TestServerAddressTok: Label '@@test@@', Locked = true;
         NewBusinessUnitNameTemplateTok: Label '<New> %1', Comment = '%1 = Business unit name', Locked = true;
         BusinessUnitNameTemplateTok: Label '%1 (%2)', Comment = '%1 = Company name, %2 = Company ID', Locked = true;
+        BusinessUnitNameSuffixTok: Label ' (%1)', Comment = '%1 = Company ID', Locked = true;
         TeamNameTemplateTok: Label 'BCI - %1', Comment = '%1 = Business unit name', Locked = true;
         OAuthConnectionStringFormatTok: Label 'Url=%1; AccessToken=%2; ProxyVersion=%3; %4', Locked = true;
         ClientSecretConnectionStringFormatTok: Label '%1; Url=%2; ClientId=%3; ClientSecret=%4; ProxyVersion=%5', Locked = true;
@@ -201,7 +198,9 @@ codeunit 7201 "CDS Integration Impl."
         ConnectionStringFormatTok: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
         ConnectionBrokenMsg: Label 'The connection to Common Data Service is disabled due to the following error: %1.\\Please contact your system administrator.', Comment = '%1 = Error text received from Common Data Service';
         ConnectionDisabledNotificationMsg: Label 'Connection to Common Data Service is broken and that it has been disabled due to an error: %1', Comment = '%1 = Error text received from Common Data Service';
-        SetupConnectionTxt: Label 'Set up Common Data Service connection';
+        CDSConnectionSetupTxt: Label 'Set up Common Data Service connection';
+        CDSConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115257', Locked = true;
+        CDSConnectionSetupDescriptionTxt: Label 'Connect to Common Data Service for better insights across business applications.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated';
         BaseIntegrationSolutionNotInstalledErr: Label 'Base Common Data Service integration solution %1 is not installed.', Comment = '%1 = Common Data Service solution name';
         SolutionVersionErr: Label 'Version of the base Common Data Service integration solution %1 is not the last one.', Comment = '%1 = solution version';
         SystemAdminErr: Label 'User %1 has the %2 role on server %3.\\You must choose a user that does not have the %2 role.', Comment = '%1 = user name, %2 = security role name, %3 = server address';
@@ -217,6 +216,7 @@ codeunit 7201 "CDS Integration Impl."
         UserHasNoRolesErr: Label 'User %1 has no user roles assigned on server %2.', Comment = '%1 = user name, %2 = server address';
         NoSystemAdminRoleErr: Label 'Admin user %1 is not assigned to the System Administrator role on server %2.', Comment = '%1 = user name, %2 = server address';
         ConnectionRequiredFieldsErr: Label 'A URL, user name and password are required.';
+        Office365ConnectionRequiredFieldsErr: Label 'A URL is required.';
         ConnectionRequiredFieldsMismatchErr: Label 'The values of the Server Address, User Name, User Password and Authentication Type fields must match the corresponding field values on the Microsoft Dynamics 365 Connection Setup page.';
         ConnectionStringPwdPlaceHolderMissingErr: Label 'The connection string must include the password placeholder {PASSWORD}.';
         UserNameMustIncludeDomainErr: Label 'The user name must include the domain when the authentication type is set to Active Directory.';
@@ -243,6 +243,8 @@ codeunit 7201 "CDS Integration Impl."
         MissingClientIdOrSecretOnPremErr: Label 'You must register an Azure Active Directory application that will be used to connect to the Common Data Service environment and specify the application id, secret and redirect URL in the Common Data Service Connection Setup page.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
         AuthTokenOrCodeNotReceivedErr: Label 'No access token or authorization error code received.', Locked = true;
         AccessTokenNotReceivedErr: Label 'Failed to acquire an access token for %1.', Comment = '%1 URL to the Common Data Service environment.';
+        FixPermissionsUrlTxt: Label 'https://docs.microsoft.com/en-us/power-platform/admin/troubleshooting-user-needs-read-write-access-organization#user-doesnt-have-sufficient-permissions', Locked = true;
+        InsufficientPriviegesTxt: Label 'The Common Data Service user has insufficient privileges to perform this task. Navigate to this link to read about how to add privileges to the user: %1', Comment = '%1 A URL';
 
     [Scope('OnPrem')]
     procedure GetBaseSolutionUniqueName(): Text
@@ -268,7 +270,7 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
         if not CDSConnectionSetup.Get() then begin
-            SendTraceTag('0000AQP', CategoryTok, VERBOSITY::Normal, IntegrationNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AQP', IntegrationNotConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
@@ -280,19 +282,19 @@ codeunit 7201 "CDS Integration Impl."
         ActiveConnectionName: Text;
     begin
         if not CDSConnectionSetup."Is Enabled" then begin
-            SendTraceTag('0000AQQ', CategoryTok, VERBOSITY::Normal, IntegrationNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AQQ', IntegrationNotConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
         if not HasTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName) then begin
-            SendTraceTag('0000AQR', CategoryTok, VERBOSITY::Normal, NoConnectionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AQR', NoConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
         ActiveConnectionName := GetDefaultTableConnection(TABLECONNECTIONTYPE::CRM);
         if ConnectionName = ActiveConnectionName then begin
-            SendTraceTag('0000AQS', CategoryTok, VERBOSITY::Normal, ConnectionActiveTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AQS', ConnectionActiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(true);
         end;
-        SendTraceTag('0000AQT', CategoryTok, VERBOSITY::Normal, ConnectionNotActiveTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AQT', ConnectionNotActiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(false);
     end;
 
@@ -308,11 +310,11 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
         if not CDSConnectionSetup.Get() then begin
-            SendTraceTag('0000AQU', CategoryTok, VERBOSITY::Normal, IntegrationNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AQU', IntegrationNotConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
         if not CDSConnectionSetup."Is Enabled" then begin
-            SendTraceTag('0000BFQ', CategoryTok, VERBOSITY::Normal, IntegrationDisabledTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BFQ', IntegrationDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
         exit(ActivateConnection(CDSConnectionSetup, ConnectionName));
@@ -322,37 +324,37 @@ codeunit 7201 "CDS Integration Impl."
     var
         ActiveConnectionName: Text;
     begin
-        SendTraceTag('0000AQV', CategoryTok, VERBOSITY::Normal, ActivateConnectionTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AQV', ActivateConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         if IsConnectionActive(CDSConnectionSetup, ConnectionName) then begin
-            SendTraceTag('0000AQW', CategoryTok, VERBOSITY::Normal, ConnectionActiveTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AQW', ConnectionActiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(true);
         end;
 
         if not HasTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName) then begin
-            SendTraceTag('0000AQX', CategoryTok, VERBOSITY::Normal, NoConnectionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AQX', NoConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
         ActiveConnectionName := GetDefaultTableConnection(TABLECONNECTIONTYPE::CRM);
         if ConnectionName = ActiveConnectionName then begin
-            SendTraceTag('0000AQY', CategoryTok, VERBOSITY::Normal, ConnectionActiveTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AQY', ConnectionActiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(true);
         end;
 
         if not CDSConnectionSetup.IsTemporary() then begin
-            SendTraceTag('0000AQZ', CategoryTok, VERBOSITY::Normal, OnBeforeActivateConnectionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AQZ', OnBeforeActivateConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             CDSIntegrationMgt.OnBeforeActivateConnection();
         end;
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName, false);
 
         if not CDSConnectionSetup.IsTemporary() then begin
-            SendTraceTag('0000AR0', CategoryTok, VERBOSITY::Normal, OnAfterActivateConnectionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AR0', OnAfterActivateConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             CDSIntegrationMgt.OnAfterActivateConnection();
         end;
 
-        SendTraceTag('0000AR1', CategoryTok, VERBOSITY::Normal, ConnectionActivatedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AR1', ConnectionActivatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(true);
     end;
 
@@ -367,7 +369,7 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
         if not CDSConnectionSetup.Get() then begin
-            SendTraceTag('0000AR2', CategoryTok, VERBOSITY::Normal, IntegrationNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AR2', IntegrationNotConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
@@ -377,16 +379,16 @@ codeunit 7201 "CDS Integration Impl."
     local procedure HasConnection(var CDSConnectionSetup: Record "CDS Connection Setup"; ConnectionName: Text): Boolean
     begin
         if not CDSConnectionSetup."Is Enabled" then begin
-            SendTraceTag('0000AR3', CategoryTok, VERBOSITY::Normal, IntegrationDisabledTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AR3', IntegrationDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
         if HasTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName) then begin
-            SendTraceTag('0000AR4', CategoryTok, VERBOSITY::Normal, HasConnectionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AR4', HasConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(true);
         end;
 
-        SendTraceTag('0000AR5', CategoryTok, VERBOSITY::Normal, NoConnectionTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AR5', NoConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(false);
     end;
 
@@ -417,12 +419,12 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
         if not CDSConnectionSetup.Get() then begin
-            SendTraceTag('0000AR6', CategoryTok, VERBOSITY::Normal, IntegrationNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AR6', IntegrationNotConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
         if not CDSConnectionSetup."Is Enabled" then begin
-            SendTraceTag('0000AR7', CategoryTok, VERBOSITY::Normal, IntegrationDisabledTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AR7', IntegrationDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
@@ -451,13 +453,11 @@ codeunit 7201 "CDS Integration Impl."
         ConnectionString: Text;
         IsTemporary: Boolean;
     begin
-        SendTraceTag('0000AR8', CategoryTok, VERBOSITY::Normal, RegisterConnectionTxt, DataClassification::SystemMetadata);
-
         IsTemporary := CDSConnectionSetup.IsTemporary();
         if not IsTemporary then
             if KeepExisting then
                 if HasTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName) then begin
-                    SendTraceTag('0000AR9', CategoryTok, VERBOSITY::Normal, HasConnectionTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000AR9', HasConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     exit(true);
                 end;
 
@@ -469,7 +469,7 @@ codeunit 7201 "CDS Integration Impl."
             ClearLastError();
 
         if not IsTemporary then begin
-            SendTraceTag('0000ARA', CategoryTok, VERBOSITY::Normal, OnBeforeRegisterConnectionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ARA', OnBeforeRegisterConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             CDSIntegrationMgt.OnBeforeRegisterConnection();
         end;
 
@@ -477,11 +477,10 @@ codeunit 7201 "CDS Integration Impl."
             exit(false);
 
         if not IsTemporary then begin
-            SendTraceTag('0000ARB', CategoryTok, VERBOSITY::Normal, OnAfterRegisterConnectionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ARB', OnAfterRegisterConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             CDSIntegrationMgt.OnAfterRegisterConnection();
         end;
 
-        SendTraceTag('0000ARC', CategoryTok, VERBOSITY::Normal, ConnectionRegisteredTxt, DataClassification::SystemMetadata);
         exit(true);
     end;
 
@@ -503,44 +502,60 @@ codeunit 7201 "CDS Integration Impl."
     var
         IsTemporary: Boolean;
     begin
-        SendTraceTag('0000ARD', CategoryTok, VERBOSITY::Normal, UnregisterConnectionTxt, DataClassification::SystemMetadata);
-
         if not HasTableConnection(TableConnectionType::CRM, ConnectionName) then begin
-            SendTraceTag('0000ARE', CategoryTok, VERBOSITY::Normal, NoConnectionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ARE', NoConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit;
         end;
 
         IsTemporary := ConnectionName.StartsWith(TemporaryConnectionPrefixTok);
         if not IsTemporary then begin
-            SendTraceTag('0000ARF', CategoryTok, VERBOSITY::Normal, OnBeforeUnregisterConnectionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ARF', OnBeforeUnregisterConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             CDSIntegrationMgt.OnBeforeUnregisterConnection();
         end;
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName);
         if not IsTemporary then begin
-            SendTraceTag('0000ARG', CategoryTok, VERBOSITY::Normal, OnAfterUnregisterConnectionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ARG', OnAfterUnregisterConnectionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             CDSIntegrationMgt.OnAfterUnregisterConnection();
         end;
 
-        SendTraceTag('0000ARH', CategoryTok, VERBOSITY::Normal, ConnectionUnregisteredTxt, DataClassification::SystemMetadata);
     end;
 
     [Scope('OnPrem')]
     procedure IsIntegrationEnabled(): Boolean
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        IsDetailedLoggingEnabled: Boolean;
     begin
+        CDSIntegrationMgt.OnGetDetailedLoggingEnabled(IsDetailedLoggingEnabled);
+
+        if not CDSConnectionSetup.ReadPermission() then
+            exit(false);
+
         if not CDSConnectionSetup.Get() then begin
-            SendTraceTag('0000ARI', CategoryTok, VERBOSITY::Normal, IntegrationNotConfiguredTxt, DataClassification::SystemMetadata);
+            if IsDetailedLoggingEnabled then
+                Session.LogMessage('0000ARI', IntegrationNotConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
         if not CDSConnectionSetup."Is Enabled" then begin
-            SendTraceTag('0000ARJ', CategoryTok, VERBOSITY::Normal, IntegrationDisabledTxt, DataClassification::SystemMetadata);
+            if IsDetailedLoggingEnabled then
+                Session.LogMessage('0000ARJ', IntegrationDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
-        SendTraceTag('0000ARK', CategoryTok, VERBOSITY::Normal, IntegrationEnabledTxt, DataClassification::SystemMetadata);
+        OnAfterIntegrationEnabled();
         exit(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsTeamOwnershipModelSelected(): Boolean
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        if IsIntegrationEnabled() then
+            if CDSConnectionSetup.Get() then
+                exit(CDSConnectionSetup."Ownership Model" = CDSConnectionSetup."Ownership Model"::Team);
+        exit(false);
     end;
 
     [Scope('OnPrem')]
@@ -569,10 +584,10 @@ codeunit 7201 "CDS Integration Impl."
         CDSSolution.SetRange(UniqueName, UniqueName);
         if CDSSolution.FindFirst() then
             if CDSSolution.InstalledOn <> 0DT then begin
-                SendTraceTag('0000ARM', CategoryTok, VERBOSITY::Normal, SolutionInstalledTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ARM', SolutionInstalledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 exit(true);
             end;
-        SendTraceTag('0000ARN', CategoryTok, VERBOSITY::Normal, SolutionNotInstalledTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ARN', SolutionNotInstalledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(false);
     end;
 
@@ -583,10 +598,10 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if TryCheckSolutionInstalled(CDSConnectionSetup, UniqueName, Installed) then
             if Installed then begin
-                SendTraceTag('0000ARO', CategoryTok, VERBOSITY::Normal, SolutionInstalledTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ARO', SolutionInstalledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 exit(true);
             end;
-        SendTraceTag('0000ARP', CategoryTok, VERBOSITY::Normal, SolutionNotInstalledTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ARP', SolutionNotInstalledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(false);
     end;
 
@@ -630,11 +645,11 @@ codeunit 7201 "CDS Integration Impl."
         if CDSSolution.FindFirst() then
             if CDSSolution.InstalledOn <> 0DT then begin
                 Version := CDSSolution.Version;
-                SendTraceTag('0000ARQ', CategoryTok, VERBOSITY::Normal, SolutionVersionReceivedTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ARQ', SolutionVersionReceivedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 exit(true);
             end;
         Version := '';
-        SendTraceTag('0000ARL', CategoryTok, VERBOSITY::Normal, CannotGetSolutionVersionTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ARL', CannotGetSolutionVersionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(false);
     end;
 
@@ -642,12 +657,12 @@ codeunit 7201 "CDS Integration Impl."
     procedure GetSolutionVersion(var CDSConnectionSetup: Record "CDS Connection Setup"; UniqueName: Text; var Version: Text): Boolean
     begin
         if TryGetSolutionVersion(CDSConnectionSetup, UniqueName, Version) then begin
-            SendTraceTag('0000ARR', CategoryTok, VERBOSITY::Normal, SolutionVersionReceivedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ARR', SolutionVersionReceivedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             if Version <> '' then
                 exit(true);
         end;
         Version := '';
-        SendTraceTag('0000ARS', CategoryTok, VERBOSITY::Normal, CannotGetSolutionVersionTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ARS', CannotGetSolutionVersionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(false);
     end;
 
@@ -667,9 +682,9 @@ codeunit 7201 "CDS Integration Impl."
             if CDSSolution.InstalledOn <> 0DT then
                 Version := CDSSolution.Version;
         if Version <> '' then
-            SendTraceTag('0000AVR', CategoryTok, VERBOSITY::Normal, SolutionNotInstalledTxt, DataClassification::SystemMetadata)
+            Session.LogMessage('0000AVR', SolutionNotInstalledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
         else
-            SendTraceTag('0000ART', CategoryTok, VERBOSITY::Normal, SolutionNotInstalledTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ART', SolutionNotInstalledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
     end;
@@ -681,7 +696,7 @@ codeunit 7201 "CDS Integration Impl."
         TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
         TempConnectionName: Text;
     begin
-        SendTraceTag('0000ARW', CategoryTok, VERBOSITY::Normal, SetUserAsIntegrationUserTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ARW', SetUserAsIntegrationUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
         TempConnectionName := GetTempConnectionName();
@@ -693,21 +708,21 @@ codeunit 7201 "CDS Integration Impl."
 
         FilterUser(CDSConnectionSetup, CRMSystemuser);
         if not CRMSystemuser.FindFirst() then begin
-            SendTraceTag('0000ARX', CategoryTok, VERBOSITY::Normal, UserNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ARX', UserNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(CannotResolveUserFromConnectionSetupErr);
         end;
         if (CRMSystemuser.InviteStatusCode <> CRMSystemuser.InviteStatusCode::InvitationAccepted) or
            (not CRMSystemuser.IsIntegrationUser)
         then begin
-            SendTraceTag('0000ARY', CategoryTok, VERBOSITY::Normal, SetUserAsIntegrationUserTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ARY', SetUserAsIntegrationUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             CRMSystemuser.InviteStatusCode := CRMSystemuser.InviteStatusCode::InvitationAccepted;
             CRMSystemuser.IsIntegrationUser := true;
             if not CRMSystemuser.Modify() then
-                SendTraceTag('0000ARZ', CategoryTok, VERBOSITY::Normal, CannotSetUserAsIntegrationUserTxt, DataClassification::SystemMetadata)
+                Session.LogMessage('0000ARZ', CannotSetUserAsIntegrationUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             else
-                SendTraceTag('0000AS0', CategoryTok, VERBOSITY::Normal, UserSetAsIntegrationUserTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AS0', UserSetAsIntegrationUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         end else
-            SendTraceTag('0000AS1', CategoryTok, VERBOSITY::Normal, UserAlreadySetAsIntegrationUserTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AS1', UserAlreadySetAsIntegrationUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
     end;
@@ -720,7 +735,7 @@ codeunit 7201 "CDS Integration Impl."
         TempConnectionName: Text;
         ChangedToNonInteractive: Boolean;
     begin
-        SendTraceTag('0000B2I', CategoryTok, VERBOSITY::Normal, SetAccessModeToNonInteractiveTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000B2I', SetAccessModeToNonInteractiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
         TempConnectionName := GetTempConnectionName();
@@ -732,24 +747,24 @@ codeunit 7201 "CDS Integration Impl."
 
         FilterUser(CDSConnectionSetup, CRMSystemuser);
         if not CRMSystemuser.FindFirst() then begin
-            SendTraceTag('0000B2J', CategoryTok, VERBOSITY::Normal, UserNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000B2J', UserNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(CannotResolveUserFromConnectionSetupErr);
         end;
 
         if CRMSystemuser.AccessMode <> CRMSystemuser.AccessMode::"Non-interactive" then begin
-            SendTraceTag('0000B2A', CategoryTok, VERBOSITY::Normal, SetAccessModeToNonInteractiveTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000B2A', SetAccessModeToNonInteractiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             CRMSystemuser.AccessMode := CRMSystemuser.AccessMode::"Non-interactive";
             if not CRMSystemuser.Modify() then
-                SendTraceTag('0000B2B', CategoryTok, VERBOSITY::Normal, CannotSetAccessModeToNonInteractiveTxt, DataClassification::SystemMetadata)
+                Session.LogMessage('0000B2B', CannotSetAccessModeToNonInteractiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             else begin
                 ChangedToNonInteractive := CRMSystemuser.AccessMode = CRMSystemuser.AccessMode::"Non-interactive";
                 if ChangedToNonInteractive then
-                    SendTraceTag('0000B2C', CategoryTok, VERBOSITY::Normal, AccessModeSetToNonInteractiveTxt, DataClassification::SystemMetadata)
+                    Session.LogMessage('0000B2C', AccessModeSetToNonInteractiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
                 else
-                    SendTraceTag('0000B2H', CategoryTok, VERBOSITY::Normal, CannotSetAccessModeToNonInteractiveTxt, DataClassification::SystemMetadata)
+                    Session.LogMessage('0000B2H', CannotSetAccessModeToNonInteractiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             end;
         end else
-            SendTraceTag('0000B2D', CategoryTok, VERBOSITY::Normal, AccessModeAlreadySetToNonInteractiveTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000B2D', AccessModeAlreadySetToNonInteractiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
 
@@ -765,13 +780,14 @@ codeunit 7201 "CDS Integration Impl."
         TempConnectionName: Text;
         CDSConnectionClientIdTxt: Text;
         ConnectionStringWithClientSecret: Text;
+        IntegrationUsernameEmailTxt: Text;
         CDSConnectionClientId: Guid;
         EmptyGuid: Guid;
         ExistingApplicationUserCount: Integer;
     begin
         if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then
             exit;
-        SendTraceTag('0000C4J', CategoryTok, VERBOSITY::Normal, FindOrCreateIntegrationUserTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000C4J', FindOrCreateIntegrationUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
         TempConnectionName := GetTempConnectionName();
@@ -784,15 +800,20 @@ codeunit 7201 "CDS Integration Impl."
         ExistingApplicationUserCount := CRMSystemuser.Count();
 
         if ExistingApplicationUserCount > 1 then begin
-            SendTraceTag('0000C4K', CategoryTok, VERBOSITY::Error, StrSubstNo(FoundMoreThanOneIntegrationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), DataClassification::SystemMetadata);
+            Session.LogMessage('0000C4K', StrSubstNo(FoundMoreThanOneIntegrationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(FoundMoreThanOneIntegrationUserErr, CDSConnectionClientId, CDSConnectionSetup."Server Address");
         end;
 
         if ExistingApplicationUserCount = 1 then begin
-            SendTraceTag('0000C4L', CategoryTok, VERBOSITY::Normal, StrSubstNo(FoundOneIntegrationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), DataClassification::SystemMetadata);
+            Session.LogMessage('0000C4L', StrSubstNo(FoundOneIntegrationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             CrmSystemUser.FindFirst();
         end else begin
-            SendTraceTag('0000C4M', CategoryTok, VERBOSITY::Normal, StrSubstNo(FoundNoIntegrationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), DataClassification::SystemMetadata);
+            Session.LogMessage('0000C4M', StrSubstNo(FoundNoIntegrationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            IntegrationUsernameEmailTxt := GetAvailableIntegrationUserEmail();
+            if IntegrationUsernameEmailTxt = '' then begin
+                Session.LogMessage('0000D1D', StrSubstNo(FailedToInsertApplicationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                Error(FailedToInsertApplicationUserErr, CDSConnectionClientId, CDSConnectionSetup."Server Address");
+            end;
             CRMSystemuser.ApplicationId := CDSConnectionClientId;
             CRMSystemuser.FirstName := IntegrationUserFirstNameTxt;
             CRMSystemuser.LastName := IntegrationUserLastNameTxt;
@@ -800,9 +821,9 @@ codeunit 7201 "CDS Integration Impl."
             RootBusinessunit.SetRange(ParentBusinessUnitId, EmptyGuid);
             RootBusinessunit.FindFirst();
             CRMSystemUser.BusinessUnitId := RootBusinessUnit.BusinessUnitId;
-            CRMSystemuser.InternalEMailAddress := IntegrationUserPrimaryEmailTxt;
+            CRMSystemuser.InternalEMailAddress := CopyStr(IntegrationUsernameEmailTxt, 1, MaxStrLen(CRMSystemuser.InternalEMailAddress));
             if not CRMSystemuser.Insert() then begin
-                SendTraceTag('0000C4N', CategoryTok, VERBOSITY::Error, StrSubstNo(FailedToInsertApplicationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), DataClassification::SystemMetadata);
+                Session.LogMessage('0000C4N', StrSubstNo(FailedToInsertApplicationUserTxt, CDSConnectionClientId, CDSConnectionSetup."Server Address"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(FailedToInsertApplicationUserErr, CDSConnectionClientId, CDSConnectionSetup."Server Address");
             end;
         end;
@@ -813,6 +834,26 @@ codeunit 7201 "CDS Integration Impl."
         SetConnectionString(CDSConnectionSetup, ConnectionStringWithClientSecret);
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
+    end;
+
+    local procedure GetAvailableIntegrationUserEmail(): Text
+    var
+        IntegrationCRMSystemUser: Record "CRM Systemuser";
+        IntegrationUsernameEmailTxt: Text;
+        EmailSuffix: Integer;
+    begin
+        IntegrationUsernameEmailTxt := StrSubstNo(IntegrationUserPrimaryEmailTxt, '');
+        IntegrationCRMSystemuser.SetRange(InternalEMailAddress, IntegrationUsernameEmailTxt);
+        while not IntegrationCRMSystemuser.IsEmpty() and (EmailSuffix < 100) do begin
+            EmailSuffix += 1;
+            IntegrationUsernameEmailTxt := StrSubstNo(IntegrationUserPrimaryEmailTxt, EmailSuffix);
+            IntegrationCRMSystemuser.SetRange(InternalEMailAddress, IntegrationUsernameEmailTxt);
+        end;
+
+        if EmailSuffix >= 100 then
+            exit('');
+
+        exit(IntegrationUsernameEmailTxt);
     end;
 
     [NonDebuggable]
@@ -843,8 +884,9 @@ codeunit 7201 "CDS Integration Impl."
         EmptyGuid: Guid;
         UpdateOwningTeam: Boolean;
         OwningTeamUpdated: Boolean;
+        DefaultBusinessUnitFound: Boolean;
     begin
-        SendTraceTag('0000AS2', CategoryTok, VERBOSITY::Normal, SynchronizeCompanyTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AS2', SynchronizeCompanyTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         ResetCache();
 
@@ -862,24 +904,30 @@ codeunit 7201 "CDS Integration Impl."
         // Table connection is scoped, therefore all manipulations with CDS tables must be placed
         // in this procedure between SetDefaultTableConnection and UnregisterConnection
 
-        SendTraceTag('0000AS3', CategoryTok, VERBOSITY::Normal, CheckBusinessUnitTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AS3', CheckBusinessUnitTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         RootCRMBusinessunit.SetRange(ParentBusinessUnitId, EmptyGuid);
         RootCRMBusinessunit.FindFirst();
         DefaultCRMBusinessunit.SetRange(ParentBusinessUnitId, RootCRMBusinessunit.BusinessUnitId);
         DefaultCRMBusinessunit.SetRange(Name, BusinessUnitName);
-        if not DefaultCRMBusinessunit.FindFirst() then begin
+        DefaultBusinessUnitFound := DefaultCRMBusinessunit.FindFirst();
+        if not DefaultBusinessUnitFound then begin
+            DefaultCRMBusinessunit.SetFilter(Name, '*' + CompanyId + '*');
+            if DefaultCRMBusinessunit.FindFirst() then
+                DefaultBusinessUnitFound := DefaultCRMBusinessunit.Name.EndsWith(StrSubstNo(BusinessUnitNameSuffixTok, CompanyId))
+        end;
+        if not DefaultBusinessUnitFound then begin
             DefaultCRMBusinessunit.Name := BusinessUnitName;
             DefaultCRMBusinessunit.TransactionCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
             DefaultCRMBusinessunit.ParentBusinessUnitId := RootCRMBusinessunit.BusinessUnitId;
             if not DefaultCRMBusinessunit.Insert() then begin
-                SendTraceTag('0000AS4', CategoryTok, VERBOSITY::Normal, CannotCreateBusinessUnitTxt, DataClassification::SystemMetadata);
-                Error(CannotCreateBusinessUnitErr, BusinessUnitName);
+                Session.LogMessage('0000AS4', CannotCreateBusinessUnitTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                Error(EnrichWithDotNetException(CannotCreateBusinessUnitErr), BusinessUnitName);
             end;
-            SendTraceTag('0000AS5', CategoryTok, VERBOSITY::Normal, BusinessUnitCreatedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AS5', BusinessUnitCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         end else
-            SendTraceTag('0000AS6', CategoryTok, VERBOSITY::Normal, BusinessUnitAlreadyExistsTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AS6', BusinessUnitAlreadyExistsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
-        SendTraceTag('0000AS7', CategoryTok, VERBOSITY::Normal, CheckOwningTeamTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AS7', CheckOwningTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         TeamName := GetOwningTeamName(DefaultCRMBusinessunit.Name);
         FilterTeam(DefaultCRMBusinessunit.BusinessUnitId, TeamName, DefaultCRMTeam);
         if not DefaultCRMTeam.FindFirst() then begin
@@ -887,16 +935,16 @@ codeunit 7201 "CDS Integration Impl."
             DefaultCRMTeam.BusinessUnitId := DefaultCRMBusinessunit.BusinessUnitId;
             DefaultCRMTeam.TeamType := DefaultCRMTeam.TeamType::Owner;
             if not DefaultCRMTeam.Insert() then begin
-                SendTraceTag('0000AS8', CategoryTok, VERBOSITY::Normal, CannotCreateTeamTxt, DataClassification::SystemMetadata);
-                Error(CannotCreateTeamErr, TeamName, BusinessUnitName);
+                Session.LogMessage('0000AS8', CannotCreateTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                Error(EnrichWithDotNetException(CannotCreateTeamErr), TeamName, BusinessUnitName);
             end;
-            SendTraceTag('0000AS9', CategoryTok, VERBOSITY::Normal, TeamCreatedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AS9', TeamCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         end else
-            SendTraceTag('0000ASA', CategoryTok, VERBOSITY::Normal, TeamAlreadyExistsTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ASA', TeamAlreadyExistsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
-        SendTraceTag('0000ASB', CategoryTok, VERBOSITY::Normal, CheckTeamRolesTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ASB', CheckTeamRolesTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         if not CRMRole.Get(GetIntegrationRoleId()) then begin
-            SendTraceTag('0000ASC', CategoryTok, VERBOSITY::Warning, IntegrationRoleNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ASC', IntegrationRoleNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(IntegrationRoleNotFoundErr, IntegrationRoleName, RootCRMBusinessunit.Name);
         end;
         IntegrationRoleName := CRMRole.Name;
@@ -904,33 +952,33 @@ codeunit 7201 "CDS Integration Impl."
         CRMRole.SetRange(ParentRoleId, GetIntegrationRoleId());
         CRMRole.SetRange(BusinessUnitId, DefaultCRMBusinessunit.BusinessUnitId);
         if not CRMRole.FindFirst() then begin
-            SendTraceTag('0000ASD', CategoryTok, VERBOSITY::Normal, RoleNotFoundForBusinessUnitTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ASD', RoleNotFoundForBusinessUnitTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(IntegrationRoleNotFoundErr, IntegrationRoleName, DefaultCRMBusinessunit.Name);
         end;
         if not AssignTeamRole(CrmHelper, DefaultCRMTeam.TeamId, CRMRole.RoleId) then begin
-            SendTraceTag('0000ASE', CategoryTok, VERBOSITY::Normal, CannotAssignRoleToTeamTxt, DataClassification::SystemMetadata);
-            Error(CannotAssignRoleToTeamErr, DefaultCRMTeam.Name, DefaultCRMBusinessunit.Name, IntegrationRoleName);
+            Session.LogMessage('0000ASE', CannotAssignRoleToTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            Error(EnrichWithDotNetException(CannotAssignRoleToTeamErr), DefaultCRMTeam.Name, DefaultCRMBusinessunit.Name, IntegrationRoleName);
         end;
-        SendTraceTag('0000ASF', CategoryTok, VERBOSITY::Normal, RoleAssignedToTeamTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ASF', RoleAssignedToTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
-        SendTraceTag('0000ASG', CategoryTok, VERBOSITY::Normal, CheckCompanyTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ASG', CheckCompanyTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         CDSCompany.SetRange(ExternalId, CompanyId);
         if not CDSCompany.FindFirst() then begin
-            SendTraceTag('0000ASH', CategoryTok, VERBOSITY::Normal, CreateCompanyTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ASH', CreateCompanyTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             if not CRMOrganization.FindFirst() then begin
-                SendTraceTag('0000ASI', CategoryTok, VERBOSITY::Normal, OrganizationNotFoundTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ASI', OrganizationNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(CannotFindOrganizationErr);
             end;
             if not CRMTransactioncurrency.Get(CRMOrganization.BaseCurrencyId) then begin
-                SendTraceTag('0000ASJ', CategoryTok, VERBOSITY::Normal, CurrencyNotFoundTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ASJ', CurrencyNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(BaseCurrencyNotFoundErr);
             end;
             if not GeneralLedgerSetup.Get() then begin
-                SendTraceTag('0000ASK', CategoryTok, VERBOSITY::Normal, GLSetupNotFoundTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ASK', GLSetupNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(GLSetupNotFoundErr);
             end;
             if DelChr(CRMTransactioncurrency.ISOCurrencyCode) <> DelChr(GeneralLedgerSetup."LCY Code") then begin
-                SendTraceTag('0000ASL', CategoryTok, VERBOSITY::Normal, CurrencyMismatchTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ASL', CurrencyMismatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(LCYMustMatchBaseCurrencyErr, GeneralLedgerSetup."LCY Code", CRMTransactioncurrency.ISOCurrencyCode);
             end;
             CDSCompany.ExternalId := CompanyId;
@@ -939,19 +987,19 @@ codeunit 7201 "CDS Integration Impl."
             CDSCompany.OwnerIdType := CDSCompany.OwnerIdType::team;
             CDSCompany.OwnerId := DefaultCRMTeam.TeamId;
             if not CDSCompany.Insert() then begin
-                SendTraceTag('0000ASM', CategoryTok, VERBOSITY::Normal, CannotCreateCompanyTxt, DataClassification::SystemMetadata);
-                Error(CannotCreateCompanyErr, CompanyName);
+                Session.LogMessage('0000ASM', CannotCreateCompanyTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                Error(EnrichWithDotNetException(CannotCreateCompanyErr), CompanyName);
             end;
-            SendTraceTag('0000ASN', CategoryTok, VERBOSITY::Normal, CompanyCreatedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ASN', CompanyCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         end else begin
-            SendTraceTag('0000ASO', CategoryTok, VERBOSITY::Normal, CompanyAlreadyExistsTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ASO', CompanyAlreadyExistsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             if IsNullGuid(CDSCompany.DefaultOwningTeam) then begin
                 CDSCompany.DefaultOwningTeam := DefaultCRMTeam.TeamId;
                 if not CDSCompany.Modify() then begin
-                    SendTraceTag('0000ASP', CategoryTok, VERBOSITY::Normal, CannotSetDefaultOwningTeamTxt, DataClassification::SystemMetadata);
-                    Error(CannotSetDefaultOwningTeamErr);
+                    Session.LogMessage('0000ASP', CannotSetDefaultOwningTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    Error(EnrichWithDotNetException(CannotSetDefaultOwningTeamErr));
                 end;
-                SendTraceTag('0000ASQ', CategoryTok, VERBOSITY::Normal, DefaultOwningTeamSetTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ASQ', DefaultOwningTeamSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             end;
         end;
 
@@ -965,7 +1013,7 @@ codeunit 7201 "CDS Integration Impl."
         if UpdateOwningTeam and not IsNullGuid(CDSConnectionSetup."Business Unit Id") then
             if UpdatedCRMBusinessunit.Get(CDSConnectionSetup."Business Unit Id") then begin
                 // update default owning team field on CDS company
-                SendTraceTag('0000ASR', CategoryTok, Verbosity::Normal, CheckOwningTeamTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ASR', CheckOwningTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 TeamName := GetOwningTeamName(UpdatedCRMBusinessunit.Name);
                 FilterTeam(UpdatedCRMBusinessunit.BusinessUnitId, TeamName, UpdatingCRMTeam);
                 if not UpdatingCRMTeam.FindFirst() then begin
@@ -973,55 +1021,75 @@ codeunit 7201 "CDS Integration Impl."
                     UpdatingCRMTeam.BusinessUnitId := UpdatedCRMBusinessunit.BusinessUnitId;
                     UpdatingCRMTeam.TeamType := UpdatingCRMTeam.TeamType::Owner;
                     if not UpdatingCRMTeam.Insert() then begin
-                        SendTraceTag('0000ASS', CategoryTok, VERBOSITY::Normal, CannotCreateTeamTxt, DataClassification::SystemMetadata);
-                        Error(CannotCreateTeamErr, TeamName, UpdatedCRMBusinessunit.Name);
+                        Session.LogMessage('0000ASS', CannotCreateTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                        Error(EnrichWithDotNetException(CannotCreateTeamErr), TeamName, UpdatedCRMBusinessunit.Name);
                     end;
-                    SendTraceTag('0000AST', CategoryTok, VERBOSITY::Normal, TeamCreatedTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000AST', TeamCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 end else
-                    SendTraceTag('0000ASU', CategoryTok, VERBOSITY::Normal, TeamAlreadyExistsTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000ASU', TeamAlreadyExistsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
                 CRMRole.SetRange(ParentRoleId, GetIntegrationRoleId());
                 CRMRole.SetRange(BusinessUnitId, UpdatedCRMBusinessunit.BusinessUnitId);
                 if not CRMRole.FindFirst() then begin
-                    SendTraceTag('0000ASV', CategoryTok, VERBOSITY::Normal, RoleNotFoundForBusinessUnitTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000ASV', RoleNotFoundForBusinessUnitTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     Error(IntegrationRoleNotFoundErr, IntegrationRoleName, UpdatedCRMBusinessunit.Name);
                 end;
                 if not AssignTeamRole(CrmHelper, UpdatingCRMTeam.TeamId, CRMRole.RoleId) then begin
-                    SendTraceTag('0000ASW', CategoryTok, VERBOSITY::Normal, CannotAssignRoleToTeamTxt, DataClassification::SystemMetadata);
-                    Error(CannotAssignRoleToTeamErr, UpdatingCRMTeam.Name, UpdatedCRMBusinessunit.Name, IntegrationRoleName);
+                    Session.LogMessage('0000ASW', CannotAssignRoleToTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    Error(EnrichWithDotNetException(CannotAssignRoleToTeamErr), UpdatingCRMTeam.Name, UpdatedCRMBusinessunit.Name, IntegrationRoleName);
                 end;
-                SendTraceTag('0000ASX', CategoryTok, VERBOSITY::Normal, RoleAssignedToTeamTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ASX', RoleAssignedToTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
                 CDSCompany.DefaultOwningTeam := UpdatingCRMTeam.TeamId;
                 if not CDSCompany.Modify() then begin
-                    SendTraceTag('0000ASY', CategoryTok, VERBOSITY::Warning, CannotSetDefaultOwningTeamTxt, DataClassification::SystemMetadata);
-                    Error(CannotSetDefaultOwningTeamErr);
+                    Session.LogMessage('0000ASY', CannotSetDefaultOwningTeamTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    Error(EnrichWithDotNetException(CannotSetDefaultOwningTeamErr));
                 end;
                 OwningTeamUpdated := true;
-                SendTraceTag('0000ASZ', CategoryTok, VERBOSITY::Normal, DefaultOwningTeamSetTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ASZ', DefaultOwningTeamSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             end else
-                SendTraceTag('0000AT0', CategoryTok, VERBOSITY::Normal, BusinessUnitNotFoundTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AT0', BusinessUnitNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         if not OwningTeamUpdated then begin
             UpdatedCRMTeam.Get(CDSCompany.DefaultOwningTeam);
             if not UpdatedCRMBusinessunit.Get(UpdatedCRMTeam.BusinessUnitId) then begin
-                SendTraceTag('0000AT1', CategoryTok, VERBOSITY::Normal, BusinessUnitNotFoundTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AT1', BusinessUnitNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(BusinessUnitNotFoundErr, UpdatedCRMTeam.BusinessUnitId);
             end;
             if (CDSConnectionSetup."Business Unit Id" <> UpdatedCRMBusinessunit.BusinessUnitId) or
                 (CDSConnectionSetup."Business Unit Name" <> UpdatedCRMBusinessunit.Name) then begin
                 // fix business unit related fields in the setup table
-                SendTraceTag('0000AT2', CategoryTok, VERBOSITY::Normal, BusinessUnitFixedTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AT2', BusinessUnitFixedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 CDSConnectionSetup."Business Unit Id" := UpdatedCRMBusinessunit.BusinessUnitId;
                 CDSConnectionSetup."Business Unit Name" := UpdatedCRMBusinessunit.Name;
                 ModifyBusinessUnitCoupling(CDSConnectionSetup);
             end else
-                SendTraceTag('0000AT3', CategoryTok, VERBOSITY::Normal, BusinessUnitCoupledTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AT3', BusinessUnitCoupledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         end;
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
 
-        SendTraceTag('0000AT4', CategoryTok, VERBOSITY::Normal, CompanySynchronizedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AT4', CompanySynchronizedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+    end;
+
+    local procedure EnrichWithDotNetException(ErrorMessage: Text): Text
+    var
+        DotNetExceptionHandler: Codeunit "DotNet Exception Handler";
+        DotNetExceptionMessage: Text;
+        EnrichedErrorMessage: Text;
+    begin
+        DotNetExceptionHandler.Collect();
+        DotNetExceptionMessage := DotNetExceptionHandler.GetMessage();
+        if DotNetExceptionMessage = '' then
+            exit(ErrorMessage);
+
+        EnrichedErrorMessage := ErrorMessage + ' ' + DotNetExceptionMessage;
+
+        if StrPos(DotNetExceptionMessage, 'PrivilegeId') = 0 then
+            exit(EnrichedErrorMessage);
+
+        EnrichedErrorMessage := EnrichedErrorMessage + ' ' + StrSubstNo(InsufficientPriviegesTxt, FixPermissionsUrlTxt);
+        exit(EnrichedErrorMessage);
     end;
 
     [Scope('OnPrem')]
@@ -1078,7 +1146,7 @@ codeunit 7201 "CDS Integration Impl."
         if TempSelectedCRMSystemuser.IsEmpty() then
             exit(0);
 
-        SignInCDSAdminUser(CDSConnectionSetup, CrmHelper, AdminUser, AdminPassword, AccessToken);
+        SignInCDSAdminUser(CDSConnectionSetup, CrmHelper, AdminUser, AdminPassword, AccessToken, true);
         exit(AddUsersToDefaultOwningTeam(CDSConnectionSetup, CrmHelper, TempSelectedCRMSystemuser));
     end;
 
@@ -1100,17 +1168,17 @@ codeunit 7201 "CDS Integration Impl."
         UserNumber: Integer;
         UserCount: Integer;
     begin
-        SendTraceTag('0000C9M', CategoryTok, Verbosity::Normal, AddCoupledUsersToTeamTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000C9M', AddCoupledUsersToTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         UserCount := TempCRMSystemuser.Count();
         if UserCount = 0 then begin
-            SendTraceTag('0000C9O', CategoryTok, Verbosity::Normal, CoupledUsersNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000C9O', CoupledUsersNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(0);
         end;
 
         TeamId := GetOwningTeamId(CDSConnectionSetup);
         if IsNullGuid(TeamId) then begin
-            SendTraceTag('0000C9P', CategoryTok, Verbosity::Warning, TeamNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000C9P', TeamNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(0);
         end;
 
@@ -1170,10 +1238,10 @@ codeunit 7201 "CDS Integration Impl."
     procedure TestActiveConnection(): Boolean
     begin
         if TryCheckEntitiesAvailability() then begin
-            SendTraceTag('0000AT5', CategoryTok, VERBOSITY::Normal, ConnectionTestSucceedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AT5', ConnectionTestSucceedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(true);
         end;
-        SendTraceTag('0000AT6', CategoryTok, VERBOSITY::Normal, ConnectionTestFailedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AT6', ConnectionTestFailedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(false);
     end;
 
@@ -1189,11 +1257,11 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if Silent then begin
             if not TryCheckIntegrationRequirements(CDSConnectionSetup) then begin
-                SendTraceTag('0000AT7', CategoryTok, VERBOSITY::Normal, IntegrationRequirementsNotMetTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AT7', IntegrationRequirementsNotMetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 exit(false);
             end;
 
-            SendTraceTag('0000AU0', CategoryTok, VERBOSITY::Normal, IntegrationRequirementsMetTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AU0', IntegrationRequirementsMetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(true);
         end;
 
@@ -1206,7 +1274,7 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if Silent then begin
             if not TryCheckIntegrationSolutionRequirements(CDSConnectionSetup) then begin
-                SendTraceTag('0000AT8', CategoryTok, VERBOSITY::Normal, SolutionRequirementsNotMetTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AT8', SolutionRequirementsNotMetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 exit(false);
             end;
             exit(true);
@@ -1220,7 +1288,7 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if Silent then begin
             if not TryCheckIntegrationUserRequirements(CDSConnectionSetup) then begin
-                SendTraceTag('0000AT9', CategoryTok, VERBOSITY::Normal, IntegrationUserRequirementsNotMetTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AT9', IntegrationUserRequirementsNotMetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 exit(false);
             end;
             exit(true);
@@ -1234,7 +1302,7 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if Silent then begin
             if not TryCheckOwningTeamRequirements(CDSConnectionSetup) then begin
-                SendTraceTag('0000ATA', CategoryTok, VERBOSITY::Normal, OwningTeamRequirementsNotMetTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ATA', OwningTeamRequirementsNotMetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 exit(false);
             end;
             exit(true);
@@ -1268,12 +1336,12 @@ codeunit 7201 "CDS Integration Impl."
         Version: Text;
     begin
         if not GetSolutionVersion(CDSConnectionSetup, Version) then begin
-            SendTraceTag('0000ATC', CategoryTok, VERBOSITY::Warning, SolutionNotInstalledTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATC', SolutionNotInstalledTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(BaseIntegrationSolutionNotInstalledErr, GetBaseSolutionDisplayName());
         end;
 
         if not IsSolutionVersionValid(Version) then begin
-            SendTraceTag('0000ATD', CategoryTok, VERBOSITY::Normal, InvalidSolutionVersionTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATD', InvalidSolutionVersionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(SolutionVersionErr);
         end;
     end;
@@ -1314,18 +1382,18 @@ codeunit 7201 "CDS Integration Impl."
         FilterUser(CDSConnectionSetup, CRMSystemuser);
         if CRMSystemuser.FindFirst() then begin
             if CRMSystemuser.IsDisabled then begin
-                SendTraceTag('0000ATF', CategoryTok, Verbosity::Normal, UserNotActiveTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ATF', UserNotActiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(UserNotActiveErr, CDSConnectionSetup."User Name", CDSConnectionSetup."Server Address");
             end;
 
             if not CDSConnectionSetup."Connection String".Contains(ClientSecretAuthTxt) then begin
                 if not CRMSystemuser.IsIntegrationUser then begin
-                    SendTraceTag('0000B2E', CategoryTok, Verbosity::Normal, NotIntegrationUserTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000B2E', NotIntegrationUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     Error(NotIntegrationUserErr, CDSConnectionSetup."User Name", CDSConnectionSetup."Server Address");
                 end;
 
                 if CRMSystemuser.AccessMode <> CRMSystemuser.AccessMode::"Non-interactive" then begin
-                    SendTraceTag('0000B2F', CategoryTok, Verbosity::Normal, NotNonInteractiveAccessModeTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000B2F', NotNonInteractiveAccessModeTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     Error(NotNonInteractiveAccessModeErr, CDSConnectionSetup."User Name", CDSConnectionSetup."Server Address", CRMSystemuser.AccessMode);
                 end;
             end;
@@ -1344,17 +1412,17 @@ codeunit 7201 "CDS Integration Impl."
                 until CRMSystemuserroles.Next() = 0
             else
                 if (CDSConnectionSetup."Server Address" <> '') and (CDSConnectionSetup."Server Address" <> TestServerAddressTok) then begin
-                    SendTraceTag('0000ATH', CategoryTok, Verbosity::Normal, UserHasNoRolesTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000ATH', UserHasNoRolesTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     Error(UserHasNoRolesErr, CDSConnectionSetup."User Name", CDSConnectionSetup."Server Address");
                 end;
 
             if ChosenUserHasSystemAdminRole then begin
-                SendTraceTag('0000ATI', CategoryTok, Verbosity::Normal, SystemAdminRoleTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ATI', SystemAdminRoleTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(SystemAdminErr, CDSConnectionSetup."User Name", SystemAdminRoleName, CDSConnectionSetup."Server Address");
             end;
 
             if IntegrationRoleDeployed and (not ChosenUserHasIntegrationRole) then begin
-                SendTraceTag('0000ATJ', CategoryTok, Verbosity::Normal, NoIntegrationRoleTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ATJ', NoIntegrationRoleTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(UserRolesErr, CDSConnectionSetup."User Name", IntegrationRoleName, CDSConnectionSetup."Server Address");
             end;
         end;
@@ -1379,22 +1447,22 @@ codeunit 7201 "CDS Integration Impl."
 
         FilterUser(CDSConnectionSetup, CRMSystemuser);
         if not CRMSystemuser.FindFirst() then begin
-            SendTraceTag('0000BNG', CategoryTok, Verbosity::Normal, UserNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BNG', UserNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(UserDoesNotExistErr, CDSConnectionSetup."User Name");
         end;
 
         if CRMSystemuser.IsDisabled then begin
-            SendTraceTag('0000BNH', CategoryTok, Verbosity::Normal, UserNotActiveTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BNH', UserNotActiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(UserNotActiveErr, CDSConnectionSetup."User Name", CDSConnectionSetup."Server Address");
         end;
 
         if not (CRMSystemuser.AccessMode in [CRMSystemuser.AccessMode::"Read-Write", CRMSystemuser.AccessMode::"Non-interactive"]) then begin
-            SendTraceTag('0000B2G', CategoryTok, VERBOSITY::Normal, InvalidAccessModeTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000B2G', InvalidAccessModeTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(InvalidAccessModeErr, CDSConnectionSetup."User Name", CDSConnectionSetup."Server Address", CRMSystemuser.AccessMode);
         end;
 
         if (not CRMSystemuser.IsLicensed) and (CRMSystemuser.AccessMode <> CRMSystemuser.AccessMode::"Non-interactive") then begin
-            SendTraceTag('0000ATG', CategoryTok, Verbosity::Normal, UserNotLicensedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATG', UserNotLicensedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(UserNotLicensedErr, CDSConnectionSetup."User Name", CDSConnectionSetup."Server Address", CRMSystemuser.AccessMode);
         end;
 
@@ -1403,7 +1471,7 @@ codeunit 7201 "CDS Integration Impl."
             repeat
                 if CRMRole.Get(CRMSystemuserroles.RoleId) then
                     if CRMRole.RoleTemplateId = GetSystemAdminRoleTemplateId() then begin
-                        SendTraceTag('0000BNJ', CategoryTok, Verbosity::Normal, SystemAdminRoleTxt, DataClassification::SystemMetadata);
+                        Session.LogMessage('0000BNJ', SystemAdminRoleTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                         Error(SystemAdminErr, CDSConnectionSetup."User Name", CRMRole.Name, CDSConnectionSetup."Server Address");
                     end;
             until CRMSystemuserroles.Next() = 0;
@@ -1431,24 +1499,24 @@ codeunit 7201 "CDS Integration Impl."
 
         FilterUser(TempCDSConnectionSetup, CRMSystemuser);
         if not CRMSystemuser.FindFirst() then begin
-            SendTraceTag('0000BNK', CategoryTok, Verbosity::Normal, UserNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BNK', UserNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(UserDoesNotExistErr, TempCDSConnectionSetup."User Name");
         end;
 
         if CRMSystemuser.IsDisabled then begin
-            SendTraceTag('0000BNL', CategoryTok, Verbosity::Normal, UserNotActiveTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BNL', UserNotActiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(UserNotActiveErr, TempCDSConnectionSetup."User Name", TempCDSConnectionSetup."Server Address");
         end;
 
         if not CRMSystemuser.IsLicensed then begin
-            SendTraceTag('0000BNM', CategoryTok, Verbosity::Normal, UserNotLicensedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BNM', UserNotLicensedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(UserNotLicensedErr, TempCDSConnectionSetup."User Name", TempCDSConnectionSetup."Server Address", CRMSystemuser.AccessMode);
         end;
 
         CRMSystemuserroles.SetRange(SystemUserId, CRMSystemuser.SystemUserId);
         if not CRMSystemuserroles.FindSet() then
             if (CDSConnectionSetup."Server Address" <> '') and (CDSConnectionSetup."Server Address" <> TestServerAddressTok) then begin
-                SendTraceTag('0000BNN', CategoryTok, Verbosity::Normal, UserHasNoRolesTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000BNN', UserHasNoRolesTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(UserHasNoRolesErr, TempCDSConnectionSetup."User Name", TempCDSConnectionSetup."Server Address");
             end;
 
@@ -1462,12 +1530,12 @@ codeunit 7201 "CDS Integration Impl."
         until CRMSystemuserroles.Next() = 0;
 
         if not HasSystemAdminRole then begin
-            SendTraceTag('0000BNO', CategoryTok, Verbosity::Normal, NoSystemAdminRoleTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BNO', NoSystemAdminRoleTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(NoSystemAdminRoleErr, TempCDSConnectionSetup."User Name", TempCDSConnectionSetup."Server Address");
         end;
 
         if not HasSystemCustomizerRole then
-            SendTraceTag('0000BNP', CategoryTok, Verbosity::Normal, NoSystemCustomizerRoleTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BNP', NoSystemCustomizerRoleTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         UnregisterTableConnection(TableConnectionType::CRM, TempConnectionName);
     end;
@@ -1493,29 +1561,29 @@ codeunit 7201 "CDS Integration Impl."
         SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName, true);
 
         if not CRMRole.Get(GetIntegrationRoleId()) then begin
-            SendTraceTag('0000ATK', CategoryTok, Verbosity::Normal, IntegrationRoleNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATK', IntegrationRoleNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(RoleNotFoundErr, GetIntegrationRoleId());
         end;
         IntegrationRoleName := CRMRole.Name;
 
         if not TryGetCDSCompany(CDSCompany) then begin
-            SendTraceTag('0000ATL', CategoryTok, Verbosity::Normal, CompanyNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATL', CompanyNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(CompanyNotFoundErr, GetCompanyExternalId());
         end;
 
         if not CRMTeam.Get(CDSCompany.DefaultOwningTeam) then begin
-            SendTraceTag('0000ATM', CategoryTok, Verbosity::Normal, TeamNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATM', TeamNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(TeamNotFoundErr, CDSCompany.DefaultOwningTeam);
         end;
 
         if not CRMBusinessunit.Get(CRMTeam.BusinessUnitId) then begin
-            SendTraceTag('0000ATN', CategoryTok, Verbosity::Normal, BusinessUnitNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATN', BusinessUnitNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(BusinessUnitNotFoundErr, CRMTeam.BusinessUnitId);
         end;
 
         if (CRMBusinessunit.BusinessUnitId <> CDSConnectionSetup."Business Unit Id") or
            (CRMBusinessunit.Name <> CDSConnectionSetup."Business Unit Name") then begin
-            SendTraceTag('0000B24', CategoryTok, Verbosity::Normal, BusinessUnitMismatchTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000B24', BusinessUnitMismatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(BusinessUnitMismatchErr);
         end;
 
@@ -1523,14 +1591,14 @@ codeunit 7201 "CDS Integration Impl."
         CRMRole.SetRange(BusinessUnitId, CRMBusinessunit.BusinessUnitId);
         CRMRole.SetRange(ParentRoleId, GetIntegrationRoleId());
         if not CRMRole.FindFirst() then begin
-            SendTraceTag('0000ATO', CategoryTok, Verbosity::Normal, RoleNotFoundForBusinessUnitTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATO', RoleNotFoundForBusinessUnitTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(IntegrationRoleNotFoundErr, IntegrationRoleName, CRMBusinessunit.Name);
         end;
 
         CDSTeamroles.SetRange(TeamId, CRMTeam.TeamId);
         CDSTeamroles.SetRange(RoleId, CRMRole.RoleId);
         if CDSTeamroles.IsEmpty() then begin
-            SendTraceTag('0000ATP', CategoryTok, Verbosity::Normal, IntegrationRoleNotAssignedToTeamTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATP', IntegrationRoleNotAssignedToTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(TeamRolesErr, CRMTeam.Name, CRMBusinessunit.Name, IntegrationRoleName);
         end;
 
@@ -1742,6 +1810,8 @@ codeunit 7201 "CDS Integration Impl."
     procedure CheckConnectionRequiredFields(var CDSConnectionSetup: Record "CDS Connection Setup"; Silent: Boolean): Boolean
     var
         Success: Boolean;
+        TelemetryTxt: Text;
+        ErrorTxt: Text;
     begin
         Success := true;
         if CDSConnectionSetup."Server Address" = '' then
@@ -1753,12 +1823,21 @@ codeunit 7201 "CDS Integration Impl."
                 Success := false;
         end;
         if not Success then begin
-            SendTraceTag('0000ATQ', CategoryTok, VERBOSITY::Normal, ConnectionRequiredFieldsTxt, DataClassification::SystemMetadata);
+            if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then begin
+                TelemetryTxt := ConnectionRequiredFieldsTxt;
+                ErrorTxt := ConnectionRequiredFieldsErr;
+            end else begin
+                TelemetryTxt := Office365ConnectionRequiredFieldsTxt;
+                ErrorTxt := Office365ConnectionRequiredFieldsErr;
+            end;
+
+            Session.LogMessage('0000ATQ', TelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             if not Silent then
-                Error(ConnectionRequiredFieldsErr);
+                Error(ErrorTxt);
         end;
         exit(Success);
     end;
+
 
     [Scope('OnPrem')]
     procedure CheckConnectionRequiredFieldsMatch(var CDSConnectionSetup: Record "CDS Connection Setup"; Silent: Boolean): Boolean
@@ -1783,7 +1862,7 @@ codeunit 7201 "CDS Integration Impl."
         if CDSConnectionSetup."Authentication Type" <> CRMConnectionSetup."Authentication Type" then
             Success := false;
         if not Success then begin
-            SendTraceTag('0000BCM', CategoryTok, VERBOSITY::Normal, ConnectionRequiredFieldsMismatchTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BCM', ConnectionRequiredFieldsMismatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             if not Silent then
                 Error(ConnectionRequiredFieldsMismatchErr);
         end;
@@ -1819,12 +1898,21 @@ codeunit 7201 "CDS Integration Impl."
     procedure RegisterAssistedSetup()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
+        Language: Codeunit Language;
+        ModuleInfo: ModuleInfo;
         AssistedSetupGroup: Enum "Assisted Setup Group";
+        VideoCategory: Enum "Video Category";
+        CurrentGlobalLanguage: Integer;
     begin
-        NavApp.GetCurrentModuleInfo(Info);
-        if not AssistedSetup.Exists(PAGE::"CDS Connection Setup Wizard") then
-            AssistedSetup.Add(Info.Id(), PAGE::"CDS Connection Setup Wizard", SetupConnectionTxt, AssistedSetupGroup::Customize);
+        if AssistedSetup.Exists(Page::"CDS Connection Setup Wizard") then
+            exit;
+
+        CurrentGlobalLanguage := GLOBALLANGUAGE;
+        NavApp.GetCurrentModuleInfo(ModuleInfo);
+        AssistedSetup.Add(ModuleInfo.Id(), Page::"CDS Connection Setup Wizard", CDSConnectionSetupTxt, AssistedSetupGroup::Connect, '', VideoCategory::Connect, CDSConnectionSetupHelpTxt, CDSConnectionSetupDescriptionTxt);
+        GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+        AssistedSetup.AddTranslation(Page::"CDS Connection Setup Wizard", Language.GetDefaultApplicationLanguageId(), CDSConnectionSetupTxt);
+        GLOBALLANGUAGE(CurrentGlobalLanguage);
     end;
 
     [NonDebuggable]
@@ -2046,25 +2134,29 @@ codeunit 7201 "CDS Integration Impl."
             exit(true);
 
         if not TryAssignUserRole(CrmHelper, UserId, RoleId) then begin
-            SendTraceTag('0000ATR', CategoryTok, VERBOSITY::Warning, CannotAssignRoleToUserTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATR', CannotAssignRoleToUserTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
         if CrmHelper.CheckRoleAssignedToUser(UserId, RoleId) then
             exit(true);
 
-        SendTraceTag('0000ATS', CategoryTok, VERBOSITY::Warning, CannotAssignRoleToUserTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ATS', CannotAssignRoleToUserTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(false);
     end;
 
     [TryFunction]
-    local procedure TryAssignUserRole(var CrmHelper: DotNet CrmHelper; UserId: Guid; RoleId: Guid)
+    local procedure TryAssignUserRole(var CrmHelper: DotNet CrmHelper; UserId: Guid;
+                                                         RoleId: Guid)
     begin
         CrmHelper.AssociateUserWithRole(UserId, RoleId);
     end;
 
     [TryFunction]
-    local procedure TryGetUserId(var CrmHelper: DotNet CrmHelper; UserName: Text; var UserId: Guid)
+    local procedure TryGetUserId(var CrmHelper: DotNet CrmHelper; UserName: Text;
+
+    var
+        UserId: Guid)
     begin
         UserId := CrmHelper.GetUserId(UserName);
     end;
@@ -2100,12 +2192,12 @@ codeunit 7201 "CDS Integration Impl."
             exit;
 
         if not TryGetUserId(CrmHelper, CRMConnectionSetup."User Name", PreviousIntegrationUserId) then begin
-            SendTraceTag('0000D4A', CategoryTok, VERBOSITY::Normal, UserNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D4A', UserNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit;
         end;
 
         if not TryGetUserId(CrmHelper, CDSConnectionSetup."User Name", CurrentIntegrationUserId) then begin
-            SendTraceTag('0000D4B', CategoryTok, VERBOSITY::Normal, UserNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D4B', UserNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit;
         end;
 
@@ -2143,20 +2235,20 @@ codeunit 7201 "CDS Integration Impl."
                 if PreviousIntegrationUserRole.Get(CRMSystemUserRoles.RoleId) then
                     if PreviousIntegrationUserRole.RoleTemplateId <> GetSystemAdminRoleTemplateId() then begin
                         if not TryAssignUserRole(CrmHelper, CurrentIntegrationUserId, CRMSystemUserRoles.RoleId) then
-                            SendTraceTag('0000D4C', CategoryTok, VERBOSITY::Warning, CannotAssignRoleToUserTxt, DataClassification::SystemMetadata);
+                            Session.LogMessage('0000D4C', CannotAssignRoleToUserTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
                         CRMRole.SetRange(ParentRoleId, CRMSystemUserRoles.RoleId);
                         CRMRole.SetRange(BusinessUnitId, DefaultCRMBusinessunit.BusinessUnitId);
                         if not CRMRole.FindFirst() then
-                            SendTraceTag('0000D4D', CategoryTok, VERBOSITY::Normal, RoleNotFoundForBusinessUnitTxt, DataClassification::SystemMetadata)
+                            Session.LogMessage('0000D4D', RoleNotFoundForBusinessUnitTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
                         else
                             if not AssignTeamRole(CrmHelper, DefaultCRMTeam.TeamId, CRMRole.RoleId) then
-                                SendTraceTag('0000D4E', CategoryTok, VERBOSITY::Normal, CannotAssignRoleToTeamTxt, DataClassification::SystemMetadata)
+                                Session.LogMessage('0000D4E', CannotAssignRoleToTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
                     end;
             until CRMSystemUserRoles.Next() = 0;
 
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
-        SendTraceTag('0000D4F', CategoryTok, VERBOSITY::Normal, PreviousIntegrationUserRolesAddedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D4F', PreviousIntegrationUserRolesAddedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
 
@@ -2167,70 +2259,75 @@ codeunit 7201 "CDS Integration Impl."
         RoleId: Guid;
     begin
         if not TryGetUserId(CrmHelper, UserName, UserId) then begin
-            SendTraceTag('0000ATT', CategoryTok, VERBOSITY::Normal, UserNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATT', UserNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(UserDoesNotExistErr, UserName);
         end;
         if IsNullGuid(UserId) then begin
-            SendTraceTag('0000ATU', CategoryTok, VERBOSITY::Normal, UserNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATU', UserNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(UserDoesNotExistErr, UserName);
         end;
         RoleId := GetIntegrationRoleId();
         if not AssignUserRole(CrmHelper, UserId, RoleId) then begin
-            SendTraceTag('0000ATV', CategoryTok, VERBOSITY::Normal, CannotAssignRoleToUserTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATV', CannotAssignRoleToUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(CannotAssignRoleToIntegrationUserErr);
         end;
-        SendTraceTag('0000ATW', CategoryTok, VERBOSITY::Normal, RoleAssignedToUserTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ATW', RoleAssignedToUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
-    procedure AssignTeamRole(var CrmHelper: DotNet CrmHelper; TeamId: Guid; RoleId: Guid): Boolean
+    procedure AssignTeamRole(var CrmHelper: DotNet CrmHelper; TeamId: Guid;
+                                                RoleId: Guid): Boolean
     begin
         if CheckRoleAssignedToTeam(CrmHelper, TeamId, RoleId) then
             exit(true);
 
         if not TryAssignTeamRole(CrmHelper, TeamId, RoleId) then begin
-            SendTraceTag('0000ATX', CategoryTok, VERBOSITY::Normal, CannotAssignRoleToTeamTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000ATX', CannotAssignRoleToTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
         if CheckRoleAssignedToTeam(CrmHelper, TeamId, RoleId) then
             exit(true);
 
-        SendTraceTag('0000ATY', CategoryTok, VERBOSITY::Normal, CannotAssignRoleToTeamTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ATY', CannotAssignRoleToTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(false);
     end;
 
     [TryFunction]
-    local procedure TryAssignTeamRole(var CrmHelper: DotNet CrmHelper; TeamId: Guid; RoleId: Guid)
+    local procedure TryAssignTeamRole(var CrmHelper: DotNet CrmHelper; TeamId: Guid;
+                                                         RoleId: Guid)
     begin
         CrmHelper.AssociateTeamWithRole(TeamId, RoleId);
     end;
 
-    local procedure CheckRoleAssignedToTeam(var CrmHelper: DotNet CrmHelper; TeamId: Guid; RoleId: Guid): Boolean
+    local procedure CheckRoleAssignedToTeam(var CrmHelper: DotNet CrmHelper; TeamId: Guid;
+                                                               RoleId: Guid): Boolean
     begin
         exit(CrmHelper.CheckRoleAssignedToTeam(TeamId, RoleId));
     end;
 
-    local procedure AddUserToTeam(var CrmHelper: DotNet CrmHelper; UserId: Guid; TeamId: Guid): Boolean
+    local procedure AddUserToTeam(var CrmHelper: DotNet CrmHelper; UserId: Guid;
+                                                     TeamId: Guid): Boolean
     begin
         if CrmHelper.CheckUserAssociatedWithTeam(UserId, TeamId) then
             exit(false);
 
         if not TryAddUserToTeam(CrmHelper, UserId, TeamId) then begin
-            SendTraceTag('0000C97', CategoryTok, Verbosity::Warning, CannotAddUserToTeamTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000C97', CannotAddUserToTeamTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
         if CrmHelper.CheckUserAssociatedWithTeam(UserId, TeamId) then begin
-            SendTraceTag('0000C9Q', CategoryTok, Verbosity::Normal, UserAddedToTeamTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000C9Q', UserAddedToTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(true);
         end;
 
-        SendTraceTag('0000C98', CategoryTok, Verbosity::Warning, CannotAddUserToTeamTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000C98', CannotAddUserToTeamTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(false);
     end;
 
     [TryFunction]
-    local procedure TryAddUserToTeam(var CrmHelper: DotNet CrmHelper; UserId: Guid; TeamId: Guid)
+    local procedure TryAddUserToTeam(var CrmHelper: DotNet CrmHelper; UserId: Guid;
+                                                        TeamId: Guid)
     begin
         CrmHelper.AssociateUserWithTeam(UserId, TeamId);
     end;
@@ -2244,14 +2341,14 @@ codeunit 7201 "CDS Integration Impl."
         AdminUserName: Text;
         AdminPassword: Text;
     begin
-        SendTraceTag('0000ATZ', CategoryTok, VERBOSITY::Normal, ConfigureSolutionTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000ATZ', ConfigureSolutionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         CheckCredentials(CDSConnectionSetup);
-        SignInCDSAdminUser(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken);
+        SignInCDSAdminUser(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, false);
         ImportIntegrationSolution(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, false);
         ConfigureIntegrationSolution(CDSConnectionSetup, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, false);
         if not RenewSolution then
             if CheckIntegrationRequirements(CDSConnectionSetup, true) then begin
-                SendTraceTag('0000AU0', CategoryTok, VERBOSITY::Normal, IntegrationRequirementsMetTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AU0', IntegrationRequirementsMetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 exit(false);
             end;
         exit(true);
@@ -2259,24 +2356,24 @@ codeunit 7201 "CDS Integration Impl."
 
     [Scope('OnPrem')]
     [NonDebuggable]
-    procedure SignInCDSAdminUser(var CDSConnectionSetup: Record "CDS Connection Setup"; var CrmHelper: DotNet CrmHelper; var AdminUser: Text; var AdminPassword: Text; var AccessToken: Text)
+    procedure SignInCDSAdminUser(var CDSConnectionSetup: Record "CDS Connection Setup"; var CrmHelper: DotNet CrmHelper; var AdminUser: Text; var AdminPassword: Text; var AccessToken: Text; GetTokenFromCache: Boolean)
     var
         TempConnectionString: Text;
     begin
         if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then begin
             if not PromptForAdminCredentials(CDSConnectionSetup, AdminUser, AdminPassword) then begin
-                SendTraceTag('0000AU1', CategoryTok, VERBOSITY::Normal, InvalidAdminCredentialsTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AU1', InvalidAdminCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(AdminUserPasswordWrongErr);
             end;
 
             TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
         end else begin
-            GetAccessToken(CDSConnectionSetup."Server Address", AccessToken);
+            GetAccessToken(CDSConnectionSetup."Server Address", GetTokenFromCache, AccessToken);
             TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTok, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
         end;
 
         if not InitializeConnection(CrmHelper, TempConnectionString) then begin
-            SendTraceTag('0000AU2', CategoryTok, VERBOSITY::Normal, ConnectionNotRegisteredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AU2', ConnectionNotRegisteredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             ProcessConnectionFailures();
         end;
     end;
@@ -2284,28 +2381,33 @@ codeunit 7201 "CDS Integration Impl."
 
     [Scope('OnPrem')]
     [NonDebuggable]
-    procedure GetAccessToken(ResourceURL: Text; var AccessToken: Text)
+    procedure GetAccessToken(ResourceURL: Text; GetTokenFromCache: Boolean; var AccessToken: Text)
     var
         OAuth2: Codeunit OAuth2;
         PromptInteraction: Enum "Prompt Interaction";
         ClientId: Text;
+        RedirectUrl: Text;
         AuthCodeError: Text;
     begin
         ClientId := GetCDSConnectionClientId();
-        OAuth2.AcquireTokenByAuthorizationCode(
-            ClientId,
-            GetCDSConnectionClientSecret(),
-            OAuthAuthorityUrlTxt,
-            GetRedirectURL(),
-            ResourceURL,
-            PromptInteraction::Consent,
-            AccessToken,
-            AuthCodeError);
+        RedirectUrl := GetRedirectURL();
+        if GetTokenFromCache then
+            OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, GetCDSConnectionClientSecret(), RedirectUrl, OAuthAuthorityUrlTxt, ResourceURL, AccessToken);
+        if AccessToken = '' then
+            OAuth2.AcquireTokenByAuthorizationCode(
+                ClientId,
+                GetCDSConnectionClientSecret(),
+                OAuthAuthorityUrlTxt,
+                RedirectUrl,
+                ResourceURL,
+                PromptInteraction::Consent,
+                AccessToken,
+                AuthCodeError);
         if AccessToken = '' then begin
             if AuthCodeError <> '' then
-                SendTraceTag('0000C10', CategoryTok, Verbosity::Error, AuthCodeError, DataClassification::SystemMetadata)
+                Session.LogMessage('0000C10', AuthCodeError, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             else
-                SendTraceTag('0000C11', CategoryTok, Verbosity::Error, AuthTokenOrCodeNotReceivedErr, DataClassification::SystemMetadata);
+                Session.LogMessage('0000C11', AuthTokenOrCodeNotReceivedErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(AccessTokenNotReceivedErr, ResourceURL);
         end;
     end;
@@ -2337,7 +2439,7 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if EnvironmentInformation.IsSaaS() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(CDSConnectionClientIdAKVSecretNameLbl, ClientId) then
-                SendTraceTag('0000C0Y', CategoryTok, Verbosity::Error, MissingClientIdOrSecretTelemetryTxt, DataClassification::SystemMetadata)
+                Session.LogMessage('0000C0Y', MissingClientIdOrSecretTelemetryTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             else
                 exit(ClientId);
 
@@ -2374,7 +2476,7 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if EnvironmentInformation.IsSaaS() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(CDSConnectionClientSecretAKVSecretNameLbl, ClientSecret) then
-                SendTraceTag('0000C0Z', CategoryTok, Verbosity::Normal, MissingClientIdOrSecretTelemetryTxt, DataClassification::SystemMetadata)
+                Session.LogMessage('0000C0Z', MissingClientIdOrSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             else
                 exit(ClientSecret);
 
@@ -2403,7 +2505,7 @@ codeunit 7201 "CDS Integration Impl."
         else
             ImportSolution := not IsSolutionInstalled(TempAdminCDSConnectionSetup);
         if ImportSolution then begin
-            SendTraceTag('0000AU4', CategoryTok, VERBOSITY::Normal, SolutionNotInstalledTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AU4', SolutionNotInstalledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             CrmHelper.ImportDefaultCdsSolution();
         end;
     end;
@@ -2427,7 +2529,16 @@ codeunit 7201 "CDS Integration Impl."
         SyncCompany(CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);
         AssignPreviousIntegrationUserRoles(CrmHelper, CDSConnectionSetup, AccessToken);
 
-        SendTraceTag('0000AU5', CategoryTok, VERBOSITY::Normal, SolutionConfiguredTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AU5', SolutionConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+    end;
+
+    [Scope('OnPrem')]
+    procedure HasCompanyIdField(TableId: Integer): Boolean
+    var
+        HasField: Boolean;
+    begin
+        CDSIntegrationMgt.OnHasCompanyIdField(TableId, HasField);
+        exit(HasField);
     end;
 
     [Scope('OnPrem')]
@@ -2442,6 +2553,22 @@ codeunit 7201 "CDS Integration Impl."
         exit(TrySetAndCheckCompany(RecRef, false));
     end;
 
+    [Scope('OnPrem')]
+    procedure CheckCompanyIdNoTelemetry(var RecRef: RecordRef): Boolean
+    var
+        CompanyIdFldRef: FieldRef;
+        ActualCompanyId: Guid;
+        SavedCompanyId: Guid;
+    begin
+        if not FindCompanyIdField(RecRef, CompanyIdFldRef) then
+            exit(false);
+
+        ActualCompanyId := GetCachedCompanyId();
+        SavedCompanyId := CompanyIdFldRef.Value();
+
+        exit(ActualCompanyId = SavedCompanyId);
+    end;
+
     [TryFunction]
     local procedure TrySetAndCheckCompany(var RecRef: RecordRef; CheckOnly: Boolean)
     var
@@ -2451,12 +2578,12 @@ codeunit 7201 "CDS Integration Impl."
         IsCorrectCompany: Boolean;
     begin
         if CheckOnly then
-            SendTraceTag('0000AVL', CategoryTok, VERBOSITY::Normal, CheckCompanyIdTxt, DataClassification::SystemMetadata)
+            Session.LogMessage('0000AVL', CheckCompanyIdTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
         else
-            SendTraceTag('0000AVM', CategoryTok, VERBOSITY::Normal, SetCompanyIdTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AVM', SetCompanyIdTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         if not FindCompanyIdField(RecRef, CompanyIdFldRef) then begin
-            SendTraceTag('0000AVN', CategoryTok, VERBOSITY::Normal, EntityHasNoCompanyIdFieldTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AVN', EntityHasNoCompanyIdFieldTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(CannotFindCompanyIdFieldErr, RecRef.Number(), RecRef.Name());
         end;
 
@@ -2466,17 +2593,85 @@ codeunit 7201 "CDS Integration Impl."
 
         if CheckOnly then begin
             if not IsCorrectCompany then begin
-                SendTraceTag('0000AVO', CategoryTok, VERBOSITY::Normal, CompanyIdDiffersFromExpectedTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AVO', CompanyIdDiffersFromExpectedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(OwnerDiffersFromExpectedErr);
             end;
-            SendTraceTag('0000AVP', CategoryTok, VERBOSITY::Normal, CompanyIdCheckedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AVP', CompanyIdCheckedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit;
         end;
 
         if not IsCorrectCompany then
             CompanyIdFldRef.Value := ActualCompanyId;
 
-        SendTraceTag('0000AVT', CategoryTok, VERBOSITY::Normal, CompanyIdSetTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AVT', CompanyIdSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ResetCompanyId(var RecRef: RecordRef): Boolean
+    var
+        Changed: Boolean;
+    begin
+        if TryResetCompanyId(RecRef, Changed) then
+            exit(Changed);
+        exit(false);
+    end;
+
+    [TryFunction]
+    local procedure TryResetCompanyId(var RecRef: RecordRef; var Changed: Boolean)
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+        CompanyIdFldRef: FieldRef;
+        ActualCompanyId: Guid;
+        SavedCompanyId: Guid;
+        EmptyCompanyId: Guid;
+    begin
+        if RecRef.Number() = Database::"CRM Salesorder" then begin
+            RecRef.SetTable(CRMSalesorder);
+            if TryResetCompanyId(CRMSalesorder, Changed) then
+                RecRef.GetTable(CRMSalesorder);
+            exit;
+        end;
+
+        if not FindCompanyIdField(RecRef, CompanyIdFldRef) then begin
+            Session.LogMessage('0000DDK', EntityHasNoCompanyIdFieldTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            exit;
+        end;
+
+        ActualCompanyId := GetCachedCompanyId();
+        SavedCompanyId := CompanyIdFldRef.Value();
+        if SavedCompanyId = ActualCompanyId then begin
+            CompanyIdFldRef.Value := EmptyCompanyId;
+            Changed := true;
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TryResetCompanyId(var CRMSalesorder: Record "CRM Salesorder"; var Changed: Boolean)
+    var
+        ActualCompanyId: Guid;
+    begin
+        ActualCompanyId := GetCachedCompanyId();
+        if CRMSalesorder.CompanyId <> ActualCompanyId then
+            exit;
+
+        case CRMSalesorder.StateCode of
+            CRMSalesorder.StateCode::Submitted:
+                begin
+                    CRMSalesorder.StateCode := CRMSalesorder.StateCode::Active;
+                    CRMSalesorder.Modify(true);
+                    Clear(CRMSalesorder.CompanyId);
+                    CRMSalesorder.Modify(true);
+                    CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
+                    CRMSalesorder.Modify(true);
+                    Changed := IsNullGuid(CRMSalesorder.CompanyId);
+                end;
+            CRMSalesorder.StateCode::Active:
+                begin
+                    Clear(CRMSalesorder.CompanyId);
+                    CRMSalesorder.Modify(true);
+                    Changed := IsNullGuid(CRMSalesorder.CompanyId);
+                end;
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -2555,22 +2750,22 @@ codeunit 7201 "CDS Integration Impl."
         IsCorrectOwner: Boolean;
     begin
         if CheckOnly then
-            SendTraceTag('0000AU6', CategoryTok, VERBOSITY::Normal, CheckOwnerTxt, DataClassification::SystemMetadata)
+            Session.LogMessage('0000AU6', CheckOwnerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
         else
-            SendTraceTag('0000AU7', CategoryTok, VERBOSITY::Normal, SetOwnerTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AU7', SetOwnerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         if IsNullGuid(OwnerId) and (OwnerIdType = TempCDSCompany.OwnerIdType::team) then begin
-            SendTraceTag('0000AU8', CategoryTok, VERBOSITY::Normal, SetDefaultOwningTeamTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AU8', SetDefaultOwningTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             OwnerId := GetCachedDefaultOwningTeamId();
         end;
 
         if not FindOwnerIdField(RecRef, OwnerIdFldRef) then begin
-            SendTraceTag('0000AU9', CategoryTok, VERBOSITY::Warning, EntityHasNoOwnerIdFieldTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AU9', EntityHasNoOwnerIdFieldTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(CannotFindOwnerIdFieldErr, RecRef.Number(), RecRef.Name());
         end;
 
         if not FindOwnerTypeField(RecRef, OwnerIdTypeFldRef) then begin
-            SendTraceTag('0000B2L', CategoryTok, VERBOSITY::Warning, EntityHasNoOwnerTypeFieldTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000B2L', EntityHasNoOwnerTypeFieldTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(CannotFindOwnerTypeFieldErr, RecRef.Number(), RecRef.Name());
         end;
 
@@ -2580,7 +2775,7 @@ codeunit 7201 "CDS Integration Impl."
 
         if CheckOnly then
             if not IsCorrectOwner then begin
-                SendTraceTag('0000AUA', CategoryTok, VERBOSITY::Warning, OwnerDiffersFromExpectedTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AUA', OwnerDiffersFromExpectedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(OwnerDiffersFromExpectedErr);
             end;
 
@@ -2590,13 +2785,13 @@ codeunit 7201 "CDS Integration Impl."
             TempCDSCompany.OwnerIdType::systemuser:
                 CheckOwningUser(OwnerId, SkipBusinessUnitCheck);
             else begin
-                    SendTraceTag('0000AUC', CategoryTok, VERBOSITY::Warning, UnsupportedOwnerTypeTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000AUC', UnsupportedOwnerTypeTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     Error(OwnerIdTypeErr);
                 end;
         end;
 
         if CheckOnly then begin
-            SendTraceTag('0000AUB', CategoryTok, VERBOSITY::Normal, OwnerCheckedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AUB', OwnerCheckedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit;
         end;
 
@@ -2605,7 +2800,7 @@ codeunit 7201 "CDS Integration Impl."
             OwnerIdFldRef.Value := OwnerId;
         end;
 
-        SendTraceTag('0000AUG', CategoryTok, VERBOSITY::Normal, OwnerSetTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AUG', OwnerSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
     local procedure CheckOwningTeam(TeamId: Guid; SkipBusinessUnitCheck: Boolean)
@@ -2617,13 +2812,13 @@ codeunit 7201 "CDS Integration Impl."
         if GetCachedOwningTeamCheck(TeamId, SkipBusinessUnitCheck) then
             exit;
         if not OwningCRMTeam.Get(TeamId) then begin
-            SendTraceTag('0000AUH', CategoryTok, VERBOSITY::Warning, TeamNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AUH', TeamNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(TeamNotFoundErr, TeamId);
         end;
         CheckTeamHasIntegrationRole(OwningCRMTeam);
         if not SkipBusinessUnitCheck then
             If OwningCRMTeam.BusinessUnitId <> GetCachedOwningBusinessUnitId() then begin
-                SendTraceTag('0000AUI', CategoryTok, VERBOSITY::Warning, TeamBusinessUnitDiffersFromSelectedTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AUI', TeamBusinessUnitDiffersFromSelectedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(TeamBusinessUnitDiffersFromSelectedErr);
             end;
         SetCachedOwningTeamCheck(TeamId, SkipBusinessUnitCheck);
@@ -2636,12 +2831,12 @@ codeunit 7201 "CDS Integration Impl."
         if GetCachedOwningUserCheck(UserId, SkipBusinessUnitCheck) then
             exit;
         if not CRMSystemuser.Get(UserId) then begin
-            SendTraceTag('0000AUJ', CategoryTok, VERBOSITY::Warning, UserNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AUJ', UserNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(UserNotFoundErr, UserId);
         end;
         if not SkipBusinessUnitCheck then
             If CRMSystemuser.BusinessUnitId <> GetCachedOwningBusinessUnitId() then begin
-                SendTraceTag('0000AUL', CategoryTok, VERBOSITY::Warning, UserBusinessUnitDiffersFromSelectedTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AUL', UserBusinessUnitDiffersFromSelectedTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(UserBusinessUnitDiffersFromSelectedErr);
             end;
         SetCachedOwningUserCheck(UserId, SkipBusinessUnitCheck);
@@ -2655,13 +2850,13 @@ codeunit 7201 "CDS Integration Impl."
         CRMRole.SetRange(BusinessUnitId, CRMTeam.BusinessUnitId);
         CRMRole.SetRange(ParentRoleId, GetIntegrationRoleId());
         if not CRMRole.FindFirst() then begin
-            SendTraceTag('0000AUM', CategoryTok, Verbosity::Normal, RoleNotFoundForBusinessUnitTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AUM', RoleNotFoundForBusinessUnitTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(IntegrationRoleNotFoundErr, GetIntegrationRoleName(), GetBusinessUnitName(CRMTeam.BusinessUnitId));
         end;
         CDSTeamroles.SetRange(TeamId, CRMTeam.TeamId);
         CDSTeamroles.SetRange(RoleId, CRMRole.RoleId);
         if CDSTeamroles.IsEmpty() then begin
-            SendTraceTag('0000AUN', CategoryTok, Verbosity::Normal, IntegrationRoleNotAssignedToTeamTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AUN', IntegrationRoleNotAssignedToTeamTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(TeamRolesErr, CRMTeam.Name, GetBusinessUnitName(CRMTeam.BusinessUnitId), GetIntegrationRoleName());
         end;
     end;
@@ -2686,7 +2881,7 @@ codeunit 7201 "CDS Integration Impl."
             IntegrationRoleName := Format(GetIntegrationRoleId());
     end;
 
-    local procedure FindCompanyIdField(var RecRef: RecordRef; var CompanyIdFldRef: FieldRef): Boolean
+    internal procedure FindCompanyIdField(var RecRef: RecordRef; var CompanyIdFldRef: FieldRef): Boolean
     var
         Field: Record "Field";
         TableNo: Integer;
@@ -2777,7 +2972,7 @@ codeunit 7201 "CDS Integration Impl."
 
     local procedure SetCachedOwningTeamCheck(TeamId: Guid; SkipBusinessUnitCheck: Boolean)
     begin
-        SendTraceTag('0000B2M', CategoryTok, VERBOSITY::Normal, StrSubstNo(SetCachedOwningTeamCheckTxt, TeamId, SkipBusinessUnitCheck), DataClassification::SystemMetadata);
+        Session.LogMessage('0000B2M', StrSubstNo(SetCachedOwningTeamCheckTxt, TeamId, SkipBusinessUnitCheck), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         if SkipBusinessUnitCheck then begin
             if not CachedOwningTeamCheckWithoutBusinessUnit.ContainsKey(TeamId) then
                 CachedOwningTeamCheckWithoutBusinessUnit.Add(TeamId, true);
@@ -2799,7 +2994,7 @@ codeunit 7201 "CDS Integration Impl."
 
     local procedure SetCachedOwningUserCheck(UserId: Guid; SkipBusinessUnitCheck: Boolean)
     begin
-        SendTraceTag('0000B2N', CategoryTok, VERBOSITY::Normal, StrSubstNo(SetCachedOwningUserCheckTxt, UserId, SkipBusinessUnitCheck), DataClassification::SystemMetadata);
+        Session.LogMessage('0000B2N', StrSubstNo(SetCachedOwningUserCheckTxt, UserId, SkipBusinessUnitCheck), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         if SkipBusinessUnitCheck then begin
             if not CachedOwningUserCheckWithoutBusinessUnit.ContainsKey(UserId) then
                 CachedOwningUserCheckWithoutBusinessUnit.Add(UserId, true);
@@ -2834,15 +3029,15 @@ codeunit 7201 "CDS Integration Impl."
         if AreCompanyValuesCached then
             exit;
 
-        SendTraceTag('0000B2O', CategoryTok, VERBOSITY::Normal, InitializeCompanyCacheTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000B2O', InitializeCompanyCacheTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         if not TryGetCDSCompany(CDSCompany) then begin
-            SendTraceTag('0000B2P', CategoryTok, VERBOSITY::Warning, CompanyNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000B2P', CompanyNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(CompanyNotFoundErr);
         end;
 
         if not CRMTeam.Get(CDSCompany.DefaultOwningTeam) then begin
-            SendTraceTag('0000B2Q', CategoryTok, VERBOSITY::Warning, TeamNotFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000B2Q', TeamNotFoundTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(TeamNotFoundErr);
         end;
 
@@ -2855,7 +3050,7 @@ codeunit 7201 "CDS Integration Impl."
     [Scope('OnPrem')]
     procedure ResetCache()
     begin
-        SendTraceTag('0000B2R', CategoryTok, VERBOSITY::Normal, ClearCacheTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000B2R', ClearCacheTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         Clear(AreCompanyValuesCached);
         Clear(CachedCompanyId);
         Clear(CachedDefaultOwningTeamId);
@@ -2916,7 +3111,7 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
         if not CDSConnectionSetup.Get() then begin
-            SendTraceTag('0000AUO', CategoryTok, VERBOSITY::Normal, IntegrationNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AUO', IntegrationNotConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
         exit(InitializeConnection(CrmHelper, CDSConnectionSetup));
@@ -2950,31 +3145,31 @@ codeunit 7201 "CDS Integration Impl."
         DotNetExceptionHandler.Collect();
 
         if DotNetExceptionHandler.TryCastToType(GetDotNetType(FaultException)) then begin
-            SendTraceTag('0000AUP', CategoryTok, VERBOSITY::Normal, ConnectionFailureTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AUP', ConnectionFailureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(GeneralFailureErr);
         end;
         if DotNetExceptionHandler.TryCastToType(GetDotNetType(FileNotFoundException)) then begin
-            SendTraceTag('0000AUQ', CategoryTok, VERBOSITY::Normal, ConnectionFailureTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AUQ', ConnectionFailureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(SolutionFileNotFoundErr);
         end;
         if DotNetExceptionHandler.TryCastToType(CrmHelper.OrganizationServiceFaultExceptionType()) then begin
-            SendTraceTag('0000AUR', CategoryTok, VERBOSITY::Normal, ConnectionFailureTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AUR', ConnectionFailureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(OrganizationServiceFailureErr);
         end;
         if DotNetExceptionHandler.TryCastToType(CrmHelper.SystemNetWebException()) then begin
-            SendTraceTag('0000AUS', CategoryTok, VERBOSITY::Normal, ConnectionFailureTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AUS', ConnectionFailureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(CDSConnectionURLWrongErr);
         end;
         if DotNetExceptionHandler.CastToType(ArgumentNullException, GetDotNetType(ArgumentNullException)) then
             case ArgumentNullException.ParamName() of
                 'cred':
                     begin
-                        SendTraceTag('0000AUT', CategoryTok, VERBOSITY::Normal, ConnectionFailureTxt, DataClassification::SystemMetadata);
+                        Session.LogMessage('0000AUT', ConnectionFailureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                         Error(AdminUserPasswordWrongErr);
                     end;
                 'Organization Name':
                     begin
-                        SendTraceTag('0000AUU', CategoryTok, VERBOSITY::Normal, ConnectionFailureTxt, DataClassification::SystemMetadata);
+                        Session.LogMessage('0000AUU', ConnectionFailureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                         Error(CDSConnectionURLWrongErr);
                     end;
             end;
@@ -3130,11 +3325,11 @@ codeunit 7201 "CDS Integration Impl."
             exit;
 
         if not InitializeConnection(CrmHelper, CDSConnectionSetup) then begin
-            SendTraceTag('0000BO2', CategoryTok, VERBOSITY::Normal, ConnectionNotRegisteredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BO2', ConnectionNotRegisteredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             ProcessConnectionFailures();
         end;
         if not CheckCredentials(CrmHelper) then begin
-            SendTraceTag('0000BO3', CategoryTok, VERBOSITY::Normal, InvalidUserCredentialsTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BO3', InvalidUserCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(IntegrationUserPasswordWrongErr);
         end;
     end;
@@ -3188,7 +3383,7 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if CDSConnectionSetup."Disable Reason" = '' then
             exit;
-        SendTraceTag('0000AUV', CategoryTok, VERBOSITY::Normal, ClearDisabledReasonTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AUV', ClearDisabledReasonTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         Notification.Id := GetConnectionDisabledNotificationId();
         Notification.Recall();
         Clear(CDSConnectionSetup."Disable Reason");
@@ -3200,13 +3395,13 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionSetup: Record "CDS Connection Setup";
         LastError: Text;
     begin
-        SendTraceTag('0000AUW', CategoryTok, VERBOSITY::Normal, DisableIntegrationTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AUW', DisableIntegrationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         LastError := GetLastErrorText();
         LastError := CopyStr(LastError, StrPos(Format(LastError), ':') + 1, StrLen(LastError));
         Message(StrSubstNo(ConnectionBrokenMsg, LastError));
         if not CDSConnectionSetup.Get() then begin
-            SendTraceTag('0000AUX', CategoryTok, VERBOSITY::Normal, IntegrationNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AUX', IntegrationNotConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit;
         end;
         CDSConnectionSetup.Validate("Is Enabled", false);
@@ -3215,7 +3410,7 @@ codeunit 7201 "CDS Integration Impl."
           CopyStr(LastError, 1, MaxStrLen(CDSConnectionSetup."Disable Reason")));
         CDSConnectionSetup.Modify();
 
-        SendTraceTag('0000AUY', CategoryTok, VERBOSITY::Normal, IntegrationDisabledTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AUY', IntegrationDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
     [Scope('OnPrem')]
@@ -3295,8 +3490,9 @@ codeunit 7201 "CDS Integration Impl."
     procedure UpdateConnectionSetupFromWizard(var SourceCDSConnectionSetup: Record "CDS Connection Setup"; PasswordText: Text)
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        EnvrionmentInfo: Codeunit "Environment Information";
     begin
-        SendTraceTag('0000AUZ', CategoryTok, VERBOSITY::Normal, UpdateSetupTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AUZ', UpdateSetupTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         if not CDSConnectionSetup.Get() then begin
             CDSConnectionSetup.Init();
@@ -3306,6 +3502,11 @@ codeunit 7201 "CDS Integration Impl."
         CDSConnectionSetup.Validate("Authentication Type", SourceCDSConnectionSetup."Authentication Type");
         CDSConnectionSetup.Validate("User Name", SourceCDSConnectionSetup."User Name");
         CDSConnectionSetup.SetPassword(PasswordText);
+        if not EnvrionmentInfo.IsSaaS() then begin
+            CDSConnectionSetup.Validate("Client Id", SourceCDSConnectionSetup."Client Id");
+            CDSConnectionSetup.SetClientSecret(SourceCDSConnectionSetup.GetClientSecret());
+            CDSConnectionSetup.Validate("Redirect URL", SourceCDSConnectionSetup."Redirect URL");
+        end;
         CDSConnectionSetup.Validate("Proxy Version", SourceCDSConnectionSetup."Proxy Version");
         CDSConnectionSetup.Validate("Business Unit Id", SourceCDSConnectionSetup."Business Unit Id");
         CDSConnectionSetup.Validate("Business Unit Name", SourceCDSConnectionSetup."Business Unit Name");
@@ -3320,7 +3521,7 @@ codeunit 7201 "CDS Integration Impl."
             CDSConnectionSetup.Validate("Ownership Model", CDSConnectionSetup."Ownership Model"::Team);
         SetConnectionString(CDSConnectionSetup, SourceCDSConnectionSetup."Connection String");
 
-        SendTraceTag('0000AV0', CategoryTok, VERBOSITY::Normal, SetupUpdatedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AV0', SetupUpdatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
     local procedure PromptForAdminCredentials(var CDSConnectionSetup: Record "CDS Connection Setup"; var AdminUser: Text; var AdminPassword: Text): Boolean
@@ -3331,11 +3532,11 @@ codeunit 7201 "CDS Integration Impl."
         TempOfficeAdminCredentials.Insert();
         Commit();
         if Page.RunModal(Page::"CDS Admin Credentials", TempOfficeAdminCredentials) <> Action::LookupOK then begin
-            SendTraceTag('0000AV1', CategoryTok, Verbosity::Normal, IgnoredAdminCredentialsTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AV1', IgnoredAdminCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
         if (TempOfficeAdminCredentials.Email = '') or (TempOfficeAdminCredentials.Password = '') then begin
-            SendTraceTag('0000AV2', CategoryTok, Verbosity::Normal, InvalidAdminCredentialsTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AV2', InvalidAdminCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(false);
         end;
 
@@ -3371,7 +3572,8 @@ codeunit 7201 "CDS Integration Impl."
         TeamName := CopyStr(StrSubstNo(TeamNameTemplateTok, BusinessUnitName), 1, MaxStrLen(TeamName));
     end;
 
-    local procedure GetCompanyExternalId() ExternalId: Text[36]
+    [Scope('OnPrem')]
+    procedure GetCompanyExternalId() ExternalId: Text[36]
     var
         Company: Record Company;
     begin
@@ -3392,7 +3594,7 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if not CDSConnectionSetup.Get() then begin
             if not CDSConnectionSetup.WritePermission() then begin
-                SendTraceTag('0000AV4', CategoryTok, VERBOSITY::Normal, NoPermissionsTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000AV4', NoPermissionsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 exit;
             end;
             CDSConnectionSetup.Init();
@@ -3414,25 +3616,16 @@ codeunit 7201 "CDS Integration Impl."
           PAGE::"CDS Connection Setup", PAGE::"CDS Connection Setup Wizard");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnRegister', '', true, true)]
-    local procedure HandleAssistedSetupOnRegister()
-    var
-        EnvironmentInformation: Codeunit "Environment Information";
-    begin
-        if EnvironmentInformation.IsSaaS() then
-            RegisterAssistedSetup();
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Integration Mgt.", 'OnEnableIntegration', '', true, true)]
     local procedure HandleOnEnableIntegration()
     begin
-        SendTraceTag('0000AV5', CategoryTok, VERBOSITY::Normal, OnEnableIntegrationTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AV5', OnEnableIntegrationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Integration Mgt.", 'OnDisableIntegration', '', true, true)]
     local procedure HandleOnDisableIntegration()
     begin
-        SendTraceTag('0000AV6', CategoryTok, VERBOSITY::Normal, OnDisableIntegrationTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000AV6', OnDisableIntegrationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Integration Synch. Job Errors", 'OnIsDataIntegrationEnabled', '', false, false)]
@@ -3449,6 +3642,11 @@ codeunit 7201 "CDS Integration Impl."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetCDSConnectionClientSecret(var ClientSecret: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIntegrationEnabled()
     begin
     end;
 }

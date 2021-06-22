@@ -21,7 +21,6 @@ codeunit 134326 "ERM Purchase Blanket Order"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryResource: Codeunit "Library - Resource";
-        DocumentTypeRef: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         IsInitialized: Boolean;
         AmountErrorMessage: Label '%1 must be %2 in %3.';
         FieldError: Label '%1 not updated correctly.';
@@ -308,7 +307,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // Exercise: Create a new Purchase Blanket Order from the Purchase Order created using Purchase Blanket Order.
         CopyPurchaseDocument(
           PurchaseHeader, PurchaseLine."Buy-from Vendor No.", PurchaseLine."Document No.",
-          PurchaseHeader."Document Type"::"Blanket Order", DocumentTypeRef::Order, false);
+          PurchaseHeader."Document Type"::"Blanket Order", "Purchase Document Type From"::Order, false);
 
         // Verify: Verify Blanket Order created after Copy Purchase Document Batch Job doesn't contain Blanket Order No. and Line No.
         PurchaseLine2.SetRange("Document No.", PurchaseHeader."No.");
@@ -455,7 +454,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [WHEN] Copy Document to Credit Memo from Purchase Order
         CopyPurchaseDocument(
           PurchaseHeader, PurchaseLineOrder."Buy-from Vendor No.", PurchaseLineOrder."Document No.",
-          PurchaseHeader."Document Type"::"Credit Memo", DocumentTypeRef::Order, false);
+          PurchaseHeader."Document Type"::"Credit Memo", "Purchase Document Type From"::Order, false);
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Purchase Credit Memo line
         VerifyBlanketOrderDetailsOnPurchaseLine(
@@ -482,7 +481,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [WHEN] Copy Document to Return Order from Purchase Order
         CopyPurchaseDocument(
           PurchaseHeader, PurchaseLineOrder."Buy-from Vendor No.", PurchaseLineOrder."Document No.",
-          PurchaseHeader."Document Type"::"Return Order", DocumentTypeRef::Order, false);
+          PurchaseHeader."Document Type"::"Return Order", "Purchase Document Type From"::Order, false);
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Purchase Return Order line
         VerifyBlanketOrderDetailsOnPurchaseLine(
@@ -576,7 +575,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [WHEN] Copy Document to Purchase Invoice from Purchase Order with Recalculate Lines = Yes
         CopyPurchaseDocument(
           PurchaseHeader, PurchaseLineOrder."Buy-from Vendor No.", InvoiceNo,
-          PurchaseHeader."Document Type"::Invoice, DocumentTypeRef::"Posted Invoice", true);
+          PurchaseHeader."Document Type"::Invoice, "Purchase Document Type From"::"Posted Invoice", true);
 
         // [THEN] "Blanket Order No."/ "Blanket Order Line No." fields are empty in Purchase Invoice line
         VerifyBlanketOrderDetailsOnPurchaseLine(
@@ -604,7 +603,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [GIVEN] Copy Document to Purchase Invoice from Purchase Order with Recalculate Lines = No
         CopyPurchaseDocument(
           PurchaseHeader, PurchaseLineOrder."Buy-from Vendor No.", InvoiceNo,
-          PurchaseHeader."Document Type"::Invoice, DocumentTypeRef::"Posted Invoice", false);
+          PurchaseHeader."Document Type"::Invoice, "Purchase Document Type From"::"Posted Invoice", false);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Buy-from Vendor No.");
 
         // [WHEN] Post second Purchase Invoice
@@ -639,13 +638,13 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [GIVEN] Copy and Post Purchase Credit Memo from Posted Invoice with Recalculate Lines = No
         CopyPurchaseDocument(
           PurchaseHeader, PurchaseLineOrder."Buy-from Vendor No.", InvoiceNo,
-          PurchaseHeader."Document Type"::"Credit Memo", DocumentTypeRef::"Posted Invoice", false);
+          PurchaseHeader."Document Type"::"Credit Memo", "Purchase Document Type From"::"Posted Invoice", false);
         CrMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [GIVEN] Copy Purchase Invoice from Credit Memo with Recalculate Lines = No
         CopyPurchaseDocument(
           PurchaseHeader, PurchaseLineOrder."Buy-from Vendor No.", CrMemoNo,
-          PurchaseHeader."Document Type"::Invoice, DocumentTypeRef::"Posted Credit Memo", false);
+          PurchaseHeader."Document Type"::Invoice, "Purchase Document Type From"::"Posted Credit Memo", false);
 
         // [WHEN] Post new copied Purchase Invoice
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -680,7 +679,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [GIVEN] Copy and Post Purchase Credit Memo from Posted Invoice with Recalculate Lines = No, set "Blanket Order No./Line No."
         CopyPurchaseDocument(
           PurchaseHeader, PurchaseLineOrder."Buy-from Vendor No.", InvoiceNo,
-          PurchaseHeader."Document Type"::"Credit Memo", DocumentTypeRef::"Posted Invoice", false);
+          PurchaseHeader."Document Type"::"Credit Memo", "Purchase Document Type From"::"Posted Invoice", false);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLineOrder."Buy-from Vendor No.");
         PurchaseLine.Validate("Blanket Order No.", PurchaseLineOrder."Blanket Order No.");
         PurchaseLine.Validate("Blanket Order Line No.", PurchaseLineOrder."Blanket Order Line No.");
@@ -691,7 +690,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [GIVEN] Copy Purchase Invoice from Credit Memo with Recalculate Lines = No
         CopyPurchaseDocument(
           PurchaseHeader, PurchaseLineOrder."Buy-from Vendor No.", CrMemoNo,
-          PurchaseHeader."Document Type"::Invoice, DocumentTypeRef::"Posted Credit Memo", false);
+          PurchaseHeader."Document Type"::Invoice, "Purchase Document Type From"::"Posted Credit Memo", false);
 
         // [WHEN] Post copied Purchase Invoice
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1180,7 +1179,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [GIVEN] Purchase order with purchase line
         // [GIVEN] "Purchase Line"."Blanket Order No." = 1001
         // [GIVEN] "Purchase Line"."Blanket Order Line No." = 0
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
             PurchaseLine, PurchaseHeader, BlanketPurchaseLine.Type,
             BlanketPurchaseLine."No.", BlanketPurchaseLine.Quantity);
@@ -1310,7 +1309,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         exit(VendorNo);
     end;
 
-    local procedure MockPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure MockPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         with PurchaseHeader do begin
             Init;
@@ -1321,7 +1320,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         end;
     end;
 
-    local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Option)
+    local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type")
     begin
         with PurchaseLine do begin
             Init;
@@ -1338,14 +1337,14 @@ codeunit 134326 "ERM Purchase Blanket Order"
         end;
     end;
 
-    local procedure CopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentNo: Code[20]; DocumentType: Option; FromDocType: Option; Recalculate: Boolean)
+    local procedure CopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; FromDocType: Enum "Purchase Document Type From"; Recalculate: Boolean)
     begin
         Clear(PurchaseHeader);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, FromDocType, DocumentNo, true, Recalculate);  // Set TRUE for Include Header
     end;
 
-    local procedure FindExtendedTextLine(DocumentType: Option; Description: Text[100]): Boolean
+    local procedure FindExtendedTextLine(DocumentType: Enum "Purchase Document Type"; Description: Text[100]): Boolean
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1355,7 +1354,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         exit(PurchaseLine.FindFirst);
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; BuyFromVendorNo: Code[20])
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
@@ -1380,7 +1379,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         PurchaseLine.Validate("Blanket Order Line No.", BlanketOrderLineNo);
     end;
 
-    local procedure UpdatePurchasePayablesSetup(DefaultPostingDate: Option)
+    local procedure UpdatePurchasePayablesSetup(DefaultPostingDate: Enum "Default Posting Date")
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
@@ -1389,7 +1388,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         PurchasesPayablesSetup.Modify(true);
     end;
 
-    local procedure VerifyBlanketOrderDetailsOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
+    local procedure VerifyBlanketOrderDetailsOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
     begin
         FindPurchaseLine(PurchaseLine, DocumentType, VendorNo);
         PurchaseLine.TestField("Blanket Order No.", BlanketOrderNo);

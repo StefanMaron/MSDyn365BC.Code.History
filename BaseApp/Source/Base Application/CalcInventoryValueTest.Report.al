@@ -60,7 +60,6 @@ report 5811 "Calc. Inventory Value - Test"
             }
             column(ItemLedgEntryErrBuf__Entry_Type_; ItemLedgEntryErrBuf."Entry Type")
             {
-                OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
             }
             column(ItemLedgEntryErrBuf_Description; ItemLedgEntryErrBuf.Description)
             {
@@ -139,7 +138,6 @@ report 5811 "Calc. Inventory Value - Test"
             }
             column(ProdBOMVersionErrBuf_Status; ProdBOMVersionErrBuf.Status)
             {
-                OptionMembers = New,Certified,"Under Development",Closed;
             }
             column(Text002Caption; Text002CaptionLbl)
             {
@@ -190,7 +188,6 @@ report 5811 "Calc. Inventory Value - Test"
             }
             column(RtngVersionErrBuf_Status; RtngVersionErrBuf.Status)
             {
-                OptionMembers = New,Certified,"Under Development",Closed;
             }
             column(RtngVersionErrBuf__Starting_Date_; Format(RtngVersionErrBuf."Starting Date"))
             {

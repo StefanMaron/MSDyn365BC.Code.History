@@ -170,12 +170,20 @@ table 9500 "Email Item"
         ID := CreateGuid;
     end;
 
+    [Obsolete('Replaced with the overload containing Email Scenario', '17.0')]
     procedure Send(HideMailDialog: Boolean): Boolean
     var
         MailManagement: Codeunit "Mail Management";
     begin
+        exit(Send(HideMailDialog, Enum::"Email Scenario"::Default));
+    end;
+
+    procedure Send(HideMailDialog: Boolean; EmailScenario: Enum "Email Scenario"): Boolean
+    var
+        MailManagement: Codeunit "Mail Management";
+    begin
         OnBeforeSend(Rec, HideMailDialog, MailManagement);
-        MailManagement.SendMailOrDownload(Rec, HideMailDialog);
+        MailManagement.SendMailOrDownload(Rec, HideMailDialog, EmailScenario);
         exit(MailManagement.IsSent);
     end;
 
@@ -190,7 +198,7 @@ table 9500 "Email Item"
         BodyText.Write(DataStream);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure GetBodyText() Value: Text
     var
         TempBlob: Codeunit "Temp Blob";

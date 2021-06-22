@@ -95,7 +95,7 @@ report 5751 "Put-away List"
                                 TempWhseActivLine.Insert();
                                 Mark(true);
                             end else begin
-                                TempWhseActivLine.SetSumLinesFilter("Warehouse Activity Line");
+                                TempWhseActivLine.SetSumLinesFilters("Warehouse Activity Line");
                                 if TempWhseActivLine.FindFirst then begin
                                     TempWhseActivLine."Qty. (Base)" := TempWhseActivLine."Qty. (Base)" + "Qty. (Base)";
                                     TempWhseActivLine."Qty. to Handle" := TempWhseActivLine."Qty. to Handle" + "Qty. to Handle";

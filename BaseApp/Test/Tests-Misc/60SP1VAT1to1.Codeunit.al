@@ -468,11 +468,11 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         CreateSalesHeader(SalesHeader, Customer, SalesHeader."Document Type"::"Credit Memo", false);
         DocLineDataSetup('Sales', false);
 
-        CreateSalesLine(SalesHeader, SalesLine1, 2, Item1, Quantity1, LinePrice1, LineDisc);
+        CreateSalesLine(SalesHeader, SalesLine1, SalesLine1.Type::Item, Item1, Quantity1, LinePrice1, LineDisc);
         VATPct1 := SalesLine1."VAT %" / 100; // Get VAT% on the line
         LineDimSetID1 := SalesLine1."Dimension Set ID"; // Get Line Dimension set ID on line 1
 
-        CreateSalesLine(SalesHeader, SalesLine2, 2, Item3, Quantity2, LinePrice2, LineDisc);
+        CreateSalesLine(SalesHeader, SalesLine2, SalesLine2.Type::Item, Item3, Quantity2, LinePrice2, LineDisc);
         VATPct2 := SalesLine2."VAT %" / 100; // Get VAT% on the line
         LineDimSetID2 := SalesLine2."Dimension Set ID"; // Get Line Dimension set ID on line 2
         // Insert new line dimension on the second line
@@ -564,11 +564,11 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         CreatePurchHeader(PurchHeader, Vendor, PurchHeader."Document Type"::"Credit Memo", false);
         DocLineDataSetup('Purchase', false);
 
-        CreatePurchLine(PurchHeader, PurchLine1, 2, Item1, Quantity1, LineCost1, LineDisc);
+        CreatePurchLine(PurchHeader, PurchLine1, PurchLine1.Type::Item, Item1, Quantity1, LineCost1, LineDisc);
         VATPct1 := PurchLine1."VAT %" / 100; // Get VAT% on the line
         LineDimSetID1 := PurchLine1."Dimension Set ID"; // Get Line Dimension set ID on line 1
 
-        CreatePurchLine(PurchHeader, PurchLine2, 2, Item3, Quantity2, LineCost2, LineDisc);
+        CreatePurchLine(PurchHeader, PurchLine2, PurchLine2.Type::Item, Item3, Quantity2, LineCost2, LineDisc);
         VATPct2 := PurchLine2."VAT %" / 100; // Get VAT% on the line
         LineDimSetID2 := PurchLine2."Dimension Set ID"; // Get Line Dimension set ID on line 2
         // Insert new line dimension on the second line
@@ -667,11 +667,11 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         CreateServiceHeader(ServiceHeader, Customer, ServiceHeader."Document Type"::"Credit Memo", false);
         DocLineDataSetup('Service', false);
 
-        CreateServiceLine(ServiceHeader, ServiceLine1, 1, Item1, Quantity1, LinePrice1, LineDisc);
+        CreateServiceLine(ServiceHeader, ServiceLine1, ServiceLine1.Type::Item, Item1, Quantity1, LinePrice1, LineDisc);
         VATPct1 := ServiceLine1."VAT %" / 100; // Get VAT% on the line
         LineDimSetID1 := ServiceLine1."Dimension Set ID"; // Get Line Dimension set ID on line 1
 
-        CreateServiceLine(ServiceHeader, ServiceLine2, 1, Item3, Quantity2, LinePrice2, LineDisc);
+        CreateServiceLine(ServiceHeader, ServiceLine2, ServiceLine2.Type::Item, Item3, Quantity2, LinePrice2, LineDisc);
         VATPct2 := ServiceLine2."VAT %" / 100; // Get VAT% on the line
         LineDimSetID2 := ServiceLine2."Dimension Set ID"; // Get Line Dimension set ID on line 2
         // Insert new line dimension on the second line
@@ -1197,9 +1197,9 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         DocLineDataSetup('Sales', true);
         LineDisc := 15;
 
-        CreateSalesLine(SalesHeader, SalesLine1, 2, Item1, Quantity1, LinePrice1, LineDisc);
+        CreateSalesLine(SalesHeader, SalesLine1, SalesLine1.Type::Item, Item1, Quantity1, LinePrice1, LineDisc);
         VATPct1 := SalesLine1."VAT %" / 100; // Get VAT% on the line
-        CreateSalesLine(SalesHeader, SalesLine2, 2, Item3, Quantity2, LinePrice2, LineDisc);
+        CreateSalesLine(SalesHeader, SalesLine2, SalesLine2.Type::Item, Item3, Quantity2, LinePrice2, LineDisc);
         VATPct2 := SalesLine2."VAT %" / 100; // Get VAT% on the line
         // Post prepayment invoice
         SalesPostPrepmt.Invoice(SalesHeader);
@@ -1326,9 +1326,9 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
         LineDisc := 15;
         DocLineDataSetup('Purchase', true);
-        CreatePurchLine(PurchHeader, PurchLine1, 2, Item1, Quantity1, LineCost1, LineDisc);
+        CreatePurchLine(PurchHeader, PurchLine1, PurchLine1.Type::Item, Item1, Quantity1, LineCost1, LineDisc);
         VATPct1 := PurchLine1."VAT %" / 100; // Get VAT% on the line
-        CreatePurchLine(PurchHeader, PurchLine2, 2, Item3, Quantity2, LineCost2, LineDisc);
+        CreatePurchLine(PurchHeader, PurchLine2, PurchLine2.Type::Item, Item3, Quantity2, LineCost2, LineDisc);
         VATPct2 := PurchLine2."VAT %" / 100; // Get VAT% on the line
 
         // Post prepayment invoice
@@ -1892,7 +1892,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
         // Find VAT Posting Setup for reverse charge
         FindReverseChargeVATPostSetup(VATPostingSetup, false);
-        GLAccountUsed := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
+        GLAccountUsed := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
         GLAccount.Get(GLAccountUsed);
         GenBusPostingGroup.Get(GLAccount."Gen. Bus. Posting Group");
         GenProdPostingGroup.Get(GLAccount."Gen. Prod. Posting Group");
@@ -2018,7 +2018,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         FindReverseChargeVATPostSetup(VATpostingSetup, false);
         PurchVATAcc58848 := VATpostingSetup."Purchase VAT Account";
         ReverseChrgVATAcc := VATpostingSetup."Reverse Chrg. VAT Acc.";
-        GLAccountUsed := LibraryERM.CreateGLAccountWithVATPostingSetup(VATpostingSetup, 0);
+        GLAccountUsed := LibraryERM.CreateGLAccountWithVATPostingSetup(VATpostingSetup, "General Posting Type"::" ");
         GLAccount.Get(GLAccountUsed);
         GenBusPostingGroup.Get(GLAccount."Gen. Bus. Posting Group");
         GenProdPostingGroup.Get(GLAccount."Gen. Prod. Posting Group");
@@ -2159,7 +2159,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
         // Find VAT Posting Setup for reverse charge
         FindReverseChargeVATPostSetup(VatPostingSetup, true);
-        GLAccountUsed := LibraryERM.CreateGLAccountWithVATPostingSetup(VatPostingSetup, 0);
+        GLAccountUsed := LibraryERM.CreateGLAccountWithVATPostingSetup(VatPostingSetup, "General Posting Type"::" ");
         GLAccount.Get(GLAccountUsed);
         GenBusPostingGroup.Get(GLAccount."Gen. Bus. Posting Group");
         GenProdPostingGroup.Get(GLAccount."Gen. Prod. Posting Group");
@@ -2310,7 +2310,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         FindReverseChargeVATPostSetup(VATpostingSetup, true);
         ReverseChrgVATAcc := VATpostingSetup."Reverse Chrg. VAT Acc.";
         PurchVATAcc59013 := VATpostingSetup."Purchase VAT Account";
-        GLAccountUsed := LibraryERM.CreateGLAccountWithVATPostingSetup(VATpostingSetup, 0);
+        GLAccountUsed := LibraryERM.CreateGLAccountWithVATPostingSetup(VATpostingSetup, "General Posting Type"::" ");
         GLAccount.Get(GLAccountUsed);
         GenBusPostingGroup.Get(GLAccount."Gen. Bus. Posting Group");
         GenProdPostingGroup.Get(GLAccount."Gen. Prod. Posting Group");
@@ -2466,7 +2466,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         LineCost := 1000;
         LineDisc := 15;
         Quantity := 1;
-        CreatePurchLine(PurchHeader, PurchLine, 4, AssetNo, Quantity, LineCost, LineDisc);
+        CreatePurchLine(PurchHeader, PurchLine, PurchLine.Type::"Fixed Asset", AssetNo, Quantity, LineCost, LineDisc);
         VATPct := PurchLine."VAT %" / 100; // Get VAT% on the line
         GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", PurchLine."Gen. Prod. Posting Group");
         PurchLineDiscAcc1 := GeneralPostingSetup."Purch. Line Disc. Account";
@@ -2546,7 +2546,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         LineCost := 1000;
         LineDisc := 15;
         Quantity := 1;
-        CreatePurchLine(PurchHeader, PurchLine, 4, AssetNo, Quantity, LineCost, LineDisc);
+        CreatePurchLine(PurchHeader, PurchLine, PurchLine.Type::"Fixed Asset", AssetNo, Quantity, LineCost, LineDisc);
         VATPct := PurchLine."VAT %" / 100; // Get VAT% on the line
         GeneralPostingSetup.Get(Vendor."Gen. Bus. Posting Group", PurchLine."Gen. Prod. Posting Group");
         PurchLineDiscAcc1 := GeneralPostingSetup."Purch. Line Disc. Account";
@@ -3059,7 +3059,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Assert.IsTrue(VATEntry.Count = 0, StrSubstNo(TotalEntryNumberError, VATEntry.TableName, 0, VATEntry.Count));
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; DocType: Integer; InclVAT: Boolean)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; DocType: Enum "Sales Document Type"; InclVAT: Boolean)
     begin
         // Create Sales header, return document No
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, Customer."No.");
@@ -3068,7 +3068,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Integer; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal; LineDisc: Decimal)
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal; LineDisc: Decimal)
     begin
         // Create Sales Line
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
@@ -3077,7 +3077,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchHeader(var PurchHeader: Record "Purchase Header"; var Vendor: Record Vendor; DocType: Integer; InclVAT: Boolean)
+    local procedure CreatePurchHeader(var PurchHeader: Record "Purchase Header"; var Vendor: Record Vendor; DocType: Enum "Purchase Document Type"; InclVAT: Boolean)
     begin
         // Create Purchases header, return document No
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, Vendor."No.");
@@ -3086,7 +3086,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PurchHeader.Modify(true);
     end;
 
-    local procedure CreatePurchLine(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; Type: Integer; No: Code[20]; Quantity: Decimal; UnitCost: Decimal; LineDisc: Decimal)
+    local procedure CreatePurchLine(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; UnitCost: Decimal; LineDisc: Decimal)
     begin
         // Create Purchases Line
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, Type, No, Quantity);
@@ -3095,7 +3095,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PurchLine.Modify(true);
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; var Customer: Record Customer; DocType: Integer; InclVAT: Boolean)
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; var Customer: Record Customer; DocType: Enum "Service Document Type"; InclVAT: Boolean)
     begin
         // Create Service header, return document No
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, Customer."No.");
@@ -3105,7 +3105,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         ServiceHeader.Modify(true);
     end;
 
-    local procedure CreateServiceLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; Type: Integer; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal; LineDisc: Decimal)
+    local procedure CreateServiceLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; Type: Enum "Service Line Type"; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal; LineDisc: Decimal)
     begin
         // Create Service Line
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, ItemNo);
@@ -3220,7 +3220,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         VATProdPostingGroup.Insert(true);
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VATCalType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax"; VATPct: Decimal)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VATCalType: Enum "Tax Calculation Type"; VATPct: Decimal)
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
         VATPostingSetup.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
@@ -3234,7 +3234,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         end;
     end;
 
-    local procedure CreateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JnlTemplate: Code[10]; JnlBatch: Code[10]; AccType: Option; AccNo: Code[20]; PostingDate: Date; DocType: Option; Amount: Decimal; BalAccType: Option; BalAccNo: Code[20])
+    local procedure CreateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JnlTemplate: Code[10]; JnlBatch: Code[10]; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; Amount: Decimal; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, JnlTemplate, JnlBatch, DocType, AccType, AccNo, Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
@@ -3263,9 +3263,9 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // Create purchases lines
         DocLineDataSetup('Purchase', InclVAT);
         LineDisc := LineDis;
-        CreatePurchLine(PurchHeader, PurchLine1, 2, ItemNo1, Quantity1, LineCost1, LineDisc);
+        CreatePurchLine(PurchHeader, PurchLine1, PurchLine1.Type::Item, ItemNo1, Quantity1, LineCost1, LineDisc);
         VATPct1 := PurchLine1."VAT %" / 100; // Get VAT% on the line
-        CreatePurchLine(PurchHeader, PurchLine2, 2, ItemNo2, Quantity2, LineCost2, LineDisc);
+        CreatePurchLine(PurchHeader, PurchLine2, PurchLine2.Type::Item, ItemNo2, Quantity2, LineCost2, LineDisc);
         VATPct2 := PurchLine2."VAT %" / 100; // Get VAT% on the line
 
         // Post purchases document
@@ -3306,9 +3306,9 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // Create purchases lines
         DocLineDataSetup('Purchase', InclVAT);
         LineDisc := LineDis;
-        CreatePurchLine(PurchHeader, PurchLine1, 2, ItemNo1, Quantity1, LineCost1, LineDisc);
+        CreatePurchLine(PurchHeader, PurchLine1, PurchLine1.Type::Item, ItemNo1, Quantity1, LineCost1, LineDisc);
         VATPct1 := PurchLine1."VAT %" / 100; // Get VAT% on the line
-        CreatePurchLine(PurchHeader, PurchLine2, 2, ItemNo2, Quantity2, LineCost2, LineDisc);
+        CreatePurchLine(PurchHeader, PurchLine2, PurchLine2.Type::Item, ItemNo2, Quantity2, LineCost2, LineDisc);
         VATPct2 := PurchLine2."VAT %" / 100; // Get VAT% on the line
 
         // Post purchases document
@@ -3337,9 +3337,9 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // Create Sales lines
         DocLineDataSetup('Sales', InclVAT);
         LineDisc := LineDis;
-        CreateSalesLine(SalesHeader, SalesLine1, 2, ItemNo1, Quantity1, LinePrice1, LineDisc);
+        CreateSalesLine(SalesHeader, SalesLine1, SalesLine1.Type::Item, ItemNo1, Quantity1, LinePrice1, LineDisc);
         VATPct1 := SalesLine1."VAT %" / 100; // Get VAT% on the line
-        CreateSalesLine(SalesHeader, SalesLine2, 2, ItemNo2, Quantity2, LinePrice2, LineDisc);
+        CreateSalesLine(SalesHeader, SalesLine2, SalesLine2.Type::Item, ItemNo2, Quantity2, LinePrice2, LineDisc);
         VATPct2 := SalesLine2."VAT %" / 100; // Get VAT% on the line
 
         // Post sales document
@@ -3381,9 +3381,9 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // Create Sales lines
         DocLineDataSetup('Sales', InclVAT);
         LineDisc := LineDis;
-        CreateSalesLine(SalesHeader, SalesLine1, 2, ItemNo1, Quantity1, LinePrice1, LineDisc);
+        CreateSalesLine(SalesHeader, SalesLine1, SalesLine1.Type::Item, ItemNo1, Quantity1, LinePrice1, LineDisc);
         VATPct1 := SalesLine1."VAT %" / 100; // Get VAT% on the line
-        CreateSalesLine(SalesHeader, SalesLine2, 2, ItemNo2, Quantity2, LinePrice2, LineDisc);
+        CreateSalesLine(SalesHeader, SalesLine2, SalesLine2.Type::Item, ItemNo2, Quantity2, LinePrice2, LineDisc);
         VATPct2 := SalesLine2."VAT %" / 100; // Get VAT% on the line
 
         // Post sales document
@@ -3410,9 +3410,9 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
             CreateServiceHeader(ServiceHeader, Customer, ServiceHeader."Document Type"::"Credit Memo", InclVAT);
         DocLineDataSetup('Service', InclVAT);
         LineDisc := LineDis;
-        CreateServiceLine(ServiceHeader, ServiceLine1, 1, ItemNo1, Quantity1, LinePrice1, LineDisc);
+        CreateServiceLine(ServiceHeader, ServiceLine1, ServiceLine1.Type::Item, ItemNo1, Quantity1, LinePrice1, LineDisc);
         VATPct1 := ServiceLine1."VAT %" / 100; // Get VAT% on the line
-        CreateServiceLine(ServiceHeader, ServiceLine2, 1, ItemNo2, Quantity2, LinePrice2, LineDisc);
+        CreateServiceLine(ServiceHeader, ServiceLine2, ServiceLine2.Type::Item, ItemNo2, Quantity2, LinePrice2, LineDisc);
         VATPct2 := ServiceLine2."VAT %" / 100; // Get VAT% on the line
 
         // Post
@@ -3498,7 +3498,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         GenProdPostingGroup.FindFirst;
     end;
 
-    local procedure FindPostingSetup(var GenPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    local procedure FindPostingSetup(var GenPostingSetup: Record "General Posting Setup"; var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     var
         GenBusPostingGroup: Record "Gen. Business Posting Group";
         GenProdPostingGroup: Record "Gen. Product Posting Group";

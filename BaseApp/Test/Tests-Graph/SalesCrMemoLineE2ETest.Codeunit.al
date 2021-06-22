@@ -142,7 +142,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
-        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
+        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
         Commit();
 
         // [WHEN] we POST the JSON to the web service
@@ -175,7 +175,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
-        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
+        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
         LineNo := 500;
         CreditMemoLineJSON := LibraryGraphMgt.AddPropertytoJSON(CreditMemoLineJSON, 'sequence', LineNo);
         Commit();
@@ -364,9 +364,9 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         CustomerNo := Customer."No.";
         ItemNo := LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
-        CreditMemoID := SalesHeader.Id;
+        CreditMemoID := SalesHeader.SystemId;
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
-        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, ItemQuantity, SalesHeader."Document Date");
+        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.SystemId, ItemQuantity, SalesHeader."Document Date");
         Commit();
 
         // [WHEN] we POST the JSON to the web service and when we create an credit memo through the client UI
@@ -409,11 +409,11 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
-        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
+        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
         Commit();
 
         // [WHEN] We create a line through API
-        CreateCreditMemoLinesThroughAPI(SalesHeader.Id, CreditMemoLineJSON, ResponseText);
+        CreateCreditMemoLinesThroughAPI(SalesHeader.SystemId, CreditMemoLineJSON, ResponseText);
 
         // [THEN] Credit Memo discount is applied
         Assert.AreNotEqual('', ResponseText, 'Response JSON should not be blank');
@@ -444,7 +444,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
-        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
+        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
         FindFirstSalesLine(SalesHeader, SalesLine);
         SalesQuantity := SalesLine.Quantity * 2;
 
@@ -453,7 +453,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         CreditMemoLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
 
         // [WHEN] we PATCH the line
-        ModifyCreditMemoLinesThroughAPI(SalesHeader.Id, SalesLine."Line No.", CreditMemoLineJSON, ResponseText);
+        ModifyCreditMemoLinesThroughAPI(SalesHeader.SystemId, SalesLine."Line No.", CreditMemoLineJSON, ResponseText);
 
         // [THEN] Credit Memo discount is applied
         Assert.AreNotEqual('', ResponseText, 'Response JSON should not be blank');
@@ -496,7 +496,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         Commit();
 
         // [WHEN] we DELETE the line
-        DeleteCreditMemoLineThroughAPI(SalesHeader.Id, SalesLine."Line No.");
+        DeleteCreditMemoLineThroughAPI(SalesHeader.SystemId, SalesLine."Line No.");
 
         // [THEN] Lower Credit Memo discount is applied
         VerifyTotals(SalesHeader, DiscountPct1, SalesHeader."Invoice Discount Calculation"::"%");
@@ -531,7 +531,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         Commit();
 
         // [WHEN] we DELETE the line
-        DeleteCreditMemoLineThroughAPI(SalesHeader.Id, SalesLine."Line No.");
+        DeleteCreditMemoLineThroughAPI(SalesHeader.SystemId, SalesLine."Line No.");
 
         // [THEN] Lower Credit Memo discount is applied
         VerifyTotals(SalesHeader, 0, SalesHeader."Invoice Discount Calculation"::"%");
@@ -553,14 +553,14 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [GIVEN] An unposted credit memo for customer with credit memo discount amount
         Initialize;
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
-        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
+        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
 
         Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Credit Memo Entity",
             CreditMemoServiceNameTxt,
             CreditMemoServiceLinesNameTxt);
@@ -587,7 +587,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [GIVEN] An unposted credit memo for customer with credit memo discount amt
         Initialize;
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
-        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
+        CreditMemoLineJSON := CreateCreditMemoLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date");
 
         SalesQuantity := 0;
         CreditMemoLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
@@ -596,7 +596,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         FindFirstSalesLine(SalesHeader, SalesLine);
 
         // [WHEN] we PATCH the line
-        ModifyCreditMemoLinesThroughAPI(SalesHeader.Id, SalesLine."Line No.", CreditMemoLineJSON, ResponseText);
+        ModifyCreditMemoLinesThroughAPI(SalesHeader.SystemId, SalesLine."Line No.", CreditMemoLineJSON, ResponseText);
 
         // [THEN] Credit Memo discount is kept
         Assert.AreNotEqual('', ResponseText, 'Response JSON should not be blank');
@@ -622,7 +622,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         FindFirstSalesLine(SalesHeader, SalesLine);
 
         // [WHEN] we DELETE the line
-        DeleteCreditMemoLineThroughAPI(SalesHeader.Id, SalesLine."Line No.");
+        DeleteCreditMemoLineThroughAPI(SalesHeader.SystemId, SalesLine."Line No.");
 
         // [THEN] Lower Credit Memo discount is applied
         VerifyTotals(SalesHeader, DiscountAmount, SalesHeader."Invoice Discount Calculation"::Amount);
@@ -648,7 +648,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         Commit();
 
         // [WHEN] we GET the lines
-        GetCreditMemoLinesThroughAPI(SalesHeader.Id, ResponseText);
+        GetCreditMemoLinesThroughAPI(SalesHeader.SystemId, ResponseText);
 
         // [THEN] All lines are shown in the response
         JSONManagement.InitializeObject(ResponseText);
@@ -684,7 +684,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Credit Memo Entity",
             CreditMemoServiceNameTxt,
             CreditMemoServiceLinesNameTxt);
@@ -726,7 +726,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            SalesHeader.Id,
+            SalesHeader.SystemId,
             PAGE::"Sales Credit Memo Entity",
             CreditMemoServiceNameTxt,
             CreditMemoServiceLinesNameTxt);
@@ -768,7 +768,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         LineNo := SalesLine."Line No.";
 
         GetGLAccount(GLAccount, SalesLine);
-        CreditMemoLineJSON := StrSubstNo('{"accountId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(GLAccount.Id));
+        CreditMemoLineJSON := StrSubstNo('{"accountId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(GLAccount.SystemId));
 
         // [WHEN] we PATCH the line
         ModifyCreditMemoLinesThroughAPI(CreditMemoID, LineNo, CreditMemoLineJSON, ResponseText);
@@ -803,7 +803,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         // [GIVEN] An unposted credit memo with lines and a valid JSON describing the fields that we want to change
         Initialize;
         CreateCreditMemoWithDifferentLineTypes(SalesHeader, ExpectedNumberOfLines);
-        CreditMemoLineID := IntegrationManagement.GetIdWithoutBrackets(SalesHeader.Id);
+        CreditMemoLineID := IntegrationManagement.GetIdWithoutBrackets(SalesHeader.SystemId);
         SalesLine.SetRange(Type, SalesLine.Type::"Fixed Asset");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -814,11 +814,11 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         LineNo := SalesLine."Line No.";
         LibraryInventory.CreateItem(Item);
 
-        CreditMemoLineJSON := StrSubstNo('{"itemId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(Item.Id));
+        CreditMemoLineJSON := StrSubstNo('{"itemId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(Item.SystemId));
         Commit();
 
         // [WHEN] we PATCH the line
-        ModifyCreditMemoLinesThroughAPI(SalesHeader.Id, LineNo, CreditMemoLineJSON, ResponseText);
+        ModifyCreditMemoLinesThroughAPI(SalesHeader.SystemId, LineNo, CreditMemoLineJSON, ResponseText);
 
         // [THEN] Line type is changed to Item and other fields are updated
         SalesLine.Find;
@@ -888,7 +888,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
         Commit();
-        exit(SalesHeader.Id);
+        exit(SalesHeader.SystemId);
     end;
 
     local procedure CreatePostedSalesCreditMemoWithLines(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"): Text
@@ -903,7 +903,7 @@ codeunit 135534 "Sales Cr. Memo Line E2E Test"
         LibrarySales.CreateSalesCreditMemo(SalesHeader);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
-        PostedSalesCreditMemoID := SalesHeader.Id;
+        PostedSalesCreditMemoID := SalesHeader.SystemId;
         NewNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
         Commit();
 

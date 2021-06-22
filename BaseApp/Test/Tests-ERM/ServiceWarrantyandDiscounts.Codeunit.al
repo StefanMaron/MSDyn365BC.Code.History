@@ -546,7 +546,7 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceItem.Modify(true);
     end;
 
-    local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; Type: Option; No: Code[20])
+    local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20])
     var
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";

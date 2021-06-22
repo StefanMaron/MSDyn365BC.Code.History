@@ -40,16 +40,15 @@ page 5329 "CRM Redirect"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled and not CRMIntegrationManagement.IsCDSIntegrationEnabled() then
-            Error(CRMIntegrationNotEnabledErr, CRMProductName.SHORT, CDSProductNameLbl);
+            Error(CRMIntegrationNotEnabledErr, CRMProductName.SHORT, CRMProductName.CDSServiceName());
     end;
 
     var
         FilterRegexTok: Label '%1: ([A-Za-z0-9\-].+)', Locked = true;
         CRMInfoRegexTok: Label 'CRMID:(\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\});CRMType:([a-z0-9_ \/]*)\z', Locked = true;
         InvalidFilterErr: Label 'The URL contains an incorrectly formatted filter string and cannot be processed.';
-        InvalidCRMIDErr: Label 'The %2 ID in the URL is not correctly formatted: %1.', Comment = '%1 = Whatever was passed as CRM ID in the filter, but clearly not an actual CRM ID. %2 = CRM product name';
+        InvalidCRMIDErr: Label 'The %2 ID in the URL is not correctly formatted: %1.', Comment = '%1 = Whatever was passed as CDS ID in the filter, but clearly not an actual CDS ID. %2 = CDS service name';
         CRMIntegrationNotEnabledErr: Label 'Integration with %1 or %2 is not enabled.', Comment = '%1 = CRM product name. %2 = CDS product name';
-        CDSProductNameLbl: Label 'Common Data Service', Locked = true;
         NoCoupledEntityErr: Label 'Coupled record not found. Check integration synchronization errors if you have turned Synch. Only Coupled Records off.';
         CRMProductName: Codeunit "CRM Product Name";
 
@@ -88,7 +87,7 @@ page 5329 "CRM Redirect"
         GroupCollectionHelper := MatchHelper.Groups;
         GroupHelper := GroupCollectionHelper.Item(1);
         if not Evaluate(CRMID, GroupHelper.Value) then
-            Error(InvalidCRMIDErr, CRMProductName.SHORT);
+            Error(InvalidCRMIDErr, CRMProductName.CDSServiceName());
         GroupHelper := GroupCollectionHelper.Item(2);
         CRMEntityTypeName := GroupHelper.Value;
     end;

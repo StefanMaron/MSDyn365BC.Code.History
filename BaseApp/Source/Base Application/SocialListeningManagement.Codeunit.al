@@ -1,5 +1,8 @@
 codeunit 871 "Social Listening Management"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

@@ -6,6 +6,7 @@ report 38 "Trial Balance by Period"
     Caption = 'Trial Balance by Period';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {
@@ -298,6 +299,7 @@ report 38 "Trial Balance by Period"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Starting Date';
                         ToolTip = 'Specifies the date from which the report or batch job processes information.';
+                        ShowMandatory = true;
                     }
                     field(RoundingFactor; RoundingFactor)
                     {

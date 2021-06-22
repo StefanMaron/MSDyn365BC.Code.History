@@ -1,4 +1,4 @@
-﻿codeunit 5063 ArchiveManagement
+codeunit 5063 ArchiveManagement
 {
 
     trigger OnRun()
@@ -134,8 +134,9 @@
         SalesHeaderArchive."Archived By" := UserId;
         SalesHeaderArchive."Date Archived" := WorkDate;
         SalesHeaderArchive."Time Archived" := Time;
-        SalesHeaderArchive."Version No." := GetNextVersionNo(
-            DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Doc. No. Occurrence");
+        SalesHeaderArchive."Version No." :=
+            GetNextVersionNo(
+                DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", SalesHeader."Doc. No. Occurrence");
         SalesHeaderArchive."Interaction Exist" := InteractionExist;
         RecordLinkManagement.CopyLinks(SalesHeader, SalesHeaderArchive);
         OnBeforeSalesHeaderArchiveInsert(SalesHeaderArchive, SalesHeader);
@@ -143,8 +144,7 @@
         OnAfterSalesHeaderArchiveInsert(SalesHeaderArchive, SalesHeader);
 
         StoreSalesDocumentComments(
-          SalesHeader."Document Type", SalesHeader."No.",
-          SalesHeader."Doc. No. Occurrence", SalesHeaderArchive."Version No.");
+            SalesHeader."Document Type".AsInteger(), SalesHeader."No.", SalesHeader."Doc. No. Occurrence", SalesHeaderArchive."Version No.");
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -160,8 +160,9 @@
                     Insert;
                 end;
                 if SalesLine."Deferral Code" <> '' then
-                    StoreDeferrals(DeferralUtilities.GetSalesDeferralDocType, SalesLine."Document Type",
-                      SalesLine."Document No.", SalesLine."Line No.", SalesHeader."Doc. No. Occurrence", SalesHeaderArchive."Version No.");
+                    StoreDeferrals(
+                        "Deferral Document Type"::Sales.AsInteger(), SalesLine."Document Type".AsInteger(),
+                        SalesLine."Document No.", SalesLine."Line No.", SalesHeader."Doc. No. Occurrence", SalesHeaderArchive."Version No.");
 
                 OnAfterStoreSalesLineArchive(SalesHeader, SalesLine, SalesHeaderArchive, SalesLineArchive);
             until SalesLine.Next = 0;
@@ -182,8 +183,9 @@
         PurchHeaderArchive."Archived By" := UserId;
         PurchHeaderArchive."Date Archived" := WorkDate;
         PurchHeaderArchive."Time Archived" := Time;
-        PurchHeaderArchive."Version No." := GetNextVersionNo(
-            DATABASE::"Purchase Header", PurchHeader."Document Type", PurchHeader."No.", PurchHeader."Doc. No. Occurrence");
+        PurchHeaderArchive."Version No." :=
+            GetNextVersionNo(
+                DATABASE::"Purchase Header", PurchHeader."Document Type".AsInteger(), PurchHeader."No.", PurchHeader."Doc. No. Occurrence");
         PurchHeaderArchive."Interaction Exist" := InteractionExist;
         RecordLinkManagement.CopyLinks(PurchHeader, PurchHeaderArchive);
         OnBeforePurchHeaderArchiveInsert(PurchHeaderArchive, PurchHeader);
@@ -191,8 +193,7 @@
         OnAfterPurchHeaderArchiveInsert(PurchHeaderArchive, PurchHeader);
 
         StorePurchDocumentComments(
-          PurchHeader."Document Type", PurchHeader."No.",
-          PurchHeader."Doc. No. Occurrence", PurchHeaderArchive."Version No.");
+            PurchHeader."Document Type".AsInteger(), PurchHeader."No.", PurchHeader."Doc. No. Occurrence", PurchHeaderArchive."Version No.");
 
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
@@ -208,8 +209,9 @@
                     Insert;
                 end;
                 if PurchLine."Deferral Code" <> '' then
-                    StoreDeferrals(DeferralUtilities.GetPurchDeferralDocType, PurchLine."Document Type",
-                      PurchLine."Document No.", PurchLine."Line No.", PurchHeader."Doc. No. Occurrence", PurchHeaderArchive."Version No.");
+                    StoreDeferrals(
+                        "Deferral Document Type"::Purchase.AsInteger(), PurchLine."Document Type".AsInteger(),
+                        PurchLine."Document No.", PurchLine."Line No.", PurchHeader."Doc. No. Occurrence", PurchHeaderArchive."Version No.");
 
                 OnAfterStorePurchLineArchive(PurchHeader, PurchLine, PurchHeaderArchive, PurchLineArchive);
             until PurchLine.Next = 0;
@@ -375,12 +377,10 @@
                     "Shortcut Dimension 2 Code" := SalesLineArchive."Shortcut Dimension 2 Code";
                     "Dimension Set ID" := SalesLineArchive."Dimension Set ID";
                     "Deferral Code" := SalesLineArchive."Deferral Code";
-                    RestoreDeferrals(DeferralUtilities.GetSalesDeferralDocType,
-                      SalesLineArchive."Document Type",
-                      SalesLineArchive."Document No.",
-                      SalesLineArchive."Line No.",
-                      SalesHeaderArchive."Doc. No. Occurrence",
-                      SalesHeaderArchive."Version No.");
+                    RestoreDeferrals(
+                        "Deferral Document Type"::Sales.AsInteger(),
+                        SalesLineArchive."Document Type".AsInteger(), SalesLineArchive."Document No.", SalesLineArchive."Line No.",
+                        SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.");
                     RecordLinkManagement.CopyLinks(SalesLineArchive, SalesLine);
                     OnAfterTransferFromArchToSalesLine(SalesLine, SalesLineArchive);
                     Modify(true);
@@ -630,7 +630,7 @@
         SalesLine.SetFilter("Deferral Code", '<>%1', '');
         if SalesLine.FindSet then
             repeat
-                if DeferralHeader.Get(DeferralUtilities.GetSalesDeferralDocType, '', '',
+                if DeferralHeader.Get("Deferral Document Type"::Sales, '', '',
                      SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.")
                 then
                     DeferralUtilities.RoundDeferralAmount(
@@ -650,7 +650,7 @@
         PurchaseLine.SetFilter("Deferral Code", '<>%1', '');
         if PurchaseLine.FindSet then
             repeat
-                if DeferralHeader.Get(DeferralUtilities.GetPurchDeferralDocType, '', '',
+                if DeferralHeader.Get("Deferral Document Type"::Purchase, '', '',
                      PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.")
                 then
                     DeferralUtilities.RoundDeferralAmount(

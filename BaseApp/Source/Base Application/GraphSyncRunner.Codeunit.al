@@ -180,17 +180,13 @@ codeunit 5452 "Graph Sync. Runner"
     [EventSubscriber(ObjectType::Codeunit, 5452, 'OnSyncSynchronouslyCannotStartSession', '', false, false)]
     local procedure HandleOnSyncSynchronouslyCannotStartSession(AdditionalDetails: Text)
     begin
-        SendTraceTag(
-          '00001KX', ALGraphSyncSynchronouslyCategoryTxt, VERBOSITY::Error,
-          'Could not start the session. ' + AdditionalDetails, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001KX', 'Could not start the session. ' + AdditionalDetails, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ALGraphSyncSynchronouslyCategoryTxt);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 5452, 'OnSyncSynchronouslyTimeout', '', false, false)]
     local procedure HandleOnSyncSynchronouslySessionTimeout(AdditionalDetails: Text)
     begin
-        SendTraceTag(
-          '00001KY', ALGraphSyncSynchronouslyCategoryTxt, VERBOSITY::Error,
-          'Timeout on the Forced Graph Sync. ' + AdditionalDetails, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001KY', 'Timeout on the Forced Graph Sync. ' + AdditionalDetails, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ALGraphSyncSynchronouslyCategoryTxt);
     end;
 
     [IntegrationEvent(false, false)]

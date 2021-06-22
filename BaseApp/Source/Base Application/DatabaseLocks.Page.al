@@ -22,6 +22,12 @@ page 9511 "Database Locks"
                     Caption = 'SQL Session ID';
                     ToolTip = 'Specifies the session ID.';
                 }
+                field("Session ID"; "Session ID")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Session ID';
+                    ToolTip = 'Specifies the User Session ID.';
+                }
                 field("Object Name"; "Object Name")
                 {
                     ApplicationArea = All;
@@ -64,11 +70,23 @@ page 9511 "Database Locks"
                     Caption = 'Executing AL Object ID';
                     ToolTip = 'Specifies the AL object ID that is executed in the context of the SQL lock.';
                 }
+                field("AL Object Name"; "AL Object Name")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Executing AL Object Name';
+                    ToolTip = 'Specifies the AL object name that is executed in the context of the SQL lock.';
+                }
                 field("AL Method Scope"; "AL Method Scope")
                 {
                     ApplicationArea = All;
                     Caption = 'Executing AL Method';
                     ToolTip = 'Specifies the AL method that is executed in the context of the given AL object.';
+                }
+                field("AL Object Extension Name"; "AL Object Extension Name")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Executing AL Object Extension Name';
+                    ToolTip = 'Specifies the extension name for an AL object that is executed in the context of the SQL lock.';
                 }
             }
         }

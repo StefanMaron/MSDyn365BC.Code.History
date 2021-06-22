@@ -13,7 +13,7 @@ codeunit 131352 "Library - Document Approvals"
         LibraryWorkflow: Codeunit "Library - Workflow";
 
     [Scope('OnPrem')]
-    procedure CreateApprovalEntryBasic(var ApprovalEntry: Record "Approval Entry"; TableId: Integer; DocumentType: Option; DocumentNo: Code[20]; StatusOption: Option; LimitType: Option; RecID: RecordID; ApprovalType: Option; DueDate: Date; AmountDec: Decimal)
+    procedure CreateApprovalEntryBasic(var ApprovalEntry: Record "Approval Entry"; TableId: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20]; StatusOption: Enum "Approval Status"; LimitType: Option; RecID: RecordID; ApprovalType: Option; DueDate: Date; AmountDec: Decimal)
     begin
         with ApprovalEntry do begin
             Init;

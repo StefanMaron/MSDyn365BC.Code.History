@@ -1106,7 +1106,7 @@ report 595 "Adjust Exchange Rates"
         end;
     end;
 
-    local procedure AdjustVATEntries(VATType: Integer; UseTax: Boolean)
+    local procedure AdjustVATEntries(VATType: Enum "General Posting Type"; UseTax: Boolean)
     begin
         Clear(VATEntry2);
         with VATEntry do begin

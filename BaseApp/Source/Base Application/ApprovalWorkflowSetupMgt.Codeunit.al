@@ -25,10 +25,10 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         PurchaseHeader: Record "Purchase Header";
     begin
         if TempApprovalWorkflowWizard."Purch Invoice App. Workflow" then
-            CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice);
+            CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice.AsInteger());
 
         if TempApprovalWorkflowWizard."Sales Invoice App. Workflow" then
-            CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice);
+            CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice.AsInteger());
 
         CreateApprovalSetup(TempApprovalWorkflowWizard);
     end;
@@ -195,7 +195,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         if Workflow.Get(WizardWorkflowCode) then
             UpdateWorkflow(Workflow, DATABASE::"Sales Header", BlankDateFormula)
         else begin
-            EventConditions := WorkflowSetup.BuildSalesHeaderTypeConditions(DocumentType, SalesHeader.Status::Open);
+            EventConditions := WorkflowSetup.BuildSalesHeaderTypeConditions(DocumentType, SalesHeader.Status::Open.AsInteger());
             DisableWorkflowWithEntryPointEventConditions(DATABASE::"Sales Header",
               WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode, EventConditions);
 
@@ -229,7 +229,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         if Workflow.Get(WizardWorkflowCode) then
             UpdateWorkflow(Workflow, DATABASE::"Purchase Header", BlankDateFormula)
         else begin
-            EventConditions := WorkflowSetup.BuildPurchHeaderTypeConditions(DocumentType, PurchaseHeader.Status::Open);
+            EventConditions := WorkflowSetup.BuildPurchHeaderTypeConditions(DocumentType, PurchaseHeader.Status::Open.AsInteger());
             DisableWorkflowWithEntryPointEventConditions(DATABASE::"Purchase Header",
               WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode, EventConditions);
 

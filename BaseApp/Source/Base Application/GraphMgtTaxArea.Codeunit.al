@@ -5,6 +5,7 @@ codeunit 5504 "Graph Mgt - Tax Area"
     begin
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         DummyTaxArea: Record "Tax Area";

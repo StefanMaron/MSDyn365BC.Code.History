@@ -61,12 +61,10 @@ table 5912 "Service Document Log"
             //This property is currently not supported
             //TestTableRelation = false;
         }
-        field(10; "Document Type"; Option)
+        field(10; "Document Type"; Enum "Service Log Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Shipment,Posted Invoice,Posted Credit Memo';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo",Shipment,"Posted Invoice","Posted Credit Memo";
         }
     }
 
@@ -126,10 +124,10 @@ table 5912 "Service Document Log"
             TempServDocLog.DeleteAll();
 
             if "No." <> '' then begin
-                TempServDocLog.CopyServLog("Document Type", "No.");
-                TempServDocLog.CopyServLog(ServDocLog."Document Type"::Shipment, "No.");
-                TempServDocLog.CopyServLog(ServDocLog."Document Type"::"Posted Invoice", "No.");
-                TempServDocLog.CopyServLog(ServDocLog."Document Type"::"Posted Credit Memo", "No.");
+                TempServDocLog.CopyServLog("Document Type".AsInteger(), "No.");
+                TempServDocLog.CopyServLog(ServDocLog."Document Type"::Shipment.AsInteger(), "No.");
+                TempServDocLog.CopyServLog(ServDocLog."Document Type"::"Posted Invoice".AsInteger(), "No.");
+                TempServDocLog.CopyServLog(ServDocLog."Document Type"::"Posted Credit Memo".AsInteger(), "No.");
             end;
 
             TempServDocLog.Reset();

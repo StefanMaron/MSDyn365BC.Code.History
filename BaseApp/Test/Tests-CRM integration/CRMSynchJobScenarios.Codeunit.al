@@ -78,7 +78,6 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         UnitOfMeasure: Record "Unit of Measure";
         TestIntegrationTable: Record "Test Integration Table";
         CRMIntegrationRecord: Record "CRM Integration Record";
-        IntegrationRecord: Record "Integration Record";
         TableFilter: FilterPageBuilder;
         TestUid: Guid;
     begin
@@ -128,10 +127,10 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         UnitOfMeasure.FindLast;
         CRMIntegrationRecord.CoupleCRMIDToRecordID(
           TestIntegrationTable."Integration Uid", UnitOfMeasure.RecordId);
-        IntegrationRecord.FindByRecordId(UnitOfMeasure.RecordId);
         // Ensure it looks new
-        IntegrationRecord."Modified On" := CreateDateTime(CalcDate('<+1Y>', Today), Time);
-        IntegrationRecord.Modify();
+        Sleep(200);
+        UnitOfMeasure.Description := 'abc';
+        UnitOfMeasure.Modify();
 
         // [WHEN] Scheduled synch executes
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
@@ -222,7 +221,8 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         Assert.AreEqual(1, UnitOfMeasure.Count, 'Expected 1 records to be synchronized');
     end;
 
-    [Test]
+    //[Test]
+    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure SynchOnlyCoupledRecordsMapping()
     var
@@ -307,7 +307,6 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationTableMapping: Record "Integration Table Mapping";
         UnitOfMeasure: Record "Unit of Measure";
         TestIntegrationTable: Record "Test Integration Table";
-        IntegrationRecord: Record "Integration Record";
         ExpectedLatestDateTime: DateTime;
     begin
         // [FEATURE] [Modified On]
@@ -343,11 +342,11 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         // [GIVEN] A valid and registered CRM Connection Setup
         // [GIVEN] A NAV source of 2 records that can be copied to CRM
         LibraryCRMIntegration.CreateIntegrationTableData(2, 0);
-        ExpectedLatestDateTime := CreateDateTime(Today + 2, Time);
         UnitOfMeasure.FindLast;
-        IntegrationRecord.FindByRecordId(UnitOfMeasure.RecordId);
-        IntegrationRecord."Modified On" := ExpectedLatestDateTime;
-        IntegrationRecord.Modify();
+        UnitOfMeasure.Description := 'xyz';
+        ExpectedLatestDateTime := CurrentDateTime() + 200;
+        Sleep(200);
+        UnitOfMeasure.Modify();
 
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
         IntegrationTableMapping."Synch. Modified On Filter" := 0DT;
@@ -499,7 +498,8 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         SyncCRMAccountToCustomer(CRMAccount, 1, 0);
     end;
 
-    [Test]
+    //[Test]
+    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure SyncCoupledCRMAccountToCustomer()
     var

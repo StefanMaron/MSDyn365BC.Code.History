@@ -130,7 +130,7 @@ codeunit 137406 "SCM Item Reservation"
         LibraryVariableStorage.Enqueue(ServiceLine.Quantity);  // Quantity is made Global as it is used in Handler.
 
         // [WHEN] Open Reservation page and Reserve from Current Line using ReservationFromCurrentLine Handler.
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // [THEN] Total Reserved Quantity is equal to the Quantity in the Service Line.
         // Verification is done in Handler.
@@ -153,7 +153,7 @@ codeunit 137406 "SCM Item Reservation"
         CreateAndPostPurchaseOrder(PurchaseLine);
         CreateServiceOrder(ServiceHeader, ServiceLine, PurchaseLine."No.", PurchaseLine.Quantity);
         LibraryVariableStorage.Enqueue(ServiceLine.Quantity);  // Quantity is made Global as it is used in Handler.
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // [WHEN] Post the Service Order as Ship and Invoice.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -324,7 +324,7 @@ codeunit 137406 "SCM Item Reservation"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
         LibraryVariableStorage.Enqueue(Qty);
-        TransferLine.ShowReservation;
+        TransferLine.ShowReservation();
     end;
 
     [Test]
@@ -349,7 +349,7 @@ codeunit 137406 "SCM Item Reservation"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
         LibrarySales.AutoReserveSalesLine(SalesLine);
 
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
     end;
 
     [Test]
@@ -375,7 +375,7 @@ codeunit 137406 "SCM Item Reservation"
         LibrarySales.AutoReserveSalesLine(SalesLine);
 
         LibraryVariableStorage.Enqueue(Qty);
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
     end;
 
     [Test]
@@ -397,7 +397,7 @@ codeunit 137406 "SCM Item Reservation"
         LibrarySales.AutoReserveSalesLine(SalesLine);
 
         LibraryVariableStorage.Enqueue(ItemJournalLine.Quantity);
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
     end;
 
     [Test]
@@ -418,7 +418,7 @@ codeunit 137406 "SCM Item Reservation"
 
         LibrarySales.AutoReserveSalesLine(SalesLine);
 
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
     end;
 
     [Test]
@@ -439,7 +439,7 @@ codeunit 137406 "SCM Item Reservation"
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', Item."No.");
 
         LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
     end;
 
     [Test]
@@ -466,7 +466,7 @@ codeunit 137406 "SCM Item Reservation"
         CreateTrasferOrder(TransferLine, FromLocation.Code, ToLocation.Code, Item."No.", Qty);
 
         LibraryVariableStorage.Enqueue(Qty);
-        TransferLine.ShowReservation;
+        TransferLine.ShowReservation();
     end;
 
     local procedure Initialize()
@@ -548,7 +548,7 @@ codeunit 137406 "SCM Item Reservation"
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         SalesLine.Validate("Appl.-to Item Entry", ApplyToItemEntry);
         SalesLine.Modify(true);
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));
     end;
 
@@ -610,7 +610,7 @@ codeunit 137406 "SCM Item Reservation"
         SalesLine.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', ShipmentDate));
         SalesLine.Modify(true);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
     end;
 
     local procedure CreateAndUpdateLocation(var Location: Record Location)
@@ -704,7 +704,7 @@ codeunit 137406 "SCM Item Reservation"
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; LocationCode: Code[10]; ItemNo: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; LocationCode: Code[10]; ItemNo: Code[20])
     begin
         // Create Purchase Order with One Item Line. Random values used are not important for test.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
@@ -810,7 +810,7 @@ codeunit 137406 "SCM Item Reservation"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDecInRange(90, 100, 2));
         if LotNos <> '' then
-            PurchaseLine.OpenItemTrackingLines;
+            PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateSalesOrderAndReserve(ItemNo: Code[20]; Quantity: Decimal)
@@ -928,7 +928,7 @@ codeunit 137406 "SCM Item Reservation"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
-    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Option)
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -943,7 +943,7 @@ codeunit 137406 "SCM Item Reservation"
     begin
         ProdOrderComponent.SetRange("Item No.", ItemNo);
         ProdOrderComponent.FindFirst;
-        ProdOrderComponent.ShowReservation;
+        ProdOrderComponent.ShowReservation();
     end;
 
     local procedure UpdateLocationOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10])

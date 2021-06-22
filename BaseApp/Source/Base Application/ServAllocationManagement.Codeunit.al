@@ -121,7 +121,7 @@ codeunit 5930 ServAllocationManagement
             ServOrderAlloc.SetRange("Service Item Line No.", ServItemLineNo);
             if not ServOrderAlloc.FindFirst then begin
                 NewServOrderAlloc.Init();
-                NewServOrderAlloc."Document Type" := DocumentType;
+                NewServOrderAlloc."Document Type" := "Service Document Type".FromInteger(DocumentType);
                 NewServOrderAlloc."Document No." := DocumentNo;
                 NewServOrderAlloc."Service Item Line No." := ServItemLineNo;
                 NewServOrderAlloc."Service Item No." := ServItemNo;
@@ -196,7 +196,7 @@ codeunit 5930 ServAllocationManagement
         end;
     end;
 
-    procedure ResourceQualified(ResourceNo: Code[20]; Type: Option Resource,"Service Item Group",Item,"Service Item"; No: Code[20]): Boolean
+    procedure ResourceQualified(ResourceNo: Code[20]; Type: Enum "Resource Skill Type"; No: Code[20]): Boolean
     var
         ServMgtSetup: Record "Service Mgt. Setup";
         ResourceSkill: Record "Resource Skill";

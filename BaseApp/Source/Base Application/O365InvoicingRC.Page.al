@@ -18,7 +18,11 @@ page 9031 "O365 Invoicing RC"
             }
             part(Control19; "Product Video Topics")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with Assisted Setup.';
+                Visible = false;
                 ApplicationArea = All;
+                ObsoleteTag = '17.0';
             }
         }
     }
@@ -76,4 +80,3 @@ page 9031 "O365 Invoicing RC"
         }
     }
 }
-

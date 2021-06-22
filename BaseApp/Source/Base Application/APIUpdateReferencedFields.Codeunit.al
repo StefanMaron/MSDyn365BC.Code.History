@@ -1,0 +1,59 @@
+codeunit 5152 "API - Update Referenced Fields"
+{
+    [EventSubscriber(ObjectType::Table, Database::"Item", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure UpdateReferencedIdsItemOnInsert(var Rec: Record Item; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIds();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure UpdateReferencedIdsCustomerOnInsert(var Rec: Record Customer; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIds();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure UpdateReferencedIdsVendorOnInsert(var Rec: Record Vendor; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIds();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure UpdateReferencedIdsItemOnModify(var Rec: Record Item; var xRec: Record Item; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIds();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure UpdateReferencedIdsCustomerOnModify(var Rec: Record Customer; var xRec: Record Customer; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIds();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure UpdateReferencedIdsVendorOnModify(var Rec: Record Vendor; var xRec: Record Vendor; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIds();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Unlinked Attachment", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure UpdateIdUnlinkedAttachmentOnInsert(var Rec: Record "Unlinked Attachment"; RunTrigger: Boolean)
+    begin
+        if not Rec.IsTemporary() then
+            exit;
+
+        Rec.Id := Rec.SystemId;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Default Dimension", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure UpdateReferencedIdsDefaultDimensionOnModify(var Rec: Record "Default Dimension"; var xRec: Record "Default Dimension"; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIdFields();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Default Dimension", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure UpdateIdDefaultDimensionOnInsert(var Rec: Record "Default Dimension"; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIdFields();
+    end;
+}

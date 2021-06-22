@@ -259,6 +259,7 @@ report 1201 "Post Direct Debit Collection"
                 GenJnlLine."Source Code" := GenJournalTemplate."Source Code";
             end;
 
+        GenJnlLine.SetSuppressCommit(true);
         GenJnlLine.Validate("Document Type", GenJnlLine."Document Type"::Payment);
         GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Customer);
         GenJnlLine.Validate("Account No.", DirectDebitCollectionEntry."Customer No.");
@@ -279,6 +280,7 @@ report 1201 "Post Direct Debit Collection"
         GenJnlLine.Validate(Amount, -DirectDebitCollectionEntry."Transfer Amount");
         GenJnlLine."Applies-to Doc. Type" := CustLedgEntry."Document Type";
         GenJnlLine.Validate("Applies-to Doc. No.", CustLedgEntry."Document No.");
+        GenJnlLine.SetSuppressCommit(false);
 
         OnAfterCreateJnlLine(GenJnlLine, DirectDebitCollectionEntry);
 

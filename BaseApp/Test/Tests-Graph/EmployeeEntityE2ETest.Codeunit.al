@@ -52,7 +52,7 @@ codeunit 135527 "Employee Entity E2E Test"
         CreateEmployee(Employee);
 
         // [WHEN] The user makes a GET request for a given Employee.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Employee.Id, PAGE::"Employee Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Employee.SystemId, PAGE::"Employee Entity", ServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] The response text contains the employee information.
@@ -110,7 +110,7 @@ codeunit 135527 "Employee Entity E2E Test"
         RequestBody := GetEmployeeJSON(TempEmployee);
 
         // [WHEN] The user makes a patch request to the service.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Employee.Id, PAGE::"Employee Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Employee.SystemId, PAGE::"Employee Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, ResponseText);
 
         // [THEN] The response text contains the new values.
@@ -138,7 +138,7 @@ codeunit 135527 "Employee Entity E2E Test"
         EmployeeNo := Employee."No.";
 
         // [WHEN] The user makes a DELETE request to the endpoint for the Employee.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Employee.Id, PAGE::"Employee Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Employee.SystemId, PAGE::"Employee Entity", ServiceNameTxt);
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', Responsetext);
 
         // [THEN] The response is empty.

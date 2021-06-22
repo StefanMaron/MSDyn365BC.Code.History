@@ -290,7 +290,8 @@ codeunit 137029 "SCM Warehouse Orange Location"
     begin
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         WarehouseReceiptHeader.Get(
-          LibraryWarehouse.FindWhseReceiptNoBySourceDoc(DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+          LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
+              DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
     end;
 
     [Normal]

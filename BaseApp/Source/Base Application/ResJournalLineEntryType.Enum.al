@@ -1,6 +1,7 @@
 enum 208 "Res. Journal Line Entry Type"
 {
     Extensible = true;
+    AssignmentCompatibility = true;
 
     value(0; "Usage")
     {

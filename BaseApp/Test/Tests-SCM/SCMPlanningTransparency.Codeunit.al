@@ -668,7 +668,7 @@ codeunit 137058 "SCM Planning Transparency"
         LibraryWarehouse.CreateLocation(LocationRed);
     end;
 
-    local procedure CreateMaxQtyItem(var Item: Record Item; MaximumInventory: Integer; ReorderPoint: Integer; SafetyStockQuantity: Integer; ReplenishmentSystem: Option)
+    local procedure CreateMaxQtyItem(var Item: Record Item; MaximumInventory: Integer; ReorderPoint: Integer; SafetyStockQuantity: Integer; ReplenishmentSystem: Enum "Replenishment System")
     begin
         CreateItem(Item, ReplenishmentSystem, Item."Reordering Policy"::"Maximum Qty.", Item."Order Tracking Policy"::"Tracking Only");
         Item.Validate("Maximum Inventory", MaximumInventory);
@@ -677,7 +677,7 @@ codeunit 137058 "SCM Planning Transparency"
         Item.Modify(true);
     end;
 
-    local procedure CreateLotForLotItem(var Item: Record Item; ReplenishmentSystem: Option; SafetyStockQuantity: Decimal; MinimumOrderQuantity: Decimal; OrderMultiple: Decimal; MaximumOrderQuantity: Decimal)
+    local procedure CreateLotForLotItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; SafetyStockQuantity: Decimal; MinimumOrderQuantity: Decimal; OrderMultiple: Decimal; MaximumOrderQuantity: Decimal)
     begin
         // Create Lot-for-Lot Item with Order Multiple and Minimum Order Quantity.
         CreateItem(Item, ReplenishmentSystem, Item."Reordering Policy"::"Lot-for-Lot", Item."Order Tracking Policy"::"Tracking Only");
@@ -709,7 +709,7 @@ codeunit 137058 "SCM Planning Transparency"
         Item.Modify(true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option; ReorderingPolicy: Option; OrderTrackingPolicy: Option)
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy"; OrderTrackingPolicy: Enum "Order Tracking Policy")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -737,7 +737,7 @@ codeunit 137058 "SCM Planning Transparency"
           LibraryRandom.RandDec(5, 2) + 3, '');  // Value required.
     end;
 
-    local procedure CreateStockkeepingUnit(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ReplenishmentSystem: Option; OrderMultiple: Decimal; TransferFromCode: Code[10])
+    local procedure CreateStockkeepingUnit(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ReplenishmentSystem: Enum "Replenishment System"; OrderMultiple: Decimal; TransferFromCode: Code[10])
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
@@ -748,7 +748,7 @@ codeunit 137058 "SCM Planning Transparency"
         StockkeepingUnit.Modify(true);
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; Quantity: Decimal; ExpectedReceiptDate: Date)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; Quantity: Decimal; ExpectedReceiptDate: Date)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -769,7 +769,7 @@ codeunit 137058 "SCM Planning Transparency"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; ShipmentDate: Date)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ShipmentDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
         SalesHeader.Validate("Shipment Date", ShipmentDate);
@@ -793,7 +793,7 @@ codeunit 137058 "SCM Planning Transparency"
         SalesLine.FindFirst;
     end;
 
-    local procedure SelectPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure SelectPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
@@ -801,7 +801,7 @@ codeunit 137058 "SCM Planning Transparency"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure SelectPurchaseLine2(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20]; ItemNo: Code[20])
+    local procedure SelectPurchaseLine2(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; ItemNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetFilter("Document No.", '<>%1', DocumentNo);
@@ -903,7 +903,7 @@ codeunit 137058 "SCM Planning Transparency"
         CreateAndRefreshProductionOrder(ProductionOrder, ItemNo, Quantity, ProductionOrder.Status::"Firm Planned");
     end;
 
-    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Quantity: Decimal; Status: Option)
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Quantity: Decimal; Status: Enum "Production Order Status")
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);

@@ -7,6 +7,9 @@ page 409 "SMTP Mail Setup"
     PageType = Card;
     SourceTable = "SMTP Mail Setup";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Use SMTP connector to create SMTP accounts. Email accounts can be configured from "Email Accouts" page from "System Application".';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -192,4 +195,3 @@ page 409 "SMTP Mail Setup"
         CanSendTestMail := "SMTP Server" <> '';
     end;
 }
-

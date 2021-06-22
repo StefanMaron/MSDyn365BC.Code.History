@@ -403,7 +403,6 @@ report 25 "Account Schedule"
                             ApplicationArea = Suite;
                             Caption = 'G/L Budget';
                             Enabled = BudgetFilterEnable;
-                            ShowMandatory = BudgetFilterEnable;
                             TableRelation = "G/L Budget Name".Name;
                             ToolTip = 'Specifies a general ledger budget filter for the report.';
                             Width = 10;
@@ -975,6 +974,8 @@ report 25 "Account Schedule"
         BudgetFilterEnable := true;
         StartDateEnabled := true;
         if ColumnLayoutName = '' then
+            exit;
+        if not AccSchedNameEditable then
             exit;
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName);
         ColumnLayout.SetRange("Ledger Entry Type", ColumnLayout."Ledger Entry Type"::"Budget Entries");

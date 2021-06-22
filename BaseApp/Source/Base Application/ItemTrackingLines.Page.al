@@ -159,7 +159,7 @@ page 6510 "Item Tracking Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(AvailabilitySerialNo; TrackingAvailable(Rec, 0))
+                field(AvailabilitySerialNo; TrackingAvailable(Rec, ItemTrackingType::"Serial No."))
                 {
                     ApplicationArea = ItemTracking;
                     Caption = 'Availability, Serial No.';
@@ -168,7 +168,7 @@ page 6510 "Item Tracking Lines"
 
                     trigger OnDrillDown()
                     begin
-                        LookupAvailable(0);
+                        LookupAvailable(ItemTrackingType::"Serial No.");
                     end;
                 }
                 field("Serial No."; "Serial No.")
@@ -188,7 +188,7 @@ page 6510 "Item Tracking Lines"
                         "Bin Code" := ForBinCode;
                         ItemTrackingDataCollection.AssistEditTrackingNo(Rec,
                           (CurrentSignFactor * SourceQuantityArray[1] < 0) and not
-                          InsertIsBlocked, CurrentSignFactor, 0, MaxQuantity);
+                          InsertIsBlocked, CurrentSignFactor, ItemTrackingType::"Serial No.", MaxQuantity);
                         "Bin Code" := '';
                         CurrPage.Update;
                     end;
@@ -197,7 +197,7 @@ page 6510 "Item Tracking Lines"
                     var
                         LotNo: Code[50];
                     begin
-                        SerialNoOnAfterValidate;
+                        SerialNoOnAfterValidate();
                         if "Serial No." <> '' then begin
                             ItemTrackingDataCollection.FindLotNoBySNSilent(LotNo, Rec);
                             Validate("Lot No.", LotNo);
@@ -212,7 +212,7 @@ page 6510 "Item Tracking Lines"
                     ToolTip = 'Specifies a new serial number that will take the place of the serial number in the Serial No. field.';
                     Visible = NewSerialNoVisible;
                 }
-                field(AvailabilityLotNo; TrackingAvailable(Rec, 1))
+                field(AvailabilityLotNo; TrackingAvailable(Rec, ItemTrackingType::"Lot No."))
                 {
                     ApplicationArea = ItemTracking;
                     Caption = 'Availability, Lot No.';
@@ -221,7 +221,7 @@ page 6510 "Item Tracking Lines"
 
                     trigger OnDrillDown()
                     begin
-                        LookupAvailable(1);
+                        LookupAvailable(ItemTrackingType::"Lot No.");
                     end;
                 }
                 field("Lot No."; "Lot No.")
@@ -241,14 +241,14 @@ page 6510 "Item Tracking Lines"
                         "Bin Code" := ForBinCode;
                         ItemTrackingDataCollection.AssistEditTrackingNo(Rec,
                           (CurrentSignFactor * SourceQuantityArray[1] < 0) and not
-                          InsertIsBlocked, CurrentSignFactor, 1, MaxQuantity);
+                          InsertIsBlocked, CurrentSignFactor, ItemTrackingType::"Lot No.", MaxQuantity);
                         "Bin Code" := '';
                         CurrPage.Update;
                     end;
 
                     trigger OnValidate()
                     begin
-                        LotNoOnAfterValidate;
+                        LotNoOnAfterValidate();
                     end;
                 }
                 field("New Lot No."; "New Lot No.")
@@ -818,16 +818,13 @@ page 6510 "Item Tracking Lines"
         xTempTrackingSpec: Record "Tracking Specification" temporary;
     begin
         if InsertIsBlocked then
-            if (xRec."Lot No." <> "Lot No.") or
-               (xRec."Serial No." <> "Serial No.") or
-               (xRec."Quantity (Base)" <> "Quantity (Base)")
-            then
+            if not HasSameTracking(xRec) or (xRec."Quantity (Base)" <> "Quantity (Base)") then
                 exit(false);
 
         if not TestTempSpecificationExists then begin
-            Modify;
+            Modify();
 
-            if (xRec."Lot No." <> "Lot No.") or (xRec."Serial No." <> "Serial No.") then begin
+            if not HasSameTracking(xRec) then begin
                 xTempTrackingSpec := xRec;
                 ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
                   xTempTrackingSpec, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 2);
@@ -899,6 +896,7 @@ page 6510 "Item Tracking Lines"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         ItemTrackingDataCollection: Codeunit "Item Tracking Data Collection";
+        ItemTrackingType: Enum "Item Tracking Type";
         UndefinedQtyArray: array[3] of Decimal;
         SourceQuantityArray: array[5] of Decimal;
         QtyPerUOM: Decimal;
@@ -940,6 +938,13 @@ page 6510 "Item Tracking Lines"
         ForBinCode: Code[20];
         Text019: Label 'There are availability warnings on one or more lines.\Close the form anyway?';
         Text020: Label 'Placeholder';
+        ExcludePostedEntries: Boolean;
+        ProdOrderLineHandling: Boolean;
+        UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = serial number';
+        ItemTrackingManagedByWhse: Boolean;
+        ItemTrkgManagedByWhseMsg: Label 'You cannot assign a lot or serial number because item tracking for this document line is done through a warehouse activity.';
+
+    protected var
         [InDataSet]
         ApplFromItemEntryVisible: Boolean;
         [InDataSet]
@@ -1003,11 +1008,6 @@ page 6510 "Item Tracking Lines"
         ExpirationDateEditable: Boolean;
         [InDataSet]
         WarrantyDateEditable: Boolean;
-        ExcludePostedEntries: Boolean;
-        ProdOrderLineHandling: Boolean;
-        UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = serial number';
-        ItemTrackingManagedByWhse: Boolean;
-        ItemTrkgManagedByWhseMsg: Label 'You cannot assign a lot or serial number because item tracking for this document line is done through a warehouse activity.';
 
     procedure SetFormRunMode(Mode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer)
     begin
@@ -1026,6 +1026,7 @@ page 6510 "Item Tracking Lines"
         TempTrackingSpecification2: Record "Tracking Specification" temporary;
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         Controls: Option Handle,Invoice,Quantity,Reclass,Tracking;
+        CurrentEntryStatusOption: Option;
     begin
         OnBeforeSetSourceSpec(TrackingSpecification, ReservEntry);
 
@@ -1046,7 +1047,9 @@ page 6510 "Item Tracking Lines"
         else
             CurrentEntryStatus := CurrentEntryStatus::Prospect;
 
-        OnSetSourceSpecOnAfterAssignCurrentEntryStatus(TrackingSpecification, CurrentEntryStatus);
+        CurrentEntryStatusOption := CurrentEntryStatus.AsInteger();
+        OnSetSourceSpecOnAfterAssignCurrentEntryStatus(TrackingSpecification, CurrentEntryStatusOption);
+        CurrentEntryStatus := "Reservation Status".FromInteger(CurrentEntryStatusOption);
 
         // Set controls for Qty to handle:
         SetControls(Controls::Handle, GetHandleSource(TrackingSpecification));
@@ -1123,11 +1126,11 @@ page 6510 "Item Tracking Lines"
         TrackingSpecification.SetSourceFilter(
           TrackingSpecification."Source Batch Name", TrackingSpecification."Source Prod. Order Line");
 
-        if TrackingSpecification.FindSet then
+        if TrackingSpecification.FindSet() then
             repeat
                 TempTrackingSpecification := TrackingSpecification;
                 TempTrackingSpecification.Insert();
-            until TrackingSpecification.Next = 0;
+            until TrackingSpecification.Next() = 0;
 
         // Data regarding posted quantities on transfers is collected from Item Ledger Entries:
         if TrackingSpecification."Source Type" = DATABASE::"Transfer Line" then
@@ -1211,7 +1214,7 @@ page 6510 "Item Tracking Lines"
         FromReservEntry: Record "Reservation Entry";
         AddTracking: Boolean;
     begin
-        if ReservEntry.FindSet then
+        if ReservEntry.FindSet() then
             repeat
                 if Color = 0 then begin
                     TempReservEntry := ReservEntry;
@@ -1245,7 +1248,7 @@ page 6510 "Item Tracking Lines"
                         TempTrackingSpecification.Insert();
                     end;
                 end;
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
     end;
 
     local procedure AddToGlobalRecordSet(var TempTrackingSpecification: Record "Tracking Specification" temporary)
@@ -1298,7 +1301,7 @@ page 6510 "Item Tracking Lines"
 
                 TempTrackingSpecification.Find('+');
                 TempTrackingSpecification.ClearTrackingFilter;
-            until TempTrackingSpecification.Next = 0;
+            until TempTrackingSpecification.Next() = 0;
     end;
 
     local procedure SetControls(Controls: Option Handle,Invoice,Quantity,Reclass,Tracking; SetAccess: Boolean)
@@ -1407,7 +1410,7 @@ page 6510 "Item Tracking Lines"
         UpdateUndefinedQtyArray;
     end;
 
-    local procedure UpdateUndefinedQty(): Boolean
+    protected procedure UpdateUndefinedQty(): Boolean
     var
         IsHandled: Boolean;
         ReturnValue: Boolean;
@@ -1443,57 +1446,55 @@ page 6510 "Item Tracking Lines"
 
         ReservEntry.CopyFilters(TempReservEntry);
 
-        if ReservEntry.FindSet then
+        if ReservEntry.FindSet() then
             repeat
                 if not TempReservEntry.Get(ReservEntry."Entry No.", ReservEntry.Positive) then
                     exit(false);
                 if not EntriesAreIdentical(ReservEntry, TempReservEntry, IdenticalArray) then
                     exit(false);
                 RecordCount += 1;
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
 
         OK := RecordCount = TempReservEntry.Count();
     end;
 
-    local procedure EntriesAreIdentical(var ReservEntry1: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; var IdenticalArray: array[2] of Boolean): Boolean
+    procedure EntriesAreIdentical(var ReservEntry1: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; var IdenticalArray: array[2] of Boolean): Boolean
     begin
-        IdenticalArray[1] := (
-                              (ReservEntry1."Entry No." = ReservEntry2."Entry No.") and
-                              (ReservEntry1."Item No." = ReservEntry2."Item No.") and
-                              (ReservEntry1."Location Code" = ReservEntry2."Location Code") and
-                              (ReservEntry1."Quantity (Base)" = ReservEntry2."Quantity (Base)") and
-                              (ReservEntry1."Reservation Status" = ReservEntry2."Reservation Status") and
-                              (ReservEntry1."Creation Date" = ReservEntry2."Creation Date") and
-                              (ReservEntry1."Transferred from Entry No." = ReservEntry2."Transferred from Entry No.") and
-                              (ReservEntry1."Source Type" = ReservEntry2."Source Type") and
-                              (ReservEntry1."Source Subtype" = ReservEntry2."Source Subtype") and
-                              (ReservEntry1."Source ID" = ReservEntry2."Source ID") and
-                              (ReservEntry1."Source Batch Name" = ReservEntry2."Source Batch Name") and
-                              (ReservEntry1."Source Prod. Order Line" = ReservEntry2."Source Prod. Order Line") and
-                              (ReservEntry1."Source Ref. No." = ReservEntry2."Source Ref. No.") and
-                              (ReservEntry1."Expected Receipt Date" = ReservEntry2."Expected Receipt Date") and
-                              (ReservEntry1."Shipment Date" = ReservEntry2."Shipment Date") and
-                              (ReservEntry1."Serial No." = ReservEntry2."Serial No.") and
-                              (ReservEntry1."Created By" = ReservEntry2."Created By") and
-                              (ReservEntry1."Changed By" = ReservEntry2."Changed By") and
-                              (ReservEntry1.Positive = ReservEntry2.Positive) and
-                              (ReservEntry1."Qty. per Unit of Measure" = ReservEntry2."Qty. per Unit of Measure") and
-                              (ReservEntry1.Quantity = ReservEntry2.Quantity) and
-                              (ReservEntry1."Action Message Adjustment" = ReservEntry2."Action Message Adjustment") and
-                              (ReservEntry1.Binding = ReservEntry2.Binding) and
-                              (ReservEntry1."Suppressed Action Msg." = ReservEntry2."Suppressed Action Msg.") and
-                              (ReservEntry1."Planning Flexibility" = ReservEntry2."Planning Flexibility") and
-                              (ReservEntry1."Lot No." = ReservEntry2."Lot No.") and
-                              (ReservEntry1."Variant Code" = ReservEntry2."Variant Code") and
-                              (ReservEntry1."Quantity Invoiced (Base)" = ReservEntry2."Quantity Invoiced (Base)"));
+        IdenticalArray[1] :=
+            (ReservEntry1."Entry No." = ReservEntry2."Entry No.") and
+            (ReservEntry1."Item No." = ReservEntry2."Item No.") and
+            (ReservEntry1."Location Code" = ReservEntry2."Location Code") and
+            (ReservEntry1."Quantity (Base)" = ReservEntry2."Quantity (Base)") and
+            (ReservEntry1."Reservation Status" = ReservEntry2."Reservation Status") and
+            (ReservEntry1."Creation Date" = ReservEntry2."Creation Date") and
+            (ReservEntry1."Transferred from Entry No." = ReservEntry2."Transferred from Entry No.") and
+            (ReservEntry1."Source Type" = ReservEntry2."Source Type") and
+            (ReservEntry1."Source Subtype" = ReservEntry2."Source Subtype") and
+            (ReservEntry1."Source ID" = ReservEntry2."Source ID") and
+            (ReservEntry1."Source Batch Name" = ReservEntry2."Source Batch Name") and
+            (ReservEntry1."Source Prod. Order Line" = ReservEntry2."Source Prod. Order Line") and
+            (ReservEntry1."Source Ref. No." = ReservEntry2."Source Ref. No.") and
+            (ReservEntry1."Expected Receipt Date" = ReservEntry2."Expected Receipt Date") and
+            (ReservEntry1."Shipment Date" = ReservEntry2."Shipment Date") and
+            (ReservEntry1."Created By" = ReservEntry2."Created By") and
+            (ReservEntry1."Changed By" = ReservEntry2."Changed By") and
+            (ReservEntry1.Positive = ReservEntry2.Positive) and
+            (ReservEntry1."Qty. per Unit of Measure" = ReservEntry2."Qty. per Unit of Measure") and
+            (ReservEntry1.Quantity = ReservEntry2.Quantity) and
+            (ReservEntry1."Action Message Adjustment" = ReservEntry2."Action Message Adjustment") and
+            (ReservEntry1.Binding = ReservEntry2.Binding) and
+            (ReservEntry1."Suppressed Action Msg." = ReservEntry2."Suppressed Action Msg.") and
+            (ReservEntry1."Planning Flexibility" = ReservEntry2."Planning Flexibility") and
+            (ReservEntry1."Variant Code" = ReservEntry2."Variant Code") and
+            (ReservEntry1."Quantity Invoiced (Base)" = ReservEntry2."Quantity Invoiced (Base)") and
+            ReservEntry1.HasSameTracking(ReservEntry2);
 
-        IdenticalArray[2] := (
-                              (ReservEntry1.Description = ReservEntry2.Description) and
-                              (ReservEntry1."New Serial No." = ReservEntry2."New Serial No.") and
-                              (ReservEntry1."New Lot No." = ReservEntry2."New Lot No.") and
-                              (ReservEntry1."Expiration Date" = ReservEntry2."Expiration Date") and
-                              (ReservEntry1."Warranty Date" = ReservEntry2."Warranty Date") and
-                              (ReservEntry1."New Expiration Date" = ReservEntry2."New Expiration Date"));
+        IdenticalArray[2] :=
+            (ReservEntry1.Description = ReservEntry2.Description) and
+            (ReservEntry1."Expiration Date" = ReservEntry2."Expiration Date") and
+            (ReservEntry1."Warranty Date" = ReservEntry2."Warranty Date") and
+            (ReservEntry1."New Expiration Date" = ReservEntry2."New Expiration Date") and
+            ReservEntry1.HasSameNewTracking(ReservEntry2);
 
         OnAfterEntriesAreIdentical(ReservEntry1, ReservEntry2, IdenticalArray);
 
@@ -1513,7 +1514,7 @@ page 6510 "Item Tracking Lines"
         exit(LastEntryNo);
     end;
 
-    local procedure WriteToDatabase()
+    protected procedure WriteToDatabase()
     var
         Window: Dialog;
         ChangeType: Option Insert,Modify,Delete;
@@ -1547,7 +1548,7 @@ page 6510 "Item Tracking Lines"
                     RegisterChange(TempItemTrackLineDelete, TempItemTrackLineDelete, ChangeType::Delete, false);
                     if TempItemTrackLineModify.Get(TempItemTrackLineDelete."Entry No.") then
                         TempItemTrackLineModify.Delete();
-                until TempItemTrackLineDelete.Next = 0;
+                until TempItemTrackLineDelete.Next() = 0;
                 TempItemTrackLineDelete.DeleteAll();
             end;
 
@@ -1560,8 +1561,7 @@ page 6510 "Item Tracking Lines"
                             Decrease := (xTempItemTrackingLine."Quantity (Base)" > TempItemTrackLineModify."Quantity (Base)");
                             if ((ModifyLoop = 1) and Decrease) or ((ModifyLoop = 2) and not Decrease) then begin
                                 i := i + 1;
-                                if (xTempItemTrackingLine."Serial No." <> TempItemTrackLineModify."Serial No.") or
-                                   (xTempItemTrackingLine."Lot No." <> TempItemTrackLineModify."Lot No.") or
+                                if (not xTempItemTrackingLine.HasSameTracking(TempItemTrackLineModify)) or
                                    (xTempItemTrackingLine."Appl.-from Item Entry" <> TempItemTrackLineModify."Appl.-from Item Entry") or
                                    (xTempItemTrackingLine."Appl.-to Item Entry" <> TempItemTrackLineModify."Appl.-to Item Entry")
                                 then begin
@@ -1583,7 +1583,7 @@ page 6510 "Item Tracking Lines"
                         end;
                         if i mod 100 = 0 then
                             Window.Update(2, Round(i / NoOfLines * 10000, 1));
-                    until TempItemTrackLineModify.Next = 0;
+                    until TempItemTrackLineModify.Next() = 0;
             end;
 
             if TempItemTrackLineInsert.Find('-') then begin
@@ -1600,7 +1600,7 @@ page 6510 "Item Tracking Lines"
                        (TempItemTrackLineInsert."Quantity (Base)" <> TempItemTrackLineInsert."Qty. to Invoice (Base)")
                     then
                         SetQtyToHandleAndInvoice(TempItemTrackLineInsert);
-                until TempItemTrackLineInsert.Next = 0;
+                until TempItemTrackLineInsert.Next() = 0;
                 TempItemTrackLineInsert.DeleteAll();
             end;
             Window.Close;
@@ -1637,7 +1637,7 @@ page 6510 "Item Tracking Lines"
                         RegisterChange(xTempItemTrackingLine, xTempItemTrackingLine, ChangeType::Delete, false);
                         xTempItemTrackingLine.Delete();
                     end;
-                until xTempItemTrackingLine.Next = 0;
+                until xTempItemTrackingLine.Next() = 0;
 
             Reset;
 
@@ -1650,7 +1650,7 @@ page 6510 "Item Tracking Lines"
                         Error(Text005);
                     SetQtyToHandleAndInvoice(Rec);
                     Delete;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         UpdateOrderTrackingAndReestablishReservation();
@@ -1708,14 +1708,14 @@ page 6510 "Item Tracking Lines"
                         exit(true);
 
                     if FormRunMode = FormRunMode::Reclass then begin
-                        CreateReservEntry.SetNewSerialLotNo(
-                          OldTrackingSpecification."New Serial No.", OldTrackingSpecification."New Lot No.");
+                        CreateReservEntry.SetNewTrackingFromNewTrackingSpecification(OldTrackingSpecification);
                         CreateReservEntry.SetNewExpirationDate(OldTrackingSpecification."New Expiration Date");
                     end;
                     CreateReservEntry.SetDates(
                       NewTrackingSpecification."Warranty Date", NewTrackingSpecification."Expiration Date");
                     CreateReservEntry.SetApplyFromEntryNo(NewTrackingSpecification."Appl.-from Item Entry");
                     CreateReservEntry.SetApplyToEntryNo(NewTrackingSpecification."Appl.-to Item Entry");
+                    ReservEntry1.CopyTrackingFromSpec(OldTrackingSpecification);
                     CreateReservEntry.CreateReservEntryFor(
                       OldTrackingSpecification."Source Type",
                       OldTrackingSpecification."Source Subtype",
@@ -1725,9 +1725,7 @@ page 6510 "Item Tracking Lines"
                       OldTrackingSpecification."Source Ref. No.",
                       OldTrackingSpecification."Qty. per Unit of Measure",
                       0,
-                      OldTrackingSpecification."Quantity (Base)",
-                      OldTrackingSpecification."Serial No.",
-                      OldTrackingSpecification."Lot No.");
+                      OldTrackingSpecification."Quantity (Base)", ReservEntry1);
 
                     OnAfterCreateReservEntryFor(OldTrackingSpecification, NewTrackingSpecification);
 
@@ -1872,12 +1870,11 @@ page 6510 "Item Tracking Lines"
                 ReservEntry1.Description := TrackingSpecification.Description;
                 ReservEntry1."Warranty Date" := TrackingSpecification."Warranty Date";
                 ReservEntry1."Expiration Date" := TrackingSpecification."Expiration Date";
-                ReservEntry1."New Serial No." := TrackingSpecification."New Serial No.";
-                ReservEntry1."New Lot No." := TrackingSpecification."New Lot No.";
+                ReservEntry1.CopyNewTrackingFromTrackingSpec(TrackingSpecification);
                 ReservEntry1."New Expiration Date" := TrackingSpecification."New Expiration Date";
                 OnAfterMoveFields(TrackingSpecification, ReservEntry1);
                 ReservEntry1.Modify();
-            until ReservEntry1.Next = 0;
+            until ReservEntry1.Next() = 0;
     end;
 
     local procedure SetQtyToHandleAndInvoice(TrackingSpecification: Record "Tracking Specification")
@@ -1914,7 +1911,7 @@ page 6510 "Item Tracking Lines"
                         end;
                         TotalQtyToInvoice -= QtyToInvoiceThisLine;
                     end;
-                until (TrackingSpecification.Next = 0);
+                until (TrackingSpecification.Next() = 0);
         end;
 
         if TrackingSpecification."Lot No." <> '' then begin
@@ -1948,7 +1945,7 @@ page 6510 "Item Tracking Lines"
                         end;
                         TotalQtyToHandle -= QtyToHandleThisLine;
                         TotalQtyToInvoice -= QtyToInvoiceThisLine;
-                    until (ReservEntry1.Next = 0);
+                    until (ReservEntry1.Next() = 0);
             end
         end else
             if ReservEntry1.Find('-') then
@@ -1996,7 +1993,7 @@ page 6510 "Item Tracking Lines"
                 TempTrackingSpecification.InitQtyToShip;
                 OnBeforeCollectTempTrackingSpecificationInsert(TempTrackingSpecification, ItemLedgerEntry, TrackingSpecification);
                 TempTrackingSpecification.Insert();
-            until ItemEntryRelation.Next = 0;
+            until ItemEntryRelation.Next() = 0;
     end;
 
     local procedure CollectPostedAssemblyEntries(TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
@@ -2032,7 +2029,7 @@ page 6510 "Item Tracking Lines"
                 TempTrackingSpecification.InitQtyToShip;
                 OnBeforeCollectTempTrackingSpecificationInsert(TempTrackingSpecification, ItemLedgerEntry, TrackingSpecification);
                 TempTrackingSpecification.Insert();
-            until ItemEntryRelation.Next = 0;
+            until ItemEntryRelation.Next() = 0;
     end;
 
     local procedure CollectPostedOutputEntries(TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
@@ -2082,7 +2079,7 @@ page 6510 "Item Tracking Lines"
                     SourceQuantityArray[3] += ItemLedgerEntry.Quantity;
                 end;
 
-            until ItemLedgerEntry.Next = 0;
+            until ItemLedgerEntry.Next() = 0;
     end;
 
     procedure ZeroLineExists() OK: Boolean
@@ -2357,14 +2354,14 @@ page 6510 "Item Tracking Lines"
                 "Entry No." := NextEntryNo;
                 Insert;
             end;
-        until TempTrackingSpecification.Next = 0;
+        until TempTrackingSpecification.Next() = 0;
         OnAfterRegisterItemTrackingLines(SourceSpecification, TempTrackingSpecification, Rec, AvailabilityDate);
 
         Reset;
         if Find('-') then
             repeat
                 CheckLine(Rec);
-            until Next = 0;
+            until Next() = 0;
 
         SetTrackingFilterFromSpec(SourceSpecification);
 
@@ -2440,7 +2437,7 @@ page 6510 "Item Tracking Lines"
         "Bin Code" := ForBinCode;
         ItemTrackingDataCollection.SelectMultipleTrackingNo(Rec, MaxQuantity, CurrentSignFactor);
         "Bin Code" := '';
-        if FindSet then
+        if FindSet() then
             repeat
                 case "Buffer Status" of
                     "Buffer Status"::MODIFY:
@@ -2466,7 +2463,7 @@ page 6510 "Item Tracking Lines"
                 end;
                 "Buffer Status" := 0;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
         LastEntryNo := "Entry No.";
         CalculateSums;
         UpdateUndefinedQtyArray;
@@ -2480,7 +2477,7 @@ page 6510 "Item Tracking Lines"
         Inbound := NewInbound;
     end;
 
-    local procedure SerialNoOnAfterValidate()
+    protected procedure SerialNoOnAfterValidate()
     begin
         OnBeforeSerialNoOnAfterValidate(Rec);
 
@@ -2488,28 +2485,28 @@ page 6510 "Item Tracking Lines"
         CurrPage.Update;
     end;
 
-    local procedure LotNoOnAfterValidate()
+    protected procedure LotNoOnAfterValidate()
     begin
         UpdateExpDateEditable;
         CurrPage.Update;
     end;
 
-    local procedure QuantityBaseOnAfterValidate()
+    protected procedure QuantityBaseOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure QuantityBaseOnValidate()
+    protected procedure QuantityBaseOnValidate()
     begin
         CheckLine(Rec);
     end;
 
-    local procedure QtytoHandleBaseOnAfterValidate()
+    protected procedure QtytoHandleBaseOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure QtytoInvoiceBaseOnAfterValidat()
+    protected procedure QtytoInvoiceBaseOnAfterValidat()
     begin
         CurrPage.Update;
     end;
@@ -2564,7 +2561,7 @@ page 6510 "Item Tracking Lines"
         InboundIsSet2 := InboundIsSet;
     end;
 
-    procedure GetVariables(var TempTrackingSpecInsert2: Record "Tracking Specification" temporary; var TempTrackingSpecModify2: Record "Tracking Specification" temporary; var TempTrackingSpecDelete2: Record "Tracking Specification" temporary; var Item2: Record Item; var UndefinedQtyArray2: array[3] of Decimal; var SourceQuantityArray2: array[3] of Decimal; var CurrentSignFactor2: Integer; var InsertIsBlocked2: Boolean; var DeleteIsBlocked2: Boolean; var BlockCommit2: Boolean)
+    procedure GetVariables(var TempTrackingSpecInsert2: Record "Tracking Specification" temporary; var TempTrackingSpecModify2: Record "Tracking Specification" temporary; var TempTrackingSpecDelete2: Record "Tracking Specification" temporary; var Item2: Record Item; var UndefinedQtyArray2: array[3] of Decimal; var SourceQuantityArray2: array[5] of Decimal; var CurrentSignFactor2: Integer; var InsertIsBlocked2: Boolean; var DeleteIsBlocked2: Boolean; var BlockCommit2: Boolean)
     begin
         TempTrackingSpecInsert2.DeleteAll();
         TempTrackingSpecInsert2.Reset();
@@ -2574,7 +2571,7 @@ page 6510 "Item Tracking Lines"
                 TempTrackingSpecInsert2.Init();
                 TempTrackingSpecInsert2 := TempItemTrackLineInsert;
                 TempTrackingSpecInsert2.Insert();
-            until TempItemTrackLineInsert.Next = 0;
+            until TempItemTrackLineInsert.Next() = 0;
 
         TempTrackingSpecModify2.DeleteAll();
         TempTrackingSpecModify2.Reset();
@@ -2584,7 +2581,7 @@ page 6510 "Item Tracking Lines"
                 TempTrackingSpecModify2.Init();
                 TempTrackingSpecModify2 := TempItemTrackLineModify;
                 TempTrackingSpecModify2.Insert();
-            until TempItemTrackLineModify.Next = 0;
+            until TempItemTrackLineModify.Next() = 0;
 
         TempTrackingSpecDelete2.DeleteAll();
         TempTrackingSpecDelete2.Reset();
@@ -2594,7 +2591,7 @@ page 6510 "Item Tracking Lines"
                 TempTrackingSpecDelete2.Init();
                 TempTrackingSpecDelete2 := TempItemTrackLineDelete;
                 TempTrackingSpecDelete2.Insert();
-            until TempItemTrackLineDelete.Next = 0;
+            until TempItemTrackLineDelete.Next() = 0;
 
         Item2 := Item;
         CopyArray(UndefinedQtyArray2, UndefinedQtyArray, 1);
@@ -2615,7 +2612,7 @@ page 6510 "Item Tracking Lines"
                 TempItemTrackLineInsert.Init();
                 TempItemTrackLineInsert := TempTrackingSpecInsert2;
                 TempItemTrackLineInsert.Insert();
-            until TempTrackingSpecInsert2.Next = 0;
+            until TempTrackingSpecInsert2.Next() = 0;
 
         TempItemTrackLineModify.DeleteAll();
         TempItemTrackLineModify.Reset();
@@ -2625,7 +2622,7 @@ page 6510 "Item Tracking Lines"
                 TempItemTrackLineModify.Init();
                 TempItemTrackLineModify := TempTrackingSpecModify2;
                 TempItemTrackLineModify.Insert();
-            until TempTrackingSpecModify2.Next = 0;
+            until TempTrackingSpecModify2.Next() = 0;
 
         TempItemTrackLineDelete.DeleteAll();
         TempItemTrackLineDelete.Reset();
@@ -2635,7 +2632,7 @@ page 6510 "Item Tracking Lines"
                 TempItemTrackLineDelete.Init();
                 TempItemTrackLineDelete := TempTrackingSpecDelete2;
                 TempItemTrackLineDelete.Insert();
-            until TempTrackingSpecDelete2.Next = 0;
+            until TempTrackingSpecDelete2.Next() = 0;
     end;
 
     local procedure GetHandleSource(TrackingSpecification: Record "Tracking Specification"): Boolean
@@ -2700,11 +2697,11 @@ page 6510 "Item Tracking Lines"
     begin
         TempTrackingSpecification.DeleteAll();
 
-        if FindSet then
+        if FindSet() then
             repeat
                 TempTrackingSpecification := Rec;
                 TempTrackingSpecification.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure SetSecondSourceID(SourceID: Integer; IsATO: Boolean)
@@ -2744,10 +2741,10 @@ page 6510 "Item Tracking Lines"
         repeat
             WarehouseShipmentLine.DeleteWhseItemTrackingLines;
             WarehouseShipmentLine.CreateWhseItemTrackingLines;
-        until WarehouseShipmentLine.Next = 0;
+        until WarehouseShipmentLine.Next() = 0;
     end;
 
-    local procedure IsOrderToOrderBindingToTransfer(): Boolean
+    protected procedure IsOrderToOrderBindingToTransfer(): Boolean
     var
         ReservEntry: Record "Reservation Entry";
     begin

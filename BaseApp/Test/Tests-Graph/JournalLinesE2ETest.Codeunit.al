@@ -512,7 +512,7 @@ codeunit 135505 "Journal Lines E2E Test"
         // [GIVEN] a G/L Account with Direct Posting enabled
         AccountNo := LibraryGraphJournalLines.CreateAccount;
         GLAccount.Get(AccountNo);
-        AccountGUID := GLAccount.Id;
+        AccountGUID := GLAccount.SystemId;
 
         // [GIVEN] JSON texts for journal lines with and without AccountNo and AccountId
         LineNo[1] := LibraryGraphJournalLines.GetNextJournalLineNo(JournalName);
@@ -583,7 +583,7 @@ codeunit 135505 "Journal Lines E2E Test"
         // [GIVEN] a G/L Account with Direct Posting enabled
         AccountNo := LibraryGraphJournalLines.CreateAccount;
         GLAccount.Get(AccountNo);
-        AccountGUID := GLAccount.Id;
+        AccountGUID := GLAccount.SystemId;
         GLAccount.Delete();
 
         // [GIVEN] JSON texts for journal lines with and without AccountNo and AccountId
@@ -710,7 +710,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJournalBatch.Get(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalName);
-        exit(GenJournalBatch.Id);
+        exit(GenJournalBatch.SystemId);
     end;
 
     local procedure CreateLineWithAmountJSON(LineNo: Integer; Amount: Decimal): Text

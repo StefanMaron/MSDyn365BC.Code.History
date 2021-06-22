@@ -261,7 +261,7 @@ table 1502 "Workflow Step"
 
             TempBlob.FromRecord(WorkflowStepArgument, WorkflowStepArgument.FieldNo("Event Conditions"));
 
-            RequestPageParametersHelper.ConvertParametersToFilters(RecRef, TempBlob);
+            RequestPageParametersHelper.ConvertParametersToFilters(RecRef, TempBlob, TextEncoding::UTF8);
         end;
     end;
 

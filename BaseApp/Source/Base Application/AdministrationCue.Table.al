@@ -10,20 +10,20 @@ table 9059 "Administration Cue"
         }
         field(2; "Job Queue Entries Until Today"; Integer)
         {
-            CalcFormula = Count ("Job Queue Entry" WHERE("Earliest Start Date/Time" = FIELD("Date Filter2"),
+            CalcFormula = Count("Job Queue Entry" WHERE("Earliest Start Date/Time" = FIELD("Date Filter2"),
                                                          "Expiration Date/Time" = FIELD("Date Filter3")));
             Caption = 'Job Queue Entries Until Today';
             FieldClass = FlowField;
         }
         field(3; "User Posting Period"; Integer)
         {
-            CalcFormula = Count ("User Setup" WHERE("Allow Posting To" = FIELD("Date Filter")));
+            CalcFormula = Count("User Setup" WHERE("Allow Posting To" = FIELD("Date Filter")));
             Caption = 'User Posting Period';
             FieldClass = FlowField;
         }
         field(4; "No. Series Period"; Integer)
         {
-            CalcFormula = Count ("No. Series Line" WHERE("Last Date Used" = FIELD("Date Filter")));
+            CalcFormula = Count("No. Series Line" WHERE("Last Date Used" = FIELD("Date Filter")));
             Caption = 'No. Series Period';
             FieldClass = FlowField;
         }
@@ -52,13 +52,13 @@ table 9059 "Administration Cue"
         }
         field(25; "CDS Integration Errors"; Integer)
         {
-            CalcFormula = Count ("Integration Synch. Job Errors");
+            CalcFormula = Count("Integration Synch. Job Errors");
             Caption = 'Common Data Service Integration Errors';
             FieldClass = FlowField;
         }
         field(26; "Coupled Data Synch Errors"; Integer)
         {
-            CalcFormula = Count ("CRM Integration Record" WHERE(Skipped = CONST(true)));
+            CalcFormula = Count("CRM Integration Record" WHERE(Skipped = CONST(true)));
             Caption = 'Coupled Data Synch Errors';
             FieldClass = FlowField;
         }

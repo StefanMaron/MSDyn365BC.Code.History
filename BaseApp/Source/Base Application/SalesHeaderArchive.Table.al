@@ -659,7 +659,7 @@ table 5107 "Sales Header Archive"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(827; "Credit Card No."; Code[20])
@@ -862,7 +862,6 @@ table 5107 "Sales Header Archive"
         SalesLineArchive: Record "Sales Line Archive";
         DeferralHeaderArchive: Record "Deferral Header Archive";
         CatalogItemMgt: Codeunit "Catalog Item Management";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         SalesLineArchive.SetRange("Document Type", "Document Type");
         SalesLineArchive.SetRange("Document No.", "No.");
@@ -882,7 +881,7 @@ table 5107 "Sales Header Archive"
         SalesCommentLineArch.SetRange("Version No.", "Version No.");
         SalesCommentLineArch.DeleteAll();
 
-        DeferralHeaderArchive.SetRange("Deferral Doc. Type", DeferralUtilities.GetSalesDeferralDocType);
+        DeferralHeaderArchive.SetRange("Deferral Doc. Type", "Deferral Document Type"::Sales);
         DeferralHeaderArchive.SetRange("Document Type", "Document Type");
         DeferralHeaderArchive.SetRange("Document No.", "No.");
         DeferralHeaderArchive.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");

@@ -519,7 +519,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         UpdateCustVATBusPostingGroup(CustomerNo, GLAccount."VAT Bus. Posting Group");
     end;
 
-    local procedure PostApplyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    local procedure PostApplyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         NoOfLines: Integer;
     begin
@@ -534,7 +534,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         ApplyAndPostCustomerEntry(GenJournalLine."Document No.", DocumentType2, -Amount / NoOfLines);
     end;
 
-    local procedure PostGenJournalLines(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; NoOfLines: Integer)
+    local procedure PostGenJournalLines(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; NoOfLines: Integer)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -545,7 +545,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentType: Option; AmountToApply: Decimal)
+    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AmountToApply: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -576,7 +576,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
     end;
 
-    local procedure CreateGenJournalLineWithBalanceAcc(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Sign: Integer)
+    local procedure CreateGenJournalLineWithBalanceAcc(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Sign: Integer)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -625,7 +625,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateApplyGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    local procedure CreateApplyGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     begin
         CreateGenJournalLineWithBalanceAcc(
           GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo,
@@ -664,7 +664,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         exit(Currency.Code);
     end;
 
-    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; NoofLines: Integer; AccountType: Option; AccountNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; NoofLines: Integer; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         Counter: Integer;
     begin
@@ -733,7 +733,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VATEntry.Insert();
     end;
 
-    local procedure FindInvoiceAmount(DocumentNo: Code[20]; DocumentType: Option): Decimal
+    local procedure FindInvoiceAmount(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"): Decimal
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -742,14 +742,14 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         exit(CustLedgerEntry."Remaining Amount" - CustLedgerEntry."Remaining Pmt. Disc. Possible");
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst;
     end;
 
-    local procedure FindVATEntry(DocType: Option; DocNo: Code[20]): Integer
+    local procedure FindVATEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -798,7 +798,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         CalcAndPostVATSettlement.SaveAsExcel(FilePath)
     end;
 
-    local procedure PostApplyPaymentToInvoice(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocNo: Code[20]; DocType: Option)
+    local procedure PostApplyPaymentToInvoice(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocNo: Code[20]; DocType: Enum "Gen. Journal Document Type")
     var
         BankAccount: Record "Bank Account";
         PaymentGenJournalLine: Record "Gen. Journal Line";
@@ -812,7 +812,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, PaymentGenJournalLine."Document Type", PaymentGenJournalLine."Document No.");
     end;
 
-    local procedure SetAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure SetAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         GenJournalLine.Validate("Applies-to Doc. Type", DocumentType);
         GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
@@ -968,7 +968,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         end;
     end;
 
-    local procedure VerifySingleCorrectiveVATEntry(DocType: Option; DocNo: Code[20]; UnrealVATEntryNo: Integer; VATBase: Decimal; VATAmount: Decimal)
+    local procedure VerifySingleCorrectiveVATEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; UnrealVATEntryNo: Integer; VATBase: Decimal; VATAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin

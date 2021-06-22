@@ -297,7 +297,7 @@ page 5741 "Transfer Order Subform"
                     trigger OnAction()
                     begin
                         Find;
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
             }
@@ -382,7 +382,7 @@ page 5741 "Transfer Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 group("Item &Tracking Lines")
@@ -398,7 +398,7 @@ page 5741 "Transfer Order Subform"
 
                         trigger OnAction()
                         begin
-                            OpenItemTrackingLines(0);
+                            OpenItemTrackingLines("Transfer Direction"::Outbound);
                         end;
                     }
                     action(Receipt)
@@ -410,7 +410,7 @@ page 5741 "Transfer Order Subform"
 
                         trigger OnAction()
                         begin
-                            OpenItemTrackingLines(1);
+                            OpenItemTrackingLines("Transfer Direction"::Inbound);
                         end;
                     }
                 }
@@ -445,6 +445,8 @@ page 5741 "Transfer Order Subform"
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

@@ -219,7 +219,10 @@ page 27 "Vendor List"
                 ApplicationArea = All;
                 SubPageLink = "Source Type" = CONST(Vendor),
                               "Source No." = FIELD("No.");
-                Visible = SocialListeningVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(Control15; "Social Listening Setup FactBox")
             {
@@ -227,7 +230,10 @@ page 27 "Vendor List"
                 SubPageLink = "Source Type" = CONST(Vendor),
                               "Source No." = FIELD("No.");
                 UpdatePropagation = Both;
-                Visible = SocialListeningSetupVisible;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                ObsoleteTag = '17.0';
             }
             part(VendorDetailsFactBox; "Vendor Details FactBox")
             {
@@ -385,6 +391,20 @@ page 27 "Vendor List"
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
+                action("Item Refe&rences")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Item Refe&rences';
+                    Image = Change;
+                    Visible = ItemReferenceVisible;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    RunObject = Page "Item References";
+                    RunPageLink = "Reference Type" = CONST(Vendor),
+                                  "Reference Type No." = FIELD("No.");
+                    RunPageView = SORTING("Reference Type", "Reference Type No.");
+                    ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                }
                 action(ApprovalEntries)
                 {
                     AccessByPermission = TableData "Approval Entry" = R;
@@ -424,25 +444,65 @@ page 27 "Vendor List"
                     RunPageLink = Code = FIELD("Invoice Disc. Code");
                     ToolTip = 'Set up different discounts that are applied to invoices for the vendor. An invoice discount is automatically granted to the vendor when the total on a sales invoice exceeds a certain amount.';
                 }
+                action(PriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Prices)';
+                    Image = Price;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different prices for products that you buy from the vendor. An product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Price);
+                    end;
+                }
+                action(PriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you buy from the vendor. An product discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
+                    end;
+                }
                 action(Prices)
                 {
                     ApplicationArea = Advanced;
                     Caption = 'Prices';
                     Image = Price;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Prices";
                     RunPageLink = "Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Vendor No.");
                     ToolTip = 'View or set up different prices for items that you buy from the vendor. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("Line Discounts")
                 {
                     ApplicationArea = Advanced;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Line Discounts";
                     RunPageLink = "Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Vendor No.");
                     ToolTip = 'View or set up different discounts for items that you buy from the vendor. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("Prepa&yment Percentages")
                 {
@@ -605,7 +665,7 @@ page 27 "Vendor List"
                     var
                         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                     begin
-                        ItemTrackingDocMgt.ShowItemTrackingForMasterData(2, "No.", '', '', '', '', '');
+                        ItemTrackingDocMgt.ShowItemTrackingForEntity(2, "No.", '', '', '');
                     end;
                 }
             }
@@ -684,9 +744,49 @@ page 27 "Vendor List"
 
                         trigger OnAction()
                         var
+                            Vendor: Record Vendor;
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CurrPage.SetSelectionFilter(Vendor);
+                            RecRef.GetTable(Vendor);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
+                        end;
+                    }
+                }
+                group(Create)
+                {
+                    Caption = 'Create';
+                    Image = "Report";
+                    action(CreateInCRM)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Create Account in Common Data Service';
+                        Image = "Report";
+                        ToolTip = 'Generate the account in the coupled Common Data Service account.';
+
+                        trigger OnAction()
+                        var
+                            Vendor: Record Vendor;
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CurrPage.SetSelectionFilter(Vendor);
+                            CRMIntegrationManagement.CreateNewRecordsInCRM(Vendor);
+                        end;
+                    }
+                    action(CreateFromCRM)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Create Vendor in Business Central';
+                        Image = "Report";
+                        ToolTip = 'Generate the vendor in the coupled Common Data Service account.';
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.CreateNewVendorFromCRM();
+
                         end;
                     }
                 }
@@ -1093,13 +1193,17 @@ page 27 "Vendor List"
     var
         SocialListeningSetup: Record "Social Listening Setup";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         SetRange("Date Filter", 0D, WorkDate());
         with SocialListeningSetup do
             SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
-        ResyncVisible := ReadSoftOCRMasterDataSync.IsSyncEnabled;
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
+        ResyncVisible := ReadSoftOCRMasterDataSync.IsSyncEnabled();
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     var
@@ -1119,6 +1223,9 @@ page 27 "Vendor List"
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        ExtendedPriceEnabled: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
 
     procedure GetSelectionFilter(): Text
     var

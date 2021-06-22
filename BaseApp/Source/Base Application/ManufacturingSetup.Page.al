@@ -7,6 +7,7 @@ page 99000768 "Manufacturing Setup"
     PageType = Card;
     SourceTable = "Manufacturing Setup";
     UsageCategory = Administration;
+    AdditionalSearchTerms = 'Planning Setup';
 
     layout
     {
@@ -47,8 +48,17 @@ page 99000768 "Manufacturing Setup"
                 }
                 field("Dynamic Low-Level Code"; "Dynamic Low-Level Code")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Planning;
                     ToolTip = 'Specifies low-level codes are dynamically assigned to each component in a product structure. Note that this may affect performance. The top final assembly level is denoted as level 0, the end item. The higher the low-level code number, the lower the item is in the hierarchy. The codes are used in the planning of component parts. When you calculate a plan, the BOM is exploded in the planning worksheet, and the gross requirements for level 0 are passed down the planning levels as gross requirements for the next planning level.';
+                }
+                field("Optimize low-level code calc."; "Optimize low-level code calc.")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Codeunit Calc. Low-level code is obsolete. Use Codeunit Low-Level Code Calculator instead.';
+                    ObsoleteTag = '17.0';
+
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies that you want to use the new, faster method of low-level code calculation. Note that the new calculation is done differently and using it might break extensions that rely on the existing method. The new calculation method will replace the current method in a future release.';
                 }
                 field("Cost Incl. Setup"; "Cost Incl. Setup")
                 {
@@ -136,7 +146,7 @@ page 99000768 "Manufacturing Setup"
                 field("Default Dampener Period"; "Default Dampener Period")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies a period of time during which you do not want the planning system to propose to reschedule existing supply orders forward.';
+                    ToolTip = 'Specifies a period of time during which you do not want the planning system to propose to reschedule existing supply order''s forward. This value in this field applies to all items except for items that have a different value in the Dampener Period field on the item card. When a dampener time is set, an order is only rescheduled when the defined dampener time has passed since the order s original due date. Note: The dampener time that is applied to an item can never be higher than the value in the item''s Lot Accumulation Period field. This is because the inventory build-up time that occurs during a dampener period would conflict with the build-up period defined by the item''s lot accumulation period. Accordingly, the default dampener period generally applies to all items. However, if an item''s lot accumulation period is shorter than the default dampener period, then the item''s dampener time equals its lot accumulation period.';
                 }
                 field("Default Dampener %"; "Default Dampener %")
                 {

@@ -83,7 +83,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                 FANo := "Bal. Account No.";
             end;
 
-        if "Recurring Method" > "Recurring Method"::"V  Variable" then begin
+        if "Recurring Method".AsInteger() > "Recurring Method"::"V  Variable".AsInteger() then begin
             GenJnlline2."Account Type" := GenJnlline2."Account Type"::"Fixed Asset";
             FieldError(
               "Recurring Method",
@@ -98,7 +98,7 @@ codeunit 5631 "FA Jnl.-Check Line"
             "FA Posting Date" := "Posting Date";
         FAPostingDate := "FA Posting Date";
         PostingDate := "Posting Date";
-        FAPostingType := "FA Posting Type" - 1;
+        FAPostingType := "FA Journal Line FA Posting Type".FromInteger("FA Posting Type".AsInteger() - 1);
         GenJnlPosting := true;
         GenJnlLine := Rec;
         CheckJnlLine;
@@ -361,7 +361,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                         FieldError("Insurance No.", FieldErrorText);
                     "Budgeted FA No." <> '':
                         FieldError("Budgeted FA No.", FieldErrorText);
-                    "Recurring Method" > 0:
+                    "Recurring Method" <> "Recurring Method"::" ":
                         FieldError("Recurring Method", FieldErrorText);
                 end;
             end;

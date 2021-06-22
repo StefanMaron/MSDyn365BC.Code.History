@@ -156,7 +156,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
     end;
 
     [Normal]
-    local procedure SetupShipAndInvoice(CostingMethod: Option; ShipDelta: Decimal; InvoiceDelta: Decimal; Invoice: Boolean; SplitChargeLine: Boolean)
+    local procedure SetupShipAndInvoice(CostingMethod: Enum "Costing Method"; ShipDelta: Decimal; InvoiceDelta: Decimal; Invoice: Boolean; SplitChargeLine: Boolean)
     var
         Customer: Record Customer;
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
@@ -314,7 +314,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
     end;
 
     [Normal]
-    local procedure PostDocsPart1(CostingMethod: Option; PurchDocType: Option)
+    local procedure PostDocsPart1(CostingMethod: Enum "Costing Method"; PurchDocType: Enum "Purchase Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -479,7 +479,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
     end;
 
     [Normal]
-    local procedure PostDocsPart2(CostingMethod: Option; PurchDocType: Option; SalesDocType: Option; PurchReturnDocType: Option; Invoice: Boolean)
+    local procedure PostDocsPart2(CostingMethod: Enum "Costing Method"; PurchDocType: Enum "Purchase Document Type"; SalesDocType: Enum "Sales Document Type"; PurchReturnDocType: Enum "Purchase Document Type"; Invoice: Boolean)
     var
         Vendor: Record Vendor;
         ItemJournalBatch: Record "Item Journal Batch";

@@ -1,5 +1,8 @@
 codeunit 5460 "Graph Int. - Contact Addresses"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be removed. The API that it was integrating to was discontinued.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

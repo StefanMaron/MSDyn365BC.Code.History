@@ -192,9 +192,9 @@ table 1251 "Text-to-Account Mapping"
             ExpectedSourceType := "Bal. Source Type"::Customer;
 
         if ExpectedSourceType = ActualSourceType then
-            PaymentDocType := GenJournalLine."Document Type"::Payment
+            PaymentDocType := GenJournalLine."Document Type"::Payment.AsInteger()
         else
-            PaymentDocType := GenJournalLine."Document Type"::Refund;
+            PaymentDocType := GenJournalLine."Document Type"::Refund.AsInteger();
     end;
 
     procedure GetDocTypeForPmt(var DocType: Option; PaymentDocType: Option)
@@ -202,10 +202,10 @@ table 1251 "Text-to-Account Mapping"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         case PaymentDocType of
-            GenJournalLine."Document Type"::Payment:
-                DocType := GenJournalLine."Document Type"::Invoice;
-            GenJournalLine."Document Type"::Refund:
-                DocType := GenJournalLine."Document Type"::"Credit Memo";
+            GenJournalLine."Document Type"::Payment.AsInteger():
+                DocType := GenJournalLine."Document Type"::Invoice.AsInteger();
+            GenJournalLine."Document Type"::Refund.AsInteger():
+                DocType := GenJournalLine."Document Type"::"Credit Memo".AsInteger();
         end;
     end;
 

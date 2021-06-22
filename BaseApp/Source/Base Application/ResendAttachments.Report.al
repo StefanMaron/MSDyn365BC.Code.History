@@ -40,7 +40,7 @@ report 5183 "Resend Attachments"
                                 Text003 + Description, 1, MaxStrLen(InteractionLogEntryNew.Description)))
                     end;
                     if CorrespondenceType <> CorrespondenceType::"Same as Entry" then
-                        InteractionLogEntryNew."Correspondence Type" := CorrespondenceType;
+                        InteractionLogEntryNew."Correspondence Type" := AttachmentManagement.ConvertCorrespondenceType(CorrespondenceType);
                     SegLine.CopyFromInteractLogEntry(InteractionLogEntryNew);
                     InterLogEntryCommentLine.SetRange("Entry No.", "Entry No.");
                     if InterLogEntryCommentLine.FindFirst then;
@@ -54,7 +54,7 @@ report 5183 "Resend Attachments"
                     InteractionLogEntryNew.Modify(true);
                 end else begin
                     if CorrespondenceType <> CorrespondenceType::"Same as Entry" then
-                        "Correspondence Type" := CorrespondenceType;
+                        "Correspondence Type" := AttachmentManagement.ConvertCorrespondenceType(CorrespondenceType);
                     "Delivery Status" := "Delivery Status"::"In Progress";
                     "E-Mail Logged" := false;
                     Modify;

@@ -143,13 +143,11 @@ report 950 "Create Time Sheets"
         FirstAccPeriodStartingDate: Date;
         LastAccPeriodStartingDate: Date;
     begin
-        if (not UserSetup.Get(UserId) or not UserSetup."Time Sheet Admin.") and UserSetup.WritePermission then begin
+        if (not UserSetup.Get(UserId) or not UserSetup."Time Sheet Admin.") and UserSetup.WritePermission then
             if Confirm(OpenUserSetupQst, true) then
-                PAGE.Run(PAGE::"User Setup");
-            Error('');
-        end;
+                PAGE.RunModal(PAGE::"User Setup");
 
-        if not UserSetup."Time Sheet Admin." then
+        if not UserSetup.Get(UserId) or not UserSetup."Time Sheet Admin." then
             Error(Text002);
 
         if StartingDate = 0D then

@@ -174,7 +174,7 @@ codeunit 132543 "Data Exch. Def UT"
         DataExchDefCard.OK.Invoke;
 
         DataExchDef.Get(DataExchCode);
-        DataExchDef.Type := 1000;
+        DataExchDef.Type := "Data Exchange Definition Type".FromInteger(1000);
         DataExchDef.Modify();
 
         // Verify - Check is done in handler

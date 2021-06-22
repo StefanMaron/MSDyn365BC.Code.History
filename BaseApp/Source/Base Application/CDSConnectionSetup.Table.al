@@ -54,11 +54,11 @@ table 7200 "CDS Connection Setup"
             trigger OnValidate()
             begin
                 if not "Is Enabled" then begin
-                    SendTraceTag('0000CDG', CategoryTok, Verbosity::Normal, CDSConnDisabledTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000CDG', CDSConnDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     exit;
                 end;
 
-                SendTraceTag('0000CDS', CategoryTok, Verbosity::Normal, CDSConnEnabledTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000CDS', CDSConnEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
 
                 if IsTemporary() then begin
@@ -425,38 +425,24 @@ table 7200 "CDS Connection Setup"
         IntegrationTableMapping: Record "Integration Table Mapping";
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
-        ProgressWindow: Dialog;
-        MappingCount: Integer;
-        CurrentMappingIndex: Integer;
     begin
         CDSSetupDefaults.GetPrioritizedMappingList(TempNameValueBuffer);
 
-        CurrentMappingIndex := 0;
-        MappingCount := TempNameValueBuffer.Count();
-        if MappingCount = 0 then
-            exit;
-        ProgressWindow.Open(ProcessDialogMapTitleMsg, CurrentMappingIndex);
         TempNameValueBuffer.Ascending(true);
-        TempNameValueBuffer.FindSet();
+        if not TempNameValueBuffer.FindSet() then
+            exit;
+
         repeat
-            CurrentMappingIndex := CurrentMappingIndex + 1;
-            ProgressWindow.Update(1, Round(CurrentMappingIndex / MappingCount * 10000, 1));
             if IntegrationTableMapping.Get(TempNameValueBuffer.Value) then
                 IntegrationTableMapping.SynchronizeNow(DoFullSynch);
         until TempNameValueBuffer.Next() = 0;
-        ProgressWindow.Close();
     end;
 
     [Scope('OnPrem')]
     procedure EnableIntegrationTables()
     var
-        IntegrationRecord: Record "Integration Record";
-        IntegrationManagement: Codeunit "Integration Management";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        if IntegrationRecord.IsEmpty() then
-            IntegrationManagement.SetupIntegrationTables();
-        IntegrationManagement.SetConnectorIsEnabledForSession(true);
         Modify(); // Job Queue to read "Is Enabled"
         Commit();
         CDSSetupDefaults.ResetConfiguration(Rec);
@@ -500,7 +486,7 @@ table 7200 "CDS Connection Setup"
 
         if CRMConnectionSetup.Get() then
             if not CRMConnectionSetup."Is Enabled" then begin
-                SendTraceTag('0000D3Q', CategoryTok, Verbosity::Normal, TransferringConnectionValuesFromCRMConnectionsetupTxt);
+                Session.LogMessage('0000D3Q', TransferringConnectionValuesFromCRMConnectionsetupTxt, Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Exists := Get();
                 "Server Address" := CRMConnectionSetup."Server Address";
                 "User Name" := CRMConnectionSetup."User Name";
@@ -529,7 +515,7 @@ table 7200 "CDS Connection Setup"
         if CRMConnectionSetup."Server Address" = TestServerAddressTok then
             exit;
 
-        SendTraceTag('0000D3R', CategoryTok, Verbosity::Warning, CRMConnEnabledTelemetryErr);
+        Session.LogMessage('0000D3R', CRMConnEnabledTelemetryErr, Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         Error(CRMConnEnabledErr);
     end;
 
@@ -564,7 +550,6 @@ table 7200 "CDS Connection Setup"
         TempClientSecret: Text;
         [NonDebuggable]
         TempAccessToken: Text;
-        ProcessDialogMapTitleMsg: Label 'Synchronizing @1', Comment = '@1 Progress dialog map no.';
         CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
         CDSConnDisabledTxt: Label 'CDS connection has been disabled.', Locked = true;
         CDSConnEnabledTxt: Label 'CDS connection has been enabled.', Locked = true;

@@ -231,7 +231,7 @@ page 9349 "Sales Order Archives"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

@@ -318,8 +318,6 @@ page 9170 "Profile Card"
     end;
 
     trigger OnDeleteRecord(): Boolean
-    var
-        ProfileSettings: Record "Tenant Profile Setting";
     begin
         ConfPersonalizationMgt.ValidateDeleteProfile(Rec);
 
@@ -336,10 +334,6 @@ page 9170 "Profile Card"
             end;
             Error('');
         end;
-
-        // For user created profiles, deleting the profile should also delete the profile settings.
-        if ProfileSettings.Get("App ID", "Profile ID") then
-            if ProfileSettings.Delete(true) then;
 
         exit(true);
     end;

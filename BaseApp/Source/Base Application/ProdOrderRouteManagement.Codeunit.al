@@ -18,24 +18,30 @@ codeunit 99000772 "Prod. Order Route Management"
         ErrList: Text[50];
         Text009: Label 'This change may have caused bin codes on some production order component lines to be different from those on the production order routing line. Do you want to automatically align all of these unmatched bin codes?';
 
+    [Obsolete('Replaced by same with enum Production Order Status.', '17.0')]
     procedure NeedsCalculation(Status: Option Simulated,Planned,"Firm Planned",Released; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]): Boolean
+    begin
+        exit(NeedsCalculation("Production Order Status".FromInteger(Status), ProdOrderNo, RoutingRefNo, RoutingNo));
+    end;
+
+    procedure NeedsCalculation(ProductionOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]): Boolean
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
     begin
-        SetRoutingFilter(ProdOrderRtngLine, Status, ProdOrderNo, RoutingNo, RoutingRefNo);
+        SetRoutingFilter(ProdOrderRtngLine, ProductionOrderStatus, ProdOrderNo, RoutingNo, RoutingRefNo);
         ProdOrderRtngLine.SetRange(Recalculate, true);
         ProdOrderRtngLine.SetFilter("Routing Status", '<>%1', ProdOrderRtngLine."Routing Status"::Finished);
 
         exit(ProdOrderRtngLine.FindFirst);
     end;
 
-    local procedure ErrorInRouting(Status: Option Simulated,Planned,"Firm Planned",Released; ProdOrderNo: Code[20]; RoutingNo: Code[20]; Direction: Text[20]; ActualSequence: Integer; MaxSequences: Integer)
+    local procedure ErrorInRouting(Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingNo: Code[20]; Direction: Text[20]; ActualSequence: Integer; MaxSequences: Integer)
     var
         LocalText000: Label 'Simulated,Planned,Firm Planned,Released';
     begin
         Error(
           CannotCalculateRoutingNumberErr,
-          SelectStr(Status + 1, LocalText000),
+          SelectStr(Status.AsInteger() + 1, LocalText000),
           ProdOrderNo,
           RoutingNo,
           Direction,
@@ -541,7 +547,7 @@ codeunit 99000772 "Prod. Order Route Management"
         exit(not ErrorOccured);
     end;
 
-    local procedure SetRoutingFilter(var ProdOrderRtngLine: Record "Prod. Order Routing Line"; Status: Option; ProdOrderNo: Code[20]; RoutingNo: Code[20]; RoutingRefNo: Integer)
+    local procedure SetRoutingFilter(var ProdOrderRtngLine: Record "Prod. Order Routing Line"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingNo: Code[20]; RoutingRefNo: Integer)
     begin
         ProdOrderRtngLine.SetRange(Status, Status);
         ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderNo);
@@ -549,7 +555,7 @@ codeunit 99000772 "Prod. Order Route Management"
         ProdOrderRtngLine.SetRange("Routing No.", RoutingNo);
     end;
 
-    local procedure SetOrderLineRoutingFilter(var ProdOrderLine: Record "Prod. Order Line"; Status: Option; ProdOrderNo: Code[20]; RoutingNo: Code[20]; RoutingRefNo: Integer)
+    local procedure SetOrderLineRoutingFilter(var ProdOrderLine: Record "Prod. Order Line"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingNo: Code[20]; RoutingRefNo: Integer)
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);

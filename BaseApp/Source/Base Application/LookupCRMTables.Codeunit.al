@@ -55,6 +55,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMAccount.SetView(IntTableFilter);
         CRMAccountList.SetTableView(CRMAccount);
         CRMAccountList.LookupMode(true);
+        Commit();
         if CRMAccountList.RunModal = ACTION::LookupOK then begin
             CRMAccountList.GetRecord(CRMAccount);
             CRMId := CRMAccount.AccountId;
@@ -79,6 +80,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMContact.SetView(IntTableFilter);
         CRMContactList.SetTableView(CRMContact);
         CRMContactList.LookupMode(true);
+        Commit();
         if CRMContactList.RunModal = ACTION::LookupOK then begin
             CRMContactList.GetRecord(CRMContact);
             CRMId := CRMContact.ContactId;
@@ -103,6 +105,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMSystemuser.SetView(IntTableFilter);
         CRMSystemuserList.SetTableView(CRMSystemuser);
         CRMSystemuserList.LookupMode(true);
+        Commit();
         if CRMSystemuserList.RunModal = ACTION::LookupOK then begin
             CRMSystemuserList.GetRecord(CRMSystemuser);
             CRMId := CRMSystemuser.SystemUserId;
@@ -127,6 +130,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMTransactioncurrency.SetView(IntTableFilter);
         CRMTransactionCurrencyList.SetTableView(CRMTransactioncurrency);
         CRMTransactionCurrencyList.LookupMode(true);
+        Commit();
         if CRMTransactionCurrencyList.RunModal = ACTION::LookupOK then begin
             CRMTransactionCurrencyList.GetRecord(CRMTransactioncurrency);
             CRMId := CRMTransactioncurrency.TransactionCurrencyId;
@@ -151,6 +155,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMPricelevel.SetView(IntTableFilter);
         CRMPricelevelList.SetTableView(CRMPricelevel);
         CRMPricelevelList.LookupMode(true);
+        Commit();
         if CRMPricelevelList.RunModal = ACTION::LookupOK then begin
             CRMPricelevelList.GetRecord(CRMPricelevel);
             CRMId := CRMPricelevel.PriceLevelId;
@@ -175,6 +180,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMProduct.SetView(IntTableFilter);
         CRMProductList.SetTableView(CRMProduct);
         CRMProductList.LookupMode(true);
+        Commit();
         if CRMProductList.RunModal = ACTION::LookupOK then begin
             CRMProductList.GetRecord(CRMProduct);
             CRMId := CRMProduct.ProductId;
@@ -199,6 +205,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMUomschedule.SetView(IntTableFilter);
         CRMUnitGroupList.SetTableView(CRMUomschedule);
         CRMUnitGroupList.LookupMode(true);
+        Commit();
         if CRMUnitGroupList.RunModal = ACTION::LookupOK then begin
             CRMUnitGroupList.GetRecord(CRMUomschedule);
             CRMId := CRMUomschedule.UoMScheduleId;
@@ -223,6 +230,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMOpportunity.SetView(IntTableFilter);
         CRMOpportunityList.SetTableView(CRMOpportunity);
         CRMOpportunityList.LookupMode(true);
+        Commit();
         if CRMOpportunityList.RunModal = ACTION::LookupOK then begin
             CRMOpportunityList.GetRecord(CRMOpportunity);
             CRMId := CRMOpportunity.OpportunityId;
@@ -247,6 +255,7 @@ codeunit 5332 "Lookup CRM Tables"
         CRMQuote.SetView(IntTableFilter);
         CRMSalesQuoteList.SetTableView(CRMQuote);
         CRMSalesQuoteList.LookupMode(true);
+        Commit();
         if CRMSalesQuoteList.RunModal = ACTION::LookupOK then begin
             CRMSalesQuoteList.GetRecord(CRMQuote);
             CRMId := CRMQuote.QuoteId;

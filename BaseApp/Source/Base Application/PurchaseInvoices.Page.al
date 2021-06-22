@@ -351,7 +351,7 @@ page 9308 "Purchase Invoices"
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
                 action(Vendor)
@@ -615,7 +615,7 @@ page 9308 "Purchase Invoices"
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
         PowerBIVisible: Boolean;
-        ReadyToPostQst: Label '%1 out of %2 selected invoices are ready for post. \Do you want to continue and post them?', Comment = '%1 - selected count, %2 - total count';
+        ReadyToPostQst: Label 'The number of invoices that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
 

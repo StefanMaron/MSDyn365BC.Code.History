@@ -371,7 +371,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         LibraryCosting.CheckAdjustment(Item);
     end;
 
-    local procedure FullyShipped_ItemCharge(CostingMethod: Option)
+    local procedure FullyShipped_ItemCharge(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
@@ -415,7 +415,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         FullyShipped_ItemCharge(Item."Costing Method"::Average);
     end;
 
-    local procedure PartiallyShipped_ItemCharge(CostingMethod: Option)
+    local procedure PartiallyShipped_ItemCharge(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -468,7 +468,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         PartiallyShipped_ItemCharge(Item."Costing Method"::Average);
     end;
 
-    local procedure ChangeSalesDate_AfterReval(CostingMethod: Option)
+    local procedure ChangeSalesDate_AfterReval(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -501,7 +501,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         LibraryCosting.CheckAdjustment(Item);
     end;
 
-    local procedure ChangeSalesDate_BeforeReval(CostingMethod: Option)
+    local procedure ChangeSalesDate_BeforeReval(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -595,7 +595,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         ChangeSalesDate_BeforeReval(Item."Costing Method"::Standard);
     end;
 
-    local procedure ReturnOnly(CostingMethod: Option)
+    local procedure ReturnOnly(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         ReturnReceiptLine: Record "Return Receipt Line";
@@ -649,7 +649,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         ReturnOnly(Item."Costing Method"::Standard);
     end;
 
-    local procedure PartiallyInvoiced(CostingMethod: Option)
+    local procedure PartiallyInvoiced(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -706,7 +706,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         PartiallyInvoiced(Item."Costing Method"::Standard);
     end;
 
-    local procedure FullyInvoiced(CostingMethod: Option)
+    local procedure FullyInvoiced(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -763,7 +763,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         FullyInvoiced(Item."Costing Method"::Standard);
     end;
 
-    local procedure SalesFromReturns(CostingMethod: Option)
+    local procedure SalesFromReturns(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";

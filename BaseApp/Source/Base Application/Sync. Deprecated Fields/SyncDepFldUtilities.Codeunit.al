@@ -23,11 +23,17 @@ codeunit 702 "Sync.Dep.Fld-Utilities"
         if not DataTypeManagement.GetRecordRef(CurrentRecord, CurrentRecordRef) then
             exit(false);
 
-        if (CurrentRecordRef.IsTemporary()) then
+        if CurrentRecordRef.IsTemporary() then
             exit(false);
 
         PreviousRecordRef.Open(CurrentRecordRef.Number());
-        exit(PreviousRecordRef.GetBySystemId(CurrentRecordRef.Field(CurrentRecordRef.SystemIdNo()).Value));
+
+        if not PreviousRecordRef.GetBySystemId(CurrentRecordRef.Field(CurrentRecordRef.SystemIdNo()).Value) then begin
+            PreviousRecordRef.Init();
+            exit(false);
+        end;
+
+        exit(true);
     end;
 
     procedure SyncFields(var ObsoleteFieldValue: Boolean; var ValidFieldValue: Boolean)
@@ -70,6 +76,74 @@ codeunit 702 "Sync.Dep.Fld-Utilities"
     end;
 
     procedure SyncFields(var ObsoleteFieldValue: Text; var ValidFieldValue: Text; PrevObsoleteFieldValue: Text; PrevValidFieldValue: Text)
+    begin
+        if ObsoleteFieldValue = ValidFieldValue then
+            exit;
+
+        if (ObsoleteFieldValue = PrevObsoleteFieldValue) and (ValidFieldValue = PrevValidFieldValue) then
+            exit;
+
+        if ValidFieldValue <> PrevValidFieldValue then
+            ObsoleteFieldValue := ValidFieldValue
+        else
+            if ObsoleteFieldValue <> PrevObsoleteFieldValue then
+                ValidFieldValue := ObsoleteFieldValue
+            else
+                ObsoleteFieldValue := ValidFieldValue;
+    end;
+
+    procedure SyncFields(var ObsoleteFieldValue: Date; var ValidFieldValue: Date; PrevObsoleteFieldValue: Date; PrevValidFieldValue: Date)
+    begin
+        if ObsoleteFieldValue = ValidFieldValue then
+            exit;
+
+        if (ObsoleteFieldValue = PrevObsoleteFieldValue) and (ValidFieldValue = PrevValidFieldValue) then
+            exit;
+
+        if ValidFieldValue <> PrevValidFieldValue then
+            ObsoleteFieldValue := ValidFieldValue
+        else
+            if ObsoleteFieldValue <> PrevObsoleteFieldValue then
+                ValidFieldValue := ObsoleteFieldValue
+            else
+                ObsoleteFieldValue := ValidFieldValue;
+    end;
+
+    procedure SyncFields(var ObsoleteFieldValue: DateTime; var ValidFieldValue: DateTime; PrevObsoleteFieldValue: DateTime; PrevValidFieldValue: DateTime)
+    begin
+        if ObsoleteFieldValue = ValidFieldValue then
+            exit;
+
+        if (ObsoleteFieldValue = PrevObsoleteFieldValue) and (ValidFieldValue = PrevValidFieldValue) then
+            exit;
+
+        if ValidFieldValue <> PrevValidFieldValue then
+            ObsoleteFieldValue := ValidFieldValue
+        else
+            if ObsoleteFieldValue <> PrevObsoleteFieldValue then
+                ValidFieldValue := ObsoleteFieldValue
+            else
+                ObsoleteFieldValue := ValidFieldValue;
+    end;
+
+    procedure SyncFields(var ObsoleteFieldValue: Integer; var ValidFieldValue: Integer; PrevObsoleteFieldValue: Integer; PrevValidFieldValue: Integer)
+    begin
+        if ObsoleteFieldValue = ValidFieldValue then
+            exit;
+
+        if (ObsoleteFieldValue = PrevObsoleteFieldValue) and (ValidFieldValue = PrevValidFieldValue) then
+            exit;
+
+        if ValidFieldValue <> PrevValidFieldValue then
+            ObsoleteFieldValue := ValidFieldValue
+        else
+            if ObsoleteFieldValue <> PrevObsoleteFieldValue then
+                ValidFieldValue := ObsoleteFieldValue
+            else
+                ObsoleteFieldValue := ValidFieldValue;
+    end;
+
+    procedure SyncFields(var ObsoleteFieldValue: Decimal; var ValidFieldValue: Decimal; PrevObsoleteFieldValue: Decimal; PrevValidFieldValue: Decimal)
     begin
         if ObsoleteFieldValue = ValidFieldValue then
             exit;

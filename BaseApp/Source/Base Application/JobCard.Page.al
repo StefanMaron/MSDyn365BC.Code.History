@@ -111,6 +111,33 @@ page 88 "Job Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the name of the contact person at the customer who pays for the job.';
                 }
+                field(ContactPhoneNo; Contact."Phone No.")
+                {
+                    Caption = 'Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the telephone number of the customer contact person for the job.';
+                }
+                field(ContactMobilePhoneNo; Contact."Mobile Phone No.")
+                {
+                    Caption = 'Mobile Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the customer contact person for the job.';
+                }
+                field(ContactEmail; Contact."E-Mail")
+                {
+                    Caption = 'Email';
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = EMail;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the email address of the customer contact person for the job.';
+                }
                 field("Search Description"; "Search Description")
                 {
                     ApplicationArea = Jobs;
@@ -257,16 +284,14 @@ page 88 "Job Card"
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the default method of the unit price calculation.';
                 }
                 field("Cost Calculation Method"; "Cost Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the default method of the unit cost calculation.';
@@ -533,6 +558,23 @@ page 88 "Job Card"
                     ShortCutKey = 'F7';
                     ToolTip = 'View this job''s statistics.';
                 }
+                action(SalesInvoicesCreditMemos)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Sales &Invoices/Credit Memos';
+                    Image = GetSourceDoc;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    ToolTip = 'View sales invoices or sales credit memos that are related to the selected job.';
+
+                    trigger OnAction()
+                    var
+                        JobInvoices: Page "Job Invoices";
+                    begin
+                        JobInvoices.SetPrJob(Rec);
+                        JobInvoices.RunModal();
+                    end;
+                }
                 separator(Action64)
                 {
                 }
@@ -615,6 +657,10 @@ page 88 "Job Card"
             {
                 Caption = '&Prices';
                 Image = Price;
+                Visible = not ExtendedPriceEnabled;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
                 action("&Resource")
                 {
                     ApplicationArea = Suite;
@@ -625,6 +671,9 @@ page 88 "Job Card"
                     RunObject = Page "Job Resource Prices";
                     RunPageLink = "Job No." = FIELD("No.");
                     ToolTip = 'View this job''s resource prices.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("&Item")
                 {
@@ -636,6 +685,9 @@ page 88 "Job Card"
                     RunObject = Page "Job Item Prices";
                     RunPageLink = "Job No." = FIELD("No.");
                     ToolTip = 'View this job''s item prices.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("&G/L Account")
                 {
@@ -648,6 +700,89 @@ page 88 "Job Card"
                     RunObject = Page "Job G/L Account Prices";
                     RunPageLink = "Job No." = FIELD("No.");
                     ToolTip = 'View this job''s G/L account prices.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+            }
+            group(Prices)
+            {
+                Visible = ExtendedPriceEnabled;
+                action(SalesPriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Price Lists (Prices)';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Price);
+                    end;
+                }
+                action(SalesPriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Discount);
+                    end;
+                }
+                action(PurchasePriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Price Lists (Prices)';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or set up different prices for products that you buy from the vendor. An product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Purchase, AmountType::Price);
+                    end;
+                }
+                action(PurchasePriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or set up different discounts for products that you buy from the vendor. An product discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Purchase, AmountType::Discount);
+                    end;
                 }
             }
             group("Plan&ning")
@@ -869,16 +1004,26 @@ page 88 "Job Card"
     end;
 
     trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         SetNoFieldVisible;
         IsCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        if Contact.Get("Bill-to Contact No.") then;
     end;
 
     var
+        Contact: Record Contact;
         FormatAddress: Codeunit "Format Address";
         JobSimplificationAvailable: Boolean;
         NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;
+        ExtendedPriceEnabled: Boolean;
 
     local procedure BilltoCustomerNoOnAfterValidat()
     begin

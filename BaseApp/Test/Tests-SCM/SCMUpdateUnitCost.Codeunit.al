@@ -39,7 +39,7 @@ codeunit 137211 "SCM Update Unit Cost"
     end;
 
     [Normal]
-    local procedure TestUpdateUnitCost(ParentCostingMethod: Option; CompCostingMethod: Option; UpdateReservations: Boolean)
+    local procedure TestUpdateUnitCost(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; UpdateReservations: Boolean)
     var
         Item: Record Item;
         ProductionOrder: Record "Production Order";
@@ -151,7 +151,7 @@ codeunit 137211 "SCM Update Unit Cost"
     end;
 
     [Normal]
-    local procedure SetupProdItem(var Item: Record Item; ParentCostingMethod: Option; CompCostingMethod: Option)
+    local procedure SetupProdItem(var Item: Record Item; ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method")
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         ProductionBOMHeader: Record "Production BOM Header";
@@ -172,7 +172,7 @@ codeunit 137211 "SCM Update Unit Cost"
     end;
 
     [Normal]
-    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; CostingMethod: Option)
+    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; CostingMethod: Enum "Costing Method")
     var
         ProductionBOMLine: Record "Production BOM Line";
         UnitOfMeasure: Record "Unit of Measure";

@@ -725,7 +725,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         ProductionBOMHeader.Modify(true);
     end;
 
-    local procedure CreateAndModifyItem(VendorNo: Code[20]; CostingMethod: Option; FlushingMethod: Option; ReplenishmentSystem: Option; IndCostPercentage: Decimal): Code[20]
+    local procedure CreateAndModifyItem(VendorNo: Code[20]; CostingMethod: Enum "Costing Method"; FlushingMethod: Enum "Flushing Method"; ReplenishmentSystem: Enum "Replenishment System"; IndCostPercentage: Decimal): Code[20]
     var
         Item: Record Item;
     begin
@@ -773,7 +773,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         exit(PostPurchaseDocument(PurchaseLine, Invoice));
     end;
 
-    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
@@ -879,7 +879,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         ItemJournalLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; ItemNo: Code[20]; VariantCode: Code[10]; VendorNo: Code[20]; Quantity: Decimal; OrderDate: Date)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; VariantCode: Code[10]; VendorNo: Code[20]; Quantity: Decimal; OrderDate: Date)
     var
         PurchaseHeader: Record "Purchase Header";
         GLAccount: Record "G/L Account";
@@ -936,7 +936,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
           RoutingLine, RoutingHeader, CenterNo, OperationNo, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; Type: Option; ItemNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; ItemNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal)
     var
         ReasonCode: Record "Reason Code";
     begin
@@ -976,7 +976,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         CapacityLedgerEntry.FindFirst;
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; OrderNo: Code[20])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; OrderNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
@@ -1001,7 +1001,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         ProdOrderLine.FindFirst;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -1015,7 +1015,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         SalesShipmentLine.FindFirst;
     end;
 
-    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; ItemChargeNo: Code[20]; LocationCode: Code[10]; Adjustment: Boolean; ItemLedgerEntryType: Option)
+    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; ItemChargeNo: Code[20]; LocationCode: Code[10]; Adjustment: Boolean; ItemLedgerEntryType: Enum "Item Ledger Document Type")
     begin
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
         ValueEntry.SetRange(Adjustment, Adjustment);
@@ -1025,7 +1025,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         ValueEntry.FindFirst;
     end;
 
-    local procedure FilterValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; ItemLedgerEntryType: Option)
+    local procedure FilterValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type")
     begin
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
         ValueEntry.SetRange("Document No.", DocumentNo);
@@ -1047,7 +1047,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice));
     end;
 
-    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -1189,7 +1189,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         SalesLine.Modify(true);
     end;
 
-    local procedure VerifyGLEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; GenPostingType: Option)
+    local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; GenPostingType: Enum "General Posting Type")
     var
         GLEntry: Record "G/L Entry";
         ActualAmount: Decimal;
@@ -1204,7 +1204,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision, 'Wrong amount in GL entry.');
     end;
 
-    local procedure VerifyValueEntry(ItemLedgerEntryType: Option; DocumentNo: Code[20]; ItemNo: Code[20])
+    local procedure VerifyValueEntry(ItemLedgerEntryType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; ItemNo: Code[20])
     var
         ValueEntry: Record "Value Entry";
     begin

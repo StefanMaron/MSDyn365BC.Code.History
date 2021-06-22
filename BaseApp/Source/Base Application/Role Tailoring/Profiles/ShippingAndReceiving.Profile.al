@@ -1,6 +1,6 @@
 profile "SHIPPING AND RECEIVING"
 {
-    Caption = 'Shipping and Receiving - Order-by-Order';
-    ProfileDescription = 'Functionality for warehouse employees in basic location configurations in charge of shipping and/or receiving against orders while supervising other warehouse employees.';
+    Caption = 'Inventory Manager';
+    ProfileDescription = 'Functionality for inventory managers, including procurement, operation with multiple locations, and various warehouse tasks.';
     RoleCenter = 9008;
 }

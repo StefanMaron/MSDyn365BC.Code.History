@@ -543,7 +543,6 @@ codeunit 134337 "ERM Purch. Batch Posting"
     var
         PurchaseHeader: Record "Purchase Header";
         BatchProcessingParameter: Record "Batch Processing Parameter";
-        BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         BatchID: array[2] of Guid;
         BatchSessionID: array[2] of Integer;
@@ -570,11 +569,11 @@ codeunit 134337 "ERM Purch. Batch Posting"
 
         // [GIVEN] Batch "B[1]" processing "I". Batch is lost in current session. Parameter "Posting Date" = March 1st, 2019.
         AddBatchProcessParameters(
-          PurchaseHeader, BatchPostParameterTypes.PostingDate, PostingDate[1], BatchSessionID[1], BatchID[1]);
+          PurchaseHeader, "Batch Posting Parameter Type"::"Posting Date", PostingDate[1], BatchSessionID[1], BatchID[1]);
 
         // [GIVEN] Batch "B[2]" processing "I". Batch is live in other session. Parameter "Posting Date" = March 1st, 2019.
         AddBatchProcessParameters(
-          PurchaseHeader, BatchPostParameterTypes.PostingDate, PostingDate[1], BatchSessionID[2], BatchID[2]);
+          PurchaseHeader, "Batch Posting Parameter Type"::"Posting Date", PostingDate[1], BatchSessionID[2], BatchID[2]);
 
         // [WHEN] Stan run "Batch Post Purchase Invoices" report with "Replace Posting Date" = TRUE and "Posting Date" = March 2nd, 2019 and "I" in filter
         RunBatchPostPurchase(PurchaseHeader."Document Type", PurchaseHeader."No.", PostingDate[2], true);
@@ -823,12 +822,12 @@ codeunit 134337 "ERM Purch. Batch Posting"
         VendInvDisc.Insert(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; InvDisc: Boolean)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; InvDisc: Boolean)
     begin
         CreatePurchaseDocumentWithQuantity(PurchaseHeader, DocumentType, InvDisc, LibraryRandom.RandIntInRange(5, 10));
     end;
 
-    local procedure CreatePurchaseDocumentWithQuantity(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; InvDisc: Boolean; DocQuantity: Integer)
+    local procedure CreatePurchaseDocumentWithQuantity(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; InvDisc: Boolean; DocQuantity: Integer)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -861,7 +860,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         BatchProcessingSessionMap.Insert();
     end;
 
-    local procedure RunBatchPostPurchase(DocumentType: Option; DocumentNoFilter: Text; PostingDate: Date; CalcInvDisc: Boolean)
+    local procedure RunBatchPostPurchase(DocumentType: Enum "Purchase Document Type"; DocumentNoFilter: Text; PostingDate: Date; CalcInvDisc: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
     begin

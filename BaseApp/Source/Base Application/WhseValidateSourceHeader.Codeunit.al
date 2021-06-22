@@ -16,16 +16,12 @@ codeunit 5781 "Whse. Validate Source Header"
             SalesLine.Reset();
             SalesLine.SetRange("Document Type", OldSalesHeader."Document Type");
             SalesLine.SetRange("Document No.", OldSalesHeader."No.");
-            if SalesLine.FindSet then
+            if SalesLine.FindSet() then
                 repeat
                     ChangeWhseLines(
-                      DATABASE::"Sales Line",
-                      SalesLine."Document Type",
-                      SalesLine."Document No.",
-                      SalesLine."Line No.",
-                      0,
-                      "Shipping Advice");
-                until SalesLine.Next = 0;
+                        DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0,
+                        "Shipping Advice");
+                until SalesLine.Next() = 0;
         end;
     end;
 
@@ -43,12 +39,8 @@ codeunit 5781 "Whse. Validate Source Header"
             if ServiceLine.Find('-') then
                 repeat
                     ChangeWhseLines(
-                      DATABASE::"Service Line",
-                      ServiceLine."Document Type",
-                      ServiceLine."Document No.",
-                      ServiceLine."Line No.",
-                      0,
-                      "Shipping Advice");
+                        DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", 0,
+                        "Shipping Advice");
                 until ServiceLine.Next = 0;
         end;
     end;
@@ -66,17 +58,13 @@ codeunit 5781 "Whse. Validate Source Header"
             if TransLine.Find('-') then
                 repeat
                     ChangeWhseLines(
-                      DATABASE::"Transfer Line",
-                      0,// Outbound Transfer
-                      TransLine."Document No.",
-                      TransLine."Line No.",
-                      0,
-                      "Shipping Advice");
+                        DATABASE::"Transfer Line", 0,// Outbound Transfer
+                        TransLine."Document No.", TransLine."Line No.", 0, "Shipping Advice");
                 until TransLine.Next = 0;
         end;
     end;
 
-    local procedure ChangeWhseLines(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer; ShipAdvice: Integer)
+    local procedure ChangeWhseLines(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer; ShipAdvice: Enum "Sales Header Shipping Advice")
     var
         WhseActivLine: Record "Warehouse Activity Line";
         WhseShptLine: Record "Warehouse Shipment Line";

@@ -20,6 +20,9 @@ codeunit 130000 Assert
         ExpectedErrorFailed: Label 'Assert.ExpectedError failed. Expected: %1. Actual: %2.';
         ExpectedErrorCodeFailed: Label 'Assert.ExpectedErrorCode failed. Expected: %1. Actual: %2. Actual error message: %3.';
         ExpectedMessageFailedErr: Label 'Assert.ExpectedMessage failed. Expected: %1. Actual: %2.';
+        ExpectedConfirmFailedErr: Label 'Assert.ExpectedConfirm failed. Expected: %1. Actual: %2.';
+        ExpectedStrMenuInstructionFailedErr: Label 'Assert.ExpectedStrMenu failed. Expected instruction: %1. Actual instruction: %2.';
+        ExpectedStrMenuOptionsFailedErr: Label 'Assert.ExpectedStrMenu failed. Expected options: %1. Actual options: %2.';
         IsSubstringFailedErr: Label 'Assert.IsSubstring failed. Expected <%1> to be a substring of <%2>.';
         RecordCountErr: Label 'Assert.RecordCount failed. Expected number of %1 entries: %2. Actual: %3. Filters: %4.', Locked = true;
         UnsupportedTypeErr: Label 'Equality assertions only support Boolean, Option, Integer, BigInteger, Decimal, Code, Text, Date, DateFormula, Time, Duration, and DateTime values. Current value:%1.';
@@ -154,8 +157,24 @@ codeunit 130000 Assert
 
     procedure ExpectedMessage(Expected: Text; Actual: Text)
     begin
+        ExpectedDialog(Expected, Actual, ExpectedMessageFailedErr);
+    end;
+
+    procedure ExpectedConfirm(Expected: Text; Actual: Text)
+    begin
+        ExpectedDialog(Expected, Actual, ExpectedConfirmFailedErr);
+    end;
+
+    procedure ExpectedStrMenu(ExpectedInstruction: Text; ExpectedOptions: Text; ActualInstruction: Text; ActualOptions: Text)
+    begin
+        ExpectedDialog(ExpectedInstruction, ActualInstruction, ExpectedStrMenuInstructionFailedErr);
+        ExpectedDialog(ExpectedOptions, ActualOptions, ExpectedStrMenuOptionsFailedErr);
+    end;
+
+    local procedure ExpectedDialog(Expected: Text; Actual: Text; ErrorMessage: Text)
+    begin
         if StrPos(Actual, Expected) = 0 then
-            Error(ExpectedMessageFailedErr, Expected, Actual);
+            Error(ErrorMessage, Expected, Actual);
     end;
 
     procedure IsDataTypeSupported(Value: Variant): Boolean

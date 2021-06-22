@@ -2,6 +2,9 @@ page 2375 "BC O365 Quickbooks Settings"
 {
     Caption = ' ';
     PageType = CardPart;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Quickbooks integration to Invoicing is discontinued.';
+    ObsoleteTag = '17.0';
 
     layout
     {

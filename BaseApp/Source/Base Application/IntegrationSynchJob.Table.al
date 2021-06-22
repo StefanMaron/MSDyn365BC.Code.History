@@ -61,8 +61,17 @@ table 5338 "Integration Synch. Job"
         {
             Caption = 'Job Queue Log Entry No.';
         }
+        field(14; Type; Option)
+        {
+            Caption = 'Type';
+            OptionCaption = 'Synchronization,Uncoupling';
+            OptionMembers = Synchronization,Uncoupling;
+        }
+        field(15; Uncoupled; Integer)
+        {
+            Caption = 'Uncoupled';
+        }
     }
-
     keys
     {
         key(Key1; ID)
@@ -70,6 +79,9 @@ table 5338 "Integration Synch. Job"
             Clustered = true;
         }
         key(Key2; "Start Date/Time", ID)
+        {
+        }
+        key(Key3; Type)
         {
         }
     }

@@ -118,10 +118,10 @@ page 5340 "CRM Systemuser List"
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
                 begin
                     CurrPage.SetSelectionFilter(CRMSystemuser);
-                    if not HasUncoupled(CRMSystemuser) then
+                    if not CRMIntegrationManagement.HasUncoupledSelectedUsers(CRMSystemuser) then
                         exit;
 
-                    CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMSystemuser);
+                    CRMIntegrationManagement.CreateNewSystemUsersFromCRM(CRMSystemuser);
                     HasCoupled := true;
 
                     if IsCDSIntegrationEnabled then

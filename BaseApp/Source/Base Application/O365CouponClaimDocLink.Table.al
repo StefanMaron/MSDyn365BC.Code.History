@@ -10,11 +10,9 @@ table 2116 "O365 Coupon Claim Doc. Link"
             Caption = 'Claim ID';
             TableRelation = "O365 Coupon Claim"."Claim ID";
         }
-        field(2; "Document Type"; Option)
+        field(2; "Document Type"; Enum "Sales Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
             TableRelation = "Sales Header"."Document Type";
         }
         field(3; "Document No."; Code[20])

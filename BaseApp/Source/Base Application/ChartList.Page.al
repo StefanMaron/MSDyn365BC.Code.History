@@ -23,6 +23,7 @@ page 1391 "Chart List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the chart is enabled.';
+
                 }
             }
         }
@@ -31,6 +32,7 @@ page 1391 "Chart List"
     actions
     {
         area(navigation)
+
         {
             action(Setup)
             {
@@ -43,7 +45,6 @@ page 1391 "Chart List"
                 Enabled = SetupActive;
                 ToolTip = 'Specifies setup for this Chart';
                 trigger OnAction()
-
                 var
                     AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
                     ChartManagement: Codeunit "Chart Management";
@@ -69,6 +70,7 @@ page 1391 "Chart List"
             }
         }
     }
+
     trigger OnAfterGetCurrRecord()
     begin
         SetupActive := SupportSetup();

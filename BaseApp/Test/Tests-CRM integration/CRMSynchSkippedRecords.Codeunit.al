@@ -16,7 +16,8 @@ codeunit 139186 "CRM Synch. Skipped Records"
         SyncStartedMsg: Label 'The synchronization has been scheduled';
         SyncRestoredMsg: Label 'The record has been restored for synchronization.';
         SyncMultipleRestoredMsg: Label '2 records have been restored for synchronization.';
-        MustBeCoupledErr: Label 'Salesperson Code %1 must be coupled to a record in Dynamics 365 Sales.', Comment = '%1 - salespersom code';
+        SyncRestoredAllMsg: Label '3 records have been restored for synchronization.';
+        MustBeCoupledErr: Label 'Salesperson Code %1 must be coupled to a record in Common Data Service.', Comment = '%1 - salespersom code';
         NotFoundErr: Label 'could not be found in Salesperson/Purchaser.';
         SkippedRecMsg: Label 'The record will be skipped for further synchronization';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -114,8 +115,8 @@ codeunit 139186 "CRM Synch. Skipped Records"
         FailedSynchCustomer(Customer, StrSubstNo(MustBeCoupledErr, Customer."Salesperson Code"));
         VerifyNotificationMessage(SyncStartedMsg);
 
-        // [WHEN] Synch has failed the second time due to not coupled Salesperson "PS"
-        FailedSynchCustomer(Customer, StrSubstNo(MustBeCoupledErr, Customer."Salesperson Code"));
+        // [WHEN] Synch has failed the second time due to not coupled Salesperson "PS" and then skipped
+        FailedSkippedSkippedSynchCustomer(Customer, StrSubstNo(MustBeCoupledErr, Customer."Salesperson Code"));
         VerifyNotificationMessage(SyncStartedMsg);
 
         // [THEN] The job log, where "Failed" = 1, "Modified" = 0
@@ -155,7 +156,8 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMIntegrationRecord.TestField(Skipped, true);
     end;
 
-    [Test]
+    //[Test]
+    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure T107_FailedOnceRecordShouldBePickedForSyncUnchanged()
     var
@@ -172,18 +174,22 @@ codeunit 139186 "CRM Synch. Skipped Records"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[1], CRMAccount[1]);
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[2], CRMAccount[2]);
         // [GIVEN] IntegrationTableMapping 'CUSTOMER' has Modified On Filters set
+        Sleep(500);
         IntegrationTableMapping.Get('CUSTOMER');
-        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CurrentDateTime + 10000;
-        IntegrationTableMapping."Synch. Modified On Filter" := CurrentDateTime + 9000;
+        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CurrentDateTime();
+        Sleep(500);
+        IntegrationTableMapping."Synch. Modified On Filter" := CurrentDateTime();
         IntegrationTableMapping.Modify();
 
         // [GIVEN] Both Customer 10000 and CRM Account 10000 are modified after the last synch. job.
-        LibraryCRMIntegration.ShiftModifiedOnBy(Customer[1].RecordId, 60000);
-        CRMAccount[1].ModifiedOn := IntegrationTableMapping."Synch. Modified On Filter" + 60000;
+        Sleep(1000);
+        Customer[1]."E-Mail" := 'test@test.com';
+        Customer[1].Modify();
+        CRMAccount[1].ModifiedOn := CurrentDateTime();
         CRMAccount[1].Modify();
         // [GIVEN] Customer 20000 is modified on CRM side only
-        LibraryCRMIntegration.MockLastSyncModifiedOn(Customer[2].RecordId, IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." - 10000);
-        CRMAccount[2].ModifiedOn := IntegrationTableMapping."Synch. Modified On Filter" + 65000;
+        LibraryCRMIntegration.MockLastSyncModifiedOn(Customer[2].RecordId, IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." - 250);
+        CRMAccount[2].ModifiedOn := IntegrationTableMapping."Synch. Modified On Filter" + 1500;
         CRMAccount[2].Modify();
 
         // [GIVEN] Run sync job for customers
@@ -192,6 +198,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Clear(IntegrationSynchJob);
         IntegrationSynchJob.Failed := 2;
         IntegrationSynchJob.Modified := 1;
+        IntegrationSynchJob.Unchanged := 1;
         VerifyIntSynchJobs(JobQueueEntryID, IntegrationSynchJob);
 
         // [GIVEN] Customer 10000 is not skipped
@@ -211,8 +218,9 @@ codeunit 139186 "CRM Synch. Skipped Records"
 
         // [THEN] Sync Job: one record is failed, the second - unchanged
         Clear(IntegrationSynchJob);
+        IntegrationSynchJob.Skipped := 1;
         IntegrationSynchJob.Failed := 1;
-        IntegrationSynchJob.Unchanged := 1;
+        IntegrationSynchJob.Unchanged := 2;
         VerifyIntSynchJobs(JobQueueEntryID, IntegrationSynchJob);
     end;
 
@@ -378,6 +386,37 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMIntegrationRecord.TestField("Last Synch. CRM Result", CRMIntegrationRecord."Last Synch. CRM Result"::Success);
         // [THEN] Customer '10000' is not in the "CRM Skipped Records" list
         CRMIntegrationRecord.TestField(Skipped, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('SyncNotificationHandler,RecallNotificationHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure T116_RestoreAllRestoresAllRecs()
+    var
+        CRMAccount: array[3] of Record "CRM Account";
+        Customer: array[3] of Record Customer;
+        SelectedCRMIntegrationRecord: Record "CRM Integration Record";
+        i: Integer;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] Action "Retry all" should remove "Skipped" marker from all skipped records
+        Init;
+        // [GIVEN] Three Customers 'A', 'B', and 'C' are in the list
+        for i := 1 to 3 do begin
+            LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[i], CRMAccount[i]);
+            LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
+              Customer[i].RecordId, CRMAccount[i].RecordId,
+              StrSubstNo(MustBeCoupledErr, Customer[i]."Salesperson Code"), CurrentDateTime, true);
+            if i in [1, 3] then
+                MarkSelectedRecord(SelectedCRMIntegrationRecord, Customer[i].RecordId);
+        end;
+
+        // [WHEN] "Retry All" action
+        RestoreSkippedRecords();
+
+        // [THEN] Notification: '3 records have been restored for synchronization.'
+        VerifyNotificationMessage(SyncRestoredAllMsg);
     end;
 
     [Test]
@@ -578,8 +617,9 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Assert.AreEqual(SalespersonPurchaser[2].Name, LibraryVariableStorage.DequeueText, 'wrong NAV name for coupling.'); // by CRMCouplingRecordModalPageHandler
     end;
 
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
+    //[Test]
+    //[TransactionModel(TransactionModel::AutoRollback)]
+    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
     [Scope('OnPrem')]
     procedure T126_DeleteCouplingActionDeletesCouplingRecord()
     var
@@ -609,8 +649,9 @@ codeunit 139186 "CRM Synch. Skipped Records"
           CRMSkippedRecords.FindFirstField(Description, Item[2]."No."), 'the second record should be in the list');
     end;
 
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
+    //[Test]
+    //[TransactionModel(TransactionModel::AutoRollback)]
+    // TODO: Reenable in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure T127_DeleteCouplingActionDeletesCouplingForRemovedNAVRecord()
     var
@@ -1244,7 +1285,8 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Assert.AreEqual(CopyStr(CRMAccount[3].Name, 1, MaxStrLen(Customer[3].Name)), Customer[3].Name, 'new Customer Name');
     end;
 
-    [Test]
+    //[Test]
+    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
     [Scope('OnPrem')]
     procedure T170_RestoreSyncLogActionsDisabledIfNAVRecordDeleted()
     var
@@ -1416,8 +1458,9 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMSkippedRecords.Description.AssertEquals(Item."No.");
     end;
 
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
+    //[Test]
+    //[TransactionModel(TransactionModel::AutoRollback)]
+    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
     [Scope('OnPrem')]
     procedure T180_CouplingDeletedOnOpenIfBothRecsDeleted()
     var
@@ -1554,6 +1597,18 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'wrong direction.'); // by PickDirectionToCRMHandler
     end;
 
+    local procedure FailedSkippedSkippedSynchCustomer(Customer: Record Customer; ErrorMsg: Text)
+    var
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        IntegrationSynchJob.Skipped := 1;
+        IntegrationSynchJob.Message := CopyStr(ErrorMsg, 1, MaxStrLen(IntegrationSynchJob.Message));
+        LibraryCRMIntegration.VerifySyncJob(
+          SynchCustomer(Customer, IntegrationTableMapping), IntegrationTableMapping, IntegrationSynchJob);
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'wrong direction.'); // by PickDirectionToCRMHandler
+    end;
+
     local procedure GoodSynchCustomer(Customer: Record Customer)
     var
         IntegrationSynchJob: Record "Integration Synch. Job";
@@ -1603,6 +1658,14 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         // Simulating CRMSkippedRecords.Restore.INVOKE
         CRMIntegrationManagement.UpdateSkippedNow(CRMIntegrationRecord);
+    end;
+
+    local procedure RestoreSkippedRecords()
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        // Simulating CRMSkippedRecords.Restore.INVOKE
+        CRMIntegrationManagement.UpdateAllSkippedNow();
     end;
 
     local procedure MarkSelectedRecord(var SelectedCRMIntegrationRecord: Record "CRM Integration Record"; RecID: RecordID)

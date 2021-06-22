@@ -111,9 +111,13 @@ table 1530 "Workflow Step Instance Archive"
     trigger OnDelete()
     var
         WorkflowStepArgumentArchive: Record "Workflow Step Argument Archive";
+        WorkflowRecordChangeArchive: record "Workflow Record Change Archive";
     begin
         if WorkflowStepArgumentArchive.Get(Argument) then
             WorkflowStepArgumentArchive.Delete(true);
+
+        WorkflowRecordChangeArchive.SetRange("Workflow Step Instance ID", Rec.ID);
+        WorkflowRecordChangeArchive.DeleteAll();
     end;
 }
 

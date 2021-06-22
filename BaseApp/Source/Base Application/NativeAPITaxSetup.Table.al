@@ -178,8 +178,7 @@ table 2850 "Native - API Tax Setup"
                         exit;
 
                     LoadFromTaxArea(TempTaxAreaBuffer);
-                    SetRange(Id, CurrentId);
-                    FindFirst;
+                    GetBySystemId(CurrentId)
                 end;
             Type::VAT:
                 begin
@@ -194,8 +193,7 @@ table 2850 "Native - API Tax Setup"
 
                     LoadFromTaxGroup(TempTaxGroupBuffer);
                     Insert;
-                    SetRange(Id, CurrentId);
-                    FindFirst;
+                    GetBySystemId(CurrentId)
                 end;
         end;
     end;
@@ -278,7 +276,7 @@ table 2850 "Native - API Tax Setup"
             VATPostingSetup.Modify(true);
         end;
 
-        "VAT Regulation Reference ID" := VATClause.Id;
+        "VAT Regulation Reference ID" := VATClause.SystemId;
         "VAT Regulation Description" := VATClause.Description;
     end;
 
@@ -306,8 +304,7 @@ table 2850 "Native - API Tax Setup"
         VATClause: Record "VAT Clause";
         O365TemplateManagement: Codeunit "O365 Template Management";
     begin
-        VATClause.SetRange(Id, "VAT Regulation Reference ID");
-        VATClause.FindFirst;
+        VATClause.GetBySystemId("VAT Regulation Reference ID");
 
         if PreviousNativeAPITaxSetup."VAT Regulation Reference ID" <> "VAT Regulation Reference ID" then begin
             VATPostingSetup.Get(O365TemplateManagement.GetDefaultVATBusinessPostingGroup, Code);
@@ -351,15 +348,13 @@ table 2850 "Native - API Tax Setup"
             exit;
 
         if GeneralLedgerSetup.UseVat then begin
-            VATBusinessPostingGroup.SetRange(Id, TaxAreaId);
-            if not VATBusinessPostingGroup.FindFirst then
+            if not VATBusinessPostingGroup.GetBySystemId(TaxAreaId) then
                 exit;
 
             exit(VATBusinessPostingGroup.Description);
         end;
 
-        TaxArea.SetRange(Id, TaxAreaId);
-        if not TaxArea.FindFirst then
+        if not TaxArea.GetBySystemId(TaxAreaId) then
             exit;
 
         exit(TaxArea.GetDescriptionInCurrentLanguage);

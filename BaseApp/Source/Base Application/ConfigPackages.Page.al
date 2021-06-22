@@ -332,7 +332,6 @@ page 8615 "Config. Packages"
         ImportPredefinedPackageVisible := not ConfigurationPackageFile.IsEmpty;
         AditionalOptionsEnabled := ConfigPackage.WritePermission;
         ConfigPackageMgt.ShowRapidStartNotification();
-        ConfigPackageMgt.ShowDateTimeEvaluationChangeNotification();
     end;
 
     var

@@ -682,7 +682,7 @@ codeunit 134020 "ERM Accounts"
           GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount);
     end;
 
-    local procedure CreateGLAccountWithPostingType(PostingType: Option): Code[20]
+    local procedure CreateGLAccountWithPostingType(PostingType: Enum "General Posting Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin

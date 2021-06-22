@@ -397,26 +397,17 @@ table 483 "Change Global Dim. Log Entry"
 
     procedure SendTraceTagOnError()
     begin
-        SendTraceTag(
-          '00001ZB', TagCategoryTxt, VERBOSITY::Error,
-          StrSubstNo(ErrorTraceTagMsg, "Table ID", "Completed Records", "Total Records", GetLastErrorText),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001ZB', StrSubstNo(ErrorTraceTagMsg, "Table ID", "Completed Records", "Total Records", GetLastErrorText), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TagCategoryTxt);
     end;
 
     procedure SendTraceTagOnRerun()
     begin
-        SendTraceTag(
-          '00001ZC', TagCategoryTxt, VERBOSITY::Warning,
-          StrSubstNo(RerunTraceTagMsg, "Table ID", "Completed Records", "Total Records"),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001ZC', StrSubstNo(RerunTraceTagMsg, "Table ID", "Completed Records", "Total Records"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TagCategoryTxt);
     end;
 
     procedure SendTraceTagOnScheduling()
     begin
-        SendTraceTag(
-          '00001ZD', TagCategoryTxt, VERBOSITY::Normal,
-          StrSubstNo(ScheduledTraceTagMsg, "Table ID", "Total Records", Format("Earliest Start Date/Time", 0, 9)),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('00001ZD', StrSubstNo(ScheduledTraceTagMsg, "Table ID", "Total Records", Format("Earliest Start Date/Time", 0, 9)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TagCategoryTxt);
     end;
 
     procedure SetSessionInProgress()

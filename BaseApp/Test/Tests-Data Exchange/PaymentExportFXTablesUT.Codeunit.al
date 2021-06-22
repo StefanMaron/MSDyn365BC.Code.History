@@ -45,7 +45,8 @@ codeunit 132572 "Payment Export FX Tables UT"
         TempDataExchFieldMapping: Record "Data Exch. Field Mapping" temporary;
     begin
         // Pre-Setup
-        DataExchDef.InsertRecForExport(LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Bank Statement Import",
+        DataExchDef.InsertRecForExport(
+          LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Bank Statement Import".AsInteger(),
           XMLPORT::"Data Exch. Import - CSV", DataExchDef."File Type"::"Variable Text");
         DataExchLineDef.InsertRec(DataExchDef.Code, LibraryUtility.GenerateGUID, '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, DataExchLineDef.Code, 1, '',
@@ -77,7 +78,8 @@ codeunit 132572 "Payment Export FX Tables UT"
         TempDataExchFieldMapping: Record "Data Exch. Field Mapping" temporary;
     begin
         // Pre-Setup
-        DataExchDef.InsertRecForExport(LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Payment Export",
+        DataExchDef.InsertRecForExport(
+          LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Payment Export".AsInteger(),
           XMLPORT::"Export Generic CSV", DataExchDef."File Type"::"Variable Text");
         DataExchLineDef.InsertRec(DataExchDef.Code, LibraryUtility.GenerateGUID, '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, DataExchLineDef.Code, 1, '',
@@ -109,7 +111,8 @@ codeunit 132572 "Payment Export FX Tables UT"
         TempDataExchFieldMapping: Record "Data Exch. Field Mapping" temporary;
     begin
         // Pre-Setup
-        DataExchDef.InsertRecForExport(LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Payment Export",
+        DataExchDef.InsertRecForExport(
+          LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Payment Export".AsInteger(),
           XMLPORT::"Export Generic CSV", DataExchDef."File Type"::"Variable Text");
         DataExchLineDef.InsertRec(DataExchDef.Code, LibraryUtility.GenerateGUID, '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, DataExchLineDef.Code, 1, '',
@@ -158,7 +161,8 @@ codeunit 132572 "Payment Export FX Tables UT"
         TempDataExchFieldMapping: Record "Data Exch. Field Mapping" temporary;
     begin
         // Pre-Setup
-        DataExchDef.InsertRecForExport(LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Payment Export",
+        DataExchDef.InsertRecForExport(
+          LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Payment Export".AsInteger(),
           XMLPORT::"Export Generic CSV", DataExchDef."File Type"::"Variable Text");
         DataExchLineDef.InsertRec(DataExchDef.Code, LibraryUtility.GenerateGUID, '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, DataExchLineDef.Code, 1, '',
@@ -190,7 +194,8 @@ codeunit 132572 "Payment Export FX Tables UT"
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
     begin
         // Pre-Setup
-        DataExchDef.InsertRecForExport(LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Payment Export",
+        DataExchDef.InsertRecForExport(
+          LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Payment Export".AsInteger(),
           XMLPORT::"Export Generic CSV", DataExchDef."File Type"::"Variable Text");
         DataExchLineDef.InsertRec(DataExchDef.Code, LibraryUtility.GenerateGUID, '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, DataExchLineDef.Code, 1, '',
@@ -221,8 +226,9 @@ codeunit 132572 "Payment Export FX Tables UT"
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
     begin
         // Pre-Setup
-        DataExchDef.InsertRecForExport(LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID,
-          DataExchDef.Type::"Payment Export", XMLPORT::"Export Generic CSV", DataExchDef."File Type"::"Variable Text");
+        DataExchDef.InsertRecForExport(
+          LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, DataExchDef.Type::"Payment Export".AsInteger(),
+          XMLPORT::"Export Generic CSV", DataExchDef."File Type"::"Variable Text");
         DataExchLineDef.InsertRec(DataExchDef.Code, LibraryUtility.GenerateGUID, '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, DataExchLineDef.Code, 1, '',
           true, DataExchColumnDef."Data Type"::Decimal, '', '', '');
@@ -258,8 +264,9 @@ codeunit 132572 "Payment Export FX Tables UT"
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
     begin
         // Pre-Setup
-        DataExchDef.InsertRecForExport(LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID,
-          DataExchDef.Type::"Payment Export", XMLPORT::"Export Generic CSV", DataExchDef."File Type"::"Variable Text");
+        DataExchDef.InsertRecForExport(
+          LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, DataExchDef.Type::"Payment Export".AsInteger(),
+          XMLPORT::"Export Generic CSV", DataExchDef."File Type"::"Variable Text");
         DataExchLineDef.InsertRec(DataExchDef.Code, LibraryUtility.GenerateGUID, '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, DataExchLineDef.Code, 1, '',
           true, DataExchColumnDef."Data Type"::Decimal, '', '', '');
@@ -376,15 +383,16 @@ codeunit 132572 "Payment Export FX Tables UT"
         DataExchDef.Delete(true);
     end;
 
-    local procedure CreatePmtExportFormat(var DataExchDef: Record "Data Exch. Def"; DataExchDefType: Option)
+    local procedure CreatePmtExportFormat(var DataExchDef: Record "Data Exch. Def"; DataExchDefType: Enum "Data Exchange Definition Type")
     var
         DataExchLineDef: Record "Data Exch. Line Def";
         DataExchColumnDef: Record "Data Exch. Column Def";
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
         DataExchMapping: Record "Data Exch. Mapping";
     begin
-        DataExchDef.InsertRecForExport(LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID,
-          DataExchDefType, XMLPORT::"Export Generic CSV", DataExchDef."File Type"::"Variable Text");
+        DataExchDef.InsertRecForExport(
+          LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, DataExchDefType.AsInteger(),
+          XMLPORT::"Export Generic CSV", DataExchDef."File Type"::"Variable Text");
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 1);
         DataExchColumnDef.InsertRec(DataExchDef.Code, DataExchLineDef.Code, 1, LibraryUtility.GenerateGUID,
           true, DataExchColumnDef."Data Type"::Text, '', '', '');

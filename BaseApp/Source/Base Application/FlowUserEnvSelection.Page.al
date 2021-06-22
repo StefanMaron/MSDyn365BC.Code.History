@@ -1,6 +1,7 @@
 page 6416 "Flow User Env. Selection"
 {
-    Caption = 'Flow User Environment Selection';
+    Caption = 'Power Automate User Environment Selection';
+    AdditionalSearchTerms = 'Flow,Microsoft Flow';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;

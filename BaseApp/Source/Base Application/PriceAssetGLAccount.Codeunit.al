@@ -77,6 +77,7 @@ codeunit 7046 "Price Asset - G/L Account" implements "Price Asset"
 
     local procedure FillAdditionalFields(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset.Description := GLAccount.Name;
         PriceAsset."Unit of Measure Code" := '';
         PriceAsset."Variant Code" := '';
     end;

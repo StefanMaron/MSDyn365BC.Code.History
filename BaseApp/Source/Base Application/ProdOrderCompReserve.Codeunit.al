@@ -46,19 +46,19 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         end;
 
         CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Prod. Order Component", ProdOrderComp.Status,
-          ProdOrderComp."Prod. Order No.", '', ProdOrderComp."Prod. Order Line No.",
-          ProdOrderComp."Line No.", ProdOrderComp."Qty. per Unit of Measure",
-          Quantity, QuantityBase, ForReservEntry);
+            DATABASE::"Prod. Order Component", ProdOrderComp.Status.AsInteger(),
+            ProdOrderComp."Prod. Order No.", '', ProdOrderComp."Prod. Order Line No.",
+            ProdOrderComp."Line No.", ProdOrderComp."Qty. per Unit of Measure",
+            Quantity, QuantityBase, ForReservEntry);
         CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
         CreateReservEntry.CreateReservEntry(
-          ProdOrderComp."Item No.", ProdOrderComp."Variant Code", ProdOrderComp."Location Code",
-          Description, ExpectedReceiptDate, ShipmentDate, 0);
+            ProdOrderComp."Item No.", ProdOrderComp."Variant Code", ProdOrderComp."Location Code",
+            Description, ExpectedReceiptDate, ShipmentDate, 0);
 
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-    [Obsolete('Replaced by CreateReservation(ProdOrderComponent, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    [Obsolete('Replaced by CreateReservation(ProdOrderComponent, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(ProdOrderComp: Record "Prod. Order Component"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -80,12 +80,12 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         FromTrackingSpecification := TrackingSpecification;
     end;
 
-    procedure SetBinding(Binding: Option " ","Order-to-Order")
+    procedure SetBinding(Binding: Enum "Reservation Binding")
     begin
         CreateReservEntry.SetBinding(Binding);
     end;
 
-    [Obsolete('Replaced by ProdOrderComp.SetReservationFilters(FilterReservEntry)','16.0')]
+    [Obsolete('Replaced by ProdOrderComp.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ProdOrderComp: Record "Prod. Order Component")
     begin
         ProdOrderComp.SetReservationFilters(FilterReservEntry);
@@ -155,7 +155,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
            (not ReservMgt.CalcIsAvailTrackedQtyInBin(
               NewProdOrderComp."Item No.", NewProdOrderComp."Bin Code",
               NewProdOrderComp."Location Code", NewProdOrderComp."Variant Code",
-              DATABASE::"Prod. Order Component", NewProdOrderComp.Status,
+              DATABASE::"Prod. Order Component", NewProdOrderComp.Status.AsInteger(),
               NewProdOrderComp."Prod. Order No.", '', NewProdOrderComp."Prod. Order Line No.",
               NewProdOrderComp."Line No."))
         then begin
@@ -239,10 +239,10 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         NewProdOrderComp.TestItemFields(OldProdOrderComp."Item No.", OldProdOrderComp."Variant Code", OldProdOrderComp."Location Code");
 
         OldReservEntry.TransferReservations(
-          OldReservEntry, OldProdOrderComp."Item No.", OldProdOrderComp."Variant Code", OldProdOrderComp."Location Code",
-          TransferAll, TransferQty, NewProdOrderComp."Qty. per Unit of Measure",
-          DATABASE::"Prod. Order Component", NewProdOrderComp.Status, NewProdOrderComp."Prod. Order No.", '',
-          NewProdOrderComp."Prod. Order Line No.", NewProdOrderComp."Line No.");
+            OldReservEntry, OldProdOrderComp."Item No.", OldProdOrderComp."Variant Code", OldProdOrderComp."Location Code",
+            TransferAll, TransferQty, NewProdOrderComp."Qty. per Unit of Measure",
+            DATABASE::"Prod. Order Component", NewProdOrderComp.Status.AsInteger(), NewProdOrderComp."Prod. Order No.", '',
+            NewProdOrderComp."Prod. Order Line No.", NewProdOrderComp."Line No.");
     end;
 
     procedure TransferPOCompToItemJnlLine(var OldProdOrderComp: Record "Prod. Order Component"; var NewItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal)
@@ -254,6 +254,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     var
         OldReservEntry: Record "Reservation Entry";
         OppositeReservationEntry: Record "Reservation Entry";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingFilterIsSet: Boolean;
         EndLoop: Boolean;
         TrackedQty: Decimal;
@@ -293,12 +294,13 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         if TransferQty = 0 then
             exit;
 
-        if ReservEngineMgt.InitRecordSet(OldReservEntry, NewItemJnlLine."Serial No.", NewItemJnlLine."Lot No.") then
+        ItemTrackingSetup.CopyTrackingFromItemJnlLine(NewItemJnlLine);
+        if ReservEngineMgt.InitRecordSet(OldReservEntry, ItemTrackingSetup) then
             repeat
                 OldReservEntry.TestItemFields(OldProdOrderComp."Item No.", OldProdOrderComp."Variant Code", OldProdOrderComp."Location Code");
 
                 TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
-                    NewItemJnlLine."Entry Type", NewItemJnlLine."Journal Template Name", NewItemJnlLine."Journal Batch Name", 0,
+                    NewItemJnlLine."Entry Type".AsInteger(), NewItemJnlLine."Journal Template Name", NewItemJnlLine."Journal Batch Name", 0,
                     NewItemJnlLine."Line No.", NewItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
                 EndLoop := TransferQty = 0;
@@ -401,8 +403,8 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     begin
         // Used for updating Quantity to Handle after posting;
         ReservEntry.SetSourceFilter(
-          DATABASE::"Prod. Order Component", ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.",
-          ProdOrderComponent."Line No.", true);
+            DATABASE::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.",
+            ProdOrderComponent."Line No.", true);
         ReservEntry.SetSourceFilter('', ProdOrderComponent."Prod. Order Line No.");
         CreateReservEntry.UpdateItemTrackingAfterPosting(ReservEntry);
     end;
@@ -414,7 +416,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     begin
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", '', 0, PurchLine."Line No.",
+          DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", '', 0, PurchLine."Line No.",
           PurchLine."Variant Code", PurchLine."Location Code", PurchLine."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(ProdOrderComp, PurchLine.Description, PurchLine."Expected Receipt Date", ReservQty, ReservQtyBase);
@@ -427,8 +429,8 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     begin
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
-          ProdOrderLine."Variant Code", ProdOrderLine."Location Code", ProdOrderLine."Qty. per Unit of Measure");
+            DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
+            ProdOrderLine."Variant Code", ProdOrderLine."Location Code", ProdOrderLine."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(ProdOrderComp, ProdOrderLine.Description, ProdOrderLine."Ending Date", ReservQty, ReservQtyBase);
     end;
@@ -454,7 +456,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     begin
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", '', 0, 0,
+          DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", '', 0, 0,
           AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(ProdOrderComp, AsmHeader.Description, AsmHeader."Due Date", ReservQty, ReservQtyBase);
@@ -527,7 +529,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
         if MatchThisEntry(EntrySummary."Entry No.") then begin
             Clear(AvailableProdOrderComp);
             AvailableProdOrderComp.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
-            AvailableProdOrderComp.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailableProdOrderComp.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
             AvailableProdOrderComp.RunModal;
         end;
     end;
@@ -644,7 +646,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
             ReturnQty := GetSourceValue(ReservEntry, SourceRecRef, ReturnOption);
     end;
 
-    local procedure UpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var TempEntrySummary: Record "Entry Summary" temporary; AvailabilityDate: Date; Status: Option; Positive: Boolean; var TotalQuantity: Decimal)
+    local procedure UpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var TempEntrySummary: Record "Entry Summary" temporary; AvailabilityDate: Date; Status: Enum "Production Order Status"; Positive: Boolean; var TotalQuantity: Decimal)
     var
         ProdOrderComp: Record "Prod. Order Component";
         AvailabilityFilter: Text;
@@ -653,7 +655,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
             exit;
 
         AvailabilityFilter := CalcReservEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
-        ProdOrderComp.FilterLinesForReservation(CalcReservEntry, Status, AvailabilityFilter, Positive);
+        ProdOrderComp.FilterLinesForReservation(CalcReservEntry, Status.AsInteger(), AvailabilityFilter, Positive);
         if ProdOrderComp.FindSet then
             repeat
                 ProdOrderComp.CalcFields("Reserved Qty. (Base)");
@@ -685,7 +687,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     begin
         if ReservSummEntry."Entry No." in [73, 74] then
             UpdateStatistics(
-                CalcReservEntry, ReservSummEntry, AvailabilityDate, ReservSummEntry."Entry No." - 71, Positive, TotalQuantity);
+                CalcReservEntry, ReservSummEntry, AvailabilityDate, "Production Order Status".FromInteger(ReservSummEntry."Entry No." - 71), Positive, TotalQuantity);
     end;
 
     [IntegrationEvent(false, false)]

@@ -2,7 +2,7 @@ profile "RESOURCING"
 {
     Enabled = true;
     Caption = 'Resource';
-    ProfileDescription = 'Full functionality for anyone in charge of job resources or service employees, such as project managers.';
+    ProfileDescription = 'Navigation menu only.';
     Promoted = true;
     RoleCenter = 8906;
 }

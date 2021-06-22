@@ -144,7 +144,7 @@ codeunit 6721 "Booking Manager"
         Clear(SalesLine);
 
         InvoicedBookingItem.Init();
-        InvoicedBookingItem."Booking Item ID" := BookingItem.Id;
+        InvoicedBookingItem."Booking Item ID" := BookingItem.SystemId;
         InvoicedBookingItem."Document No." := SalesHeader."No.";
         InvoicedBookingItem.Insert(true);
 
@@ -171,7 +171,7 @@ codeunit 6721 "Booking Manager"
         O365SyncManagement: Codeunit "O365 Sync. Management";
     begin
         NewTempBookingItem.Copy(TempBookingItem, true);
-        if not InvoicedBookingItem.Get(TempBookingItem.Id) then begin
+        if not InvoicedBookingItem.Get(TempBookingItem.SystemId) then begin
             NewTempBookingItem.SetRange("Customer Email", TempBookingItem."Customer Email");
             NewTempBookingItem.SetRange("Invoice Status", NewTempBookingItem."Invoice Status"::draft);
             NewTempBookingItem.SetFilter("Invoice No.", '=''''');
@@ -179,13 +179,13 @@ codeunit 6721 "Booking Manager"
                 Clear(SalesHeader);
                 CreateSalesHeader(SalesHeader, NewTempBookingItem);
                 repeat
-                    if not InvoicedBookingItem.Get(NewTempBookingItem.Id) then
+                    if not InvoicedBookingItem.Get(NewTempBookingItem.SystemId) then
                         CreateSalesLine(SalesHeader, NewTempBookingItem);
-                    BookingItemSource.Get(NewTempBookingItem.Id);
+                    BookingItemSource.Get(NewTempBookingItem.SystemId);
                     BookingItemSource.Delete();
                 until NewTempBookingItem.Next = 0;
                 InvoiceCreated := true;
-                SendTraceTag('0000ACI', O365SyncManagement.TraceCategory(), Verbosity::Normal, InvoicingBookingsTelemetryTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000ACI', InvoicingBookingsTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
             end;
         end;
     end;

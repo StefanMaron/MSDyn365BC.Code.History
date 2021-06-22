@@ -194,7 +194,7 @@ page 5979 "Posted Service Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(ItemTrackingEntries)
@@ -240,7 +240,7 @@ page 5979 "Posted Service Invoice Subform"
         SetDimensionsVisibility;
     end;
 
-    var
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

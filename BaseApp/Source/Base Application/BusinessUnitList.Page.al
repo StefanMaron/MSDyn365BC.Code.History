@@ -1,6 +1,6 @@
 page 240 "Business Unit List"
 {
-    AdditionalSearchTerms = 'department';
+    AdditionalSearchTerms = 'department,consolidation';
     ApplicationArea = Suite;
     Caption = 'Business Units';
     CardPageID = "Business Unit Card";

@@ -32,7 +32,7 @@ codeunit 401 "Sales Header Apply"
             CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
             OnRunOnBeforeCustLedgEntryFindFirst(CustLedgEntry);
             if CustLedgEntry.FindFirst then begin
-                "Applies-to Doc. Type" := 0;
+                "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
                 "Applies-to Doc. No." := '';
             end else
                 "Applies-to ID" := '';

@@ -51,6 +51,8 @@ codeunit 7007 "Price Asset List"
             exit;
         TempPriceAsset.NewEntry(AssetType, CurrentLevel);
         TempPriceAsset.Validate("Asset No.", AssetNo);
+        if TempPriceAsset."Asset No." = '' then
+            exit;
         AppendRelatedAssets();
         InsertAsset();
     end;

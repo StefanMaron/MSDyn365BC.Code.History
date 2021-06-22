@@ -338,7 +338,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         UseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, false, LibraryJob.PurchaseConsumption)
     end;
 
-    local procedure UseLinked(ConsumableType: Option; LineTypeToMatch: Option; ApplyUsageLink: Boolean; Source: Option)
+    local procedure UseLinked(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Option; ApplyUsageLink: Boolean; Source: Option)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -532,7 +532,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         PartialUseLinked(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, true)
     end;
 
-    local procedure PartialUseLinked(ConsumableType: Option; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
+    local procedure PartialUseLinked(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -808,7 +808,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         UseMatched(LibraryJob.ResourceType, LibraryJob.UsageLineTypeBoth, LibraryJob.PlanningLineTypeBoth, false)
     end;
 
-    local procedure UseMatched(ConsumableType: Option; UsageLineType: Option; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
+    local procedure UseMatched(ConsumableType: Enum "Job Planning Line Type"; UsageLineType: Option; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -1068,7 +1068,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     end;
 
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
-    local procedure PartialUseMatched(ConsumableType: Option; UsageLineType: Option; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
+    local procedure PartialUseMatched(ConsumableType: Enum "Job Planning Line Type"; UsageLineType: Option; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -1230,7 +1230,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         ExcessUseMatched(LibraryJob.GLAccountType, LibraryJob.PlanningLineTypeBoth, true)
     end;
 
-    local procedure ExcessUseMatched(ConsumableType: Option; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
+    local procedure ExcessUseMatched(ConsumableType: Enum "Job Planning Line Type"; LineTypeToMatch: Option; ApplyUsageLink: Boolean)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -1321,7 +1321,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         MatchMultipleLines(LibraryJob.GLAccountType, true)
     end;
 
-    local procedure MatchMultipleLines(ConsumableType: Option; ApplyUsageLink: Boolean)
+    local procedure MatchMultipleLines(ConsumableType: Enum "Job Planning Line Type"; ApplyUsageLink: Boolean)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -1396,7 +1396,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         UsageLinkNoMatch(LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth)
     end;
 
-    local procedure UsageLinkNoMatch(ConsumableType: Option; UsageLineType: Option)
+    local procedure UsageLinkNoMatch(ConsumableType: Enum "Job Planning Line Type"; UsageLineType: Option)
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -1602,7 +1602,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         Assert.AreEqual('Assert.IsTrue failed. Usage link should have been created', GetLastErrorText, 'Unexpected error')
     end;
 
-    local procedure MatchQuantities(QtyToPost: Decimal; QtyToMatch: Decimal; ConsumableType: Option)
+    local procedure MatchQuantities(QtyToPost: Decimal; QtyToMatch: Decimal; ConsumableType: Enum "Job Planning Line Type")
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -1835,7 +1835,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Consumption - Usage Link");
     end;
 
-    local procedure LinkQuantities(QtyToPost: Decimal; QtyToMatch: Decimal; ConsumableType: Option)
+    local procedure LinkQuantities(QtyToPost: Decimal; QtyToMatch: Decimal; ConsumableType: Enum "Job Planning Line Type")
     var
         Job: Record Job;
         JobTask: Record "Job Task";

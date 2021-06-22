@@ -1,5 +1,8 @@
 codeunit 3031 DotNet_SmtpMessage
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with "Email Message" codeunit from "System Application".';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

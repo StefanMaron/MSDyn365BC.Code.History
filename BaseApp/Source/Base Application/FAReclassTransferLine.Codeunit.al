@@ -88,7 +88,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
                     if j = 7 then
                         j := 9;
                     Convert(OldNewFA, j, FAPostingType, Sign, FANo);
-                    i := FAPostingType + 1;
+                    i := FAPostingType.AsInteger() + 1;
                     TemplateName := '';
                     BatchName := '';
                     if TransferType[i] and (Amounts[i] <> 0) then begin
@@ -281,40 +281,38 @@ codeunit 5642 "FA Reclass. Transfer Line"
               FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, FAReclassJnlLine."FA Posting Date", false);
         end;
 
-        with GenJnlLine do begin
-            Init;
-            "Line No." := 0;
-            FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
-            "Account Type" := "Account Type"::"Fixed Asset";
-            "FA Posting Type" := FAPostingType + 1;
-            Validate("Account No.", FANo);
-            Validate("Depreciation Book Code", FAReclassJnlLine."Depreciation Book Code");
-            "FA Posting Date" := FAReclassJnlLine."FA Posting Date";
-            "Posting Date" := FAReclassJnlLine."Posting Date";
-            if "Posting Date" = 0D then
-                "Posting Date" := FAReclassJnlLine."FA Posting Date";
-            if "Posting Date" = "FA Posting Date" then
-                "FA Posting Date" := 0D;
+        GenJnlLine.Init();
+        GenJnlLine."Line No." := 0;
+        FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Fixed Asset";
+        GenJnlLine."FA Posting Type" := "Gen. Journal Line FA Posting Type".FromInteger(FAPostingType.AsInteger() + 1);
+        GenJnlLine.Validate("Account No.", FANo);
+        GenJnlLine.Validate("Depreciation Book Code", FAReclassJnlLine."Depreciation Book Code");
+        GenJnlLine."FA Posting Date" := FAReclassJnlLine."FA Posting Date";
+        GenJnlLine."Posting Date" := FAReclassJnlLine."Posting Date";
+        if GenJnlLine."Posting Date" = 0D then
+            GenJnlLine."Posting Date" := FAReclassJnlLine."FA Posting Date";
+        if GenJnlLine."Posting Date" = GenJnlLine."FA Posting Date" then
+            GenJnlLine."FA Posting Date" := 0D;
 
-            "Document No." := FAReclassJnlLine."Document No.";
-            if "Document No." = '' then
-                "Document No." := GenJnlDocumentNo;
-            if "Document No." = '' then
-                FAReclassJnlLine.TestField("Document No.");
+        GenJnlLine."Document No." := FAReclassJnlLine."Document No.";
+        if GenJnlLine."Document No." = '' then
+            GenJnlLine."Document No." := GenJnlDocumentNo;
+        if GenJnlLine."Document No." = '' then
+            FAReclassJnlLine.TestField("Document No.");
 
-            "Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
-            Validate(Amount, EntryAmount);
-            Description := FAReclassJnlLine.Description;
-            "FA Reclassification Entry" := true;
-            GenJnlNextLineNo := GenJnlNextLineNo + 10000;
-            "Line No." := GenJnlNextLineNo;
-            OnBeforeGenJnlLineInsert(GenJnlLine, FAReclassJnlLine, Sign);
-            Insert(true);
-            if BalAccount then begin
-                FAInsertGLAcc.GetBalAcc(GenJnlLine);
-                if Find('+') then;
-                GenJnlNextLineNo := "Line No.";
-            end;
+        GenJnlLine."Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
+        GenJnlLine.Validate(Amount, EntryAmount);
+        GenJnlLine.Description := FAReclassJnlLine.Description;
+        GenJnlLine."FA Reclassification Entry" := true;
+        GenJnlNextLineNo := GenJnlNextLineNo + 10000;
+        GenJnlLine."Line No." := GenJnlNextLineNo;
+        OnBeforeGenJnlLineInsert(GenJnlLine, FAReclassJnlLine, Sign);
+        GenJnlLine.Insert(true);
+        if BalAccount then begin
+            FAInsertGLAcc.GetBalAcc(GenJnlLine);
+            if GenJnlLine.Find('+') then;
+            GenJnlNextLineNo := GenJnlLine."Line No.";
         end;
     end;
 

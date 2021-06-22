@@ -1290,7 +1290,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DocType: Option)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DocType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         PurchaseLine: Record "Purchase Line";
@@ -1318,7 +1318,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         Purchasing.Insert();
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; DocType: Option)
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; DocType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         SalesLine: Record "Sales Line";
@@ -1335,7 +1335,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
     end;
 
-    local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; VATPostingSetup: Record "VAT Posting Setup"; DocType: Option)
+    local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; VATPostingSetup: Record "VAT Posting Setup"; DocType: Enum "Service Document Type")
     var
         Customer: Record Customer;
         ServiceLine: Record "Service Line";
@@ -1372,7 +1372,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProdPostingGroup.Code);
     end;
 
-    local procedure PostMultilinePurchaseDoc(var ReturnShipmentHeader: Record "Return Shipment Header"; DocumentType: Option; CertOfSupplyRequired: Boolean)
+    local procedure PostMultilinePurchaseDoc(var ReturnShipmentHeader: Record "Return Shipment Header"; DocumentType: Enum "Purchase Document Type"; CertOfSupplyRequired: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
@@ -1386,7 +1386,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ReturnShipmentHeader.FindFirst;
     end;
 
-    local procedure PostMultilineSalesDoc(var SalesShipmentHeader: Record "Sales Shipment Header"; DocumentType: Option; CertOfSupplyRequired: Boolean)
+    local procedure PostMultilineSalesDoc(var SalesShipmentHeader: Record "Sales Shipment Header"; DocumentType: Enum "Sales Document Type"; CertOfSupplyRequired: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         SalesHeader: Record "Sales Header";
@@ -1400,7 +1400,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesShipmentHeader.FindFirst;
     end;
 
-    local procedure PostMultilineServiceDoc(var ServiceShipmentHeader: Record "Service Shipment Header"; DocumentType: Option; CertOfSupplyRequired: Boolean)
+    local procedure PostMultilineServiceDoc(var ServiceShipmentHeader: Record "Service Shipment Header"; DocumentType: Enum "Service Document Type"; CertOfSupplyRequired: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         ServiceHeader: Record "Service Header";
@@ -1414,7 +1414,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ServiceShipmentHeader.FindFirst;
     end;
 
-    local procedure PostPurchaseDoc(var ReturnShipmentHeader: Record "Return Shipment Header"; DocumentType: Option; CertOfSupplyRequired: Boolean)
+    local procedure PostPurchaseDoc(var ReturnShipmentHeader: Record "Return Shipment Header"; DocumentType: Enum "Purchase Document Type"; CertOfSupplyRequired: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
@@ -1427,7 +1427,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         ReturnShipmentHeader.FindFirst
     end;
 
-    local procedure PostSalesDoc(var SalesShipmentHeader: Record "Sales Shipment Header"; DocumentType: Option; CertOfSupplyRequired: Boolean)
+    local procedure PostSalesDoc(var SalesShipmentHeader: Record "Sales Shipment Header"; DocumentType: Enum "Sales Document Type"; CertOfSupplyRequired: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         SalesHeader: Record "Sales Header";
@@ -1440,7 +1440,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesShipmentHeader.FindFirst
     end;
 
-    local procedure PostServiceDoc(var ServiceShipmentHeader: Record "Service Shipment Header"; DocumentType: Option; CertOfSupplyRequired: Boolean)
+    local procedure PostServiceDoc(var ServiceShipmentHeader: Record "Service Shipment Header"; DocumentType: Enum "Service Document Type"; CertOfSupplyRequired: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         ServiceHeader: Record "Service Header";

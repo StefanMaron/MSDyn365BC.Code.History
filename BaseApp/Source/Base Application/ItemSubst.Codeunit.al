@@ -1,4 +1,4 @@
-﻿codeunit 5701 "Item Subst."
+codeunit 5701 "Item Subst."
 {
 
     trigger OnRun()
@@ -98,7 +98,7 @@
                 TempSalesLine.Validate("Unit of Measure Code", OldSalesUOM);
 
                 TempSalesLine.CreateDim(
-                  DimMgt.TypeToTableID3(TempSalesLine.Type), TempSalesLine."No.",
+                  DimMgt.TypeToTableID3(TempSalesLine.Type.AsInteger()), TempSalesLine."No.",
                   DATABASE::Job, TempSalesLine."Job No.",
                   DATABASE::"Responsibility Center", TempSalesLine."Responsibility Center");
 

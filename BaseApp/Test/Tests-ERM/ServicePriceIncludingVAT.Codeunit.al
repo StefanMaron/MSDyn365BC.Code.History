@@ -125,7 +125,7 @@ codeunit 136123 "Service Price Including VAT"
         VerifyServiceLedgerEntry(TempServiceLine, ServiceHeader."No.");
     end;
 
-    local procedure CreateAndUpdateServiceLine(ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; VATPercentage: Integer)
+    local procedure CreateAndUpdateServiceLine(ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; VATPercentage: Integer)
     var
         ServiceLine: Record "Service Line";
     begin

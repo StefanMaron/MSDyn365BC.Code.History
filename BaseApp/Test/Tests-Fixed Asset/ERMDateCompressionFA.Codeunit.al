@@ -220,7 +220,7 @@ codeunit 134049 "ERM Date Compression FA"
           DefaultDimension, DATABASE::"Fixed Asset", FANo, DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
-    local procedure CreateAndPostGenJournalLines(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Option)
+    local procedure CreateAndPostGenJournalLines(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         FANo: Code[20];
@@ -255,7 +255,7 @@ codeunit 134049 "ERM Date Compression FA"
         FADepreciationBook.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; FAPostingType: Option)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
@@ -266,7 +266,7 @@ codeunit 134049 "ERM Date Compression FA"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; FAPostingType: Option) Amount: Decimal
+    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; FAPostingType: Enum "Gen. Journal Line FA Posting Type") Amount: Decimal
     var
         Counter: Integer;
     begin
@@ -324,7 +324,7 @@ codeunit 134049 "ERM Date Compression FA"
         until GenJournalLine.Next = 0;
     end;
 
-    local procedure PostingSetupFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Option)
+    local procedure PostingSetupFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     begin
         GenJournalLine.Validate(
           "Document No.",

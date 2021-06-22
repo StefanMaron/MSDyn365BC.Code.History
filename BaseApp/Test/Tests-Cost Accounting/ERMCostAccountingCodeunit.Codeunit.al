@@ -3179,7 +3179,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
           CostJournalLine, CostJournalTemplate.Name, CostJournalBatch.Name, WorkDate, CostType."No.", BalCostType."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin

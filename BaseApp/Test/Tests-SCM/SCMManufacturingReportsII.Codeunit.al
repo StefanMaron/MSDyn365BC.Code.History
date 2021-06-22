@@ -361,7 +361,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         ProdOrderShortageListReport(ProductionOrder.Status::Released);
     end;
 
-    local procedure ProdOrderShortageListReport(Status: Option)
+    local procedure ProdOrderShortageListReport(Status: Enum "Production Order Status")
     var
         ProductionOrder: Record "Production Order";
         Item: Record Item;
@@ -909,20 +909,20 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         ProductionBOMLine.FindFirst;
     end;
 
-    local procedure SelectProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20])
+    local procedure SelectProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20])
     begin
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source No.", SourceNo);
         ProductionOrder.FindFirst;
     end;
 
-    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure FindProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20]; Status: Option)
+    local procedure FindProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20]; Status: Enum "Production Order Status")
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderComponent.SetRange(Status, Status);
@@ -935,7 +935,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         Item.Modify(true);
     end;
 
-    local procedure RunAndSaveProdOrderShortageListReport(ProductionOrder: Record "Production Order"; ProductionOrderStatus: Option; SourceNo: Code[20])
+    local procedure RunAndSaveProdOrderShortageListReport(ProductionOrder: Record "Production Order"; ProductionOrderStatus: Enum "Production Order Status"; SourceNo: Code[20])
     begin
         SelectProductionOrder(ProductionOrder, ProductionOrderStatus, SourceNo);
         REPORT.Run(REPORT::"Prod. Order - Shortage List", true, false, ProductionOrder);
@@ -1093,7 +1093,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         Assert.AreEqual(NoOfPeriods, Count, NoOfLinesError);
     end;
 
-    local procedure VerifyProductionOrderForReplan(ReplanRefStatus: Option; ReplanRefNo: Code[20]; SourceNo: Code[20]; Quantity: Decimal)
+    local procedure VerifyProductionOrderForReplan(ReplanRefStatus: Enum "Production Order Status"; ReplanRefNo: Code[20]; SourceNo: Code[20]; Quantity: Decimal)
     var
         ProductionOrder: Record "Production Order";
     begin
@@ -1103,7 +1103,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         ProductionOrder.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyProdOrderShortageListReport(Item: Record Item; ProductionOrderNo: Code[20]; Status: Option)
+    local procedure VerifyProdOrderShortageListReport(Item: Record Item; ProductionOrderNo: Code[20]; Status: Enum "Production Order Status")
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin

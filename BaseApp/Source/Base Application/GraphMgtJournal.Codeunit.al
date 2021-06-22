@@ -29,6 +29,7 @@ codeunit 5482 "Graph Mgt - Journal"
         exit(GenJnlTemplate.Name);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";

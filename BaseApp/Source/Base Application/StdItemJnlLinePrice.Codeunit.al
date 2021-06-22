@@ -59,19 +59,20 @@ codeunit 7027 "Std. Item Jnl. Line - Price" implements "Line With Price"
         if FoundPrice then
             Result := true
         else
-            case AmountType of
-                AmountType::Price:
-                    Result :=
-                        Result or
-                        not (CalledByFieldNo in
-                            [StandardItemJournalLine.FieldNo(Quantity),
-                            StandardItemJournalLine.FieldNo("Variant Code")]);
-                AmountType::Cost:
-                    Result :=
-                        Result or
-                        not ((CalledByFieldNo = StandardItemJournalLine.FieldNo(Quantity)) or
-                            ((CalledByFieldNo = StandardItemJournalLine.FieldNo("Variant Code")) and not IsSKU))
-            end;
+            if AmountType <> AmountType::Discount then
+                case CurrPriceType of
+                    CurrPriceType::Sale:
+                        Result :=
+                            Result or
+                            not (CalledByFieldNo in
+                                [StandardItemJournalLine.FieldNo(Quantity),
+                                StandardItemJournalLine.FieldNo("Variant Code")]);
+                    CurrPriceType::Purchase:
+                        Result :=
+                            Result or
+                            not ((CalledByFieldNo = StandardItemJournalLine.FieldNo(Quantity)) or
+                                ((CalledByFieldNo = StandardItemJournalLine.FieldNo("Variant Code")) and not IsSKU))
+                end;
     end;
 
     procedure IsDiscountAllowed() Result: Boolean;
@@ -158,27 +159,25 @@ codeunit 7027 "Std. Item Jnl. Line - Price" implements "Line With Price"
 
     procedure SetPrice(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line")
     begin
-        case AmountType of
-            AmountType::Price:
-                begin
-                    StandardItemJournalLine."Unit Amount" := PriceListLine."Unit Price";
-                    if PriceListLine.IsRealLine() then
-                        DiscountIsAllowed := PriceListLine."Allow Line Disc.";
-                    PriceCalculated := true;
-                end;
-            AmountType::Cost:
-                StandardItemJournalLine."Unit Amount" := PriceListLine."Unit Cost";
-        end;
+        if AmountType <> AmountType::Discount then
+            case CurrPriceType of
+                CurrPriceType::Sale:
+                    begin
+                        StandardItemJournalLine."Unit Amount" := PriceListLine."Unit Price";
+                        if PriceListLine.IsRealLine() then
+                            DiscountIsAllowed := PriceListLine."Allow Line Disc.";
+                        PriceCalculated := true;
+                    end;
+                CurrPriceType::Purchase:
+                    StandardItemJournalLine."Unit Amount" := PriceListLine."Unit Cost";
+            end;
         OnAfterSetPrice(StandardItemJournalLine, PriceListLine, AmountType);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
     begin
-        case AmountType of
-            AmountType::Price,
-            AmountType::Cost:
-                StandardItemJournalLine.Validate("Unit Amount");
-        end;
+        if AmountType <> AmountType::Discount then
+            StandardItemJournalLine.Validate("Unit Amount");
     end;
 
     procedure Update(AmountType: enum "Price Amount Type")

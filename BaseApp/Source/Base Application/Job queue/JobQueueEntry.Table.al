@@ -41,7 +41,7 @@ table 472 "Job Queue Entry"
 
             trigger OnValidate()
             begin
-                CheckStartAndExpirationDateTime;
+                CheckStartAndExpirationDateTime();
             end;
         }
         field(6; "Earliest Start Date/Time"; DateTime)
@@ -55,9 +55,9 @@ table 472 "Job Queue Entry"
 
             trigger OnValidate()
             begin
-                CheckStartAndExpirationDateTime;
+                CheckStartAndExpirationDateTime();
                 if "Earliest Start Date/Time" <> xRec."Earliest Start Date/Time" then
-                    Reschedule;
+                    Reschedule();
             end;
         }
         field(7; "Object Type to Run"; Option)
@@ -103,7 +103,7 @@ table 472 "Job Queue Entry"
 
                 CalcFields("Object Caption to Run");
                 if Description = '' then
-                    Description := GetDefaultDescription;
+                    Description := GetDefaultDescription();
 
                 if "Object Type to Run" <> "Object Type to Run"::Report then
                     exit;
@@ -200,7 +200,7 @@ table 472 "Job Queue Entry"
 
             trigger OnValidate()
             begin
-                SetRecurringField;
+                SetRecurringField();
                 Clear("Next Run Date Formula");
             end;
         }
@@ -211,7 +211,7 @@ table 472 "Job Queue Entry"
             trigger OnValidate()
             begin
                 Clear("Next Run Date Formula");
-                SetRecurringField;
+                SetRecurringField();
             end;
         }
         field(20; "Run on Tuesdays"; Boolean)
@@ -221,7 +221,7 @@ table 472 "Job Queue Entry"
             trigger OnValidate()
             begin
                 Clear("Next Run Date Formula");
-                SetRecurringField;
+                SetRecurringField();
             end;
         }
         field(21; "Run on Wednesdays"; Boolean)
@@ -231,7 +231,7 @@ table 472 "Job Queue Entry"
             trigger OnValidate()
             begin
                 Clear("Next Run Date Formula");
-                SetRecurringField;
+                SetRecurringField();
             end;
         }
         field(22; "Run on Thursdays"; Boolean)
@@ -241,7 +241,7 @@ table 472 "Job Queue Entry"
             trigger OnValidate()
             begin
                 Clear("Next Run Date Formula");
-                SetRecurringField;
+                SetRecurringField();
             end;
         }
         field(23; "Run on Fridays"; Boolean)
@@ -251,7 +251,7 @@ table 472 "Job Queue Entry"
             trigger OnValidate()
             begin
                 Clear("Next Run Date Formula");
-                SetRecurringField;
+                SetRecurringField();
             end;
         }
         field(24; "Run on Saturdays"; Boolean)
@@ -261,7 +261,7 @@ table 472 "Job Queue Entry"
             trigger OnValidate()
             begin
                 Clear("Next Run Date Formula");
-                SetRecurringField;
+                SetRecurringField();
             end;
         }
         field(25; "Run on Sundays"; Boolean)
@@ -271,7 +271,7 @@ table 472 "Job Queue Entry"
             trigger OnValidate()
             begin
                 Clear("Next Run Date Formula");
-                SetRecurringField;
+                SetRecurringField();
             end;
         }
         field(26; "Starting Time"; Time)
@@ -316,9 +316,9 @@ table 472 "Job Queue Entry"
                 JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
             begin
                 Clear("No. of Minutes between Runs");
-                ClearRunOnWeekdays;
-                SetRecurringField;
-                if IsNextRunDateFormulaSet and ("Earliest Start Date/Time" = 0DT) then
+                ClearRunOnWeekdays();
+                SetRecurringField();
+                if IsNextRunDateFormulaSet() and ("Earliest Start Date/Time" = 0DT) then
                     "Earliest Start Date/Time" := JobQueueDispatcher.CalcNextRunTimeForRecurringJob(Rec, CurrentDateTime);
             end;
         }
@@ -402,7 +402,7 @@ table 472 "Job Queue Entry"
                 ServerPrinters: Page "Server Printers";
             begin
                 ServerPrinters.SetSelectedPrinterName("Printer Name");
-                if ServerPrinters.RunModal = ACTION::OK then begin
+                if ServerPrinters.RunModal() = ACTION::OK then begin
                     ServerPrinters.GetRecord(Printer);
                     "Printer Name" := Printer.ID;
                 end;
@@ -425,11 +425,11 @@ table 472 "Job Queue Entry"
             trigger OnValidate()
             begin
                 if "Report Request Page Options" then
-                    RunReportRequestPage
+                    RunReportRequestPage()
                 else begin
                     Clear(XML);
                     Message(RequestPagesOptionsDeletedMsg);
-                    "User ID" := UserId;
+                    "User ID" := UserId();
                 end;
             end;
         }
@@ -499,7 +499,7 @@ table 472 "Job Queue Entry"
     begin
         if Status = Status::"In Process" then
             Error(CannotDeleteEntryErr, Status);
-        CancelTask;
+        CancelTask();
     end;
 
     trigger OnInsert()
@@ -507,7 +507,7 @@ table 472 "Job Queue Entry"
         SetupUserId: Boolean;
     begin
         if IsNullGuid(ID) then
-            ID := CreateGuid;
+            ID := CreateGuid();
 
         SetupUserId := true;
         OnInsertOnBeforeSetDefaultValues(Rec, SetupUserId);
@@ -519,9 +519,9 @@ table 472 "Job Queue Entry"
     var
         RunParametersChanged: Boolean;
     begin
-        RunParametersChanged := AreRunParametersChanged;
+        RunParametersChanged := AreRunParametersChanged();
         if RunParametersChanged then
-            Reschedule;
+            Reschedule();
         SetDefaultValues(RunParametersChanged);
     end;
 
@@ -582,9 +582,9 @@ table 472 "Job Queue Entry"
 
     procedure SetError(ErrorText: Text)
     begin
-        RefreshLocked;
+        RefreshLocked();
         "Error Message" := CopyStr(ErrorText, 1, 2048);
-        ClearServiceValues;
+        ClearServiceValues();
         SetStatusValue(Status::Error);
     end;
 
@@ -607,27 +607,27 @@ table 472 "Job Queue Entry"
                 if ErrorMessage.FindFirst() then
                     "Error Message" := ErrorMessage.Description
                 else
-                    "Error Message" := GetLastErrorText;
+                    "Error Message" := GetLastErrorText();
             end else
-                "Error Message" := GetLastErrorText;
+                "Error Message" := GetLastErrorText();
         end;
-        Modify;
+        Modify();
     end;
 
     procedure SetResultDeletedEntry()
     begin
         Status := Status::Error;
         "Error Message" := DeletedEntryErr;
-        Modify;
+        Modify();
     end;
 
     procedure FinalizeRun()
     begin
         case Status of
             Status::Finished, Status::"On Hold with Inactivity Timeout":
-                CleanupAfterExecution;
+                CleanupAfterExecution();
             Status::Error:
-                HandleExecutionError;
+                HandleExecutionError();
         end;
 
         OnAfterFinalizeRun(Rec);
@@ -650,7 +650,7 @@ table 472 "Job Queue Entry"
         JobQueueLogEntry."Object ID to Run" := "Object ID to Run";
         JobQueueLogEntry.Description := Description;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::"In Process";
-        JobQueueLogEntry."Processed by User ID" := UserId;
+        JobQueueLogEntry."Processed by User ID" := UserId();
         JobQueueLogEntry."Job Queue Category Code" := "Job Queue Category Code";
         OnBeforeInsertLogEntry(JobQueueLogEntry, Rec);
         JobQueueLogEntry.Insert(true);
@@ -674,7 +674,7 @@ table 472 "Job Queue Entry"
             JobQueueLogEntry."Error Message Register Id" := "Error Message Register Id";
         end else
             JobQueueLogEntry.Status := JobQueueLogEntry.Status::Success;
-        JobQueueLogEntry."End Date/Time" := CurrentDateTime;
+        JobQueueLogEntry."End Date/Time" := CurrentDateTime();
         OnBeforeModifyLogEntry(JobQueueLogEntry, Rec);
         JobQueueLogEntry.Modify(true);
     end;
@@ -683,15 +683,15 @@ table 472 "Job Queue Entry"
     begin
         if NewStatus = Status then
             exit;
-        RefreshLocked;
-        ClearServiceValues;
+        RefreshLocked();
+        ClearServiceValues();
         SetStatusValue(NewStatus);
     end;
 
     procedure Cancel()
     begin
-        if DoesExistLocked then
-            DeleteTask;
+        if DoesExistLocked() then
+            DeleteTask();
     end;
 
     procedure DeleteTask()
@@ -702,18 +702,18 @@ table 472 "Job Queue Entry"
 
     procedure DeleteTasks()
     begin
-        if FindSet then
+        if FindSet() then
             repeat
-                DeleteTask;
-            until Next = 0;
+                DeleteTask();
+            until Next() = 0;
     end;
 
     procedure Restart()
     begin
-        RefreshLocked;
-        ClearServiceValues;
+        RefreshLocked();
+        ClearServiceValues();
         if (Status = Status::"On Hold with Inactivity Timeout") and ("Inactivity Timeout Period" > 0) then
-            "Earliest Start Date/Time" := CurrentDateTime;
+            "Earliest Start Date/Time" := CurrentDateTime();
         Status := Status::"On Hold";
         SetStatusValue(Status::Ready);
     end;
@@ -762,8 +762,8 @@ table 472 "Job Queue Entry"
         TaskGUID: Guid;
     begin
         CheckRequiredPermissions();
-        if "User ID" <> UserId then begin
-            "User ID" := UserId;
+        if "User ID" <> UserId() then begin
+            "User ID" := UserId();
             Modify(true);
         end;
         OnBeforeScheduleTask(Rec, TaskGUID);
@@ -774,15 +774,15 @@ table 472 "Job Queue Entry"
           TASKSCHEDULER.CreateTask(
             CODEUNIT::"Job Queue Dispatcher",
             CODEUNIT::"Job Queue Error Handler",
-            true, CompanyName, "Earliest Start Date/Time", RecordId));
+            true, CurrentCompany(), "Earliest Start Date/Time", RecordId()));
     end;
 
     local procedure Reschedule()
     begin
-        CancelTask;
+        CancelTask();
         if Status in [Status::Ready, Status::"On Hold with Inactivity Timeout"] then begin
             SetDefaultValues(false);
-            EnqueueTask;
+            EnqueueTask();
         end;
 
         OnAfterReschedule(Rec);
@@ -804,7 +804,7 @@ table 472 "Job Queue Entry"
     procedure ReuseExistingJobFromCatagory(JobQueueCatagoryCode: Code[10]; ExecutionDateTime: DateTime): Boolean
     begin
         SetRange("Job Queue Category Code", JobQueueCatagoryCode);
-        if FindFirst then
+        if FindFirst() then
             exit(ReuseExistingJobFromID(ID, ExecutionDateTime));
 
         exit(false);
@@ -823,10 +823,10 @@ table 472 "Job Queue Entry"
     var
         Language: Codeunit Language;
     begin
-        "Last Ready State" := CurrentDateTime;
+        "Last Ready State" := CurrentDateTime();
         "User Language ID" := Language.GetLanguageIdOrDefault(Language.GetUserLanguageCode);
         if SetupUserId then
-            "User ID" := UserId;
+            "User ID" := UserId();
         "No. of Attempts to Run" := 0;
 
         OnAfterSetDefaultValues(Rec);
@@ -849,14 +849,14 @@ table 472 "Job Queue Entry"
             CODEUNIT.Run(CODEUNIT::"Job Queue - Send Notification", Rec);
 
         if "Recurring Job" then begin
-            ClearServiceValues;
+            ClearServiceValues();
             if Status = Status::"On Hold with Inactivity Timeout" then
                 "Earliest Start Date/Time" := JobQueueDispatcher.CalcNextRunTimeHoldDuetoInactivityJob(Rec, CurrentDateTime)
             else
                 "Earliest Start Date/Time" := JobQueueDispatcher.CalcNextRunTimeForRecurringJob(Rec, CurrentDateTime);
-            EnqueueTask;
+            EnqueueTask();
         end else
-            Delete;
+            Delete();
     end;
 
     local procedure HandleExecutionError()
@@ -864,7 +864,7 @@ table 472 "Job Queue Entry"
         if "Maximum No. of Attempts to Run" > "No. of Attempts to Run" then begin
             "No. of Attempts to Run" += 1;
             "Earliest Start Date/Time" := CurrentDateTime + 1000 * "Rerun Delay (sec.)";
-            EnqueueTask;
+            EnqueueTask();
         end else begin
             SetStatusValue(Status::Error);
             Commit();
@@ -912,19 +912,19 @@ table 472 "Job Queue Entry"
                 begin
                     SetDefaultValues(false);
                     "Earliest Start Date/Time" := JobQueueDispatcher.CalcInitialRunTime(Rec, CurrentDateTime);
-                    EnqueueTask;
+                    EnqueueTask();
                 end;
             Status::"On Hold":
-                CancelTask;
+                CancelTask();
             Status::"On Hold with Inactivity Timeout":
                 if "Inactivity Timeout Period" > 0 then begin
                     SetDefaultValues(false);
                     "Earliest Start Date/Time" := JobQueueDispatcher.CalcNextRunTimeHoldDuetoInactivityJob(Rec, CurrentDateTime);
-                    EnqueueTask;
+                    EnqueueTask();
                 end;
         end;
         Status := NewStatus;
-        Modify;
+        Modify();
     end;
 
     procedure ShowStatusMsg(JQID: Guid)
@@ -952,7 +952,7 @@ table 472 "Job Queue Entry"
         if Format("Record ID to Process") = '' then
             Error(NoRecordErr);
         RecRef.Get("Record ID to Process");
-        RecRef.SetRecFilter;
+        RecRef.SetRecFilter();
         RecVariant := RecRef;
         PAGE.Run(0, RecVariant);
     end;
@@ -969,7 +969,7 @@ table 472 "Job Queue Entry"
         Objects.SetRecord(AllObjWithCaption);
         Objects.SetTableView(AllObjWithCaption);
         Objects.LookupMode := true;
-        if Objects.RunModal = ACTION::LookupOK then begin
+        if Objects.RunModal() = ACTION::LookupOK then begin
             Objects.GetRecord(AllObjWithCaption);
             NewObjectID := AllObjWithCaption."Object ID";
             exit(true);
@@ -990,8 +990,8 @@ table 472 "Job Queue Entry"
 
         DateTimeDialog.SetDateTime(RoundDateTime(InitDateTime, 1000));
 
-        if DateTimeDialog.RunModal = ACTION::OK then
-            NewDateTime := DateTimeDialog.GetDateTime;
+        if DateTimeDialog.RunModal() = ACTION::OK then
+            NewDateTime := DateTimeDialog.GetDateTime();
         exit(NewDateTime);
     end;
 
@@ -1007,7 +1007,7 @@ table 472 "Job Queue Entry"
         Params: Text;
     begin
         CalcFields(XML);
-        if XML.HasValue then begin
+        if XML.HasValue() then begin
             XML.CreateInStream(InStr, TEXTENCODING::UTF8);
             InStr.Read(Params);
         end;
@@ -1024,7 +1024,7 @@ table 472 "Job Queue Entry"
             XML.CreateOutStream(OutStr, TEXTENCODING::UTF8);
             OutStr.Write(Params);
         end;
-        Modify;
+        Modify();
     end;
 
     procedure GetReportParameters(): Text
@@ -1032,7 +1032,7 @@ table 472 "Job Queue Entry"
         TestField("Object Type to Run", "Object Type to Run"::Report);
         TestField("Object ID to Run");
 
-        exit(GetXmlContent);
+        exit(GetXmlContent());
     end;
 
     procedure SetReportParameters(Params: Text)
@@ -1056,11 +1056,11 @@ table 472 "Job Queue Entry"
         if "Object ID to Run" = 0 then
             exit;
 
-        OldParams := GetReportParameters;
+        OldParams := GetReportParameters();
         Params := REPORT.RunRequestPage("Object ID to Run", OldParams);
 
-        if (Params <> '') and (Params <> OldParams) then begin
-            "User ID" := UserId;
+        if(Params <> '') and (Params <> OldParams) then begin
+            "User ID" := UserId();
             SetReportParameters(Params);
         end;
     end;
@@ -1072,14 +1072,14 @@ table 472 "Job Queue Entry"
 
     procedure ScheduleJobQueueEntryWithParameters(CodeunitID: Integer; RecordIDToProcess: RecordID; JobParameter: Text[250])
     begin
-        Init;
+        Init();
         "Earliest Start Date/Time" := CreateDateTime(Today, Time);
         "Object Type to Run" := "Object Type to Run"::Codeunit;
         "Object ID to Run" := CodeunitID;
         "Record ID to Process" := RecordIDToProcess;
         "Run in User Session" := false;
         "Parameter String" := JobParameter;
-        EnqueueTask;
+        EnqueueTask();
     end;
 
     procedure ScheduleJobQueueEntryForLater(CodeunitID: Integer; StartDateTime: DateTime; JobQueueCategoryCode: Code[10]; JobParameter: Text)
@@ -1093,7 +1093,7 @@ table 472 "Job Queue Entry"
         "Maximum No. of Attempts to Run" := 3;
         "Rerun Delay (sec.)" := 60;
         "Parameter String" := CopyStr(JobParameter, 1, MaxStrLen("Parameter String"));
-        EnqueueTask;
+        EnqueueTask();
     end;
 
     procedure GetStartingDateTime(Date: DateTime): DateTime
@@ -1118,33 +1118,50 @@ table 472 "Job Queue Entry"
 
     procedure ScheduleRecurrentJobQueueEntry(ObjType: Option; ObjID: Integer; RecId: RecordID)
     begin
-        Reset;
+        Reset();
         SetRange("Object Type to Run", ObjType);
         SetRange("Object ID to Run", ObjID);
         if Format(RecId) <> '' then
             SetFilter("Record ID to Process", Format(RecId));
         LockTable();
 
-        if not FindFirst then begin
+        if not FindFirst() then begin
             InitRecurringJob(5);
             "Object Type to Run" := ObjType;
             "Object ID to Run" := ObjID;
             "Record ID to Process" := RecId;
             "Starting Time" := 080000T;
             "Maximum No. of Attempts to Run" := 3;
-            EnqueueTask;
+            EnqueueTask();
         end;
     end;
 
+    [Obsolete('Replaced by ScheduleRecurrentJobQueueEntryWithFrequency to fix typo in the name', '17.0')]
     procedure ScheduleRecurrentJobQueueEntryWtihFrequency(ObjType: Option; ObjID: Integer; RecId: RecordID; NoofMinutesbetweenRuns: Integer)
     begin
-        ScheduleRecurrentJobQueueEntryWtihFrequency(ObjType, ObjID, RecID, NoofMinutesbetweenRuns, 3, 0);
+        ScheduleRecurrentJobQueueEntryWithFrequency(ObjType, ObjID, RecID, NoofMinutesbetweenRuns, 3, 0, 080000T);
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by ScheduleRecurrentJobQueueEntryWithFrequency to fix typo in the name', '17.0')]
     procedure ScheduleRecurrentJobQueueEntryWtihFrequency(ObjType: Option; ObjID: Integer; RecId: RecordID; NoofMinutesbetweenRuns: Integer; MaxAttemptsToRun: Integer; RerunDelay: Integer)
     begin
-        Reset;
+        ScheduleRecurrentJobQueueEntryWithFrequency(ObjType, ObjID, RecID, NoofMinutesbetweenRuns, MaxAttemptsToRun, RerunDelay, 080000T);
+    end;
+
+    procedure ScheduleRecurrentJobQueueEntryWithFrequency(ObjType: Option; ObjID: Integer; RecId: RecordID; NoofMinutesbetweenRuns: Integer)
+    begin
+        ScheduleRecurrentJobQueueEntryWithFrequency(ObjType, ObjID, RecID, NoofMinutesbetweenRuns, 3, 0, 080000T);
+    end;
+
+    procedure ScheduleRecurrentJobQueueEntryWithFrequency(ObjType: Option; ObjID: Integer; RecId: RecordID; NoofMinutesbetweenRuns: Integer; StartTime: Time)
+    begin
+        ScheduleRecurrentJobQueueEntryWithFrequency(ObjType, ObjID, RecID, NoofMinutesbetweenRuns, 3, 0, StartTime);
+    end;
+
+    internal procedure ScheduleRecurrentJobQueueEntryWithFrequency(ObjType: Option; ObjID: Integer; RecId: RecordID; NoofMinutesbetweenRuns: Integer; MaxAttemptsToRun: Integer; RerunDelay: Integer; StartingTime: Time)
+    begin
+        Reset();
         if NoofMinutesbetweenRuns = 0 then begin
             ScheduleRecurrentJobQueueEntry(ObjType, ObjID, RecId);
             exit;
@@ -1155,21 +1172,47 @@ table 472 "Job Queue Entry"
             SetFilter("Record ID to Process", Format(RecId));
         LockTable();
 
-        if not FindFirst then begin
+        if not FindFirst() then begin
             InitRecurringJob(NoofMinutesbetweenRuns);
             "Object Type to Run" := ObjType;
             "Object ID to Run" := ObjID;
             "Record ID to Process" := RecId;
-            "Starting Time" := 080000T;
+            "Starting Time" := StartingTime;
             "Maximum No. of Attempts to Run" := MaxAttemptsToRun;
             "Rerun Delay (sec.)" := RerunDelay;
-            EnqueueTask;
+            EnqueueTask();
+        end;
+    end;
+
+    internal procedure ScheduleRecurrentJobQueueEntryWithRunDateFormula(ObjType: Option; ObjID: Integer; RecId: RecordID; JobQueueCategoryCode: Code[10]; MaxAttemptsToRun: Integer; NextRunDateFormula: DateFormula; StartingTime: Time)
+    begin
+        Reset();
+        if format(NextRunDateFormula) = '<0D>' then
+            Evaluate(NextRunDateFormula, '<1D>');
+
+        SetRange("Object Type to Run", ObjType);
+        SetRange("Object ID to Run", ObjID);
+        if Format(RecId) <> '' then
+            SetFilter("Record ID to Process", Format(RecId));
+        LockTable();
+
+        if not FindFirst() then begin
+            InitRecurringJob(0);
+            "Object Type to Run" := ObjType;
+            "Object ID to Run" := ObjID;
+            "Record ID to Process" := RecId;
+            "Job Queue Category Code" := JobQueueCategoryCode;
+            "Starting Time" := StartingTime;
+            "Next Run Date Formula" := NextRunDateFormula;
+            "Earliest Start Date/Time" := CreateDateTime(CalcDate("Next Run Date Formula", Today), "Starting Time");
+            "Maximum No. of Attempts to Run" := MaxAttemptsToRun;
+            EnqueueTask();
         end;
     end;
 
     procedure InitRecurringJob(NoofMinutesbetweenRuns: Integer)
     begin
-        Init;
+        Init();
         Clear(ID); // "Job Queue - Enqueue" is to define new ID
         "Recurring Job" := true;
         "Run on Mondays" := true;
@@ -1180,15 +1223,15 @@ table 472 "Job Queue Entry"
         "Run on Saturdays" := true;
         "Run on Sundays" := true;
         "No. of Minutes between Runs" := NoofMinutesbetweenRuns;
-        "Earliest Start Date/Time" := CurrentDateTime;
+        "Earliest Start Date/Time" := CurrentDateTime();
     end;
 
     procedure FindJobQueueEntry(ObjType: Option; ObjID: Integer): Boolean
     begin
-        Reset;
+        Reset();
         SetRange("Object Type to Run", ObjType);
         SetRange("Object ID to Run", ObjID);
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     [Scope('OnPrem')]
@@ -1211,7 +1254,7 @@ table 472 "Job Queue Entry"
 
     procedure FilterInactiveOnHoldEntries()
     begin
-        Reset;
+        Reset();
         SetRange(Status, Status::"On Hold with Inactivity Timeout");
     end;
 

@@ -47,12 +47,11 @@ page 7352 "Put-away Worksheet"
             {
                 ApplicationArea = Warehouse;
                 Caption = 'Sorting Method';
-                OptionCaption = ' ,Item,Document,Shelf or Bin,Due Date';
                 ToolTip = 'Specifies the method by which the warehouse internal put-away lines are sorted.';
 
                 trigger OnValidate()
                 begin
-                    CurrentSortingMethodOnAfterVal;
+                    CurrentSortingMethodOnAfterValidate();
                 end;
             }
             repeater(Control1)
@@ -277,7 +276,7 @@ page 7352 "Put-away Worksheet"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -471,24 +470,26 @@ page 7352 "Put-away Worksheet"
         CurrentWkshTemplateName: Code[10];
         CurrentWkshName: Code[10];
         CurrentLocationCode: Code[10];
-        CurrentSortingMethod: Option " ",Item,Document,"Shelf/Bin No.","Due Date";
         ItemDescription: Text[100];
         Text001: Label 'There is nothing to handle.';
         OpenedFromBatch: Boolean;
 
-    local procedure QtytoHandleOnAfterValidate()
+    protected var
+        CurrentSortingMethod: Enum "Whse. Activity Sorting Method";
+
+    protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure CurrentWkshNameOnAfterValidate()
+    protected procedure CurrentWkshNameOnAfterValidate()
     begin
         CurrPage.SaveRecord;
         SetWhseWkshName(CurrentWkshName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
     end;
 
-    local procedure CurrentSortingMethodOnAfterVal()
+    protected procedure CurrentSortingMethodOnAfterValidate()
     begin
         SortWhseWkshLines(
           CurrentWkshTemplateName, CurrentWkshName,

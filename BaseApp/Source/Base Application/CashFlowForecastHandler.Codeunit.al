@@ -451,7 +451,8 @@ codeunit 850 "Cash Flow Forecast Handler"
     [Scope('OnPrem')]
     procedure Initialize(): Boolean
     var
-        AzureAIUsage: Record "Azure AI Usage";
+        AzureAIUsage: Codeunit "Azure AI Usage";
+        AzureAIService: Enum "Azure AI Service";
         APIURL: Text[250];
         APIKey: Text[200];
         LimitValue: Decimal;
@@ -487,7 +488,7 @@ codeunit 850 "Cash Flow Forecast Handler"
 
         // check - it will be fixed with Time Series Lib
         if not CashFlowSetup.IsAPIUserDefined then
-            if AzureAIUsage.IsAzureMLLimitReached(AzureAIUsage.Service::"Machine Learning", LimitValue) then begin
+            if AzureAIUsage.IsLimitReached(AzureAIService::"Machine Learning", LimitValue) then begin
                 TempErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Error, AzureMachineLearningLimitReachedErr);
                 exit(false);
             end;

@@ -1,6 +1,9 @@
 table 137 "Inc. Doc. Attachment Overview"
 {
     Caption = 'Inc. Doc. Attachment Overview';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Table will be marked as TableType = Temporary. This means you can only use this table as temporary in your code.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -40,6 +43,7 @@ table 137 "Inc. Doc. Attachment Overview"
             Caption = 'File Extension';
             Editable = false;
         }
+
         field(100; "Attachment Type"; Option)
         {
             Caption = 'Attachment Type';
@@ -54,6 +58,18 @@ table 137 "Inc. Doc. Attachment Overview"
         field(102; Indentation; Integer)
         {
             Caption = 'Indentation';
+        }
+
+        field(103; "Posting Date"; Date)
+        {
+            Caption = 'Posting Date';
+            Editable = false;
+        }
+
+        field(104; "Document No."; Code[20])
+        {
+            Caption = 'Document No.';
+            Editable = false;
         }
     }
 
@@ -85,7 +101,7 @@ table 137 "Inc. Doc. Attachment Overview"
         NotAvailableAttachmentMsg: Label 'The attachment is no longer available.';
         ClientTypeManagement: Codeunit "Client Type Management";
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure NameDrillDown()
     var
         IncomingDocument: Record "Incoming Document";

@@ -191,10 +191,10 @@ codeunit 138921 "O365 Test Quotes"
         SMTPMailSetup.SetPassword('password');
         SMTPMailSetup.Insert();
 
-        ReportSelections.SetRange(Usage, 0); // "S.Quote". work-around to avoid RU modification
+        ReportSelections.SetRange(Usage, "Report Selection Usage"::"S.Quote");
         ReportSelections.DeleteAll();
         ReportSelections.Init();
-        ReportSelections.Usage := 0; // "S.Quote"
+        ReportSelections.Usage := "Report Selection Usage"::"S.Quote";
         ReportSelections."Report ID" := REPORT::"Standard Sales - Quote";
         ReportSelections.Insert();
     end;

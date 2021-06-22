@@ -133,7 +133,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         ChangeCurrencyOnHeader(SalesHeader."Document Type"::Quote);
     end;
 
-    local procedure ChangeCurrencyOnHeader(DocumentType: Option)
+    local procedure ChangeCurrencyOnHeader(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -198,7 +198,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         ChangeCurrencyOnDocument(SalesHeader."Document Type"::Quote);
     end;
 
-    local procedure ChangeCurrencyOnDocument(DocumentType: Option)
+    local procedure ChangeCurrencyOnDocument(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -275,7 +275,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         CheckCurrencyOnHeader(SalesHeader."Document Type"::Quote);
     end;
 
-    local procedure CheckCurrencyOnHeader(DocumentType: Option)
+    local procedure CheckCurrencyOnHeader(DocumentType: Enum "Sales Document Type")
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         SalesHeader: Record "Sales Header";
@@ -514,7 +514,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         VerifyCustomerLedgerEntry(DocumentNo, SalesHeader."Currency Code");
     end;
 
-    local procedure PostDocumentWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Option; Ship: Boolean; Invoice: Boolean) DocumentNo: Code[20]
+    local procedure PostDocumentWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Ship: Boolean; Invoice: Boolean) DocumentNo: Code[20]
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
@@ -562,7 +562,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         VerifyGLEntryForInvoice(CurrencyExchangeRate, SalesHeader."No.", OldRelationalExchangeRate);
     end;
 
-    local procedure AdjustExchangeRateDocument(var SalesHeader: Record "Sales Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Option) OldRelationalExchangeRate: Decimal
+    local procedure AdjustExchangeRateDocument(var SalesHeader: Record "Sales Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Enum "Sales Document Type") OldRelationalExchangeRate: Decimal
     begin
         // 1. Setup: Create and Post Sales Document with new Currency and Exchange rate.
         CreateSalesDocument(SalesHeader, CurrencyExchangeRate, DocumentType);
@@ -970,7 +970,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    local procedure ApplyInvoice(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure ApplyInvoice(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GenJnlApply: Codeunit "Gen. Jnl.-Apply";
@@ -1008,7 +1008,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         exit(Customer."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Enum "Sales Document Type")
     begin
         CreateSalesHeaderWithCurrency(SalesHeader, CurrencyExchangeRate, DocumentType);
         CreateSalesLines(SalesHeader);
@@ -1023,7 +1023,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         CreateSalesLines(SalesHeader);
     end;
 
-    local procedure CreateSalesHeaderWithCurrency(var SalesHeader: Record "Sales Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Option)
+    local procedure CreateSalesHeaderWithCurrency(var SalesHeader: Record "Sales Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Enum "Sales Document Type")
     var
         CustomerNo: Code[20];
     begin
@@ -1074,7 +1074,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         exit(CreateCustomerWithCurrency(CurrencyExchangeRate."Currency Code"));
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; CurrencyCode: Code[10]; CustomerNo: Code[20]; Amount: Decimal; DocumentType: Option; AccountType: Option)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; CurrencyCode: Code[10]; CustomerNo: Code[20]; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -1131,7 +1131,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         until SalesInvoiceLine.Next = 0;
     end;
 
-    local procedure FindSalesLines(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLines(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -1175,7 +1175,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         SalesHeader.Modify(true);
     end;
 
-    local procedure UpdateSalesLines(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UpdateSalesLines(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     var
         SalesLine: Record "Sales Line";
         ItemNo: code[20];
@@ -1439,7 +1439,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         until CustLedgerEntry.Next = 0;
     end;
 
-    local procedure VerifyCurrencyInSalesLine(DocumentType: Option; DocumentNo: Code[20]; No: Code[20]; CurrencyCode: Code[10])
+    local procedure VerifyCurrencyInSalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; No: Code[20]; CurrencyCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin

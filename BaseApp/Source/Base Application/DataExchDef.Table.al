@@ -136,7 +136,7 @@ table 1222 "Data Exch. Def"
         Validate(Code, NewCode);
         Validate(Name, NewName);
         "File Type" := FileType;
-        Type := NewType;
+        Type := "Data Exchange Definition Type".FromInteger(NewType);
         Validate("File Type", FileType);
         Validate(Type, NewType);
 

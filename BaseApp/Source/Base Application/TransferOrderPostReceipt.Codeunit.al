@@ -1,4 +1,4 @@
-﻿codeunit 5705 "TransferOrder-Post Receipt"
+codeunit 5705 "TransferOrder-Post Receipt"
 {
     Permissions = TableData "Item Entry Relation" = i;
     TableNo = "Transfer Header";
@@ -146,7 +146,7 @@
                 DeleteOneTransferOrder(TransHeader, TransLine)
             else begin
                 WhseTransferRelease.Release(TransHeader);
-                ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, 1);
+                ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, TransferDirection::Inbound);
             end;
 
             OnRunOnBeforeCommit(TransHeader, TransRcptHeader, PostedWhseRcptHeader);
@@ -199,7 +199,6 @@
         InvtAdjmt: Codeunit "Inventory Adjustment";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         SourceCode: Code[10];
-        HideValidationDialog: Boolean;
         WhsePosting: Boolean;
         WhseReference: Integer;
         OriginalQuantity: Decimal;
@@ -207,6 +206,10 @@
         WhseReceive: Boolean;
         InvtPickPutaway: Boolean;
         SuppressCommit: Boolean;
+
+    protected var
+        TransferDirection: Enum "Transfer Direction";
+        HideValidationDialog: Boolean;
 
     local procedure PostItemJnlLine(var TransLine3: Record "Transfer Line"; TransRcptHeader2: Record "Transfer Receipt Header"; TransRcptLine2: Record "Transfer Receipt Line")
     var
@@ -386,7 +389,7 @@
                 end;
                 if TransLine4."Qty. to Receive (Base)" <= BaseQtyToReceive then begin
                     ReserveTransLine.TransferTransferToItemJnlLine(
-                      TransLine4, ItemJnlLine, TransLine4."Qty. to Receive (Base)", 1);
+                      TransLine4, ItemJnlLine, TransLine4."Qty. to Receive (Base)", TransferDirection::Inbound);
                     TransLine4."Quantity (Base)" :=
                       TransLine4."Quantity (Base)" - TransLine4."Qty. to Receive (Base)";
                     TransLine4.Quantity :=
@@ -395,7 +398,7 @@
                     QtyToReceive := QtyToReceive - TransLine4."Qty. to Receive";
                 end else begin
                     ReserveTransLine.TransferTransferToItemJnlLine(
-                      TransLine4, ItemJnlLine, BaseQtyToReceive, 1);
+                      TransLine4, ItemJnlLine, BaseQtyToReceive, TransferDirection::Inbound);
                     TransLine4.Quantity := TransLine4.Quantity - QtyToReceive;
                     TransLine4."Quantity (Base)" := TransLine4."Quantity (Base)" - BaseQtyToReceive;
                     BaseQtyToReceive := 0;

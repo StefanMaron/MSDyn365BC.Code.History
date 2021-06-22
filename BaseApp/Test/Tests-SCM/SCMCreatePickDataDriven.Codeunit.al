@@ -624,7 +624,6 @@ codeunit 137016 "SCM Create Pick Data Driven"
         Item: Record Item;
         InventoryPostingSetup: Record "Inventory Posting Setup";
         ReservationManagement: Codeunit "Reservation Management";
-        Direction: Option Outbound,Inbound;
         FullReservation: Boolean;
     begin
         if Qty <= 0 then
@@ -645,7 +644,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
 
         if QtyToReserve > 0 then begin
             FullReservation := (Qty = QtyToReserve);
-            ReservationManagement.SetTransferLine(TransferLine, Direction::Outbound);
+            ReservationManagement.SetTransferLine(TransferLine, "Transfer Direction"::Outbound);
             ReservationManagement.AutoReserve(FullReservation, '', TransferLine."Shipment Date",
               Round(QtyToReserve / TransferLine."Qty. per Unit of Measure", 0.00001), QtyToReserve);
         end;
@@ -700,7 +699,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
     end;
 
     [Normal]
-    local procedure RegisterWhseActivity(ActivityType: Option; SourceDocument: Option; WhseDocType: Option; SourceNo: Code[20]; WhseDocNo: Code[20]; TakeBinCode: Code[20]; PlaceBinCode: Code[20]; QtyToHandle: Decimal)
+    local procedure RegisterWhseActivity(ActivityType: Option; SourceDocument: Enum "Warehouse Activity Source Document"; WhseDocType: Option; SourceNo: Code[20]; WhseDocNo: Code[20]; TakeBinCode: Code[20]; PlaceBinCode: Code[20]; QtyToHandle: Decimal)
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         WhseActivityHeader: Record "Warehouse Activity Header";
@@ -754,7 +753,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
         WhseInternalPickLine.CreatePickDoc(WhseInternalPickLine, WhseInternalPickHeader);
     end;
 
-    local procedure CreateInvtPutPick(SourceDocument: Option ,"Sales Order","Sales Return Order","Purchase Order","Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output"; SourceNo: Code[20])
+    local procedure CreateInvtPutPick(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WhseRequest: Record "Warehouse Request";
         CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
@@ -770,7 +769,7 @@ codeunit 137016 "SCM Create Pick Data Driven"
     end;
 
     [Normal]
-    local procedure CheckPick(LineType: Option; SourceDoc: Option; WhseDocType: Option; SourceDocNo: Code[20]; WhseDocNo: Code[20]; ExpectedQty: Decimal)
+    local procedure CheckPick(LineType: Option; SourceDoc: Enum "Warehouse Activity Source Document"; WhseDocType: Option; SourceDocNo: Code[20]; WhseDocNo: Code[20]; ExpectedQty: Decimal)
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         ActualQty: Decimal;

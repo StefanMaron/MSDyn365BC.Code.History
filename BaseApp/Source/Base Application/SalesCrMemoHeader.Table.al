@@ -190,7 +190,7 @@ table 114 "Sales Cr.Memo Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Sales Comment Line" WHERE("Document Type" = CONST("Posted Credit Memo"),
+            CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = CONST("Posted Credit Memo"),
                                                             "No." = FIELD("No."),
                                                             "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -236,7 +236,7 @@ table 114 "Sales Cr.Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Cr.Memo Line".Amount WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Cr.Memo Line".Amount WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -245,7 +245,7 @@ table 114 "Sales Cr.Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Cr.Memo Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Cr.Memo Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -401,6 +401,16 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Payment Method Code';
             TableRelation = "Payment Method";
         }
+        field(105; "Shipping Agent Code"; Code[10])
+        {
+            AccessByPermission = TableData "Shipping Agent Services" = R;
+            Caption = 'Shipping Agent Code';
+            TableRelation = "Shipping Agent";
+        }
+        field(106; "Package Tracking No."; Text[30])
+        {
+            Caption = 'Package Tracking No.';
+        }
         field(107; "Pre-Assigned No. Series"; Code[20])
         {
             Caption = 'Pre-Assigned No. Series';
@@ -486,7 +496,7 @@ table 114 "Sales Cr.Memo Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(710; "Document Exchange Identifier"; Text[50])
@@ -505,7 +515,7 @@ table 114 "Sales Cr.Memo Header"
         }
         field(1302; Paid; Boolean)
         {
-            CalcFormula = - Exist ("Cust. Ledger Entry" WHERE("Entry No." = FIELD("Cust. Ledger Entry No."),
+            CalcFormula = - Exist("Cust. Ledger Entry" WHERE("Entry No." = FIELD("Cust. Ledger Entry No."),
                                                              Open = FILTER(true)));
             Caption = 'Paid';
             Editable = false;
@@ -515,7 +525,7 @@ table 114 "Sales Cr.Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Cust. Ledger Entry No." = FIELD("Cust. Ledger Entry No.")));
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Cust. Ledger Entry No." = FIELD("Cust. Ledger Entry No.")));
             Caption = 'Remaining Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -531,14 +541,14 @@ table 114 "Sales Cr.Memo Header"
         field(1305; "Invoice Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Cr.Memo Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Cr.Memo Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No.")));
             Caption = 'Invoice Discount Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(1310; Cancelled; Boolean)
         {
-            CalcFormula = Exist ("Cancelled Document" WHERE("Source ID" = CONST(114),
+            CalcFormula = Exist("Cancelled Document" WHERE("Source ID" = CONST(114),
                                                             "Cancelled Doc. No." = FIELD("No.")));
             Caption = 'Cancelled';
             Editable = false;
@@ -546,7 +556,7 @@ table 114 "Sales Cr.Memo Header"
         }
         field(1311; Corrective; Boolean)
         {
-            CalcFormula = Exist ("Cancelled Document" WHERE("Source ID" = CONST(112),
+            CalcFormula = Exist("Cancelled Document" WHERE("Source ID" = CONST(112),
                                                             "Cancelled By Doc. No." = FIELD("No.")));
             Caption = 'Corrective';
             Editable = false;
@@ -576,6 +586,11 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
+        }
+        field(5794; "Shipping Agent Service Code"; Code[10])
+        {
+            Caption = 'Shipping Agent Service Code';
+            TableRelation = "Shipping Agent Services".Code WHERE("Shipping Agent Code" = FIELD("Shipping Agent Code"));
         }
         field(6601; "Return Order No."; Code[20])
         {
@@ -659,7 +674,6 @@ table 114 "Sales Cr.Memo Header"
     var
         PostedDeferralHeader: Record "Posted Deferral Header";
         PostSalesDelete: Codeunit "PostSales-Delete";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
         TestField("No. Printed");
@@ -671,8 +685,9 @@ table 114 "Sales Cr.Memo Header"
         SalesCommentLine.DeleteAll();
 
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
-        PostedDeferralHeader.DeleteForDoc(DeferralUtilities.GetSalesDeferralDocType, '', '',
-          SalesCommentLine."Document Type"::"Posted Credit Memo", "No.");
+        PostedDeferralHeader.DeleteForDoc(
+            "Deferral Document Type"::Sales.AsInteger(), '', '',
+            SalesCommentLine."Document Type"::"Posted Credit Memo".AsInteger(), "No.");
     end;
 
     var
@@ -697,7 +712,7 @@ table 114 "Sales Cr.Memo Header"
             exit;
 
         DocumentSendingProfile.SendCustomerRecords(
-          DummyReportSelections.Usage::"S.Cr.Memo", Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
+          DummyReportSelections.Usage::"S.Cr.Memo".AsInteger(), Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
           FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
@@ -716,8 +731,17 @@ table 114 "Sales Cr.Memo Header"
             exit;
 
         DocumentSendingProfile.Send(
-          DummyReportSelections.Usage::"S.Cr.Memo", Rec, "No.", "Bill-to Customer No.",
+          DummyReportSelections.Usage::"S.Cr.Memo".AsInteger(), Rec, "No.", "Bill-to Customer No.",
           DocumentTypeTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
+    end;
+
+    procedure StartTrackingSite()
+    var
+        ShippingAgent: Record "Shipping Agent";
+    begin
+        TestField("Shipping Agent Code");
+        ShippingAgent.Get("Shipping Agent Code");
+        HyperLink(ShippingAgent.GetTrackingInternetAddr("Package Tracking No."));
     end;
 
     procedure PrintRecords(ShowRequestPage: Boolean)
@@ -732,7 +756,7 @@ table 114 "Sales Cr.Memo Header"
             exit;
 
         DocumentSendingProfile.TrySendToPrinter(
-          DummyReportSelections.Usage::"S.Cr.Memo", Rec, FieldNo("Bill-to Customer No."), ShowRequestPage);
+          DummyReportSelections.Usage::"S.Cr.Memo".AsInteger(), Rec, FieldNo("Bill-to Customer No."), ShowRequestPage);
     end;
 
     procedure EmailRecords(ShowRequestPage: Boolean)
@@ -751,7 +775,7 @@ table 114 "Sales Cr.Memo Header"
             exit;
 
         DocumentSendingProfile.TrySendToEMail(
-          DummyReportSelections.Usage::"S.Cr.Memo", Rec, FieldNo("No."), DocumentTypeTxt,
+          DummyReportSelections.Usage::"S.Cr.Memo".AsInteger(), Rec, FieldNo("No."), DocumentTypeTxt,
           FieldNo("Bill-to Customer No."), ShowRequestPage);
     end;
 
@@ -771,7 +795,8 @@ table 114 "Sales Cr.Memo Header"
         ReportSelections: Record "Report Selections";
     begin
         SalesCrMemoHeader.SetRecFilter();
-        ReportSelections.SaveAsDocumentAttachment(ReportSelections.Usage::"S.Cr.Memo", SalesCrMemoHeader, SalesCrMemoHeader."No.", SalesCrMemoHeader."Bill-to Customer No.", ShowNotificationAction);
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportSelections.Usage::"S.Cr.Memo".AsInteger(), SalesCrMemoHeader, SalesCrMemoHeader."No.", SalesCrMemoHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
     procedure Navigate()

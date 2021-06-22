@@ -54,7 +54,7 @@ codeunit 137821 "SCM - Inventory UT"
         ReservationEntry: Record "Reservation Entry";
         TrackingSpecification: Record "Tracking Specification";
         ItemTrackingDataCollection: Codeunit "Item Tracking Data Collection";
-        LookupMode: Option "Serial No.","Lot No.";
+        LookupMode: Enum "Item Tracking Type";
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 6744] Check of Serial No. availability in Item Tracking should be passed successfully when "SN Specific Tracking" = FALSE in Item Tracking Code.

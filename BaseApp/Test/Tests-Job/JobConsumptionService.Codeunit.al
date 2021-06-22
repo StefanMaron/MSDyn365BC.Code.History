@@ -330,7 +330,7 @@ codeunit 136301 "Job Consumption Service"
         AttachJobTaskToServiceDoc(JobTask, ServiceHeader)
     end;
 
-    local procedure CreateServiceLine(ServiceItemLine: Record "Service Item Line"; Type: Integer; ConsumptionFactor: Decimal; var ServiceLine: Record "Service Line")
+    local procedure CreateServiceLine(ServiceItemLine: Record "Service Item Line"; Type: Enum "Service Line Type"; ConsumptionFactor: Decimal; var ServiceLine: Record "Service Line")
     var
         ServiceHeader: Record "Service Header";
         ConsumableNo: Code[20];

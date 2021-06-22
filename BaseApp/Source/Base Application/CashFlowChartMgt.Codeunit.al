@@ -65,7 +65,7 @@ codeunit 869 "Cash Flow Chart Mgt."
                 CashFlowChartSetup."Group By"::"Source Type":
                     begin
                         Evaluate(SourceType, Value, 9);
-                        CashFlowForecast.DrillDownEntriesFromSource(SourceType);
+                        CashFlowForecast.DrillDownSourceTypeEntries("Cash Flow Source Type".FromInteger(SourceType));
                     end;
             end;
     end;
@@ -157,7 +157,7 @@ codeunit 869 "Cash Flow Chart Mgt."
             CashFlowChartSetup."Group By"::"Source Type":
                 begin
                     Evaluate(SourceType, Value, 9);
-                    exit(CashFlowForecast.CalcAmountFromSource(SourceType));
+                    exit(CashFlowForecast.CalcSourceTypeAmount("Cash Flow Source Type".FromInteger(SourceType)));
                 end;
         end;
     end;
@@ -206,7 +206,7 @@ codeunit 869 "Cash Flow Chart Mgt."
         for SourceType := 1 to CashFlowWorksheetLine.GetNumberOfSourceTypes do begin
             CFForecastEntry.SetRange("Source Type", SourceType);
             if not CFForecastEntry.IsEmpty then begin
-                CashFlowForecast."Source Type Filter" := SourceType;
+                CashFlowForecast."Source Type Filter" := "Cash Flow Source Type".FromInteger(SourceType);
                 Index += 1;
                 BusChartBuf.AddMeasure(
                   Format(CashFlowForecast."Source Type Filter"),

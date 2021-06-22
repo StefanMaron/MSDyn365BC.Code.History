@@ -804,10 +804,8 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
         DocExchServiceSetup.Get();
-        SendTraceTag('000089R', TelemetryCategoryTok, VERBOSITY::Normal,
-          DocExchServiceDocumentSuccessfullySentTxt, DATACLASSIFICATION::SystemMetadata);
-        SendTraceTag('000089S', TelemetryCategoryTok, VERBOSITY::Normal,
-          DocExchServiceSetup."Service URL", DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000089R', DocExchServiceDocumentSuccessfullySentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        Session.LogMessage('000089S', DocExchServiceSetup."Service URL", Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
     local procedure LogTelemetryDocumentReceived()
@@ -815,10 +813,8 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
         DocExchServiceSetup.Get();
-        SendTraceTag('000089T', TelemetryCategoryTok, VERBOSITY::Normal,
-          DocExchServiceDocumentSuccessfullyReceivedTxt, DATACLASSIFICATION::SystemMetadata);
-        SendTraceTag('000089U', TelemetryCategoryTok, VERBOSITY::Normal,
-          DocExchServiceSetup."Service URL", DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000089T', DocExchServiceDocumentSuccessfullyReceivedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        Session.LogMessage('000089U', DocExchServiceSetup."Service URL", Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 }
 

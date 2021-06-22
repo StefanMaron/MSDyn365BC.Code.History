@@ -21,7 +21,6 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         NoGLEntriesPostedErr: Label 'No realized gains/losses have been posted.';
         LCYAmtMustBeZeroErr: Label 'Additional-currency Amount in realized gain/loss entries must be 0.';
         IncorrectRoundingAmtErr: Label 'Invoice rounding amount is incorrect.';
-        AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner";
 
     [Test]
     [HandlerFunctions('ConfirmYesHandler')]
@@ -36,7 +35,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
     begin
         Initialize;
 
-        LibrarySales.CreatePrepaymentVATSetup(GLAccount, 0);
+        LibrarySales.CreatePrepaymentVATSetup(GLAccount, "General Posting Type"::" ");
         CreateAddReportingCurrency(AddCurrency);
         CreateBankAccountWithCurrencyCode(BankAccount, AddCurrency.Code);
         CreateCustomer(Customer, GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group", AddCurrency.Code);
@@ -45,7 +44,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         PostSalesPrepayment(SalesHeader);
         SalesHeader.CalcFields("Amount Including VAT");
         PostCashPayment(
-          AccountType::Customer, Customer."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<+1M>', WorkDate),
+          "Gen. Journal Account Type"::Customer, Customer."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<+1M>', WorkDate),
           -SalesHeader."Amount Including VAT", FindPostedSalesInvoiceForCustomer(Customer."No."));
 
         // Applied cash receipt posting updates sales header status. Need to re-read it.
@@ -69,7 +68,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
     begin
         Initialize;
 
-        LibraryPurchase.CreatePrepaymentVATSetup(GLAccount, 0);
+        LibraryPurchase.CreatePrepaymentVATSetup(GLAccount, "General Posting Type"::" ");
         CreateAddReportingCurrency(AddCurrency);
         CreateBankAccountWithCurrencyCode(BankAccount, AddCurrency.Code);
         CreateVendor(Vendor, GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group", AddCurrency.Code);
@@ -78,7 +77,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         PostPurchasePrepayment(PurchaseHeader);
         PurchaseHeader.CalcFields("Amount Including VAT");
         PostCashPayment(
-          AccountType::Vendor, Vendor."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<+1M>', WorkDate),
+          "Gen. Journal Account Type"::Vendor, Vendor."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<+1M>', WorkDate),
           PurchaseHeader."Amount Including VAT", FindPostedPurchaseInvoiceForVendor(Vendor."No."));
 
         // Applied cash payment posting updates purchase header status. Need to re-read it.
@@ -107,7 +106,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
 
         LibrarySales.SetInvoiceRounding(true);
 
-        LibrarySales.CreatePrepaymentVATSetup(GLAccount, 0);
+        LibrarySales.CreatePrepaymentVATSetup(GLAccount, "General Posting Type"::" ");
         CreateAddReportingCurrency(AddCurrency);
         CreateCustomer(Customer, GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group", AddCurrency.Code);
         SetCustomerInvRoundingAcc(Customer."Customer Posting Group", GLAccount);
@@ -132,7 +131,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         Initialize;
 
         LibraryPurchase.SetInvoiceRounding(true);
-        LibraryPurchase.CreatePrepaymentVATSetup(GLAccount, 0);
+        LibraryPurchase.CreatePrepaymentVATSetup(GLAccount, "General Posting Type"::" ");
         CreateAddReportingCurrency(AddCurrency);
         CreateVendor(Vendor, GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group", AddCurrency.Code);
         SetVendorInvRoundingAcc(Vendor."Vendor Posting Group", GLAccount);
@@ -157,7 +156,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
     begin
         Initialize;
 
-        LibraryPurchase.CreatePrepaymentVATSetup(GLAccount, 0);
+        LibraryPurchase.CreatePrepaymentVATSetup(GLAccount, "General Posting Type"::" ");
         CreateAddReportingCurrency(AddCurrency);
         CreateVendor(Vendor, GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group", AddCurrency.Code);
 
@@ -185,7 +184,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
     begin
         Initialize;
 
-        LibrarySales.CreatePrepaymentVATSetup(GLAccount, 0);
+        LibrarySales.CreatePrepaymentVATSetup(GLAccount, "General Posting Type"::" ");
         CreateAddReportingCurrency(AddCurrency);
         CreateCustomer(Customer, GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group", AddCurrency.Code);
 
@@ -357,7 +356,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         exit(SalesInvoiceHeader."No.");
     end;
 
-    local procedure PostCashPayment(AccountType: Option; AccountNo: Code[20]; BankAccNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure PostCashPayment(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankAccNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date; Amount: Decimal; AppliesToDocNo: Code[20])
     var
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";

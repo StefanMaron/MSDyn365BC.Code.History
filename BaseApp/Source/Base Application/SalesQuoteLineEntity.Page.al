@@ -43,14 +43,11 @@ page 5506 "Sales Quote Line Entity"
                         RegisterFieldSet(FieldNo("No."));
                         RegisterFieldSet(FieldNo("Item Id"));
 
-                        Item.SetRange(Id, "Item Id");
-
-                        if not Item.FindFirst then begin
+                        if not Item.GetBySystemId("Item Id") then begin
                             InsertItem := true;
-                            CheckIntegrationIdInUse;
+                            CheckIntegrationIdInUse();
 
-                            Item.Id := "Item Id";
-                            RegisterItemFieldSet(Item.FieldNo(Id));
+                            Item.SystemId := "Item Id";
                             exit;
                         end;
 
@@ -153,8 +150,7 @@ page 5506 "Sales Quote Line Entity"
                         if "Unit of Measure Id" = BlankGUID then
                             "Unit of Measure Code" := ''
                         else begin
-                            UnitOfMeasure.SetRange(Id, "Unit of Measure Id");
-                            if not UnitOfMeasure.FindFirst then
+                            if not UnitOfMeasure.GetBySystemId("Unit of Measure Id") then
                                 Error(UnitOfMeasureIdDoesNotMatchAUnitOfMeasureErr);
 
                             "Unit of Measure Code" := UnitOfMeasure.Code;
@@ -165,8 +161,7 @@ page 5506 "Sales Quote Line Entity"
                         if InsertItem then
                             exit;
 
-                        Item.SetRange(Id, "Item Id");
-                        if Item.FindFirst then
+                        if Item.GetBySystemId("Item Id") then
                             SalesInvoiceAggregator.UpdateUnitOfMeasure(Item, GraphMgtSalesInvLines.GetUnitOfMeasureJSON(Rec));
                     end;
                 }
@@ -202,8 +197,7 @@ page 5506 "Sales Quote Line Entity"
                         if InsertItem then
                             exit;
 
-                        Item.SetRange(Id, "Item Id");
-                        if Item.FindFirst then begin
+                        if Item.GetBySystemId("Item Id") then begin
                             if UnitOfMeasureJSON = 'null' then
                                 SalesInvoiceAggregator.UpdateUnitOfMeasure(Item, GraphMgtSalesInvLines.GetUnitOfMeasureJSON(Rec))
                             else
@@ -441,19 +435,6 @@ page 5506 "Sales Quote Line Entity"
         TempFieldBuffer.Insert();
     end;
 
-    local procedure CheckIntegrationIdInUse()
-    var
-        IntegrationRecord: Record "Integration Record";
-    begin
-        if not IntegrationRecord.Get("Item Id") then
-            exit;
-
-        if IntegrationRecord."Table ID" = DATABASE::Item then
-            Error(ItemWasDeletedErr);
-
-        Error(IdIsAlreadyUsedErr);
-    end;
-
     local procedure RegisterItemFieldSet(FieldNo: Integer)
     begin
         if TempItemFieldSet.Get(DATABASE::Item, FieldNo) then
@@ -488,6 +469,23 @@ page 5506 "Sales Quote Line Entity"
         Clear(InsertItem);
         Clear(LineObjectDetailsJSON);
         Clear(UnitOfMeasureId);
+    end;
+
+    local procedure CheckIntegrationIdInUse()
+    var
+        IntegrationRecord: Record "Integration Record";
+        IntegrationManagement: Codeunit "Integration Management";
+    begin
+        if not IntegrationManagement.IsIntegrationActivated() then
+            exit;
+
+        if not IntegrationRecord.Get("Item Id") then
+            exit;
+
+        if IntegrationRecord."Table ID" = DATABASE::Item then
+            Error(ItemWasDeletedErr);
+
+        Error(IdIsAlreadyUsedErr);
     end;
 
     local procedure SetCalculatedFields()

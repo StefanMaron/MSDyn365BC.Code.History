@@ -1,6 +1,9 @@
 page 2397 "BC O365 Email Setup Wizard"
 {
     Caption = 'Email Setup';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with "Email Account Wizard" from "System Application".';
+    ObsoleteTag = '17.0';
 
     layout
     {

@@ -18,6 +18,7 @@ codeunit 138020 "O365 Customer Prices"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTemplates: Codeunit "Library - Templates";
         TheTestPageIsNotOpenErr: Label 'The TestPage is not open.';
         isInitialized: Boolean;
 
@@ -35,6 +36,7 @@ codeunit 138020 "O365 Customer Prices"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Customer Prices");
 
+        LibraryTemplates.DisableTemplatesFeature();
         if not LibraryFiscalYear.AccountingPeriodsExists then
             LibraryFiscalYear.CreateFiscalYear;
 
@@ -1813,7 +1815,7 @@ codeunit 138020 "O365 Customer Prices"
         end;
     end;
 
-    local procedure CreateSalesLineDiscountLine(LineCode: Code[20]; LineType: Integer; InThePast: Boolean)
+    local procedure CreateSalesLineDiscountLine(LineCode: Code[20]; LineType: Enum "Sales Line Discount Type"; InThePast: Boolean)
     var
         SalesLineDiscount: Record "Sales Line Discount";
         i: Integer;
@@ -1881,7 +1883,7 @@ codeunit 138020 "O365 Customer Prices"
             end;
     end;
 
-    local procedure DuplicateLineInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Integer)
+    local procedure DuplicateLineInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Enum "Sales Line Discount Type")
     begin
         with TempSalesPriceAndLineDiscBuff do begin
             SetRange(Type, LineDiscType);
@@ -1907,7 +1909,7 @@ codeunit 138020 "O365 Customer Prices"
         end;
     end;
 
-    local procedure UpdateLinesInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Integer)
+    local procedure UpdateLinesInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Enum "Sales Line Discount Type")
     var
         i: Integer;
     begin

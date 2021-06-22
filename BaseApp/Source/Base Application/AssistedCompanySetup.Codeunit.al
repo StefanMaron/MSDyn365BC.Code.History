@@ -37,6 +37,9 @@ codeunit 1800 "Assisted Company Setup"
         AssistedSetup: Codeunit "Assisted Setup";
         EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
+        if GetExecutionContext() <> ExecutionContext::Normal then
+            exit;
+
         if not GuiAllowed then
             exit;
 
@@ -346,6 +349,9 @@ codeunit 1800 "Assisted Company Setup"
         VideoCategory: Enum "Video Category";
         CurrentGlobalLanguage: Integer;
     begin
+        if GetExecutionContext() <> ExecutionContext::Normal then
+            exit;
+
         CurrentGlobalLanguage := GLOBALLANGUAGE;
         NavApp.GetCurrentModuleInfo(Info);
         AssistedSetup.Add(Info.Id(), PAGE::"Assisted Company Setup Wizard", InitialCompanySetupTxt, AssistedSetupGroup::GettingStarted, '', VideoCategory::GettingStarted, InitialCompanySetupHelpTxt, InitialCompanySetupDescTxt);
@@ -375,7 +381,7 @@ codeunit 1800 "Assisted Company Setup"
     [EventSubscriber(ObjectType::Codeunit, 40, 'OnAfterCompanyOpen', '', false, false)]
     local procedure OnAfterCompanyOpenRunAssistedCompanySetup()
     begin
-        RunAssistedCompanySetup;
+        RunAssistedCompanySetup();
     end;
 
     [EventSubscriber(ObjectType::Page, 9177, 'OnBeforeActionEvent', 'Create New Company', false, false)]

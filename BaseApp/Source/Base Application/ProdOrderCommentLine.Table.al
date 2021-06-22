@@ -6,11 +6,9 @@ table 5414 "Prod. Order Comment Line"
 
     fields
     {
-        field(1; Status; Option)
+        field(1; Status; Enum "Production Order Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released,Finished;
         }
         field(2; "Prod. Order No."; Code[20])
         {

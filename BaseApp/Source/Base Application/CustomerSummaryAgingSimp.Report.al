@@ -6,6 +6,7 @@ report 109 "Customer - Summary Aging Simp."
     ApplicationArea = Suite;
     Caption = 'Customer - Summary Aging Simp.';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

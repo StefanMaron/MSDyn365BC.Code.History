@@ -317,7 +317,7 @@ report 415 "Archived Purchase Quote"
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Purchase Line Archive"."Dimension Set ID");
 
-                            PurchaseLineArchiveType := "Purchase Line Archive".Type;
+                            PurchaseLineArchiveType := "Purchase Line Archive".Type.AsInteger();
                         end;
 
                         trigger OnPostDataItem()

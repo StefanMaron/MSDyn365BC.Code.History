@@ -54,6 +54,15 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -311,6 +320,11 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
         exit(RealSteps);
     end;
 
+    trigger OnOpenPage()
+    begin
+        SetItemReferenceVisibility();
+    end;
+
     var
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
@@ -320,6 +334,8 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
         [InDataSet]
         DocumentNoHideValue: Boolean;
         ShowRec: Boolean;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
 
     local procedure IsFirstDocLine(): Boolean
     begin
@@ -375,7 +391,7 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
         FromPurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
         GetSelectedLine(FromPurchCrMemoLine);
-        FromPurchCrMemoLine.ShowDimensions;
+        FromPurchCrMemoLine.ShowDimensions();
     end;
 
     local procedure ItemTrackingLines()
@@ -390,6 +406,13 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

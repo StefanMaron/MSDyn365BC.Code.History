@@ -1924,7 +1924,7 @@ codeunit 136110 "Service Management Setup"
     begin
         // Call the ServAllocationManagement code unit to allocate Resource.
         ServAllocationManagement.AllocateDate(
-          ServiceOrderAllocation."Document Type", ServiceOrderAllocation."Document No.", ServiceOrderAllocation."Entry No.",
+          ServiceOrderAllocation."Document Type".AsInteger(), ServiceOrderAllocation."Document No.", ServiceOrderAllocation."Entry No.",
           Resource."No.", '', WorkDate, 0);
     end;
 
@@ -1945,7 +1945,7 @@ codeunit 136110 "Service Management Setup"
         // Run the Res. Availability (Service) form from Resource Allocations form.
         ResourceAllocations.GetRecord(ServiceOrderAllocation);
         ResAvailabilityService.SetData(
-          ServiceOrderAllocation."Document Type", ServiceOrderAllocation."Document No.", ServiceOrderAllocation."Service Item Line No.",
+          ServiceOrderAllocation."Document Type".AsInteger(), ServiceOrderAllocation."Document No.", ServiceOrderAllocation."Service Item Line No.",
           ServiceOrderAllocation."Entry No.");
         if ServiceOrderAllocation."Resource No." <> '' then
             ResAvailabilityService.SetRecord(Resource);

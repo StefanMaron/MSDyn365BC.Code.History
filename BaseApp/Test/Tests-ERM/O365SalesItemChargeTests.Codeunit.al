@@ -205,7 +205,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
             CreateCurrencyWithCurrencyFactor(SalesHeader);
     end;
 
-    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLineType: Option)
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLineType: Enum "Sales Line Type")
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, '', 1);
         SalesLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
@@ -234,7 +234,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
 
         for i := 1 to AmountOfItemChargeLines do begin
             CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type::"Charge (Item)");
-            SalesLine.ShowItemChargeAssgnt;
+            SalesLine.ShowItemChargeAssgnt();
         end;
     end;
 

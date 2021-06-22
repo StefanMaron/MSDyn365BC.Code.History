@@ -5,6 +5,9 @@ page 5721 "Item Cross Reference Entries"
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Item Cross Reference";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Item Reference feature.';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -73,6 +76,51 @@ page 5721 "Item Cross Reference Entries"
 
     actions
     {
+        area(Processing)
+        {
+            group(DemoData)
+            {
+                Caption = 'Demo Data';
+                Image = DataEntry;
+                action(Create)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Create Data';
+                    Image = Category;
+                    ToolTip = 'Create demo data for vendors 10000..50000 and items 1100..1800.';
+
+                    trigger OnAction()
+                    begin
+                        CreateDemoData();
+                    end;
+                }
+            }
+        }
     }
+
+    local procedure CreateDemoData()
+    var
+        Item: Record Item;
+        ItemCrossReference: Record "Item Cross Reference";
+        Vendor: Record Vendor;
+    begin
+        ItemCrossReference.Reset();
+        Vendor.SetFilter("No.", '%1..%2', '10000', '50000');
+        if Item.FindSet() then
+            repeat
+                if Vendor.FindSet() then
+                    repeat
+                        ItemCrossReference.Init();
+                        ItemCrossReference."Cross-Reference Type" := ItemCrossReference."Cross-Reference Type"::Vendor;
+                        ItemCrossReference."Cross-Reference Type No." := Vendor."No.";
+                        ItemCrossReference.Validate("Item No.", Item."No.");
+                        ItemCrossReference.Validate("Cross-Reference No.", 'V' + Item."No.");
+                        ItemCrossReference.Description := Item.Description;
+                        if ItemCrossReference.Insert() then;
+                    until Vendor.Next() = 0;
+            until Item.Next() = 0;
+
+        message('Demo data created: %1', ItemCrossReference.Count());
+    end;
 }
 

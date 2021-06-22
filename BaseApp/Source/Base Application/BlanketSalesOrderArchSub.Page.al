@@ -28,6 +28,14 @@ page 6621 "Blanket Sales Order Arch. Sub."
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the referenced item number.';
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -393,7 +401,7 @@ page 6621 "Blanket Sales Order Arch. Sub."
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -405,7 +413,7 @@ page 6621 "Blanket Sales Order Arch. Sub."
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
                 action(DocumentLineTracking)
@@ -416,7 +424,7 @@ page 6621 "Blanket Sales Order Arch. Sub."
 
                     trigger OnAction()
                     begin
-                        ShowDocumentLineTracking;
+                        ShowDocumentLineTracking();
                     end;
                 }
             }
@@ -435,7 +443,7 @@ page 6621 "Blanket Sales Order Arch. Sub."
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
     end;
 
-    var
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

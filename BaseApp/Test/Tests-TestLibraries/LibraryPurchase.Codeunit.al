@@ -30,17 +30,17 @@ codeunit 130512 "Library - Purchase"
         exit(PurchOrderHeader."No.");
     end;
 
-    procedure CopyPurchaseDocument(PurchaseHeader: Record "Purchase Header"; NewDocType: Option; NewDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
+    procedure CopyPurchaseDocument(PurchaseHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.InitializeRequest(NewDocType, NewDocNo, NewIncludeHeader, NewRecalcLines);
+        CopyPurchaseDocument.SetParameters(FromDocType, FromDocNo, NewIncludeHeader, NewRecalcLines);
         CopyPurchaseDocument.UseRequestPage(false);
-        CopyPurchaseDocument.Run;
+        CopyPurchaseDocument.Run();
     end;
 
-    procedure CreateItemChargeAssignment(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchaseLine: Record "Purchase Line"; ItemCharge: Record "Item Charge"; DocType: Option; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
+    procedure CreateItemChargeAssignment(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchaseLine: Record "Purchase Line"; ItemCharge: Record "Item Charge"; DocType: Enum "Purchase Applies-to Document Type"; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
     var
         RecRef: RecordRef;
     begin
@@ -83,7 +83,7 @@ codeunit 130512 "Library - Purchase"
         OrderAddress.Insert(true);
     end;
 
-    procedure CreatePrepaymentVATSetup(var LineGLAccount: Record "G/L Account"; VATCalculationType: Option): Code[20]
+    procedure CreatePrepaymentVATSetup(var LineGLAccount: Record "G/L Account"; VATCalculationType: Enum "Tax Calculation Type"): Code[20]
     var
         PrepmtGLAccount: Record "G/L Account";
     begin
@@ -118,7 +118,7 @@ codeunit 130512 "Library - Purchase"
         Purchasing.Modify(true);
     end;
 
-    procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyfromVendorNo: Code[20])
+    procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyfromVendorNo: Code[20])
     begin
         DisableWarningOnCloseUnpostedDoc;
         DisableWarningOnCloseUnreleasedDoc;
@@ -139,7 +139,7 @@ codeunit 130512 "Library - Purchase"
         PurchaseHeader.Modify(true);
     end;
 
-    procedure CreatePurchHeaderWithDocNo(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyfromVendorNo: Code[20]; DocNo: Code[20])
+    procedure CreatePurchHeaderWithDocNo(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyfromVendorNo: Code[20]; DocNo: Code[20])
     begin
         Clear(PurchaseHeader);
         PurchaseHeader.Validate("Document Type", DocumentType);
@@ -153,12 +153,12 @@ codeunit 130512 "Library - Purchase"
         PurchaseHeader.Modify(true);
     end;
 
-    procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
 
-        PurchaseLine.Validate(Type, Type);
-        case Type of
+        PurchaseLine.Validate(Type, LineType);
+        case LineType of
             PurchaseLine.Type::Item:
                 if No = '' then
                     No := LibraryInventory.CreateItemNo;
@@ -170,11 +170,11 @@ codeunit 130512 "Library - Purchase"
                     No := LibraryResource.CreateResourceNo();
         end;
         PurchaseLine.Validate("No.", No);
-        if Type <> PurchaseLine.Type::" " then
+        if LineType <> PurchaseLine.Type::" " then
             PurchaseLine.Validate(Quantity, Quantity);
         PurchaseLine.Modify(true);
 
-        OnAfterCreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
+        OnAfterCreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, No, Quantity);
     end;
 
     procedure CreatePurchaseLineSimple(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
@@ -231,7 +231,7 @@ codeunit 130512 "Library - Purchase"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendorNo);
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendorNo());
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
@@ -247,7 +247,7 @@ codeunit 130512 "Library - Purchase"
         PurchaseLine.Modify(true);
     end;
 
-    procedure CreatePurchCommentLine(var PurchCommentLine: Record "Purch. Comment Line"; DocumentType: Option; No: Code[20]; DocumentLineNo: Integer)
+    procedure CreatePurchCommentLine(var PurchCommentLine: Record "Purch. Comment Line"; DocumentType: Enum "Purchase Comment Document Type"; No: Code[20]; DocumentLineNo: Integer)
     var
         RecRef: RecordRef;
     begin
@@ -265,13 +265,13 @@ codeunit 130512 "Library - Purchase"
         PurchCommentLine.Modify(true);
     end;
 
-    procedure CreatePurchaseDocumentWithItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ExpectedReceiptDate: Date)
+    procedure CreatePurchaseDocumentWithItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ExpectedReceiptDate: Date)
     begin
         CreateFCYPurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, DocumentType, VendorNo, ItemNo, Quantity, LocationCode, ExpectedReceiptDate, '');
     end;
 
-    procedure CreateFCYPurchaseDocumentWithItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ExpectedReceiptDate: Date; CurrencyCode: Code[10])
+    procedure CreateFCYPurchaseDocumentWithItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ExpectedReceiptDate: Date; CurrencyCode: Code[10])
     begin
         CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         if LocationCode <> '' then
@@ -438,6 +438,10 @@ codeunit 130512 "Library - Purchase"
         CreateVendor(Vendor);
         Vendor.Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         Vendor.Validate(Address, LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Address)));
+        Vendor.Validate("Address 2", LibraryUtility.GenerateRandomText(MaxStrLen(Vendor."Address 2")));
+        Vendor.Validate("Country/Region Code", PostCode."Country/Region Code");
+        Vendor.Validate(City, PostCode.City);
+        Vendor.Validate(County, LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.County)));
         Vendor.Validate("Post Code", PostCode.Code);
         Vendor.Contact := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Contact)), 1, MaxStrLen(Vendor.Contact));
         Vendor.Modify(true);
@@ -519,7 +523,7 @@ codeunit 130512 "Library - Purchase"
         PurchExplodeBOM.Run(PurchaseLine);
     end;
 
-    procedure FilterPurchaseHeaderArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    procedure FilterPurchaseHeaderArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
     begin
         PurchaseHeaderArchive.SetRange("Document Type", DocumentType);
         PurchaseHeaderArchive.SetRange("No.", DocumentNo);
@@ -527,7 +531,7 @@ codeunit 130512 "Library - Purchase"
         PurchaseHeaderArchive.SetRange("Version No.", Version);
     end;
 
-    procedure FilterPurchaseLineArchive(var PurchaseLineArchive: Record "Purchase Line Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    procedure FilterPurchaseLineArchive(var PurchaseLineArchive: Record "Purchase Line Archive"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
     begin
         PurchaseLineArchive.SetRange("Document Type", DocumentType);
         PurchaseLineArchive.SetRange("Document No.", DocumentNo);
@@ -996,7 +1000,7 @@ codeunit 130512 "Library - Purchase"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure OnAfterCreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     begin
     end;
 

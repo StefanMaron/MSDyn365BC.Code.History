@@ -11,19 +11,15 @@ table 212 "Job Posting Buffer"
             DataClassification = SystemMetadata;
             TableRelation = Job;
         }
-        field(2; "Entry Type"; Option)
+        field(2; "Entry Type"; Enum "Job Journal Line Entry Type")
         {
             Caption = 'Entry Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Usage,Sale';
-            OptionMembers = Usage,Sale;
         }
-        field(3; "Posting Group Type"; Option)
+        field(3; "Posting Group Type"; Enum "Job Journal Line Type")
         {
             Caption = 'Posting Group Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Resource,Item,G/L Account';
-            OptionMembers = Resource,Item,"G/L Account";
         }
         field(4; "No."; Code[20])
         {

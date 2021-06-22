@@ -118,6 +118,19 @@ table 349 "Dimension Value"
         {
             Caption = 'Last Modified Date Time';
         }
+        field(8002; "Dimension Id"; Guid)
+        {
+            Caption = 'Dimension Id';
+            TableRelation = Dimension.SystemId;
+
+            trigger OnValidate()
+            var
+                Dimension: Record Dimension;
+            begin
+                if Dimension.GetBySystemId("Dimension Id") then
+                    Validate("Dimension Code", Dimension.Code);
+            end;
+        }
     }
 
     keys
@@ -603,6 +616,7 @@ table 349 "Dimension Value"
     begin
         Dimension.Get("Dimension Code");
         Validate("Map-to IC Dimension Code", Dimension."Map-to IC Dimension Code");
+        "Dimension Id" := Dimension.SystemId;
     end;
 
     [IntegrationEvent(false, false)]

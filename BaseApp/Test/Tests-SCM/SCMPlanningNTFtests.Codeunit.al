@@ -108,7 +108,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         DisableWarnings;
     end;
 
-    local procedure ItemSetup(var Item: Record Item; ReplenishmentSystem: Option; SafetyLeadTime: Text[30])
+    local procedure ItemSetup(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; SafetyLeadTime: Text[30])
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -294,7 +294,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         LibraryJob.CreateJobTask(Job, JobTask);
     end;
 
-    local procedure CreateSaleDocType(var SalesHeader: Record "Sales Header"; DocumentType: Option; Item: Record Item; SalesQty: Integer; ShipmentDate: Date; LocationCode: Code[10])
+    local procedure CreateSaleDocType(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Item: Record Item; SalesQty: Integer; ShipmentDate: Date; LocationCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -364,7 +364,7 @@ codeunit 137021 "SCM Planning - NTF tests"
           ItemNo, Quantity, DueDate, LocationCode, OutputBinCode);
     end;
 
-    local procedure CreateProdOrderAndRefresh(var ProductionOrder: Record "Production Order"; OrderStatus: Option; ItemNo: Code[20]; Quantity: Decimal; DueDate: Date; LocationCode: Code[10]; OutputBinCode: Code[20])
+    local procedure CreateProdOrderAndRefresh(var ProductionOrder: Record "Production Order"; OrderStatus: Enum "Production Order Status"; ItemNo: Code[20]; Quantity: Decimal; DueDate: Date; LocationCode: Code[10]; OutputBinCode: Code[20])
     begin
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, OrderStatus, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
@@ -650,7 +650,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ClearDefaultLocation;
     end;
 
-    local procedure FilterRequisitionLineOnPlanningWorksheet(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; LocationCode: Code[10]; ActionMsg: Option; RefOrderType: Option; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal)
+    local procedure FilterRequisitionLineOnPlanningWorksheet(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; LocationCode: Code[10]; ActionMsg: Enum "Action Message Type"; RefOrderType: Option; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal)
     begin
         with RequisitionLine do begin
             SetCurrentKey(Type, "No.", "Variant Code", "Location Code", "Starting Date");
@@ -666,7 +666,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         end;
     end;
 
-    local procedure AssertPlanningLine(Item: Record Item; ActionMsg: Option; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Option; LocationCode: Code[10]; NoOfLines: Integer)
+    local procedure AssertPlanningLine(Item: Record Item; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Option; LocationCode: Code[10]; NoOfLines: Integer)
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -677,7 +677,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Assert.AreEqual(NoOfLines, RequisitionLine.Count, StrSubstNo(FilterRequisitionLineMsg, RequisitionLine.GetFilters));
     end;
 
-    local procedure AssertPlanningLineWithMaximumOrderQty(ItemNo: Code[20]; ActionMsg: Option; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Option; LocationCode: Code[10])
+    local procedure AssertPlanningLineWithMaximumOrderQty(ItemNo: Code[20]; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Option; LocationCode: Code[10])
     var
         RequisitionLine: Record "Requisition Line";
         TotalQuantity: Decimal;
@@ -835,7 +835,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateItemJnlLineWithLot(var ItemJournalLine: Record "Item Journal Line"; ItemJnlTemplateName: Code[10]; ItemJnlBatchName: Code[10]; EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; LotNo: Code[10])
+    local procedure CreateItemJnlLineWithLot(var ItemJournalLine: Record "Item Journal Line"; ItemJnlTemplateName: Code[10]; ItemJnlBatchName: Code[10]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; LotNo: Code[10])
     begin
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJnlTemplateName, ItemJnlBatchName, EntryType, ItemNo, Quantity);
@@ -883,7 +883,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         // assign Lot No to trnasfer line - triggers the ItemTrackingPageHandler handler
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(TransferLine."Quantity (Base)");
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
     end;
 
     local procedure SetupForBug272514(var ProductionOrder: array[3] of Record "Production Order"; var TransferHeader: Record "Transfer Header"; ItemFGNo: Code[20]; ItemCompNo: Code[20]; LocationFromCode: Code[10]; LocationToCode: Code[10])
@@ -3200,9 +3200,9 @@ codeunit 137021 "SCM Planning - NTF tests"
         // verify results
         AssertNoLinesForItem(ItemComp);
         AssertTrackingLineForItem(ItemComp."No.", '', LocationTo.Code, 13);  // 12 are tracking production with ILE and transfer, the last 13th is Surplus for transfer
-        AssertTrackingLineForSource(5407, ProductionOrder[1].Status, ProductionOrder[1]."No.", 2);  // 2 tracking entries against ILEs
-        AssertTrackingLineForSource(5407, ProductionOrder[2].Status, ProductionOrder[2]."No.", 3);  // 2 tracking entries against ILEs and 1 against transfer
-        AssertTrackingLineForSource(5407, ProductionOrder[3].Status, ProductionOrder[3]."No.", 1);  // 1 tracking entry against transfer
+        AssertTrackingLineForSource(5407, ProductionOrder[1].Status.AsInteger(), ProductionOrder[1]."No.", 2);  // 2 tracking entries against ILEs
+        AssertTrackingLineForSource(5407, ProductionOrder[2].Status.AsInteger(), ProductionOrder[2]."No.", 3);  // 2 tracking entries against ILEs and 1 against transfer
+        AssertTrackingLineForSource(5407, ProductionOrder[3].Status.AsInteger(), ProductionOrder[3]."No.", 1);  // 1 tracking entry against transfer
         AssertTrackingLineForSource(5741, 1, TransferHeader."No.", 3);  // 1 tracking entry against RPO, 1 tracking entry against FPPO, 1 surplus
 
         // rerun planning for a new period
@@ -3211,9 +3211,9 @@ codeunit 137021 "SCM Planning - NTF tests"
         // verify results
         AssertNoLinesForItem(ItemComp);
         AssertTrackingLineForItem(ItemComp."No.", '', LocationTo.Code, 12);  // 10 are tracking production with ILE and transfer, last 2 are Surplus for transfer
-        AssertTrackingLineForSource(5407, ProductionOrder[1].Status, ProductionOrder[1]."No.", 2);  // 2 tracking entries against ILEs
-        AssertTrackingLineForSource(5407, ProductionOrder[2].Status, ProductionOrder[2]."No.", 3);  // 2 tracking entries against ILEs and 1 against transfer
-        AssertTrackingLineForSource(5407, ProductionOrder[3].Status, ProductionOrder[3]."No.", 0);  // FPPO is not tracked at all
+        AssertTrackingLineForSource(5407, ProductionOrder[1].Status.AsInteger(), ProductionOrder[1]."No.", 2);  // 2 tracking entries against ILEs
+        AssertTrackingLineForSource(5407, ProductionOrder[2].Status.AsInteger(), ProductionOrder[2]."No.", 3);  // 2 tracking entries against ILEs and 1 against transfer
+        AssertTrackingLineForSource(5407, ProductionOrder[3].Status.AsInteger(), ProductionOrder[3]."No.", 0);  // FPPO is not tracked at all
         AssertTrackingLineForSource(5741, 1, TransferHeader."No.", 3);  // 1 tracking entry against RPO, 2 surplus entries
     end;
 
@@ -3248,9 +3248,9 @@ codeunit 137021 "SCM Planning - NTF tests"
         // verify results
         AssertNoLinesForItem(ItemComp);
         AssertTrackingLineForItem(ItemComp."No.", '', LocationTo.Code, 13);  // 12 are tracking production with ILE and transfer, the last 13th is Surplus for transfer
-        AssertTrackingLineForSource(5407, ProductionOrder[1].Status, ProductionOrder[1]."No.", 2);  // 2 tracking entries against ILEs
-        AssertTrackingLineForSource(5407, ProductionOrder[2].Status, ProductionOrder[2]."No.", 3);  // 2 tracking entries against ILEs and 1 against transfer
-        AssertTrackingLineForSource(5407, ProductionOrder[3].Status, ProductionOrder[3]."No.", 1);  // 1 tracking entry against transfer
+        AssertTrackingLineForSource(5407, ProductionOrder[1].Status.AsInteger(), ProductionOrder[1]."No.", 2);  // 2 tracking entries against ILEs
+        AssertTrackingLineForSource(5407, ProductionOrder[2].Status.AsInteger(), ProductionOrder[2]."No.", 3);  // 2 tracking entries against ILEs and 1 against transfer
+        AssertTrackingLineForSource(5407, ProductionOrder[3].Status.AsInteger(), ProductionOrder[3]."No.", 1);  // 1 tracking entry against transfer
         AssertTrackingLineForSource(5741, 1, TransferHeader."No.", 3);  // 1 tracking entry against RPO, 1 tracking entry against FPPO, 1 surplus
 
         // add Item tracking for component of FPPO
@@ -3262,9 +3262,9 @@ codeunit 137021 "SCM Planning - NTF tests"
         // verify results
         AssertNoLinesForItem(ItemComp);
         AssertTrackingLineForItem(ItemComp."No.", '', LocationTo.Code, 13);  // 10 are tracking production with ILE and transfer, last 1 is Surplus for transfer
-        AssertTrackingLineForSource(5407, ProductionOrder[1].Status, ProductionOrder[1]."No.", 2);  // 2 tracking entries against ILEs
-        AssertTrackingLineForSource(5407, ProductionOrder[2].Status, ProductionOrder[2]."No.", 3);  // 2 tracking entries against ILEs and 1 against transfer
-        AssertTrackingLineForSource(5407, ProductionOrder[3].Status, ProductionOrder[3]."No.", 1);  // 1 surplus entry
+        AssertTrackingLineForSource(5407, ProductionOrder[1].Status.AsInteger(), ProductionOrder[1]."No.", 2);  // 2 tracking entries against ILEs
+        AssertTrackingLineForSource(5407, ProductionOrder[2].Status.AsInteger(), ProductionOrder[2]."No.", 3);  // 2 tracking entries against ILEs and 1 against transfer
+        AssertTrackingLineForSource(5407, ProductionOrder[3].Status.AsInteger(), ProductionOrder[3]."No.", 1);  // 1 surplus entry
         AssertTrackingLineForSource(5741, 1, TransferHeader."No.", 3);  // 1 tracking entry against RPO, 2 surplus entries
     end;
 
@@ -3559,9 +3559,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ReleasedProductionOrder.ProdOrderLines.ItemTrackingLines.Invoke; // Item Tracking Lines
         // Verify remaining reservation entries:
         AssertTrackingLineForSource(
-          DATABASE::"Prod. Order Line",
-          ProductionOrder.Status,
-          ProductionOrder."No.",
+          DATABASE::"Prod. Order Line", ProductionOrder.Status.AsInteger(), ProductionOrder."No.",
           GlobalQty[1] - GlobalQty[2]);
     end;
 

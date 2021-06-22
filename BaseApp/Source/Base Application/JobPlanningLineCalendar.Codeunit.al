@@ -55,13 +55,12 @@ codeunit 1034 "Job Planning Line - Calendar"
 
         if JobPlanningLineCalendar.ShouldSendCancellation(JobPlanningLine) then
             if CreateCancellation(TempEmailItem) then
-                TempEmailItem.Send(true);
+                TempEmailItem.Send(true, Enum::"Email Scenario"::"Job Planning Line Calendar");
 
         if JobPlanningLineCalendar.ShouldSendRequest(JobPlanningLine) then
             if CreateRequest(TempEmailItem) then begin
-                SendTraceTag('0000ACX', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
-                    SendToCalendarTelemetryTxt, DataClassification::SystemMetadata);
-                TempEmailItem.Send(true);
+                Session.LogMessage('0000ACX', SendToCalendarTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
+                TempEmailItem.Send(true, Enum::"Email Scenario"::"Job Planning Line Calendar");
             end;
     end;
 
@@ -237,11 +236,19 @@ codeunit 1034 "Job Planning Line - Calendar"
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
         ProjectManagerUser: Record User;
+        EmailAccount: Record "Email Account";
+        EmailFeature: Codeunit "Email Feature";
+        EmailScenario: Codeunit "Email Scenario";
     begin
         ProjectManagerUser.SetRange("User Name", ProjectManagerResource."Time Sheet Owner User ID");
         if ProjectManagerUser.FindFirst then
             if ProjectManagerUser."Authentication Email" <> '' then
                 exit(ProjectManagerUser."Authentication Email");
+
+        if EmailFeature.IsEnabled() then begin
+            EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount);
+            exit(EmailAccount."Email Address");
+        end;
 
         SMTPMailSetup.GetSetup;
         exit(SMTPMailSetup."User ID");

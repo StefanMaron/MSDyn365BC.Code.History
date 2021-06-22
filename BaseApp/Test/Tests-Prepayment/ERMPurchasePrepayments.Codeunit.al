@@ -268,11 +268,10 @@ codeunit 134333 "ERM Purchase Prepayments"
     local procedure PreparePrepaymentsPostingSetup(var GLAccount: Record "G/L Account")
     var
         PrepmtGLAccount: Record "G/L Account";
-        VATCalcType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
         LibraryERM.CreatePrepaymentVATSetup(
           GLAccount, PrepmtGLAccount, GLAccount."Gen. Posting Type"::Purchase,
-          VATCalcType::"Normal VAT", VATCalcType::"Normal VAT");
+          "Tax Calculation Type"::"Normal VAT", "Tax Calculation Type"::"Normal VAT");
     end;
 
     local procedure PrepareItemAccordingToSetup(var Item: Record Item; GLAccount: Record "G/L Account")

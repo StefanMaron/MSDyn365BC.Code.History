@@ -5,6 +5,7 @@ report 310 "Vendor - Labels"
     ApplicationArea = Suite;
     Caption = 'Vendor - Labels';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

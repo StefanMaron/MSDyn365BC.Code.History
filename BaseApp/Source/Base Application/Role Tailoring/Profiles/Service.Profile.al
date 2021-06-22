@@ -2,7 +2,7 @@ profile "SERVICES"
 {
     Enabled = true;
     Caption = 'Service';
-    ProfileDescription = 'Full functionality for anyone in the Services department, such as servicing managers.';
+    ProfileDescription = 'Navigation menu only.';
     Promoted = true;
     RoleCenter = 8908;
 }

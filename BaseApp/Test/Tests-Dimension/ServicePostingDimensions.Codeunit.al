@@ -2896,7 +2896,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
     end;
 
-    local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; ServiceItemLineNo: Integer)
+    local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; ServiceItemLineNo: Integer)
     begin
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
         ServiceLine.Validate("Service Item Line No.", ServiceItemLineNo);
@@ -2904,7 +2904,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateServiceOrder(var ServiceLine: Record "Service Line"; Type: Option; No: Code[20]; CustomerNo: Code[20]; QtyToConsume: Boolean)
+    local procedure CreateServiceOrder(var ServiceLine: Record "Service Line"; Type: Enum "Service Line Type"; No: Code[20]; CustomerNo: Code[20]; QtyToConsume: Boolean)
     var
         ServiceHeader: Record "Service Header";
         ServiceItemLine: Record "Service Item Line";
@@ -3132,7 +3132,7 @@ codeunit 136118 "Service Posting - Dimensions"
         CreateStandardServiceLineDim(StandardServiceCode.Code, StandardServiceLine.Type::"G/L Account", GLAccount."No.", Dimension.Code);
     end;
 
-    local procedure CreateStandardServiceLineDim(StandardServiceCode: Code[10]; StandardServiceLineType: Option; StandardServiceLineNo: Code[20]; DimensionCode: Code[20]): Integer
+    local procedure CreateStandardServiceLineDim(StandardServiceCode: Code[10]; StandardServiceLineType: Enum "Service Line Type"; StandardServiceLineNo: Code[20]; DimensionCode: Code[20]): Integer
     var
         StandardServiceLine: Record "Standard Service Line";
     begin
@@ -3143,7 +3143,7 @@ codeunit 136118 "Service Posting - Dimensions"
         exit(StandardServiceLine."Dimension Set ID");
     end;
 
-    local procedure CreateStandardServiceLine(var StandardServiceLine: Record "Standard Service Line"; StandardServiceCode: Code[10]; Type: Option; No: Code[20])
+    local procedure CreateStandardServiceLine(var StandardServiceLine: Record "Standard Service Line"; StandardServiceCode: Code[10]; Type: Enum "Service Line Type"; No: Code[20])
     begin
         LibraryService.CreateStandardServiceLine(StandardServiceLine, StandardServiceCode);
         StandardServiceLine.Validate(Type, Type);
@@ -3425,7 +3425,7 @@ codeunit 136118 "Service Posting - Dimensions"
         until ServiceLine.Next = 0;
     end;
 
-    local procedure FilterDefaultDimension(var DefaultDimension: Record "Default Dimension"; Type: Option " ",Item,Resource,Cost,"G/L Account"; No: Code[20])
+    local procedure FilterDefaultDimension(var DefaultDimension: Record "Default Dimension"; Type: Enum "Service Line Type"; No: Code[20])
     begin
         if Type = Type::Item then
             DefaultDimension.SetRange("Table ID", DATABASE::Item);

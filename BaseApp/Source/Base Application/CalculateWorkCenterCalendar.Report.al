@@ -84,12 +84,7 @@ report 99001046 "Calculate Work Center Calendar"
                     TestField(Capacity);
                     TestField("Unit of Measure Code");
 
-                    CalendarMgt.CalculateSchedule(
-                      0,
-                      "No.",
-                      "No.",
-                      StartingDate,
-                      EndingDate);
+                    CalendarMgt.CalculateSchedule("Capacity Type"::"Work Center", "No.", "No.", StartingDate, EndingDate);
                 end;
             end;
 

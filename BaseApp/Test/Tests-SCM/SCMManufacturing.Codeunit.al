@@ -160,7 +160,7 @@ codeunit 137404 "SCM Manufacturing"
         CopyProductionOrder(ProductionOrder.Status::Released);
     end;
 
-    local procedure CopyProductionOrder(Status: Option)
+    local procedure CopyProductionOrder(Status: Enum "Production Order Status")
     var
         ProductionOrder: Record "Production Order";
         NewProductionOrder: Record "Production Order";
@@ -1897,7 +1897,7 @@ codeunit 137404 "SCM Manufacturing"
         CreateProdOrderLineWithWhiteLocationAndUpdateWorkCenterBinCode(ProdOrderLine, WorkCenter, RoutingRefNo);
 
         // [WHEN] Find and set ProdOrderLine Bin Code from Work Center through Routing Line
-        CalculateProdOrder.FindAndSetProdOrderLineBinCodeFromProdRtngLines(
+        CalculateProdOrder.FindAndSetProdOrderLineBinCodeFromProdRoutingLines(
           ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", RoutingRefNo);
 
         // [THEN] ProdOrderLine's BinCode is same as Work Center's Bin Code
@@ -2448,13 +2448,13 @@ codeunit 137404 "SCM Manufacturing"
         ApplicationWorksheet.FILTER.SetFilter("Item No.", ProdOrderComponent."Item No.");
 
         ApplicationWorksheet.First;
-        while ApplicationWorksheet."Entry Type".AsInteger <> TempItemLedgEntry."Entry Type"::Consumption do
+        while ApplicationWorksheet."Entry Type".AsInteger <> TempItemLedgEntry."Entry Type"::Consumption.AsInteger() do
             if not ApplicationWorksheet.Next then
                 Error(StrSubstNo(EntryOfTypeNotFoundErr, TempItemLedgEntry."Entry Type"::Consumption));
         ApplicationWorksheet.AppliedEntries.Invoke;
 
         ApplicationWorksheet.First;
-        while ApplicationWorksheet."Entry Type".AsInteger <> TempItemLedgEntry."Entry Type"::Sale do
+        while ApplicationWorksheet."Entry Type".AsInteger <> TempItemLedgEntry."Entry Type"::Sale.AsInteger() do
             if not ApplicationWorksheet.Next then
                 Error(StrSubstNo(EntryOfTypeNotFoundErr, TempItemLedgEntry."Entry Type"::Sale));
         ApplicationWorksheet.UnappliedEntries.Invoke;
@@ -3357,7 +3357,7 @@ codeunit 137404 "SCM Manufacturing"
         exit(Item."No.");
     end;
 
-    local procedure FindILE(var ItemLedgEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Option)
+    local procedure FindILE(var ItemLedgEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type")
     begin
         with ItemLedgEntry do begin
             SetRange("Item No.", ItemNo);
@@ -3455,7 +3455,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure CreateAndPostItemJournalLine(ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; PostingDate: Date; LocationCode: Code[10])
+    local procedure CreateAndPostItemJournalLine(ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; PostingDate: Date; LocationCode: Code[10])
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -3469,14 +3469,14 @@ codeunit 137404 "SCM Manufacturing"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option): Code[20]
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"): Code[20]
     begin
         CreateAndRefreshProductionOrderWithItem(
           ProductionOrder, Status, CreateItemWithRoutingAndProductionBOM, LibraryRandom.RandDec(10, 2));
         exit(ProductionOrder."No.");
     end;
 
-    local procedure CreateAndRefreshProductionOrderWithItem(var ProductionOrder: Record "Production Order"; Status: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndRefreshProductionOrderWithItem(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -3644,7 +3644,7 @@ codeunit 137404 "SCM Manufacturing"
         end;
     end;
 
-    local procedure CreateItemWithReorderingPolicy(var Item: Record Item; ReplenishmentSystem: Option; ManufacturingPolicy: Option; InventoryPostingGroup: Code[20]; ProductionBOMNo: Code[20]; RoutingNo: Code[20])
+    local procedure CreateItemWithReorderingPolicy(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ManufacturingPolicy: Enum "Manufacturing Policy"; InventoryPostingGroup: Code[20]; ProductionBOMNo: Code[20]; RoutingNo: Code[20])
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -3657,7 +3657,7 @@ codeunit 137404 "SCM Manufacturing"
         Item.Modify(true);
     end;
 
-    local procedure CreateItemWithReplenishmentSystemAndManufacturingPolicy(var Item: Record Item; ReplenishmentSystem: Option; ManufacturingPolicy: Option)
+    local procedure CreateItemWithReplenishmentSystemAndManufacturingPolicy(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ManufacturingPolicy: Enum "Manufacturing Policy")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -3682,7 +3682,7 @@ codeunit 137404 "SCM Manufacturing"
           CreateProductionBOMLineForSelectedItem(Item."No.", Item."Base Unit of Measure", Quantity), CreateRoutingWithRoutingLinkCode);
     end;
 
-    local procedure CreateItemWithReorderingPolicyAndInventoryPostingGroup(var Item: Record Item; ReplenishmentSystem: Option; ManufacturingPolicy: Option): Code[10]
+    local procedure CreateItemWithReorderingPolicyAndInventoryPostingGroup(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ManufacturingPolicy: Enum "Manufacturing Policy"): Code[10]
     var
         InventoryPostingGroup: Record "Inventory Posting Group";
         BlankLocation: Record Location;
@@ -3704,7 +3704,7 @@ codeunit 137404 "SCM Manufacturing"
         exit(Location.Code);
     end;
 
-    local procedure CreateProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderStatus: Option; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ItemNo: Code[20]; LocationCode: Code[10]; QtyPer: Decimal)
+    local procedure CreateProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ItemNo: Code[20]; LocationCode: Code[10]; QtyPer: Decimal)
     begin
         with ProdOrderComponent do begin
             LibraryManufacturing.CreateProductionOrderComponent(ProdOrderComponent, ProdOrderStatus, ProdOrderNo, ProdOrderLineNo);
@@ -3757,7 +3757,7 @@ codeunit 137404 "SCM Manufacturing"
         exit(CreateProductionBOMForSingleItem(Item."No.", UnitOfMeasureCode));
     end;
 
-    local procedure CreateProductionBOMVersion(var ProdBomVersion: Record "Production BOM Version"; ProductionBOMNo: Code[20]; UnitOfMeasureCode: Code[10]; StartingDate: Date; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateProductionBOMVersion(var ProdBomVersion: Record "Production BOM Version"; ProductionBOMNo: Code[20]; UnitOfMeasureCode: Code[10]; StartingDate: Date; Type: Enum "Production BOM Line Type"; No: Code[20]; Quantity: Decimal)
     var
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMLine: Record "Production BOM Line";
@@ -3768,7 +3768,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryManufacturing.CreateProductionBOMLine(ProdBOMHeader, ProdBOMLine, ProdBomVersion."Version Code", Type, No, Quantity);
     end;
 
-    local procedure CreateNamedProductionBOMVersion(var ProdBomVersion: Record "Production BOM Version"; ProductionBOMNo: Code[20]; UnitOfMeasureCode: Code[10]; StartingDate: Date; Type: Option; No: Code[20]; Quantity: Decimal; Version: Code[20])
+    local procedure CreateNamedProductionBOMVersion(var ProdBomVersion: Record "Production BOM Version"; ProductionBOMNo: Code[20]; UnitOfMeasureCode: Code[10]; StartingDate: Date; Type: Enum "Production BOM Line Type"; No: Code[20]; Quantity: Decimal; Version: Code[20])
     var
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMLine: Record "Production BOM Line";
@@ -3807,7 +3807,7 @@ codeunit 137404 "SCM Manufacturing"
         ProductionForecastEntry.Modify(true);
     end;
 
-    local procedure CreateRegisteredAbsence(CapacityType: Option; No: Code[20]; Date: Date): Decimal
+    local procedure CreateRegisteredAbsence(CapacityType: Enum "Capacity Type"; No: Code[20]; Date: Date): Decimal
     var
         RegisteredAbsence: Record "Registered Absence";
     begin
@@ -4405,7 +4405,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure CreateSalesOrderAndCalculateOrderPlan(Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateSalesOrderAndCalculateOrderPlan(Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     var
         SalesHeader: Record "Sales Header";
         RequisitionLine: Record "Requisition Line";
@@ -4472,7 +4472,7 @@ codeunit 137404 "SCM Manufacturing"
         end;
     end;
 
-    local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Option; ProdOrderNo: Code[20]; ItemNo: Code[20])
+    local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; ItemNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
@@ -4480,7 +4480,7 @@ codeunit 137404 "SCM Manufacturing"
         ProdOrderLine.FindFirst;
     end;
 
-    local procedure FindFirstProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Option; ProdOrderNo: Code[20])
+    local procedure FindFirstProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, ProdOrderStatus);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
@@ -4540,7 +4540,7 @@ codeunit 137404 "SCM Manufacturing"
         ProductionBOMLine.FindFirst;
     end;
 
-    local procedure FindProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrderStatus: Option; ProductionOrderNo: Code[20])
+    local procedure FindProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrderStatus: Enum "Production Order Status"; ProductionOrderNo: Code[20])
     begin
         ProdOrderComponent.SetRange(Status, ProductionOrderStatus);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
@@ -4555,7 +4555,7 @@ codeunit 137404 "SCM Manufacturing"
         exit(ProdOrdRtngLn.FindFirst);
     end;
 
-    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderStatus: Option; ProdOrderNo: Code[20])
+    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
         with ProdOrderComponent do begin
             SetRange(Status, ProdOrderStatus);
@@ -4571,7 +4571,7 @@ codeunit 137404 "SCM Manufacturing"
         PlanningRoutingLine.FindFirst;
     end;
 
-    local procedure FindFirstProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderStatus: Option; ProductionOrderNo: Code[20])
+    local procedure FindFirstProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderStatus: Enum "Production Order Status"; ProductionOrderNo: Code[20])
     begin
         with ProdOrderRoutingLine do begin
             SetRange(Status, ProductionOrderStatus);
@@ -4587,7 +4587,7 @@ codeunit 137404 "SCM Manufacturing"
         ProdOrderRoutingLine.FindFirst;
     end;
 
-    local procedure FindProdOrderRtngLn(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderStatus: Option; ProductionOrderNo: Code[20]; RoutingNo: Code[20]; WorkCenterNo: Code[20])
+    local procedure FindProdOrderRtngLn(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderStatus: Enum "Production Order Status"; ProductionOrderNo: Code[20]; RoutingNo: Code[20]; WorkCenterNo: Code[20])
     begin
         with ProdOrderRoutingLine do begin
             SetRange(Status, ProductionOrderStatus);
@@ -4608,7 +4608,7 @@ codeunit 137404 "SCM Manufacturing"
         ShopCalendarWorkingDays.FindFirst;
     end;
 
-    local procedure GetCalendarEntry(var CalendarEntry: Record "Calendar Entry"; CapacityType: Option; No: Code[20])
+    local procedure GetCalendarEntry(var CalendarEntry: Record "Calendar Entry"; CapacityType: Enum "Capacity Type"; No: Code[20])
     begin
         CalendarEntry.SetRange("Capacity Type", CapacityType);
         CalendarEntry.SetRange("No.", No);
@@ -4629,7 +4629,7 @@ codeunit 137404 "SCM Manufacturing"
         exit(ProdOrderCapacityNeed.Date);
     end;
 
-    local procedure MockProdBOMHeaderWithVersionForItem(var ProductionBOMVersion: Record "Production BOM Version"; ItemNo: Code[20]; VersionStatus: Option)
+    local procedure MockProdBOMHeaderWithVersionForItem(var ProductionBOMVersion: Record "Production BOM Version"; ItemNo: Code[20]; VersionStatus: Enum "BOM Status")
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
@@ -4673,13 +4673,13 @@ codeunit 137404 "SCM Manufacturing"
         WorkCenter.Modify(true);
     end;
 
-    local procedure ModifyStatusInProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; Status: Option)
+    local procedure ModifyStatusInProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; Status: Enum "BOM Status")
     begin
         ProductionBOMHeader.Validate(Status, Status);
         ProductionBOMHeader.Modify(true);
     end;
 
-    local procedure ModifyProductionBOMVersionStatus(var ProdBomVersion: Record "Production BOM Version"; Status: Option)
+    local procedure ModifyProductionBOMVersionStatus(var ProdBomVersion: Record "Production BOM Version"; Status: Enum "BOM Status")
     begin
         ProdBomVersion.Validate(Status, Status);
         ProdBomVersion.Modify(true);
@@ -4692,7 +4692,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate, WorkDate);
     end;
 
-    local procedure ModifyRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Option)
+    local procedure ModifyRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")
     begin
         RoutingHeader.Validate(Status, Status);
         RoutingHeader.Modify(true);
@@ -4845,7 +4845,7 @@ codeunit 137404 "SCM Manufacturing"
         end;
     end;
 
-    local procedure ReserveComponentForProdOrder(ProdOrderStatus: Option; ProdOrderNo: Code[20])
+    local procedure ReserveComponentForProdOrder(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
     var
         ProdOrderComponent: Record "Prod. Order Component";
         Reservation: Page Reservation;
@@ -4864,7 +4864,7 @@ codeunit 137404 "SCM Manufacturing"
         ManufacturingSetup.Modify(true);
     end;
 
-    local procedure RunCopyProductionDocument(ProdOrderStatus: Option; ProdOrderNo: Code[20]; NewProductionOrder: Record "Production Order")
+    local procedure RunCopyProductionDocument(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; NewProductionOrder: Record "Production Order")
     var
         CopyProductionOrderDocument: Report "Copy Production Order Document";
     begin
@@ -4957,7 +4957,7 @@ codeunit 137404 "SCM Manufacturing"
         RegAbsFromWorkCenter.Run;
     end;
 
-    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Option)
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -5258,7 +5258,7 @@ codeunit 137404 "SCM Manufacturing"
         CapacityLedgerEntry.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyComponentNotOnInventoryError(ProdOrderStatus: Option; ProdOrderNo: Code[20])
+    local procedure VerifyComponentNotOnInventoryError(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
@@ -5324,7 +5324,7 @@ codeunit 137404 "SCM Manufacturing"
         GLEntry.TestField("G/L Account No.", InventoryPostingSetup."Inventory Account (Interim)");
     end;
 
-    local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; EntryType: Option; Quantity: Decimal)
+    local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; Quantity: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -5418,7 +5418,7 @@ codeunit 137404 "SCM Manufacturing"
             Error(DocumentNoError, DocumentNo);
     end;
 
-    local procedure VerifyQuantityOnProdOrderLine(Status: Option; ProductionOrderNo: Code[20]; ItemNo: Code[20]; QtyOnComponentLines: Decimal)
+    local procedure VerifyQuantityOnProdOrderLine(Status: Enum "Production Order Status"; ProductionOrderNo: Code[20]; ItemNo: Code[20]; QtyOnComponentLines: Decimal)
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin

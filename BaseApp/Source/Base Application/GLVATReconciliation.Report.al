@@ -1,4 +1,4 @@
-﻿report 11 "G/L - VAT Reconciliation"
+report 11 "G/L - VAT Reconciliation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GLVATReconciliation.rdlc';
@@ -381,14 +381,12 @@
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies if you want to include VAT entries from before the specified time period in the report.';
                     }
                     field(PeriodSelection; PeriodSelection)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
-                        OptionCaption = 'Before and Within Period,Within Period';
                         ToolTip = 'Specifies if you want to include VAT entries from before the specified time period in the report.';
                     }
                     field(UseAmtsInAddCurr; UseAmtsInAddCurr)
@@ -461,8 +459,8 @@
         TotalVAT: Decimal;
         CountTotals: Integer;
         Number: Integer;
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         VATStmtLineFilter: Text;
         Header: Text;
         Header2: Text[50];

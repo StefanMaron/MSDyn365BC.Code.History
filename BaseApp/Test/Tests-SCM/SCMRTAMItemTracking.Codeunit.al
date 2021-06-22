@@ -101,7 +101,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         FindWhseReceiptHeaderForPurchase(WarehouseReceiptHeader, PurchaseHeader."No.");
         UpdateQtyToReceiveOnWhseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.", Item."No.", Quantity - 1);  // Partial Quantity Value.
-        WarehouseReceiptLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPurchasePageHandler .
+        WarehouseReceiptLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPurchasePageHandler .
 
         // Exercise: Post and Register Warehouse Activity.
         PostWhseReceiptAndRegisterWarehouseActivity(
@@ -136,7 +136,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         FindWhseReceiptHeaderForPurchase(WarehouseReceiptHeader, PurchaseHeader."No.");
         UpdateQtyToReceiveOnWhseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.", Item."No.", Quantity - 1);  // Partial Quantity Value.
-        WarehouseReceiptLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPurchasePageHandler.
+        WarehouseReceiptLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPurchasePageHandler.
         PostWhseReceiptAndRegisterWarehouseActivity(
           WarehouseReceiptHeader, PurchaseHeader."No.", WarehouseActivityLine."Source Document"::"Purchase Order");
         PostWhseReceiptAndRegisterWarehouseActivity(
@@ -186,7 +186,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateAndReleasePurchaseOrder(PurchaseHeader, Item."No.", LocationGreen.Code, Quantity, 1);  // No. of Lines value required.
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         SelectWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.", WarehouseReceiptLine."Source Document"::"Purchase Order");
-        WarehouseReceiptLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPurchasePageHandler/LotItemTrackingPageHandler.
+        WarehouseReceiptLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPurchasePageHandler/LotItemTrackingPageHandler.
         WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
         PostWhseReceiptAndRegisterWarehouseActivity(
           WarehouseReceiptHeader, PurchaseHeader."No.", WarehouseActivityLine."Source Document"::"Purchase Order");
@@ -367,7 +367,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
         ItemNo: Code[20];
-        SourceDocType: Option;
+        SourceDocType: Enum "Warehouse Activity Source Document";
         SourceDocNo: Code[20];
     begin
         // [FEATURE] [Lot Warehouse Tracking] [Whse. Item Tracking Line]
@@ -409,7 +409,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateAndPostItemJournalLine(
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationGreen.Code, Quantity, 0, false, AssignTracking::SerialNo);
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationGreen.Code, Quantity);
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseActivityLine."Source Document"::"Sales Order");
         LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
@@ -517,7 +517,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationBlue.Code, PositiveQuantity, 0, false, AssignTracking::LotNo);
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, Quantity);
         UpdateSalesLineAndReleaseOrder(SalesHeader, SalesLine, QtyToShip);  // Partial Quantity.
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler LotItemTrackingPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler LotItemTrackingPageHandler.
 
         // Exercise.
         PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
@@ -566,14 +566,14 @@ codeunit 137052 "SCM RTAM Item Tracking"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationBlue.Code, Quantity, Quantity2, true, AssignTracking::SerialNo);
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, Quantity + Quantity2);
         UpdateSalesLineAndReleaseOrder(SalesHeader, SalesLine, Quantity2 + 1);  // Partial Quantity.
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
 
         if CompleteInvoice then begin
             SetGlobalValue(Item."No.", true, false, false, AssignTracking::None, Quantity - 1, false);  // Partial Quantity -False.
             PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
             SelectSalesLine(SalesLine, SalesHeader."No.");
             UpdateQtyToShipOnSalesLine(SalesLine, Quantity - 1);  // Update Qty to ship.
-            SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
+            SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
         end;
 
         // Exercise: Post Sales Order Ship and invoice.
@@ -623,10 +623,10 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateAndPostItemJournalLine(
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationBlue.Code, Quantity, 0, false, AssignTracking::SerialNo);
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, Quantity / 2);  // Partial Qty.
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
 
         CreateAndReleaseSalesOrder(SalesHeader2, SalesLine2, Item."No.", LocationBlue.Code, Quantity);
-        SalesLine2.ShowReservation;  // Reserve from Current Line on Page Handler ReservationPageHandler.
+        SalesLine2.ShowReservation();  // Reserve from Current Line on Page Handler ReservationPageHandler.
 
         // Exercise & Verify: Post Sales Order/cancel reservation and post Sales Order. Verify Error message/Quantity on Posted Sales Invoice Line.
         PostSalesOrderAndVerifyLine(SalesHeader, SalesHeader2, Item."No.", Quantity / 2, Reserve);
@@ -672,10 +672,10 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateAndPostItemJournalLine(
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationBlue.Code, Quantity, 0, false, AssignTracking::SerialNo);
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, Quantity / 2);  // Partial Qty.
-        SalesLine.ShowReservation;  // Reserve on Page Handler ReservationPageHandler.
+        SalesLine.ShowReservation();  // Reserve on Page Handler ReservationPageHandler.
 
         CreateAndReleaseSalesOrder(SalesHeader2, SalesLine2, Item."No.", LocationBlue.Code, Quantity);
-        SalesLine2.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
+        SalesLine2.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
 
         // Exercise: Post Sales Order/Cancel reservation and post Sales Order. Verify Error message/Quantity on Posted Sales Invoice Line.
         PostSalesOrderAndVerifyLine(SalesHeader2, SalesHeader, Item."No.", Quantity, Reserve);
@@ -706,7 +706,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationBlue.Code, Quantity, Quantity2, true, AssignTracking::LotNo);
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, Quantity + Quantity2);
         UpdateSalesLineAndReleaseOrder(SalesHeader, SalesLine, Quantity2 + 1);  // Partial Quantity.
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler LotItemTrackingPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler LotItemTrackingPageHandler.
 
         // Exercise: Post Sales Order Ship and invoice.
         PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
@@ -757,16 +757,16 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateAndPostItemJournalLine(
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationBlue.Code, Quantity, Quantity2, true, AssignTracking::SerialNo);
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, Quantity + 1);  // Different Value required for Test.
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingSalesPageHandler.
 
         CreateAndReleaseSalesOrder(SalesHeader2, SalesLine2, Item."No.", LocationBlue.Code, Quantity2 / 2);  // Value required for Test.
-        SalesLine2.ShowReservation;  // Reserve from Current Line on Page Handler ReservationPageHandler.
+        SalesLine2.ShowReservation();  // Reserve from Current Line on Page Handler ReservationPageHandler.
 
         // Exercise: Post Sales Order/Add Item tracking and Post both Sales Order.
         if Reserve then
             asserterror PostSalesDocument(SalesHeader2."Document Type", SalesHeader2."No.", true, false)
         else begin
-            SalesLine2.OpenItemTrackingLines;  // Assign Tracking on Page Handler.
+            SalesLine2.OpenItemTrackingLines();  // Assign Tracking on Page Handler.
             PostSalesDocument(SalesHeader2."Document Type", SalesHeader2."No.", true, true);
             PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
         end;
@@ -879,7 +879,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         UpdateAndPostPurchaseOrder(PurchaseHeader, DirectUnitCost + 1, Quantity2);
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::None, Quantity, false);  // Tracking Quantity is required.
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, Quantity);
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
 
         // [WHEN] Run Adjust Cost Item Entries
@@ -1262,7 +1262,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationGreen.Code, Quantity, 0, false, AssignTracking::SerialNo);
 
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationGreen.Code, Quantity);
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         CreatePickFromWarehouseShipment(
           WarehouseShipmentHeader, SalesHeader."No.", WarehouseActivityLine."Source Document"::"Sales Order");
@@ -1281,7 +1281,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         // Create and Post Sales Return Order with Tracking, Post Warehouse Receipt and Assign Global variable for Page Handler.
         CreateAndReleaseSalesReturnOrder(SalesHeader, SalesLine, Item."No.", LocationGreen.Code, 1);  // Partial Quantity required for Test.
         SetGlobalValue(Item."No.", false, true, true, AssignTracking::None, 0, false);  // Partial -True, Verify Qty To Handle -True and Tracking Quantity not required.
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler.
         LibraryWarehouse.CreateWhseReceiptFromSalesReturnOrder(SalesHeader);
         FindWhseReceiptHeaderForSalesReturn(WarehouseReceiptHeader, SalesHeader."No.");
         PostWhseReceiptAndRegisterWarehouseActivity(
@@ -1322,7 +1322,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // Exercise: Assign Tracking and Post Purchase Order. Global variable for Page Handler.
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::SerialNo, PurchaseLine.Quantity, false);  // Assign Tracking as Serial No and Tracking Quantity.
-        PurchaseLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        PurchaseLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         PurchaseHeader.Find;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -1377,7 +1377,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // Exercise: Assign Tracking and Post Purchase Return Order. Global variable for Page Handler.
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::SerialNo, PurchaseLine.Quantity, false);  // Assign Tracking as Serial No and Tracking Quantity not required.
-        PurchaseLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        PurchaseLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         PurchaseHeader.Find;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -1409,7 +1409,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // Exercise: Assign Tracking and Post Sales Order. Global variable for Page Handler.
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::SerialNo, SalesLine.Quantity, false);  // Assign Tracking as Serial No and Tracking Quantity not required.
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         SalesHeader.Find;
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1464,7 +1464,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // Exercise: Assign Tracking and Post Sales Return Order. Global variable for Page Handler.
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::SerialNo, SalesLine.Quantity, false);  // Assign Tracking as Serial and Tracking Quantity not required.
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         SalesHeader.Find;
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1528,7 +1528,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
           ItemJournalLine."Entry Type"::"Negative Adjmt.", ItemTrackingCode.FieldNo("SN Neg. Adjmt. Outb. Tracking"), 1);  // 1 for Sign Factor as Positive.
     end;
 
-    local procedure PositiveAndNegativeAdjmtTrackingSerialNo(EntryType: Option; FieldNo: Integer; SignFactor: Integer)
+    local procedure PositiveAndNegativeAdjmtTrackingSerialNo(EntryType: Enum "Item Ledger Document Type"; FieldNo: Integer; SignFactor: Integer)
     var
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
@@ -1594,7 +1594,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // Exercise: Assign Tracking on Warehouse Receipt Line, Post Warehouse Receipt and Register Warehouse Activity. Assign Global variable for Page Handler.
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::SerialNo, 0, false);  // Assign Tracking as SerialNo and Tracking Quantity not required.
-        WarehouseReceiptLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        WarehouseReceiptLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         PostWhseReceiptAndRegisterWarehouseActivity(
           WarehouseReceiptHeader, PurchaseHeader."No.", WarehouseActivityLine."Source Document"::"Purchase Order");
 
@@ -1656,7 +1656,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
           AssignTracking::SerialNo);
 
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10));
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
 
         // Exercise: Post Sales Order with Tracking.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -1689,7 +1689,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         UpdateItemTrackingCode(
           ItemTrackingCodeSerialSpecific, ItemTrackingCodeSerialSpecific.FieldNo("Man. Warranty Date Entry Reqd."), true);
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10));
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
 
         // Exercise: Post Sales Order with Tracking.
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -1723,7 +1723,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
           ItemTrackingCodeSerialSpecific, ItemTrackingCodeSerialSpecific.FieldNo("Man. Warranty Date Entry Reqd."), true);
 
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10));
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler.
         UpdateWarrantyDateOnReservationEntry(ReservationEntry, Item."No.", DATABASE::"Sales Line", SalesHeader."No.");
 
         // Exercise: Post Sales Order with Tracking.
@@ -1775,7 +1775,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
           TransferHeader, TransferLine, LocationBlue.Code, LocationGreen.Code, Item."No.", LibraryRandom.RandInt(10));
 
         // Exercise: Reserve Transfer to Purchase.
-        TransferLine.ShowReservation;  // Reservation on Page Handler ReservationPageHandler.
+        TransferLine.ShowReservation();  // Reservation on Page Handler ReservationPageHandler.
 
         // Verify : Verify Reserved Quantity on Purchase Line.
         SelectPurchaseLine(PurchaseLine, PurchaseHeader."No.");
@@ -1783,7 +1783,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         PurchaseLine.TestField("Reserved Quantity", TransferLine.Quantity);
 
         // Exercise: Assign Tracking on Purchase line, Post Purchase and Transfer Order.
-        PurchaseLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        PurchaseLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         asserterror LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
 
@@ -1820,7 +1820,6 @@ codeunit 137052 "SCM RTAM Item Tracking"
         PurchaseHeader: Record "Purchase Header";
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
-        Direction: Option Outbound,Inbound;
     begin
         // Setup: Create Item with Tracking Code for Lot / Serial Specific, Create Purchase Order and Transfer Order, Reserve from Purchase Order.
         CreateItem(Item, ItemTrackingCode, Item."Costing Method"::FIFO);
@@ -1830,18 +1829,18 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateAndReleaseTransferOrder(
           TransferHeader, TransferLine, LocationBlue.Code, LocationGreen.Code, Item."No.", LibraryRandom.RandInt(10));
 
-        TransferLine.ShowReservation;  // Reservation on Page Handler ReservationPageHandler.
+        TransferLine.ShowReservation();  // Reservation on Page Handler ReservationPageHandler.
         AssignTrackingOnPurchaseLine(PurchaseHeader."No.");  // Assign Tracking on Page Handler ItemTrackingPageHandler for Lot No and ItemTrackingPageQtyToHandleHandler for Serial No.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::None, 0, false);  // Assign Tracking as NONE.
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);  // Assign Ship Tracking on Page Handler ItemTrackingPageHandler for Lot No and ItemTrackingPageQtyToHandleHandler for Serial No.
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);  // Assign Ship Tracking on Page Handler ItemTrackingPageHandler for Lot No and ItemTrackingPageQtyToHandleHandler for Serial No.
 
         // Exercise: Post -Ship Transfer Order with Tracking.
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
 
         // Verify: Verify Receipt Tracking Entries on Transfer Order.
         SetGlobalValue(Item."No.", false, true, false, AssignTracking::None, TransferLine.Quantity, false);  // Tracking Quantity;
-        TransferLine.OpenItemTrackingLines(Direction::Inbound);  // Verify Receipt Tracking on Page Handler ItemTrackingPageHandler for Lot No and ItemTrackingPageQtyToHandleHandler for Serial No.
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Inbound);  // Verify Receipt Tracking on Page Handler ItemTrackingPageHandler for Lot No and ItemTrackingPageQtyToHandleHandler for Serial No.
     end;
 
     [Test]
@@ -1883,8 +1882,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
         DocumentNo := ProductionOrder."No.";  // Assign Global Variable.
         SetGlobalValue(Item."No.", false, false, true, AssignTracking::None, SalesLine.Quantity, false);  // Partial -True and Tracking Quantity.
 
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingProductionPageHandler.
-        SalesLine.ShowReservation;  // Reserve current line -Production Order on Page Handler ReservationPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingProductionPageHandler.
+        SalesLine.ShowReservation();  // Reserve current line -Production Order on Page Handler ReservationPageHandler.
 
         // Verify: Verify Reserved Quantity on Sales line.
         SalesLine.CalcFields("Reserved Quantity");
@@ -1945,8 +1944,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
         DocumentNo := ProductionOrder."No.";  // Assign Global Variable.
         SetGlobalValue(Item."No.", false, false, true, AssignTracking::None, SalesLine.Quantity - 1, false);  // Partial as True and Tracking Quantity.
 
-        SalesLine.OpenItemTrackingLines;  // Assign Partial Tracking on Page Handler ItemTrackingProductionPageHandler.
-        SalesLine.ShowReservation;  // Reserve current line-Production Order on Page Handler ReservationPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Partial Tracking on Page Handler ItemTrackingProductionPageHandler.
+        SalesLine.ShowReservation();  // Reserve current line-Production Order on Page Handler ReservationPageHandler.
 
         SetGlobalValue(Item."No.", false, false, true, AssignTracking::None, SalesLine.Quantity, false);  // Partial as True and Tracking Quantity.
         CreateOutputJournalWithExlpodeRouting(ProductionOrder."No.");
@@ -1969,7 +1968,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
             OpenReservedQuantityOnSalesOrder(SalesLine."Document No.");
 
             // Verify: Verify Reservation on Item Ledger Entry on Page Handler ItemLedgerEntriesPageHandler.
-            ReservationEntries.ReservedFrom.Lookup;
+            ReservationEntries.ReservedFrom.Drilldown();
         end;
     end;
 
@@ -1996,7 +1995,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ItemTrackingAction := ItemTrackingAction::AvailabilityLotNo;
 
         // 2. Exercise.
-        PurchaseLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        PurchaseLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Availability Lot No. field must be Yes on the Item Tracking Lines page. Verification done in the 'ItemTrackingPageHandler' page handler.
     end;
@@ -2024,7 +2023,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ItemTrackingAction := ItemTrackingAction::AvailabilitySerialNo;
 
         // 2. Exercise.
-        PurchaseLine.OpenItemTrackingLines;  // Assign Item Tracking on page handler.
+        PurchaseLine.OpenItemTrackingLines();  // Assign Item Tracking on page handler.
 
         // 3. Verify: Verify Availability Serial No. field must be Yes on the Item Tracking Lines page. Verification done in the 'ItemTrackingPageHandler' page handler.
     end;
@@ -2068,8 +2067,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
         DocumentNo := ProductionOrder."No.";  // Assign Global Variable.
         SetGlobalValue(Item."No.", false, false, true, AssignTracking::None, SalesLine.Quantity - 1, false);  // Partial as True and Tracking Quantity.
 
-        SalesLine.OpenItemTrackingLines;  // Assign Partial Tracking on Page Handler ItemTrackingProductionSerialNoPageHandler.
-        SalesLine.ShowReservation;  // Reserve current line-Production Order on Page Handler ReservationPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Partial Tracking on Page Handler ItemTrackingProductionSerialNoPageHandler.
+        SalesLine.ShowReservation();  // Reserve current line-Production Order on Page Handler ReservationPageHandler.
 
         SetGlobalValue(Item."No.", false, true, true, AssignTracking::None, Quantity - SalesLine.Quantity, false);  // Partial as True and Tracking Quantity.
         CreateOutputJournalWithExlpodeRouting(ProductionOrder."No.");
@@ -2086,7 +2085,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
             // Exercise:
             DeleteReservationEntry(Item."No.", DATABASE::"Sales Line", SalesLine."Document No.");  // Delete Tracking on Sales line.
             SetGlobalValue(Item."No.", false, false, false, AssignTracking::None, 0, false);
-            SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingProductionSerialNoPageHandler.
+            SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingProductionSerialNoPageHandler.
             PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.", true, true);
 
             // Verify: Verify Tracking line on Post Sales Invoice.
@@ -2117,13 +2116,13 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10));
 
         // Exercise: Reserve Sales to Item Ledger Entry.
-        SalesLine.ShowReservation;  // Reserve Sales to Item Ledger Entry on Page Handler ReservationPageHandler.
+        SalesLine.ShowReservation();  // Reserve Sales to Item Ledger Entry on Page Handler ReservationPageHandler.
 
         // Verify: Verify Reservation on Item Ledger Entry on Page Handler ItemLedgerEntriesPositiveAdjmtPageHandler.
         VerifyReservedQuantity(SalesLine);
 
         // Exercise: Assign Item Tracking on Sales Line and Post.
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // Verify: Verify Tracking line on Post Sales Shipment.
@@ -2168,7 +2167,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", Item2."No.");
 
         // Exercise and Verify: Reservation on Production Order Component.Verify Available Reservation line on Page Handler ReservationAvailablePageHandler.
-        ProdOrderComponent.ShowReservation;  // Verify on Page Handler ReservationAvailablePageHandler.
+        ProdOrderComponent.ShowReservation();  // Verify on Page Handler ReservationAvailablePageHandler.
     end;
 
     [Test]
@@ -2215,7 +2214,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", Item2."No.");
 
         // Exercise: Reserve Production Order Component to Transfer Order and Post Transfer Order.
-        ProdOrderComponent.ShowReservation;  // Reservation on Page Handler ReservationPageHandler.
+        ProdOrderComponent.ShowReservation();  // Reservation on Page Handler ReservationPageHandler.
         LibraryWarehouse.PostTransferOrder(TransferHeader, false, true);
 
         // Verify: Verify Reserved Quantity on Production Order Component.
@@ -2271,12 +2270,12 @@ codeunit 137052 "SCM RTAM Item Tracking"
         // Assign Global variable for Page Handler.
         SetGlobalValue(Item."No.", true, false, false, AssignTracking::SerialNo, 0, false);  // New Lot No -True,Assign Tracking as Serial No.
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationGreen.Code, LibraryRandom.RandInt(10) + 10);  // Using Large random value for Quantity.
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingSerialNoPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingSerialNoPageHandler.
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::None, 0, false);  // Assign Tracking as None.
         ItemTrackingAction := ItemTrackingAction::AvailabilitySerialNo;  // Assign Global Variable for Page Handler.
 
         // Exercise: Change Serial No as duplicate on Page Handler.
-        SalesLine.OpenItemTrackingLines;  // Change Identical Tracking on Page Handler ItemTrackingSerialNoPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Change Identical Tracking on Page Handler ItemTrackingSerialNoPageHandler.
 
         // Verify: Verify Message on Message Handler TrackingAlreadyExistMessageHandler.
     end;
@@ -2338,7 +2337,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         // Assign Global variable for Page Handler.
         SetGlobalValue(Item."No.", true, false, false, AssignTracking::SerialNo, 0, false);  // New Lot No -True,Assign Tracking as Serial No.
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10));
-        SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler ItemTrackingSerialNoPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler ItemTrackingSerialNoPageHandler.
 
         // Exercise: Post Sales Order.
         asserterror PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, false);
@@ -2601,7 +2600,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         SalesLine.Validate("Unit of Measure Code", UnitOfMeasure.Code);
         SalesLine.Validate(Quantity, 1);
         SalesLine.Modify();
-        SalesLine.OpenItemTrackingLines;  // Assign Item Tracking on Page Handler.
+        SalesLine.OpenItemTrackingLines();  // Assign Item Tracking on Page Handler.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
@@ -2629,7 +2628,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
           Item."No.", LocationBlue.Code, LibraryRandom.RandInt(10), CreateCustomer, false);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
-        SalesLine.OpenItemTrackingLines;  // Assign Item Tracking on Page Handler.
+        SalesLine.OpenItemTrackingLines();  // Assign Item Tracking on Page Handler.
 
         // [WHEN] Post Sales Return Order
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2689,7 +2688,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         // [THEN] "Item Tracking" option field in Reservation Entry created by the call of the procedure contains "Lot and Serial No." value.
         with ReservationEntry do begin
             FilterReservationEntryBySource(
-              ReservationEntry, 0, ToSalesLine."Document Type", ToSalesLine."Document No.", Format(ToSalesLine."Line No."));
+              ReservationEntry, 0, ToSalesLine."Document Type".AsInteger(), ToSalesLine."Document No.", Format(ToSalesLine."Line No."));
             FindFirst;
             TestField("Item Tracking", "Item Tracking"::"Lot and Serial No.");
         end;
@@ -2727,7 +2726,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         // [THEN] "Item Tracking" option field in Reservation Entry created by the call of the procedure contains "Lot and Serial No." value.
         with ReservationEntry do begin
             FilterReservationEntryBySource(
-              ReservationEntry, 0, ToPurchaseLine."Document Type", ToPurchaseLine."Document No.", Format(ToPurchaseLine."Line No."));
+              ReservationEntry, 0, ToPurchaseLine."Document Type".AsInteger(), ToPurchaseLine."Document No.", Format(ToPurchaseLine."Line No."));
             FindFirst;
             TestField("Item Tracking", "Item Tracking"::"Lot and Serial No.");
         end;
@@ -2781,7 +2780,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // [THEN] Item Tracking for Sales Invoice is deleted.
         FilterReservationEntryBySource(
-          ReservationEntry, DATABASE::"Sales Header", SalesHeaderInvoice."Document Type"::Invoice, SalesInvoiceNo, '');
+          ReservationEntry, DATABASE::"Sales Header", SalesHeaderInvoice."Document Type"::Invoice.AsInteger(), SalesInvoiceNo, '');
         Assert.RecordIsEmpty(ReservationEntry);
     end;
 
@@ -2833,7 +2832,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // [THEN] Item Tracking for Purch. Credit Memo is deleted.
         FilterReservationEntryBySource(
-          ReservationEntry, DATABASE::"Purchase Header", PurchaseHeaderCreditMemo."Document Type"::"Credit Memo", PurchCreditMemoNo, '');
+          ReservationEntry, DATABASE::"Purchase Header", PurchaseHeaderCreditMemo."Document Type"::"Credit Memo".AsInteger(), PurchCreditMemoNo, '');
         Assert.RecordIsEmpty(ReservationEntry);
     end;
 
@@ -3077,7 +3076,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
             LibraryUtility.GetFieldLength(DATABASE::"Item Tracking Comment", ItemTrackingComment.FieldNo(Comment)));
     end;
 
-    local procedure CreateItem(var Item: Record Item; ItemTrackingCode: Code[10]; CostingMethod: Option)
+    local procedure CreateItem(var Item: Record Item; ItemTrackingCode: Code[10]; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Item Tracking Code", ItemTrackingCode);  // Assign Tracking Code.
@@ -3101,7 +3100,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         LibraryPurchase.GetDropShipment(PurchaseHeader);
 
         FindPurchaseLineFromSalesLine(PurchaseLine, PurchaseHeader."No.", SalesLine);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateServiceItemGroup(): Code[10]
@@ -3114,7 +3113,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         exit(ServiceItemGroup.Code);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);  // For Posting of Purchase Order.
@@ -3152,7 +3151,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateItemJournaLine(EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; Quantity2: Decimal; MultipleLines: Boolean)
+    local procedure CreateItemJournaLine(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; Quantity2: Decimal; MultipleLines: Boolean)
     var
         ItemJournalLine: Record "Item Journal Line";
         DocumentNo: Code[20];
@@ -3182,7 +3181,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ItemJournalLine.Modify(true);
     end;
 
-    local procedure CreateAndPostItemJournalLine(EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; Quantity2: Decimal; MultipleLines: Boolean; AssignTracking2: Option)
+    local procedure CreateAndPostItemJournalLine(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; Quantity2: Decimal; MultipleLines: Boolean; AssignTracking2: Option)
     begin
         AssignTracking := AssignTracking2;  // Assign Global variable for Page Handler.
         CreateItemJournaLine(EntryType, ItemNo, LocationCode, Quantity, Quantity2, MultipleLines);
@@ -3192,14 +3191,14 @@ codeunit 137052 "SCM RTAM Item Tracking"
         AssignTracking := AssignTracking::None;  // Assign Global variable for Page Handler.
     end;
 
-    local procedure AssignTrackingMultipleWhseReceiptLines(SourceNo: Code[20]; SourceDocument: Option)
+    local procedure AssignTrackingMultipleWhseReceiptLines(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
         FilterWarehouseReceiptLine(WarehouseReceiptLine, SourceNo, SourceDocument);
         WarehouseReceiptLine.FindSet;
         repeat
-            WarehouseReceiptLine.OpenItemTrackingLines;  // Open Tracking on Page Handler.
+            WarehouseReceiptLine.OpenItemTrackingLines();  // Open Tracking on Page Handler.
         until WarehouseReceiptLine.Next = 0;
     end;
 
@@ -3217,7 +3216,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         FindWarehouseReceiptHeader(WarehouseReceiptHeader, SourceNo, WarehouseReceiptLine."Source Document"::"Sales Return Order");
     end;
 
-    local procedure FindWarehouseReceiptHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure FindWarehouseReceiptHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
@@ -3225,20 +3224,20 @@ codeunit 137052 "SCM RTAM Item Tracking"
         WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
     end;
 
-    local procedure FilterWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure FilterWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3263,7 +3262,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure PostPurchaseDocument(DocumentType: Option; No: Code[20]; Receive: Boolean; Invoice: Boolean)
+    local procedure PostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; No: Code[20]; Receive: Boolean; Invoice: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -3294,7 +3293,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         Item.Modify(true);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -3303,13 +3302,13 @@ codeunit 137052 "SCM RTAM Item Tracking"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
-    local procedure PostWhseReceiptAndRegisterWarehouseActivity(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure PostWhseReceiptAndRegisterWarehouseActivity(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
         RegisterWarehouseActivity(SourceNo, SourceDocument);
     end;
 
-    local procedure RegisterWarehouseActivityAndPostWhseShipment(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure RegisterWarehouseActivityAndPostWhseShipment(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         RegisterWarehouseActivity(SourceNo, SourceDocument);
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
@@ -3334,7 +3333,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", ItemNo, LocationCode, Quantity, CreateCustomer, true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; CustomerNo: Code[20]; Release: Boolean)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; CustomerNo: Code[20]; Release: Boolean)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("External Document No.", LibraryUtility.GenerateGUID);
@@ -3352,13 +3351,13 @@ codeunit 137052 "SCM RTAM Item Tracking"
         SalesLine.Modify(true);
     end;
 
-    local procedure FilterWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure FilterWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
     end;
 
-    local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
@@ -3407,7 +3406,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         UpdateWhseWorksheetLine(WhseWorksheetLine, QtyToHandle);
         LibraryWarehouse.CreatePickFromPickWorksheet(
           WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name,
-          LocationCode, '', 0, 0, 0, false, false, false, false, false, false, false);
+          LocationCode, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
     end;
 
     local procedure UpdateQtyToShipOnSalesLine(var SalesLine: Record "Sales Line"; QtyToShip: Decimal)
@@ -3438,7 +3437,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ItemTrackingLines.OK.Invoke;
     end;
 
-    local procedure PostSalesDocument(DocumentType: Option; No: Code[20]; Ship: Boolean; Invoice: Boolean)
+    local procedure PostSalesDocument(DocumentType: Enum "Sales Document Type"; No: Code[20]; Ship: Boolean; Invoice: Boolean)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -3446,7 +3445,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         LibrarySales.PostSalesDocument(SalesHeader, Ship, Invoice);
     end;
 
-    local procedure SelectItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; ItemNo: Code[20])
+    local procedure SelectItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Document Type", DocumentType);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
@@ -3508,7 +3507,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         end else begin
             CancelReservationCurrentLine := true;  // Assign Global variable for Page Handler.
             SelectSalesLine(SalesLine, SalesHeader2."No.");
-            SalesLine.ShowReservation;  // Cancel Reservation from Current Line.
+            SalesLine.ShowReservation();  // Cancel Reservation from Current Line.
             PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, true);
             VerifyPostedSalesInvoiceLine(SalesHeader."No.", ItemNo, Quantity);
         end;
@@ -3534,13 +3533,13 @@ codeunit 137052 "SCM RTAM Item Tracking"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure SelectWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure SelectWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         FilterWarehouseReceiptLine(WarehouseReceiptLine, SourceNo, SourceDocument);
         WarehouseReceiptLine.FindFirst;
     end;
 
-    local procedure SelectWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure SelectWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         FilterWarehouseShipmentLine(WarehouseShipmentLine, SourceNo, SourceDocument);
         WarehouseShipmentLine.FindFirst;
@@ -3581,7 +3580,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         PurchaseLine: Record "Purchase Line";
     begin
         SelectPurchaseLine(PurchaseLine, DocumentNo);
-        PurchaseLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler.
+        PurchaseLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler.
     end;
 
     local procedure AssignTrackingOnSalesLines(DocumentNo: Code[20])
@@ -3590,7 +3589,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         SelectSalesLine(SalesLine, DocumentNo);
         repeat
-            SalesLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler.
+            SalesLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler.
         until SalesLine.Next = 0;
     end;
 
@@ -3604,10 +3603,10 @@ codeunit 137052 "SCM RTAM Item Tracking"
         until ItemJournalLine.Next = 0;
     end;
 
-    local procedure AssignTrackingOnWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure AssignTrackingOnWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         SelectWarehouseShipmentLine(WarehouseShipmentLine, SourceNo, SourceDocument);
-        WarehouseShipmentLine.OpenItemTrackingLines;  // Assign Tracking on Page Handler.
+        WarehouseShipmentLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler.
     end;
 
     local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
@@ -3622,7 +3621,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ItemNo, LocationCode, Quantity);
     end;
 
-    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
@@ -3682,10 +3681,10 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderLine.FindFirst;
-        ProdOrderLine.OpenItemTrackingLines;  // Open Item Tracking Lines on Page Handler.
+        ProdOrderLine.OpenItemTrackingLines();  // Open Item Tracking Lines on Page Handler.
     end;
 
-    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; Status: Option; ProdOrderNo: Code[20]; ItemNo: Code[20])
+    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; ItemNo: Code[20])
     begin
         ProdOrderComponent.SetRange(Status, Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
@@ -3693,12 +3692,12 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ProdOrderComponent.FindFirst;
     end;
 
-    local procedure OpenItemTrackingLinesForProdOrderComponent(Status: Option; ProdOrderNo: Code[20]; ItemNo: Code[20])
+    local procedure OpenItemTrackingLinesForProdOrderComponent(Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; ItemNo: Code[20])
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         FindProdOrderComponent(ProdOrderComponent, Status, ProdOrderNo, ItemNo);
-        ProdOrderComponent.OpenItemTrackingLines;  // Open Tracking Line on Page Handler.
+        ProdOrderComponent.OpenItemTrackingLines();  // Open Tracking Line on Page Handler.
     end;
 
     local procedure CreateAndPostConsumptionJournal(ProductionOrderNo: Code[20]; TrackingLine: Boolean)
@@ -3717,7 +3716,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
     end;
 
-    local procedure UpdateQtyToHandleOnWarehouseActivityLine(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Option; Quantity: Decimal)
+    local procedure UpdateQtyToHandleOnWarehouseActivityLine(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; Quantity: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3765,7 +3764,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ItemTrackingCode.Modify(true);
     end;
 
-    local procedure CreatePickFromWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20]; SourceDocument: Option)
+    local procedure CreatePickFromWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         FindWarehouseShipmentHeader(WarehouseShipmentHeader, SourceNo, SourceDocument);
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
@@ -3909,7 +3908,6 @@ codeunit 137052 "SCM RTAM Item Tracking"
     var
         Item3: Record Item;
         ItemJournalLine: Record "Item Journal Line";
-        Direction: Option Outbound,Inbound;
     begin
         CreateItem(Item, ItemTrackingCode, Item."Costing Method"::FIFO);
         CreateAndCertifyProdBOMWithMultipleComponent(Item, Item2, Item3, ItemTrackingCode, false);
@@ -3924,7 +3922,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreateAndReleaseTransferOrder(
           TransferHeader, TransferLine, LocationBlue2.Code, LocationBlue.Code, Item2."No.", LibraryRandom.RandInt(10) + 5);  // Value required.
         SetGlobalValue(Item."No.", false, false, false, AssignTracking::None, 0, false);  // Assign Tracking as NONE.
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);  // Assign Ship Tracking on Page Handler ItemTrackingProductionPageHandler.
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);  // Assign Ship Tracking on Page Handler ItemTrackingProductionPageHandler.
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
     end;
 
@@ -3932,7 +3930,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         // Create Sales Order and Post with Ship Option.
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, ItemNo, LocationCode, Quantity, CustomerNo, true);
-        SalesLine.OpenItemTrackingLines;  // Assign Item Tracking on Page Handler.
+        SalesLine.OpenItemTrackingLines();  // Assign Item Tracking on Page Handler.
         LibrarySales.PostSalesDocument(SalesHeader, true, false)
     end;
 
@@ -3941,7 +3939,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         // Create Sales Return Order and Post with Receive Option.
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", ItemNo, LocationCode, Quantity, CustomerNo, true);
-        SalesLine.OpenItemTrackingLines;  // Assign Item Tracking on Page Handler.
+        SalesLine.OpenItemTrackingLines();  // Assign Item Tracking on Page Handler.
         LibrarySales.PostSalesDocument(SalesHeader, true, false)
     end;
 
@@ -3953,7 +3951,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, ItemNo, LocationCode, Quantity);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
-        PurchaseLine.OpenItemTrackingLines;  // Assign Item Tracking on Page Handler.
+        PurchaseLine.OpenItemTrackingLines();  // Assign Item Tracking on Page Handler.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false)
     end;
 
@@ -3978,7 +3976,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         AssignTrackingOnPurchaseLine(PurchaseHeader."No.");  // Assign Tracking on Page Handler.
     end;
 
-    local procedure CreateLotTrackedPositiveAdjmtAndSalesWithShipmentAndPick(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var SourceDocType: Option; var SourceDocNo: Code[20]; var ItemNo: Code[20])
+    local procedure CreateLotTrackedPositiveAdjmtAndSalesWithShipmentAndPick(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var SourceDocType: Enum "Warehouse Activity Source Document"; var SourceDocNo: Code[20]; var ItemNo: Code[20])
     var
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
@@ -3998,7 +3996,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
           LibraryRandom.RandIntInRange(10, 20), 0, false, AssignTracking::LotNo);
 
         CreateAndReleaseSalesOrder(SalesHeader, SalesLine, ItemNo, LocationGreen.Code, LibraryRandom.RandInt(10));
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseActivityLine."Source Document"::"Sales Order");
         CreatePickFromWarehouseShipment(
@@ -4008,7 +4006,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         SourceDocNo := SalesHeader."No.";
     end;
 
-    local procedure MockSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; ShipmentNo: Code[20])
+    local procedure MockSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; ShipmentNo: Code[20])
     begin
         with SalesLine do begin
             Init;
@@ -4021,7 +4019,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         end;
     end;
 
-    local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; ItemNo: Code[20]; ShipmentNo: Code[20])
+    local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; ShipmentNo: Code[20])
     begin
         with PurchaseLine do begin
             Init;
@@ -4101,7 +4099,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         // Verify Tracking line.
         SelectWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeaderNo, WarehouseReceiptLine."Source Document"::"Purchase Order");
-        WarehouseReceiptLine.OpenItemTrackingLines;  // Open item tracking line for Verify.
+        WarehouseReceiptLine.OpenItemTrackingLines();  // Open item tracking line for Verify.
     end;
 
     local procedure VerifyTrackingOnPostedSalesInvoice(OrderNo: Code[20]; LastLine: Boolean)
@@ -4148,7 +4146,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         OpenItemTrackingLinesForProdOrderComponent(ProductionOrder.Status::Finished, ProductionOrderNo, ItemNo);  // Open Item Tracking Lines and Verify on Page Handler PostedLinesPageHandler.
     end;
 
-    local procedure VerifySerialAndLotNoOnItemLedgerEntry(ItemNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; DocumentType2: Option; DocumentNo2: Code[20])
+    local procedure VerifySerialAndLotNoOnItemLedgerEntry(ItemNo: Code[20]; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; DocumentType2: Enum "Item Ledger Document Type"; DocumentNo2: Code[20])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         ItemLedgerEntry2: Record "Item Ledger Entry";
@@ -4206,7 +4204,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
         PurchRcptLine.ShowItemTrackingLines;  // Open Item Tracking Lines and Verify on Page Handler PostedLinesPageHandler.
     end;
 
-    local procedure VerifyItemLedgerEntries(var ItemLedgerEntries: TestPage "Item Ledger Entries"; EntryType: Option; Quantity: Decimal)
+    local procedure VerifyItemLedgerEntries(var ItemLedgerEntries: TestPage "Item Ledger Entries"; EntryType: Enum "Item Ledger Document Type"; Quantity: Decimal)
     begin
         ItemLedgerEntries."Entry Type".AssertEquals(EntryType);
         ItemLedgerEntries."Item No.".AssertEquals(GlobalItemNo);
@@ -4268,12 +4266,12 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ReservationEntries.Trap;
         OpenReservedQuantityOnSalesOrder(DocumentNo);
         for Count := 1 to ReservedQuantity do
-            ReservationEntries.ReservedFrom.Lookup;  // Verify Reservation on Item Ledger Entry on Page Handler ItemLedgerEntriesPositiveAdjmtPageHandler.
+            ReservationEntries.ReservedFrom.Drilldown();  // Verify Reservation on Item Ledger Entry on Page Handler ItemLedgerEntriesPositiveAdjmtPageHandler.
     end;
 
     local procedure VerifyErrorMsgByUpdateItemTrackingLines(SalesLine: Record "Sales Line")
     begin
-        asserterror SalesLine.OpenItemTrackingLines;
+        asserterror SalesLine.OpenItemTrackingLines();
         Assert.ExpectedError(QuantityHandledErr);
     end;
 

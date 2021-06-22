@@ -177,11 +177,17 @@ table 338 "Entry Summary"
 
     procedure HasSameTracking(EntrySummary: Record "Entry Summary") SameTracking: Boolean
     begin
-        SameTracking :=
-          ("Serial No." = EntrySummary."Serial No.") and
-          ("Lot No." = EntrySummary."Lot No.");
+        SameTracking := ("Serial No." = EntrySummary."Serial No.") and ("Lot No." = EntrySummary."Lot No.");
 
         OnAfterHasSameTracking(Rec, EntrySummary, SameTracking);
+    end;
+
+    procedure CopyTrackingFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        "Serial No." := ItemTrackingSetup."Serial No.";
+        "Lot No." := ItemTrackingSetup."Lot No.";
+
+        OnAfterCopyTrackingFromItemTrackingSetup(Rec, ItemTrackingSetup);
     end;
 
     procedure CopyTrackingFromReservEntry(ReservEntry: Record "Reservation Entry")
@@ -208,6 +214,7 @@ table 338 "Entry Summary"
         exit(AvailQty);
     end;
 
+    [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
     begin
         SetRange("Serial No.", SerialNo);
@@ -220,6 +227,14 @@ table 338 "Entry Summary"
         SetRange("Lot No.", EntrySummary."Lot No.");
 
         OnAfterSetTrackingFilterFromEntrySummary(Rec, EntrySummary);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+        SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetup(Rec, ItemTrackingSetup);
     end;
 
     procedure SetTrackingFilterFromReservEntry(ReservationEntry: Record "Reservation Entry")
@@ -254,7 +269,17 @@ table 338 "Entry Summary"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemTrackingSetup(var ToEntrySummary: Record "Entry Summary"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromEntrySummary(var ToEntrySummary: Record "Entry Summary"; FromEntrySummary: Record "Entry Summary")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetup(var ToEntrySummary: Record "Entry Summary"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

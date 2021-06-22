@@ -50,7 +50,7 @@ codeunit 134219 "WFWH General Journal Batch"
 
         // Verify
         WorkflowTableRelation.Get(
-          DATABASE::"Gen. Journal Batch", DummyGenJournalBatch.FieldNo(Id),
+          DATABASE::"Gen. Journal Batch", DummyGenJournalBatch.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
     end;
 
@@ -83,13 +83,13 @@ codeunit 134219 "WFWH General Journal Batch"
         SendApprovalRequestForGeneralJournal(GenJournalBatch.Name);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
     end;
 
     [Test]
@@ -121,13 +121,13 @@ codeunit 134219 "WFWH General Journal Batch"
         SendApprovalRequestForGeneralJournal(GenJournalBatch.Name);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Reject);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Reject);
     end;
 
     [Test]
@@ -159,13 +159,13 @@ codeunit 134219 "WFWH General Journal Batch"
         SendApprovalRequestForGeneralJournal(GenJournalBatch.Name);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
     end;
 
     [Test]
@@ -197,13 +197,13 @@ codeunit 134219 "WFWH General Journal Batch"
         SendApprovalRequestForCashReceipt(GenJournalBatch.Name);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
     end;
 
     [Test]
@@ -235,13 +235,13 @@ codeunit 134219 "WFWH General Journal Batch"
         SendApprovalRequestForCashReceipt(GenJournalBatch.Name);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Reject);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Reject);
     end;
 
     [Test]
@@ -273,13 +273,13 @@ codeunit 134219 "WFWH General Journal Batch"
         SendApprovalRequestForCashReceipt(GenJournalBatch.Name);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
     end;
 
     [Test]
@@ -311,13 +311,13 @@ codeunit 134219 "WFWH General Journal Batch"
         SendApprovalRequestForPaymentJournal(GenJournalBatch.Name);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
     end;
 
     [Test]
@@ -349,13 +349,13 @@ codeunit 134219 "WFWH General Journal Batch"
         SendApprovalRequestForPaymentJournal(GenJournalBatch.Name);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Reject);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Reject);
     end;
 
     [Test]
@@ -387,13 +387,13 @@ codeunit 134219 "WFWH General Journal Batch"
         SendApprovalRequestForPaymentJournal(GenJournalBatch.Name);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
     end;
 
     [Test]
@@ -425,11 +425,11 @@ codeunit 134219 "WFWH General Journal Batch"
         Commit();
 
         // Exercise
-        asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
         Assert.ExpectedError(StrSubstNo(UserCannotContinueErr, UserId));
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
     end;
 
     [Test]
@@ -461,11 +461,11 @@ codeunit 134219 "WFWH General Journal Batch"
         Commit();
 
         // Exercise
-        asserterror WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        asserterror WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
         Assert.ExpectedError(StrSubstNo(UserCannotRejectErr, UserId));
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
     end;
 
     [Test]
@@ -493,16 +493,16 @@ codeunit 134219 "WFWH General Journal Batch"
         CreateAndEnableGeneralJournalBatchWorkflowDefinition(ApproverUserSetup."User ID");
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
         SendApprovalRequestForGeneralJournal(GenJournalBatch.Name);
-        ChangeWorkflowWebhookEntryInitiatedBy(GenJournalBatch.Id, RequestorUserSetup."User ID");
+        ChangeWorkflowWebhookEntryInitiatedBy(GenJournalBatch.SystemId, RequestorUserSetup."User ID");
 
         Commit();
 
         // Exercise
-        asserterror WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        asserterror WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
         Assert.ExpectedError(StrSubstNo(UserCannotCancelErr, UserId));
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
     end;
 
     [Test]
@@ -534,13 +534,13 @@ codeunit 134219 "WFWH General Journal Batch"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
     end;
 
     [Test]
@@ -572,13 +572,13 @@ codeunit 134219 "WFWH General Journal Batch"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Reject);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Reject);
     end;
 
     [Test]
@@ -610,13 +610,13 @@ codeunit 134219 "WFWH General Journal Batch"
         Commit();
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
-        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
     end;
 
     [Test]
@@ -650,7 +650,7 @@ codeunit 134219 "WFWH General Journal Batch"
         SendApprovalRequestForGeneralJournal(GenJournalBatch.Name);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise - Create a new general journal batch and delete it to reuse the new general journal batch keys
         CreateGeneralJournalBatchWithOneJournalLine(NewGenJournalBatch, NewGenJournalLine);
@@ -658,8 +658,8 @@ codeunit 134219 "WFWH General Journal Batch"
         GenJournalBatch.Rename(NewGenJournalBatch."Journal Template Name", NewGenJournalBatch.Name);
 
         // Verify
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.Id));
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalBatch.SystemId));
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
     end;
 
     [Test]
@@ -692,13 +692,13 @@ codeunit 134219 "WFWH General Journal Batch"
         SendApprovalRequestForGeneralJournal(GenJournalBatch.Name);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
         GenJournalBatch.Delete(true);
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(GenJournalBatch.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
         WorkflowStepInstance.SetRange("Workflow Code", DummyWorkflowCode);
         Assert.IsTrue(WorkflowStepInstance.IsEmpty, UnexpectedNoOfWorkflowStepInstancesErr);
     end;

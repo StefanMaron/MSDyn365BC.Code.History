@@ -1,112 +1,188 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"name": "Any",
+			"path": "..\\..\\..\\Modules\\DevTools\\TestFramework\\TestLibraries\\Any"
 		},
 		{
-			"path": "..\\Tests\\Bank"
+			"name": "Assert",
+			"path": "..\\..\\..\\Modules\\DevTools\\TestFramework\\TestLibraries\\Assert"
 		},
 		{
-			"path": "..\\Tests\\Cash Flow"
+			"name": "Variable Storage",
+			"path": "..\\..\\..\\Modules\\DevTools\\TestFramework\\TestLibraries\\Variable Storage"
 		},
 		{
-			"path": "..\\Tests\\Cost Accounting"
+			"name": "TestRunner",
+			"path": "..\\..\\..\\Modules\\DevTools\\TestFramework\\TestRunner"
 		},
 		{
-			"path": "..\\Tests\\CRM integration"
-		},
-		{
-			"path": "..\\Tests\\Data Exchange"
-		},
-		{
-			"path": "..\\Tests\\Dimension"
-		},
-		{
-			"path": "..\\Tests\\DotNet"
-		},
-		{
-			"path": "..\\Tests\\ERM"
-		},
-		{
-			"path": "..\\Tests\\Fixed Asset"
-		},
-		{
-			"path": "..\\Tests\\General Journal"
-		},
-		{
-			"path": "..\\Tests\\Graph"
-		},
-		{
-			"path": "..\\Tests\\Integration"
-		},
-		{
-			"path": "..\\Tests\\Invoicing"
-		},
-		{
-			"path": "..\\Tests\\Job"
-		},
-		{
-			"path": "..\\Tests\\Marketing"
-		},
-		{
-			"path": "..\\Tests\\MBT"
-		},
-		{
-			"path": "..\\Tests\\Misc"
-		},
-		{
-			"path": "..\\Tests\\MOCKSERVICETESTS"
-		},
-		{
-			"path": "..\\Tests\\NATIVEINVOICINGTEST"
-		},
-		{
-			"path": "..\\Tests\\Permissions"
-		},
-		{
-			"path": "..\\Tests\\Physical Inventory"
-		},
-		{
-			"path": "..\\Tests\\Prepayment"
-		},
-		{
-			"path": "..\\Tests\\Rapid Start"
-		},
-		{
-			"path": "..\\Tests\\Report"
-		},
-		{
-			"path": "..\\Tests\\Resource"
-		},
-		{
-			"path": "..\\Tests\\Reverse"
-		},
-		{
-			"path": "..\\Tests\\SCM"
-		},
-		{
-			"path": "..\\Tests\\SINGLESERVER"
-		},
-		{
-			"path": "..\\Tests\\SMB"
-		},
-		{
-			"path": "..\\Tests\\TestLibraries"
-		},
-		{
-			"path": "..\\Tests\\User"
-		},
-		{
-			"path": "..\\Tests\\VAT"
-		},
-		{
-			"path": "..\\Tests\\Workflow"
-		},
-		{
+			"name": "System",
 			"path": "..\\..\\..\\Modules\\System"
 		},
 		{
+			"name": "System Test Libraries",
+			"path": "..\\..\\..\\Modules\\System Test Libraries"
+		},
+		{
+			"name": "System Tests",
 			"path": "..\\..\\..\\Modules\\System Tests"
+		},
+		{
+			"name": "BaseApp",
+			"path": "."
+		},
+		{
+			"name": "Bank",
+			"path": "..\\Tests\\Bank"
+		},
+		{
+			"name": "Cash Flow",
+			"path": "..\\Tests\\Cash Flow"
+		},
+		{
+			"name": "Cost Accounting",
+			"path": "..\\Tests\\Cost Accounting"
+		},
+		{
+			"name": "CRM integration",
+			"path": "..\\Tests\\CRM integration"
+		},
+		{
+			"name": "Data Exchange",
+			"path": "..\\Tests\\Data Exchange"
+		},
+		{
+			"name": "Dimension",
+			"path": "..\\Tests\\Dimension"
+		},
+		{
+			"name": "DotNet",
+			"path": "..\\Tests\\DotNet"
+		},
+		{
+			"name": "ERM",
+			"path": "..\\Tests\\ERM"
+		},
+		{
+			"name": "Fixed Asset",
+			"path": "..\\Tests\\Fixed Asset"
+		},
+		{
+			"name": "General Journal",
+			"path": "..\\Tests\\General Journal"
+		},
+		{
+			"name": "Graph",
+			"path": "..\\Tests\\Graph"
+		},
+		{
+			"name": "Integration",
+			"path": "..\\Tests\\Integration"
+		},
+		{
+			"name": "Invoicing",
+			"path": "..\\Tests\\Invoicing"
+		},
+		{
+			"name": "Job",
+			"path": "..\\Tests\\Job"
+		},
+		{
+			"name": "Marketing",
+			"path": "..\\Tests\\Marketing"
+		},
+		{
+			"name": "MBT",
+			"path": "..\\Tests\\MBT"
+		},
+		{
+			"name": "Misc",
+			"path": "..\\Tests\\Misc"
+		},
+		{
+			"name": "MOCKSERVICETESTS",
+			"path": "..\\Tests\\MOCKSERVICETESTS"
+		},
+		{
+			"name": "MOCKSERVICETESTS-Internal",
+			"path": "..\\Tests\\MOCKSERVICETESTS-Internal"
+		},
+		{
+			"name": "NATIVEINVOICINGTEST",
+			"path": "..\\Tests\\NATIVEINVOICINGTEST"
+		},
+		{
+			"name": "NATIVEINVOICINGTEST-Internal",
+			"path": "..\\Tests\\NATIVEINVOICINGTEST-Internal"
+		},
+		{
+			"name": "Performance-Internal",
+			"path": "..\\Tests\\Performance-Internal"
+		},
+		{
+			"name": "Permissions",
+			"path": "..\\Tests\\Permissions"
+		},
+		{
+			"name": "Physical Inventory",
+			"path": "..\\Tests\\Physical Inventory"
+		},
+		{
+			"name": "Prepayment",
+			"path": "..\\Tests\\Prepayment"
+		},
+		{
+			"name": "Rapid Start",
+			"path": "..\\Tests\\Rapid Start"
+		},
+		{
+			"name": "Report",
+			"path": "..\\Tests\\Report"
+		},
+		{
+			"name": "Resource",
+			"path": "..\\Tests\\Resource"
+		},
+		{
+			"name": "Reverse",
+			"path": "..\\Tests\\Reverse"
+		},
+		{
+			"name": "SCM",
+			"path": "..\\Tests\\SCM"
+		},
+		{
+			"name": "SINGLESERVER",
+			"path": "..\\Tests\\SINGLESERVER"
+		},
+		{
+			"name": "SMB",
+			"path": "..\\Tests\\SMB"
+		},
+		{
+			"name": "TestLibraries",
+			"path": "..\\Tests\\TestLibraries"
+		},
+		{
+			"name": "User",
+			"path": "..\\Tests\\User"
+		},
+		{
+			"name": "VAT",
+			"path": "..\\Tests\\VAT"
+		},
+		{
+			"name": "Workflow",
+			"path": "..\\Tests\\Workflow"
+		},
+		{
+			"name": "Application",
+			"path": "..\\Application"
+		},
+		{
+			"name": "DemoTool",
+			"path": "..\\DemoTool"
 		}
 	],
 	"settings": {}

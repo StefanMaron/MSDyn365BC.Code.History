@@ -261,7 +261,7 @@ page 5976 "Posted Service Shpt. Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 group("Co&mments")

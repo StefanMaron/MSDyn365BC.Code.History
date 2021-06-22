@@ -202,7 +202,7 @@ codeunit 134032 "ERM Customer Date Compression"
         end;
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; PostingDate: Date)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; PostingDate: Date)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
@@ -247,7 +247,7 @@ codeunit 134032 "ERM Customer Date Compression"
         StartingDate := CalcDate('<-' + Format(Date."Period No." - 1) + 'D>', Date."Period Start");
     end;
 
-    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DetailedCustLedgEntry.SetRange("Document Type", DocumentType);

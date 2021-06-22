@@ -105,7 +105,7 @@ page 651 "Handled IC Inbox Purch. Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

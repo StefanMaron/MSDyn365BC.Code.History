@@ -217,6 +217,36 @@ page 9850 "Tenant Permissions"
 
     actions
     {
+        area(navigation)
+        {
+            group(DQPermissions)
+            {
+                Caption = 'SmartList Permissions';
+                Image = Permission;
+
+                action("SmartList Designer Permissions")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'SmartList Permissions';
+                    Enabled = IsEmptyCurrentAppID and CanManageUsersOnTenant;
+                    Image = Permission;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'View or edit which query objects created by SmartList Designer users need to access, and setup the related permissions in permission sets that you can assign to the users of the database.';
+
+                    trigger OnAction()
+                    var
+                        DesignedQueryPermission: Record "Designed Query Permission";
+                    begin
+                        DesignedQueryPermission.SetRange("App ID", CurrentAppID);
+                        DesignedQueryPermission.SetRange("Role ID", CurrentRoleID);
+
+                        Page.Run(Page::"SmartList Permissions", DesignedQueryPermission);
+                    end;
+                }
+            }
+        }
+
         area(processing)
         {
             group("Read Permission")
@@ -752,6 +782,7 @@ page 9850 "Tenant Permissions"
         TenantPermissionSet: Record "Tenant Permission Set";
         PermissionSetLink: Record "Permission Set Link";
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+        UserPermissions: Codeunit "User Permissions";
     begin
         if GetFilter("App ID") <> '' then
             CurrentAppID := GetFilter("App ID")
@@ -774,6 +805,9 @@ page 9850 "Tenant Permissions"
         SingleFilterSelected := GetRangeMin("Role ID") = GetRangeMax("Role ID");
         if SingleFilterSelected then
             CopiedFromSystemRoleId := PermissionSetLink.GetSourceForLinkedPermissionSet(CurrentRoleID);
+
+        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
+        IsEmptyCurrentAppID := IsNullGuid(CurrentAppID)
     end;
 
     var
@@ -800,6 +834,8 @@ page 9850 "Tenant Permissions"
         CannotChangeExtensionPermissionErr: Label 'You cannot change permissions sets of type Extension.';
         ObjectCaption: Text;
         SingleFilterSelected: Boolean;
+        CanManageUsersOnTenant: Boolean;
+        IsEmptyCurrentAppID: Boolean;
 
     local procedure FillTempPermissions()
     var

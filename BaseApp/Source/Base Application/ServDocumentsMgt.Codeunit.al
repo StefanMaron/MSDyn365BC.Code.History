@@ -1,4 +1,4 @@
-﻿codeunit 5988 "Serv-Documents Mgt."
+codeunit 5988 "Serv-Documents Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd,
                   TableData "Service Header" = imd,
@@ -40,7 +40,6 @@
         SalesSetup: Record "Sales & Receivables Setup";
         ServMgtSetup: Record "Service Mgt. Setup";
         ServDocReg: Record "Service Document Register";
-        DummyServCommentLine: Record "Service Comment Line";
         ServiceCommentLine: Record "Service Comment Line";
         TempWarrantyLedgerEntry: Record "Warranty Ledger Entry" temporary;
         ServPostingJnlsMgt: Codeunit "Serv-Posting Journals Mgt.";
@@ -160,7 +159,7 @@
                 ServPostingJnlsMgt.SetItemJnlRollRndg(false);
                 if ServLine.Type = ServLine.Type::Item then
                     DummyTrackingSpecification.CheckItemTrackingQuantity(
-                      DATABASE::"Service Line", ServLine."Document Type", ServLine."Document No.", ServLine."Line No.",
+                      DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Line No.",
                       ServLine."Qty. to Ship (Base)", ServLine."Qty. to Invoice (Base)", Ship, Invoice);
                 LineCount += 1;
                 Window.Update(2, LineCount);
@@ -612,8 +611,8 @@
 
                 if ("Document Type" = "Document Type"::Order) and ServMgtSetup."Copy Comments Order to Shpt." then
                     ServOrderMgt.CopyCommentLines(
-                      DummyServCommentLine."Table Name"::"Service Header",
-                      DummyServCommentLine."Table Name"::"Service Shipment Header",
+                      "Service Comment Table Name"::"Service Header".AsInteger(),
+                      "Service Comment Table Name"::"Service Shipment Header".AsInteger(),
                       "No.", ServShptHeader."No.");
 
                 // create Service Shipment Item Lines
@@ -763,9 +762,9 @@
                ("Document Type" = "Document Type"::Order) and ServMgtSetup."Copy Comments Order to Invoice"
             then
                 ServOrderMgt.CopyCommentLinesWithSubType(
-                  DummyServCommentLine."Table Name"::"Service Header",
-                  DummyServCommentLine."Table Name"::"Service Invoice Header",
-                  "No.", ServInvHeader."No.", "Document Type");
+                  "Service Comment Table Name"::"Service Header".AsInteger(),
+                  "Service Comment Table Name"::"Service Invoice Header".AsInteger(),
+                  "No.", ServInvHeader."No.", "Document Type".AsInteger());
 
             OnAfterPrepareInvoiceHeader(ServInvHeader, ServHeader);
             exit(ServInvHeader."No.");
@@ -816,8 +815,8 @@
               ServCrMemoHeader."No.", "No.");
 
             ServOrderMgt.CopyCommentLines(
-              DummyServCommentLine."Table Name"::"Service Header",
-              DummyServCommentLine."Table Name"::"Service Cr.Memo Header",
+              "Service Comment Table Name"::"Service Header".AsInteger(),
+              "Service Comment Table Name"::"Service Cr.Memo Header".AsInteger(),
               "No.", ServCrMemoHeader."No.");
 
             OnAfterPrepareCrMemoHeader(ServCrMemoHeader, ServHeader);
@@ -1233,7 +1232,7 @@
                   Text030,
                   ServHeader."Document Type", ServHeader."No.", DimMgt.GetDimValuePostingErr);
         end else begin
-            TableIDArr[1] := DimMgt.TypeToTableID5(ServiceLine2.Type);
+            TableIDArr[1] := DimMgt.TypeToTableID5(ServiceLine2.Type.AsInteger());
             NumberArr[1] := ServiceLine2."No.";
             TableIDArr[2] := DATABASE::Job;
             NumberArr[2] := ServiceLine2."Job No.";
@@ -1876,7 +1875,7 @@
                 until Next = 0;
     end;
 
-    local procedure FinalizeDeleteComments(TableSubType: Option)
+    local procedure FinalizeDeleteComments(TableSubType: Enum "Service Document Type")
     begin
         ServiceCommentLine.SetRange("No.", ServHeader."No.");
         ServiceCommentLine.SetRange(Type, ServiceCommentLine.Type::General);

@@ -3466,7 +3466,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 60, 40);
 
         // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = 70.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 70, 0);
@@ -3475,7 +3475,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
 
         // [THEN] First Prod. Order Capacity Need has Allocated Time = 0. Second Prod. Order Capacity Need has Allocated Time = 40 - (70 - 60) = 30.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 0, 30);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 0, 30);
     end;
 
     [Test]
@@ -3500,7 +3500,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 60, 40);
 
         // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = 120.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 120, 0);
@@ -3509,7 +3509,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
 
         // [THEN] First and second Prod. Order Capacity Need records has Allocated Time = 0.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 0, 0);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 0, 0);
     end;
 
     [Test]
@@ -3534,7 +3534,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 60, 40);
 
         // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = -70.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", -70, 0);
@@ -3543,7 +3543,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
 
         // [THEN] Setup Time is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + 70 = 130. Second Prod. Order Capacity Need remains unchanged.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 130, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 130, 40);
     end;
 
     [Test]
@@ -3568,7 +3568,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 60, 40);
 
         // [GIVEN] Posted Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = 120.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 120, 0);
@@ -3581,7 +3581,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
 
         // [THEN] Allocated Time of both Prod. Order Capacity Need records remains the same, Allocated Time values are equal to 60 and 40.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 60, 40);
     end;
 
     [Test]
@@ -3606,7 +3606,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 60, 40);
 
         // [GIVEN] Posted Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = 120.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 120, 0);
@@ -3620,7 +3620,7 @@ codeunit 137074 "SCM Capacity Requirements"
 
         // [THEN] Difference between Setup Time of Output lines is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + (200 - 120) = 140.
         // [THEN] Allocated Time of the second Prod. Order Capacity Need remains the same as the original one.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 140, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 140, 40);
     end;
 
     [Test]
@@ -3645,7 +3645,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 60, 40);
 
         // [GIVEN] Two posted Output Journal Lines with Order No. "RPO", Operation No. "10" and Setup Time values 70 and 10.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 70, 0);
@@ -3661,7 +3661,7 @@ codeunit 137074 "SCM Capacity Requirements"
 
         // [THEN] Difference between Setup Time of Output lines is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + (200 - 70 - 10) = 180.
         // [THEN] Allocated Time of the second Prod. Order Capacity Need remains the same as the original one.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 180, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Setup Time", 180, 40);
     end;
 
     [Test]
@@ -3686,7 +3686,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 60, 40);
 
         // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = 70.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, 70);
@@ -3695,7 +3695,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
 
         // [THEN] First Prod. Order Capacity Need has Allocated Time = 0. Second Prod. Order Capacity Need has Allocated Time = 40 - (70 - 60) = 30.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 0, 30);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 0, 30);
     end;
 
     [Test]
@@ -3720,7 +3720,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 60, 40);
 
         // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = 120.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, 120);
@@ -3729,7 +3729,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
 
         // [THEN] First and second Prod. Order Capacity Need records has Allocated Time = 0.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 0, 0);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 0, 0);
     end;
 
     [Test]
@@ -3754,7 +3754,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 60, 40);
 
         // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = -70.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, -70);
@@ -3763,7 +3763,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
 
         // [THEN] Run Time is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + 70 = 130. Second Prod. Order Capacity Need remains unchanged.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 130, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 130, 40);
     end;
 
     [Test]
@@ -3788,7 +3788,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 60, 40);
 
         // [GIVEN] Posted Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = 120.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, 120);
@@ -3801,7 +3801,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
 
         // [THEN] Allocated Time of both Prod. Order Capacity Need records remains the same, Allocated Time values are equal to 60 and 40.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 60, 40);
     end;
 
     [Test]
@@ -3826,7 +3826,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 60, 40);
 
         // [GIVEN] Posted Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = 120.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, 120);
@@ -3840,7 +3840,7 @@ codeunit 137074 "SCM Capacity Requirements"
 
         // [THEN] Difference between Run Time of Output lines is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + (200 - 120) = 140.
         // [THEN] Allocated Time of the second Prod. Order Capacity Need remains the same as the original one.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 140, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 140, 40);
     end;
 
     [Test]
@@ -3865,7 +3865,7 @@ codeunit 137074 "SCM Capacity Requirements"
         // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
         CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
         FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 60, 40);
 
         // [GIVEN] Two posted Output Journal Lines with Order No. "RPO", Operation No. "10" and Run Time values 70 and 10.
         CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, 70);
@@ -3881,7 +3881,7 @@ codeunit 137074 "SCM Capacity Requirements"
 
         // [THEN] Difference between Run Time of Output lines is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + (200 - 70 - 10) = 180.
         // [THEN] Allocated Time of the second Prod. Order Capacity Need remains the same as the original one.
-        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 180, 40);
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::"Run Time", 180, 40);
     end;
 
     local procedure Initialize()
@@ -3912,7 +3912,7 @@ codeunit 137074 "SCM Capacity Requirements"
         SalesReceivablesSetup.Modify(true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -3922,7 +3922,7 @@ codeunit 137074 "SCM Capacity Requirements"
         Item.Modify(true);
     end;
 
-    local procedure CreateProductionItem(var Item: Record Item; ReorderingPolicy: Option; ReorderQuantity: Decimal)
+    local procedure CreateProductionItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReorderQuantity: Decimal)
     begin
         CreateItem(Item, Item."Replenishment System"::"Prod. Order");
         Item.Validate("Reordering Policy", ReorderingPolicy);
@@ -3930,7 +3930,7 @@ codeunit 137074 "SCM Capacity Requirements"
         Item.Modify(true);
     end;
 
-    local procedure CreateProductionItemWithSerialRoutingReorder(var Item: Record Item; var WorkCenterCode: array[2] of Code[10]; ReorderingPolicy: Option; ReorderQuantity: Decimal)
+    local procedure CreateProductionItemWithSerialRoutingReorder(var Item: Record Item; var WorkCenterCode: array[2] of Code[10]; ReorderingPolicy: Enum "Reordering Policy"; ReorderQuantity: Decimal)
     var
         RoutingHeader: Record "Routing Header";
     begin
@@ -3994,13 +3994,12 @@ codeunit 137074 "SCM Capacity Requirements"
     local procedure CreateProductionItemWithSerialRouting(var Item: Record Item; var WorkCenterCode: array[3] of Code[20]; SetupTime: array[3] of Decimal; RunTime: array[3] of Decimal; WaitTime: array[3] of Decimal; MoveTime: array[3] of Decimal; SendAheadQty: array[3] of Integer; ConcurrentCapacities: array[3] of Decimal; WorkCenterStartTime: array[3] of Time; WorkCenterEndTime: array[3] of Time; WorkCenterEfficiency: array[3] of Decimal; DueDate: Date)
     var
         RoutingHeader: Record "Routing Header";
-        Type: Option " ","100/Hour",Minutes,Hours,Days;
         i: Integer;
     begin
         for i := 1 to ArrayLen(WorkCenterStartTime) do
             WorkCenterCode[i] :=
               CreateWorkCenterWithShopCalendar(
-                Type::Minutes,
+                "Capacity Unit of Measure"::Minutes,
                 LibraryManufacturing.UpdateShopCalendarWorkingDaysCustomTime(WorkCenterStartTime[i], WorkCenterEndTime[i]),
                 WorkCenterEfficiency[i], ConcurrentCapacities[i], DueDate);
         CreateProductionItem(Item, Item."Reordering Policy"::"Lot-for-Lot", 0);
@@ -4030,7 +4029,7 @@ codeunit 137074 "SCM Capacity Requirements"
         Item.Modify(true);
     end;
 
-    local procedure CreateProductionItemWithParallelRouting(var Item: Record Item; var WorkCenterCode: array[4] of Code[10]; ReorderingPolicy: Option; ReorderQuantity: Decimal)
+    local procedure CreateProductionItemWithParallelRouting(var Item: Record Item; var WorkCenterCode: array[4] of Code[10]; ReorderingPolicy: Enum "Reordering Policy"; ReorderQuantity: Decimal)
     var
         RoutingHeader: Record "Routing Header";
     begin
@@ -4098,11 +4097,10 @@ codeunit 137074 "SCM Capacity Requirements"
     var
         RoutingLine: Record "Routing Line";
         ShopCalendarCode: Code[10];
-        Type: Option ,"100/Hour",Minutes,Hours,Days;
     begin
         ShopCalendarCode := CreateThreeShiftsShopCalendar;
-        WorkCenterCode[1] := CreateWorkCenterWithShopCalendar(Type::Hours, ShopCalendarCode, 100, 1, WorkDate);
-        WorkCenterCode[2] := CreateWorkCenterWithShopCalendar(Type::Hours, ShopCalendarCode, 100, 1, WorkDate);
+        WorkCenterCode[1] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate);
+        WorkCenterCode[2] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         CreateRoutingLineWithSendAhead(
           RoutingLine, RoutingHeader, RoutingLine.Type::"Work Center", WorkCenterCode[1], 0, 0.12121, 0, 0, 6, 1, '10', '', '');
@@ -4138,12 +4136,11 @@ codeunit 137074 "SCM Capacity Requirements"
     var
         RoutingLine: Record "Routing Line";
         ShopCalendarCode: Code[10];
-        Type: Option ,"100/Hour",Minutes,Hours,Days;
         i: Integer;
     begin
         ShopCalendarCode := CreateThreeShiftsShopCalendar;
         for i := 1 to ArrayLen(WorkCenterCode) do
-            WorkCenterCode[i] := CreateWorkCenterWithShopCalendar(Type::Hours, ShopCalendarCode, 100, 1, WorkDate);
+            WorkCenterCode[i] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
         CreateRoutingLineWithSendAhead(
           RoutingLine, RoutingHeader, RoutingLine.Type::"Work Center", WorkCenterCode[1], 0, 2.5, 0, 0, 0, 1, '10', '', '20|30');
@@ -4226,7 +4223,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
     end;
 
-    local procedure CreateRoutingLine(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; Type: Option; No: Code[20]; IsMultipleUOM: Boolean)
+    local procedure CreateRoutingLine(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; Type: Enum "Capacity Type Routing"; No: Code[20]; IsMultipleUOM: Boolean)
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
         OperationNo: Code[10];
@@ -4254,7 +4251,7 @@ codeunit 137074 "SCM Capacity Requirements"
         end;
     end;
 
-    local procedure CreateRoutingLineWithSendAhead(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; Type: Option; No: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal; SendAhead: Integer; ConcurrentCapacities: Decimal; OperationNo: Code[10]; PrevOperationNo: Code[10]; NextOperationNo: Code[10])
+    local procedure CreateRoutingLineWithSendAhead(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; Type: Enum "Capacity Type Routing"; No: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal; SendAhead: Integer; ConcurrentCapacities: Decimal; OperationNo: Code[10]; PrevOperationNo: Code[10]; NextOperationNo: Code[10])
     begin
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', OperationNo, Type, No);
         with RoutingLine do begin
@@ -4276,7 +4273,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
     end;
 
-    local procedure CreateWorkCenterWithShopCalendar(UOMType: Option; ShopCalendarCode: Code[10]; Efficiency: Decimal; Capacity: Decimal; DueDate: Date): Code[20]
+    local procedure CreateWorkCenterWithShopCalendar(UOMType: Enum "Capacity Unit of Measure"; ShopCalendarCode: Code[10]; Efficiency: Decimal; Capacity: Decimal; DueDate: Date): Code[20]
     var
         WorkCenter: Record "Work Center";
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
@@ -4520,7 +4517,7 @@ codeunit 137074 "SCM Capacity Requirements"
         WorkCenter.Get(RoutingLine."No.");
     end;
 
-    local procedure FindRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; Type: Option)
+    local procedure FindRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; Type: Enum "Capacity Type Routing")
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
         RoutingLine.SetRange(Type, Type);
@@ -4551,7 +4548,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ConcurrentCapacities[3] := ConcurrCap3;
     end;
 
-    local procedure UpdateStatusOnRoutingHeader(var RoutingHeader: Record "Routing Header"; Status: Option)
+    local procedure UpdateStatusOnRoutingHeader(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")
     begin
         RoutingHeader.Validate(Status, Status);
         RoutingHeader.Modify(true);
@@ -4608,7 +4605,7 @@ codeunit 137074 "SCM Capacity Requirements"
         UpdateStatusOnRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
     end;
 
-    local procedure UpdateSendAheadQuantityOnRoutingLine(RoutingNo: Code[20]; Type: Option)
+    local procedure UpdateSendAheadQuantityOnRoutingLine(RoutingNo: Code[20]; Type: Enum "Capacity Type")
     var
         RoutingLine: Record "Routing Line";
     begin
@@ -4636,7 +4633,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderRoutingLine.FindFirst();
     end;
 
-    local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderNo: Code[20]; Type: Option; No: Code[20])
+    local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderNo: Code[20]; Type: Enum "Capacity Type"; No: Code[20])
     begin
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderRoutingLine.SetRange(Type, Type);
@@ -4651,7 +4648,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderLine.FindFirst;
     end;
 
-    local procedure FindPlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; Type: Option; No: Code[20])
+    local procedure FindPlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; Type: Enum "Capacity Type"; No: Code[20])
     begin
         PlanningRoutingLine.SetRange(Type, Type);
         PlanningRoutingLine.SetRange("No.", No);
@@ -4696,7 +4693,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderLine.Modify(true);
     end;
 
-    local procedure UpdateProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderNo: Code[20]; Type: Option; RoutingLineNo: Code[20]; SendAheadQuantity: Decimal; ConcurrentCapacities: Decimal)
+    local procedure UpdateProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderNo: Code[20]; Type: Enum "Capacity Type Routing"; RoutingLineNo: Code[20]; SendAheadQuantity: Decimal; ConcurrentCapacities: Decimal)
     begin
         FindProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderNo, Type, RoutingLineNo);
         with ProdOrderRoutingLine do begin
@@ -4758,7 +4755,7 @@ codeunit 137074 "SCM Capacity Requirements"
         WorkCenterLoad.MachineCenterLoadLines.CapacityEfficiency.AssertEquals(CapacityEfficiency);
     end;
 
-    local procedure VerifyOperationsTimeOnProdOrderRoutingLine(ProductionOrderNo: Code[20]; RoutingNo: Code[20]; Type: Option)
+    local procedure VerifyOperationsTimeOnProdOrderRoutingLine(ProductionOrderNo: Code[20]; RoutingNo: Code[20]; Type: Enum "Capacity Type Routing")
     var
         RoutingLine: Record "Routing Line";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
@@ -4769,7 +4766,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderRoutingLine.TestField("Move Time", RoutingLine."Move Time");
     end;
 
-    local procedure VerifyOperationsTimeOnPlanningRoutingLine(RoutingNo: Code[20]; Type: Option)
+    local procedure VerifyOperationsTimeOnPlanningRoutingLine(RoutingNo: Code[20]; Type: Enum "Capacity Type Routing")
     var
         RoutingLine: Record "Routing Line";
         PlanningRoutingLine: Record "Planning Routing Line";
@@ -4780,7 +4777,7 @@ codeunit 137074 "SCM Capacity Requirements"
         PlanningRoutingLine.TestField("Move Time", RoutingLine."Move Time");
     end;
 
-    local procedure VerifySendAheadQuantityOnPlanningRoutingLine(RoutingNo: Code[20]; Type: Option)
+    local procedure VerifySendAheadQuantityOnPlanningRoutingLine(RoutingNo: Code[20]; Type: Enum "Capacity Type")
     var
         RoutingLine: Record "Routing Line";
         PlanningRoutingLine: Record "Planning Routing Line";
@@ -4790,7 +4787,7 @@ codeunit 137074 "SCM Capacity Requirements"
         PlanningRoutingLine.TestField("Send-Ahead Quantity", RoutingLine."Send-Ahead Quantity");
     end;
 
-    local procedure VerifySendAheadQuantityOnProdOrderRoutingLine(ProdOrderNo: Code[20]; RoutingNo: Code[20]; Type: Option)
+    local procedure VerifySendAheadQuantityOnProdOrderRoutingLine(ProdOrderNo: Code[20]; RoutingNo: Code[20]; Type: Enum "Capacity Type")
     var
         RoutingLine: Record "Routing Line";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
@@ -4800,7 +4797,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderRoutingLine.TestField("Send-Ahead Quantity", RoutingLine."Send-Ahead Quantity");
     end;
 
-    local procedure VerifyStartingDateAndTimeOnProdOrderRoutingLine(ProdOrderLine: Record "Prod. Order Line"; RoutingNo: Code[20]; Type: Option)
+    local procedure VerifyStartingDateAndTimeOnProdOrderRoutingLine(ProdOrderLine: Record "Prod. Order Line"; RoutingNo: Code[20]; Type: Enum "Capacity Type Routing")
     var
         RoutingLine: Record "Routing Line";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
@@ -4811,7 +4808,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ProdOrderRoutingLine.TestField("Starting Date", ProdOrderLine."Starting Date");
     end;
 
-    local procedure VerifyProdOrderCapacityNeed(ProdOrderCapacityNeedPage: TestPage "Prod. Order Capacity Need"; Type: Option; No: Code[20]; StartingDate: Date)
+    local procedure VerifyProdOrderCapacityNeed(ProdOrderCapacityNeedPage: TestPage "Prod. Order Capacity Need"; Type: Enum "Capacity Type"; No: Code[20]; StartingDate: Date)
     var
         ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
     begin
@@ -4826,7 +4823,7 @@ codeunit 137074 "SCM Capacity Requirements"
         until ProdOrderCapacityNeed.Next = 0;
     end;
 
-    local procedure VerifyStartingDateTimeOnProdOrderRoutingLine(RoutingNo: Code[20]; ProdOrderNo: Code[20]; Type: Option; StartingDateTime: DateTime)
+    local procedure VerifyStartingDateTimeOnProdOrderRoutingLine(RoutingNo: Code[20]; ProdOrderNo: Code[20]; Type: Enum "Capacity Type Routing"; StartingDateTime: DateTime)
     var
         RoutingLine: Record "Routing Line";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";

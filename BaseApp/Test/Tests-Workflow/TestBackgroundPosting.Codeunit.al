@@ -93,7 +93,7 @@ codeunit 139027 "Test Background Posting"
         Commit();
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Integer)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -117,7 +117,7 @@ codeunit 139027 "Test Background Posting"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; DocumentType: Integer)
+    local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchLine: Record "Purchase Line";
         LibraryPurch: Codeunit "Library - Purchase";
@@ -325,7 +325,7 @@ codeunit 139027 "Test Background Posting"
         PurchSetup."Job Queue Category Code" := 'PURCHPOST';
         PurchSetup.Modify();
 
-        ValidatePostSales(PurchHeader."Document Type"::Order);
+        ValidatePostSales("Sales Document Type"::Order);
     end;
 
     [Test]
@@ -689,7 +689,7 @@ codeunit 139027 "Test Background Posting"
     end;
 
     [Normal]
-    local procedure ValidatePostSales(DocumentType: Integer)
+    local procedure ValidatePostSales(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         JobQueueLogEntry: Record "Job Queue Log Entry";

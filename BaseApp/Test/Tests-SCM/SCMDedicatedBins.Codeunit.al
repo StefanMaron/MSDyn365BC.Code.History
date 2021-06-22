@@ -870,10 +870,10 @@ codeunit 137502 "SCM Dedicated Bins"
         CreateAndReserveSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, Qty, Qty);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No."));
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         LibraryWarehouse.FindWhseActivityBySourceDoc(
-          WarehouseActivityHeader, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityHeader, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
         // [GIVEN] Sales order "SO2" for 20 pcs fully reserved from the inventory.
@@ -884,14 +884,14 @@ codeunit 137502 "SCM Dedicated Bins"
         CreateAndReserveSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, 2 * Qty, Qty);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No."));
 
         // [WHEN] Create pick for "SO3".
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
 
         // [THEN] A warehouse pick for 20 pcs is created, that is 60 in inventory minus 40 reserved for "SO1" and "SO2".
         LibraryWarehouse.FindWhseActivityLineBySourceDoc(
-          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.TestField(Quantity, Qty);
         WarehouseActivityLine.TestField("Qty. to Handle", Qty);
 
@@ -945,10 +945,10 @@ codeunit 137502 "SCM Dedicated Bins"
         CreateAndReserveSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, Qty, Qty);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No."));
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         LibraryWarehouse.FindWhseActivityBySourceDoc(
-          WarehouseActivityHeader, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityHeader, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
         // [GIVEN] Sales order "SO2" for 20 pcs fully reserved from the inventory.
@@ -959,7 +959,7 @@ codeunit 137502 "SCM Dedicated Bins"
         CreateAndReserveSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, 2 * Qty, Qty);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No."));
         LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
 
         // [WHEN] Open warehouse worksheet and pull the shipment for "SO3".
@@ -981,9 +981,9 @@ codeunit 137502 "SCM Dedicated Bins"
         // [THEN] A warehouse pick for 20 pcs will be created when you run "Create Pick" on the whse. worksheet.
         LibraryWarehouse.CreatePickFromPickWorksheet(
           WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
-          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, false);
+          Location.Code, '', 0, 0, "Whse. Activity Sorting Method"::None, false, false, false, false, false, false, false);
         LibraryWarehouse.FindWhseActivityLineBySourceDoc(
-          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.TestField(Quantity, Qty);
         WarehouseActivityLine.TestField("Qty. to Handle", Qty);
 
@@ -1016,7 +1016,7 @@ codeunit 137502 "SCM Dedicated Bins"
         ProdOrderRtngLine.SetRange("Operation No.");
     end;
 
-    local procedure AssertBinCodesOnComponents(var ProdOrderComponent: Record "Prod. Order Component"; ItemNo: Code[20]; RoutingLinkCode: Code[10]; FlushingMethod: Option; LocationCode: Code[10]; BinCode: Code[20])
+    local procedure AssertBinCodesOnComponents(var ProdOrderComponent: Record "Prod. Order Component"; ItemNo: Code[20]; RoutingLinkCode: Code[10]; FlushingMethod: Enum "Flushing Method"; LocationCode: Code[10]; BinCode: Code[20])
     begin
         ProdOrderComponent.SetRange("Item No.", ItemNo);
         ProdOrderComponent.SetRange("Routing Link Code", RoutingLinkCode);

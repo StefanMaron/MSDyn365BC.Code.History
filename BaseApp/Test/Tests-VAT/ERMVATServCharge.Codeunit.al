@@ -718,7 +718,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         exit(SalesLine.FindFirst);
     end;
 
-    local procedure FindSalesLineWithType(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option)
+    local procedure FindSalesLineWithType(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type")
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -734,7 +734,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         exit(PurchaseLine.FindFirst);
     end;
 
-    local procedure FindPurchaseLineWithType(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option)
+    local procedure FindPurchaseLineWithType(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type")
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
@@ -742,7 +742,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindGLEntry(DocumentType: Option; DocumentNo: Code[20]; VATAmount: Decimal; AmountRoundingPrecision: Decimal): Decimal
+    local procedure FindGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; VATAmount: Decimal; AmountRoundingPrecision: Decimal): Decimal
     var
         GLEntry: Record "G/L Entry";
     begin

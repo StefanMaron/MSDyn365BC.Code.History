@@ -2,9 +2,13 @@ page 2820 "Native - Attachments"
 {
     Caption = 'nativeInvoicingAttachments', Locked = true;
     DelayedInsert = true;
-    PageType = List;
     SourceTable = "Attachment Entity Buffer";
     SourceTableTemporary = true;
+    PageType = List;
+    ODataKeyFields = SystemId;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -12,7 +16,7 @@ page 2820 "Native - Attachments"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;

@@ -299,8 +299,8 @@ codeunit 5540 "Calc. Item Avail. Timeline"
         SourceRefNo: Integer;
     begin
         CalcItemAvailEventBuf.GetSourceReferences(
-          TempFromInventoryEventBuffer."Source Line ID", 0, SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine,
-          SourceRefNo);
+          TempFromInventoryEventBuffer."Source Line ID", "Transfer Direction"::Outbound,
+          SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo);
 
         ReqLine.Reset();
         ReqLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");

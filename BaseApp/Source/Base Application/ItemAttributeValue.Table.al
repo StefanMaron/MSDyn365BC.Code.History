@@ -82,7 +82,7 @@ table 7501 "Item Attribute Value"
         }
         field(10; "Attribute Name"; Text[250])
         {
-            CalcFormula = Lookup ("Item Attribute".Name WHERE(ID = FIELD("Attribute ID")));
+            CalcFormula = Lookup("Item Attribute".Name WHERE(ID = FIELD("Attribute ID")));
             Caption = 'Attribute Name';
             FieldClass = FlowField;
         }
@@ -263,7 +263,6 @@ table 7501 "Item Attribute Value"
         exit(AttributeHasBeenUsed);
     end;
 
-    [Scope('OnPrem')]
     procedure SetValueFilter(var ItemAttribute: Record "Item Attribute"; FilterText: Text)
     var
         IndexOfOrCondition: Integer;

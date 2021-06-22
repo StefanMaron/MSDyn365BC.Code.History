@@ -391,10 +391,10 @@ report 702 "Inventory Posting - Test"
                 begin
                     OnBeforeItemJournalLineOnAfterGetRecord("Item Journal Line", ErrorCounter, ErrorText);
 
-                    NoOfEntries["Entry Type" + 1] := 1;
+                    NoOfEntries["Entry Type".AsInteger() + 1] := 1;
 
                     CostAmount := "Unit Cost" * Quantity;
-                    TotalCostAmounts["Entry Type" + 1] := CostAmount;
+                    TotalCostAmounts["Entry Type".AsInteger() + 1] := CostAmount;
 
                     if "Entry Type" in
                        ["Entry Type"::Purchase,
@@ -689,7 +689,7 @@ report 702 "Inventory Posting - Test"
                     JnlTemplateType := ItemJnlTemplate.Type;
                     ItemLineEntryType := "Entry Type";
 
-                    case "Entry Type" + 1 of
+                    case "Entry Type".AsInteger() + 1 of
                         1:
                             begin
                                 TotalAm1 := TotalAm1 + Amount;
@@ -751,7 +751,7 @@ report 702 "Inventory Posting - Test"
                     SetFilter(Name, "Item Journal Line".GetFilter("Journal Batch Name"));
 
                 for i := 1 to ArrayLen(EntryTypeDescription) do begin
-                    "Item Journal Line"."Entry Type" := i - 1;
+                    "Item Journal Line"."Entry Type" := "Item Ledger Entry Type".FromInteger(i - 1);
                     EntryTypeDescription[i] := Format("Item Journal Line"."Entry Type");
                 end;
             end;
@@ -842,8 +842,8 @@ report 702 "Inventory Posting - Test"
         LastPostingDate: Date;
         LastDocNo: Code[20];
         TableID: array[10] of Integer;
-        JnlTemplateType: Integer;
-        ItemLineEntryType: Integer;
+        JnlTemplateType: Enum "Item Journal Template Type";
+        ItemLineEntryType: Enum "Item Ledger Entry Type";
         No: array[10] of Code[20];
         DimText: Text[120];
         OldDimText: Text[75];

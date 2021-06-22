@@ -11,9 +11,9 @@ codeunit 130510 "Library - Price Calculation"
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
-        LastHandlerId: Integer;
+        LastHandlerId: Enum "Price Calculation Handler";
 
-    procedure AddSetup(var PriceCalculationSetup: Record "Price Calculation Setup"; NewMethod: Enum "Price Calculation Method"; PriceType: Enum "Price Type"; AssetType: Enum "Price Asset Type"; NewImplementation: Integer; NewDefault: Boolean): Code[100];
+    procedure AddSetup(var PriceCalculationSetup: Record "Price Calculation Setup"; NewMethod: Enum "Price Calculation Method"; PriceType: Enum "Price Type"; AssetType: Enum "Price Asset Type"; NewImplementation: Enum "Price Calculation Handler"; NewDefault: Boolean): Code[100];
     begin
         with PriceCalculationSetup do begin
             Init();
@@ -61,12 +61,6 @@ codeunit 130510 "Library - Price Calculation"
         end;
     end;
 
-    procedure EnableExtendedPriceCalculation()
-    begin
-        // turn on ExtendedPriceCalculationEnabledHandler
-        BindSubscription(LibraryPriceCalculation);
-    end;
-
     procedure DisableSetup(var PriceCalculationSetup: Record "Price Calculation Setup")
     begin
         PriceCalculationSetup.Enabled := false;
@@ -85,7 +79,22 @@ codeunit 130510 "Library - Price Calculation"
         UnbindSubscription(LibraryPriceCalculation);
     end;
 
-    procedure SetupDefaultHandler(NewImplementation: Integer) xImplementation: Enum "Price Calculation Handler";
+    procedure EnableExtendedPriceCalculation()
+    begin
+        // turn on ExtendedPriceCalculationEnabledHandler
+        UnbindSubscription(LibraryPriceCalculation);
+        BindSubscription(LibraryPriceCalculation);
+    end;
+
+    procedure EnableExtendedPriceCalculation(Enable: Boolean)
+    begin
+        // turn on/off ExtendedPriceCalculationEnabledHandler
+        UnbindSubscription(LibraryPriceCalculation);
+        if Enable then
+            BindSubscription(LibraryPriceCalculation);
+    end;
+
+    procedure SetupDefaultHandler(NewImplementation: Enum "Price Calculation Handler") xImplementation: Enum "Price Calculation Handler";
     var
         PriceCalculationSetup: Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
@@ -127,61 +136,93 @@ codeunit 130510 "Library - Price Calculation"
         PurchasesPayablesSetup.Modify();
     end;
 
-    procedure CreatePriceHeader(var PriceListHeader: Record "Price List Header"; SourceType: Enum "Price Source Type"; SourceNo: code[20])
+    procedure CreatePriceHeader(var PriceListHeader: Record "Price List Header"; PriceType: Enum "Price Type"; SourceType: Enum "Price Source Type"; SourceNo: code[20])
     begin
         PriceListHeader.Init();
         PriceListHeader.Code := LibraryUtility.GenerateGUID();
+        PriceListHeader."Price Type" := PriceType;
         PriceListHeader.Validate("Source Type", SourceType);
         PriceListHeader.Validate("Source No.", SourceNo);
         PriceListHeader.Insert(true);
     end;
 
-    procedure CreatePriceHeader(var PriceListHeader: Record "Price List Header"; SourceType: Enum "Price Source Type"; ParentSourceNo: code[20]; SourceNo: code[20])
+    procedure CreatePriceHeader(var PriceListHeader: Record "Price List Header"; PriceType: Enum "Price Type"; SourceType: Enum "Price Source Type"; ParentSourceNo: code[20]; SourceNo: code[20])
     begin
         PriceListHeader.Init();
         PriceListHeader.Code := LibraryUtility.GenerateGUID();
+        PriceListHeader."Price Type" := PriceType;
         PriceListHeader.Validate("Source Type", SourceType);
         PriceListHeader.Validate("Parent Source No.", ParentSourceNo);
         PriceListHeader.Validate("Source No.", SourceNo);
         PriceListHeader.Insert(true);
     end;
 
-    procedure CreatePriceLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    procedure CreatePriceListLine(var PriceListLine: Record "Price List Line"; PriceListHeader: Record "Price List Header"; AmountType: Enum "Price Amount Type"; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    begin
+        CreatePriceListLine(
+            PriceListLine,
+            PriceListHeader.Code, PriceListHeader."Price Type",
+            PriceListHeader."Source Type", PriceListHeader."Parent Source No.", PriceListHeader."Source No.",
+            AmountType, AssetType, AssetNo);
+    end;
+
+    procedure CreatePriceListLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; PriceType: Enum "Price Type"; SourceType: Enum "Price Source Type"; SourceNo: Code[20]; AmountType: Enum "Price Amount Type"; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    begin
+        // to skip blank "Parent Source No."
+        CreatePriceListLine(
+            PriceListLine, PriceListCode, PriceType, SourceType, '', SourceNo, AmountType, AssetType, AssetNo);
+    end;
+
+    procedure CreatePriceListLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; PriceType: Enum "Price Type"; SourceType: Enum "Price Source Type"; ParentSourceNo: Code[20]; SourceNo: Code[20]; AmountType: Enum "Price Amount Type"; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
     begin
         PriceListLine.Init();
         PriceListLine."Line No." := 0;
         PriceListLine."Price List Code" := PriceListCode;
-        PriceListLine.Validate("Asset Type", AssetType);
-        PriceListLine.Validate("Asset No.", AssetNo);
-        PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Price);
-        PriceListLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
-        PriceListLine.Insert(true);
-    end;
-
-    procedure CreatePriceLine(var PriceListLine: Record "Price List Line"; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
-    begin
-        PriceListLine.Init();
-        PriceListLine."Line No." := 0;
+        PriceListLine."Price Type" := PriceType;
         PriceListLine.Validate("Source Type", SourceType);
+        PriceListLine.Validate("Parent Source No.", ParentSourceNo);
         PriceListLine.Validate("Source No.", SourceNo);
         PriceListLine.Validate("Asset Type", AssetType);
         PriceListLine.Validate("Asset No.", AssetNo);
-        PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Price);
-        PriceListLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        PriceListLine.Validate("Amount Type", AmountType);
+        if AmountType in [AmountType::Discount, AmountType::Any] then
+            PriceListLine.Validate("Line Discount %", LibraryRandom.RandDec(100, 2));
+        if AmountType in [AmountType::Price, AmountType::Any] then
+            case PriceType of
+                PriceType::Sale:
+                    PriceListLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+                PriceType::Purchase:
+                    PriceListLine.Validate("Unit Cost", LibraryRandom.RandDec(1000, 2));
+            end;
         PriceListLine.Insert(true);
     end;
 
-    procedure CreateDiscountLine(var PriceListLine: Record "Price List Line"; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    procedure CreatePurchDiscountLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
     begin
-        PriceListLine.Init();
-        PriceListLine."Line No." := 0;
-        PriceListLine.Validate("Source Type", SourceType);
-        PriceListLine.Validate("Source No.", SourceNo);
-        PriceListLine.Validate("Asset Type", AssetType);
-        PriceListLine.Validate("Asset No.", AssetNo);
-        PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Discount);
-        PriceListLine.Validate("Line Discount %", LibraryRandom.RandDec(100, 2));
-        PriceListLine.Insert(true);
+        CreatePriceListLine(
+            PriceListLine, PriceListCode, PriceListLine."Price Type"::Purchase, SourceType, SourceNo,
+            PriceListLine."Amount Type"::Discount, AssetType, AssetNo);
+    end;
+
+    procedure CreatePurchPriceLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    begin
+        CreatePriceListLine(
+            PriceListLine, PriceListCode, PriceListLine."Price Type"::Purchase, SourceType, SourceNo,
+            PriceListLine."Amount Type"::Price, AssetType, AssetNo);
+    end;
+
+    procedure CreateSalesDiscountLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    begin
+        CreatePriceListLine(
+            PriceListLine, PriceListCode, PriceListLine."Price Type"::Sale, SourceType, SourceNo,
+            PriceListLine."Amount Type"::Discount, AssetType, AssetNo);
+    end;
+
+    procedure CreateSalesPriceLine(var PriceListLine: Record "Price List Line"; PriceListCode: Code[20]; SourceType: Enum "Price Source Type"; SourceNo: code[20]; AssetType: enum "Price Asset Type"; AssetNo: Code[20])
+    begin
+        CreatePriceListLine(
+            PriceListLine, PriceListCode, PriceListLine."Price Type"::Sale, SourceType, SourceNo,
+            PriceListLine."Amount Type"::Price, AssetType, AssetNo);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Calculation Mgt.", 'OnIsExtendedPriceCalculationEnabled', '', false, false)]

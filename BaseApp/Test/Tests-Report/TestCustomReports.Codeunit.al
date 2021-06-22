@@ -158,13 +158,14 @@ codeunit 134761 "Test Custom Reports"
     begin
         Initialize();
 
-        Usage := CustomReportSelection.Usage::"S.Quote";
+        PrintCustomReportSelectionFullMod(
+            QuoteSalesHeaderFullMod, REPORT::"Standard Sales - Quote", "Report Selection Usage"::"S.Quote");
 
-        PrintCustomReportSelectionFullMod(QuoteSalesHeaderFullMod, REPORT::"Standard Sales - Quote");
+        PrintCustomReportSelectionPartMod(
+            QuoteSalesHeaderParitalMod, REPORT::"Standard Sales - Quote", "Report Selection Usage"::"S.Quote");
 
-        PrintCustomReportSelectionPartMod(QuoteSalesHeaderParitalMod, REPORT::"Standard Sales - Quote");
-
-        PrintCustomReportSelectionNoMod(QuoteSalesHeaderNoMod, 0, QuoteSalesHeaderNoMod.FieldNo("Bill-to Customer No."));
+        PrintCustomReportSelectionNoMod(
+            QuoteSalesHeaderNoMod, 0, QuoteSalesHeaderNoMod.FieldNo("Bill-to Customer No."), "Report Selection Usage"::"S.Quote");
     end;
 
     [Test]
@@ -177,19 +178,18 @@ codeunit 134761 "Test Custom Reports"
     begin
         Initialize();
 
-        Usage := CustomReportSelection.Usage::"S.Quote";
         Clear(CustomReportSelection);
         QuoteSalesHeaderFullMod.SetRecFilter;
         CustomReportID :=
           CustomReportSelectionPrint(
-            QuoteSalesHeaderFullMod, Usage, true, false, QuoteSalesHeaderFullMod.FieldNo("Bill-to Customer No."));
+            QuoteSalesHeaderFullMod, "Report Selection Usage"::"S.Quote", true, false, QuoteSalesHeaderFullMod.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Quote", CustomReportID, 'Emailing a Modified Custom Quote failed.');
 
         Clear(CustomReportSelection);
         QuoteSalesHeaderParitalMod.SetRecFilter;
         CustomReportID :=
           CustomReportSelectionPrint(
-            QuoteSalesHeaderParitalMod, Usage, true, false, QuoteSalesHeaderParitalMod.FieldNo("Bill-to Customer No."));
+            QuoteSalesHeaderParitalMod, "Report Selection Usage"::"S.Quote", true, false, QuoteSalesHeaderParitalMod.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Quote", CustomReportID, 'Emailing a Standard Quote failed.');
 
         Clear(CustomReportSelection);
@@ -198,7 +198,7 @@ codeunit 134761 "Test Custom Reports"
         asserterror
           CustomReportID :=
             CustomReportSelectionPrint(
-              QuoteSalesHeaderNoMod, Usage, true, false, QuoteSalesHeaderNoMod.FieldNo("Bill-to Customer No."));
+              QuoteSalesHeaderNoMod, "Report Selection Usage"::"S.Quote", true, false, QuoteSalesHeaderNoMod.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(0, CustomReportID, 'Emailing a Sales Quote failed.');
     end;
 
@@ -209,12 +209,14 @@ codeunit 134761 "Test Custom Reports"
     begin
         Initialize();
 
-        Usage := CustomReportSelection.Usage::"S.Order";
-        PrintCustomReportSelectionFullMod(OrderSalesHeaderFullMod, REPORT::"Standard Sales - Order Conf.");
+        PrintCustomReportSelectionFullMod(
+            OrderSalesHeaderFullMod, REPORT::"Standard Sales - Order Conf.", "Report Selection Usage"::"S.Order");
 
-        PrintCustomReportSelectionPartMod(OrderSalesHeaderPartialMod, REPORT::"Standard Sales - Order Conf.");
+        PrintCustomReportSelectionPartMod(
+            OrderSalesHeaderPartialMod, REPORT::"Standard Sales - Order Conf.", "Report Selection Usage"::"S.Order");
 
-        PrintCustomReportSelectionNoMod(OrderSalesHeaderNoMod, 0, OrderSalesHeaderNoMod.FieldNo("Bill-to Customer No."));
+        PrintCustomReportSelectionNoMod(
+            OrderSalesHeaderNoMod, 0, OrderSalesHeaderNoMod.FieldNo("Bill-to Customer No."), "Report Selection Usage"::"S.Order");
     end;
 
     [Test]
@@ -223,22 +225,20 @@ codeunit 134761 "Test Custom Reports"
     procedure TestEmailOrders()
     var
         CustomReportID: Integer;
-        Usage: Option;
     begin
         Initialize();
 
-        Usage := CustomReportSelection.Usage::"S.Order";
         OrderSalesHeaderFullMod.SetRecFilter;
         CustomReportID :=
           CustomReportSelectionPrint(
-            OrderSalesHeaderFullMod, Usage, true, false, OrderSalesHeaderFullMod.FieldNo("Bill-to Customer No."));
+            OrderSalesHeaderFullMod, "Report Selection Usage"::"S.Order", true, false, OrderSalesHeaderFullMod.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Order Conf.", CustomReportID, 'Emailing a Custom Order failed.');
 
         Clear(CustomReportSelection);
         OrderSalesHeaderPartialMod.SetRecFilter;
         CustomReportID :=
           CustomReportSelectionPrint(
-            OrderSalesHeaderPartialMod, Usage, true, false, OrderSalesHeaderPartialMod.FieldNo("Bill-to Customer No."));
+            OrderSalesHeaderPartialMod, "Report Selection Usage"::"S.Order", true, false, OrderSalesHeaderPartialMod.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Order Conf.", CustomReportID, 'Emailing a Custom Order failed.');
 
         Clear(CustomReportSelection);
@@ -246,7 +246,7 @@ codeunit 134761 "Test Custom Reports"
         CustomReportID := 0;
         asserterror
           CustomReportID :=
-            CustomReportSelectionPrint(OrderSalesHeaderNoMod, Usage, true, false, OrderSalesHeaderNoMod.FieldNo("Bill-to Customer No."));
+            CustomReportSelectionPrint(OrderSalesHeaderNoMod, "Report Selection Usage"::"S.Order", true, false, OrderSalesHeaderNoMod.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(0, CustomReportID, 'Emailing a Sales Quote failed.');
     end;
 
@@ -263,22 +263,24 @@ codeunit 134761 "Test Custom Reports"
 
         SalesInvoiceHeader.Get(InvoiceSalesHeaderFullMod."Last Posting No.");
 
-        Usage := CustomReportSelection.Usage::"S.Invoice";
         Clear(CustomReportSelection);
         CustomReportID :=
-          CustomReportSelectionPrint(SalesInvoiceHeader, Usage, false, true, SalesInvoiceHeader.FieldNo("Bill-to Customer No."));
+          CustomReportSelectionPrint(
+              SalesInvoiceHeader, "Report Selection Usage"::"S.Invoice", false, true, SalesInvoiceHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Invoice", CustomReportID, 'Printing a Modified Custom Invoice failed.');
 
         SalesInvoiceHeader.Get(InvoiceSalesHeaderPartialMod."Last Posting No.");
 
         Clear(CustomReportSelection);
         CustomReportID :=
-          CustomReportSelectionPrint(SalesInvoiceHeader, Usage, false, true, SalesInvoiceHeader.FieldNo("Bill-to Customer No."));
+          CustomReportSelectionPrint(
+              SalesInvoiceHeader, "Report Selection Usage"::"S.Invoice", false, true, SalesInvoiceHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Invoice", CustomReportID, 'Printing a Custom Invoice failed.');
 
         SalesInvoiceHeader.Get(InvoiceSalesHeaderNoMod."Last Posting No.");
 
-        PrintCustomReportSelectionNoMod(SalesInvoiceHeader, 0, SalesInvoiceHeader.FieldNo("Bill-to Customer No."));
+        PrintCustomReportSelectionNoMod(
+            SalesInvoiceHeader, 0, SalesInvoiceHeader.FieldNo("Bill-to Customer No."), "Report Selection Usage"::"S.Invoice");
     end;
 
     [Test]
@@ -288,23 +290,21 @@ codeunit 134761 "Test Custom Reports"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CustomReportID: Integer;
-        Usage: Option;
     begin
         Initialize();
 
         SalesInvoiceHeader.Get(InvoiceSalesHeaderFullModEmail."Last Posting No.");
         SalesInvoiceHeader.SetRecFilter;
-        Usage := CustomReportSelection.Usage::"S.Invoice";
         Clear(CustomReportSelection);
         CustomReportID :=
-          CustomReportSelectionPrint(SalesInvoiceHeader, Usage, true, true, SalesInvoiceHeader.FieldNo("Bill-to Customer No."));
+          CustomReportSelectionPrint(SalesInvoiceHeader, "Report Selection Usage"::"S.Invoice", true, true, SalesInvoiceHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Invoice", CustomReportID, 'Emailing a Modified Custom Invoice failed.');
 
         SalesInvoiceHeader.Get(InvoiceSalesHeaderPartialModEmail."Last Posting No.");
 
         Clear(CustomReportSelection);
         CustomReportID :=
-          CustomReportSelectionPrint(SalesInvoiceHeader, Usage, true, true, SalesInvoiceHeader.FieldNo("Bill-to Customer No."));
+          CustomReportSelectionPrint(SalesInvoiceHeader, "Report Selection Usage"::"S.Invoice", true, true, SalesInvoiceHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Invoice", CustomReportID, 'Emailing a Custom Invoice failed.');
 
         SalesInvoiceHeader.Get(InvoiceSalesHeaderNoModEmail."Last Posting No.");
@@ -314,7 +314,7 @@ codeunit 134761 "Test Custom Reports"
         asserterror
           CustomReportID :=
             CustomReportSelectionPrint(
-              InvoiceSalesHeaderNoModEmail, Usage, false, true, InvoiceSalesHeaderNoModEmail.FieldNo("Bill-to Customer No."));
+              InvoiceSalesHeaderNoModEmail, "Report Selection Usage"::"S.Invoice", false, true, InvoiceSalesHeaderNoModEmail.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(0, CustomReportID, 'Emailing an Invoice failed.');
     end;
 
@@ -325,22 +325,20 @@ codeunit 134761 "Test Custom Reports"
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CustomReportID: Integer;
-        Usage: Option;
     begin
         Initialize();
 
         SalesCrMemoHeader.Get(CreditMemoSalesHeaderFullMod."Last Posting No.");
-        Usage := CustomReportSelection.Usage::"S.Cr.Memo";
         Clear(CustomReportSelection);
         CustomReportID :=
-          CustomReportSelectionPrint(SalesCrMemoHeader, Usage, false, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
+          CustomReportSelectionPrint(SalesCrMemoHeader, "Report Selection Usage"::"S.Cr.Memo", false, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Credit Memo", CustomReportID, 'Printing a Modified Custom Credit Memo failed.');
 
         SalesCrMemoHeader.Get(CreditMemoSalesHeaderPartialMod."Last Posting No.");
 
         Clear(CustomReportSelection);
         CustomReportID :=
-          CustomReportSelectionPrint(SalesCrMemoHeader, Usage, false, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
+          CustomReportSelectionPrint(SalesCrMemoHeader, "Report Selection Usage"::"S.Cr.Memo", false, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Credit Memo", CustomReportID, 'Printing a Custom Credit Memo failed.');
 
         SalesCrMemoHeader.Get(CreditMemoSalesHeaderNoMod."Last Posting No.");
@@ -349,7 +347,7 @@ codeunit 134761 "Test Custom Reports"
         CustomReportID := 0;
         asserterror
           CustomReportID :=
-            CustomReportSelectionPrint(SalesCrMemoHeader, Usage, false, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
+            CustomReportSelectionPrint(SalesCrMemoHeader, "Report Selection Usage"::"S.Cr.Memo", false, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(0, CustomReportID, 'Printing an Invoice failed.');
     end;
 
@@ -360,23 +358,21 @@ codeunit 134761 "Test Custom Reports"
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CustomReportID: Integer;
-        Usage: Option;
     begin
         Initialize();
 
         SalesCrMemoHeader.Get(CreditMemoSalesHeaderFullModEmail."Last Posting No.");
         SalesCrMemoHeader.SetRecFilter;
-        Usage := CustomReportSelection.Usage::"S.Cr.Memo";
         Clear(CustomReportSelection);
         CustomReportID :=
-          CustomReportSelectionPrint(SalesCrMemoHeader, Usage, true, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
+          CustomReportSelectionPrint(SalesCrMemoHeader, "Report Selection Usage"::"S.Cr.Memo", true, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Credit Memo", CustomReportID, 'Printing a Modified Custom Credit Memo failed.');
 
         SalesCrMemoHeader.Get(CreditMemoSalesHeaderPartialModEmail."Last Posting No.");
         SalesCrMemoHeader.SetRecFilter;
         Clear(CustomReportSelection);
         CustomReportID :=
-          CustomReportSelectionPrint(SalesCrMemoHeader, Usage, true, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
+          CustomReportSelectionPrint(SalesCrMemoHeader, "Report Selection Usage"::"S.Cr.Memo", true, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(REPORT::"Standard Sales - Credit Memo", CustomReportID, 'Printing a Modified Custom Credit Memo failed.');
 
         SalesCrMemoHeader.Get(CreditMemoSalesHeaderNoModEmail."Last Posting No.");
@@ -385,7 +381,7 @@ codeunit 134761 "Test Custom Reports"
         CustomReportID := 0;
         asserterror
           CustomReportID :=
-            CustomReportSelectionPrint(SalesCrMemoHeader, Usage, false, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
+            CustomReportSelectionPrint(SalesCrMemoHeader, "Report Selection Usage"::"S.Cr.Memo", false, true, SalesCrMemoHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(0, CustomReportID, 'Printing an Invoice failed.');
     end;
 
@@ -686,8 +682,8 @@ codeunit 134761 "Test Custom Reports"
 
         CustRecRef.Open(DATABASE::Customer);
         LibraryVariableStorage.Enqueue(GetStartDate);
-        CustomLayoutReporting.InitializeData(
-          ReportSelectionsUsage::"C.Statement", CustRecRef, CustomerFullMod.FieldName("No."), DATABASE::Customer,
+        CustomLayoutReporting.InitializeReportData(
+          "Report Selection Usage"::"C.Statement", CustRecRef, CustomerFullMod.FieldName("No."), DATABASE::Customer,
           CustomerFullMod.FieldName("No."), true);
 
         // Assert that request page options are present filled out
@@ -1020,8 +1016,8 @@ codeunit 134761 "Test Custom Reports"
         RecRefFilterGroup := CustRecRef.FilterGroup;
 
         LibraryVariableStorage.Enqueue(CalcDate('<CD-1Y>'));
-        CustomLayoutReporting.InitializeData(
-          ReportSelectionsUsage::"C.Statement", CustRecRef, CustomerFullMod.FieldName("No."), DATABASE::Customer,
+        CustomLayoutReporting.InitializeReportData(
+          "Report Selection Usage"::"C.Statement", CustRecRef, CustomerFullMod.FieldName("No."), DATABASE::Customer,
           CustomerFullMod.FieldName("No."), true);
 
         CustomLayoutReporting.ProcessReport;
@@ -1387,7 +1383,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Statement"
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::Statement);
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::Statement);
 
         // [WHEN] Run "Statement" (SaveAs PDF) report filtered by customer "No." = "X" (not existing one customer)
         Customer.SetRange("No.", LibraryUtility.GenerateGUID);
@@ -1417,7 +1413,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement"
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::"Standard Statement");
 
         // [WHEN] Run "Statement" (SaveAs PDF) report filtered by customer "No." = "X" (not existing one customer)
         Customer.SetRange("No.", LibraryUtility.GenerateGUID);
@@ -1446,7 +1442,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Statement"
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::Statement);
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::Statement);
 
         // [WHEN] Run "Statement" (SaveAs PDF using suppress output) report filtered by customer "No." = "X" (not existing one customer)
         Customer.SetRange("No.", LibraryUtility.GenerateGUID);
@@ -1473,7 +1469,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement"
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::"Standard Statement");
 
         // [WHEN] Run "Statement" (SaveAs PDF using suppress output) report filtered by customer "No." = "X" (not existing one customer)
         Customer.SetRange("No.", LibraryUtility.GenerateGUID);
@@ -1501,7 +1497,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Statement"
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::Statement);
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::Statement);
 
         // [WHEN] Run "Statement" (SaveAs PDF) report with blanked "Start Date"
         Customer.SetRange("No.", LibrarySales.CreateCustomerNo);
@@ -1532,7 +1528,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement"
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::"Standard Statement");
 
         // [WHEN] Run "Statement" (SaveAs PDF) report with blanked "Start Date"
         Customer.SetRange("No.", LibrarySales.CreateCustomerNo);
@@ -1637,7 +1633,7 @@ codeunit 134761 "Test Custom Reports"
         ReportID[1] := Report::"Standard Statement";
         ReportID[2] := Report::"Statement";
 
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(ReportId[1], CustomReportLayout.Type::Word);
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(ReportId[1], CustomReportLayout.Type::Word.AsInteger());
 
         CustomReportSelection.Init();
         CustomReportSelection.Validate("Report ID", ReportId[1]);
@@ -1739,6 +1735,8 @@ codeunit 134761 "Test Custom Reports"
         PurchaseLine: Record "Purchase Line";
         FormattedQty: Text;
         FormattedDirectUnitCost: Text;
+        FormattedVATPercentage: Text;
+        FormattedLineAmount: Text;
     begin
         // [FEATURE] [UT] [Format Document] [Purchase]
         // [SCENARIO 278732] SetPurchaseLine in codeunit Format Document when Purchase Line Type is <blank>
@@ -1749,10 +1747,10 @@ codeunit 134761 "Test Custom Reports"
         PurchaseLine.Type := PurchaseLine.Type::" ";
 
         // [WHEN] SetPurchaseLine in Format Document
-        FormatDocument.SetPurchaseLine(PurchaseLine, FormattedQty, FormattedDirectUnitCost);
+        FormatDocument.SetPurchaseLine(PurchaseLine, FormattedQty, FormattedDirectUnitCost, FormattedVATPercentage, FormattedLineAmount);
 
         // [THEN] All Formatted Text Values are <blank>
-        VerifyFormattedTextValuesBlank(FormattedQty, FormattedDirectUnitCost, '', '');
+        VerifyFormattedTextValuesBlank(FormattedQty, FormattedDirectUnitCost, FormattedVATPercentage, FormattedLineAmount);
     end;
 
     [Test]
@@ -1978,7 +1976,7 @@ codeunit 134761 "Test Custom Reports"
 
         // [WHEN] Run GetLayoutIteratorKeyFilter function of "Custom Layout Reporting" on temporary table "T1" and Custom Layout "L1".
         LibraryVariableStorage.Enqueue(WorkDate);
-        CustomLayoutReporting.InitializeData(
+        CustomLayoutReporting.InitializeReportData(
           CustomReportSelection.Usage::"C.Statement", RecRef, Customer.FieldName("No."), DATABASE::Customer, Customer.FieldName("No."), true);
         CustomLayoutReporting.GetLayoutIteratorKeyFilter(RecRef, FieldRef, CustomReportLayout.Code);
 
@@ -2006,7 +2004,7 @@ codeunit 134761 "Test Custom Reports"
         // [FEATURE] [Vendor]
         // [SCENARIO 319005] Run GetLayoutIteratorKeyFilter function of "Custom Layout Reporting" on consequitive Vendor numbers.
         Initialize();
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"P.Invoice", REPORT::"Purchase - Invoice");
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"P.Invoice", REPORT::"Purchase - Invoice");
 
         // [GIVEN] Vendors V1, V2,...,V7, that are added both to database and temporary table "T1".
         for i := 1 to ArrayLen(VendorNo) do begin
@@ -2033,7 +2031,7 @@ codeunit 134761 "Test Custom Reports"
 
         // [WHEN] Run GetLayoutIteratorKeyFilter function of "Custom Layout Reporting" on temporary table "T1" and Custom Layout "L1".
         LibraryVariableStorage.Enqueue(WorkDate);
-        CustomLayoutReporting.InitializeData(
+        CustomLayoutReporting.InitializeReportData(
           CustomReportSelection.Usage::"P.Invoice", RecRef, Vendor.FieldName("No."), DATABASE::Vendor, Vendor.FieldName("No."), true);
         CustomLayoutReporting.GetLayoutIteratorKeyFilter(RecRef, FieldRef, CustomReportLayout.Code);
 
@@ -2044,6 +2042,34 @@ codeunit 134761 "Test Custom Reports"
 
         // Tear down
         InitReportSelections;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FormatDocSetPurchaseFormattedVATPctAndLineAmount()
+    var
+        PurchaseLine: Record "Purchase Line";
+        FormattedQty: Text;
+        FormattedDirectUnitCost: Text;
+        FormattedVATPercentage: Text;
+        FormattedLineAmount: Text;
+    begin
+        // [FEATURE] [UT] [Format Document] [Purchase]
+        // [SCENARIO 344208] Parameters FormattedVATPct and FormattedLineAmount for SetPurchaseLine in codeunit Format Document 
+        Initialize();
+
+        // [GIVEN] Purchase Line with "VAT %" = 25, "Line Amount" = 100
+        PurchaseLine.Init();
+        PurchaseLine.Type := PurchaseLine.Type::Item;
+        PurchaseLine."VAT %" := LibraryRandom.RandInt(10);
+        PurchaseLine."Line Amount" := LibraryRandom.RandDec(100, 2);
+
+        // [WHEN] SetPurchaseLine in Format Document
+        FormatDocument.SetPurchaseLine(PurchaseLine, FormattedQty, FormattedDirectUnitCost, FormattedVATPercentage, FormattedLineAmount);
+
+        // [THEN] FormattedVATPercentage = "25", FormattedLineAmount = "100.00"
+        Assert.AreEqual(Format(PurchaseLine."VAT %"), FormattedVATPercentage, 'Invalid value');
+        Assert.AreEqual(Format(PurchaseLine."Line Amount"), FormattedLineAmount, 'Invalid value');
     end;
 
     [Scope('OnPrem')]
@@ -2185,10 +2211,10 @@ codeunit 134761 "Test Custom Reports"
         ReportSelections: Record "Report Selections";
     begin
         ReportSelections.DeleteAll();
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::"Standard Statement");
 
         ReportSelections.Init();
-        ReportSelections.Usage := ReportSelectionsUsage::"C.Statement";
+        ReportSelections.Usage := "Report Selection Usage"::"C.Statement";
         ReportSelections.Sequence := '2';
         ReportSelections."Report ID" := REPORT::Statement;
         ReportSelections."Report Caption" := 'Statement';
@@ -2209,17 +2235,17 @@ codeunit 134761 "Test Custom Reports"
         CustomerReportSelections.Usage2.SetValue(Usage);
     end;
 
-    local procedure CreateCustomReportLayout(ReportID: Integer; LayoutType: Option RDLC,Word; Description: Text[80])
+    local procedure CreateCustomReportLayout(ReportID: Integer; LayoutType: Enum "Custom Report Layout Type"; Description: Text[80])
     begin
         CustomReportLayout.Init();
-        CustomReportLayout.InitBuiltInLayout(ReportID, LayoutType);
+        CustomReportLayout.InitBuiltInLayout(ReportID, LayoutType.AsInteger());
         CustomReportLayout.SetFilter(Code, StrSubstNo('%1-*', ReportID));
         CustomReportLayout.FindLast;
         CustomReportLayout.Description := Description;
         CustomReportLayout.Modify();
     end;
 
-    local procedure CreateSalesRecord(var SalesHeader: Record "Sales Header"; Type: Integer; Customer: Record Customer)
+    local procedure CreateSalesRecord(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; Customer: Record Customer)
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -2227,7 +2253,7 @@ codeunit 134761 "Test Custom Reports"
         LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryInventory.CreateItem(Item);
-        LibrarySales.CreateSalesHeader(SalesHeader, Type, Customer."No.");
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, Customer."No.");
         VATPostingSetup.SetRange("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
         VATPostingSetup.SetRange("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
         if not VATPostingSetup.FindFirst then
@@ -2254,30 +2280,30 @@ codeunit 134761 "Test Custom Reports"
           CustomerNo, Amount2, CalcDate('<-CM-1M+3W>', GetDate), GetDate);
     end;
 
-    local procedure PrintCustomReportSelectionFullMod(SalesHeader: Record "Sales Header"; ExpectedReportID: Integer)
+    local procedure PrintCustomReportSelectionFullMod(SalesHeader: Record "Sales Header"; ExpectedReportID: Integer; ReportUsage: Enum "Report Selection Usage")
     var
         CustomReportID: Integer;
     begin
         Clear(CustomReportSelection);
         SalesHeader.SetRecFilter;
-        CustomReportID := CustomReportSelectionPrint(SalesHeader, Usage, false, true, SalesHeader.FieldNo("Bill-to Customer No."));
+        CustomReportID := CustomReportSelectionPrint(SalesHeader, ReportUsage, false, true, SalesHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(ExpectedReportID, CustomReportID, 'Print fully modified customer failed');
     end;
 
-    local procedure PrintCustomReportSelectionPartMod(SalesHeader: Record "Sales Header"; ExpectedReportID: Integer)
+    local procedure PrintCustomReportSelectionPartMod(SalesHeader: Record "Sales Header"; ExpectedReportID: Integer; ReportUsage: Enum "Report Selection Usage")
     var
         CustomReportID: Integer;
     begin
         Clear(CustomReportSelection);
         SalesHeader.SetRecFilter;
-        CustomReportID := CustomReportSelectionPrint(SalesHeader, Usage, false, true, SalesHeader.FieldNo("Bill-to Customer No."));
+        CustomReportID := CustomReportSelectionPrint(SalesHeader, ReportUsage, false, true, SalesHeader.FieldNo("Bill-to Customer No."));
         Assert.AreEqual(ExpectedReportID, CustomReportID, 'Print partially modified customer failed');
     end;
 
-    local procedure PrintCustomReportSelectionNoMod(DocumentRecVar: Variant; ExpectedReportID: Integer; AccountNoFieldNo: Integer)
+    local procedure PrintCustomReportSelectionNoMod(DocumentRecVar: Variant; ExpectedReportID: Integer; AccountNoFieldNo: Integer; ReportUsage: Enum "Report Selection Usage")
     begin
         Clear(CustomReportSelection);
-        asserterror CustomReportSelectionPrint(DocumentRecVar, Usage, false, true, AccountNoFieldNo);
+        asserterror CustomReportSelectionPrint(DocumentRecVar, ReportUsage, false, true, AccountNoFieldNo);
         Assert.AreEqual(ExpectedReportID, 0, 'Print not modified customer failed');
     end;
 
@@ -2323,13 +2349,13 @@ codeunit 134761 "Test Custom Reports"
         end;
     end;
 
-    local procedure CountReportSelectionEntriesByUsage(var CustomReportSelection: Record "Custom Report Selection"; UsageValue: Option; RecordCount: Integer)
+    local procedure CountReportSelectionEntriesByUsage(var CustomReportSelection: Record "Custom Report Selection"; UsageValue: Enum "Report Selection Usage"; RecordCount: Integer)
     begin
         CustomReportSelection.SetRange(Usage, UsageValue);
         Assert.RecordCount(CustomReportSelection, RecordCount);
     end;
 
-    local procedure AssignCustomLayoutToCustomer(SourceType: Integer; SourceNo: Code[20]; Usage: Option; ReportID: Integer; CustomReportLayoutCode: Code[20])
+    local procedure AssignCustomLayoutToCustomer(SourceType: Integer; SourceNo: Code[20]; Usage: Enum "Report Selection Usage"; ReportID: Integer; CustomReportLayoutCode: Code[20])
     begin
         CustomReportSelection.Init();
         CustomReportSelection."Source Type" := SourceType;
@@ -2419,8 +2445,8 @@ codeunit 134761 "Test Custom Reports"
     begin
         CustRecRef.GetTable(Customer);
         CustRecRef.SetView(Customer.GetView);
-        CustomLayoutReporting.ProcessReportForData(
-          ReportSelectionsUsage::"C.Statement",
+        CustomLayoutReporting.ProcessReportData(
+          "Report Selection Usage"::"C.Statement",
           CustRecRef,
           Customer.FieldName("No."),
           DATABASE::Customer,
@@ -2491,7 +2517,7 @@ codeunit 134761 "Test Custom Reports"
         exit(CalcDate('<CD-1Y>'));
     end;
 
-    local procedure CustomReportSelectionPrint(Document: Variant; Usage: Option; Email: Boolean; ShowRequestPage: Boolean; CustomerNoFieldNo: Integer): Integer
+    local procedure CustomReportSelectionPrint(Document: Variant; ReportUsage: Enum "Report Selection Usage"; Email: Boolean; ShowRequestPage: Boolean; CustomerNoFieldNo: Integer): Integer
     var
         ReportSelections: Record "Report Selections";
         TempReportSelections: Record "Report Selections" temporary;
@@ -2506,11 +2532,11 @@ codeunit 134761 "Test Custom Reports"
         RecRef.SetRecFilter;
         RecRef.SetTable(Document);
         if Email then begin
-            ReportSelections.FindEmailAttachmentUsage(Usage, CustomerNo, TempReportSelections);
+            ReportSelections.FindEmailAttachmentUsageForCust(ReportUsage, CustomerNo, TempReportSelections);
             ReportSelections.SendEmailToCust(Usage, Document, '', '', true, CustomerNo);
         end else begin
-            ReportSelections.FindPrintUsage(Usage, CustomerNo, TempReportSelections);
-            ReportSelections.PrintWithGUIYesNo(Usage, Document, ShowRequestPage, CustomerNoFieldNo);
+            ReportSelections.FindReportUsageForCust(ReportUsage, CustomerNo, TempReportSelections);
+            ReportSelections.PrintWithDialogForCust(ReportUsage, Document, ShowRequestPage, CustomerNoFieldNo);
         end;
 
         exit(TempReportSelections."Report ID");

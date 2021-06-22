@@ -51,6 +51,7 @@ page 5054 "Company Details"
                 field("Fax No."; "Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the contact''s fax number.';
                 }
             }

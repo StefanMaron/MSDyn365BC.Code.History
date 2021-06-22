@@ -3,6 +3,9 @@ page 5724 "Cross Reference List"
     Caption = 'Cross Reference List';
     PageType = List;
     SourceTable = "Item Cross Reference";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Item Reference feature.';
+    ObsoleteTag = '17.0';
 
     layout
     {

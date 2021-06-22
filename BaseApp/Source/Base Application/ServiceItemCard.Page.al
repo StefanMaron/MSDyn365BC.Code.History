@@ -165,7 +165,7 @@ page 5980 "Service Item Card"
                     begin
                         CalcFields(Name, "Name 2", Address, "Address 2", "Post Code",
                           City, Contact, "Phone No.", County, "Country/Region Code");
-                        CustomerNoOnAfterValidate;
+                        CustomerNoOnAfterValidate();
                     end;
                 }
                 group("Sell-to")

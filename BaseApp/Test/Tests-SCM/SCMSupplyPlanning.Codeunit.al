@@ -3548,7 +3548,7 @@ codeunit 137054 "SCM Supply Planning"
         Assert.RecordIsNotEmpty(RequisitionLine);
     end;
 
-    local procedure DemandWithMaximumInventory(ReplenishmentSystem: Option)
+    local procedure DemandWithMaximumInventory(ReplenishmentSystem: Enum "Replenishment System")
     var
         Item: Record Item;
         DemandDateValue: array[3] of Date;
@@ -3601,7 +3601,7 @@ codeunit 137054 "SCM Supply Planning"
         DemandForMQItemCarryOutAMWithFlexibilityNone(Item."Replenishment System"::"Prod. Order")
     end;
 
-    local procedure DemandForMQItemCarryOutAMWithFlexibilityNone(ReplenishmentSystem: Option)
+    local procedure DemandForMQItemCarryOutAMWithFlexibilityNone(ReplenishmentSystem: Enum "Replenishment System")
     var
         Item: Record Item;
         DemandDateValue: array[3] of Date;
@@ -4874,7 +4874,7 @@ codeunit 137054 "SCM Supply Planning"
         OutputItemJournalBatch.Modify(true);
     end;
 
-    local procedure CalculatePlanningWorksheetWithBaseCalendarAndItemVendor(ReorderingPolicy: Option)
+    local procedure CalculatePlanningWorksheetWithBaseCalendarAndItemVendor(ReorderingPolicy: Enum "Reordering Policy")
     var
         Item: Record Item;
         ItemVendor: Record "Item Vendor";
@@ -4986,7 +4986,7 @@ codeunit 137054 "SCM Supply Planning"
         AssemblyHeader.FindFirst;
     end;
 
-    local procedure CreateLFLItem(var Item: Record Item; ReplenishmentSystem: Option; ReschedulingPeriod: Text[30]; LotAccumulationPeriod: Text[30]; IncludeInventory: Boolean; SafetyStockQty: Decimal; DampenerQty: Decimal)
+    local procedure CreateLFLItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReschedulingPeriod: Text[30]; LotAccumulationPeriod: Text[30]; IncludeInventory: Boolean; SafetyStockQty: Decimal; DampenerQty: Decimal)
     begin
         CreateItem(Item, ReplenishmentSystem);
 
@@ -5083,7 +5083,7 @@ codeunit 137054 "SCM Supply Planning"
         CompItemNo := CompItem."No.";
     end;
 
-    local procedure CreateFRQItem(var Item: Record Item; ReplenishmentSystem: Option; ReorderQuantity: Decimal; ReorderPoint: Decimal; SafetyStockQty: Decimal)
+    local procedure CreateFRQItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReorderQuantity: Decimal; ReorderPoint: Decimal; SafetyStockQty: Decimal)
     begin
         CreateItem(Item, ReplenishmentSystem);
 
@@ -5101,7 +5101,7 @@ codeunit 137054 "SCM Supply Planning"
         UpdateItemVendorNo(Item, LibraryPurchase.CreateVendorNo);
     end;
 
-    local procedure CreateMQItem(var Item: Record Item; ReplenishmentSystem: Option; MaximumInventory: Decimal; ReorderPoint: Decimal; SafetyStockQty: Decimal)
+    local procedure CreateMQItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; MaximumInventory: Decimal; ReorderPoint: Decimal; SafetyStockQty: Decimal)
     begin
         CreateItem(Item, ReplenishmentSystem);
 
@@ -5123,7 +5123,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateBOMComponent(Item."No.", ChildItem."No.", LibraryRandom.RandInt(3));
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
         UpdateItem(Item, Item.FieldNo("Replenishment System"), ReplenishmentSystem);
@@ -5145,14 +5145,14 @@ codeunit 137054 "SCM Supply Planning"
         ItemVendor.Modify(true);
     end;
 
-    local procedure CreateAndUpdateFRQItem(var Item: Record Item; ReplenishmentSystem: Option; ReorderQuantity: Decimal; ReorderPoint: Decimal; SafetyStockQty: Decimal; OrderMultiple: Decimal)
+    local procedure CreateAndUpdateFRQItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReorderQuantity: Decimal; ReorderPoint: Decimal; SafetyStockQty: Decimal; OrderMultiple: Decimal)
     begin
         CreateFRQItem(Item, ReplenishmentSystem, ReorderQuantity, ReorderPoint, SafetyStockQty);
         Item.Validate("Order Multiple", OrderMultiple);
         Item.Modify(true);
     end;
 
-    local procedure CreateAndUpdateStockKeepingUnit(var Item: Record Item; LocationCode: Code[10]; ReplenishmentSystem: Option)
+    local procedure CreateAndUpdateStockKeepingUnit(var Item: Record Item; LocationCode: Code[10]; ReplenishmentSystem: Enum "Replenishment System")
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
         SKUCreationMethod: Option Location,Variant,"Location & Variant";
@@ -5233,7 +5233,7 @@ codeunit 137054 "SCM Supply Planning"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure UpdateItemReorderingPolicy(var Item: Record Item; ReorderingPolicy: Option)
+    local procedure UpdateItemReorderingPolicy(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy")
     begin
         Item.Validate("Reordering Policy", ReorderingPolicy);
         if ReorderingPolicy = Item."Reordering Policy"::"Maximum Qty." then
@@ -5263,7 +5263,7 @@ codeunit 137054 "SCM Supply Planning"
         Item.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; Quantity: Decimal; ExpectedReceiptDate: Date; LocationCode: Code[10])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; Quantity: Decimal; ExpectedReceiptDate: Date; LocationCode: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -5300,7 +5300,7 @@ codeunit 137054 "SCM Supply Planning"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; Quantity: Decimal; ShipmentDate: Date; LocationCode: Code[10])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; Quantity: Decimal; ShipmentDate: Date; LocationCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5358,7 +5358,7 @@ codeunit 137054 "SCM Supply Planning"
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", DummyCount);
     end;
 
-    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; ItemNo: Code[20]; Quantity: Decimal; DueDate: Date; LocationCode: Code[10])
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; ItemNo: Code[20]; Quantity: Decimal; DueDate: Date; LocationCode: Code[10])
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
@@ -5536,7 +5536,7 @@ codeunit 137054 "SCM Supply Planning"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure UpdatePlanningFlexibilityOnProduction(ProdOrderNo: Code[20]; Status: Option)
+    local procedure UpdatePlanningFlexibilityOnProduction(ProdOrderNo: Code[20]; Status: Enum "Production Order Status")
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
@@ -5564,7 +5564,7 @@ codeunit 137054 "SCM Supply Planning"
         TransferLine.Modify(true);
     end;
 
-    local procedure SelectProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; Status: Option)
+    local procedure SelectProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; Status: Enum "Production Order Status")
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderLine.SetRange(Status, Status);
@@ -5638,7 +5638,7 @@ codeunit 137054 "SCM Supply Planning"
         SalesLine.Modify(true);
     end;
 
-    local procedure UpdateVariantOnProduction(ProductionOrderNo: Code[20]; Status: Option; VariantCode: Code[10])
+    local procedure UpdateVariantOnProduction(ProductionOrderNo: Code[20]; Status: Enum "Production Order Status"; VariantCode: Code[10])
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
@@ -5647,7 +5647,7 @@ codeunit 137054 "SCM Supply Planning"
         ProdOrderLine.Modify(true);
     end;
 
-    local procedure SelectRequisitionLineForActionMessage(var RequisitionLine2: Record "Requisition Line"; No: Code[20]; ActionMessage: Option; DueDate: Date)
+    local procedure SelectRequisitionLineForActionMessage(var RequisitionLine2: Record "Requisition Line"; No: Code[20]; ActionMessage: Enum "Action Message Type"; DueDate: Date)
     begin
         FilterRequisitionLine(RequisitionLine2, No);
         RequisitionLine2.SetRange("Action Message", ActionMessage);
@@ -5882,7 +5882,7 @@ codeunit 137054 "SCM Supply Planning"
         OrderDate := PurchaseLine."Order Date";
     end;
 
-    local procedure CreatePlanWkshLineWithChangeQtyActionMessage(var Item: Record Item; ItemReplenishmentSystem: Option; Quantity: Decimal)
+    local procedure CreatePlanWkshLineWithChangeQtyActionMessage(var Item: Record Item; ItemReplenishmentSystem: Enum "Replenishment System"; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -6276,7 +6276,7 @@ codeunit 137054 "SCM Supply Planning"
 
         LibraryVariableStorage.Enqueue(GlobalProductionOrder[ReservFromDocIndex]."No.");
         SelectSalesLine(SalesLine, GlobalSalesHeader[ReservToDocIndex]."No.");
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
 
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<+1Y>', WorkDate));
     end;
@@ -6352,7 +6352,7 @@ codeunit 137054 "SCM Supply Planning"
         DemandDateValue[3] := LibraryRandom.RandDateFromInRange(DemandDateValue[2], FromRange, ToRange);
     end;
 
-    local procedure VerifyRequisitionLine(No: Code[20]; ActionMessage: Option; DueDate: Date; OriginalQuantity: Decimal; Quantity: Decimal; OriginalDueDate: Date; LocationCode: Code[10]; VariantCode: Code[10])
+    local procedure VerifyRequisitionLine(No: Code[20]; ActionMessage: Enum "Action Message Type"; DueDate: Date; OriginalQuantity: Decimal; Quantity: Decimal; OriginalDueDate: Date; LocationCode: Code[10]; VariantCode: Code[10])
     var
         RequisitionLine2: Record "Requisition Line";
     begin
@@ -6371,7 +6371,7 @@ codeunit 137054 "SCM Supply Planning"
         Assert.AreEqual(0, RequisitionLine2.Count, NumberOfLineEqualError);
     end;
 
-    local procedure VerifyPlanningWorksheet(var PlanningWorksheet: TestPage "Planning Worksheet"; ActionMessage: Option; No: Code[20]; DueDate: Date; OriginalQuantity: Decimal; Quantity: Decimal; OriginalDueDate: Date)
+    local procedure VerifyPlanningWorksheet(var PlanningWorksheet: TestPage "Planning Worksheet"; ActionMessage: Enum "Action Message Type"; No: Code[20]; DueDate: Date; OriginalQuantity: Decimal; Quantity: Decimal; OriginalDueDate: Date)
     begin
         // Verification of Planning Worksheet using page.
         PlanningWorksheet."Action Message".AssertEquals(ActionMessage);
@@ -6397,7 +6397,7 @@ codeunit 137054 "SCM Supply Planning"
         PurchaseLine.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyRequisitionLineForMaximumOrderQuantity(var RequisitionLine2: Record "Requisition Line"; No: Code[20]; ActionMessage: Option; DueDate: Date; Quantity: Decimal; OriginalDueDate: Date; NoOfLine: Integer)
+    local procedure VerifyRequisitionLineForMaximumOrderQuantity(var RequisitionLine2: Record "Requisition Line"; No: Code[20]; ActionMessage: Enum "Action Message Type"; DueDate: Date; Quantity: Decimal; OriginalDueDate: Date; NoOfLine: Integer)
     var
         "Count": Integer;
     begin

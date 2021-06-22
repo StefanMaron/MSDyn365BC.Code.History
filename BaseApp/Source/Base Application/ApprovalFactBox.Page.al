@@ -67,7 +67,7 @@ page 9092 "Approval FactBox"
     var
         Heading: Text[50];
     begin
-        if ApprovalEntry."Document Type" = 0 then
+        if ApprovalEntry."Document Type" = ApprovalEntry."Document Type"::" " then
             Heading := Text000
         else
             Heading := Format(ApprovalEntry."Document Type");

@@ -117,6 +117,7 @@ codeunit 1311 "Activities Mgt."
         exit(Amount);
     end;
 
+
     [Scope('OnPrem')]
     procedure SetFilterOverduePurchaseInvoice(var VendorLedgerEntry: Record "Vendor Ledger Entry"; CalledFromWebService: Boolean)
     begin

@@ -1571,7 +1571,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; CurrencyCode: Code[10])
     var
         Vendor: Record Vendor;
     begin
@@ -1944,7 +1944,7 @@ codeunit 134983 "ERM Purchase Reports"
             until Next = 0;
     end;
 
-    local procedure VerifyInteractionLogEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyInteractionLogEntry(DocumentType: Enum "Interaction Log Entry Document Type"; DocumentNo: Code[20])
     var
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
@@ -1969,7 +1969,7 @@ codeunit 134983 "ERM Purchase Reports"
             until Next = 0;
     end;
 
-    local procedure VerifyPurchaseArchive(DocumentType: Option; No: Code[20])
+    local procedure VerifyPurchaseArchive(DocumentType: Enum "Purchase Document Type"; No: Code[20])
     var
         PurchaseHeaderArchive: Record "Purchase Header Archive";
         PurchaseLineArchive: Record "Purchase Line Archive";

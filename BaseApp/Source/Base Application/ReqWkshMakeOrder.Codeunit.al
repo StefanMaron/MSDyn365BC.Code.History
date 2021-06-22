@@ -1,4 +1,4 @@
-﻿codeunit 333 "Req. Wksh.-Make Order"
+codeunit 333 "Req. Wksh.-Make Order"
 {
     Permissions = TableData "Sales Line" = m;
     TableNo = "Requisition Line";
@@ -224,8 +224,8 @@
         repeat
             LineCount := LineCount + 1;
             Window.Update(2, LineCount);
-            CheckRecurringLine(ReqLine);
-            CheckReqWkshLine(ReqLine);
+            CheckRecurringReqLine(ReqLine);
+            CheckRequisitionLine(ReqLine);
             if ReqLine.Next = 0 then
                 ReqLine.FindSet();
         until ReqLine."Line No." = StartLineNo;
@@ -245,7 +245,7 @@
         TempDocumentEntry.Copy(TempDocumentEntryNew, true);
     end;
 
-    local procedure CheckReqWkshLine(var ReqLine2: Record "Requisition Line")
+    procedure CheckRequisitionLine(var ReqLine2: Record "Requisition Line")
     var
         SalesLine: Record "Sales Line";
         Purchasing: Record Purchasing;
@@ -714,7 +714,7 @@
             PurchOrderHeader.Mark(true);
             TempDocumentEntry.Init();
             TempDocumentEntry."Table ID" := DATABASE::"Purchase Header";
-            TempDocumentEntry."Document Type" := PurchOrderHeader."Document Type"::Order;
+            TempDocumentEntry."Document Type" := PurchOrderHeader."Document Type"::Order.AsInteger();
             TempDocumentEntry."Document No." := PurchOrderHeader."No.";
             TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
             TempDocumentEntry.Insert();
@@ -825,7 +825,7 @@
             end;
     end;
 
-    local procedure CheckRecurringLine(var ReqLine2: Record "Requisition Line")
+    procedure CheckRecurringReqLine(var ReqLine2: Record "Requisition Line")
     var
         DummyDateFormula: DateFormula;
     begin
@@ -1085,7 +1085,7 @@
               "Transfer-from Code", "Purchasing Code");
     end;
 
-    local procedure CheckAddressDetails(SalesOrderNo: Code[20]; SalesLineNo: Integer; UpdateAddressDetails: Boolean) Result: Boolean
+    procedure CheckAddressDetails(SalesOrderNo: Code[20]; SalesLineNo: Integer; UpdateAddressDetails: Boolean) Result: Boolean
     var
         SalesLine: Record "Sales Line";
         Purchasing: Record Purchasing;
@@ -1193,7 +1193,7 @@
         SuppressCommit := NewSuppressCommit;
     end;
 
-    local procedure PurchaseOrderLineMatchReqLine(ReqLine: Record "Requisition Line"): Boolean
+    procedure PurchaseOrderLineMatchReqLine(ReqLine: Record "Requisition Line"): Boolean
     begin
         if PurchOrderLine."Drop Shipment" then
             exit(

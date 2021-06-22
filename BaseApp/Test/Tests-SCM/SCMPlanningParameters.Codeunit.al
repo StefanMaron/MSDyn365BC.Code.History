@@ -45,7 +45,7 @@ codeunit 137022 "SCM Planning Parameters"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning Parameters");
     end;
 
-    local procedure InitializeNoDemand(var Item: Record Item; ReorderingPolicy: Option; ReorderPoint: Integer; ReorderQty: Integer; MaximumInventory: Integer; SafetyStock: Integer)
+    local procedure InitializeNoDemand(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReorderPoint: Integer; ReorderQty: Integer; MaximumInventory: Integer; SafetyStock: Integer)
     begin
         Initialize;
 
@@ -58,7 +58,7 @@ codeunit 137022 "SCM Planning Parameters"
         Item.Get(NoDemandItem."No.");
     end;
 
-    local procedure InitializeWithDemand(var Item: Record Item; ReorderingPolicy: Integer; ReorderPoint: Integer; ReorderQty: Integer; MaxInventory: Integer; SafetyStock: Integer; DemandQuantity: Integer)
+    local procedure InitializeWithDemand(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReorderPoint: Integer; ReorderQty: Integer; MaxInventory: Integer; SafetyStock: Integer; DemandQuantity: Integer)
     var
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
@@ -95,7 +95,7 @@ codeunit 137022 "SCM Planning Parameters"
         Item.Get(WithDemandItem."No.");
     end;
 
-    local procedure InitializeItem(var Item: Record Item; ReorderingPolicy: Integer; ReorderPoint: Integer; ReorderQty: Integer; MaxInventory: Integer; SafetyStock: Integer)
+    local procedure InitializeItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReorderPoint: Integer; ReorderQty: Integer; MaxInventory: Integer; SafetyStock: Integer)
     begin
         with Item do begin
             Get("No.");

@@ -677,7 +677,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
     end;
 
-    local procedure CreateSetupForOpportunity(var SalesHeader: Record "Sales Header"; DocumentType: Option): Code[10]
+    local procedure CreateSetupForOpportunity(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[10]
     var
         Contact: Record Contact;
         CustomerTemplate: Record "Customer Template";
@@ -690,7 +690,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         exit(CustomerTemplate.Code);
     end;
 
-    local procedure FindSalesDocument(var SalesHeader: Record "Sales Header"; CustomerTemplateCode: Code[10]; SellToContactNo: Code[20]; DocumentType: Option)
+    local procedure FindSalesDocument(var SalesHeader: Record "Sales Header"; CustomerTemplateCode: Code[10]; SellToContactNo: Code[20]; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         if CustomerTemplateCode <> '' then
@@ -699,7 +699,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         SalesHeader.FindFirst;
     end;
 
-    local procedure RestoreSalesHeaderArchive(No: Code[20]; DocumentType: Option)
+    local procedure RestoreSalesHeaderArchive(No: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         SalesHeaderArchive: Record "Sales Header Archive";
         ArchiveManagement: Codeunit ArchiveManagement;

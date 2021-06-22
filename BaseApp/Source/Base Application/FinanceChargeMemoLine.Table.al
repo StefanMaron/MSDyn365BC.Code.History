@@ -1,4 +1,4 @@
-﻿table 303 "Finance Charge Memo Line"
+table 303 "Finance Charge Memo Line"
 {
     Caption = 'Finance Charge Memo Line';
 
@@ -123,7 +123,7 @@
                 "Entry No." := 0;
                 if "Document No." <> '' then begin
                     SetCustLedgEntryView;
-                    if "Document Type" <> 0 then
+                    if "Document Type" <> "Document Type"::" " then
                         CustLedgEntry.SetRange("Document Type", "Document Type");
                     CustLedgEntry.SetRange("Document No.", "Document No.");
                     if CustLedgEntry.FindFirst then
@@ -139,7 +139,7 @@
         }
         field(13; "Original Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Original Amount';
@@ -147,7 +147,7 @@
         }
         field(14; "Remaining Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Remaining Amount';
@@ -195,7 +195,7 @@
         }
         field(16; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Amount';
@@ -230,11 +230,6 @@
                             else
                                 "VAT %" := 0;
                             "VAT Amount" := Round("VAT Amount", Currency."Amount Rounding Precision");
-                        end;
-                    4:
-                        begin
-                            "VAT Amount" := 0;
-                            "VAT %" := 0;
                         end;
                 end;
             end;
@@ -278,7 +273,7 @@
         }
         field(21; "VAT Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'VAT Amount';
@@ -755,7 +750,7 @@
         if Type <> Type::"Customer Ledger Entry" then
             exit;
         SetCustLedgEntryView;
-        if "Document Type" <> 0 then
+        if "Document Type" <> "Document Type"::" " then
             CustLedgEntry.SetRange("Document Type", "Document Type");
         if "Document No." <> '' then
             CustLedgEntry.SetRange("Document No.", "Document No.");

@@ -27,7 +27,7 @@ codeunit 6705 "Booking Service Sync."
     begin
         O365SyncManagement.ShowProgress(RetrieveBookingServicesMsg);
         GetBookingServices(BookingSync);
-        SendTraceTag('0000ACJ', O365SyncManagement.TraceCategory(), Verbosity::Normal, StrSubstNo(BookingsCountTelemetryTxt, TempItem.Count()), DataClassification::SystemMetadata);
+        Session.LogMessage('0000ACJ', StrSubstNo(BookingsCountTelemetryTxt, TempItem.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
 
         O365SyncManagement.ShowProgress(ProcessNavServiceItemsMsg);
         ProcessNavServices(BookingSync);
@@ -175,7 +175,7 @@ codeunit 6705 "Booking Service Sync."
         Found: Boolean;
     begin
         if LocalItem.FindSet then begin
-            SendTraceTag('0000ACK', O365SyncManagement.TraceCategory(), Verbosity::Normal, StrSubstNo(LocalCountTelemetryTxt, LocalItem.Count()), DataClassification::SystemMetadata);
+            Session.LogMessage('0000ACK', StrSubstNo(LocalCountTelemetryTxt, LocalItem.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
             repeat
                 Clear(Item);
                 Found := FindBookingServiceInNav(LocalItem, Item);

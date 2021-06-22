@@ -1,4 +1,4 @@
-﻿page 5985 "Service Item Replacement"
+page 5985 "Service Item Replacement"
 {
     Caption = 'Service Item Replacement';
     PageType = StandardDialog;
@@ -174,17 +174,19 @@
         Item: Record Item;
         ServItem: Record "Service Item";
         ItemVariant: Record "Item Variant";
-        Replacement: Option "Temporary",Permanent;
-        OldSerialNo: Code[50];
-        NewSerialNo: Code[50];
-        ServItemNo: Code[20];
-        ItemNo: Code[20];
-        VariantCode: Code[10];
         ServItemVariantCode: Code[10];
-        CopyComponentsFrom: Option "None","Item BOM","Old Service Item","Old Service Item w/o Serial No.";
         Text002: Label 'There is no %1 in the %2 %3 %4.', Comment = 'There is no Assembly BOM in the Item No. 1002';
         [InDataSet]
         CopyComponentsEnable: Boolean;
+
+    protected var
+        CopyComponentsFrom: Option "None","Item BOM","Old Service Item","Old Service Item w/o Serial No.";
+        Replacement: Option "Temporary",Permanent;
+        ServItemNo: Code[20];
+        ItemNo: Code[20];
+        VariantCode: Code[10];
+        OldSerialNo: Code[50];
+        NewSerialNo: Code[50];
 
     procedure SetValues(ServItemNo2: Code[20]; ItemNo2: Code[20]; VariantCode2: Code[10])
     begin

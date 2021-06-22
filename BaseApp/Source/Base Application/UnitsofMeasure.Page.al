@@ -139,9 +139,13 @@ page 209 "Units of Measure"
 
                         trigger OnAction()
                         var
+                            UnitofMeasure: Record "Unit of Measure";
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CurrPage.SetSelectionFilter(UnitofMeasure);
+                            RecRef.GetTable(UnitofMeasure);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
                         end;
                     }
                 }

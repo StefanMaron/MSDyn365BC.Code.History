@@ -1865,7 +1865,7 @@ codeunit 137038 "SCM Transfers"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, LibraryRandom.RandDec(100, 0));
 
         // [WHEN] Invoke "Get Transfer Receipt Lines" action on the "Item Charge Assignment (Purch)" page for the Purchase Line "PO01",10000
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
 
         // [THEN] Only Transfer Receipt Line 10000 shown for the Transfer Receipt "TR1"
         // Verification done in PostedTransferReceiptLinesModalPageHandler
@@ -2188,7 +2188,7 @@ codeunit 137038 "SCM Transfers"
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
     end;
 
-    local procedure CreateAndPostItemJrnl(EntryType: Option; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreateAndPostItemJrnl(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -2196,7 +2196,7 @@ codeunit 137038 "SCM Transfers"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateAndPostItemJnlWithCostLocationVariant(EntryType: Option; ItemNo: Code[20]; Qty: Decimal; Cost: Decimal; LocationCode: Code[10]; VariantCode: Code[10])
+    local procedure CreateAndPostItemJnlWithCostLocationVariant(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Qty: Decimal; Cost: Decimal; LocationCode: Code[10]; VariantCode: Code[10])
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -2267,7 +2267,7 @@ codeunit 137038 "SCM Transfers"
         exit(PurchRcptHeader."No.");
     end;
 
-    local procedure CreateItemJrnl(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreateItemJrnl(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Qty: Decimal)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -2656,7 +2656,7 @@ codeunit 137038 "SCM Transfers"
         TransferRoute.Modify(true);
     end;
 
-    local procedure UpdateStockKeepingUnit(LocationCode: Code[10]; ItemNo: Code[20]; ReplenishmentSystem: Option; VendorNo: Code[20]; TransferfromCode: Code[10])
+    local procedure UpdateStockKeepingUnit(LocationCode: Code[10]; ItemNo: Code[20]; ReplenishmentSystem: Enum "Replenishment System"; VendorNo: Code[20]; TransferfromCode: Code[10])
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
@@ -2840,7 +2840,7 @@ codeunit 137038 "SCM Transfers"
         end;
     end;
 
-    local procedure VerifyItemApplicationEntryCost(ItemNo: Code[20]; EntryType: Option; ExpectedCost: Decimal)
+    local procedure VerifyItemApplicationEntryCost(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; ExpectedCost: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

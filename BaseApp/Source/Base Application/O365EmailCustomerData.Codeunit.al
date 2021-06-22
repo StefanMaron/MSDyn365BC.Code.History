@@ -570,17 +570,13 @@ codeunit 2380 "O365 Email Customer Data"
     end;
 
     local procedure InsertDraftInvoices(var Customer: Record Customer)
-    var
-        DummySalesHeader: Record "Sales Header";
     begin
-        InsertUnpostedSalesHeaders(Customer, DummySalesHeader."Document Type"::Invoice, DraftInvoicesTxt);
+        InsertUnpostedSalesHeaders(Customer, "Sales Document Type"::Invoice, DraftInvoicesTxt);
     end;
 
     local procedure InsertDraftInvoiceLines(var Customer: Record Customer)
-    var
-        DummySalesHeader: Record "Sales Header";
     begin
-        InsertUnpostedSalesLines(Customer, DummySalesHeader."Document Type"::Invoice, DraftInvoiceLinesTxt);
+        InsertUnpostedSalesLines(Customer, "Sales Document Type"::Invoice, DraftInvoiceLinesTxt);
     end;
 
     local procedure InsertEstimates(var Customer: Record Customer)
@@ -591,13 +587,11 @@ codeunit 2380 "O365 Email Customer Data"
     end;
 
     local procedure InsertEstimateLines(var Customer: Record Customer)
-    var
-        DummySalesHeader: Record "Sales Header";
     begin
-        InsertUnpostedSalesLines(Customer, DummySalesHeader."Document Type"::Quote, QuoteLinesTxt);
+        InsertUnpostedSalesLines(Customer, "Sales Document Type"::Quote, QuoteLinesTxt);
     end;
 
-    local procedure InsertUnpostedSalesHeaders(var Customer: Record Customer; DocumentType: Option; SheetName: Text)
+    local procedure InsertUnpostedSalesHeaders(var Customer: Record Customer; DocumentType: Enum "Sales Document Type"; SheetName: Text)
     var
         SalesHeader: Record "Sales Header";
         RecRef: RecordRef;
@@ -645,7 +639,7 @@ codeunit 2380 "O365 Email Customer Data"
         WriteToSheet(RecRef, SheetName);
     end;
 
-    local procedure InsertUnpostedSalesLines(var Customer: Record Customer; DocumentType: Option; SheetName: Text)
+    local procedure InsertUnpostedSalesLines(var Customer: Record Customer; DocumentType: Enum "Sales Document Type"; SheetName: Text)
     var
         SalesLine: Record "Sales Line";
         RecRef: RecordRef;

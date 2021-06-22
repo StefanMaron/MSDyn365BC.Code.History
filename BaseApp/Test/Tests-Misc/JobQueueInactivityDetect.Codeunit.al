@@ -155,14 +155,12 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         JobQueueEntry[2].Find;
         JobQueueEntry[2].TestField(Status, JobQueueEntry[2].Status::"On Hold with Inactivity Timeout");
         // [THEN] Job 'ITEM2' gets status "Ready"
-
-        JobQueueEntry[3].Find;
         if TaskScheduler.CanCreateTask() then begin
+            JobQueueEntry[3].Find;
             JobQueueEntry[3].TestField(Status, JobQueueEntry[3].Status::Ready);
             // [THEN] new "Earliest Start Date/Time" is about 1 second from now
             VerifyDateTimeDifference(CurrentDateTime, JobQueueEntry[3]."Earliest Start Date/Time", 1);
         end;
-
     end;
 
     [Test]

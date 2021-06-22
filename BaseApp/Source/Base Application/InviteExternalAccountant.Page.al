@@ -200,6 +200,9 @@ page 9033 "Invite External Accountant"
 
     trigger OnOpenPage()
     var
+        DummyEmailAccount: Record "Email Account";
+        EmailFeature: Codeunit "Email Feature";
+        EmailScenario: Codeunit "Email Scenario";
         EnvironmentInfo: Codeunit "Environment Information";
         InviteExternalAccountant: Codeunit "Invite External Accountant";
         NavUserAccountHelper: DotNet NavUserAccountHelper;
@@ -211,9 +214,12 @@ page 9033 "Invite External Accountant"
             Error(SaaSOnlyErrorErr);
 
         ProgressWindow.Open(WizardOpenValidationMsg);
-
-        if not InviteExternalAccountant.VerifySMTPIsEnabledAndSetup then
-            Error(SMTPMustBeSetupErrorErr);
+        if EmailFeature.IsEnabled() then begin
+            if not EmailScenario.GetEmailAccount(Enum::"Email Scenario"::"Invite External Accountant", DummyEmailAccount) then
+                Error(NoEmailAccountDefinedErr, Enum::"Email Scenario"::"Invite External Accountant");
+        end else
+            if not InviteExternalAccountant.VerifySMTPIsEnabledAndSetup() then
+                Error(SMTPMustBeSetupErrorErr);
 
         if not InviteExternalAccountant.InvokeIsExternalAccountantLicenseAvailable(ErrorMessage, TargetLicense) then begin
             OnInvitationNoExternalAccountantLicenseFail;
@@ -276,8 +282,6 @@ page 9033 "Invite External Accountant"
         InviteProgressWindowMsg: Label 'Inviting external accountant.  This process could take a little while.';
         EmailSubjectTxt: Label 'You have been invited to %1', Comment = '%1 - product name';
         OpenTheFollowingLinkTxt: Label 'Open the following link to verify that you can log in.';
-        ToAddMyCompanyTxt: Label 'To add my company to your Accountant Hub, click <a href="%1">here</a>.', Comment = '%1=Link for creating a client in the Accountant Hub.';
-        EmailNotUsingAccountantPortalTxt: Label 'Not using the Accountant Hub?  Click <a href="https://dynamics.microsoft.com/en-us/business-central/accountants">here</a> to learn more.', Comment = '{Do not translate html portion.}';
         LicenseAlreadyAssignedTxt: Label 'A license is already assigned to %1.', Comment = '%1 - user email';
         InvitationResult: Text;
         FailureTxt: Label 'Failure';
@@ -285,9 +289,9 @@ page 9033 "Invite External Accountant"
         EmailErrorTxt: Label 'Error occurred while sending email.';
         NotAllFieldsEnteredErrorErr: Label 'To continue, enter all required fields.';
         WasInvitationSuccessful: Boolean;
+        NoEmailAccountDefinedErr: Label 'Email is not set up for the action you are trying to take. Ask your administrator to either add the %1 scenario to your email account, or to specify a default account for email scenarios.', Comment = '%1 = email scenario, e.g. "Email Printer"';
         SMTPMustBeSetupErrorErr: Label 'SMTP must be configured prior to inviting external accountant. Contact your administrator.';
         NoUserTableWritePermissionErr: Label 'This step adds a user to your company, and only your administrator can do that. Please contact your administrator.';
-        UrlPageModeFilterTxt: Label '/?page=21&mode=Edit&filter=Customer.''Client Link'' IS ''''''%1'''''' AND Customer.Name IS ''''''%2''''''', Comment = '%1=Link to client.  %2 =client name.', Locked = true;
         TargetLicense: Text;
 
     local procedure EnableControls()
@@ -334,13 +338,10 @@ page 9033 "Invite External Accountant"
 
     local procedure Invite()
     var
-        SMTPMail: Codeunit "SMTP Mail";
-        MailManagement: Codeunit "Mail Management";
         AzureADGraph: Codeunit "Azure AD Graph";
         GuestGraphUser: DotNet UserInfo;
         TenantDetail: DotNet TenantInfo;
         ProgressWindow: Dialog;
-        SendToList: List of [Text];
         InvitedUserId: Guid;
         InviteRedeemUrl: Text;
         ErrorMessage: Text;
@@ -391,12 +392,7 @@ page 9033 "Invite External Accountant"
         end else
             Message(StrSubstNo(LicenseAlreadyAssignedTxt, NewUserEmailAddress));
 
-        SendToList.Add(NewUserEmailAddress);
-
-        SMTPMail.CreateMessage('', MailManagement.GetSenderEmailAddress, SendToList,
-          StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing), DefineFullEmailBody(NewUserWelcomeEmail), true);
-
-        if not SMTPMail.Send then begin
+        if not SendInvitationEmail(NewUserEmailAddress) then begin
             InvitationResult := FailureTxt;
             InviteProgress := StrSubstNo(InvitationErrorTxt, EmailTxt);
             InviteExternalAccountant.SendTelemetryForWizardFailure(EmailTxt, EmailErrorTxt);
@@ -412,6 +408,30 @@ page 9033 "Invite External Accountant"
         InviteExternalAccountant.UpdateAssistedSetup;
 
         CurrPage.Update(false);
+    end;
+
+    local procedure SendInvitationEmail(SendTo: Text): Boolean
+    var
+        EmailAccount: Record "Email Account";
+        Email: Codeunit Email;
+        EmailMessage: Codeunit "Email Message";
+        MailManagement: Codeunit "Mail Management";
+        EmailFeature: Codeunit "Email Feature";
+        EmailScenario: Codeunit "Email Scenario";
+        SMTPMail: Codeunit "SMTP Mail";
+        SendToList: List of [Text];
+    begin
+        SendToList.Add(SendTo);
+        if EmailFeature.IsEnabled() then begin
+            EmailMessage.CreateMessage(SendToList, StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing),
+                    DefineFullEmailBody(NewUserWelcomeEmail), true);
+            EmailScenario.GetEmailAccount(Enum::"Email Scenario"::"Invite External Accountant", EmailAccount);
+            exit(Email.Send(EmailMessage.GetId(), EmailAccount."Account Id", EmailAccount.Connector));
+        end else begin
+            SMTPMail.CreateMessage('', MailManagement.GetSenderEmailAddress(), SendToList,
+              StrSubstNo(EmailSubjectTxt, PRODUCTNAME.Marketing), DefineFullEmailBody(NewUserWelcomeEmail), true);
+            exit(SMTPMail.Send());
+        end;
     end;
 
     local procedure ResetControls()
@@ -451,9 +471,7 @@ page 9033 "Invite External Accountant"
         EmailBody := EmailBody + OpenTheFollowingLinkTxt + LineBreakForEmail;
         EmailBody := EmailBody + GetWebClientUrl + LineBreakForEmail;
         EmailBody := EmailBody + LineBreakForEmail + LineBreakForEmail;
-        EmailBody := EmailBody + StrSubstNo(ToAddMyCompanyTxt, GetCreateClientUrl) + LineBreakForEmail;
         EmailBody := EmailBody + LineBreakForEmail + LineBreakForEmail;
-        EmailBody := EmailBody + EmailNotUsingAccountantPortalTxt + LineBreakForEmail;
         exit(EmailBody)
     end;
 
@@ -501,26 +519,6 @@ page 9033 "Invite External Accountant"
         ClientUrl := ClientUrl + '?redirectedfromsignup=1';
 
         exit(ClientUrl);
-    end;
-
-    local procedure GetCreateClientUrl(): Text
-    var
-        TypeHelper: Codeunit "Type Helper";
-        UrlHelper: Codeunit "Url Helper";
-        AzureADGraph: Codeunit "Azure AD Graph";
-        TenantDetail: DotNet TenantInfo;
-        CreateClientUrl: Text;
-        WebClientUrl: Text;
-        TenantDisplayName: Text;
-    begin
-        AzureADGraph.GetTenantDetail(TenantDetail);
-        TenantDisplayName := TenantDetail.DisplayName;
-        WebClientUrl := GetWebClientUrl;
-
-        CreateClientUrl := UrlHelper.GetAccountantHubUrl +
-          StrSubstNo(UrlPageModeFilterTxt, TypeHelper.UrlEncode(WebClientUrl), TypeHelper.UrlEncode(TenantDisplayName));
-
-        exit(CreateClientUrl);
     end;
 
     [IntegrationEvent(false, false)]

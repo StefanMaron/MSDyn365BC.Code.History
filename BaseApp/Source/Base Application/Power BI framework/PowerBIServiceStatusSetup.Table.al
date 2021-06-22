@@ -1,9 +1,8 @@
+/// <summary>
+/// Contains only one record that tracks whether the Power BI service is throttling the calls coming from Business Central, and when the service will be available again.
+/// </summary>
 table 6309 "Power BI Service Status Setup"
 {
-    // // Singleton table for tracking across companies whether the Power BI service for deploying
-    // // OOB reports appears to currently be accessible or not, based on the Retry After times
-    // // received when uploading reports.
-
     Caption = 'Power BI Service Status Setup';
     DataPerCompany = false;
     ReplicateData = false;

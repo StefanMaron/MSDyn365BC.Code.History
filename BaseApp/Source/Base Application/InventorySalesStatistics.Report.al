@@ -5,6 +5,7 @@ report 712 "Inventory - Sales Statistics"
     ApplicationArea = Suite;
     Caption = 'Inventory Sales Statistics';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

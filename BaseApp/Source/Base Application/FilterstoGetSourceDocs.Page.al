@@ -143,6 +143,8 @@ page 5784 "Filters to Get Source Docs."
         WhseReceiptHeader: Record "Warehouse Receipt Header";
         DataCaption: Text[250];
         ShowRequestForm: Boolean;
+
+    protected var
         RequestType: Option Receive,Ship;
 
     procedure SetOneCreatedShptHeader(WhseShptHeader2: Record "Warehouse Shipment Header")

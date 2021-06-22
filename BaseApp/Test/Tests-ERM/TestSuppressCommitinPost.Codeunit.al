@@ -1,4 +1,4 @@
-codeunit 134071 "Test Suppress Commit in Post"
+﻿codeunit 134071 "Test Suppress Commit in Post"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1042,9 +1042,8 @@ codeunit 134071 "Test Suppress Commit in Post"
     local procedure CreateGLAccountAndSetupForPrePayment(var GLAccount: Record "G/L Account")
     var
         GLAccount2: Record "G/L Account";
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
-        LibrarySales.CreatePrepaymentVATSetup(GLAccount2, VATCalculationType::"Normal VAT");
+        LibrarySales.CreatePrepaymentVATSetup(GLAccount2, "Tax Calculation Type"::"Normal VAT");
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.TransferFields(GLAccount2, false);
         GLAccount.Modify(true);

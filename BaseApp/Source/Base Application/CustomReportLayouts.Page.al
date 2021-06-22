@@ -108,7 +108,7 @@ page 9650 "Custom Report Layouts"
 
                 trigger OnAction()
                 begin
-                    CopyBuiltInLayout;
+                    CopyBuiltInReportLayout();
                 end;
             }
             action(CopyRec)
@@ -122,7 +122,7 @@ page 9650 "Custom Report Layouts"
 
                 trigger OnAction()
                 begin
-                    CopyRecord;
+                    CopyReportLayout();
                 end;
             }
         }
@@ -151,7 +151,7 @@ page 9650 "Custom Report Layouts"
 
                 trigger OnAction()
                 begin
-                    ImportLayout('');
+                    ImportReportLayout('');
                 end;
             }
             action(ExportLayout)
@@ -165,7 +165,7 @@ page 9650 "Custom Report Layouts"
 
                 trigger OnAction()
                 begin
-                    ExportLayout('', true);
+                    ExportReportLayout('', true);
                 end;
             }
             action(EditLayout)
@@ -181,7 +181,7 @@ page 9650 "Custom Report Layouts"
 
                 trigger OnAction()
                 begin
-                    EditLayout;
+                    EditReportLayout();
                 end;
             }
             action(UpdateWordLayout)
@@ -197,7 +197,7 @@ page 9650 "Custom Report Layouts"
                 trigger OnAction()
                 begin
                     if CanBeModified then
-                        if UpdateLayout(false, false) then
+                        if UpdateReportLayout(false, false) then
                             Message(UpdateSuccesMsg, Format(Type))
                         else
                             Message(UpdateNotRequiredMsg, Format(Type));

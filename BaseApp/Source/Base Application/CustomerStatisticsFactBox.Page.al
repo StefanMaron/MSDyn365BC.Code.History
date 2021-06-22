@@ -188,25 +188,25 @@ page 9082 "Customer Statistics FactBox"
             CustomerNoFilter := GetFilter("No.");
         end;
 
-        if (CustomerNoFilter <> '') then begin
-            CustomerNo := CopyStr(CustomerNoFilter, 1, MaxStrLen(CustomerNo));
-            if CustomerNo <> CurrCustomerNo then begin
-                CurrCustomerNo := CustomerNo;
-                CalculateFieldValues(CurrCustomerNo);
-            end;
+        CustomerNo := CopyStr(CustomerNoFilter, 1, MaxStrLen(CustomerNo));
+        if CustomerNo <> CurrCustomerNo then begin
+            CurrCustomerNo := CustomerNo;
+            CalculateFieldValues(CurrCustomerNo);
         end;
     end;
 
     var
         Text000: Label 'Overdue Amounts (LCY) as of %1';
         ShowCustomerNo: Boolean;
+        TaskIdCalculateCue: Integer;
+        CurrCustomerNo: Code[20];
+
+    protected var
         LastPaymentDate: Date;
         TotalAmountLCY: Decimal;
         OverdueBalance: Decimal;
         SalesLCY: Decimal;
         InvoicedPrepmtAmountLCY: Decimal;
-        TaskIdCalculateCue: Integer;
-        CurrCustomerNo: Code[20];
 
     procedure CalculateFieldValues(CustomerNo: Code[20])
     var
@@ -216,11 +216,14 @@ page 9082 "Customer Statistics FactBox"
         if (TaskIdCalculateCue <> 0) then
             CurrPage.CancelBackgroundTask(TaskIdCalculateCue);
 
-        LastPaymentDate := WorkDate();
-        TotalAmountLCY := 0.0;
-        OverdueBalance := 0.0;
-        SalesLCY := 0.0;
-        InvoicedPrepmtAmountLCY := 0.0;
+        Clear(LastPaymentDate);
+        Clear(TotalAmountLCY);
+        Clear(OverdueBalance);
+        Clear(SalesLCY);
+        Clear(InvoicedPrepmtAmountLCY);
+
+        if CustomerNo = '' then
+            exit;
 
         Args.Add(CalculateCustomerStats.GetCustomerNoLabel(), CustomerNo);
         CurrPage.EnqueueBackgroundTask(TaskIdCalculateCue, Codeunit::"Calculate Customer Stats.", Args);
@@ -232,6 +235,9 @@ page 9082 "Customer Statistics FactBox"
         DictionaryValue: Text;
     begin
         if (TaskId = TaskIdCalculateCue) then begin
+            if Results.Count() = 0 then
+                exit;
+
             if TryGetDictionaryValueFromKey(Results, CalculateCustomerStats.GetLastPaymentDateLabel(), DictionaryValue) then
                 Evaluate(LastPaymentDate, DictionaryValue);
 
@@ -260,7 +266,7 @@ page 9082 "Customer Statistics FactBox"
         PAGE.Run(PAGE::"Customer Card", Rec);
     end;
 
-    [Obsolete('Visibility of the Customer No. can be controlled through personalizaition or PTE', '16.0')]
+    [Obsolete('Visibility of the Customer No. can be controlled through personalizaition or PTE', '17.0')]
     procedure SetCustomerNoVisibility(Visible: Boolean)
     begin
         ShowCustomerNo := Visible;

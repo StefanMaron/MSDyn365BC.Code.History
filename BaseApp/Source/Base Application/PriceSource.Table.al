@@ -1,5 +1,9 @@
 table 7005 "Price Source"
 {
+    #pragma warning disable AS0034
+    TableType = Temporary;
+    #pragma warning restore AS0034
+
     fields
     {
         field(1; "Source Type"; Enum "Price Source Type")
@@ -21,6 +25,7 @@ table 7005 "Price Source"
                 else begin
                     PriceSourceInterface := "Source Type";
                     PriceSourceInterface.GetNo(Rec);
+                    SetFilterSourceNo();
                 end;
             end;
         }
@@ -33,7 +38,8 @@ table 7005 "Price Source"
                     InitSource()
                 else begin
                     PriceSourceInterface := "Source Type";
-                    PriceSourceInterface.GetId(Rec)
+                    PriceSourceInterface.GetId(Rec);
+                    SetFilterSourceNo();
                 end;
             end;
         }
@@ -46,6 +52,7 @@ table 7005 "Price Source"
                 PriceSourceInterface.VerifyParent(Rec);
                 "Source No." := '';
                 Clear("Source ID");
+                "Filter Source No." := "Parent Source No.";
             end;
         }
         field(5; "Entry No."; Integer)
@@ -84,6 +91,11 @@ table 7005 "Price Source"
             begin
                 VerifyDates();
             end;
+        }
+        field(19; "Filter Source No."; Code[20])
+        {
+            DataClassification = SystemMetadata;
+            Editable = false;
         }
         field(21; "Allow Line Disc."; Boolean)
         {
@@ -146,6 +158,7 @@ table 7005 "Price Source"
         Clear("Source ID");
         "Parent Source No." := '';
         "Source No." := '';
+        "Filter Source No." := '';
         GetPriceType();
     end;
 
@@ -217,5 +230,13 @@ table 7005 "Price Source"
     begin
         if "Source Type" = "Source Type"::Campaign then
             Error(CampaignDateErr);
+    end;
+
+    local procedure SetFilterSourceNo()
+    begin
+        if "Parent Source No." <> '' then
+            "Filter Source No." := "Parent Source No."
+        else
+            "Filter Source No." := "Source No."
     end;
 }

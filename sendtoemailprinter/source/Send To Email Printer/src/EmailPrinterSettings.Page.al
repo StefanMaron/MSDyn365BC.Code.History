@@ -113,7 +113,10 @@ page 2650 "Email Printer Settings"
             group(SMTPSetup)
             {
                 ShowCaption = false;
-                Visible = Not IsSmtpSetup;
+                Visible = (not IsSmtpSetup) and (not IsEmailFeatureEnabled);
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with the Email Module';
+                ObsoleteTag = '17.0';
 
                 group(SMTPSetupInner)
                 {
@@ -125,7 +128,7 @@ page 2650 "Email Printer Settings"
                         ShowCaption = false;
                         Style = Attention;
                         Caption = 'This printer requires SMTP mail setup to print the jobs.';
-                        ToolTip = 'Specifies the requirement for the prionter.';
+                        ToolTip = 'Specifies the requirement for the printer.';
                     }
                     field(SetupSMTP; SetupSMTPLbl)
                     {
@@ -137,6 +140,37 @@ page 2650 "Email Printer Settings"
                         trigger OnDrillDown()
                         begin
                             Page.Run(Page::"SMTP Mail Setup");
+                        end;
+                    }
+                }
+            }
+            group(EmailSetup)
+            {
+                ShowCaption = false;
+                Visible = (not IsEmailAccountDefined) and IsEmailFeatureEnabled;
+
+                group(EmailSetupInner)
+                {
+                    ShowCaption = false;
+                    field(EmailAccountRequired; EmailAccountRequiredLbl)
+                    {
+                        ApplicationArea = All;
+                        Editable = false;
+                        ShowCaption = false;
+                        Style = Attention;
+                        Caption = 'This printer requires email account setup to print the jobs.';
+                        ToolTip = 'Specifies the requirement for the printer.';
+                    }
+                    field(SetupEmailAccount; RegisterEmailAccountLbl)
+                    {
+                        ApplicationArea = All;
+                        Editable = false;
+                        ShowCaption = false;
+                        Caption = 'Set up email account';
+                        ToolTip = 'Open Email Accounts page.';
+                        trigger OnDrillDown()
+                        begin
+                            Page.Run(Page::"Email Accounts");
                         end;
                     }
                 }
@@ -177,12 +211,18 @@ page 2650 "Email Printer Settings"
 
     var
         SetupPrinters: Codeunit "Setup Printers";
+        EmailFeature: Codeunit "Email Feature";
+        EmailAccount: Codeunit "Email Account";
         IsSizeCustom: Boolean;
         IsSmtpSetup: Boolean;
+        IsEmailFeatureEnabled: Boolean;
+        IsEmailAccountDefined: Boolean;
         NewMode: Boolean;
         DeleteMode: Boolean;
         SetupSMTPLbl: Label 'Set up SMTP';
+        RegisterEmailAccountLbl: Label 'Register email account';
         SMTPSetupRequiredLbl: Label 'This printer requires SMTP mail setup to print the jobs.';
+        EmailAccountRequiredLbl: Label 'This printer requires an email account to be registered to print the jobs.';
         LearnMoreActionLbl: Label 'Learn more';
         PrintPrivacyNotificationMsg: Label 'Print jobs will be sent to the specified email address. Please take privacy precautions.';
         PrintPrivacyNotificationGuidTok: Label 'f0178e0e-e19a-4a7c-bdbb-843c37d9125a', Locked = true;
@@ -209,8 +249,13 @@ page 2650 "Email Printer Settings"
     end;
 
     trigger OnAfterGetCurrRecord()
+    var
+        EmailAccount: Record "Email Account";
+        EmailScenario: Codeunit "Email Scenario";
     begin
         IsSizeCustom := SetupPrinters.IsPaperSizeCustom("Paper Size");
         IsSmtpSetup := SetupPrinters.IsSMTPSetup();
+        IsEmailFeatureEnabled := EmailFeature.IsEnabled();
+        IsEmailAccountDefined := EmailScenario.GetEmailAccount(Enum::"Email Scenario"::"Email Printer", EmailAccount);
     end;
 }

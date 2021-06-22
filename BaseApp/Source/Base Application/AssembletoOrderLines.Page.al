@@ -24,7 +24,7 @@ page 914 "Assemble-to-Order Lines"
 
                     trigger OnDrillDown()
                     begin
-                        ShowAvailabilityWarning;
+                        ShowAvailabilityWarningPage();
                     end;
                 }
                 field(Type; Type)
@@ -188,7 +188,7 @@ page 914 "Assemble-to-Order Lines"
 
                 trigger OnAction()
                 begin
-                    ShowReservation;
+                    ShowReservation();
                 end;
             }
             action("Select Item Substitution")
@@ -285,7 +285,7 @@ page 914 "Assemble-to-Order Lines"
 
                 trigger OnAction()
                 begin
-                    ShowDimensions;
+                    ShowDimensions();
                 end;
             }
             action("Item &Tracking Lines")
@@ -300,7 +300,7 @@ page 914 "Assemble-to-Order Lines"
 
                 trigger OnAction()
                 begin
-                    OpenItemTrackingLines;
+                    OpenItemTrackingLines();
                 end;
             }
             group("Item Availability by")

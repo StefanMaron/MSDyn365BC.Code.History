@@ -132,7 +132,7 @@ codeunit 134554 "ERM Cash Flow - Posting"
         CreateGLBudgetCFWorksheetLine(GLBudgetEntry, CFWorksheetLine, CashFlowForecast, LibraryRandom.RandDec(100, 2));
 
         // Exercise
-        CFWorksheetLine.Validate("Source Type", LibraryRandom.RandIntInRange(1, CFWorksheetLine."Source Type"::"G/L Budget" - 1));
+        CFWorksheetLine.Validate("Source Type", LibraryRandom.RandIntInRange(1, CFWorksheetLine."Source Type"::"G/L Budget".AsInteger() - 1));
         CFWorksheetLine.Modify();
         LibraryCF.PostJournalLines(CFWorksheetLine);
 

@@ -51,7 +51,6 @@ codeunit 134387 "ERM Sales Documents III"
         WhseShipmentIsRequiredErr: Label 'Warehouse Shipment is required for Line No.';
         WhseReceiveIsRequiredErr: Label 'Warehouse Receive is required for Line No.';
         SalesOrderArchiveRespCenterErr: Label 'Sales Order Archives displays documents for Responisbility Center that should not be shown for current user';
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         InvDiscAmtInSalesInvErr: Label 'Incorrect Inv. Discount Amount in Sales Invoice Line created by Get Shipment Lines function.';
         OptionString: Option PostedReturnReceipt,PostedInvoices,PostedShipments,PostedCrMemo;
         ShipToContactMustBeEditableErr: Label 'Ship-to Contact must be editable.';
@@ -69,6 +68,10 @@ codeunit 134387 "ERM Sales Documents III"
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         TaxAreaCodeInvalidErr: Label 'The Tax Area does not exist. Identification fields and values: Code=''%1''';
         ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
+        InternetURLTxt: Label 'www.microsoft.com', Locked = true;
+        HttpTxt: Label 'http://', Locked = true;
+        InvalidURLErr: Label 'URL must be prefix with http.';
+        PackageTrackingNoErr: Label 'Package Tracking No does not exist.';
         CannotAllowInvDiscountErr: Label 'The value of the Allow Invoice Disc. field is not valid when the VAT Calculation Type field is set to "Full VAT".';
         PostingPreviewNoTok: Label '***', Locked = true;
 
@@ -480,7 +483,7 @@ codeunit 134387 "ERM Sales Documents III"
 
         // Setup: Create Sales Return Order using Copy Document and post it.
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::"Return Order", SalesHeader."Sell-to Customer No.");
-        LibrarySales.CopySalesDocument(SalesHeader2, DocType::"Posted Invoice", DocumentNo, true, false);  // Set TRUE for Include Header and FALSE for Recalculate Lines.
+        LibrarySales.CopySalesDocument(SalesHeader2, "Sales Document Type From"::"Posted Invoice", DocumentNo, true, false);  // Set TRUE for Include Header and FALSE for Recalculate Lines.
         LibrarySales.PostSalesDocument(SalesHeader2, true, false);
 
         // Setup: Create Sales Credit Memo using Get Posted Document Lines.
@@ -1070,7 +1073,7 @@ codeunit 134387 "ERM Sales Documents III"
 
         CreateSalesDocumentItem(SalesHeader, SalesHeader."Document Type"::Order, CreateTrackedItem);
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine.Type::Item);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Create Sales Return Order, update 'Apply from Item Entry'.
@@ -1155,7 +1158,7 @@ codeunit 134387 "ERM Sales Documents III"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Unit test
-        asserterror SalesDocLineQtyValidation(2);  // 2 => Invoice
+        asserterror SalesDocLineQtyValidation("Sales Document Type"::Invoice);
         Assert.ExpectedError(WhseShipmentIsRequiredErr);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -1167,7 +1170,7 @@ codeunit 134387 "ERM Sales Documents III"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Unit test
-        asserterror SalesDocLineQtyValidation(3);  // 3 => Credit Memo
+        asserterror SalesDocLineQtyValidation("Sales Document Type"::"Credit Memo");
         Assert.ExpectedError(WhseReceiveIsRequiredErr);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -1231,7 +1234,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [WHEN] Create new Sales Credit Memo using Copy Document
         LibrarySales.CreateSalesHeader(
           SalesHeaderDst, SalesHeaderDst."Document Type"::"Credit Memo", SalesHeaderSrc."Sell-to Customer No.");
-        LibrarySales.CopySalesDocument(SalesHeaderDst, DocType::"Posted Invoice", DocumentNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeaderDst, "Sales Document Type From"::"Posted Invoice", DocumentNo, true, false);
 
         // [THEN] Sales Credit Memo "Line Discount Amount" = 1
         FindSalesLine(SalesLine, SalesHeaderDst."Document Type", SalesHeaderDst."No.", SalesLine.Type::"G/L Account");
@@ -1428,7 +1431,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
 
         // [WHEN] Run Copy Document for Posted Sales Invoice
-        LibrarySales.CopySalesDocument(SalesHeader, DocType::"Posted Invoice", PostedDocumentNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", PostedDocumentNo, true, false);
 
         // [THEN] Posted Sales Invoice is copied
         FilterSalesCreditMemoLine(SalesLine, SalesHeader."No.", Item."No.");
@@ -1463,7 +1466,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [GIVEN] Second Sales Invoice Tracked Line with type "Item"
         ItemNo := CreateTrackedItem;
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // [GIVEN] Post Sales Invoice
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1472,7 +1475,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
 
         // [WHEN] Run Copy Document for Posted Sales Invoice
-        LibrarySales.CopySalesDocument(SalesHeader, DocType::"Posted Invoice", PostedDocumentNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", PostedDocumentNo, true, false);
 
         // [THEN] Posted Sales Invoice is copied
         FilterSalesCreditMemoLine(SalesLine, SalesHeader."No.", ItemNo);
@@ -1832,7 +1835,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 382356] It should be possible to update sales price via Sales Line Factbox after reopening a released sales order
 
         Initialize;
-        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
 
         // [GIVEN] Sales price "P" for item "I"
         CreateSalesPriceForItemAndAllCustomers(SalesPrice);
@@ -1866,7 +1869,7 @@ codeunit 134387 "ERM Sales Documents III"
     end;
 
     [Test]
-    [HandlerFunctions('GetSalesPricePageHandler')]
+    [HandlerFunctions('GetPriceLinePageHandler')]
     [Scope('OnPrem')]
     procedure SalesLineFactboxPriceLineUpdatedInReopenedOrder()
     var
@@ -1879,7 +1882,8 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 382356] It should be possible to update sales price via Sales Line Factbox after reopening a released sales order
 
         Initialize;
-        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
 
         // [GIVEN] Sales price "P" for item "I"
         CreateSalesPriceForItemAndAllCustomers(SalesPrice);
@@ -1926,7 +1930,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 382356] It should not be possible to update sales price via Sales Line Factbox after releasing the sales order
 
         Initialize;
-        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
 
         // [GIVEN] Sales price "P" for item "I"
         CreateSalesPriceForItemAndAllCustomers(SalesPrice);
@@ -1949,7 +1953,7 @@ codeunit 134387 "ERM Sales Documents III"
     end;
 
     [Test]
-    [HandlerFunctions('GetSalesPricePageHandler')]
+    [HandlerFunctions('GetPriceLinePageHandler')]
     [Scope('OnPrem')]
     procedure SalesLineFactboxPriceLineNotUpdatedInReleasedOrder()
     var
@@ -1962,7 +1966,8 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 382356] It should not be possible to update sales price via Sales Line Factbox after releasing the sales order
 
         Initialize;
-        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
 
         // [GIVEN] Sales price "P" for item "I"
         CreateSalesPriceForItemAndAllCustomers(SalesPrice);
@@ -2412,14 +2417,15 @@ codeunit 134387 "ERM Sales Documents III"
     [Test]
     [HandlerFunctions('ConfirmHandlerFalseOnUpdateSalesLines')]
     [Scope('OnPrem')]
-    procedure ConfirmationOnShipmentAgentCodeUpdateOnPrem()
+    procedure ConfirmationOnShipmentAgentCodeUpdateOnPremAndSaas()
     var
         SalesHeader: Record "Sales Header";
         ShippingAgent: Record "Shipping Agent";
         SalesOrder: TestPage "Sales Order";
     begin
         // [FEATURE] [SaaS]
-        // [SCENARIO 220730] Confirmation dialog to update Sales Lines shown when "Shipping Agent Code" of Sales Order is updated in OnPrem environment.
+        // [Old SCENARIO 220730] Confirmation dialog to update Sales Lines shown when "Shipping Agent Code" of Sales Order is updated in OnPrem environment.
+        // [SCENARIO 351962] Confirmation dialog to update Sales Lines shown when "Shipping Agent Code" of Sales Order is updated in OnPrem and SaaS environment.
         Initialize;
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
@@ -2437,43 +2443,6 @@ codeunit 134387 "ERM Sales Documents III"
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Shipping Agent Code".SetValue := ShippingAgent.Code;
         SalesOrder.Close;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure NoConfirmationOnShipmentAgentCodeUpdateSaaS()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        ShippingAgent: Record "Shipping Agent";
-        SalesOrder: TestPage "Sales Order";
-    begin
-        // [FEATURE] [SaaS]
-        // [SCENARIO 220730] Confirmation dialog to update Sales Lines not shown when "Shipping Agent Code" of Sales Order is updated in SaaS environment.
-        Initialize;
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-
-        // [GIVEN] Sales Order "SO" with a line.
-        CreateSalesDocumentWithItem(SalesHeader, SalesHeader."Document Type"::Order);
-
-        // [GIVEN] Shipping Agent record "SA".
-        LibraryInventory.CreateShippingAgent(ShippingAgent);
-
-        // [WHEN] Update "SO".Shipping Agent Code with "SA".Code.
-        SalesOrder.OpenEdit;
-        SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder."Shipping Agent Code".SetValue := ShippingAgent.Code;
-        SalesOrder.Close;
-
-        // [THEN] Confirmation dialog to update Sales Lines does not appears.
-        // [THEN] Sales Lines are updated with "SA" value.
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
-        SalesLine.TestField("Shipping Agent Code", ShippingAgent.Code);
-
-        // Rollback
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
     [Test]
@@ -4351,7 +4320,7 @@ codeunit 134387 "ERM Sales Documents III"
 
         // [GIVEN] Sales Price 10 for item "I" and customer "C", minimum quantity is 0
         LibrarySales.CreateSalesPrice(
-          SalesPrice, LibraryInventory.CreateItemNo, SalesPrice."Sales Type"::Customer, LibrarySales.CreateCustomerNo,
+          SalesPrice, LibraryInventory.CreateItemNo, "Sales Price Type"::Customer, LibrarySales.CreateCustomerNo,
           WorkDate, '', '', '', 0, LibraryRandom.RandInt(100));
         ZeroQuantityPrice := SalesPrice."Unit Price";
 
@@ -4620,6 +4589,65 @@ codeunit 134387 "ERM Sales Documents III"
         Assert.AreEqual('Strong', GetStatusStyleText("Sales Document Status"::"Pending Approval"), 'Unexpected style text');
         Assert.AreEqual('Strong', GetStatusStyleText("Sales Document Status"::"Pending Prepayment"), 'Unexpected style text');
         Assert.AreEqual('Strong', GetStatusStyleText("Sales Document Status"::Released), 'Unexpected style text');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPackageNoIsIncludedInInternetAddressLink()
+    var
+        ShippingAgent: Record "Shipping Agent";
+        PackageTrackingNo: Text[30];
+    begin
+        // [FEATURE] [Shipping Agent] [UT]
+        // [SCENARIO 328798] GetTrackingInternetAddr returns text containing "Package Tracking No." if ShippingAgent."Internet Address" consists only from placeholder %1
+        Initialize();
+        CreateShippingAgent(ShippingAgent, '%1', PackageTrackingNo);
+        Assert.AreEqual(
+          PackageTrackingNo, CopyStr(ShippingAgent.GetTrackingInternetAddr(PackageTrackingNo), StrLen(HttpTxt) + 1),
+          PackageTrackingNoErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestInternetAddressWithoutHttp()
+    var
+        ShippingAgent: Record "Shipping Agent";
+        PackageTrackingNo: Text[30];
+    begin
+        // [FEATURE] [Shipping Agent] [UT]
+        // [SCENARIO 328798] GetTrackingInternetAddr returns text containing "Package Tracking No." if ShippingAgent."Internet Address" does not contains Http
+        Initialize();
+        CreateShippingAgent(ShippingAgent, InternetURLTxt, PackageTrackingNo);
+        Assert.AreEqual(HttpTxt + InternetURLTxt, ShippingAgent.GetTrackingInternetAddr(PackageTrackingNo), InvalidURLErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestInternetAddressWithHttp()
+    var
+        ShippingAgent: Record "Shipping Agent";
+        PackageTrackingNo: Text[30];
+    begin
+        // [FEATURE] [Shipping Agent] [UT]
+        // [SCENARIO 328798] GetTrackingInternetAddr returns text containing "Package Tracking No." if ShippingAgent."Internet Address" contains Http
+        Initialize();
+        CreateShippingAgent(ShippingAgent, HttpTxt + InternetURLTxt, PackageTrackingNo);
+        Assert.AreEqual(HttpTxt + InternetURLTxt, ShippingAgent.GetTrackingInternetAddr(PackageTrackingNo), InvalidURLErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestNoPackageNoExistIfNoPlaceHolderExistInURL()
+    var
+        ShippingAgent: Record "Shipping Agent";
+        PackageTrackingNo: Text[30];
+    begin
+        // [FEATURE] [Shipping Agent] [UT]
+        // [SCENARIO 328798] GetTrackingInternetAddr returns text without "Package Tracking No." if ShippingAgent."Internet Address" does not contain placeholder %1
+        Initialize();
+        CreateShippingAgent(ShippingAgent, InternetURLTxt, PackageTrackingNo);
+        Assert.IsTrue(
+          StrPos(ShippingAgent.GetTrackingInternetAddr(PackageTrackingNo), PackageTrackingNo) = 0, PackageTrackingNoErr);
     end;
 
     [Test]
@@ -4971,6 +4999,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Documents III");
@@ -4997,7 +5026,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Documents III");
     end;
 
-    local procedure CreatePostSalesDocWithGLDescriptionLine(var SalesHeader: Record "Sales Header"; var LineDescription: Text[50]; DocumentType: Option)
+    local procedure CreatePostSalesDocWithGLDescriptionLine(var SalesHeader: Record "Sales Header"; var LineDescription: Text[50]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5119,7 +5148,7 @@ codeunit 134387 "ERM Sales Documents III"
         exit(ResponsibilityCenter.Code);
     end;
 
-    local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5127,7 +5156,7 @@ codeunit 134387 "ERM Sales Documents III"
           SalesHeader, DocumentType, LibrarySales.CreateCustomerNo, SalesLine.Type::Item, LibraryInventory.CreateItemNo);
     end;
 
-    local procedure CreateSalesDocumentWithGL(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithGL(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5136,7 +5165,7 @@ codeunit 134387 "ERM Sales Documents III"
           SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
     end;
 
-    local procedure CreateSalesDocumentItem(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20])
+    local procedure CreateSalesDocumentItem(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5144,7 +5173,7 @@ codeunit 134387 "ERM Sales Documents III"
           SalesHeader, DocumentType, LibrarySales.CreateCustomerNo, SalesLine.Type::Item, ItemNo);
     end;
 
-    local procedure CreateSalesDocumentGL(var SalesHeader: Record "Sales Header"; DocumentType: Option; GLAccountNo: Code[20])
+    local procedure CreateSalesDocumentGL(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; GLAccountNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5152,13 +5181,13 @@ codeunit 134387 "ERM Sales Documents III"
           SalesHeader, DocumentType, LibrarySales.CreateCustomerNo, SalesLine.Type::"G/L Account", GLAccountNo);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
     end;
 
-    local procedure CreateSalesDocumentWithUnitPrice(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; Type: Option; No: Code[20])
+    local procedure CreateSalesDocumentWithUnitPrice(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5226,19 +5255,19 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.CalcInvDiscForHeader;
     end;
 
-    local procedure CreatePostSalesDocWithGL(var SalesHeader: Record "Sales Header"; DocumentType: Option; Invoice: Boolean): Code[20]
+    local procedure CreatePostSalesDocWithGL(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Invoice: Boolean): Code[20]
     begin
         CreateSalesDocumentGL(SalesHeader, DocumentType, LibraryERM.CreateGLAccountWithSalesSetup);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, Invoice));
     end;
 
-    local procedure CreatePostSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Option; GLAccountNo: Code[20]; Invoice: Boolean): Code[20]
+    local procedure CreatePostSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; GLAccountNo: Code[20]; Invoice: Boolean): Code[20]
     begin
         CreateSalesDocumentGL(SalesHeader, DocumentType, GLAccountNo);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, Invoice));
     end;
 
-    local procedure CreatePostSalesDocWithAutoExtText(var SalesHeader: Record "Sales Header"; DocumentType: Option; PostInvoice: Boolean)
+    local procedure CreatePostSalesDocWithAutoExtText(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; PostInvoice: Boolean)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5256,8 +5285,16 @@ codeunit 134387 "ERM Sales Documents III"
     begin
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesPrice(
-          SalesPrice, Item."No.", SalesPrice."Sales Type"::"All Customers", '', WorkDate, '', '', '', 0, LibraryRandom.RandDec(100, 2));
+          SalesPrice, Item."No.", "Sales Price Type"::"All Customers", '', WorkDate, '', '', '', 0, LibraryRandom.RandDec(100, 2));
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+    end;
+
+    local procedure CreateShippingAgent(var ShippingAgent: Record "Shipping Agent"; ShippingInternetAddress: Text[250]; var PackageTrackingNo: Text[30])
+    begin
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        ShippingAgent."Internet Address" := ShippingInternetAddress;
+        ShippingAgent.Modify();
+        PackageTrackingNo := LibraryUtility.GenerateGUID();
     end;
 
     local procedure CreateCustomerWithPostCodeAndCity(var Customer: Record Customer)
@@ -5361,7 +5398,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 100));
     end;
 
-    local procedure CreateSalesDocumentWithSingleLineWithQuantity(var SalesHeader: Record "Sales Header"; DocumentType: Option; LineQuantity: Decimal)
+    local procedure CreateSalesDocumentWithSingleLineWithQuantity(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; LineQuantity: Decimal)
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
         SalesLine: Record "Sales Line";
@@ -5378,7 +5415,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5430,7 +5467,7 @@ codeunit 134387 "ERM Sales Documents III"
         end;
     end;
 
-    local procedure InitSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure InitSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
         with SalesLine do begin
             Init;
@@ -5506,7 +5543,7 @@ codeunit 134387 "ERM Sales Documents III"
         ReturnReceiptLine.FindFirst;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20]; Type: Option)
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; Type: Enum "Sales Line Type")
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -5545,7 +5582,7 @@ codeunit 134387 "ERM Sales Documents III"
         end;
     end;
 
-    local procedure ModifyReturnReasonCode(DocumentType: Option; DocumentNo: Code[20]; ReturnReasonCode: Code[10])
+    local procedure ModifyReturnReasonCode(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; ReturnReasonCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5554,7 +5591,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine.Modify();
     end;
 
-    local procedure ModifySalesLine(DocumentType: Option; DocumentNo: Code[20]; LineType: Option; NewQuantity: Decimal; NewUnitPrice: Decimal; NewLineDiscountAmt: Decimal)
+    local procedure ModifySalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LineType: Enum "Sales Line Type"; NewQuantity: Decimal; NewUnitPrice: Decimal; NewLineDiscountAmt: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5791,7 +5828,7 @@ codeunit 134387 "ERM Sales Documents III"
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
     end;
 
-    local procedure VerifyGLEntryForPostedInvoice(DocumentNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure VerifyGLEntryForPostedInvoice(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -5908,7 +5945,7 @@ codeunit 134387 "ERM Sales Documents III"
         Assert.RecordCount(DummySalesLine, ExpectedCount);
     end;
 
-    local procedure VerifySalesLineDescription(SalesLine: Record "Sales Line"; ExpectedType: Option; ExpectedNo: Code[20]; ExpectedDescription: Text)
+    local procedure VerifySalesLineDescription(SalesLine: Record "Sales Line"; ExpectedType: Enum "Sales Line Type"; ExpectedNo: Code[20]; ExpectedDescription: Text)
     begin
         with SalesLine do begin
             Assert.AreEqual(ExpectedType, Type, FieldCaption(Type));
@@ -5968,7 +6005,7 @@ codeunit 134387 "ERM Sales Documents III"
         Assert.RecordCount(RecRef, 1);
     end;
 
-    local procedure VerifyTransactionTypeWhenInsertSalesDocument(DocumentType: Option)
+    local procedure VerifyTransactionTypeWhenInsertSalesDocument(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -5985,7 +6022,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.TestField("Transaction Type", '');
     end;
 
-    local procedure SalesDocLineQtyValidation(DocType: Integer)
+    local procedure SalesDocLineQtyValidation(DocType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -6014,14 +6051,14 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine."Location Code" := Location.Code;
         SalesLine.Insert();
         case DocType of
-            2:  // Invoice
+            "Sales Document Type"::Invoice:
                 begin
                     SalesInvoice.OpenEdit;
                     SalesInvoice.GotoRecord(SalesHeader);
                     // EXECUTE:
                     SalesInvoice.SalesLines.Quantity.SetValue(100);
                 end;
-            3:  // Invoice
+            "Sales Document Type"::"Credit Memo":
                 begin
                     SalesCreditMemo.OpenEdit;
                     SalesCreditMemo.GotoRecord(SalesHeader);
@@ -6229,7 +6266,7 @@ codeunit 134387 "ERM Sales Documents III"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure GetSalesPricePageHandler(var GetSalesPrice: TestPage "Get Sales Price") // Native
+    procedure GetSalesPricePageHandler(var GetSalesPrice: TestPage "Get Sales Price") // V15
     begin
         GetSalesPrice.First;
         GetSalesPrice.OK.Invoke;
@@ -6237,7 +6274,7 @@ codeunit 134387 "ERM Sales Documents III"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure GetPriceLinePageHandler(var GetPriceLine: TestPage "Get Price Line")
+    procedure GetPriceLinePageHandler(var GetPriceLine: TestPage "Get Price Line") // V16
     begin
         GetPriceLine.First;
         GetPriceLine.OK.Invoke;

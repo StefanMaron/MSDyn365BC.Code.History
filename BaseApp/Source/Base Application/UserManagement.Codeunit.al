@@ -89,7 +89,8 @@ codeunit 418 "User Management"
                   Tabledata "Purchase Header Archive" = m,
                   Tabledata "Employee Ledger Entry" = m,
                   Tabledata "Detailed Employee Ledger Entry" = m,
-                  Tabledata "Manufacturing User Template" = m;
+                  Tabledata "Manufacturing User Template" = m,
+                  Tabledata "Field Monitoring Setup" = m;
 
     trigger OnRun()
     begin
@@ -100,7 +101,7 @@ codeunit 418 "User Management"
         Text002Err: Label 'The account %1 already exists.', Comment = '%1 username';
         Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
-        UnsupportedLicenseTypeOnSaasErr: Label 'Only users of type %1 and %2 are supported in the online environment.', Comment = '%1= license type, %2= license type';
+        UnsupportedLicenseTypeOnSaasErr: Label 'Only users of type %1, %2 and %3 are supported in the online environment.', Comment = '%1= license type, %2= license type, %3= license type';
         DisableUserMsg: Label 'To permanently disable a user, go to your Office 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Office 365.';
 
     procedure DisplayUserInformation(Username: Text)
@@ -158,7 +159,7 @@ codeunit 418 "User Management"
         end;
     end;
 
-    procedure ValidateState(var Rec: Record 2000000120; var xRec: Record 2000000120);
+    procedure ValidateState(var Rec: Record User; var xRec: Record User);
     var
         EnvironmentInformation: Codeunit "Environment Information";
     begin
@@ -361,7 +362,7 @@ codeunit 418 "User Management"
         OnAfterRenameUser(OldUserName, NewUserName);
     end;
 
-    [EventSubscriber(ObjectType::Table, 2000000120, 'OnAfterValidateEvent', 'Application ID', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::User, 'OnAfterValidateEvent', 'Application ID', false, false)]
     local procedure SetLicenseTypeOnValidateApplicationID(var Rec: Record User; var xRec: Record User; CurrFieldNo: Integer)
     var
         EnvironmentInfo: Codeunit "Environment Information";
@@ -373,13 +374,13 @@ codeunit 418 "User Management"
                 Rec."License Type" := Rec."License Type"::"External User";
     end;
 
-    [EventSubscriber(ObjectType::Table, 2000000120, 'OnAfterModifyEvent', '', false, true)]
+    [EventSubscriber(ObjectType::Table, Database::User, 'OnAfterModifyEvent', '', false, true)]
     local procedure ValidateLicenseTypeOnAfterModifyUser(var Rec: Record User; var xRec: Record User; RunTrigger: Boolean)
     begin
         ValidateLicenseTypeOnSaaS(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 2000000120, 'OnAfterInsertEvent', '', false, true)]
+    [EventSubscriber(ObjectType::Table, Database::User, 'OnAfterInsertEvent', '', false, true)]
     local procedure ValidateLicenseTypeOnAfterInsertUser(var Rec: Record User; RunTrigger: Boolean)
     begin
         ValidateLicenseTypeOnSaaS(Rec);
@@ -390,8 +391,8 @@ codeunit 418 "User Management"
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         if EnvironmentInfo.IsSaaS then begin
-            if not (User."License Type" in [User."License Type"::"Full User", User."License Type"::"External User"]) then
-                Error(UnsupportedLicenseTypeOnSaasErr, User."License Type"::"Full User", User."License Type"::"External User");
+            if not (User."License Type" in [User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application]) then
+                Error(UnsupportedLicenseTypeOnSaasErr, User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application);
         end;
     end;
 

@@ -2,7 +2,7 @@ page 2810 "Native - Sales Inv. Entity"
 {
     Caption = 'nativeInvoicingSalesInvoices', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = List;
     SourceTable = "Sales Invoice Entity Aggregate";
 
@@ -12,7 +12,7 @@ page 2810 "Native - Sales Inv. Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -40,9 +40,7 @@ page 2810 "Native - Sales Inv. Entity"
                     begin
                         CheckStatus;
 
-                        Customer.SetRange(Id, "Customer Id");
-
-                        if not Customer.FindFirst then
+                        if not Customer.GetBySystemId("Customer Id") then
                             Error(CannotFindCustomerErr);
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(Customer);
@@ -107,7 +105,7 @@ page 2810 "Native - Sales Inv. Entity"
 
                         O365SalesInvoiceMgmt.EnforceCustomerTemplateIntegrity(Customer);
 
-                        "Customer Id" := Customer.Id;
+                        "Customer Id" := Customer.SystemId;
                         RegisterFieldSet(FieldNo("Customer Id"));
                         RegisterFieldSet(FieldNo("Sell-to Customer No."));
                     end;
@@ -505,7 +503,6 @@ page 2810 "Native - Sales Inv. Entity"
         CannotChangeIDErr: Label 'The id cannot be changed.', Locked = true;
         TempFieldBuffer: Record "Field Buffer" temporary;
         Customer: Record Customer;
-        DummySalesLine: Record "Sales Line";
         NativeAPILanguageHandler: Codeunit "Native API - Language Handler";
         BillingPostalAddressJSONText: Text;
         CustomerEmail: Text;
@@ -590,7 +587,7 @@ page 2810 "Native - Sales Inv. Entity"
           NativeEDMTypes.WriteSalesLinesJSON(TempSalesInvoiceLineAggregate);
         PreviousSalesInvoiceLinesJSON := SalesInvoiceLinesJSON;
 
-        CouponsJSON := NativeCoupons.WriteCouponsJSON(DummySalesLine."Document Type"::Invoice, "No.", Posted);
+        CouponsJSON := NativeCoupons.WriteCouponsJSON("Sales Document Type"::Invoice.AsInteger(), "No.", Posted);
         PreviousCouponsJSON := CouponsJSON;
 
         SetAttachmentsJSON;
@@ -682,7 +679,7 @@ page 2810 "Native - Sales Inv. Entity"
         end;
 
         if UpdateCustomer then begin
-            Validate("Customer Id", Customer.Id);
+            Validate("Customer Id", Customer.SystemId);
             Validate("Sell-to Customer No.", Customer."No.");
             RegisterFieldSet(FieldNo("Customer Id"));
             RegisterFieldSet(FieldNo("Sell-to Customer No."));
@@ -709,7 +706,7 @@ page 2810 "Native - Sales Inv. Entity"
             exit;
 
         NativeEDMTypes.ParseSalesLinesJSON(
-          DummySalesLine."Document Type"::Invoice, SalesInvoiceLinesJSON, TempSalesInvoiceLineAggregate, Id);
+          "Sales Document Type"::Invoice.AsInteger(), SalesInvoiceLinesJSON, TempSalesInvoiceLineAggregate, Id);
         TempSalesInvoiceLineAggregate.SetRange("Document Id", Id);
         SalesInvoiceAggregator.PropagateMultipleLinesUpdate(TempSalesInvoiceLineAggregate);
         Find;
@@ -781,7 +778,7 @@ page 2810 "Native - Sales Inv. Entity"
         if not CouponsSet then
             exit;
 
-        NativeEDMTypes.ParseCouponsJSON("Contact Graph Id", DummySalesLine."Document Type"::Invoice, "No.", CouponsJSON);
+        NativeEDMTypes.ParseCouponsJSON("Contact Graph Id", "Sales Document Type"::Invoice.AsInteger(), "No.", CouponsJSON);
     end;
 
     local procedure UpdateAttachments()
@@ -892,8 +889,7 @@ page 2810 "Native - Sales Inv. Entity"
         if not Posted then
             Error(PostedInvoiceActionErr);
 
-        SalesInvoiceHeader.SetRange(Id, Id);
-        if not SalesInvoiceHeader.FindFirst then
+        if not SalesInvoiceHeader.GetBySystemId(SystemId) then
             Error(CannotFindInvoiceErr);
     end;
 
@@ -902,8 +898,7 @@ page 2810 "Native - Sales Inv. Entity"
         if Posted then
             Error(DraftInvoiceActionErr);
 
-        SalesHeader.SetRange(Id, Id);
-        if not SalesHeader.FindFirst then
+        if not SalesHeader.GetBySystemId(Id) then
             Error(CannotFindInvoiceErr);
     end;
 
@@ -1062,10 +1057,11 @@ page 2810 "Native - Sales Inv. Entity"
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         GetDraftInvoice(SalesHeader);
         PostInvoice(SalesHeader, SalesInvoiceHeader);
-        SetActionResponse(ActionContext, SalesInvoiceHeader.Id);
+        SetActionResponse(ActionContext, SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
     end;
 
     [ServiceEnabled]
@@ -1073,12 +1069,13 @@ page 2810 "Native - Sales Inv. Entity"
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         GetDraftInvoice(SalesHeader);
         PostInvoice(SalesHeader, SalesInvoiceHeader);
         Commit();
         SendPostedInvoice(SalesInvoiceHeader);
-        SetActionResponse(ActionContext, SalesInvoiceHeader.Id);
+        SetActionResponse(ActionContext, SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
     end;
 
     [ServiceEnabled]
@@ -1086,6 +1083,7 @@ page 2810 "Native - Sales Inv. Entity"
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         if Posted then begin
             GetPostedInvoice(SalesInvoiceHeader);
@@ -1093,33 +1091,35 @@ page 2810 "Native - Sales Inv. Entity"
                 SendCanceledInvoice(SalesInvoiceHeader)
             else
                 SendPostedInvoice(SalesInvoiceHeader);
-            SetActionResponse(ActionContext, SalesInvoiceHeader.Id);
+            SetActionResponse(ActionContext, SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
             exit;
         end;
         GetDraftInvoice(SalesHeader);
         SendDraftInvoice(SalesHeader);
-        SetActionResponse(ActionContext, SalesHeader.Id);
+        SetActionResponse(ActionContext, SalesHeader.SystemId);
     end;
 
     [ServiceEnabled]
     procedure Cancel(var ActionContext: DotNet WebServiceActionContext)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         GetPostedInvoice(SalesInvoiceHeader);
         CancelInvoice(SalesInvoiceHeader);
-        SetActionResponse(ActionContext, SalesInvoiceHeader.Id);
+        SetActionResponse(ActionContext, SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
     end;
 
     [ServiceEnabled]
     procedure CancelAndSend(var ActionContext: DotNet WebServiceActionContext)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         GetPostedInvoice(SalesInvoiceHeader);
         CancelInvoice(SalesInvoiceHeader);
         SendCanceledInvoice(SalesInvoiceHeader);
-        SetActionResponse(ActionContext, SalesInvoiceHeader.Id);
+        SetActionResponse(ActionContext, SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
     end;
 
     local procedure CheckAttachmentsSize(RecordVariant: Variant)

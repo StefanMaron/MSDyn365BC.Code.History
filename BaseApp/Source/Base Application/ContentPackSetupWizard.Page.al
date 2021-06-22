@@ -13,12 +13,12 @@ page 6316 "Content Pack Setup Wizard"
             label("Connectors enable Business Central to communicate with Power BI, PowerApps, and Microsoft Flow.")
             {
                 ApplicationArea = All;
-                Caption = 'Connectors enable Business Central to communicate with Power BI, PowerApps, and Microsoft Flow.';
+                Caption = 'Connectors enable Business Central to communicate with Microsoft Power BI, Power Apps, and Power Automate.';
             }
             label(Control6)
             {
                 ApplicationArea = All;
-                Caption = 'This page provides the required information you will need to connect to these applications. Simply copy and paste this information into the Power BI, PowerApp, or Microsoft Flow connector when prompted.';
+                Caption = 'This page provides the required information you will need to connect to these applications. Simply copy and paste this information into the Microsoft Power BI, Power Apps, or Power Automate connector when prompted.';
             }
             label(Control7)
             {

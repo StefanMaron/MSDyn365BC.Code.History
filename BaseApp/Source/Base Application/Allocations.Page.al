@@ -196,7 +196,7 @@ page 284 Allocations
                         field("AllocationAmount + Amount - xRec.Amount"; AllocationAmount + Amount - xRec.Amount)
                         {
                             ApplicationArea = All;
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                             Caption = 'AllocationAmount';
                             Editable = false;
@@ -210,7 +210,7 @@ page 284 Allocations
                         field(TotalAllocationAmount; TotalAllocationAmount + Amount - xRec.Amount)
                         {
                             ApplicationArea = All;
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                             Caption = 'Total Amount';
                             Editable = false;
@@ -257,7 +257,7 @@ page 284 Allocations
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

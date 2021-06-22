@@ -87,7 +87,7 @@ table 1206 "Credit Transfer Entry"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
 
-    procedure CreateNew(RegisterNo: Integer; EntryNo: Integer; GenJnlAccountType: Option; AccountNo: Code[20]; LedgerEntryNo: Integer; TransferDate: Date; CurrencyCode: Code[10]; TransferAmount: Decimal; TransActionID: Text[35]; RecipientBankAccount: Code[20]; MessageToRecipient: Text[140])
+    procedure CreateNew(RegisterNo: Integer; EntryNo: Integer; GenJnlAccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LedgerEntryNo: Integer; TransferDate: Date; CurrencyCode: Code[10]; TransferAmount: Decimal; TransActionID: Text[35]; RecipientBankAccount: Code[20]; MessageToRecipient: Text[140])
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin

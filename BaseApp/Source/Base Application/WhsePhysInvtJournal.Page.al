@@ -424,11 +424,13 @@ page 7326 "Whse. Phys. Invt. Journal"
         ReportPrint: Codeunit "Test Report-Print";
         CurrentJnlBatchName: Code[10];
         CurrentLocationCode: Code[10];
-        ItemDescription: Text[100];
         [InDataSet]
         SerialNoEditable: Boolean;
         [InDataSet]
         LotNoEditable: Boolean;
+
+    protected var
+        ItemDescription: Text[100];
 
     procedure SetControls()
     begin

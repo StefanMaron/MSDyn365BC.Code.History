@@ -45,7 +45,7 @@ codeunit 926 "Assembly Line-Reserve"
         end;
 
         CreateReservEntry.CreateReservEntryFor(
-          DATABASE::"Assembly Line", AssemblyLine."Document Type",
+          DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(),
           AssemblyLine."Document No.", '', 0, AssemblyLine."Line No.", AssemblyLine."Qty. per Unit of Measure",
           Quantity, QuantityBase, ForReservEntry);
         CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
@@ -56,7 +56,7 @@ codeunit 926 "Assembly Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-    [Obsolete('Replaced by CreateReservation(AssemblyLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    [Obsolete('Replaced by CreateReservation(AssemblyLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(AssemblyLine: Record "Assembly Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
         ForReservEntry: Record "Reservation Entry";
@@ -80,13 +80,13 @@ codeunit 926 "Assembly Line-Reserve"
 
     local procedure SignFactor(AssemblyLine: Record "Assembly Line"): Integer
     begin
-        if AssemblyLine."Document Type" in [2, 3, 5] then
+        if AssemblyLine."Document Type".AsInteger() in [2, 3, 5] then
             Error(Text001);
 
         exit(-1);
     end;
 
-    procedure SetBinding(Binding: Option " ","Order-to-Order")
+    procedure SetBinding(Binding: Enum "Reservation Binding")
     begin
         CreateReservEntry.SetBinding(Binding);
     end;
@@ -191,7 +191,7 @@ codeunit 926 "Assembly Line-Reserve"
             if not ReservMgt.CalcIsAvailTrackedQtyInBin(
                  NewAssemblyLine."No.", NewAssemblyLine."Bin Code",
                  NewAssemblyLine."Location Code", NewAssemblyLine."Variant Code",
-                 DATABASE::"Assembly Line", NewAssemblyLine."Document Type",
+                 DATABASE::"Assembly Line", NewAssemblyLine."Document Type".AsInteger(),
                  NewAssemblyLine."Document No.", '', 0, NewAssemblyLine."Line No.")
             then begin
                 if ShowError then
@@ -329,7 +329,7 @@ codeunit 926 "Assembly Line-Reserve"
                 end;
 
                 TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
-                    ItemJnlLine."Entry Type", ItemJnlLine."Journal Template Name",
+                    ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
                     ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
                     ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
@@ -364,9 +364,10 @@ codeunit 926 "Assembly Line-Reserve"
                     OldReservEntry.TestField("Variant Code", OldAssemblyLine."Variant Code");
                     OldReservEntry.TestField("Location Code", OldAssemblyLine."Location Code");
 
-                    TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Assembly Line",
-                        NewAssemblyLine."Document Type", NewAssemblyLine."Document No.", '', 0,
-                        NewAssemblyLine."Line No.", NewAssemblyLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                    TransferQty :=
+                        CreateReservEntry.TransferReservEntry(
+                            DATABASE::"Assembly Line", NewAssemblyLine."Document Type".AsInteger(), NewAssemblyLine."Document No.", '', 0,
+                            NewAssemblyLine."Line No.", NewAssemblyLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
                 until (OldReservEntry.Next = 0) or (TransferQty = 0);
         end;
@@ -393,7 +394,7 @@ codeunit 926 "Assembly Line-Reserve"
     begin
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", '', 0, PurchLine."Line No.",
+          DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", '', 0, PurchLine."Line No.",
           PurchLine."Variant Code", PurchLine."Location Code", PurchLine."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(AsmLine, PurchLine.Description, PurchLine."Expected Receipt Date", ReservQty, ReservQtyBase);
@@ -406,7 +407,7 @@ codeunit 926 "Assembly Line-Reserve"
     begin
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
+          DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
           ProdOrderLine."Variant Code", ProdOrderLine."Location Code", ProdOrderLine."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(AsmLine, ProdOrderLine.Description, ProdOrderLine."Ending Date", ReservQty, ReservQtyBase);
@@ -419,7 +420,7 @@ codeunit 926 "Assembly Line-Reserve"
     begin
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", '', 0, 0,
+          DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", '', 0, 0,
           AsmHeader."Variant Code", AsmHeader."Location Code", AsmHeader."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(AsmLine, AsmHeader.Description, AsmHeader."Due Date", ReservQty, ReservQtyBase);
@@ -493,7 +494,7 @@ codeunit 926 "Assembly Line-Reserve"
         if EntrySummary."Entry No." in [151, 152] then begin
             Clear(AvailableAssemblyLines);
             AvailableAssemblyLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
-            AvailableAssemblyLines.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailableAssemblyLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
             AvailableAssemblyLines.RunModal;
         end;
     end;

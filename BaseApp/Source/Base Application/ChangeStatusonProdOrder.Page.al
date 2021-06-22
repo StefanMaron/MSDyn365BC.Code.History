@@ -73,11 +73,11 @@ page 99000882 "Change Status on Prod. Order"
         if ProdOrder.Status = ProdOrder.Status::Finished then
             ProdOrder.FieldError(Status);
 
-        FirmPlannedStatusEditable := ProdOrder.Status < ProdOrder.Status::"Firm Planned";
+        FirmPlannedStatusEditable := ProdOrder.Status.AsInteger() < ProdOrder.Status::"Firm Planned".AsInteger();
         ReleasedStatusEditable := ProdOrder.Status <> ProdOrder.Status::Released;
         FinishedStatusEditable := ProdOrder.Status = ProdOrder.Status::Released;
-        if ProdOrder.Status > ProdOrder.Status::Simulated then
-            ProdOrderStatus.Status := ProdOrder.Status + 1
+        if ProdOrder.Status.AsInteger() > ProdOrder.Status::Simulated.AsInteger() then
+            ProdOrderStatus.Status := "Production Order Status".FromInteger(ProdOrder.Status.AsInteger() + 1)
         else
             ProdOrderStatus.Status := ProdOrderStatus.Status::"Firm Planned";
 
@@ -86,7 +86,7 @@ page 99000882 "Change Status on Prod. Order"
         OnAfterSet(ProdOrder);
     end;
 
-    procedure ReturnPostingInfo(var Status: Option Simulated,Planned,"Firm Planned",Released,Finished; var PostingDate2: Date; var UpdUnitCost: Boolean)
+    procedure ReturnPostingInfo(var Status: Enum "Production Order Status"; var PostingDate2: Date; var UpdUnitCost: Boolean)
     begin
         Status := ProdOrderStatus.Status;
         PostingDate2 := PostingDate;

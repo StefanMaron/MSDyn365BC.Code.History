@@ -186,6 +186,12 @@ page 729 "Copy Item"
                     Caption = 'Item Cross References';
                     ToolTip = 'Specifies if the selected data type if also copied to the new item.';
                 }
+                field(ItemReferences; "Item References")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Item References';
+                    ToolTip = 'Specifies if the selected data type if also copied to the new item.';
+                }
             }
         }
     }

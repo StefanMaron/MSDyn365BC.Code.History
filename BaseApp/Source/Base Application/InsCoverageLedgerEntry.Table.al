@@ -128,7 +128,7 @@ table 5629 "Ins. Coverage Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

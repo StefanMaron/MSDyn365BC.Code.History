@@ -79,9 +79,12 @@ table 5330 "CRM Connection Setup"
                     CRMIntegrationTelemetry.LogTelemetryWhenConnectionEnabled();
                     TestIntegrationUserRequirements;
                     CRMSetupDefaults.ResetSalesOrderMappingConfiguration(Rec);
-                    SetUseNewestUI
-                end else
+                    SetUseNewestUI;
+                    Session.LogMessage('0000CM8', CRMConnEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                end else begin
                     CRMIntegrationTelemetry.LogTelemetryWhenConnectionDisabled;
+                    Session.LogMessage('0000CM9', CRMConnDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                end;
             end;
         }
         field(61; "Is User Mapping Required"; Boolean)
@@ -128,10 +131,16 @@ table 5330 "CRM Connection Setup"
             trigger OnValidate()
             begin
                 if "Is S.Order Integration Enabled" then
-                    if Confirm(StrSubstNo(SetCRMSOPEnableQst, PRODUCTNAME.Short)) then
-                        SetCRMSOPEnabled
+                    if "Authentication Type" = "Authentication Type"::Office365 then
+                        if Confirm(StrSubstNo(SetCRMSOPEnableNoCredsReqQst, PRODUCTNAME.Short)) then
+                            SetCRMSOPEnabled()
+                        else
+                            Error('')
                     else
-                        Error('')
+                        if Confirm(StrSubstNo(SetCRMSOPEnableQst, PRODUCTNAME.Short)) then
+                            SetCRMSOPEnabled
+                        else
+                            Error('')
                 else
                     SetCRMSOPDisabled;
                 RefreshDataFromCRM;
@@ -344,7 +353,6 @@ table 5330 "CRM Connection Setup"
         DetailsMissingErr: Label 'A %1 URL and user name are required to enable a connection.', Comment = '%1 = CRM product name';
         MissingUsernameTok: Label '{USER}', Locked = true;
         MissingPasswordTok: Label '{PASSWORD}', Locked = true;
-        ProcessDialogMapTitleMsg: Label 'Synchronizing @1', Comment = '@1 Progress dialog map no.';
         AccessTokenTok: Label 'AccessToken', Locked = true;
         ClientSecretConnectionStringFormatTok: Label '%1; Url=%2; ClientId=%3; ClientSecret=%4; ProxyVersion=%5', Locked = true;
         ClientSecretAuthTxt: Label 'AuthType=ClientSecret', Locked = true;
@@ -359,6 +367,7 @@ table 5330 "CRM Connection Setup"
         ConnectionStringPwdOrClientSecretPlaceHolderMissingErr: Label 'The connection string must include either the password placeholder {PASSWORD} or the client secret placeholder {CLIENTSECRET}.', Comment = '{PASSWORD} and {CLIENTSECRET} are locked strings - do not translate them.';
         CannotDisableSalesOrderIntErr: Label 'You cannot disable CRM sales order integration when a CRM sales order has the Submitted status.';
         SetCRMSOPEnableQst: Label 'Enabling Sales Order Integration will allow you to create %1 Sales Orders from Dynamics CRM.\\To enable this setting, you must provide Dynamics CRM administrator credentials (user name and password).\\Do you want to continue?', Comment = '%1 - product name';
+        SetCRMSOPEnableNoCredsReqQst: Label 'Enabling Sales Order Integration will allow you to create %1 Sales Orders from Dynamics CRM.\\Do you want to continue?', Comment = '%1 - product name';
         SetCRMSOPEnableConfirmMsg: Label 'Sales Order Integration with %1 is enabled.', Comment = '%1 = CRM product name';
         SetCRMSOPDisableConfirmMsg: Label 'Sales Order Integration with %1 is disabled.', Comment = '%1 = CRM product name';
         CRMProductName: Codeunit "CRM Product Name";
@@ -374,6 +383,9 @@ table 5330 "CRM Connection Setup"
         CDSConnectionMustBeEnabledErr: Label 'You must enable the connection to Common Data Service before you can set up the connection to %1.\\Open the page %2 to enable the connection to Common Data Service.', Comment = '%1 = CRM product name, %2 = Common Data Service Connection Setup page caption.';
         DeploySucceedMsg: Label 'The solution, user roles, and entities have been deployed.';
         DeployFailedMsg: Label 'The deployment of the solution, user roles, and entities failed.';
+        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        CRMConnDisabledTxt: Label 'CRM connection has been disabled.', Locked = true;
+        CRMConnEnabledTxt: Label 'CRM connection has been enabled.', Locked = true;
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
         TempUserPassword: Text;
 
@@ -434,7 +446,7 @@ table 5330 "CRM Connection Setup"
 
         DummyCRMConnectionSetup.EnsureCDSConnectionIsEnabled();
         if "Authentication Type" = "Authentication Type"::Office365 then
-            CDSIntegrationImpl.GetAccessToken("Server Address", AccessToken)
+            CDSIntegrationImpl.GetAccessToken("Server Address", true, AccessToken)
         else
             if not PromptForCredentials(AdminEmail, AdminPassword) then
                 exit;
@@ -675,11 +687,12 @@ table 5330 "CRM Connection Setup"
     begin
         exit(
           StrSubstNo(
-            '%1|%2|%3|%4',
+            '%1|%2|%3|%4|%5',
             CODEUNIT::"Integration Synch. Job Runner",
             CODEUNIT::"CRM Statistics Job",
             CODEUNIT::"Auto Create Sales Orders",
-            CODEUNIT::"Auto Process Sales Quotes"));
+            CODEUNIT::"Auto Process Sales Quotes",
+            CODEUNIT::"Int. Uncouple Job Runner"));
     end;
 
     [Scope('OnPrem')]
@@ -925,7 +938,7 @@ table 5330 "CRM Connection Setup"
             exit;
 
         if "Authentication Type" = "Authentication Type"::Office365 then
-            CDSIntegrationImpl.GetAccessToken("Server Address", AccessToken)
+            CDSIntegrationImpl.GetAccessToken("Server Address", true, AccessToken)
         else
             if not PromptForCredentials(AdminEmail, AdminPassword) then
                 exit;
@@ -936,13 +949,8 @@ table 5330 "CRM Connection Setup"
 
     local procedure EnableIntegrationTables()
     var
-        IntegrationRecord: Record "Integration Record";
-        IntegrationManagement: Codeunit "Integration Management";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
     begin
-        if IntegrationRecord.IsEmpty then
-            IntegrationManagement.SetupIntegrationTables;
-        IntegrationManagement.SetConnectorIsEnabledForSession(true);
         Modify; // Job Queue to read "Is Enabled"
         Commit();
         CRMSetupDefaults.ResetConfiguration(Rec);
@@ -1066,9 +1074,10 @@ table 5330 "CRM Connection Setup"
         CRMConnectionSetup."Is User Mapping Required" := false;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure RefreshDataFromCRM()
     var
+        IntegrationTableMapping: Record "Integration Table Mapping";
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         ConnectionName: Text;
@@ -1160,24 +1169,17 @@ table 5330 "CRM Connection Setup"
         IntegrationTableMapping: Record "Integration Table Mapping";
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
-        ProgressWindow: Dialog;
-        MappingCount: Integer;
-        CurrentMappingIndex: Integer;
     begin
         CRMSetupDefaults.GetPrioritizedMappingList(TempNameValueBuffer);
-        TempNameValueBuffer.Ascending(true);
-        TempNameValueBuffer.FindSet;
 
-        CurrentMappingIndex := 0;
-        MappingCount := TempNameValueBuffer.Count();
-        ProgressWindow.Open(ProcessDialogMapTitleMsg, CurrentMappingIndex);
+        TempNameValueBuffer.Ascending(true);
+        if not TempNameValueBuffer.FindSet() then
+            exit;
+
         repeat
-            CurrentMappingIndex := CurrentMappingIndex + 1;
-            ProgressWindow.Update(1, Round(CurrentMappingIndex / MappingCount * 10000, 1));
             if IntegrationTableMapping.Get(TempNameValueBuffer.Value) then
                 IntegrationTableMapping.SynchronizeNow(DoFullSynch);
         until TempNameValueBuffer.Next = 0;
-        ProgressWindow.Close;
     end;
 
     procedure PromptForCredentials(var AdminEmail: Text; var AdminPassword: Text): Boolean

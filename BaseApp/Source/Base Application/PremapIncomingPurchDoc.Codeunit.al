@@ -409,7 +409,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         VendorNo: Code[20];
     begin
         with IntermediateDataImport do begin
-            VendorId := GetEntryValue(EntryNo, DATABASE::Vendor, Vendor.FieldNo(Id), 0, RecordNo);
+            VendorId := GetEntryValue(EntryNo, DATABASE::Vendor, Vendor.FieldNo(SystemId), 0, RecordNo);
             VendorNo := FindVendorById(EntryNo, RecordNo, PurchaseHeader.FieldNo("Buy-from Vendor No."), VendorId);
             if VendorNo <> '' then
                 exit(VendorNo);
@@ -678,8 +678,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         if not Evaluate(VendorId, VendorIdText, 9) then
             exit('');
 
-        Vendor.SetRange(Id, VendorId);
-        if not Vendor.FindFirst then
+        if not Vendor.GetBySystemId(VendorId) then
             exit('');
 
         IntermediateDataImport.InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", FieldID, 0, RecordNo, Vendor."No.");
@@ -702,7 +701,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
             // Find a posted purchase invoice that has the specified Vendor Invoice No.
             PurchInvHeader.SetRange("Vendor Invoice No.", VendorInvoiceNo);
             if PurchInvHeader.FindFirst then begin
-                AppliesToDocTypeAsInteger := PurchaseHeader."Applies-to Doc. Type"::Invoice;
+                AppliesToDocTypeAsInteger := PurchaseHeader."Applies-to Doc. Type"::Invoice.AsInteger();
                 InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header",
                   PurchaseHeader.FieldNo("Applies-to Doc. Type"), 0, RecordNo, Format(AppliesToDocTypeAsInteger));
                 InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header",
@@ -1213,11 +1212,11 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
                   ConstructDocumenttypeUnknownErr);
 
             case UpperCase(Value) of
-                GetDocumentTypeOptionString(PurchaseHeader."Document Type"::Invoice),
-              GetDocumentTypeOptionCaption(PurchaseHeader."Document Type"::Invoice):
+                GetDocumentTypeOptionString(PurchaseHeader."Document Type"::Invoice.AsInteger()),
+                GetDocumentTypeOptionCaption(PurchaseHeader."Document Type"::Invoice.AsInteger()):
                     DocumentType := Format(PurchaseHeader."Document Type"::Invoice, 0, 9);
-                GetDocumentTypeOptionString(PurchaseHeader."Document Type"::"Credit Memo"),
-              GetDocumentTypeOptionCaption(PurchaseHeader."Document Type"::"Credit Memo"),
+                GetDocumentTypeOptionString(PurchaseHeader."Document Type"::"Credit Memo".AsInteger()),
+                GetDocumentTypeOptionCaption(PurchaseHeader."Document Type"::"Credit Memo".AsInteger()),
               'CREDIT NOTE':
                     DocumentType := Format(PurchaseHeader."Document Type"::"Credit Memo", 0, 9);
                 else
@@ -1263,8 +1262,8 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         exit(StrSubstNo(DocumentTypeUnknownErr,
             DataExchColDefPart.Caption,
             DataExchDefCard.Caption,
-            GetDocumentTypeOptionCaption(PurchaseHeader."Document Type"::Invoice),
-            GetDocumentTypeOptionCaption(PurchaseHeader."Document Type"::"Credit Memo"),
+            GetDocumentTypeOptionCaption(PurchaseHeader."Document Type"::Invoice.AsInteger()),
+            GetDocumentTypeOptionCaption(PurchaseHeader."Document Type"::"Credit Memo".AsInteger()),
             DataExchColumnDef.FieldCaption(Constant),
             PurchaseHeader.FieldCaption("Document Type"),
             PurchaseHeader.TableCaption));
@@ -1277,7 +1276,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         PurchaseHeader: Record "Purchase Header";
         IntermediateDataImport: Record "Intermediate Data Import";
         DocumentTypeTxt: Text;
-        DocumentType: Option;
+        DocumentType: Enum "Gen. Journal Document Type";
         DefaultGLAccount: Code[20];
         CountOfResult: Integer;
     begin
@@ -1309,14 +1308,14 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         // if you don't find any suggestion in Text-to-Account Mapping, then look in the Purchases & Payables table
         PurchasesPayablesSetup.Get();
         case DocumentType of
-            PurchaseHeader."Document Type"::Invoice:
+            "Gen. Journal Document Type"::Invoice:
                 begin
                     if LineDirectUnitCost >= 0 then
                         DefaultGLAccount := PurchasesPayablesSetup."Debit Acc. for Non-Item Lines"
                     else
                         DefaultGLAccount := PurchasesPayablesSetup."Credit Acc. for Non-Item Lines";
                 end;
-            PurchaseHeader."Document Type"::"Credit Memo":
+            "Gen. Journal Document Type"::"Credit Memo":
                 begin
                     if LineDirectUnitCost >= 0 then
                         DefaultGLAccount := PurchasesPayablesSetup."Credit Acc. for Non-Item Lines"
@@ -1345,19 +1344,17 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         exit(95)
     end;
 
-    local procedure FindCorrectAccountFromMapping(TextToAccountMapping: Record "Text-to-Account Mapping"; LineDirectUnitCost: Decimal; DocumentType: Option): Code[20]
-    var
-        PurchaseHeader: Record "Purchase Header";
+    local procedure FindCorrectAccountFromMapping(TextToAccountMapping: Record "Text-to-Account Mapping"; LineDirectUnitCost: Decimal; DocumentType: Enum "Gen. Journal Document Type"): Code[20]
     begin
         case DocumentType of
-            PurchaseHeader."Document Type"::Invoice:
+            "Gen. Journal Document Type"::Invoice:
                 begin
                     if (LineDirectUnitCost >= 0) and (TextToAccountMapping."Debit Acc. No." <> '') then
                         exit(TextToAccountMapping."Debit Acc. No.");
                     if (LineDirectUnitCost < 0) and (TextToAccountMapping."Credit Acc. No." <> '') then
                         exit(TextToAccountMapping."Credit Acc. No.");
                 end;
-            PurchaseHeader."Document Type"::"Credit Memo":
+            "Gen. Journal Document Type"::"Credit Memo":
                 begin
                     if (LineDirectUnitCost >= 0) and (TextToAccountMapping."Credit Acc. No." <> '') then
                         exit(TextToAccountMapping."Credit Acc. No.");

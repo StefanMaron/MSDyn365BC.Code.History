@@ -505,7 +505,7 @@ table 5062 Attachment
         DiskFileName := "Storage Pointer" + '\' + Format("No.") + '.' + "File Extension";
     end;
 
-    procedure CheckCorrespondenceType(CorrespondenceType: Option " ","Hard Copy",Email,Fax): Text[80]
+    procedure CheckCorrespondenceType(CorrespondenceType: Enum "Correspondence Type"): Text[80]
     begin
         case CorrespondenceType of
             CorrespondenceType::"Hard Copy":

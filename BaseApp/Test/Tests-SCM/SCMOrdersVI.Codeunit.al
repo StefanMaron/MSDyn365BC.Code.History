@@ -19,6 +19,7 @@ codeunit 137163 "SCM Orders VI"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
+        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryJob: Codeunit "Library - Job";
@@ -71,7 +72,7 @@ codeunit 137163 "SCM Orders VI"
         Quantity2: Decimal;
     begin
         // Setup: Create Blanket Purchase Order. Create Purchase Order and update Blanket Order No. on Purchase Order line.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandDec(10, 2);
         Quantity2 := Quantity + LibraryRandom.RandDec(10, 2);  // Value required for the test.
         LibraryInventory.CreateItem(Item);
@@ -100,7 +101,7 @@ codeunit 137163 "SCM Orders VI"
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Order. Create Purchase Invoice with Item Charge.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandInt(50);  // Using Item Charge.
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -113,7 +114,7 @@ codeunit 137163 "SCM Orders VI"
         CreatePurchaseInvoice(
           PurchaseHeader2, PurchaseLine, PurchaseLine.Type::"Charge (Item)", PurchaseHeader."Buy-from Vendor No.",
           LibraryInventory.CreateItemChargeNo, Quantity);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
 
         // Exercise: Undo Purchase Receipt.
         UndoPurchaseReceiptLine(PostedDocumentNo);
@@ -135,7 +136,7 @@ codeunit 137163 "SCM Orders VI"
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Order. Undo Purchase Receipt.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -163,7 +164,7 @@ codeunit 137163 "SCM Orders VI"
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Order with Negative Quantity.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -191,7 +192,7 @@ codeunit 137163 "SCM Orders VI"
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Order. Undo Purchase Receipt.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -219,7 +220,7 @@ codeunit 137163 "SCM Orders VI"
         Quantity: Decimal;
     begin
         // Setup: Create and Post Purchase Return Order. Undo Return Shipment Line.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -247,7 +248,7 @@ codeunit 137163 "SCM Orders VI"
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Return Order with Negative Quantity.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -277,7 +278,7 @@ codeunit 137163 "SCM Orders VI"
         Quantity: Decimal;
     begin
         // Setup: Create and post Purchase Return Order with Negative Quantity. Create Sales Order and Reserve Quantity.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
@@ -285,7 +286,7 @@ codeunit 137163 "SCM Orders VI"
             PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", PurchaseLine.Type::Item, LibraryPurchase.CreateVendorNo,
             Item."No.", -Quantity, false);
         CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, '', Item."No.", Quantity, '');
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
 
         // Exercise: Undo Return Shipment Line.
         asserterror UndoReturnShipmentLine(PostedDocumentNo);
@@ -303,7 +304,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create Block Item.
-        Initialize;
+        Initialize(false);
         CreateBlockedItem(Item);
 
         // Exercise: Create Purchase Order.
@@ -323,7 +324,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase] [Reservation] [Date Conflict]
         // [SCENARIO 211625] Expected Receipt Date on Purchase Line cannot be updated if it becomes later than Shipment Date of sales reserved from this line.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Item "I" with Reserve = "Always".
         // [GIVEN] Purchase Order with item "I" and Expected Receipt Date = WORKDATE.
@@ -346,7 +347,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase] [Reservation]
         // [SCENARIO 211625] Expected Receipt Date on Purchase Line should not be updated after this date is erased on Purchase Header.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Item "I" with Reserve = "Always".
         // [GIVEN] Purchase Order with item "I" and Expected Receipt Date = WORKDATE.
@@ -370,7 +371,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase] [Reservation] [Date Conflict]
         // [SCENARIO 211625] Expected Receipt Date on Purchase Line can be updated if this date is set to an earlier value on Purchase Header.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Item "I" with Reserve = "Always".
         // [GIVEN] Purchase Order with item "I" and Expected Receipt Date = WORKDATE.
@@ -393,7 +394,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase] [Reservation] [Date Conflict]
         // [SCENARIO 211625] Expected Receipt Date on Purchase Line cannot be erased if this line is reserved.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Item "I" with Reserve = "Always".
         // [GIVEN] Purchase Order with item "I" and Expected Receipt Date = WORKDATE.
@@ -414,7 +415,7 @@ codeunit 137163 "SCM Orders VI"
         PurchasePrices: TestPage "Purchase Prices";
     begin
         // Setup: Create Vendor and open Purchase Prices page from Vendor Card.
-        Initialize;
+        Initialize(false);
         CreateVendorAndOpenPurchasePricesPageFromVendorCard(PurchasePrices);
 
         // Exercise: Enter Negative Minimum Quantity on Purchase Prices Page.
@@ -431,7 +432,7 @@ codeunit 137163 "SCM Orders VI"
         PurchasePrices: TestPage "Purchase Prices";
     begin
         // Setup: Create Vendor and open Purchase Prices page from Vendor Card.
-        Initialize;
+        Initialize(false);
         CreateVendorAndOpenPurchasePricesPageFromVendorCard(PurchasePrices);
 
         // Exercise: Enter Negative Direct Unit Cost on Purchase Prices Page.
@@ -448,7 +449,7 @@ codeunit 137163 "SCM Orders VI"
         PurchasePrices: TestPage "Purchase Prices";
     begin
         // Setup: Create Vendor and open Purchase Prices page from Vendor Card.
-        Initialize;
+        Initialize(false);
         CreateVendorAndOpenPurchasePricesPageFromVendorCard(PurchasePrices);
 
         // Exercise: Enter Ending Date Earlier to Starting Date on Purchase Prices Page.
@@ -470,7 +471,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase Price]
         // [SCENARIO 378579] Validating "Vendor No." in Purchase Price Page should keep valid "Item No."
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Item "I"
         LibraryInventory.CreateItem(Item);
@@ -501,7 +502,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase Price] [UT]
         // [SCENARIO 379639] No Purchase Price should be created if "Vendor No. Filter" is validated with non-existing value and then reset to blank.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Vendor "V".
         // [GIVEN] Purchase Price Page with "Vendor No. Filter" = "V".
@@ -530,7 +531,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase Price] [UT]
         // [SCENARIO 379639] No Purchase Price should be created if "Item No. Filter" is validated with non-existing value and then reset to blank.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Vendor "V".
         // [GIVEN] Purchase Price Page with "Vendor No. Filter" = "V".
@@ -556,7 +557,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLineDiscounts: TestPage "Purchase Line Discounts";
     begin
         // Setup: Create Vendor and open Purchase Line Discount page from Vendor Card.
-        Initialize;
+        Initialize(false);
         CreateVendorAndOpenPurchaseLineDiscountsPageFromVendorCard(PurchaseLineDiscounts);
 
         // Exercise: Enter Negative Minimum Quantity on Purchase Line Discount Page.
@@ -573,7 +574,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLineDiscounts: TestPage "Purchase Line Discounts";
     begin
         // Setup: Create Vendor and open Purchase Line Discount page from Vendor Card.
-        Initialize;
+        Initialize(false);
         CreateVendorAndOpenPurchaseLineDiscountsPageFromVendorCard(PurchaseLineDiscounts);
 
         // Exercise: Enter Negative Line Discount on Purchase Line Discount Page.
@@ -590,7 +591,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLineDiscounts: TestPage "Purchase Line Discounts";
     begin
         // Setup:  Create Vendor and open Purchase Line Discount page from Vendor Card.
-        Initialize;
+        Initialize(false);
         CreateVendorAndOpenPurchaseLineDiscountsPageFromVendorCard(PurchaseLineDiscounts);
 
         // Exercise: Enter Ending Date Earlier to Starting Date on Purchase Line Discount Page.
@@ -606,7 +607,7 @@ codeunit 137163 "SCM Orders VI"
     procedure PostPurchaseReturnOrderWithExactCostReversingMandatoryTrue()
     begin
         // Setup.
-        Initialize;
+        Initialize(false);
         PostPurchaseReturnOrderWithExactCostReversingMandatory(true);  // ExactCostReversingMandatory as TRUE.
     end;
 
@@ -615,7 +616,7 @@ codeunit 137163 "SCM Orders VI"
     procedure PostPurchaseReturnOrderWithExactCostReversingMandatoryFalse()
     begin
         // Setup.
-        Initialize;
+        Initialize(false);
         PostPurchaseReturnOrderWithExactCostReversingMandatory(false);  // ExactCostReversingMandatory as FALSE.
     end;
 
@@ -630,7 +631,7 @@ codeunit 137163 "SCM Orders VI"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         // Setup: Create and register Put-away from Purchase Order. Create and Register Pick from Purchase Return Order.
-        Initialize;
+        Initialize(false);
         LibraryInventory.CreateItem(Item);
         CreateAndRegisterPutAwayFromPurchaseOrder(PurchaseLine, Item."No.", LocationGreen.Code);
         CreatePickFromPurchaseReturnOrder(
@@ -658,7 +659,7 @@ codeunit 137163 "SCM Orders VI"
         PostedDocumentNo: Code[20];
     begin
         // Setup: Create and post Purchase Order. Create and Post Purchase Credit Memo with Get Return Shipment Line.
-        Initialize;
+        Initialize(false);
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreateVendor(Vendor);
         PostedDocumentNo :=
@@ -689,7 +690,7 @@ codeunit 137163 "SCM Orders VI"
         ToDocumentType2: Option ,,"Order",Invoice;
     begin
         // Setup: Copy Document after create and post Purchase Order. Create negative Purchase Line in the Purchase Order.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandDec(50, 2);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryInventory.CreateItem(Item);
@@ -718,14 +719,14 @@ codeunit 137163 "SCM Orders VI"
         ItemTrackingMode: Option AssignLotNo,UpdateQuantityToInvoice;
     begin
         // Setup: Create and Post Purchase Order as SHIP with Lot No. Update Quantity to Invoice on Item Tracking line.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandDec(10, 2);
         Quantity2 := Quantity + LibraryRandom.RandDec(10, 2);  // Quantity Shipped is greater than Quantity to Invoice.
         LibraryItemTracking.CreateLotItem(Item);
         CreateAndPostPurchaseOrderWithLotNo(PurchaseHeader, PurchaseLine, Item."No.", Quantity2);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::UpdateQuantityToInvoice);  // Enqueue for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(Quantity);  // Enqueue for ItemTrackingLinesPageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         // Exercise.
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);  // Post as INVOICE.
@@ -747,7 +748,7 @@ codeunit 137163 "SCM Orders VI"
         Quantity: Decimal;
     begin
         // Setup: Create two Purchase Return Orders.
-        Initialize;
+        Initialize(false);
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -776,7 +777,7 @@ codeunit 137163 "SCM Orders VI"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize(false);
         UndoPurchaseDocumentForAppliedQuantity(PurchaseHeader."Document Type"::Order, 1);  // Undo Purchase Receipt for Applied Quantity.
     end;
 
@@ -787,7 +788,7 @@ codeunit 137163 "SCM Orders VI"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize(false);
         UndoPurchaseDocumentForAppliedQuantity(PurchaseHeader."Document Type"::"Return Order", -1);  // Undo Sales Shipment for Applied Quantity.
     end;
 
@@ -795,7 +796,7 @@ codeunit 137163 "SCM Orders VI"
     [Scope('OnPrem')]
     procedure PostedPurchaseReceiptPageAfterPostPurchaseOrderWithSpecialOrder()
     begin
-        Initialize;
+        Initialize(false);
         PostPurchaseOrderWithSpecialOrder(false);  // Post Special Order Fully.
     end;
 
@@ -803,7 +804,7 @@ codeunit 137163 "SCM Orders VI"
     [Scope('OnPrem')]
     procedure PostedPurchaseReceiptsPageAfterPartiallyPostPurchaseOrderWithSpecialOrder()
     begin
-        Initialize;
+        Initialize(false);
         PostPurchaseOrderWithSpecialOrder(true);  // Post Special Order Partially.
     end;
 
@@ -818,7 +819,7 @@ codeunit 137163 "SCM Orders VI"
         PostedDocumentNo: Code[20];
     begin
         // Setup: Create and Post Purchase Order.
-        Initialize;
+        Initialize(false);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
           CreateAndPostPurchaseDocument(
@@ -844,7 +845,7 @@ codeunit 137163 "SCM Orders VI"
         PostedDocumentNo: Code[20];
     begin
         // Setup: Create and Post Purchase Order. Reopen the Purchase Order.
-        Initialize;
+        Initialize(false);
         LibraryInventory.CreateItem(Item);
         PostedDocumentNo :=
           CreateAndPostPurchaseDocument(
@@ -872,7 +873,7 @@ codeunit 137163 "SCM Orders VI"
         PostedDocumentNo: Code[20];
     begin
         // Setup: Create and Post Purchase Order. Reopen Purchase Order and update Quantity on Purchase line.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandDec(10, 2);
         Quantity2 := Quantity + LibraryRandom.RandDec(10, 2);  // Greater value required for the Quantity in the test.
         LibraryInventory.CreateItem(Item);
@@ -907,7 +908,7 @@ codeunit 137163 "SCM Orders VI"
         LineNo: Integer;
     begin
         // Setup: Set Expected Cost Posting to GL on Inventory Setup. Create and Post Purchase Order. Undo Posted Purchase Receipt.
-        Initialize;
+        Initialize(false);
         OldExpectedCostPostingToGL := UpdateExpectedCostPostingToGLOnInventorySetup(true);
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
@@ -945,7 +946,7 @@ codeunit 137163 "SCM Orders VI"
         Quantity: Decimal;
     begin
         // Setup: Create Purchase Order with Item Charge Assignment. Post the Order as Receive. Undo the Purchase Receipt. Create new Purchase Line and assign Item Charge.
-        Initialize;
+        Initialize(false);
         Quantity := LibraryRandom.RandInt(50);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemCharge(ItemCharge);
@@ -971,7 +972,7 @@ codeunit 137163 "SCM Orders VI"
     procedure PostPurchaseOrderAsReceiveAndInvoiceWithDifferentBuyFromVendorAndPayToVendor()
     begin
         // Setup.
-        Initialize;
+        Initialize(false);
         PostCreditMemoAgainstPurchaseReturnOrderUsingPayToVendorDifferentFromPurchaseOrder(false, false);  // Use Return Order as False and Credit Memo as False.
     end;
 
@@ -981,7 +982,7 @@ codeunit 137163 "SCM Orders VI"
     procedure PostPurchaseReturnOrderAsShipUsingPayToVendorDifferentFromPurchaseOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize(false);
         PostCreditMemoAgainstPurchaseReturnOrderUsingPayToVendorDifferentFromPurchaseOrder(true, false);  // Use Return Order as True and Credit Memo as False.
     end;
 
@@ -991,7 +992,7 @@ codeunit 137163 "SCM Orders VI"
     procedure PostCreditMemoUsingPayToVendorDifferentFromPurchaseOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize(false);
         PostCreditMemoAgainstPurchaseReturnOrderUsingPayToVendorDifferentFromPurchaseOrder(true, true);  // Use Return Order as True and Credit Memo as True.
     end;
 
@@ -1005,7 +1006,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseOrderNo: Code[20];
     begin
         // Setup: Create Vendor. Create Purchase Order By Page.
-        Initialize;
+        Initialize(false);
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseOrderByPage(PurchaseOrder);
 
@@ -1030,7 +1031,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [SCENARIO 339745] Check total Discount Amount after posting Purchase Invoice with Item Charge
         // [GIVEN] Purchase Invoice with Charge Item with line discount and invoice discount.
-        Initialize;
+        Initialize(false);
 
         ExpdTotalDisAmt :=
           CreatePurchInvoiceWithItemChargeWithLnDiscAndInvDisc(
@@ -1057,7 +1058,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // Setup: Create vendor, item, create and post purchase order with item.
         // Create and post purchase invoice with charge item with line discount and invoice discount.
-        Initialize;
+        Initialize(false);
 
         ExpdTotalDisAmt :=
           CreatePurchInvoiceWithItemChargeWithLnDiscAndInvDisc(
@@ -1075,7 +1076,7 @@ codeunit 137163 "SCM Orders VI"
     procedure FillPurchasingCodeAsSpecialOrderWhenReservationEntryExist()
     begin
         // Test an error pops up when filling Purchasing Code as Special Order when Reservation Entry exists.
-        Initialize;
+        Initialize(false);
         FillPurchasingCodeWhenReservationEntryExist(false, true); // Speical Order as TRUE.
     end;
 
@@ -1084,7 +1085,7 @@ codeunit 137163 "SCM Orders VI"
     procedure FillPurchasingCodeAsDropShipmentWhenReservationEntryExist()
     begin
         // Test an error pops up when filling Purchasing Code as Drop Shiment when Reservation Entry exists.
-        Initialize;
+        Initialize(false);
         FillPurchasingCodeWhenReservationEntryExist(true, false); // Drop Shiment as TRUE.
     end;
 
@@ -1093,7 +1094,7 @@ codeunit 137163 "SCM Orders VI"
     procedure ChangeReserveOptionAfterFillingPurchasingCodeAsSpecialOrder()
     begin
         // Test an error pops up when changing Reserve from Never to Always when Sales Order is marked to Special Order.
-        Initialize;
+        Initialize(false);
         ChangeReserveOptionAfterFillingPurchasingCode(false, true); // Speical Order as TRUE.
     end;
 
@@ -1102,7 +1103,7 @@ codeunit 137163 "SCM Orders VI"
     procedure ChangeReserveOptionAfterFillingPurchasingCodeAsDropShipment()
     begin
         // Test an error pops up when changing Reserve from Never to Always when Sales Order is marked to Drop Shipment.
-        Initialize;
+        Initialize(false);
         ChangeReserveOptionAfterFillingPurchasingCode(true, false); // Drop Shiment as TRUE.
     end;
 
@@ -1115,7 +1116,7 @@ codeunit 137163 "SCM Orders VI"
         DocumentNo: Code[20];
     begin
         // Setup: Create Location and Item. Create and register Put-away from Purchase Order.
-        Initialize;
+        Initialize(false);
         GeneralSetupForRegisterPutAway(PurchaseLine);
         FindPurchaseReceiptLine2(PurchaseLine."Buy-from Vendor No.", PurchaseLine."No.", DocumentNo);
 
@@ -1137,7 +1138,7 @@ codeunit 137163 "SCM Orders VI"
         ReturnShipmentLine: Record "Return Shipment Line";
     begin
         // Setup: Create and register Put-away from Purchase Order. Create and Register Pick from Purchase Return Order. Post Warehouse Shipment.
-        Initialize;
+        Initialize(false);
         GeneralSetupForRegisterPutAway(PurchaseLine);
         PostWhseShipmentAfterPickFromPurchReturnOrder(
           PurchaseLine."Buy-from Vendor No.", PurchaseLine."No.", PurchaseLine."Location Code", PurchaseLine.Quantity);
@@ -1163,7 +1164,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Special Order] [Reservation]
         // [SCENARIO 375318] Purchase Order with Special Order option should not be Auto Reserved by another Sales Order
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Purchase Order "P" for Special Sales Order "S1"
         CreateSpecialOrderSalesAndPurchase(SalesHeader, SalesLine);
@@ -1192,7 +1193,7 @@ codeunit 137163 "SCM Orders VI"
         // [FEATURE] [Special Order] [Reservation]
         // [SCENARIO 376890] Item ledger entry posted from special order cannot be reserved for another sales order
 
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Create sales order "SO1" and purchase order "PO" with special order link
         CreateSpecialOrderSalesAndPurchase(SalesHeader, SalesLine);
@@ -1225,7 +1226,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Special Order] [Reservation]
         // [SCENARIO 376890] Item ledger entry posted from special order can be reserved for another sales order after the special sales order is shipped.
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create sales order "SO1" and purchase order "PO" with special order link.
         CreateSpecialOrderSalesAndPurchase(SalesHeader, SalesLine);
@@ -1264,7 +1265,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Special Order] [Reservation]
         // [SCENARIO 376890] Item ledger entry posted from special order cannot be reserved for another sales order before the special sales order is shipped.
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Create sales order "SO1" and purchase order "PO" with special order link.
         CreateSpecialOrderSalesAndPurchase(SalesHeader, SalesLine);
@@ -1300,7 +1301,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase Order] [Extended Text]
         // [SCENARIO 376033] Move Negative Lines should not copy Extended Text lines that are attached to Purchase Lines with positive Quantity
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Purchase Order with two Lines
         VendorNo := LibraryPurchase.CreateVendorNo;
@@ -1337,7 +1338,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase Return Order] [Unit of Measure] [UT]
         // [SCENARIO 376171] Validating of Unit of Measure code should be prohibited if "Return Qty. Shipped" is not zero
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Purchase Return Order Line with "Return Qty. Shipped" <> 0
         CreatePurchOrderWithQuantityShipped(PurchaseLine, 0, LibraryRandom.RandInt(10));
@@ -1357,7 +1358,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase Return Order] [Unit of Measure] [UT]
         // [SCENARIO 376171] Validating of Unit of Measure code should be prohibited if "Return Qty. Shipped (Base)" is not zero.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Purchase Return Order Line with "Return Qty. Shipped (Base)" <> 0
         CreatePurchOrderWithQuantityShipped(PurchaseLine, LibraryRandom.RandInt(10), 0);
@@ -1379,7 +1380,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Drop Shipment] [Location Mandatory]
         // [SCENARIO 381228] Purchase Order for drop shipment with blank location cannot be created from the Requisition Line when "Location Mandatory" is selected in Inventory Setup.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] "Location Mandatory" is set to TRUE.
         LibraryInventory.SetLocationMandatory(true);
@@ -1406,7 +1407,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Item Cross Reference] [Planning]
         // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when validate "Vendor No." in "Requisition Line"
-        Initialize;
+        Initialize(false);
 
         LibraryPurchase.CreateVendor(Vendor);
         LibraryInventory.CreateItem(Item);
@@ -1425,6 +1426,34 @@ codeunit 137163 "SCM Orders VI"
 
     [Test]
     [Scope('OnPrem')]
+    procedure Description2FromItemReferenceOnValidateRequisitionLineVendorNo()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Item Reference] [Planning]
+        // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when validate "Vendor No." in "Requisition Line"
+        Initialize(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] "Item Reference" "R" for Item "I" and Vendor "V" with populated "Description 2"
+        CreateItemReferenceForVendor(ItemReference, Item."No.", Vendor."No.");
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+
+        // [WHEN] validate fields "No." and "Vendor No." of "Requisition Line" "L" with "I" and "V"
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate("Vendor No.", Vendor."No.");
+
+        // [THEN] "L"."Description 2" = "R"."Description 2"
+        RequisitionLine.TestField("Description 2", ItemReference."Description 2");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure Description2FromItemCrossReferenceOnValidatePurchaseLineCrossReferenceFields()
     var
         Vendor: Record Vendor;
@@ -1435,7 +1464,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Item Cross Reference] [Purchase]
         // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when validate cross reference fields in "Purchase Line"
-        Initialize;
+        Initialize(false);
 
         LibraryPurchase.CreateVendor(Vendor);
         LibraryInventory.CreateItem(Item);
@@ -1459,6 +1488,40 @@ codeunit 137163 "SCM Orders VI"
 
     [Test]
     [Scope('OnPrem')]
+    procedure Description2FromItemReferenceOnValidatePurchaseLineItemReferenceFields()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Item Reference] [Purchase]
+        // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when validate item reference fields in "Purchase Line"
+        Initialize(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Purchase document with Item "I" contains line "L"
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
+          Vendor."No.", Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+
+        // [GIVEN] "Item Reference" "R" for "I" and Vendor "V" with populated "Description 2"
+        CreateItemReferenceForVendor(ItemReference, Item."No.", Vendor."No.");
+
+        // [WHEN] validate Item Reference fields of "L" with "R"
+        PurchaseLine.Validate("Item Reference Type", PurchaseLine."Item Reference Type"::Vendor);
+        PurchaseLine.Validate("Item Reference Type No.", Vendor."No.");
+        PurchaseLine.Validate("Item Reference No.", ItemReference."Reference No.");
+
+        // [THEN] "L"."Description 2" = "R"."Description 2"
+        PurchaseLine.TestField("Description 2", ItemReference."Description 2");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure Description2FromItemCrossReferenceOnValidateSalesLineCrossReferenceFields()
     var
         Customer: Record Customer;
@@ -1469,7 +1532,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Item Cross Reference] [Sales]
         // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when validate cross reference fields in "Sales Line"
-        Initialize;
+        Initialize(false);
 
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
@@ -1491,6 +1554,39 @@ codeunit 137163 "SCM Orders VI"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure Description2FromItemReferenceOnValidateSalesLineItemReferenceFields()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Item Reference] [Sales]
+        // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when validate item reference fields in "Sales Line"
+        Initialize(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Sales document with Item "I" contains line "L"
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+
+        // [GIVEN] "Item Reference" "R" for "I" and Customer "C" with populated "Description 2"
+        CreateItemReferenceForCustomer(ItemReference, Item."No.", Customer."No.");
+
+        // [WHEN] validate Item Reference fields of "L" with "R"
+        SalesLine.Validate("Item Reference Type", SalesLine."Item Reference Type"::Customer);
+        SalesLine.Validate("Item Reference Type No.", Customer."No.");
+        SalesLine.Validate("Item Reference No.", ItemReference."Reference No.");
+
+        // [THEN] "L"."Description 2" = "R"."Description 2"
+        SalesLine.TestField("Description 2", ItemReference."Description 2");
+    end;
+
+    [Test]
     [HandlerFunctions('SalesListModalPageHandler')]
     [Scope('OnPrem')]
     procedure Description2FromItemCrossReferenceOnGetDropShipment()
@@ -1504,7 +1600,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Item Cross Reference] [Drop Shipment]
         // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when get drop shipment
-        Initialize;
+        Initialize(false);
 
         LibrarySales.CreateCustomer(Customer);
         LibraryPurchase.CreateVendor(Vendor);
@@ -1526,6 +1622,41 @@ codeunit 137163 "SCM Orders VI"
     end;
 
     [Test]
+    [HandlerFunctions('SalesListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure Description2FromItemReferenceOnGetDropShipment()
+    var
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Item Reference] [Drop Shipment]
+        // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when get drop shipment
+        Initialize(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] "Item Reference" "R" for Item "I" and Vendor "V" with populated "Description 2"
+        CreateItemReferenceForVendor(ItemReference, Item."No.", Vendor."No.");
+
+        // [GIVEN] Sales order with drop shipment and corresponding purchase order
+        CreatePurchOrderWithSelltoCustomerNo(PurchaseHeader, Vendor."No.", Customer."No.");
+        LibraryVariableStorage.Enqueue(CreateDropShipmentSalesOrder(Customer."No.", Item."No."));
+
+        // [WHEN] Run "Get Sales Orders" from the purchase order and select the sales order with drop shipment
+        LibraryPurchase.GetDropShipment(PurchaseHeader);
+        FindPurchaseLine(PurchaseLine, Item."No.");
+
+        // [THEN] Purchase line "L" is created and "L"."Description 2" = "R"."Description 2"
+        PurchaseLine.TestField("Description 2", ItemReference."Description 2");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure Description2FromItemCrossReferenceOnValidatePurchaseLineNo()
     var
@@ -1536,7 +1667,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Item Cross Reference] [Purchase]
         // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when validate "No." in "Purchase Line"
-        Initialize;
+        Initialize(false);
 
         LibraryPurchase.CreateVendor(Vendor);
         LibraryInventory.CreateItem(Item);
@@ -1557,6 +1688,36 @@ codeunit 137163 "SCM Orders VI"
 
     [Test]
     [Scope('OnPrem')]
+    procedure Description2FromItemReferenceOnValidatePurchaseLineNo()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Item Reference] [Purchase]
+        // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when validate "No." in "Purchase Line"
+        Initialize(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] "Item Reference" "R" for Item "I" and Vendor "V" with populated "Description 2"
+        CreateItemReferenceForVendor(ItemReference, Item."No.", Vendor."No.");
+
+        // [GIVEN] Blank line "L" of purchase order with "Buy-from Vendor No." = "V"
+        CreatePurchaseOrderWithBlankLine(PurchaseLine, Vendor."No.");
+
+        // [WHEN] validate "L" with "I"
+        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
+        PurchaseLine.Validate("No.", Item."No.");
+
+        // [THEN] "L"."Description 2" = "R"."Description 2"
+        PurchaseLine.TestField("Description 2", ItemReference."Description 2");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure Description2FromItemCrossReferenceOnValidateSalesLineNo()
     var
         Customer: Record Customer;
@@ -1566,7 +1727,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Item Cross Reference] [Sales]
         // [SCENARIO 257873] "Description 2" is populated from "Item Cross Reference" when validate "No." in "Sales Line"
-        Initialize;
+        Initialize(false);
 
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
@@ -1587,6 +1748,36 @@ codeunit 137163 "SCM Orders VI"
 
     [Test]
     [Scope('OnPrem')]
+    procedure Description2FromItemReferenceOnValidateSalesLineNo()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Item Reference] [Sales]
+        // [SCENARIO 257873] "Description 2" is populated from "Item Reference" when validate "No." in "Sales Line"
+        Initialize(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] "Item Reference" "R" for "I" and Customer "C" with populated "Description 2"
+        CreateItemReferenceForCustomer(ItemReference, Item."No.", Customer."No.");
+
+        // [GIVEN] Blank line "L" of sales order with "Sell-to Customer No." = "C"
+        CreateSalesOrderWithBlankLine(SalesLine, Customer."No.");
+
+        // [WHEN] validate "L" with "I"
+        SalesLine.Validate(Type, SalesLine.Type::Item);
+        SalesLine.Validate("No.", Item."No.");
+
+        // [THEN] "L"."Description 2" = "R"."Description 2"
+        SalesLine.TestField("Description 2", ItemReference."Description 2");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure DescriptionFromItemCrossReferenceOnCreateItemVendor()
     var
         Language: Record Language;
@@ -1598,10 +1789,10 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Item Cross Reference] [Item Vendor]
         // [SCENARIO 257873] Description and "Description 2" in "Item Cross Reference" must stay empty when "Item Vendor" is created
-        Initialize;
+        Initialize(false);
 
-        Language.Validate(Code, LibraryUtility.GenerateGUID);
-        Language.Insert(true);
+        // TODO: BUG 134976 - Get random codes
+        Language.Get('ENU');
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Vendor "V" with language code
@@ -1625,6 +1816,44 @@ codeunit 137163 "SCM Orders VI"
 
     [Test]
     [Scope('OnPrem')]
+    procedure DescriptionFromItemReferenceOnCreateItemVendor()
+    var
+        Language: Record Language;
+        Vendor: Record Vendor;
+        Item: Record Item;
+        ItemVendor: Record "Item Vendor";
+        ItemReference: Record "Item Reference";
+        ItemTranslation: Record "Item Translation";
+    begin
+        // [FEATURE] [Item Reference] [Item Vendor]
+        // [SCENARIO 257873] Description and "Description 2" in "Item Reference" must stay empty when "Item Vendor" is created
+        Initialize(true);
+
+        // TODO: BUG 134976 - Get random codes
+        Language.Get('ENU');
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Vendor "V" with language code
+        Vendor.Validate("Language Code", Language.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create Item "I"
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Item Translation "T" for "I" with "Description" and "Description 2"
+        CreateItemTranslation(ItemTranslation, Item."No.", Language.Code);
+
+        // [WHEN] create "Item Vendor" for "I" and "V"
+        LibraryInventory.CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
+
+        // [THEN] "Item Reference" is created; "Description" and "Description 2" are empty
+        FindItemReferenceByVendorNo(ItemReference, Item."No.", Vendor."No.");
+        ItemReference.TestField(Description, '');
+        ItemReference.TestField("Description 2", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CarryOutActionInsertProductionOrderTakesEarliestStartingDateTime()
     var
         RequisitionLine: array[3] of Record "Requisition Line";
@@ -1638,7 +1867,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Planning]
         // [SCENARIO 289230] Carry Out Action.InsertProductionOrder takes the earliest Starting Date and Time when created from multiple Requisition Lines
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] A Requisition Worksheet Template and Name
         CreateReqWkshTemplateName(ReqWkshTemplate, RequisitionWkshName);
@@ -1684,7 +1913,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Production Order] [Prod. Order Component] [Make-to-Order]
         // [SCENARIO 293010] Validating Item No on a new Production Order line doesn't change Planning Level Code for Production Order Components
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Production Order
         LibraryManufacturing.CreateProductionOrder(
@@ -1719,7 +1948,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Production Order] [Prod. Order Component] [Make-to-Order]
         // [SCENARIO 293010] Validating Item No on an existing Production Order line changes Planning Level Code for Production Order Components Supplied by this line
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Production Order
         LibraryManufacturing.CreateProductionOrder(
@@ -1774,7 +2003,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Production Order] [Prod. Order Component] [Inventory Pick] [Reservation]
         // [SCENARIO 301474] Inventory Pick posted for Production Order when there is a partial reservation from Production Order Component to a Purchase Order
-        Initialize;
+        Initialize(false);
 
         PerQty := LibraryRandom.RandIntInRange(2, 5);
         PurchQty := LibraryRandom.RandIntInRange(2, 5) * PerQty;
@@ -1835,7 +2064,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase] [Undo Receipt] [Job]
         // [SCENARIO 306371] Undo Purchase Receipt Lines works for 2 receipt lines with Job No.
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Create 2 Items
         for i := 1 to ArrayLen(Item) do
@@ -1862,7 +2091,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Sales] [Order] [Non-Inventoriable]
         // [SCENARIO 348918] "Qty. To Ship" is set to "Outstanding Quantity" in Sales Order Lines for Non-Inventoriable Items when Shipment Required On Warehouse Setup
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Shipment Required on Warehouse Setup
         LibraryWarehouse.SetRequireShipmentOnWarehouseSetup(true);
@@ -1889,7 +2118,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // [FEATURE] [Purchase] [Order] [Non-Inventoriable]
         // [SCENARIO 348918] "Qty. To Receive" is set to "Outstanding Quantity" in Purchase Order Lines for Non-Inventoriable Items when Receive Required On Warehouse Setup
-        Initialize;
+        Initialize(false);
 
         // [GIVEN] Receive Required on Warehouse Setup
         LibraryWarehouse.SetRequireReceiveOnWarehouseSetup(true);
@@ -1906,24 +2135,25 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.TestField("Qty. to Receive", PurchaseLine.Quantity);
     end;
 
-    local procedure Initialize()
+    local procedure Initialize(Enable: Boolean)
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
-        LibraryERM.SetWorkDate; // IT.
-        DisableNotifications;
+        LibraryItemReference.EnableFeature(Enable);
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
+        LibraryERM.SetWorkDate(); // IT.
+        DisableNotifications();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Orders VI");
 
-        InitializeCountryData;
+        InitializeCountryData();
 
-        NoSeriesSetup;
+        NoSeriesSetup();
         LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
-        LocationSetup;
+        LocationSetup();
 
         isInitialized := true;
         Commit();
@@ -2013,13 +2243,13 @@ codeunit 137163 "SCM Orders VI"
     var
         PurchaseLine: Record "Purchase Line";
         PostedPurchaseInvoice: Code[20];
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         PostedPurchaseInvoice :=
           CreateAndPostPurchaseDocument(
             PurchaseHeader, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, VendorNo, ItemNo, Quantity, true);  // Post as INVOICE.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Invoice", PostedPurchaseInvoice, false, true);  // TRUE for RecalculateLines.
+        LibraryPurchase.CopyPurchaseDocument(
+            PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PostedPurchaseInvoice, false, true);  // TRUE for RecalculateLines.
     end;
 
     local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; UnitAmount: Decimal)
@@ -2035,7 +2265,7 @@ codeunit 137163 "SCM Orders VI"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; Type: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; Invoice: Boolean) PostedDocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; Invoice: Boolean) PostedDocumentNo: Code[20]
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2049,7 +2279,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, LibraryPurchase.CreateVendorNo, ItemNo, Quantity);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignLotNo);  // Enqueue for ItemTrackingLinesPageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Post as RECEIVE.
     end;
 
@@ -2072,11 +2302,10 @@ codeunit 137163 "SCM Orders VI"
     end;
 
     local procedure CreateAndPostPurchaseReturnOrderWithCopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; PostedPurchaseInvoiceNo: Code[20])
-    var
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", VendorNo);
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Invoice", PostedPurchaseInvoiceNo, false, true);  // TRUE for RecalculateLines.
+        LibraryPurchase.CopyPurchaseDocument(
+            PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PostedPurchaseInvoiceNo, false, true);  // TRUE for RecalculateLines.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Post as RECEIVE.
     end;
 
@@ -2244,24 +2473,24 @@ codeunit 137163 "SCM Orders VI"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, false, true, false);
     end;
 
-    local procedure CreatePurchaseBlanketOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseBlanketOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order", Type, VendorNo, ItemNo, Quantity);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Type: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, ItemNo, Quantity);
     end;
 
-    local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, Type, VendorNo, ItemNo, Quantity);
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Type, VendorNo, ItemNo, Quantity);
     end;
@@ -2300,7 +2529,7 @@ codeunit 137163 "SCM Orders VI"
         UpdateReasonCodeAndVendorCreditMemoNoOnPurchaseHeader(PurchaseHeader);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(50, 2));
@@ -2314,7 +2543,7 @@ codeunit 137163 "SCM Orders VI"
         LibraryVariableStorage.Enqueue(false);  // Enqueue for ItemChargeAssignmentPurchPageHandler.
         LibraryVariableStorage.Enqueue(Quantity);  // Enqueue for ItemChargeAssignmentPurchPageHandler.
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", ItemChargeNo, Quantity);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
     end;
 
     local procedure CreatePurchaseOrderWithDifferentBuyFromVendorAndPayToVendor(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var Vendor: Record Vendor; var Vendor2: Record Vendor)
@@ -2343,7 +2572,7 @@ codeunit 137163 "SCM Orders VI"
         PurchasingCode := Purchasing.Code
     end;
 
-    local procedure CreatePurchaseDocumentWithItemChargeAssignmentWithLnDiscAndInvDisc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; PricesIncludingVAT: Boolean; Quantity: Decimal; DirectCost: Decimal; LnDiscPct: Decimal): Decimal
+    local procedure CreatePurchaseDocumentWithItemChargeAssignmentWithLnDiscAndInvDisc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PricesIncludingVAT: Boolean; Quantity: Decimal; DirectCost: Decimal; LnDiscPct: Decimal): Decimal
     var
         ItemCharge: Record "Item Charge";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -2405,7 +2634,7 @@ codeunit 137163 "SCM Orders VI"
             LibraryVariableStorage.Enqueue(PostedDocNo[i]);  // PostedDocumentNo used in PurchReceiptLinePageHandler.
             if i > 1 then
                 LibraryVariableStorage.Enqueue(1); // Select Equally when suggest item charge.
-            PurchaseLine2.ShowItemChargeAssgnt;
+            PurchaseLine2.ShowItemChargeAssgnt();
         end;
 
         ExpdTotalDisAmt := FindPurchaseInvoice(PurchaseHeader2, PurchaseLine2); // Need find it before posting.
@@ -2467,7 +2696,7 @@ codeunit 137163 "SCM Orders VI"
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; Type: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Tax Area Code", '');  // Required for CA.
@@ -2475,7 +2704,7 @@ codeunit 137163 "SCM Orders VI"
         CreateSalesLine(SalesHeader, SalesLine, Type, ItemNo, Quantity, LocationCode);
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Type, CustomerNo, ItemNo, Quantity, LocationCode);
     end;
@@ -2527,14 +2756,14 @@ codeunit 137163 "SCM Orders VI"
           SalesHeader, SalesLine, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10), '', CreatePurchasingCode(false, true));
     end;
 
-    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, Quantity);
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesLineWithPurchasingCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; PurchasingCode: Code[10])
+    local procedure CreateSalesLineWithPurchasingCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; PurchasingCode: Code[10])
     begin
         CreateSalesLine(SalesHeader, SalesLine, Type, ItemNo, Quantity, LocationCode);
         SalesLine.Validate("Purchasing Code", PurchasingCode);
@@ -2600,6 +2829,20 @@ codeunit 137163 "SCM Orders VI"
         UpdateItemCrossReferenceDescriptions(ItemCrossReference);
     end;
 
+    local procedure CreateItemReferenceForVendor(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; VendorNo: Code[20])
+    begin
+        LibraryItemReference.CreateItemReference(
+            ItemReference, ItemNo, "Item Reference Type"::Vendor, VendorNo);
+        UpdateItemReferenceDescriptions(ItemReference);
+    end;
+
+    local procedure CreateItemReferenceForCustomer(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; CustomerNo: Code[20])
+    begin
+        LibraryItemReference.CreateItemReference(
+            ItemReference, ItemNo, "Item Reference Type"::Customer, CustomerNo);
+        UpdateItemReferenceDescriptions(ItemReference);
+    end;
+
     local procedure CreatePurchaseOrderWithBlankLine(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2641,7 +2884,7 @@ codeunit 137163 "SCM Orders VI"
         LibraryVariableStorage.Enqueue(true);  // Enqueue for ConfirmHandler.
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; EntryType: Option; ItemNo: Code[20])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Document Type", DocumentType);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
@@ -2650,7 +2893,7 @@ codeunit 137163 "SCM Orders VI"
         ItemLedgerEntry.FindFirst;
     end;
 
-    local procedure FindPostedWhseShipmentLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; SourceDocument: Option; ItemNo: Code[20])
+    local procedure FindPostedWhseShipmentLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20])
     begin
         PostedWhseShipmentLine.SetRange("Source Document", SourceDocument);
         PostedWhseShipmentLine.SetRange("Item No.", ItemNo);
@@ -2689,7 +2932,7 @@ codeunit 137163 "SCM Orders VI"
         ReturnShipmentLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
     begin
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -2697,14 +2940,14 @@ codeunit 137163 "SCM Orders VI"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
         WarehouseShipmentLine.FindFirst;
     end;
 
-    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
@@ -2750,6 +2993,15 @@ codeunit 137163 "SCM Orders VI"
         ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
         ItemCrossReference.SetRange("Cross-Reference Type No.", VendorNo);
         ItemCrossReference.FindFirst;
+    end;
+
+    local procedure FindItemReferenceByVendorNo(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; VendorNo: Code[20])
+    begin
+        ItemReference.SetRange("Item No.", ItemNo);
+        ItemReference.SetRange("Variant Code", '');
+        ItemReference.SetRange("Reference Type", "Item Reference Type"::Vendor);
+        ItemReference.SetRange("Reference Type No.", VendorNo);
+        ItemReference.FindFirst();
     end;
 
     local procedure FillPurchasingCodeWhenReservationEntryExist(DropShipment: Boolean; SpecialOrder: Boolean)
@@ -3008,7 +3260,7 @@ codeunit 137163 "SCM Orders VI"
         UpdatePurchasePayableSetup(OldExactCostReversingMandatory);
     end;
 
-    local procedure PostWarehouseReceipt(SourceDocument: Option; SourceNo: Code[20])
+    local procedure PostWarehouseReceipt(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
@@ -3018,7 +3270,7 @@ codeunit 137163 "SCM Orders VI"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
-    local procedure PostWarehouseShipment(SourceDocument: Option; SourceNo: Code[20])
+    local procedure PostWarehouseShipment(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
@@ -3042,7 +3294,7 @@ codeunit 137163 "SCM Orders VI"
         PostWarehouseShipment(WarehouseShipmentLine."Source Document"::"Purchase Return Order", PurchaseHeader."No.");
     end;
 
-    local procedure RegisterWarehouseActivity(SourceDocument: Option; SourceNo: Code[20]; ItemNo: Code[20]; Type: Option)
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Type: Option)
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -3094,7 +3346,7 @@ codeunit 137163 "SCM Orders VI"
         LibraryPurchase.UndoReturnShipmentLine(ReturnShipmentLine);
     end;
 
-    local procedure UndoPurchaseDocumentForAppliedQuantity(DocumentType: Option; SignFactor: Integer)
+    local procedure UndoPurchaseDocumentForAppliedQuantity(DocumentType: Enum "Purchase Document Type"; SignFactor: Integer)
     var
         PurchaseLine: Record "Purchase Line";
         PurchaseHeader: Record "Purchase Header";
@@ -3257,6 +3509,13 @@ codeunit 137163 "SCM Orders VI"
         ItemCrossReference.Modify(true);
     end;
 
+    local procedure UpdateItemReferenceDescriptions(var ItemReference: Record "Item Reference")
+    begin
+        ItemReference.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(ItemReference.Description)));
+        ItemReference.Validate("Description 2", LibraryUtility.GenerateRandomText(MaxStrLen(ItemReference."Description 2")));
+        ItemReference.Modify(true);
+    end;
+
     local procedure UpdateJobNoAndJobTaskNoOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task")
     begin
         PurchaseLine.Validate("Job No.", JobTask."Job No.");
@@ -3264,7 +3523,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure VerifyGLEntry(DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -3275,7 +3534,7 @@ codeunit 137163 "SCM Orders VI"
         GLEntry.TestField(Amount, Amount);
     end;
 
-    local procedure VerifyItemLedgerEntry(DocumentType: Option; OrderNo: Code[20]; EntryType: Option; ItemNo: Code[20]; ExpectedQuantity: Decimal)
+    local procedure VerifyItemLedgerEntry(DocumentType: Enum "Item Ledger Document Type"; OrderNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; ExpectedQuantity: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -3329,7 +3588,7 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.TestField("Quantity Received", QuantityReceived);
     end;
 
-    local procedure VerifyQtyToInvoiceOnPurchaseLine(ItemNo: Code[20]; DocumentType: Option; Quantity: Decimal)
+    local procedure VerifyQtyToInvoiceOnPurchaseLine(ItemNo: Code[20]; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin

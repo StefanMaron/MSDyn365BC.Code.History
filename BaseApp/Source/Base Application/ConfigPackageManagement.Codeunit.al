@@ -39,14 +39,12 @@ codeunit 8611 "Config. Package Management"
         MSGPPackageCodeTxt: Label 'GB.ENU.CSV';
         QBPackageCodeTxt: Label 'DM.IIF';
         RapidStartTxt: Label 'RapidStart', Locked = true;
-        IntegrationRecordErr: Label 'Cannot import table %1 through a Configuration Package.', Comment = '%1 = The name of the table.';
-        RSNotificaitonMsg: Label 'This page is intented for setting up new companies. To migrate large amount of data you should consider other alternatives such as "Data Migration From Excel" or "Edit in Excel".';
+        ImportNotAllowedErr: Label 'Cannot import table %1 through a Configuration Package.', Comment = '%1 = The name of the table.';
+        RSNotificaitonMsg: Label 'Use configuration packages to import data when setting up new companies. Depending on the amount of data, this can take time and impact system performance for all users.';
         UsingBigRSPackageTxt: Label 'The user is shown a warning for action: %1. reason: %2', Locked = true;
         AcknowledgePerformanceImpactTxt: Label 'The user was informed about the potential of poor perfomance and decided to continue. Process: %1', Locked = true;
         LearnMoreTok: Label 'Learn more';
-        EvaluationInfoMsg: Label 'We have improved date and time calculations in configuration packages. Dates and times are now always treated in the local time. This ensures that dates are accurate in regions with a negative offset for UTC.';
-        RapidStartDocumentationUrlTxt: Label 'https://docs.microsoft.com/en-us/dynamics365/business-central/admin-set-up-a-company-with-rapidstart';
-        HotfixInfoUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2132822';
+        RapidStartDocumentationUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2121629';
 
     procedure InsertPackage(var ConfigPackage: Record "Config. Package"; PackageCode: Code[20]; PackageName: Text[50]; ExcludeConfigTables: Boolean)
     begin
@@ -132,8 +130,8 @@ codeunit 8611 "Config. Package Management"
 
         RecRef.Open(ConfigPackageRecord."Table ID");
 
-        if ConfigPackageRecord."Table ID" = Database::"Integration Record" then
-            Error(IntegrationRecordErr, RecRef.Caption);
+        if not IsImportAllowed(ConfigPackageRecord."Table ID") then
+            Error(ImportNotAllowedErr, RecRef.Caption);
 
         if ApplyMode <> ApplyMode::NonKeyFields then
             RecRef.Init();
@@ -702,11 +700,11 @@ codeunit 8611 "Config. Package Management"
 
         BigFileSize := 3145728; // 3 MBytes
         if FileSize > BigFileSize then begin
-            SendTraceTag('0000BV2', RapidStartTxt, Verbosity::Normal, StrSubstNo(UsingBigRSPackageTxt, 'Import ' + ImportingThrough, 'FileSize: ' + Format(FileSize)), DataClassification::SystemMetadata);
+            Session.LogMessage('0000BV2', StrSubstNo(UsingBigRSPackageTxt, 'Import ' + ImportingThrough, 'FileSize: ' + Format(FileSize)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
             ConfigPackageWarning.SwitchContextToImport();
             ConfigPackageWarning.RunModal();
             if ConfigPackageWarning.GetAction() = Action::OK then
-                SendTraceTag('0000BV3', RapidStartTxt, Verbosity::Normal, StrSubstNo(AcknowledgePerformanceImpactTxt, 'Import ' + ImportingThrough), DataClassification::SystemMetadata);
+                Session.LogMessage('0000BV3', StrSubstNo(AcknowledgePerformanceImpactTxt, 'Import ' + ImportingThrough), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
             exit(ConfigPackageWarning.GetAction());
         end;
         exit(Action::OK);
@@ -723,11 +721,11 @@ codeunit 8611 "Config. Package Management"
 
         RecordCountLimit := 5000;
         if RecordCount > RecordCountLimit then begin
-            SendTraceTag('0000BVJ', RapidStartTxt, Verbosity::Normal, StrSubstNo(UsingBigRSPackageTxt, 'Apply Package', 'Records: ' + Format(RecordCount)), DataClassification::SystemMetadata);
+            Session.LogMessage('0000BVJ', StrSubstNo(UsingBigRSPackageTxt, 'Apply Package', 'Records: ' + Format(RecordCount)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
             ConfigPackageWarning.SwitchContextToApply();
             ConfigPackageWarning.RunModal();
             if ConfigPackageWarning.GetAction() = Action::OK then
-                SendTraceTag('0000BVK', RapidStartTxt, Verbosity::Normal, StrSubstNo(AcknowledgePerformanceImpactTxt, 'Apply Package'), DataClassification::SystemMetadata);
+                Session.LogMessage('0000BVK', StrSubstNo(AcknowledgePerformanceImpactTxt, 'Apply Package'), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
             exit(ConfigPackageWarning.GetAction());
         end;
         exit(Action::OK);
@@ -747,37 +745,6 @@ codeunit 8611 "Config. Package Management"
         RSNotificaiton.Message(RSNotificaitonMsg);
         RSNotificaiton.AddAction(LearnMoreTok, Codeunit::"Config. Package Management", 'LearnMoreNotificationAction');
         RSNotificaiton.Send();
-    end;
-
-    internal procedure ShowDateTimeEvaluationChangeNotification()
-    var
-        TimeZone: Record "Time Zone";
-        UserPersonalization: Record "User Personalization";
-        EnvironmentInformation: Codeunit "Environment Information";
-        DateTimeEvaluationChangeNotifiction: Notification;
-    begin
-        if not EnvironmentInformation.IsSaaS() then
-            exit;
-
-        if not UserPersonalization.Get(UserSecurityId()) then
-            exit;
-
-        TimeZone.SetRange(ID, UserPersonalization."Time Zone");
-
-        if not TimeZone.FindFirst() then
-            exit;
-
-        if not TimeZone."Display Name".Contains('UTC-') then
-            exit;
-
-        DateTimeEvaluationChangeNotifiction.Message(EvaluationInfoMsg);
-        DateTimeEvaluationChangeNotifiction.AddAction(LearnMoreTok, Codeunit::"Config. Package Management", 'HotfixInfoAction');
-        DateTimeEvaluationChangeNotifiction.Send();
-    end;
-
-    internal procedure HotfixInfoAction(var Notification: Notification)
-    begin
-        HyperLink(HotfixInfoUrlTxt);
     end;
 
     internal procedure LearnMoreNotificationAction(var Notification: Notification)
@@ -1033,7 +1000,7 @@ codeunit 8611 "Config. Package Management"
         end;
 
         StartTime := CurrentDateTime();
-        SendTraceTag('00009Q8', RapidStartTxt, Verbosity::Normal, RSApplyDataStartMsg, DataClassification::SystemMetadata);
+        Session.LogMessage('00009Q8', RSApplyDataStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         BindSubscription(IntegrationService);
         IntegrationManagement.ResetIntegrationActivated;
@@ -1114,7 +1081,7 @@ codeunit 8611 "Config. Package Management"
         RecordsModifiedCount := MaxInt(RecordsModifiedCount - RecordsInsertedCount, 0);
         DurationAsInt := CurrentDateTime() - StartTime;
         // Tag used for analytics - DO NOT MODIFY
-        SendTraceTag('00009Q9', RapidStartTxt, Verbosity::Normal, StrSubstNo(RSApplyDataFinishMsg, ErrorCount, DurationAsInt, RecordCount, FieldCount), DataClassification::SystemMetadata);
+        Session.LogMessage('00009Q9', StrSubstNo(RSApplyDataFinishMsg, ErrorCount, DurationAsInt, RecordCount, FieldCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         if not HideDialog then
             Message(NoTablesAndErrorsMsg, TableCount, ErrorCount, RecordsInsertedCount, RecordsModifiedCount);
@@ -1294,7 +1261,14 @@ codeunit 8611 "Config. Package Management"
         if TableID > 0 then
             Field.SetRange(TableNo, TableID);
         if FieldID > 0 then
-            Field.SetRange("No.", FieldID);
+            Field.SetRange("No.", FieldID)
+        else
+            Field.SetFilter("No.", '<>%1&<>%2&<>%3&<>%4&<>%5',
+                    Field.FieldNo(SystemId),
+                    Field.FieldNo(SystemCreatedAt),
+                    Field.FieldNo(SystemCreatedBy),
+                    Field.FieldNo(SystemModifiedAt),
+                    Field.FieldNo(SystemModifiedBy));
         Field.SetRange(Class, Field.Class::Normal);
         Field.SetRange(Enabled, true);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
@@ -2409,6 +2383,14 @@ codeunit 8611 "Config. Package Management"
                 FieldRef := RecRef.Field(ConfigPackageFieldOrder."Field ID");
                 FieldRef.Value := SourceFieldRef.Value;
             until ConfigPackageFieldOrder.Next() = 0;
+    end;
+
+    local procedure IsImportAllowed(TableId: Integer): Boolean
+    begin
+        exit(not (TableId in [Database::"Integration Record", Database::"Integration Table Mapping", Database::"Integration Field Mapping",
+                                                Database::"Sales Invoice Entity Aggregate", Database::"Sales Order Entity Buffer", Database::"Sales Quote Entity Buffer",
+                                                Database::"Sales Cr. Memo Entity Buffer", Database::"Purch. Inv. Entity Aggregate"]))
+
     end;
 
     [IntegrationEvent(false, false)]

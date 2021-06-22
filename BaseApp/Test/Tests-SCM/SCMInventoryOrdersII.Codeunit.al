@@ -40,7 +40,6 @@ codeunit 137068 "SCM Inventory Orders-II"
         AssignLotNo: Boolean;
         DifferentExpirationDate: Boolean;
         NewExpirationDate: Date;
-        GlobalDocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice";
         ValidationErr: Label '%1 must be %2.', Locked = true;
         AmountErr: Label 'Amount is incorrect.';
         CannotChangeSellToCustErr: Label 'You cannot change Sell-to Customer No. because the order is associated with one or more sales orders.';
@@ -83,7 +82,6 @@ codeunit 137068 "SCM Inventory Orders-II"
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
         ReservationEntry: Record "Reservation Entry";
-        Direction: Option Outbound,Inbound;
     begin
         // Create a Lot Tracked Item, Create and release Purchase Order.
         LibraryWarehouse.FindBin(Bin, LocationSilver.Code, '', 1);  // Find Bin of Index 1.
@@ -103,7 +101,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreateAndReleaseTransferOrder(TransferHeader, TransferLine, LocationBlue.Code, LocationSilver.Code, Item."No.", TrackingQuantity);
         UpdateBinCodeOnTransferLine(TransferLine, Bin.Code);
         AssignLotNo := false;  // Assign Lot - False, for Select Entries on Item Tracking summary page.
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);  // Assign Ship Tracking on Page Handler ItemTrackingPageHandler for Lot No.
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);  // Assign Ship Tracking on Page Handler ItemTrackingPageHandler for Lot No.
 
         // Exercise: Post Transfer Order as Ship and Receive.
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
@@ -132,7 +130,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as Ship Only.
 
         // Exercise: Copy the Sales Order to blank Sales Quote.
-        CopySalesDocument(SalesHeader2, SalesHeader2."Document Type"::Quote, GlobalDocumentType::Order, SalesHeader."No.");
+        CopySalesDocument(SalesHeader2, SalesHeader2."Document Type"::Quote, "Sales Document Type From"::Order, SalesHeader."No.");
 
         // Verify: Verify the Last Shipping No as blank on Sales Quote. Verify the values on Sales Quote.
         SalesHeader2.TestField("Last Shipping No.", '');
@@ -159,7 +157,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndReleaseSalesOrder(SalesHeader, ItemNo, Quantity);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as Ship only.
-        CopySalesDocument(SalesHeader2, SalesHeader2."Document Type"::Quote, GlobalDocumentType::Order, SalesHeader."No.");
+        CopySalesDocument(SalesHeader2, SalesHeader2."Document Type"::Quote, "Sales Document Type From"::Order, SalesHeader."No.");
 
         // Exercise: Make Sales Order from Sales Quote.
         LibrarySales.QuoteMakeOrder(SalesHeader2);
@@ -192,7 +190,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Post as Receive only.
 
         // Exercise: Copy the Purchase Order to blank Purchase Quote.
-        CopyPurchaseDocument(PurchaseHeader2, PurchaseHeader2."Document Type"::Quote, GlobalDocumentType::Order, PurchaseHeader."No.");
+        CopyPurchaseDocument(PurchaseHeader2, PurchaseHeader2."Document Type"::Quote, "Purchase Document Type From"::Order, PurchaseHeader."No.");
 
         // Verify: Verify the Last Receiving No as blank on Purchase Quote. Verify the values on Purchase Quote.
         PurchaseHeader2.TestField("Last Receiving No.", '');
@@ -216,7 +214,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreateAndReleasePurchaseOrder(PurchaseHeader, ItemNo, PurchaseLine.Type::Item, '', Quantity, 0);
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Post as Receive only.
-        CopyPurchaseDocument(PurchaseHeader2, PurchaseHeader2."Document Type"::Quote, GlobalDocumentType::Order, PurchaseHeader."No.");
+        CopyPurchaseDocument(PurchaseHeader2, PurchaseHeader2."Document Type"::Quote, "Purchase Document Type From"::Order, PurchaseHeader."No.");
 
         // Exercise: Make Purchase Order from Purchase Quote.
         MakeOrderFromPurchaseQuote(PurchaseHeader2);
@@ -678,10 +676,10 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [GIVEN] Create new sales quote
         // [WHEN] Run "Copy Document" to copy posted invoice into the new quote
         CopySalesDocument(
-          SalesHeader, SalesHeader."Document Type"::Quote, GlobalDocumentType::"Posted Invoice", PostedInvoiceNo);
+          SalesHeader, SalesHeader."Document Type"::Quote, "Sales Document Type From"::"Posted Invoice", PostedInvoiceNo);
 
         // [THEN] Sales quote does not have item tracking lines assigned
-        VerifyReservationEntryIsEmpty(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.");
+        VerifyReservationEntryIsEmpty(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
     end;
 
     [Test]
@@ -702,10 +700,10 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [GIVEN] Create new purchase quote
         // [WHEN] Run "Copy Document" to copy posted invoice into the new quote
         CopyPurchaseDocument(
-          PurchHeader, PurchHeader."Document Type"::Quote, GlobalDocumentType::"Posted Invoice", PostedInvoiceNo);
+          PurchHeader, PurchHeader."Document Type"::Quote, "Purchase Document Type From"::"Posted Invoice", PostedInvoiceNo);
 
         // [THEN] Purchase quote does not have item tracking lines assigned
-        VerifyReservationEntryIsEmpty(DATABASE::"Purchase Line", PurchHeader."Document Type", PurchHeader."No.");
+        VerifyReservationEntryIsEmpty(DATABASE::"Purchase Line", PurchHeader."Document Type".AsInteger(), PurchHeader."No.");
     end;
 
     [Test]
@@ -726,10 +724,10 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [GIVEN] Create new blanket sales order
         // [WHEN] Run "Copy Document" to copy posted invoice into the new blanket order
         CopySalesDocument(
-          SalesHeader, SalesHeader."Document Type"::"Blanket Order", GlobalDocumentType::"Posted Invoice", PostedInvoiceNo);
+          SalesHeader, SalesHeader."Document Type"::"Blanket Order", "Sales Document Type From"::"Posted Invoice", PostedInvoiceNo);
 
         // [THEN] Blanket sales order does not have item tracking lines assigned
-        VerifyReservationEntryIsEmpty(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.");
+        VerifyReservationEntryIsEmpty(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
     end;
 
     [Test]
@@ -750,10 +748,10 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [GIVEN] Create new blanket purchase order
         // [WHEN] Run "Copy Document" to copy posted invoice into the new blanket order
         CopyPurchaseDocument(
-          PurchHeader, PurchHeader."Document Type"::"Blanket Order", GlobalDocumentType::"Posted Invoice", PostedInvoiceNo);
+          PurchHeader, PurchHeader."Document Type"::"Blanket Order", "Purchase Document Type From"::"Posted Invoice", PostedInvoiceNo);
 
         // [THEN] Blanket purchase order does not have item tracking lines assigned
-        VerifyReservationEntryIsEmpty(DATABASE::"Purchase Line", PurchHeader."Document Type", PurchHeader."No.");
+        VerifyReservationEntryIsEmpty(DATABASE::"Purchase Line", PurchHeader."Document Type".AsInteger(), PurchHeader."No.");
     end;
 
     [Test]
@@ -921,7 +919,6 @@ codeunit 137068 "SCM Inventory Orders-II"
         TransferLine: Record "Transfer Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
-        Direction: Option Outbound,Inbound;
     begin
         // [FEATURE] [Item Tracking] [Transfer] [Inventory Put-away]
         // [SCENARIO 378627] Inventory Put-away line with correct Quantity created for Lot tracked Item Transfer order with different UOM.
@@ -934,7 +931,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
         AssignLotNo := true;
         TrackingQuantity := PurchaseLine.Quantity;
-        PurchaseLine.OpenItemTrackingLines; // ItemTrackingPageHandler.
+        PurchaseLine.OpenItemTrackingLines(); // ItemTrackingPageHandler.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Create Transfer Order to bin location for different UOM (Qty. per UOM < 1), assign Tracking, ship
@@ -945,7 +942,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         TransferLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
         TransferLine.Modify(true);
         AssignLotNo := false;
-        TransferLine.OpenItemTrackingLines(Direction::Outbound); // ItemTrackingPageHandler.
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound); // ItemTrackingPageHandler.
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
 
         // [WHEN] Create Inventory Put-away
@@ -1343,7 +1340,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(3);
         LibraryVariableStorage.Enqueue(3);
-        PurchaseLine.OpenItemTrackingLines; // handled by ItemTrackingAssignSerialNoOrLotPageHandler
+        PurchaseLine.OpenItemTrackingLines(); // handled by ItemTrackingAssignSerialNoOrLotPageHandler
         ReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         // [GIVEN] 3 Value Entries are posted
         ExpectedValueEntryCount := 3;
@@ -1370,7 +1367,7 @@ codeunit 137068 "SCM Inventory Orders-II"
 
         // [WHEN] Posted Credit memo, that is created by "Copy Document" from posted invoice 'I'
         CopyPurchaseDocument(
-          PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", GlobalDocumentType::"Posted Invoice", InvoiceNo);
+          PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", "Purchase Document Type From"::"Posted Invoice", InvoiceNo);
         PurchaseHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
         PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1419,7 +1416,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(3);
         LibraryVariableStorage.Enqueue(3);
-        PurchaseLine.OpenItemTrackingLines; // handled by ItemTrackingAssignSerialNoOrLotPageHandler
+        PurchaseLine.OpenItemTrackingLines(); // handled by ItemTrackingAssignSerialNoOrLotPageHandler
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         // [GIVEN] 3 Value Entries are posted
         ExpectedValueEntryCount := 3;
@@ -1436,7 +1433,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         // [GIVEN] assigned serial numbers "X1,X2,X3"
         LibraryVariableStorage.Enqueue(TrackingMethod::"Serial No.");
         LibraryVariableStorage.Enqueue(true);
-        SalesLine.OpenItemTrackingLines; // handled by ItemTrackingAssignSerialNoOrLotPageHandler
+        SalesLine.OpenItemTrackingLines(); // handled by ItemTrackingAssignSerialNoOrLotPageHandler
         ShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
         // [GIVEN] 3 Value Entries are posted
         ExpectedValueEntryCount += 3;
@@ -1462,7 +1459,7 @@ codeunit 137068 "SCM Inventory Orders-II"
 
         // [WHEN] Posted Credit memo, that is created by "Copy Document" from posted invoice 'I'
         CopySalesDocument(
-          SalesHeader, SalesHeader."Document Type"::"Credit Memo", GlobalDocumentType::"Posted Invoice", InvoiceNo);
+          SalesHeader, SalesHeader."Document Type"::"Credit Memo", "Purchase Document Type From"::"Posted Invoice", InvoiceNo);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] 9 Value Entries are posted that fully reversed sales amount of Value Entries posted by 'I'
@@ -2071,7 +2068,6 @@ codeunit 137068 "SCM Inventory Orders-II"
         Clear(AssignLotNo);
         Clear(DifferentExpirationDate);
         Clear(NewExpirationDate);
-        Clear(GlobalDocumentType);  // Used to match sequence for Document Type field used in Reports -Copy Sales / Purchase Document.
         LibraryVariableStorage.Clear;
 
         // Lazy Setup.
@@ -2189,7 +2185,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         end;
     end;
 
-    local procedure FindSalesLineType(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Option)
+    local procedure FindSalesLineType(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type")
     begin
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
@@ -2215,7 +2211,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         end;
     end;
 
-    local procedure FindPurchLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Option)
+    local procedure FindPurchLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type")
     begin
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
@@ -2352,7 +2348,7 @@ codeunit 137068 "SCM Inventory Orders-II"
 
     local procedure AssignTrackingOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; var ReservationEntry: Record "Reservation Entry")
     begin
-        PurchaseLine.OpenItemTrackingLines;  // Opens ItemTrackingPageHandler.
+        PurchaseLine.OpenItemTrackingLines();  // Opens ItemTrackingPageHandler.
         UpdateReservationEntry(ReservationEntry, PurchaseLine."No.", WorkDate);
     end;
 
@@ -2375,7 +2371,7 @@ codeunit 137068 "SCM Inventory Orders-II"
           PurchaseLine."Line No.", PurchaseLine."No.");
     end;
 
-    local procedure CreateAndReleasePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Type: Option; LocationCode: Code[10]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreateAndReleasePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Type: Enum "Purchase Line Type"; LocationCode: Code[10]; Quantity: Decimal; DirectUnitCost: Decimal)
     var
         Vendor: Record Vendor;
     begin
@@ -2415,7 +2411,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2));
         AssignLotNo := true;
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         exit(PurchaseHeader."Last Posting No.");
@@ -2437,7 +2433,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2));
         AssignLotNo := true;
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         exit(SalesHeader."Last Posting No.");
@@ -2515,9 +2511,8 @@ codeunit 137068 "SCM Inventory Orders-II"
     var
         Language: Record Language;
     begin
-        Language.Init();
-        Language.Validate(Code, LibraryUtility.GenerateRandomCode(Language.FieldNo(Code), DATABASE::Language));
-        Language.Insert(true);
+        // TODO: BUG 134976 - Get random codes
+        Language.GET('ENU');
 
         ItemTranslation.Init();
         ItemTranslation.Validate("Item No.", ItemNo);
@@ -2539,7 +2534,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         PurchHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Type: Integer; LocationCode: Code[10]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Type: Enum "Purchase Line Type"; LocationCode: Code[10]; Quantity: Decimal; DirectUnitCost: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2562,7 +2557,7 @@ codeunit 137068 "SCM Inventory Orders-II"
             LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(PurchaseLine."Quantity (Base)");
         LibraryVariableStorage.Enqueue(PurchaseLine."Quantity (Base)" - PurchaseLine."Qty. to Invoice (Base)");
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure CreatePurchaseLineForItemCharge(var PurchaseLineCharge: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
@@ -2591,7 +2586,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreatePurchaseLine(PurchaseHeader, Item."No.", PurchaseLine.Type::Item, '', PurchaseLine.Quantity, PurchaseLine."Direct Unit Cost");
     end;
 
-    local procedure CreatePurchaseDocumentWithAssignedItemCharge(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; var ItemNo: Code[20]; var ItemChargeNo: Code[20]; ChargeQty: Decimal)
+    local procedure CreatePurchaseDocumentWithAssignedItemCharge(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; var ItemNo: Code[20]; var ItemChargeNo: Code[20]; ChargeQty: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2662,7 +2657,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
-    local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
+    local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; FromDocType: Enum "Sales Document Type From"; DocumentNo: Code[20])
     begin
         SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
@@ -2671,7 +2666,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -2684,7 +2679,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateSalesLineAndAssignTwoLotNos(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Qty: Decimal; UnitPrice: Decimal; LotNo1: Code[20]; LotNo2: Code[20])
@@ -2695,7 +2690,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         LibraryVariableStorage.Enqueue(Qty / 2);
         LibraryVariableStorage.Enqueue(LotNo2);
         LibraryVariableStorage.Enqueue(Qty / 2);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateSalesLineWithLocationCodeAndPurchasing(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LocationCode: Code[10]; PurchasingCode: Code[10])
@@ -2713,7 +2708,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         SalesLine.Modify(true);
     end;
 
-    local procedure CopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
+    local procedure CopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; FromDocType: Enum "Purchase Document Type From"; DocumentNo: Code[20])
     begin
         PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", DocumentType);
@@ -2733,7 +2728,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Vendor.Modify(true);
     end;
 
-    local procedure CreateAndPostItemJournalLine(ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; UnitAmount: Decimal): Code[20]
+    local procedure CreateAndPostItemJournalLine(ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; UnitAmount: Decimal): Code[20]
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
@@ -2832,7 +2827,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         FindPurchaseLineBySpecialOrderSalesLine(PurchaseLine, SalesLine);
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20]; LotNo: Code[20])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LotNo: Code[20])
     begin
         with ItemLedgerEntry do begin
             SetRange("Entry Type", EntryType);
@@ -3315,7 +3310,7 @@ codeunit 137068 "SCM Inventory Orders-II"
           RequisitionLine, RequisitionLine."Expiration Date", RequisitionLine."Order Date", PostingDate, PostingDate);
     end;
 
-    local procedure VerifyGLEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; GenPostingType: Option)
+    local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; GenPostingType: Enum "General Posting Type")
     var
         GLEntry: Record "G/L Entry";
         ActualAmount: Decimal;
@@ -3493,7 +3488,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         TransferReceiptLine.ShowItemTrackingLines;  // Verify the Posted Item Tracking Lines in PostedItemTrackingLinesHandler.
     end;
 
-    local procedure VerifyItemLedgerEntryForAdjustCost(DocumentNo: Code[20]; EntryType: Option; ItemNo: Code[20]; InvoicedQuantity: Decimal; CostAmountActual: Decimal)
+    local procedure VerifyItemLedgerEntryForAdjustCost(DocumentNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; InvoicedQuantity: Decimal; CostAmountActual: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

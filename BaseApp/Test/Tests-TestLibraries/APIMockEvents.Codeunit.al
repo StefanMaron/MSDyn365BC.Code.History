@@ -7,7 +7,8 @@ codeunit 132476 "API Mock Events"
     end;
 
     var
-        MockIsAPIENabled: Boolean;
+        MockIsAPIEnabled: Boolean;
+        MockIntegrationManagementEnabled: Boolean;
         MultipleTestHandlersOnEventErr: Label 'There are multiple subscribers competing for the handled in the tests.';
 
     [EventSubscriber(ObjectType::Codeunit, 5465, 'OnGetIsAPIEnabled', '', false, false)]
@@ -17,12 +18,26 @@ codeunit 132476 "API Mock Events"
             Error(MultipleTestHandlersOnEventErr);
 
         Handled := true;
-        IsAPIEnabled := MockIsAPIENabled;
+        IsAPIEnabled := MockIsAPIEnabled;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 5150, 'OnGetIntegrationEnabledOnSystem', '', false, false)]
+    local procedure HandleIsIntegrationManagemntEnabled(var IsEnabled: Boolean)
+    begin
+        if IsEnabled then
+            Error(MultipleTestHandlersOnEventErr);
+
+        IsEnabled := MockIntegrationManagementEnabled;
     end;
 
     procedure SetIsAPIEnabled(NewIsAPIEnabled: Boolean)
     begin
-        MockIsAPIENabled := NewIsAPIEnabled;
+        MockIsAPIEnabled := NewIsAPIEnabled;
+    end;
+
+    procedure SetIsIntegrationManagementEnabled(NewIsIntegrationManagementEnabled: Boolean)
+    begin
+        MockIntegrationManagementEnabled := NewIsIntegrationManagementEnabled;
     end;
 }
 

@@ -138,7 +138,7 @@ page 5921 "Available Loaners"
                             LoanerEntry.SetRange("Loaner No.", "No.");
                             LoanerEntry.SetRange(Lent, true);
                             if LoanerEntry.FindFirst then begin
-                                ServItemLine.Get(LoanerEntry."Document Type" - 1, LoanerEntry."Document No.", LoanerEntry."Service Item Line No.");
+                                ServItemLine.Get(LoanerEntry.GetServDocTypeFromDocType(), LoanerEntry."Document No.", LoanerEntry."Service Item Line No.");
                                 ServLoanerMgt.ReceiveLoaner(ServItemLine);
                             end;
                         end else

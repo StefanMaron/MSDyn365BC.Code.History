@@ -52,7 +52,7 @@ table 5895 "Inventory Adjustment Buffer"
         }
         field(68; "Cost Amount (Actual) (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Cost Amount (Actual) (ACY)';
             DataClassification = SystemMetadata;
@@ -72,19 +72,15 @@ table 5895 "Inventory Adjustment Buffer"
             Caption = 'Valuation Date';
             DataClassification = SystemMetadata;
         }
-        field(105; "Entry Type"; Option)
+        field(105; "Entry Type"; Enum "Cost Entry Type")
         {
             Caption = 'Entry Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Direct Cost,Revaluation,Rounding,Indirect Cost,Variance';
-            OptionMembers = "Direct Cost",Revaluation,Rounding,"Indirect Cost",Variance;
         }
-        field(106; "Variance Type"; Option)
+        field(106; "Variance Type"; Enum "Cost Variance Type")
         {
             Caption = 'Variance Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Purchase,Material,Capacity,Capacity Overhead,Manufacturing Overhead,Subcontracted';
-            OptionMembers = " ",Purchase,Material,Capacity,"Capacity Overhead","Manufacturing Overhead",Subcontracted;
         }
         field(151; "Cost Amount (Expected)"; Decimal)
         {
@@ -94,7 +90,7 @@ table 5895 "Inventory Adjustment Buffer"
         }
         field(156; "Cost Amount (Expected) (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Cost Amount (Expected) (ACY)';
             DataClassification = SystemMetadata;
@@ -285,28 +281,33 @@ table 5895 "Inventory Adjustment Buffer"
     end;
 
     procedure AddOrderCost(ItemLedgEntryNo: Integer; EntryType: Option; VarianceType: Option; CostAmt: Decimal; CostAmtLCY: Decimal)
+    begin
+        AddCost(ItemLedgEntryNo, "Cost Entry Type".FromInteger(EntryType), "Cost Variance Type".FromInteger(VarianceType), CostAmt, CostAmtLCY);
+    end;
+
+    procedure AddCost(ItemLedgEntryNo: Integer; EntryType: Enum "Cost Entry Type"; VarianceType: Enum "Cost Variance Type"; CostAmt: Decimal; CostAmtLCY: Decimal)
     var
         CopyOfInvtAdjmtBuf: Record "Inventory Adjustment Buffer";
     begin
         CopyOfInvtAdjmtBuf.Copy(Rec);
-        Reset;
+        Reset();
         SetCurrentKey("Item Ledger Entry No.");
         SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         SetRange("Entry Type", EntryType);
         SetRange("Variance Type", VarianceType);
-        if FindFirst then begin
+        if FindFirst() then begin
             "Cost Amount (Actual)" += CostAmt;
             "Cost Amount (Actual) (ACY)" += CostAmtLCY;
-            Modify;
+            Modify();
         end else begin
-            Init;
+            Init();
             "Item Ledger Entry No." := ItemLedgEntryNo;
             "Entry Type" := EntryType;
             "Variance Type" := VarianceType;
             "Entry No." := GetLastNo + 1;
             "Cost Amount (Actual)" := CostAmt;
             "Cost Amount (Actual) (ACY)" := CostAmtLCY;
-            Insert;
+            Insert();
         end;
         Copy(CopyOfInvtAdjmtBuf);
     end;

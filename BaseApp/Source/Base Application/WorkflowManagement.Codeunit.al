@@ -250,7 +250,7 @@ codeunit 1501 "Workflow Management"
     begin
         RecRef.Open(TableId);
 
-        if not RequestPageParametersHelper.ConvertParametersToFilters(RecRef, TempBlob) then
+        if not RequestPageParametersHelper.ConvertParametersToFilters(RecRef, TempBlob, TextEncoding::UTF8) then
             exit(true);
 
         if not LookupRecRef.Get(SourceRecordId) then
@@ -338,7 +338,7 @@ codeunit 1501 "Workflow Management"
                 if not List.Contains(WorkflowTableRelation."Related Table ID") then begin
                     List.Add(WorkflowTableRelation."Related Table ID");
                     RecRefRelated.Open(WorkflowTableRelation."Related Table ID");
-                    if RequestPageParametersHelper.ConvertParametersToFilters(RecRefRelated, TempBlob) then begin
+                    if RequestPageParametersHelper.ConvertParametersToFilters(RecRefRelated, TempBlob, TextEncoding::UTF8) then begin
                         ApplyRelationshipFilters(RecRef, RecRefRelated);
                         if RecRefRelated.IsEmpty then
                             exit(false);

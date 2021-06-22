@@ -462,14 +462,14 @@ codeunit 131334 "ERM VAT Tool - Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; LocationCode: Code[10]; LineCount: Integer)
+    procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; LocationCode: Code[10]; LineCount: Integer)
     begin
         CreatePurchaseHeader(PurchaseHeader, DocumentType, CreateVendor);
         CreatePurchaseLines(PurchaseHeader, LocationCode, LineCount);
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePurchaseDocumentWithRef(var PurchaseHeader: Record "Purchase Header"; var TempRecRef: RecordRef; DocumentType: Option; LocationCode: Code[10]; LineCount: Integer)
+    procedure CreatePurchaseDocumentWithRef(var PurchaseHeader: Record "Purchase Header"; var TempRecRef: RecordRef; DocumentType: Enum "Purchase Document Type"; LocationCode: Code[10]; LineCount: Integer)
     begin
         CreatePurchaseDocument(PurchaseHeader, DocumentType, LocationCode, LineCount);
         TempRecRef.Open(DATABASE::"Purchase Line", true);
@@ -477,7 +477,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
     end;
@@ -506,14 +506,14 @@ codeunit 131334 "ERM VAT Tool - Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; LocationCode: Code[10]; LineCount: Integer)
+    procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; LocationCode: Code[10]; LineCount: Integer)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
         CreateSalesLines(SalesHeader, LocationCode, LineCount);
     end;
 
     [Scope('OnPrem')]
-    procedure CreateSalesDocumentWithRef(var SalesHeader: Record "Sales Header"; var TempRecRef: RecordRef; DocumentType: Option; LocationCode: Code[10]; LineCount: Integer)
+    procedure CreateSalesDocumentWithRef(var SalesHeader: Record "Sales Header"; var TempRecRef: RecordRef; DocumentType: Enum "Sales Document Type"; LocationCode: Code[10]; LineCount: Integer)
     begin
         CreateSalesDocument(SalesHeader, DocumentType, LocationCode, LineCount);
         TempRecRef.Open(DATABASE::"Sales Line", true);
@@ -887,21 +887,21 @@ codeunit 131334 "ERM VAT Tool - Helper"
     procedure GetReservationEntrySales(var ReservationEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line")
     begin
         with SalesLine do
-            GetReservationEntry(ReservationEntry, DATABASE::"Sales Line", "Document No.", "Document Type", "Line No.");
+            GetReservationEntry(ReservationEntry, DATABASE::"Sales Line", "Document No.", "Document Type".AsInteger(), "Line No.");
     end;
 
     [Scope('OnPrem')]
     procedure GetReservationEntryPurchase(var ReservationEntry: Record "Reservation Entry"; PurchaseLine: Record "Purchase Line")
     begin
         with PurchaseLine do
-            GetReservationEntry(ReservationEntry, DATABASE::"Purchase Line", "Document No.", "Document Type", "Line No.");
+            GetReservationEntry(ReservationEntry, DATABASE::"Purchase Line", "Document No.", "Document Type".AsInteger(), "Line No.");
     end;
 
     [Scope('OnPrem')]
     procedure GetReservationEntryService(var ReservationEntry: Record "Reservation Entry"; ServiceLine: Record "Service Line")
     begin
         with ServiceLine do
-            GetReservationEntry(ReservationEntry, DATABASE::"Service Line", "Document No.", "Document Type", "Line No.");
+            GetReservationEntry(ReservationEntry, DATABASE::"Service Line", "Document No.", "Document Type".AsInteger(), "Line No.");
     end;
 
     [Scope('OnPrem')]
@@ -1612,7 +1612,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst;
         with PurchaseLine do
-            UpdateLineQtyToHandle(DATABASE::"Purchase Line", "Document No.", "Document Type", "Line No.", "Qty. to Receive");
+            UpdateLineQtyToHandle(DATABASE::"Purchase Line", "Document No.", "Document Type".AsInteger(), "Line No.", "Qty. to Receive");
     end;
 
     [Scope('OnPrem')]
@@ -1624,7 +1624,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst;
         with SalesLine do
-            UpdateLineQtyToHandle(DATABASE::"Sales Line", "Document No.", "Document Type", "Line No.", "Qty. to Ship");
+            UpdateLineQtyToHandle(DATABASE::"Sales Line", "Document No.", "Document Type".AsInteger(), "Line No.", "Qty. to Ship");
     end;
 
     [Scope('OnPrem')]
@@ -1636,7 +1636,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.FindFirst;
         with ServiceLine do
-            UpdateLineQtyToHandle(DATABASE::"Service Line", "Document No.", "Document Type", "Line No.", "Qty. to Ship");
+            UpdateLineQtyToHandle(DATABASE::"Service Line", "Document No.", "Document Type".AsInteger(), "Line No.", "Qty. to Ship");
     end;
 
     [Scope('OnPrem')]

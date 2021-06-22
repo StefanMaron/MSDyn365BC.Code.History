@@ -154,7 +154,7 @@ page 6667 "Return Receipt Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

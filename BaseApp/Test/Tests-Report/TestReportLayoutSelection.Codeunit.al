@@ -238,7 +238,26 @@ codeunit 134605 "Test Report Layout Selection"
     [HandlerFunctions('SelectSendingOptionModalPageHandler')]
     [Test]
     [Scope('OnPrem')]
+    procedure SendTwoSalesInvoicesInJobQueueSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendTwoSalesInvoicesInJobQueueInternal();
+    end;
+
+    [HandlerFunctions('SelectSendingOptionModalPageHandler')]
+    // [Test]
+    [Scope('OnPrem')]
     procedure SendTwoSalesInvoicesInJobQueue()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendTwoSalesInvoicesInJobQueueInternal();
+    end;
+
+    procedure SendTwoSalesInvoicesInJobQueueInternal()
     var
         Customer: Record "Customer";
         SalesInvoiceHeader: array[2] of Record "Sales Invoice Header";
@@ -247,10 +266,15 @@ codeunit 134605 "Test Report Layout Selection"
         DocumentSendingProfile: Record "Document Sending Profile";
         ReportSelections: Record "Report Selections";
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
     begin
         // [FEATURE] [Email] [Document Sending Profile] [Sales]
         // [SCENARIO 334364] Stan can "Send" to email posted sales invoice and "print" them via job queue.
-        MockSMTPMailServerSetup();
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount()
+        else
+            MockSMTPMailServerSetup();
         LibrarySmtpMailHandler.SetDisableSending(true);
         FilterJobQueueEntryDocumentMailing(JobQueueEntry);
         JobQueueEntry.DeleteAll();
@@ -280,7 +304,26 @@ codeunit 134605 "Test Report Layout Selection"
     [HandlerFunctions('SelectSendingOptionModalPageHandler')]
     [Test]
     [Scope('OnPrem')]
+    procedure SendTwoPurchaseInvoicesInJobQueueSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendTwoPurchaseInvoicesInJobQueueInternal();
+    end;
+
+    [HandlerFunctions('SelectSendingOptionModalPageHandler')]
+    // [Test]
+    [Scope('OnPrem')]
     procedure SendTwoPurchaseInvoicesInJobQueue()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendTwoPurchaseInvoicesInJobQueueInternal();
+    end;
+
+    procedure SendTwoPurchaseInvoicesInJobQueueInternal()
     var
         Vendor: Record "Vendor";
         PurchaseHeader: array[2] of Record "Purchase Header";
@@ -289,10 +332,15 @@ codeunit 134605 "Test Report Layout Selection"
         DocumentSendingProfile: Record "Document Sending Profile";
         ReportSelections: Record "Report Selections";
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
     begin
         // [FEATURE] [Email] [Document Sending Profile] [Sales]
         // [SCENARIO 334364] Stan can "Send" to email posted sales invoice and "print" them via job queue.
-        MockSMTPMailServerSetup();
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount()
+        else
+            MockSMTPMailServerSetup();
         LibrarySmtpMailHandler.SetDisableSending(true);
         FilterJobQueueEntryDocumentMailing(JobQueueEntry);
         JobQueueEntry.DeleteAll();

@@ -180,6 +180,13 @@ page 99000900 "Avail. - Planning Components"
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
 
+    procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
+    var
+        TransferDirection: Enum "Transfer Direction";
+    begin
+        SetSource(CurrentSourceRecRef, CurrentReservEntry, TransferDirection::Outbound);
+    end;
+
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     begin
         Clear(ReservMgt);
@@ -195,67 +202,67 @@ page 99000900 "Avail. - Planning Components"
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentSalesLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     procedure SetReqLine(var CurrentReqLine: Record "Requisition Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentReqLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentPurchLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentProdOrderLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentProdOrderComp);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentPlanningComponent);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
+    procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; TransferDirection: Enum "Transfer Direction")
     begin
         SourceRecRef.GetTable(CurrentTransLine);
-        SetSource(SourceRecRef, CurrentReservEntry, Direction);
+        SetSource(SourceRecRef, CurrentReservEntry, TransferDirection);
     end;
 
     procedure SetServiceInvLine(var CurrentServiceLine: Record "Service Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentServiceLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentJobPlanningLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetSource(SourceRecRef, CurrentReservEntry, 0);
+        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)
@@ -281,7 +288,7 @@ page 99000900 "Avail. - Planning Components"
 
     local procedure UpdateReservFrom()
     begin
-        SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+        SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
 
         OnAfterUpdateReservFrom(ReservEntry);
     end;
@@ -289,7 +296,7 @@ page 99000900 "Avail. - Planning Components"
     local procedure UpdateReservMgt()
     begin
         Clear(ReservMgt);
-        ReservMgt.SetReservSource(SourceRecRef, ReservEntry."Source Subtype");
+        ReservMgt.SetReservSource(SourceRecRef, ReservEntry.GetTransferDirection());
 
         OnAfterUpdateReservMgt(ReservEntry);
     end;

@@ -423,7 +423,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     end;
 
     [Normal]
-    local procedure PaymentWithoutDiscount(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; GenJnlDocumentType: Option; GenJnlDocumentType2: Option; Amount: Decimal; Amount2: Decimal)
+    local procedure PaymentWithoutDiscount(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; GenJnlDocumentType: Enum "Gen. Journal Document Type"; GenJnlDocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; Amount2: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
@@ -445,7 +445,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     end;
 
     [Normal]
-    local procedure PaymentWithDiscount(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; GenJnlDocumentType: Option; GenJnlDocumentType2: Option; Amount: Decimal; Amount2: Decimal)
+    local procedure PaymentWithDiscount(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; GenJnlDocumentType: Enum "Gen. Journal Document Type"; GenJnlDocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; Amount2: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
@@ -467,7 +467,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     end;
 
     [Normal]
-    local procedure PaymentWithTolerance(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; GenJnlDocumentType: Option; GenJnlDocumentType2: Option; Amount: Decimal; Amount2: Decimal)
+    local procedure PaymentWithTolerance(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; GenJnlDocumentType: Enum "Gen. Journal Document Type"; GenJnlDocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; Amount2: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
@@ -488,7 +488,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
           GenJnlDocumentType2, DetailedVendorLedgEntry."Entry Type"::"Payment Tolerance", DocumentNo, -PmtTolAmount);
     end;
 
-    local procedure PaymentWithoutTolerance(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; GenJnlDocumentType: Option; GenJnlDocumentType2: Option; Amount: Decimal; Amount2: Decimal)
+    local procedure PaymentWithoutTolerance(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; GenJnlDocumentType: Enum "Gen. Journal Document Type"; GenJnlDocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; Amount2: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
@@ -509,7 +509,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
           GenJnlDocumentType2, DetailedVendorLedgEntry."Entry Type"::"Payment Discount Tolerance", DocumentNo, -PmtDiscount);
     end;
 
-    local procedure PaymentWithDiscountTolerance(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; GenJnlDocumentType: Option; GenJnlDocumentType2: Option; Amount: Decimal; Amount2: Decimal)
+    local procedure PaymentWithDiscountTolerance(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; GenJnlDocumentType: Enum "Gen. Journal Document Type"; GenJnlDocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; Amount2: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
@@ -531,7 +531,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
           -GetAmountFCY(CurrencyCode2, GetDiscountAmount(Amount)));
     end;
 
-    local procedure CreateAndPostJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; GenJnlDocumentType: Option; Amount: Decimal)
+    local procedure CreateAndPostJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; GenJnlDocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     begin
         // Setup: Modify General Ledger Setup and Post Gen. Journal Lines for Invoice and Payment with Random Amount and
         // attached currency and Post them.
@@ -539,7 +539,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure PostApplicationJnlLine(GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; GenJnlDocumentType: Option; Amount2: Decimal; DueDate: Date): Code[20]
+    local procedure PostApplicationJnlLine(GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; GenJnlDocumentType: Enum "Gen. Journal Document Type"; Amount2: Decimal; DueDate: Date): Code[20]
     var
         GenJournalLine2: Record "Gen. Journal Line";
     begin
@@ -636,7 +636,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         exit(Currency.Code);
     end;
 
-    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; VendorNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
+    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -714,7 +714,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     end;
 
     [Normal]
-    local procedure UpdateAndPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AppliestoDocType: Option; DocumentNo: Code[20])
+    local procedure UpdateAndPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AppliestoDocType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         GenJournalLine.Validate("Applies-to Doc. Type", AppliestoDocType);
         GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
@@ -723,7 +723,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     end;
 
     [Normal]
-    local procedure VerifyVendorLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; ToleranceDiscount: Decimal)
+    local procedure VerifyVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ToleranceDiscount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -739,7 +739,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     end;
 
     [Normal]
-    local procedure VerifyDetldVendorLedgerEntry(DocumentType: Option; EntryType: Option; DocumentNo: Code[20]; ToleranceDiscount: Decimal)
+    local procedure VerifyDetldVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option; DocumentNo: Code[20]; ToleranceDiscount: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";

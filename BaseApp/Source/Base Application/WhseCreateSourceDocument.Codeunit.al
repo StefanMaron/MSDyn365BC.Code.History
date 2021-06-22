@@ -45,7 +45,7 @@ codeunit 5750 "Whse.-Create Source Document"
 
         with WhseShptLine do begin
             InitNewLine(WhseShptHeader."No.");
-            SetSource(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+            SetSource(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
             SalesLine.TestField("Unit of Measure Code");
             SetItemData(
               SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
@@ -82,7 +82,7 @@ codeunit 5750 "Whse.-Create Source Document"
     begin
         with WhseReceiptLine do begin
             InitNewLine(WhseReceiptHeader."No.");
-            SetSource(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+            SetSource(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
             SalesLine.TestField("Unit of Measure Code");
             SetItemData(
               SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
@@ -124,7 +124,7 @@ codeunit 5750 "Whse.-Create Source Document"
 
         with WhseShptLine do begin
             InitNewLine(WhseShptHeader."No.");
-            SetSource(DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.");
+            SetSource(DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.");
             ServiceLine.TestField("Unit of Measure Code");
             SetItemData(
               ServiceLine."No.", ServiceLine.Description, ServiceLine."Description 2", ServiceLine."Location Code",
@@ -157,7 +157,7 @@ codeunit 5750 "Whse.-Create Source Document"
     begin
         with WhseShptLine do begin
             InitNewLine(WhseShptHeader."No.");
-            SetSource(DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
+            SetSource(DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
             PurchLine.TestField("Unit of Measure Code");
             SetItemData(
               PurchLine."No.", PurchLine.Description, PurchLine."Description 2", PurchLine."Location Code",
@@ -193,7 +193,7 @@ codeunit 5750 "Whse.-Create Source Document"
     begin
         with WhseReceiptLine do begin
             InitNewLine(WhseReceiptHeader."No.");
-            SetSource(DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
+            SetSource(DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
             PurchLine.TestField("Unit of Measure Code");
             SetItemData(
               PurchLine."No.", PurchLine.Description, PurchLine."Description 2", PurchLine."Location Code",
@@ -435,7 +435,7 @@ codeunit 5750 "Whse.-Create Source Document"
 
         with WhseReceiptLine do begin
             WhseManagement.SetSourceFilterForWhseRcptLine(
-              WhseReceiptLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", false);
+              WhseReceiptLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
             CalcSums("Qty. Outstanding (Base)");
             exit(Abs(SalesLine."Outstanding Qty. (Base)") > Abs("Qty. Outstanding (Base)"));
         end;
@@ -457,7 +457,7 @@ codeunit 5750 "Whse.-Create Source Document"
             exit(false);
 
         with WhseShptLine do begin
-            SetSourceFilter(DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.", false);
+            SetSourceFilter(DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.", false);
             CalcSums("Qty. Outstanding (Base)");
             exit(Abs(PurchLine."Outstanding Qty. (Base)") > "Qty. Outstanding (Base)");
         end;

@@ -15,6 +15,7 @@ codeunit 139196 "CDS Connection Setup Test"
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         LibraryMockCRMConnection: Codeunit "Library - Mock CRM Connection";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        URLNeededErr: Label 'A URL is required.';
         URLNamePswNeededErr: Label 'A URL, user name and password are required.';
         OnlyBasicAppAreaMsg: Label 'You do not have access to this page, because your experience is set to Basic.';
         UnfavorableCDSVersionMsg: Label 'This version of Common Data Service might not work correctly with the base integration solution. We recommend you upgrade to a supported version.';
@@ -26,6 +27,55 @@ codeunit 139196 "CDS Connection Setup Test"
         ConnectionDisabledMsg: Label 'Connection to Common Data Service is broken and that it has been disabled due to an error: %1', Comment = '%1=disable reason';
         CannotResolveUserFromConnectionSetupErr: Label 'The user that is specified in the Common Data Service Connection Setup does not exist.';
         IsInitialized: Boolean;
+
+    [Test]
+    [HandlerFunctions('AssistedSetupModalHandler,ConfirmYes')]
+    [Scope('OnPrem')]
+    procedure RunAssistedSetupFromNormalSetupRecordMissing()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSConnectionSetupPage: TestPage "CDS Connection Setup";
+    begin
+        // [SCENARIO] CDS Connection Assisted Setup can be opened from CDS Connection Setup page
+        Initialize();
+        // [GIVEN] CDS Connection Setup record is missing
+        CDSConnectionSetup.DeleteAll();
+        // [GIVEN] CDS Connection Setup page is opened
+        CDSConnectionSetupPage.OpenEdit();
+        // [GIVEN] Server Address is "TEST"
+        CDSConnectionSetupPage."Server Address".SetValue('TEST');
+
+        // [WHEN] Assisted Setup is invoked
+        CDSConnectionSetupPage."Assisted Setup".Invoke();
+
+        // [THEN] CDS Connection Setup wizard is opened and Server Address = "TEST"
+        // Wizard page is opened in AssistedSetupModalHandler
+        Assert.ExpectedMessage(CDSConnectionSetupPage."Server Address".Value(), LibraryVariableStorage.DequeueText());
+    end;
+
+    [Test]
+    [HandlerFunctions('AssistedSetupModalHandler,ConfirmYes')]
+    [Scope('OnPrem')]
+    procedure RunAssistedSetupFromNormalSetupRecordExists()
+    var
+        CDSConnectionSetupPage: TestPage "CDS Connection Setup";
+    begin
+        // [SCENARIO] CDS Connection Assisted Setup can be opened from CDS Connection Setup page
+        Initialize();
+        // [GIVEN] CDS Connection Setup record exists
+        InitializeSetup(false);
+        // [GIVEN] CDS Connection Setup page is opened
+        CDSConnectionSetupPage.OpenEdit();
+        // [GIVEN] Server Address is "TEST"
+        CDSConnectionSetupPage."Server Address".SetValue('TEST');
+
+        // [WHEN] Assisted Setup is invoked
+        CDSConnectionSetupPage."Assisted Setup".Invoke();
+
+        // [THEN] CDS Connection Setup wizard is opened and Server Address = "TEST"
+        // Wizard page is opened in AssistedSetupModalHandler
+        Assert.ExpectedMessage(CDSConnectionSetupPage."Server Address".Value(), LibraryVariableStorage.DequeueText());
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -533,6 +583,27 @@ codeunit 139196 "CDS Connection Setup Test"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
+    procedure ServerAddressRequiredToEnableO365()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        // [FEATURE] [UT]
+        Initialize();
+
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup.Init();
+        CDSConnectionSetup."User Name" := 'tester@domain.net';
+        CDSConnectionSetup.SetPassword('T3sting!');
+        CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
+        CDSConnectionSetup.Insert();
+
+        asserterror CDSConnectionSetup.Validate("Is Enabled", true);
+        Assert.ExpectedError(URLNeededErr);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
     procedure ServerAddressRequiredToEnable()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
@@ -544,6 +615,7 @@ codeunit 139196 "CDS Connection Setup Test"
         CDSConnectionSetup.Init();
         CDSConnectionSetup."User Name" := 'tester@domain.net';
         CDSConnectionSetup.SetPassword('T3sting!');
+        CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::AD;
         CDSConnectionSetup.Insert();
 
         asserterror CDSConnectionSetup.Validate("Is Enabled", true);
@@ -1295,6 +1367,13 @@ codeunit 139196 "CDS Connection Setup Test"
     procedure ConnectionBrokenNotificationHandler(var ConnectionBrokenNotification: Notification): Boolean
     begin
         LibraryVariableStorage.Enqueue(ConnectionBrokenNotification.Message());
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure AssistedSetupModalHandler(var CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard")
+    begin
+        LibraryVariableStorage.Enqueue(CDSConnectionSetupWizard.ServerAddress.Value());
     end;
 
     [ModalPageHandler]

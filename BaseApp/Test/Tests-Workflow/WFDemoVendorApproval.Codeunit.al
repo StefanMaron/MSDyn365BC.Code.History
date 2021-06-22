@@ -488,7 +488,7 @@ codeunit 134211 "WF Demo Vendor Approval"
         VendorCard.SendApprovalRequest.Invoke;
     end;
 
-    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; Status: Option; Vendor: Record Vendor)
+    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; Status: Enum "Approval Status"; Vendor: Record Vendor)
     begin
         ApprovalEntry.TestField("Document Type", ApprovalEntry."Document Type"::" ");
         ApprovalEntry.TestField("Document No.", '');

@@ -7,6 +7,9 @@ page 2842 "Native - Email Setting"
     SourceTable = "O365 Email Setup";
     SourceTableView = SORTING(Email, RecipientType)
                       ORDER(Ascending);
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {

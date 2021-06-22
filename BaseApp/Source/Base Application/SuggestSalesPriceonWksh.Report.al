@@ -172,7 +172,6 @@ report 7052 "Suggest Sales Price on Wksh."
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Sales Type';
-                            OptionCaption = 'Customer,Customer Price Group,All Customers,Campaign';
                             ToolTip = 'Specifies the sales type that the sales price agreement will be copied to. To see the existing sales types, click the field.';
 
                             trigger OnValidate()
@@ -440,7 +439,7 @@ report 7052 "Suggest Sales Price on Wksh."
         CreateNewPrices: Boolean;
         UnitPriceFactor: Decimal;
         PriceLowerLimit: Decimal;
-        ToSalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
+        ToSalesType: Enum "Sales Price Type";
         ToSalesCode: Code[20];
         ToStartDate: Date;
         ToEndDate: Date;
@@ -460,7 +459,7 @@ report 7052 "Suggest Sales Price on Wksh."
 
     procedure InitializeRequest(NewToSalesType: Option Customer,"Customer Price Group",Campaign,"All CUstomers"; NewToSalesCode: Code[20]; NewToStartDate: Date; NewToEndDate: Date; NewToCurrCode: Code[10]; NewToUOMCode: Code[10]; NewCreateNewPrices: Boolean)
     begin
-        ToSalesType := NewToSalesType;
+        ToSalesType := "Sales Price Type".FromInteger(NewToSalesType);
         ToSalesCode := NewToSalesCode;
         ToStartDate := NewToStartDate;
         ToEndDate := NewToEndDate;

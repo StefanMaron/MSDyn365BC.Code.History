@@ -1,6 +1,10 @@
 codeunit 400 "SMTP Mail"
 {
     Permissions = TableData "SMTP Mail Setup" = r;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced "Email Message" codeunit from "System Application".';
+    ObsoleteTag = '17.0';
+
 
     var
         SmtpMailSetup: Record "SMTP Mail Setup";
@@ -122,7 +126,7 @@ codeunit 400 "SMTP Mail"
     local procedure AddToInternetAddressList(InternetAddressList: DotNet InternetAddressList; Recipients: List of [Text])
     begin
         if not TryParseInternetAddressList(InternetAddressList, Recipients) then begin
-            SendTraceTag('0000B5M', SmtpCategoryLbl, Verbosity::Error, StrSubstNo(RecipientErr, FormatListToString(Recipients, ';', true)), DataClassification::EndUserPseudonymousIdentifiers);
+            Session.LogMessage('0000B5M', StrSubstNo(RecipientErr, FormatListToString(Recipients, ';', true)), Verbosity::Error, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
             Error(RecipientErr, FormatListToString(Recipients, ';', false));
         end;
     end;
@@ -185,7 +189,7 @@ codeunit 400 "SMTP Mail"
     /// </summary>
     /// <returns>The name and address</returns>
     /// <remarks>
-    /// If there is a name and address, they are returned in the following format: '"name" <address>'
+    /// If there is a name and address, they are returned in the following format: '"name" 	&lt;address	&gt;'
     /// </remarks>
     procedure GetFrom(): Text
     begin
@@ -370,19 +374,15 @@ codeunit 400 "SMTP Mail"
         if not Result then begin
             SendResult := GetLastErrorText();
             SMTPErrorCode := GetSmtpErrorCodeFromResponse(SendResult);
-            SendTraceTag('00009UM', SmtpCategoryLbl, Verbosity::Error,
-                StrSubstNo(SmtpConnectTelemetryErrorMsg,
+            Session.LogMessage('00009UM', StrSubstNo(SmtpConnectTelemetryErrorMsg,
                     SmtpMailSetup."SMTP Server",
                     SmtpMailSetup."SMTP Server Port",
-                    SMTPErrorCode),
-                DataClassification::OrganizationIdentifiableInformation);
+                    SMTPErrorCode), Verbosity::Error, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
         end
         else begin
-            SendTraceTag('00009UN', SmtpCategoryLbl, Verbosity::Normal,
-                StrSubstNo(SmtpConnectedTelemetryMsg,
+            Session.LogMessage('00009UN', StrSubstNo(SmtpConnectedTelemetryMsg,
                     SmtpMailSetup."SMTP Server",
-                    SmtpMailSetup."SMTP Server Port"),
-                DataClassification::OrganizationIdentifiableInformation);
+                    SmtpMailSetup."SMTP Server Port"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
 
             if SmtpMailSetup.Authentication <> SmtpMailSetup.Authentication::Anonymous then begin
                 ClearLastError();
@@ -391,21 +391,17 @@ codeunit 400 "SMTP Mail"
                 if not Result then begin
                     SendResult := GetLastErrorText();
                     SMTPErrorCode := GetSmtpErrorCodeFromResponse(SendResult);
-                    SendTraceTag('00009XS', SmtpCategoryLbl, Verbosity::Error,
-                        StrSubstNo(SmtpAuthenticateTelemetryErrorMsg,
+                    Session.LogMessage('00009XS', StrSubstNo(SmtpAuthenticateTelemetryErrorMsg,
                             ObsfuscateEmailAddress(SmtpMailSetup."User ID"),
                             SmtpMailSetup."SMTP Server",
                             SmtpMailSetup."SMTP Server Port",
-                            SMTPErrorCode),
-                        DataClassification::EndUserPseudonymousIdentifiers);
+                            SMTPErrorCode), Verbosity::Error, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
                 end
                 else begin
-                    SendTraceTag('00009XT', SmtpCategoryLbl, Verbosity::Normal,
-                        StrSubstNo(SmtpAuthenticateTelemetryMsg,
+                    Session.LogMessage('00009XT', StrSubstNo(SmtpAuthenticateTelemetryMsg,
                             ObsfuscateEmailAddress(SmtpMailSetup."User ID"),
                             SmtpMailSetup."SMTP Server",
-                            SmtpMailSetup."SMTP Server Port"),
-                        DataClassification::EndUserPseudonymousIdentifiers);
+                            SmtpMailSetup."SMTP Server Port"), Verbosity::Normal, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
                 end;
             end;
 
@@ -429,8 +425,7 @@ codeunit 400 "SMTP Mail"
                     InternetAddressListToList(Email."Bcc"(), AddressesList);
                     BccAddresses := FormatListToString(AddressesList, ';', true);
 
-                    SendTraceTag('00009UO', SmtpCategoryLbl, Verbosity::Error,
-                    StrSubstNo(SmtpSendTelemetryErrorMsg,
+                    Session.LogMessage('00009UO', StrSubstNo(SmtpSendTelemetryErrorMsg,
                         ObsfuscateEmailAddress(SmtpMailSetup."User ID"),
                         FromAddresses,
                         ToAddresses,
@@ -438,12 +433,10 @@ codeunit 400 "SMTP Mail"
                         BccAddresses,
                         SmtpMailSetup."Allow Sender Substitution",
                         SmtpMailSetup."Send As",
-                        SMTPErrorCode),
-                    DataClassification::EndUserPseudonymousIdentifiers);
+                        SMTPErrorCode), Verbosity::Error, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
                 end
                 else
-                    SendTraceTag('00009UP', SmtpCategoryLbl, Verbosity::Normal, SmtpSendTelemetryMsg,
-                    DataClassification::SystemMetadata);
+                    Session.LogMessage('00009UP', SmtpSendTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
             end;
             SmtpClient.Disconnect(true, CancellationToken);
         end;
@@ -731,7 +724,7 @@ codeunit 400 "SMTP Mail"
     /// <summary>
     /// Tries to add the base64 image to linked resources.
     /// </summary>
-    /// <returns>True if there is no error./returns>
+    /// <returns>True if there is no error.</returns>
     [TryFunction]
     local procedure TryAddLinkedResources(Filename: Text; Base64Img: Text; ContentType: DotNet MimeContentType;
 

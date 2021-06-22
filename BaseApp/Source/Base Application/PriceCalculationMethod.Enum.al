@@ -4,7 +4,6 @@ enum 7000 "Price Calculation Method"
 
     value(0; " ")
     {
-        Caption = 'Not defined';
     }
     value(1; "Lowest Price")
     {

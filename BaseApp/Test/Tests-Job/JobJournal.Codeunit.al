@@ -54,7 +54,7 @@ codeunit 136305 "Job Journal"
         // [GIVEN] A Job with Job Task and Resource.
         Initialize;
         CreateJobWithJobTask(JobTask);
-        ResourceNo := LibraryJob.CreateConsumable(0);  // Use 0 for Resource.
+        ResourceNo := LibraryJob.CreateConsumable("Job Planning Line Type"::Resource);
         Resource.Get(ResourceNo);
 
         // [WHEN] Creating Job Journal Line with created Resource.
@@ -79,7 +79,7 @@ codeunit 136305 "Job Journal"
         // [GIVEN] A Job with Job Task, Resource and Create another Resource Unit Of Measure.
         Initialize;
         CreateJobWithJobTask(JobTask);
-        ResourceNo := LibraryJob.CreateConsumable(0);  // Use 0 for Resource.
+        ResourceNo := LibraryJob.CreateConsumable("Job Planning Line Type"::Resource);
         Resource.Get(ResourceNo);
         CreateResourceUnitOfMeasure(ResourceUnitOfMeasure, Resource);
 
@@ -106,7 +106,7 @@ codeunit 136305 "Job Journal"
         // [GIVEN] A Job with Job Task and Resource.
         Initialize;
         CreateJobWithJobTask(JobTask);
-        ResourceNo := LibraryJob.CreateConsumable(0);  // Use 0 for Resource.
+        ResourceNo := LibraryJob.CreateConsumable("Job Planning Line Type"::Resource);
         Resource.Get(ResourceNo);
 
         // [WHEN] Creating Job Planning Line with created Resource.
@@ -132,7 +132,7 @@ codeunit 136305 "Job Journal"
         // [GIVEN] A Job with Job Task, Resource and Create another Resource Unit Of Measure.
         Initialize;
         CreateJobWithJobTask(JobTask);
-        ResourceNo := LibraryJob.CreateConsumable(0);  // Use 0 for Resource.
+        ResourceNo := LibraryJob.CreateConsumable("Job Planning Line Type"::Resource);
         Resource.Get(ResourceNo);
         CreateResourceUnitOfMeasure(ResourceUnitOfMeasure, Resource);
 
@@ -203,7 +203,7 @@ codeunit 136305 "Job Journal"
         // [GIVEN] A Job with Job Task and Job Journal Line.
         Initialize;
         CreateJobWithJobTask(JobTask);
-        ResourceNo := LibraryJob.CreateConsumable(0);  // Use 0 for Resource.
+        ResourceNo := LibraryJob.CreateConsumable("Job Planning Line Type"::Resource);
         CreateJobJournalLine(JobJournalLine, JobTask, ResourceNo);
         LineAmount := JobJournalLine."Line Amount";
 
@@ -2413,7 +2413,7 @@ codeunit 136305 "Job Journal"
         JobItemPrice.Modify(true);
     end;
 
-    local procedure CreateJobGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; BalAccountType: Option; AccountNo: Code[20]; BalAccountNo: Code[20]; JobNo: Code[20]; JobTaskNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreateJobGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; BalAccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; JobNo: Code[20]; JobTaskNo: Code[20]; CurrencyCode: Code[10])
     begin
         // Taking Random value for Job Quantity and Amount.
         LibraryERM.CreateGeneralJnlLine(
@@ -2455,7 +2455,7 @@ codeunit 136305 "Job Journal"
         end;
     end;
 
-    local procedure CreateJobJournalLineWithBlankUOM(var JobJournalLine: Record "Job Journal Line"; ItemNo: Code[20]; JobJournalLineType: Option)
+    local procedure CreateJobJournalLineWithBlankUOM(var JobJournalLine: Record "Job Journal Line"; ItemNo: Code[20]; JobJournalLineType: Enum "Job Journal Line Type")
     var
         JobTask: Record "Job Task";
     begin
@@ -2469,9 +2469,9 @@ codeunit 136305 "Job Journal"
         end;
     end;
 
-    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Option; No: Code[20]; Type: Option)
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Option; No: Code[20]; ConsumableType: Enum "Job Planning Line Type")
     begin
-        LibraryJob.CreateJobPlanningLine(LineType, Type, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LineType, ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", No);
         JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random value.
         JobPlanningLine.Modify(true);
@@ -2483,7 +2483,7 @@ codeunit 136305 "Job Journal"
         JobPlanningLine: Record "Job Planning Line";
         ResourceNo: Code[20];
     begin
-        ResourceNo := LibraryJob.CreateConsumable(0);  // Use 0 for Resource.
+        ResourceNo := LibraryJob.CreateConsumable("Job Planning Line Type"::Resource);
 
         CreateJobPlanningLine(
           JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, ResourceNo, JobPlanningLine.Type::Resource);
@@ -2503,9 +2503,9 @@ codeunit 136305 "Job Journal"
         JobPlanningLine.Modify(true);
     end;
 
-    local procedure CreateJobPlanningLineAndModifyUOM(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; Type: Option; No: Code[20]; UnitOfMeasureCode: Code[10])
+    local procedure CreateJobPlanningLineAndModifyUOM(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; ConsumableType: Enum "Job Planning Line Type"; No: Code[20]; UnitOfMeasureCode: Code[10])
     begin
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, No, Type);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, No, ConsumableType);
         JobPlanningLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
         JobPlanningLine.Modify(true);
     end;
@@ -2623,16 +2623,16 @@ codeunit 136305 "Job Journal"
         ReservationEntry: Record "Reservation Entry";
     begin
         with ReservationEntry do begin
-            Init;
-            "Source Type" := 1011;
+            Init();
+            "Source Type" := Database::"Job Journal Line";
             "Source ID" := JobJournalLine."Journal Template Name";
             "Source Batch Name" := JobJournalLine."Journal Batch Name";
             "Source Ref. No." := JobJournalLine."Line No.";
-            "Source Subtype" := JobJournalLine."Entry Type";
+            "Source Subtype" := JobJournalLine."Entry Type".AsInteger();
             "Source Prod. Order Line" := 0;
             "Reservation Status" := "Reservation Status"::Reservation;
             "Quantity (Base)" := LibraryRandom.RandDecInRange(1000, 2000, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2655,7 +2655,7 @@ codeunit 136305 "Job Journal"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; JobNo: Code[20]; EntryType: Option)
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; JobNo: Code[20]; EntryType: Enum "Item Ledger Entry Type")
     begin
         with ItemLedgerEntry do begin
             SetRange("Job No.", JobNo);
@@ -2671,11 +2671,11 @@ codeunit 136305 "Job Journal"
         JobJournalLine.FindFirst;
     end;
 
-    local procedure FindJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; DocumentNo: Code[20]; JobNo: Code[20]; Type: Option; No: Code[20])
+    local procedure FindJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; DocumentNo: Code[20]; JobNo: Code[20]; ConsumableType: Enum "Job Planning Line Type"; No: Code[20])
     begin
         JobLedgerEntry.SetRange("Document No.", DocumentNo);
         JobLedgerEntry.SetRange("Job No.", JobNo);
-        JobLedgerEntry.SetRange(Type, Type);
+        JobLedgerEntry.SetRange(Type, ConsumableType);
         JobLedgerEntry.SetRange("No.", No);
         JobLedgerEntry.FindFirst;
     end;
@@ -2695,7 +2695,7 @@ codeunit 136305 "Job Journal"
         exit(UnitOfMeasure.Code);
     end;
 
-    local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; JobNo: Code[20]; Type: Option)
+    local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; JobNo: Code[20]; Type: Enum "Sales Line Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2703,7 +2703,7 @@ codeunit 136305 "Job Journal"
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; Type: Option; JobNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; JobNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange(Type, Type);
@@ -2954,7 +2954,7 @@ codeunit 136305 "Job Journal"
         JobLedgerEntry.TestField("Job Posting Group", Item."Inventory Posting Group");
     end;
 
-    local procedure VerifyWarehouseEntry(SourceDocument: Option; EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal)
+    local procedure VerifyWarehouseEntry(SourceDocument: Enum "Warehouse Journal Source Document"; EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal)
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
@@ -3001,7 +3001,7 @@ codeunit 136305 "Job Journal"
         JobJournalLine.TestField(Quantity, NewQuantity);
     end;
 
-    local procedure JobUpdateBillToContactNoBlocked(Blocked: Option)
+    local procedure JobUpdateBillToContactNoBlocked(Blocked: Enum "Job Blocked")
     var
         Job: Record Job;
         ContactBusinessRelation: Record "Contact Business Relation";

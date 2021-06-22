@@ -96,7 +96,7 @@ page 5759 "Posted Transfer Receipt Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

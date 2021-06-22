@@ -90,7 +90,7 @@ table 1013 "Job Item Price"
         }
         field(9; Description; Text[100])
         {
-            CalcFormula = Lookup (Item.Description WHERE("No." = FIELD("Item No.")));
+            CalcFormula = Lookup(Item.Description WHERE("No." = FIELD("Item No.")));
             Caption = 'Description';
             Editable = false;
             FieldClass = FlowField;

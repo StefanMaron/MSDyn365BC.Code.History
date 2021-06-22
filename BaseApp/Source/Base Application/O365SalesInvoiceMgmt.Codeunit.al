@@ -620,7 +620,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         CustomerCreatedNotification.SetData('CustomerNo', Customer."No.");
         CustomerCreatedNotification.SetData('SalesHeaderNo', SalesHeader."No.");
 
-        Type := SalesHeader."Document Type";
+        Type := SalesHeader."Document Type".AsInteger();
         CustomerCreatedNotification.SetData('SalesHeaderType', Format(Type));
         NotificationLifecycleMgt.SendNotification(CustomerCreatedNotification, SalesHeader.RecordId);
     end;
@@ -644,8 +644,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
     var
         ItemCreatedNotification: Notification;
     begin
-        SendTraceTag('000023X', DraftInvoiceCategoryLbl, VERBOSITY::Normal,
-          InlineItemCreatedTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000023X', InlineItemCreatedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DraftInvoiceCategoryLbl);
         ItemCreatedNotification.Id := CreateGuid;
         ItemCreatedNotification.Message(StrSubstNo(ItemCreatedMsg, Item.Description));
         ItemCreatedNotification.Scope(NOTIFICATIONSCOPE::LocalScope);

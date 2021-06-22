@@ -36,7 +36,7 @@ codeunit 5056 "CustCont-Update"
                 exit;
             if not Cont.Get("Contact No.") then begin
                 Delete();
-                SendTraceTag('0000B37', CustContactUpdateCategoryTxt, Verbosity::Normal, StrSubstNo(CustContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), DataClassification::EndUserIdentifiableInformation);
+                Session.LogMessage('0000B37', StrSubstNo(CustContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), Verbosity::Normal, DataClassification::EndUserIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', CustContactUpdateCategoryTxt);
                 exit;
             end;
             OldCont := Cont;

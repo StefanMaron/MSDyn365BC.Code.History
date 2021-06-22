@@ -1,5 +1,9 @@
 table 7003 "Price Asset"
 {
+    #pragma warning disable AS0034
+    TableType = Temporary;
+    #pragma warning restore AS0034
+
     fields
     {
         field(1; "Entry No."; Integer)
@@ -8,16 +12,20 @@ table 7003 "Price Asset"
         }
         field(2; "Asset Type"; Enum "Price Asset Type")
         {
+            Caption = 'Product Type';
             DataClassification = SystemMetadata;
-            Caption = 'Asset Type';
+
             trigger OnValidate()
             begin
+                VerifyConsistentAssetType();
                 InitAsset();
             end;
         }
         field(3; "Asset No."; Code[20])
         {
+            Caption = 'Product No.';
             DataClassification = SystemMetadata;
+
             trigger OnValidate()
             begin
                 if "Asset No." = '' then
@@ -28,6 +36,7 @@ table 7003 "Price Asset"
         }
         field(4; "Asset ID"; Guid)
         {
+            Caption = 'Product Id';
             DataClassification = SystemMetadata;
             trigger OnValidate()
             begin
@@ -46,22 +55,41 @@ table 7003 "Price Asset"
         field(6; "Variant Code"; Code[10])
         {
             DataClassification = SystemMetadata;
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Asset No."));
             trigger OnValidate()
+            var
+                ItemVariant: Record "Item Variant";
             begin
-                TestField("Asset Type", "Asset Type"::Item);
+                if "Variant Code" <> '' then begin
+                    TestField("Asset Type", "Asset Type"::Item);
+                    TestField("Asset No.");
+                    ItemVariant.Get("Asset No.", "Variant Code");
+                    Description := ItemVariant.Description;
+                end;
             end;
         }
         field(7; "Unit of Measure Code"; Code[10])
         {
             DataClassification = SystemMetadata;
-            TableRelation = IF ("Asset Type" = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("Asset No."))
-            ELSE
-            IF ("Asset Type" = CONST(Resource)) "Resource Unit of Measure".Code WHERE("Resource No." = FIELD("Asset No."));
             trigger OnValidate()
+            var
+                ItemUnitofMeasure: Record "Item Unit of Measure";
+                ResourceUnitofMeasure: Record "Resource Unit of Measure";
             begin
-                if not ("Asset Type" in ["Asset Type"::Item, "Asset Type"::Resource]) then
-                    Error(AssetTypeForUOMErr);
+                if "Unit of Measure Code" <> '' then
+                    case "Asset Type" of
+                        "Asset Type"::Item:
+                            begin
+                                TestField("Asset No.");
+                                ItemUnitofMeasure.Get("Asset No.", "Unit of Measure Code");
+                            end;
+                        "Asset Type"::Resource:
+                            begin
+                                TestField("Asset No.");
+                                ResourceUnitofMeasure.Get("Asset No.", "Unit of Measure Code");
+                            end;
+                        else
+                            Error(AssetTypeForUOMErr);
+                    end;
             end;
         }
         field(8; "Price Type"; Enum "Price Type")
@@ -85,6 +113,25 @@ table 7003 "Price Asset"
         {
             DataClassification = SystemMetadata;
             TableRelation = "Work Type";
+            trigger OnValidate()
+            var
+                Resource: Record Resource;
+                WorkType: Record "Work Type";
+            begin
+                TestField("Asset Type", "Asset Type"::Resource);
+                TestField("Asset No.");
+
+                if WorkType.Get("Work Type Code") and (WorkType."Unit of Measure Code" <> '') then
+                    "Unit of Measure Code" := WorkType."Unit of Measure Code"
+                else begin
+                    Resource.Get("Asset No.");
+                    "Unit of Measure Code" := Resource."Base Unit of Measure";
+                end;
+            end;
+        }
+        field(29; Description; Text[100])
+        {
+            DataClassification = CustomerContent;
         }
     }
 
@@ -97,7 +144,7 @@ table 7003 "Price Asset"
 
     var
         PriceAssetInterface: Interface "Price Asset";
-        AssetTypeForUOMErr: Label 'Asset Type must be equal to Item or Resource.';
+        AssetTypeForUOMErr: Label 'Product Type must be equal to Item or Resource.';
 
     trigger OnInsert()
     begin
@@ -122,6 +169,7 @@ table 7003 "Price Asset"
     begin
         Clear("Asset ID");
         "Asset No." := '';
+        Description := '';
         "Unit of Measure Code" := '';
     end;
 
@@ -139,6 +187,8 @@ table 7003 "Price Asset"
 
     procedure LookupVariantCode() Result: Boolean;
     begin
+        TestField("Asset Type", "Asset Type"::Item);
+        TestField("Asset No.");
         PriceAssetInterface := "Asset Type";
         Result := PriceAssetInterface.IsLookupVariantOK(Rec);
     end;
@@ -172,5 +222,13 @@ table 7003 "Price Asset"
     begin
         PriceAssetInterface := "Asset Type";
         PriceAssetInterface.GetId(Rec)
+    end;
+
+    // Could be a method in the Price Asset interface
+    local procedure VerifyConsistentAssetType()
+    begin
+        if "Price Type" = "Price Type"::Purchase then
+            if "Asset Type" = "Asset Type"::"Item Discount Group" then
+                FieldError("Asset Type");
     end;
 }

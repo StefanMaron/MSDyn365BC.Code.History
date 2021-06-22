@@ -318,7 +318,7 @@ report 722 "Phys. Inventory List"
     local procedure PickSNLotFromWhseEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; UnitOM: Code[10])
     var
         WhseEntry: Record "Warehouse Entry";
-        ItemTrackg: Option "None","Lot No.","Lot and Serial No.","Serial No.";
+        ItemTrackingEntryType: Enum "Item Tracking Entry Type";
     begin
         WhseEntry.SetCurrentKey(
           "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code",
@@ -333,19 +333,19 @@ report 722 "Phys. Inventory List"
             repeat
                 if (WhseEntry."Lot No." <> '') and (WhseEntry."Serial No." <> '') then
                     CreateReservEntry(ItemJnlLine, WhseEntry."Qty. (Base)",
-                      WhseEntry."Serial No.", WhseEntry."Lot No.", ItemTrackg::"Lot and Serial No.")
+                      WhseEntry."Serial No.", WhseEntry."Lot No.", ItemTrackingEntryType::"Lot and Serial No.")
                 else begin
                     if WhseEntry."Lot No." <> '' then
                         CreateReservEntry(ItemJnlLine, WhseEntry."Qty. (Base)",
-                          WhseEntry."Serial No.", WhseEntry."Lot No.", ItemTrackg::"Lot No.");
+                          WhseEntry."Serial No.", WhseEntry."Lot No.", ItemTrackingEntryType::"Lot No.");
                     if WhseEntry."Serial No." <> '' then
                         CreateReservEntry(ItemJnlLine, WhseEntry."Qty. (Base)",
-                          WhseEntry."Serial No.", WhseEntry."Lot No.", ItemTrackg::"Serial No.");
+                          WhseEntry."Serial No.", WhseEntry."Lot No.", ItemTrackingEntryType::"Serial No.");
                 end;
             until WhseEntry.Next = 0;
     end;
 
-    local procedure CreateReservEntry(ItemJournalLine: Record "Item Journal Line"; Qty: Decimal; SerialNo: Code[50]; LotNo: Code[50]; ItemTracking: Option "None","Lot No.","Lot and Serial No.","Serial No.")
+    local procedure CreateReservEntry(ItemJournalLine: Record "Item Journal Line"; Qty: Decimal; SerialNo: Code[50]; LotNo: Code[50]; ItemTracking: Enum "Item Tracking Entry Type")
     var
         FoundRec: Boolean;
     begin

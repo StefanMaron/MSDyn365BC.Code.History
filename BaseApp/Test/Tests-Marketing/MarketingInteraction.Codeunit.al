@@ -1235,17 +1235,41 @@ codeunit 136208 "Marketing Interaction"
     [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
+    procedure LogSegmentWithEmailWordAttachmentSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        LogSegmentWithEmailWordAttachmentInternal();
+    end;
+
+    // [Test]
+    [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure LogSegmentWithEmailWordAttachment()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        LogSegmentWithEmailWordAttachmentInternal();
+    end;
+
+    procedure LogSegmentWithEmailWordAttachmentInternal()
     var
         SegmentHeader: Record "Segment Header";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        EmailFeature: Codeunit "Email Feature";
         Segment: TestPage Segment;
         FileExtension: Text[250];
     begin
         // [SCENARIO 178203] User sends email with Word document as attachment in Web client
         Initialize;
-        LibraryWorkflow.SetUpSMTPEmailSetup;
-        UpdateSMTPSetup;
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount()
+        else begin
+            LibraryWorkflow.SetUpSMTPEmailSetup;
+            UpdateSMTPSetup;
+        end;
         // [GIVEN] Interaction Template with Word attachment
         FileExtension := 'DOC';
         // [GIVEN] Segment for email
@@ -1263,17 +1287,42 @@ codeunit 136208 "Marketing Interaction"
     [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailDialogModalPageHandler')]
     [Scope('OnPrem')]
+    procedure LogSegmentWithEmailTextAttachmentSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        LogSegmentWithEmailTextAttachmentInternal();
+    end;
+
+    // [Test]
+    [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure LogSegmentWithEmailTextAttachment()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        LogSegmentWithEmailTextAttachmentInternal();
+    end;
+
+    procedure LogSegmentWithEmailTextAttachmentInternal()
     var
         SegmentHeader: Record "Segment Header";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
         Segment: TestPage Segment;
         FileExtension: Text[250];
     begin
         // [SCENARIO 178203] User sends email with text document as attachment in Web client
         Initialize;
-        LibraryWorkflow.SetUpSMTPEmailSetup;
-        UpdateSMTPSetup;
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount()
+        else begin
+            LibraryWorkflow.SetUpSMTPEmailSetup;
+            UpdateSMTPSetup;
+        end;
         // [GIVEN] Interaction Template with text attachment
         FileExtension := 'TXT';
         // [GIVEN] Segment for email
@@ -1724,15 +1773,38 @@ codeunit 136208 "Marketing Interaction"
     [Test]
     [HandlerFunctions('SimpleEmailDialogModalPageHandler')]
     [Scope('OnPrem')]
+    procedure EmailDraftInteractionLogEntryFromSalesOrderSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        EmailDraftInteractionLogEntryFromSalesOrderInternal();
+    end;
+
+    // [Test]
+    [HandlerFunctions('SimpleEmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure EmailDraftInteractionLogEntryFromSalesOrder()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        EmailDraftInteractionLogEntryFromSalesOrderInternal();
+    end;
+
+    procedure EmailDraftInteractionLogEntryFromSalesOrderInternal()
     var
         InteractionTemplate: Record "Interaction Template";
         SalesHeader: Record "Sales Header";
         InteractionLogEntry: Record "Interaction Log Entry";
         DocumentPrint: Codeunit "Document-Print";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
     begin
         // [SCENARIO 199993] Sending by mail sales order confirmation does not lead to generation of interaction log entry with Email Draft template
         Initialize;
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount();
 
         // [GIVEN] New interaction template XXX
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -1755,14 +1827,37 @@ codeunit 136208 "Marketing Interaction"
     [Test]
     [HandlerFunctions('SelectSendingOptionsModalPageHandler,SimpleEmailDialogModalPageHandler')]
     [Scope('OnPrem')]
+    procedure EmailDraftInteractionLogEntryFromPurchOrderSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        EmailDraftInteractionLogEntryFromPurchOrderInternal();
+    end;
+
+    // [Test]
+    [HandlerFunctions('SelectSendingOptionsModalPageHandler,SimpleEmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure EmailDraftInteractionLogEntryFromPurchOrder()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        EmailDraftInteractionLogEntryFromPurchOrderInternal();
+    end;
+
+    procedure EmailDraftInteractionLogEntryFromPurchOrderInternal()
     var
         InteractionTemplate: Record "Interaction Template";
         PurchaseHeader: Record "Purchase Header";
         InteractionLogEntry: Record "Interaction Log Entry";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
     begin
         // [SCENARIO 199993] Sending by mail Purchase order does not lead to generation of interaction log entry with Email Draft template
         Initialize;
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount();
 
         // [GIVEN] New interaction template XXX
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
@@ -2089,7 +2184,7 @@ codeunit 136208 "Marketing Interaction"
         InteractionTmplLanguage.Insert();
     end;
 
-    local procedure CreateInteractionTemplateWithCorrespondenceType(var InteractionTemplate: Record "Interaction Template"; CorrespondenceType: Option)
+    local procedure CreateInteractionTemplateWithCorrespondenceType(var InteractionTemplate: Record "Interaction Template"; CorrespondenceType: Enum "Correspondence Type")
     begin
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         InteractionTemplate."Correspondence Type (Default)" := CorrespondenceType;
@@ -2125,7 +2220,7 @@ codeunit 136208 "Marketing Interaction"
         SegmentLine.Modify(true);
     end;
 
-    local procedure CreateSegmentWithInteractionTemplateAndContact(var SegmentHeader: Record "Segment Header"; InteractionTemplateCode: Code[10]; ContactNo: Code[20]; CorrespondenceType: Option)
+    local procedure CreateSegmentWithInteractionTemplateAndContact(var SegmentHeader: Record "Segment Header"; InteractionTemplateCode: Code[10]; ContactNo: Code[20]; CorrespondenceType: Enum "Correspondence Type")
     var
         SegmentLine: Record "Segment Line";
     begin
@@ -2152,12 +2247,12 @@ codeunit 136208 "Marketing Interaction"
         Salutation: Record Salutation;
     begin
         LibraryMarketing.CreateSalutation(Salutation);
-        CreateSalutationFormula(Salutation.Code, LanguageCode, 0);
-        CreateSalutationFormula(Salutation.Code, LanguageCode, 1);
+        CreateSalutationFormula(Salutation.Code, LanguageCode, "Salutation Formula Salutation Type"::Formal);
+        CreateSalutationFormula(Salutation.Code, LanguageCode, "Salutation Formula Salutation Type"::Informal);
         exit(Salutation.Code);
     end;
 
-    local procedure CreateSalutationFormula(SalutationCode: Code[10]; LanguageCode: Code[10]; SalutationType: Option)
+    local procedure CreateSalutationFormula(SalutationCode: Code[10]; LanguageCode: Code[10]; SalutationType: Enum "Salutation Formula Salutation Type")
     var
         SalutationFormula: Record "Salutation Formula";
     begin
@@ -2181,7 +2276,7 @@ codeunit 136208 "Marketing Interaction"
         InteractionLogEntry.FindFirst;
     end;
 
-    local procedure FindInteractionLogEntryByDocument(var InteractionLogEntry: Record "Interaction Log Entry"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindInteractionLogEntryByDocument(var InteractionLogEntry: Record "Interaction Log Entry"; DocumentNo: Code[20]; DocumentType: Enum "Interaction Log Entry Document Type")
     begin
         InteractionLogEntry.SetRange("Document No.", DocumentNo);
         InteractionLogEntry.SetRange("Document Type", DocumentType);
@@ -2238,7 +2333,7 @@ codeunit 136208 "Marketing Interaction"
         exit(Attachment."Storage Pointer" + '\' + Format(Attachment."No.") + '.' + Attachment."File Extension");
     end;
 
-    local procedure GetInterLogEntryDocTypeFromSalesDoc(SalesHeader: Record "Sales Header"): Integer
+    local procedure GetInterLogEntryDocTypeFromSalesDoc(SalesHeader: Record "Sales Header"): Enum "Interaction Log Entry Document Type"
     var
         DummyInteractionLogEntry: Record "Interaction Log Entry";
     begin
@@ -2787,6 +2882,22 @@ codeunit 136208 "Marketing Interaction"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    begin
+        EmailEditor.ToField.AssertEquals(LibraryVariableStorage.DequeueText);
+        EmailEditor.SubjectField.AssertEquals(LibraryVariableStorage.DequeueText);
+        Assert.AreNotEqual(0, StrPos(EmailEditor.Attachments.FileName.Value, LibraryVariableStorage.DequeueText), AttachmentErr);
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CloseEmailEditorHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure CreateInteraction_Cancel_MPH(var CreateInteraction: TestPage "Create Interaction")
     begin
         LibraryVariableStorage.Enqueue(CreateInteraction."Salesperson Code".Value);
@@ -2808,6 +2919,12 @@ codeunit 136208 "Marketing Interaction"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure SimpleEmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure SelectSendingOptionsModalPageHandler(var SelectSendingOptions: TestPage "Select Sending Options")
     var
         DummyDocumentSendingProfile: Record "Document Sending Profile";
@@ -2816,7 +2933,7 @@ codeunit 136208 "Marketing Interaction"
         SelectSendingOptions.OK.Invoke;
     end;
 
-    local procedure SetDefaultCorrespondenceType(CorrespondenceType: Option)
+    local procedure SetDefaultCorrespondenceType(CorrespondenceType: Enum "Correspondence Type")
     var
         MarketingSetup: Record "Marketing Setup";
     begin
@@ -2847,7 +2964,7 @@ codeunit 136208 "Marketing Interaction"
         InteractionLogEntry.TestField("Document No.", DocumentNo);
     end;
 
-    local procedure VerifyInterLogEntry(EntryNo: Integer; ExpectedDocNo: Code[20]; ExpectedDocType: Integer)
+    local procedure VerifyInterLogEntry(EntryNo: Integer; ExpectedDocNo: Code[20]; ExpectedDocType: Enum "Interaction Log Entry Document Type")
     var
         InteractionLogEntry: Record "Interaction Log Entry";
     begin

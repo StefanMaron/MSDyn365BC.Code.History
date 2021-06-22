@@ -156,7 +156,7 @@ page 5952 "Posted Service Cr. Memo Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(ItemTrackingEntries)

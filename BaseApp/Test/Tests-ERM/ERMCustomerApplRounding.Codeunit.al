@@ -322,7 +322,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; Amount: Decimal; CustomerNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CustomerNo: Code[20]; CurrencyCode: Code[10])
     begin
         // Select Journal Batch Name.
         LibraryERM.CreateGeneralJnlLine(

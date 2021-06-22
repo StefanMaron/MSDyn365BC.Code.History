@@ -6,9 +6,9 @@ page 5488 "Dimension Values Entity"
     Editable = false;
     InsertAllowed = false;
     ModifyAllowed = false;
-    ODataKeyFields = Id;
-    PageType = ListPart;
     SourceTable = "Dimension Value";
+    ODataKeyFields = SystemId;
+    PageType = ListPart;
 
     layout
     {
@@ -16,12 +16,13 @@ page 5488 "Dimension Values Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; Rec.SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
                     Editable = false;
                 }
+
                 field("code"; Code)
                 {
                     ApplicationArea = All;
@@ -45,4 +46,3 @@ page 5488 "Dimension Values Entity"
     {
     }
 }
-

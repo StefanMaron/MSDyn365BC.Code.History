@@ -230,12 +230,12 @@ codeunit 137412 "SCM Prevent Negative Inventory"
     local procedure CreateCreditMemoForPostedPurchaseReceipt(var PurchaseHeader: Record "Purchase Header"; PostedRcptNo: Code[20]; VendorNo: Code[20])
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         PurchRcptLine.SetRange("Document No.", PostedRcptNo);
         PurchRcptLine.FindFirst;
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocType::"Posted Receipt", PostedRcptNo, true, true);
+        LibraryPurchase.CopyPurchaseDocument(
+            PurchaseHeader, "Purchase Document Type From"::"Posted Receipt", PostedRcptNo, true, true);
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal)

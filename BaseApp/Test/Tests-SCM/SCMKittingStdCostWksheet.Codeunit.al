@@ -113,7 +113,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Std Cost Wksheet");
     end;
 
-    local procedure MixedTreeStdCostWorksheet(TopItemReplSystem: Option; TreeDepth: Integer; Suggest: Boolean; Rollup: Boolean; Implement: Boolean)
+    local procedure MixedTreeStdCostWorksheet(TopItemReplSystem: Enum "Replenishment System"; TreeDepth: Integer; Suggest: Boolean; Rollup: Boolean; Implement: Boolean)
     var
         TempItem: Record Item temporary;
         TempResource: Record Resource temporary;

@@ -2,6 +2,10 @@ table 5510 "Employee Time Reg Buffer"
 {
     Caption = 'Employee Time Reg Buffer';
     ReplicateData = false;
+    //TableType = Temporary;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Table will be marked with - TableType = Temporary. Make sure you are not saving any data to this table.';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -36,12 +40,10 @@ table 5510 "Employee Time Reg Buffer"
             DataClassification = SystemMetadata;
             NotBlank = true;
         }
-        field(20; Status; Option)
+        field(20; Status; Enum "Employee Time Reg. Status")
         {
             Caption = 'Status';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Open,Submitted,Rejected,Approved';
-            OptionMembers = Open,Submitted,Rejected,Approved;
         }
         field(21; "Employee No"; Code[20])
         {
@@ -73,8 +75,7 @@ table 5510 "Employee Time Reg Buffer"
                 Employee: Record Employee;
                 Resource: Record Resource;
             begin
-                Employee.SetRange(Id, "Employee Id");
-                if not Employee.FindFirst then
+                if not Employee.GetBySystemId(Rec."Employee Id") then
                     Error(CouldNotFindEmployeeErr);
 
                 GraphMgtTimeRegistration.InitUserSetup;
@@ -157,14 +158,17 @@ table 5510 "Employee Time Reg Buffer"
 
         GraphMgtTimeRegistration.AddTimeSheetDetailWithDimensionSetAndJob(TimeSheetDetail, TimeSheetLine, Date, Quantity, "Dimension Set ID", "Job Id");
 
+        TimeSheetDetail.Validate("Job Task No.", "Job Task No.");
+
         TransferFields(TimeSheetDetail, true);
+        Id := TimeSheetDetail.SystemId;
 
         "Employee No" := Employee."No.";
-        "Employee Id" := Employee.Id;
+        "Employee Id" := Employee.SystemId;
         if Resource.Get(Employee."Resource No.") then
             "Unit of Measure Code" := Resource."Base Unit of Measure";
         if UnitOfMeasure.Get(Resource."Base Unit of Measure") then
-            "Unit of Measure Id" := UnitOfMeasure.Id;
+            "Unit of Measure Id" := UnitOfMeasure.SystemId;
     end;
 
     [Scope('Cloud')]
@@ -174,14 +178,13 @@ table 5510 "Employee Time Reg Buffer"
         RecordModified: Boolean;
     begin
         if Quantity <> xRec.Quantity then begin
-            TimeSheetDetail.SetRange(Id, Id);
-            TimeSheetDetail.FindFirst;
+            TimeSheetDetail.GetBySystemId(Rec.Id);
             TimeSheetDetail.Validate(Quantity, Quantity);
             RecordModified := true;
         end;
         if "Dimension Set ID" <> xRec."Dimension Set ID" then begin
             if not RecordModified then begin
-                TimeSheetDetail.SetRange(Id, Id);
+                TimeSheetDetail.GetBySystemId(Id);
                 TimeSheetDetail.FindFirst();
                 RecordModified := true;
             end;
@@ -189,8 +192,7 @@ table 5510 "Employee Time Reg Buffer"
         end;
         if "Job Id" <> xRec."Job Id" then begin
             if not RecordModified then begin
-                TimeSheetDetail.SetRange(Id, Id);
-                TimeSheetDetail.FindFirst();
+                TimeSheetDetail.GetBySystemId(Id);
                 RecordModified := true;
             end;
             TimeSheetDetail.Validate("Job Id", "Job Id");
@@ -199,6 +201,8 @@ table 5510 "Employee Time Reg Buffer"
         if RecordModified then begin
             TimeSheetDetail.Modify(true);
             TransferFields(TimeSheetDetail);
+            Id := TimeSheetDetail.SystemId;
+
         end;
     end;
 
@@ -207,8 +211,7 @@ table 5510 "Employee Time Reg Buffer"
     var
         TimeSheetDetail: Record "Time Sheet Detail";
     begin
-        TimeSheetDetail.SetRange(Id, Id);
-        TimeSheetDetail.FindFirst;
+        TimeSheetDetail.GetBySystemId(Id);
         TimeSheetDetail.Delete(true);
     end;
 
@@ -226,7 +229,7 @@ table 5510 "Employee Time Reg Buffer"
         end;
 
         if EmployeeIdFilter <> '' then begin
-            Employee.SetFilter(Id, EmployeeIdFilter);
+            Employee.SetFilter(SystemId, EmployeeIdFilter);
             if Employee.Count > 1 then
                 Error(EmployeeFilterOneEmployeeOnlyErr);
             LoadRecordsFromEmployee(EmployeeIdFilter);
@@ -261,7 +264,7 @@ table 5510 "Employee Time Reg Buffer"
         Resource: Record Resource;
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        TimeSheetDetail.SetFilter(Id, IdFilter);
+        TimeSheetDetail.SetFilter(SystemId, IdFilter);
         if not TimeSheetDetail.FindFirst then
             exit;
 
@@ -275,13 +278,16 @@ table 5510 "Employee Time Reg Buffer"
             exit;
 
         TransferFields(TimeSheetDetail, true);
+        Id := TimeSheetDetail.SystemId;
+
         "Line No" := TimeSheetDetail."Time Sheet Line No.";
         "Employee No" := Employee."No.";
-        "Employee Id" := Employee.Id;
+        "Employee Id" := Employee.SystemId;
         if UnitOfMeasure.Get(Resource."Base Unit of Measure") then begin
             "Unit of Measure Code" := UnitOfMeasure.Code;
-            "Unit of Measure Id" := UnitOfMeasure.Id;
+            "Unit of Measure Id" := UnitOfMeasure.SystemId;
         end;
+
         Insert(true);
     end;
 
@@ -296,7 +302,7 @@ table 5510 "Employee Time Reg Buffer"
         UnitOfMeasure: Record "Unit of Measure";
         UnitOfMeasureFound: Boolean;
     begin
-        Employee.SetFilter(Id, EmployeeIdFilter);
+        Employee.SetFilter(SystemId, EmployeeIdFilter);
         if not Employee.FindFirst then
             exit;
 
@@ -320,13 +326,16 @@ table 5510 "Employee Time Reg Buffer"
                     if TimeSheetDetail.FindSet then begin
                         repeat
                             TransferFields(TimeSheetDetail, true);
+                            Id := TimeSheetDetail.SystemId;
+
                             "Line No" := TimeSheetDetail."Time Sheet Line No.";
                             "Employee No" := Employee."No.";
-                            "Employee Id" := Employee.Id;
+                            "Employee Id" := Employee.SystemId;
                             if UnitOfMeasureFound then begin
-                                "Unit of Measure Id" := UnitOfMeasure.Id;
+                                "Unit of Measure Id" := UnitOfMeasure.SystemId;
                                 "Unit of Measure Code" := UnitOfMeasure.Code;
                             end;
+
                             Insert(true);
                         until TimeSheetDetail.Next = 0;
                     end;
@@ -381,12 +390,14 @@ table 5510 "Employee Time Reg Buffer"
                         end;
                     if ResourceFound then begin
                         TransferFields(TimeSheetDetail, true);
+                        Id := TimeSheetDetail.SystemId;
+
                         "Line No" := TimeSheetDetail."Time Sheet Line No.";
                         "Employee No" := Employee."No.";
-                        "Employee Id" := Employee.Id;
+                        "Employee Id" := Employee.SystemId;
                         if UnitOfMeasureFound then begin
                             "Unit of Measure Code" := UnitOfMeasure.Code;
-                            "Unit of Measure Id" := UnitOfMeasure.Id;
+                            "Unit of Measure Id" := UnitOfMeasure.SystemId;
                         end;
                         Insert(true);
                     end;

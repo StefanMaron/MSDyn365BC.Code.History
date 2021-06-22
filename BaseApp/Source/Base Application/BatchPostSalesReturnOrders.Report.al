@@ -13,11 +13,10 @@ report 6655 "Batch Post Sales Return Orders"
 
             trigger OnPreDataItem()
             var
-                BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                 SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
             begin
-                SalesBatchPostMgt.AddParameter(BatchPostParameterTypes.Receive, ReceiveReq);
-                SalesBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
+                SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Receive, ReceiveReq);
+                SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
                 SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, InvReq);
 
                 CurrReport.Break();

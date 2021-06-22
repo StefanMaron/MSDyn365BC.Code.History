@@ -59,4 +59,8 @@ enumextension 1814 "Assisted Setup Group- BaseApp" extends "Assisted Setup Group
     {
         Caption = 'Set up approval workflows';
     }
+    value(20; "Set Up Extended Security")
+    {
+        Caption = 'Set Up Extended Security';
+    }
 }

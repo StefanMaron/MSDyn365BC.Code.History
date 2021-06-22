@@ -1097,6 +1097,7 @@ codeunit 419 "File Management"
     begin
     end;
 
+    [Obsolete('Use the DownloadFromStream function to save the content of a stream locally.', '17.0')]
     procedure SaveStreamToFileServerFolder(var TempBlob: Codeunit "Temp Blob"; Name: Text; FileExtension: Text; InnerFolder: Text): Text
     //@param Name: File-s name
     //@param FileExtension: FileExtension
@@ -1112,13 +1113,15 @@ codeunit 419 "File Management"
         TempBlob.CreateInStream(NVInStream);
         ServerFolderFilePath := InstreamExportToServerFile(NVInStream, FileExtension);
         ServerDirectory := GetDirectoryName(ServerFolderFilePath);
+        NewPath := ServerDirectory + '\' + InnerFolder + Name;
+        IsAllowedPath(NewPath, false);
         if InnerFolder <> '' then
             ServerCreateDirectory(ServerDirectory + '\' + InnerFolder);
-        NewPath := ServerDirectory + '\' + InnerFolder + Name;
         MoveAndRenameServerFile(ServerFolderFilePath, InnerFolder, Name);
         exit(NewPath);
     end;
 
+    [Obsolete('Server files should not be edited directly on the server. Instead, use the DownloadFromStream function to get a local copy of the file on the server.', '17.0')]
     procedure MoveAndRenameServerFile(AbsolutePathToFile: Text; RelativePathFolder: Text; NewNameFile: Text)
     //@param AbsolutePathToFile: Absolute path to the file to rename.
     //@param RelativePathFolder: relative path starting from the server folder to the folder that will contain the file
@@ -1129,8 +1132,10 @@ codeunit 419 "File Management"
         ServerDirectory: Text;
         newPath: Text;
     begin
+        IsAllowedPath(AbsolutePathToFile, false);
         ServerDirectory := GetDirectoryName(AbsolutePathToFile);
         newPath := ServerDirectory + '\' + RelativePathFolder + NewNameFile;
+        IsAllowedPath(newPath, false);
         CopyServerFile(AbsolutePathToFile, newPath, true);
         DeleteServerFile(AbsolutePathToFile);
     end;

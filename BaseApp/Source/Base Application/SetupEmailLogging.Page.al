@@ -222,6 +222,9 @@ page 1811 "Setup Email Logging"
                 }
                 group(ExchangeCredentialsDesc)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be removed';
+                    ObsoleteTag = '17.0';
                     Visible = false;
                     ShowCaption = false;
                     field(Password; Password)
@@ -230,6 +233,9 @@ page 1811 "Setup Email Logging"
                         Caption = 'Password';
                         Visible = false;
                         ExtendedDatatype = Masked;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Will be removed';
+                        ObsoleteTag = '17.0';
                     }
                 }
                 group(ValidateUserEmailGroup)
@@ -245,9 +251,7 @@ page 1811 "Setup Email Logging"
                         trigger OnDrillDown()
                         begin
                             ValidateUserEmailLinkVisited := true;
-                            IsUserEmailValid := InitializeExchangeWebServicesServer();
-                            if IsUserEmailValid then
-                                IsUserEmailValid := InitializeExchangeWebServicesClient();
+                            IsUserEmailValid := InitializeExchangeWebServicesClient();
                             NextEnabled := IsUserEmailValid;
                         end;
                     }
@@ -395,12 +399,18 @@ page 1811 "Setup Email Logging"
             {
                 InstructionalText = 'The following public mailbox and public folders will be created. (You can rename folders later):';
                 Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Will be removed';
+                ObsoleteTag = '17.0';
                 field(PublicMailBoxName; PublicMailBoxName)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Public Mail Box Name';
                     Editable = NOT DefaultFolderSetup;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be removed';
+                    ObsoleteTag = '17.0';
                 }
                 field(RootQueueStorageFolder; RootQueueStorageFolder)
                 {
@@ -408,6 +418,9 @@ page 1811 "Setup Email Logging"
                     Caption = 'Root Folder';
                     Editable = NOT DefaultFolderSetup;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be removed';
+                    ObsoleteTag = '17.0';
                 }
                 field(QueueFolderName; QueueFolderName)
                 {
@@ -415,6 +428,9 @@ page 1811 "Setup Email Logging"
                     Caption = 'Queue Folder Name';
                     Editable = NOT DefaultFolderSetup;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be removed';
+                    ObsoleteTag = '17.0';
                 }
                 field(StorageFolderName; StorageFolderName)
                 {
@@ -422,17 +438,26 @@ page 1811 "Setup Email Logging"
                     Caption = 'Storage Folder Name';
                     Editable = NOT DefaultFolderSetup;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be removed';
+                    ObsoleteTag = '17.0';
                 }
             }
             group("Email Rules")
             {
                 InstructionalText = 'The following Exchange transport rules will be created, so that incoming email from outside organizations and outgoing mail to outside organization will be copied to queue public folder for later NAV processing. You can disable creation or give specific names for the rules:';
                 Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Will be removed';
+                ObsoleteTag = '17.0';
                 field(CreateIncomingEmailRule; CreateIncomingEmailRule)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Create Incoming Email Rule';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be removed';
+                    ObsoleteTag = '17.0';
                 }
                 field(IncomingEmailRuleName; IncomingEmailRuleName)
                 {
@@ -440,12 +465,18 @@ page 1811 "Setup Email Logging"
                     Caption = 'Incoming Email Rule Name';
                     Editable = CreateIncomingEmailRule;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be removed';
+                    ObsoleteTag = '17.0';
                 }
                 field(CreateOutgoingEmailRule; CreateOutgoingEmailRule)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Create Outgoing Email Rule';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be removed';
+                    ObsoleteTag = '17.0';
                 }
                 field(OutgoingEmailRuleName; OutgoingEmailRuleName)
                 {
@@ -453,6 +484,9 @@ page 1811 "Setup Email Logging"
                     Caption = 'Outgoing Email Rule Name';
                     Editable = CreateOutgoingEmailRule;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be removed';
+                    ObsoleteTag = '17.0';
                 }
             }
             group(Step6)
@@ -472,6 +506,9 @@ page 1811 "Setup Email Logging"
                             Caption = 'Queue Folder';
                             Editable = false;
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Will be removed';
+                            ObsoleteTag = '17.0';
                         }
                         field(StorageFolderNameFinal; StorageFolderName)
                         {
@@ -479,6 +516,9 @@ page 1811 "Setup Email Logging"
                             Caption = 'Storage Folder';
                             Editable = false;
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Will be removed';
+                            ObsoleteTag = '17.0';
                         }
                         field(IncomingEmailRuleNameFinal; IncomingEmailRuleName)
                         {
@@ -486,6 +526,9 @@ page 1811 "Setup Email Logging"
                             Caption = 'Incoming Email Rule';
                             Editable = false;
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Will be removed';
+                            ObsoleteTag = '17.0';
                         }
                         field(OutgoingEmailRuleNameFinal; OutgoingEmailRuleName)
                         {
@@ -493,6 +536,9 @@ page 1811 "Setup Email Logging"
                             Caption = 'Outgoing Email Rule';
                             Editable = false;
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Will be removed';
+                            ObsoleteTag = '17.0';
                         }
                         field(CreateEmailLoggingJobQueue; CreateEmailLoggingJobQueue)
                         {
@@ -550,6 +596,9 @@ page 1811 "Setup Email Logging"
                     }
                     group(Control34)
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Will be removed';
+                        ObsoleteTag = '17.0';
                         InstructionalText = '(Note: The creation of public folders and rules may take some time. When the folders are created, the wizard window will close.)';
                         ShowCaption = false;
                         Visible = false;
@@ -615,14 +664,14 @@ page 1811 "Setup Email Logging"
                     MarketingSetup.SetStorageFolder(TempStorageExchangeFolder);
 
                     if CreateEmailLoggingJobQueue then begin
-                        SendTraceTag('0000CIK', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateEmailLoggingJobTxt, DataClassification::SystemMetadata);
+                        Session.LogMessage('0000CIK', CreateEmailLoggingJobTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                         SetupEmailLogging.CreateEmailLoggingJobQueueSetup();
                     end else
-                        SendTraceTag('0000CIL', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SkipCreatingEmailLoggingJobTxt, DataClassification::SystemMetadata);
+                        Session.LogMessage('0000CIL', SkipCreatingEmailLoggingJobTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
                     AssistedSetup.Complete(PAGE::"Setup Email Logging");
 
-                    SendTraceTag('0000CIJ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingSetupCompletedTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000CIJ', EmailLoggingSetupCompletedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
                     OnAfterAssistedSetupEmailLoggingCompleted();
                     CurrPage.Close();
@@ -745,11 +794,11 @@ page 1811 "Setup Email Logging"
         ClientCredentialsRequiredTxt: Label 'Client ID and secret are required to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
         SignInAdminLinkTxt: Label 'Sign in with administrator user';
         ClientCredentialsLinkTxt: Label 'Specify custom client ID and secret';
-        CannotConnectToExchangeErr: Label 'Could not connect to Exchange with the specified user.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+        CannotAccessRootPublicFolderErr: Label 'Could not access the root public folder with the specified user.';
         CannotInitializeConnectionToExchangeErr: Label 'Could not initialize connection to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
         EmptyUserEmailErr: Label 'User email is empty.';
-        CannotConnectToExchangeTxt: Label 'Could not connect to Exchange. User: %1.', Locked = true;
-        CannotInitializeConnectionToExchangeTxt: Label 'Could not initialize connection to Exchange. User: %1.', Locked = true;
+        CannotAccessRootPublicFolderTxt: Label 'Could not access the root public folder. User: %1, URL: %2, Token: %3.', Locked = true;
+        CannotInitializeConnectionToExchangeTxt: Label 'Could not initialize connection to Exchange. User: %1, URL: %2, Token: %3.', Locked = true;
         ServiceInitializedTxt: Label 'Service has been initalized.', Locked = true;
         ServiceValidatedTxt: Label 'Service has been validated.', Locked = true;
         EmptyUserEmailTxt: Label 'User email is empty.', Locked = true;
@@ -765,8 +814,8 @@ page 1811 "Setup Email Logging"
         ValidInteractionTemplateSetupTxt: Label 'Interaction Template Setup is correctly configured.';
         InvalidInteractionTemplateSetupTxt: Label 'Interaction Template Setup needs to be configured.';
         EmailLoggingSetupCompletedTxt: Label 'Email Logging Setup completed.', Locked = true;
-        CreateEmailLoggingJobTxt: Label 'Create email looging job', Locked = true;
-        SkipCreatingEmailLoggingJobTxt: Label 'Skip creating email looging job', Locked = true;
+        CreateEmailLoggingJobTxt: Label 'Create email logging job', Locked = true;
+        SkipCreatingEmailLoggingJobTxt: Label 'Skip creating email logging job', Locked = true;
         HasAdminSignedIn: Boolean;
         AreAdminCredentialsCorrect: Boolean;
         CustomCredentialsSpecified: Boolean;
@@ -889,50 +938,16 @@ page 1811 "Setup Email Logging"
 
     [TryFunction]
     [NonDebuggable]
-    local procedure InitializeExchangeWebServicesServer()
-    var
-        ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
-        ProgressWindow: Dialog;
-        ServiceUri: Text;
-    begin
-        if UserEmail = '' then begin
-            SendTraceTag('0000D9S', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyUserEmailTxt, DataClassification::SystemMetadata);
-            Error(EmptyUserEmailErr);
-        end;
-
-        ServiceUri := SetupEmailLogging.GetDomainFromEmail(UserEmail);
-
-        ProgressWindow.Open('#1');
-        ProgressWindow.Update(1, ConnectingToExchangeMsg);
-
-        if not ExchangeWebServicesServer.Initialize(UserEmail, ServiceUri, AdminOAuthCredentials, false) then begin
-            SendTraceTag('0000D9T', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotInitializeConnectionToExchangeTxt, UserEmail), DataClassification::CustomerContent);
-            Error(CannotInitializeConnectionToExchangeErr);
-        end;
-
-        SendTraceTag('0000D9U', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceInitializedTxt, DataClassification::SystemMetadata);
-
-        if not ExchangeWebServicesServer.ValidCredentials() then begin
-            SendTraceTag('0000D9V', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotConnectToExchangeTxt, UserEmail), DataClassification::CustomerContent);
-            Error(CannotConnectToExchangeErr);
-        end;
-
-        SendTraceTag('0000D9W', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceValidatedTxt, DataClassification::SystemMetadata);
-
-        ProgressWindow.Close();
-    end;
-
-    [TryFunction]
-    [NonDebuggable]
     local procedure InitializeExchangeWebServicesClient()
     var
+        TempExchangeFolder: Record "Exchange Folder" temporary;
         ClientOAuthCredentials: DotNet OAuthCredentials;
         ProgressWindow: Dialog;
         ServiceUri: Text;
         Token: Text;
     begin
         if UserEmail = '' then begin
-            SendTraceTag('0000D9X', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyUserEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D9X', EmptyUserEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(EmptyUserEmailErr);
         end;
 
@@ -947,18 +962,18 @@ page 1811 "Setup Email Logging"
         ClientOAuthCredentials := ClientOAuthCredentials.OAuthCredentials(Token);
 
         if not ExchangeWebServicesClient.InitializeOnServerWithImpersonation(UserEmail, ServiceUri, ClientOAuthCredentials) then begin
-            SendTraceTag('0000D9Y', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotInitializeConnectionToExchangeTxt, UserEmail), DataClassification::CustomerContent);
+            Session.LogMessage('0000D9Y', StrSubstNo(CannotInitializeConnectionToExchangeTxt, UserEmail, ServiceUri, Token), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(CannotInitializeConnectionToExchangeErr);
         end;
 
-        SendTraceTag('0000D9Z', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceInitializedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D9Z', ServiceInitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
-        if not ExchangeWebServicesClient.ValidateCredentialsOnServer() then begin
-            SendTraceTag('0000DA0', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotConnectToExchangeTxt, UserEmail), DataClassification::CustomerContent);
-            Error(CannotConnectToExchangeErr);
+        if not ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder) then begin
+            Session.LogMessage('0000DA0', StrSubstNo(CannotAccessRootPublicFolderTxt, UserEmail, ServiceUri, Token), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+            Error(CannotAccessRootPublicFolderErr);
         end;
 
-        SendTraceTag('0000DA1', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceValidatedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000DA1', ServiceValidatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         ProgressWindow.Close();
     end;
 
@@ -994,7 +1009,7 @@ page 1811 "Setup Email Logging"
     [NonDebuggable]
     local procedure UpdateMarketingSetup(var MarketingSetup: Record "Marketing Setup")
     begin
-        SendTraceTag('0000BYP', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, UpdateMarketingSetupTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYP', UpdateMarketingSetupTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         MarketingSetup.Validate("Exchange Service URL", SetupEmailLogging.GetDomainFromEmail(UserEmail));
         MarketingSetup.Validate("Autodiscovery E-Mail Address", UserEmail);
         MarketingSetup.Validate("Email Batch Size", 10);
@@ -1020,6 +1035,7 @@ page 1811 "Setup Email Logging"
                 TopBannerVisible := MediaResourcesDone."Media Reference".HasValue;
     end;
 
+    [Obsolete('Function will be removed', '17.0')]
     procedure SkipDeploymentToExchange(Skip: Boolean)
     begin
     end;

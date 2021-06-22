@@ -508,7 +508,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [THEN] No Line Fee is added to the Reminder
         with ReminderLine do
-            VerifyReminderLineDoesNotExists(ReminderLine, SecondReminderNo, Type::"Line Fee", 0, '');
+            VerifyReminderLineDoesNotExists(ReminderLine, SecondReminderNo, Type::"Line Fee", "General Posting Type"::Sale, '');
     end;
 
     [Test]
@@ -1231,7 +1231,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [THEN] Additional fee is added with 10% of InvoiceA
         with ReminderLine do
-            VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"G/L Account", 0, '');
+            VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"G/L Account", "Gen. Journal Document Type"::" ", '');
         Assert.AreNearlyEqual(CustLedgerEntry."Remaining Amount" * 0.1, ReminderLine.Amount, 1,
           StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
     end;
@@ -2785,7 +2785,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderMake.Code;
     end;
 
-    local procedure CreateReminderLineOfTypeLineFee(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; DocType: Option; DocNo: Code[20])
+    local procedure CreateReminderLineOfTypeLineFee(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderNo);
@@ -3051,7 +3051,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         AccountNo: Code[20];
     begin
         GetValidVATPostingSetup(VATPostingSetup, VATBusGroup);
-        AccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 2); // Sale
+        AccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Sale); // Sale
         UpdateDefaultVATProdGroup(AccountNo);
         exit(AccountNo);
     end;
@@ -3063,9 +3063,9 @@ codeunit 134997 "Reminder - Add. Line fee"
         GetValidVATPostingSetup(VATPostingSetup, VATBusGroup);
         VATPostingSetup.SetRange("VAT %", 0);
         VATPostingSetup.FindFirst;
-        GLAccountA := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 2); // Sale
+        GLAccountA := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Sale); // Sale
         VATPostingSetup.Next;
-        GLAccountB := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 2); // Sale
+        GLAccountB := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Sale); // Sale
         UpdateDefaultVATProdGroup(GLAccountA);
         UpdateDefaultVATProdGroup(GLAccountB);
     end;
@@ -3095,18 +3095,18 @@ codeunit 134997 "Reminder - Add. Line fee"
         end;
     end;
 
-    local procedure GetReminderLines(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; Type: Option " ","G/L Account","Customer Ledger Entry","Line Fee"; DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; DocumentNo: Code[20]): Boolean
+    local procedure GetReminderLines(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; Type: Enum "Reminder Source Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]): Boolean
     begin
         ReminderLine.Reset();
         ReminderLine.SetRange("Reminder No.", ReminderHeaderNo);
         ReminderLine.SetRange(Type, Type);
         if Type = ReminderLine.Type::"Line Fee" then begin
-            if DocumentType <> 0 then
+            if DocumentType <> DocumentType::" " then
                 ReminderLine.SetRange("Applies-to Document Type", DocumentType);
             if DocumentNo <> '' then
                 ReminderLine.SetRange("Applies-to Document No.", DocumentNo);
         end else begin
-            if DocumentType <> 0 then
+            if DocumentType <> DocumentType::" " then
                 ReminderLine.SetRange("Document Type", DocumentType);
             if DocumentNo <> '' then
                 ReminderLine.SetRange("Document No.", DocumentNo);
@@ -3115,14 +3115,14 @@ codeunit 134997 "Reminder - Add. Line fee"
         exit(ReminderLine.FindSet);
     end;
 
-    local procedure VerifyReminderLineExists(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; Type: Option " ","G/L Account","Customer Ledger Entry","Line Fee"; DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; DocumentNo: Code[20])
+    local procedure VerifyReminderLineExists(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; Type: Enum "Reminder Source Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         Assert.IsTrue(
           GetReminderLines(ReminderLine, ReminderHeaderNo, Type, DocumentType, DocumentNo),
           StrSubstNo(ReminderLineMustExistErr, ReminderLine.GetFilters));
     end;
 
-    local procedure VerifyReminderLineDoesNotExists(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; Type: Option " ","G/L Account","Customer Ledger Entry","Line Fee"; DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; DocumentNo: Code[20])
+    local procedure VerifyReminderLineDoesNotExists(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; Type: Enum "Reminder Source Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         Assert.IsFalse(
           GetReminderLines(ReminderLine, ReminderHeaderNo, Type, DocumentType, DocumentNo),

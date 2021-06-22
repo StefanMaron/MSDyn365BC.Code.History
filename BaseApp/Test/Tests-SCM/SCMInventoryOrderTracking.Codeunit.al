@@ -646,7 +646,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceType: Option; SourceNo: Code[20]; Quantity: Decimal; DueDate: Date)
+    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Quantity: Decimal; DueDate: Date)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, SourceNo, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -666,7 +666,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         exit(Customer."No.");
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option; OrderTrackingPolicy: Option)
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; OrderTrackingPolicy: Enum "Order Tracking Policy")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -762,7 +762,7 @@ codeunit 137250 "SCM Inventory Order Tracking"
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
     end;
 
-    local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Option; ItemNo: Code[20]; LocationCode: Code[10])
+    local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Enum "Production Order Status"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Item No.", ItemNo);

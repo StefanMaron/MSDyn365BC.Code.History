@@ -10,11 +10,11 @@ page 2196 "O365 Link to Financials"
             label(TryOutLbl)
             {
                 ApplicationArea = Invoicing;
-                Caption = 'This company has been used in Microsoft Invoicing. It cannot be used in Dynamics 365 Business Central.';
+                Caption = 'Thanks for choosing to explore Dynamics 365 Business Central!';
                 Editable = false;
                 Style = StrongAccent;
                 StyleExpr = TRUE;
-                ToolTip = 'Specifies that this company cannot be used in Dynamics 365 Business Central.';
+                ToolTip = 'Specifies thanks for choosing to explore Dynamics 365 Business Central!';
                 Visible = ShowLabel;
             }
             field(LinkToFinancials; TryD365FinancialsLbl)
@@ -42,10 +42,8 @@ page 2196 "O365 Link to Financials"
     end;
 
     var
+        TryD365FinancialsLbl: Label 'Click here to try out the evaluation company in Dynamics 365 Business Central.';
         O365SetupMgmt: Codeunit "O365 Setup Mgmt";
-        TryD365FinancialsLbl: Label 'Click here to switch to the evaluation company.';
-        InvoicingCategoryLbl: Label 'AL Invoicing', Locked = true;
-        InvoicingCompanyTelemetryTxt: Label 'Invoicing company message shown.', Locked = true;
         ShowLabel: Boolean;
 
     local procedure Initialize()
@@ -61,11 +59,6 @@ page 2196 "O365 Link to Financials"
         IsInvAppAreaSet := ApplicationAreaMgmt.IsInvoicingOnlyEnabled;
 
         ShowLabel := IsFinApp and IsSaas and IsInvAppAreaSet;
-
-        if ShowLabel then
-            SendTraceTag('0000CJJ', InvoicingCategoryLbl, Verbosity::Normal,
-              InvoicingCompanyTelemetryTxt, DataClassification::SystemMetadata);
-
     end;
 }
 

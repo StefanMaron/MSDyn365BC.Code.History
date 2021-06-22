@@ -93,7 +93,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         Vendor.Modify(true);
     end;
 
-    procedure ApplyInvoicePayment(var GenJournalLine: Record "Gen. Journal Line"; PartnerNo: Code[20]; PartnerAccountType: Option; InvoiceNoToApply: Code[20]; AmountToApply: Decimal)
+    procedure ApplyInvoicePayment(var GenJournalLine: Record "Gen. Journal Line"; PartnerNo: Code[20]; PartnerAccountType: Enum "Gen. Journal Account Type"; InvoiceNoToApply: Code[20]; AmountToApply: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -182,7 +182,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         WorkDate := NewWorkDate;
     end;
 
-    procedure CreateLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; PartnerNo: Code[20]; Amount: Decimal; AccountType: Option; DocumentType: Option)
+    procedure CreateLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; PartnerNo: Code[20]; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -602,7 +602,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         WorkDate := OldWorkDate;
     end;
 
-    procedure FilterSingleJournalLine(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; DocumentNo: Code[20]; SourceType: Option; CashFlowNo: Code[20]): Integer
+    procedure FilterSingleJournalLine(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; DocumentNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; CashFlowNo: Code[20]): Integer
     begin
         // Filters cash flow journal lines based on the given parameters
         // Returns the number of lines found based on the filter
@@ -934,17 +934,17 @@ codeunit 131332 "Library - Cash Flow Helper"
         exit(PaymentTermsCode);
     end;
 
-    local procedure GetCFAccountNo(SourceType: Option): Code[20]
+    local procedure GetCFAccountNo(SourceType: Enum "Cash Flow Source Type"): Code[20]
     var
         CFAccount: Record "Cash Flow Account";
     begin
         CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
         CFAccount.FindSet;
-        CFAccount.Next(SourceType);
+        CFAccount.Next(SourceType.AsInteger());
         exit(CFAccount."No.");
     end;
 
-    procedure InsertCFLedgerEntry(CFNo: Code[20]; AccountNo: Code[20]; SourceType: Integer; CFDate: Date; Amount: Decimal)
+    procedure InsertCFLedgerEntry(CFNo: Code[20]; AccountNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; CFDate: Date; Amount: Decimal)
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         EntryNo: Integer;
@@ -1126,7 +1126,7 @@ codeunit 131332 "Library - Cash Flow Helper"
         Assert.AreNearlyEqual(ExpectedAmount, ActualAmount, Delta, UnexpectedCFAmount);
     end;
 
-    procedure VerifyCFDataOnSnglJnlLine(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; DocumentNo: Code[20]; SourceType: Option; CFNo: Code[20]; ExpectedCFAmount: Decimal; ExpectedCFDate: Date)
+    procedure VerifyCFDataOnSnglJnlLine(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; DocumentNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; CFNo: Code[20]; ExpectedCFAmount: Decimal; ExpectedCFDate: Date)
     begin
         FilterSingleJournalLine(CFWorksheetLine, DocumentNo, SourceType, CFNo);
         if SourceType = CFWorksheetLine."Source Type"::Job then begin

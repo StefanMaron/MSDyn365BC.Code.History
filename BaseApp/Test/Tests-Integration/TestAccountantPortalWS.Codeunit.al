@@ -481,7 +481,7 @@ codeunit 134765 TestAccountantPortalWS
     end;
 
     [Normal]
-    local procedure CreateVendorLedgerEntry(EntryNumber: Integer; DocumentType: Integer; DueDate: Date; Open: Boolean)
+    local procedure CreateVendorLedgerEntry(EntryNumber: Integer; DocumentType: Enum "Gen. Journal Document Type"; DueDate: Date; Open: Boolean)
     begin
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := EntryNumber;
@@ -494,7 +494,7 @@ codeunit 134765 TestAccountantPortalWS
     end;
 
     [Normal]
-    local procedure CreateCustomerLedgerEntry(EntryNo: Integer; DocumentType: Integer; DueDate: Date; Open: Boolean)
+    local procedure CreateCustomerLedgerEntry(EntryNo: Integer; DocumentType: Enum "Gen. Journal Document Type"; DueDate: Date; Open: Boolean)
     begin
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := EntryNo;
@@ -505,7 +505,7 @@ codeunit 134765 TestAccountantPortalWS
     end;
 
     [Normal]
-    local procedure CreateSalesHeader(DocumentType: Integer; No: Text[20])
+    local procedure CreateSalesHeader(DocumentType: Enum "Sales Document Type"; No: Text[20])
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("No.", No);
@@ -518,7 +518,7 @@ codeunit 134765 TestAccountantPortalWS
     end;
 
     [Normal]
-    local procedure CreatePurchaseHeader(DocumentType: Integer; No: Text[20])
+    local procedure CreatePurchaseHeader(DocumentType: Enum "Purchase Document Type"; No: Text[20])
     begin
         PurchaseHeader.SetRange("Document Type", DocumentType);
         PurchaseHeader.SetRange("No.", No);
@@ -550,7 +550,7 @@ codeunit 134765 TestAccountantPortalWS
     end;
 
     [Normal]
-    local procedure CreateApprovalEntry(EntryNo: Integer; ApproverID: Text[50]; Status: Integer)
+    local procedure CreateApprovalEntry(EntryNo: Integer; ApproverID: Text[50]; Status: Enum "Approval Status")
     begin
         ApprovalEntry.Init();
         ApprovalEntry."Entry No." := EntryNo;
@@ -569,7 +569,7 @@ codeunit 134765 TestAccountantPortalWS
     end;
 
     [Normal]
-    local procedure CreateVendor(No: Text[20]; Blocked: Integer)
+    local procedure CreateVendor(No: Text[20]; Blocked: Enum "Vendor Blocked")
     begin
         Vendor.SetRange("No.", No);
         if not Vendor.FindFirst then begin
@@ -581,7 +581,7 @@ codeunit 134765 TestAccountantPortalWS
     end;
 
     [Normal]
-    local procedure CreateDetailedVendorLedgEntry(VendorEntryNo: Integer; PostingDate: Date; AmountLCY: Decimal; DocumentType: Integer)
+    local procedure CreateDetailedVendorLedgEntry(VendorEntryNo: Integer; PostingDate: Date; AmountLCY: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     begin
         DetailedVendorLedgEntry.Init();
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorEntryNo;
@@ -594,7 +594,7 @@ codeunit 134765 TestAccountantPortalWS
     end;
 
     [Normal]
-    local procedure CreateDetailedCustLedgEntry(CustEntryNo: Integer; PostingDate: Date; AmountLCY: Decimal; DocumentType: Integer)
+    local procedure CreateDetailedCustLedgEntry(CustEntryNo: Integer; PostingDate: Date; AmountLCY: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     begin
         DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustEntryNo;
@@ -631,47 +631,47 @@ codeunit 134765 TestAccountantPortalWS
         // Purchase Discounts Next Week
         // Purchase Invoices Due Next Week
         // Purchase Documents Due Today
-        CreateVendorLedgerEntry(12, 2, CalcDate('<-WD2>', Today), true);
-        CreateVendorLedgerEntry(23, 3, CalcDate('<-10D>', Today), true);
-        CreateVendorLedgerEntry(34, 2, Today, false);
-        CreateVendorLedgerEntry(45, 3, CalcDate('<+20D>', Today), true);
-        CreateVendorLedgerEntry(16, 2, CalcDate('<+7D>', Today), true);
-        CreateVendorLedgerEntry(27, 3, CalcDate('<+7D>', Today), true);
-        CreateVendorLedgerEntry(38, 2, Today, false);
-        CreateVendorLedgerEntry(49, 3, CalcDate('<+14D>', Today), true);
-        CreateVendorLedgerEntry(26, 2, CalcDate('<+7D>', Today), true);
-        CreateVendorLedgerEntry(37, 3, CalcDate('<+7D>', Today), true);
-        CreateVendorLedgerEntry(48, 2, Today, false);
-        CreateVendorLedgerEntry(59, 3, CalcDate('<+14D>', Today), true);
-        CreateVendorLedgerEntry(66, 2, CalcDate('<+7D>', Today), true);
-        CreateVendorLedgerEntry(77, 3, CalcDate('<+7D>', Today), true);
-        CreateVendorLedgerEntry(88, 2, Today, false);
-        CreateVendorLedgerEntry(99, 3, CalcDate('<+14D>', Today), true);
-        CreateVendorLedgerEntry(101, 2, CalcDate('<-4D>', Today), true);
-        CreateDetailedVendorLedgEntry(101, CalcDate('<-4D>', Today), 123.45, 2);
+        CreateVendorLedgerEntry(12, "Gen. Journal Document Type"::Invoice, CalcDate('<-WD2>', Today), true);
+        CreateVendorLedgerEntry(23, "Gen. Journal Document Type"::"Credit Memo", CalcDate('<-10D>', Today), true);
+        CreateVendorLedgerEntry(34, "Gen. Journal Document Type"::Invoice, Today, false);
+        CreateVendorLedgerEntry(45, "Gen. Journal Document Type"::"Credit Memo", CalcDate('<+20D>', Today), true);
+        CreateVendorLedgerEntry(16, "Gen. Journal Document Type"::Invoice, CalcDate('<+7D>', Today), true);
+        CreateVendorLedgerEntry(27, "Gen. Journal Document Type"::"Credit Memo", CalcDate('<+7D>', Today), true);
+        CreateVendorLedgerEntry(38, "Gen. Journal Document Type"::Invoice, Today, false);
+        CreateVendorLedgerEntry(49, "Gen. Journal Document Type"::"Credit Memo", CalcDate('<+14D>', Today), true);
+        CreateVendorLedgerEntry(26, "Gen. Journal Document Type"::Invoice, CalcDate('<+7D>', Today), true);
+        CreateVendorLedgerEntry(37, "Gen. Journal Document Type"::"Credit Memo", CalcDate('<+7D>', Today), true);
+        CreateVendorLedgerEntry(48, "Gen. Journal Document Type"::Invoice, Today, false);
+        CreateVendorLedgerEntry(59, "Gen. Journal Document Type"::"Credit Memo", CalcDate('<+14D>', Today), true);
+        CreateVendorLedgerEntry(66, "Gen. Journal Document Type"::Invoice, CalcDate('<+7D>', Today), true);
+        CreateVendorLedgerEntry(77, "Gen. Journal Document Type"::"Credit Memo", CalcDate('<+7D>', Today), true);
+        CreateVendorLedgerEntry(88, "Gen. Journal Document Type"::Invoice, Today, false);
+        CreateVendorLedgerEntry(99, "Gen. Journal Document Type"::"Credit Memo", CalcDate('<+14D>', Today), true);
+        CreateVendorLedgerEntry(101, "Gen. Journal Document Type"::Invoice, CalcDate('<-4D>', Today), true);
+        CreateDetailedVendorLedgEntry(101, CalcDate('<-4D>', Today), 123.45, "Gen. Journal Document Type"::Invoice);
 
         // Overdue Sales Documents & Overdue Sales Invoice Amount
-        CreateCustomerLedgerEntry(212, 2, CalcDate('<-WD2>', Today), true);
-        CreateCustomerLedgerEntry(323, 3, CalcDate('<-10D>', Today), true);
-        CreateCustomerLedgerEntry(434, 2, Today, false);
-        CreateCustomerLedgerEntry(545, 3, CalcDate('<+20D>', Today), true);
-        CreateCustomerLedgerEntry(101, 2, CalcDate('<-4D>', Today), true);
-        CreateDetailedCustLedgEntry(101, CalcDate('<-4D>', Today), 654.32, 2);
+        CreateCustomerLedgerEntry(212, "Gen. Journal Document Type"::Invoice, CalcDate('<-WD2>', Today), true);
+        CreateCustomerLedgerEntry(323, "Gen. Journal Document Type"::"Credit Memo", CalcDate('<-10D>', Today), true);
+        CreateCustomerLedgerEntry(434, "Gen. Journal Document Type"::Invoice, Today, false);
+        CreateCustomerLedgerEntry(545, "Gen. Journal Document Type"::"Credit Memo", CalcDate('<+20D>', Today), true);
+        CreateCustomerLedgerEntry(101, "Gen. Journal Document Type"::Invoice, CalcDate('<-4D>', Today), true);
+        CreateDetailedCustLedgEntry(101, CalcDate('<-4D>', Today), 654.32, "Gen. Journal Document Type"::Invoice);
 
         // Vendors - Payments On Hold
-        CreateVendor('11', 0);
-        CreateVendor('22', 1);
-        CreateVendor('33', 2);
-        CreateVendor('44', 1);
+        CreateVendor('11', "Vendor Blocked"::" ");
+        CreateVendor('22', "Vendor Blocked"::Payment);
+        CreateVendor('33', "Vendor Blocked"::All);
+        CreateVendor('44', "Vendor Blocked"::Payment);
 
         // Ongoing Sales Invoices & Ongoing Sales Quotes & Sales Return Orders -All
-        CreateSalesHeader(2, '12');
-        CreateSalesHeader(0, '14');
-        CreateSalesHeader(5, '16');
-        CreateSalesHeader(5, '18');
+        CreateSalesHeader("Sales Document Type"::Invoice, '12');
+        CreateSalesHeader("Sales Document Type"::Quote, '14');
+        CreateSalesHeader("Sales Document Type"::"Return Order", '16');
+        CreateSalesHeader("Sales Document Type"::"Return Order", '18');
 
         // Ongoing Purchase Invoices
-        CreatePurchaseHeader(2, '13');
+        CreatePurchaseHeader("Purchase Document Type"::Invoice, '13');
 
         // Sales Invoices - Pending Doc Exchange
         CreateSalesInvoiceHeader('14', 3);
@@ -686,7 +686,7 @@ codeunit 134765 TestAccountantPortalWS
         CreateIncomingDocument(25, false, 5);
 
         // Requests to Approve
-        CreateApprovalEntry(16, 'BOB', 0);
+        CreateApprovalEntry(16, 'BOB', "Approval Status"::" ");
 
         // Sales Cr. Memo - Pending Doc Exch
         CreateSalesCrMemoHeader('17', 3);

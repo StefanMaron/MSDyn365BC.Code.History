@@ -93,6 +93,33 @@ page 138 "Posted Purchase Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact you bought the items from.';
                     }
+                    field(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactEmail; BuyFromContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
+                    }
                 }
                 field("Buy-from Contact"; "Buy-from Contact")
                 {
@@ -473,6 +500,33 @@ page 138 "Posted Purchase Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact you received the invoice from.';
                     }
+                    field(PayToContactPhoneNo; PayToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactEmail; PayToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = Email;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
+                    }
                     field("Pay-to Contact"; "Pay-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
@@ -558,7 +612,7 @@ page 138 "Posted Purchase Invoice"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Approvals)
@@ -716,11 +770,12 @@ page 138 "Posted Purchase Invoice"
                 action(Navigate)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = '&Navigate';
+                    Caption = 'Find entries...';
                     Image = Navigate;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ToolTip = 'Find all entries and documents that exist for the document number and posting date on the posted purchase document.';
+                    ShortCutKey = 'Shift+Ctrl+I';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     Visible = NOT IsOfficeAddin;
 
                     trigger OnAction()
@@ -751,11 +806,12 @@ page 138 "Posted Purchase Invoice"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category5;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = false;
 
                 trigger OnAction()
@@ -846,6 +902,12 @@ page 138 "Posted Purchase Invoice"
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        if BuyFromContact.Get("Buy-from Contact No.") then;
+        if PayToContact.Get("Pay-to Contact No.") then;
+    end;
+
     trigger OnOpenPage()
     var
         OfficeMgt: Codeunit "Office Management";
@@ -858,6 +920,8 @@ page 138 "Posted Purchase Invoice"
 
     var
         PurchInvHeader: Record "Purch. Inv. Header";
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
         HasIncomingDocument: Boolean;
         IsOfficeAddin: Boolean;

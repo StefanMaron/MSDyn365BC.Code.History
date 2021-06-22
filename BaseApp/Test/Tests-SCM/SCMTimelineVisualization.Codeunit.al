@@ -74,7 +74,7 @@ codeunit 137023 "SCM Timeline Visualization"
         LibraryInventory.CreateItem(Item);
     end;
 
-    local procedure SetupPlanning_RescheduleAndChangeQty(var RequisitionLine: Record "Requisition Line"; var TimelineEventChange: Record "Timeline Event Change"; ActionMessage: Option)
+    local procedure SetupPlanning_RescheduleAndChangeQty(var RequisitionLine: Record "Requisition Line"; var TimelineEventChange: Record "Timeline Event Change"; ActionMessage: Enum "Action Message Type")
     var
         Item: Record Item;
         Location: Record Location;
@@ -731,7 +731,7 @@ codeunit 137023 "SCM Timeline Visualization"
         ExpectTimelineEvent(TimelineEvent, Show(RecRefPurchase), DatePurchase, FixedSupply, PurchaseLine.Quantity);
     end;
 
-    local procedure SalesOrderSetup(DocumentType: Option; Supply: Boolean)
+    local procedure SalesOrderSetup(DocumentType: Enum "Sales Document Type"; Supply: Boolean)
     var
         Item: Record Item;
         Location: Record Location;
@@ -782,7 +782,7 @@ codeunit 137023 "SCM Timeline Visualization"
         SalesOrderSetup(SalesHeader."Document Type"::"Return Order", true);
     end;
 
-    local procedure PurchaseOrderSetup(DocumentType: Option; Supply: Boolean)
+    local procedure PurchaseOrderSetup(DocumentType: Enum "Purchase Document Type"; Supply: Boolean)
     var
         Item: Record Item;
         Location: Record Location;
@@ -1410,7 +1410,7 @@ codeunit 137023 "SCM Timeline Visualization"
         end;
     end;
 
-    local procedure CreateSalesOrder(Item: Record Item; LocationCode: Code[10]; ShipmentDate: Date; var SalesLine: Record "Sales Line"; DocumentType: Option; Quantity: Integer)
+    local procedure CreateSalesOrder(Item: Record Item; LocationCode: Code[10]; ShipmentDate: Date; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Quantity: Integer)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1418,7 +1418,7 @@ codeunit 137023 "SCM Timeline Visualization"
           SalesHeader, SalesLine, DocumentType, '', Item."No.", Quantity, LocationCode, ShipmentDate);
     end;
 
-    local procedure CreatePurchaseOrder(Item: Record Item; LocationCode: Code[10]; ExpectedReceiptDate: Date; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Quantity: Integer)
+    local procedure CreatePurchaseOrder(Item: Record Item; LocationCode: Code[10]; ExpectedReceiptDate: Date; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Quantity: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1478,14 +1478,12 @@ codeunit 137023 "SCM Timeline Visualization"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalTemplate: Record "Item Journal Template";
         LibraryAssembly: Codeunit "Library - Assembly";
-        PostingType: Option;
     begin
         ItemJournalLine.DeleteAll();
 
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
-        PostingType := ItemJournalLine."Entry Type"::"Positive Adjmt.";
         LibraryInventory.CreateItemJournalLine(
-          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, PostingType, Item."No.", Quantity);
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, "Item Ledger Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
 
         ItemJournalLine.Validate("Location Code", Location);
         ItemJournalLine.Validate("Variant Code", '');
@@ -1758,7 +1756,7 @@ codeunit 137023 "SCM Timeline Visualization"
         exit(TimelineEvent."Transaction Type"::"Expected Demand");
     end;
 
-    local procedure CreateProductionOrderSetup(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Option)
+    local procedure CreateProductionOrderSetup(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Enum "Production Order Status")
     var
         Item: Record Item;
     begin
@@ -1790,7 +1788,7 @@ codeunit 137023 "SCM Timeline Visualization"
           Item, Item."Costing Method"::FIFO, RoutingHeader."No.", ProductionBOMHeader."No.", Item."Manufacturing Policy"::"Make-to-Order");
     end;
 
-    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Option; ItemNo: Code[20])
+    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; ProductionOrderStatus: Enum "Production Order Status"; ItemNo: Code[20])
     begin
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrderStatus, ProductionOrder."Source Type"::Item, ItemNo, LibraryRandom.RandInt(5) + 1);
@@ -1844,7 +1842,7 @@ codeunit 137023 "SCM Timeline Visualization"
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
     end;
 
-    local procedure CreateItem(var Item: Record Item; CostingMethod: Option; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ItemManufacturingPolicy: Option)
+    local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; ItemManufacturingPolicy: Enum "Manufacturing Policy")
     var
         LibraryRandom: Codeunit "Library - Random";
     begin
@@ -1876,7 +1874,7 @@ codeunit 137023 "SCM Timeline Visualization"
           RoutingLine, RoutingHeader, CenterNo, OperationNo, LibraryRandom.RandDec(5, 2), LibraryRandom.RandDec(5, 2));
     end;
 
-    local procedure SetPlanningParameters(var Item: Record Item; ReorderingPolicy: Option; SafetyStockQuantity: Integer; ReschedulingPeriod: Text)
+    local procedure SetPlanningParameters(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; SafetyStockQuantity: Integer; ReschedulingPeriod: Text)
     var
         TmpDateformula: DateFormula;
     begin

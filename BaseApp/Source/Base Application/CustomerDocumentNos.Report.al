@@ -191,7 +191,7 @@ report 128 "Customer Document Nos."
         SourceCode: Record "Source Code";
         CustLedgerEntryFilter: Text;
         LastDocNo: Code[20];
-        LastDocType: Integer;
+        LastDocType: Enum "Gen. Journal Document Type";
         LastPostingDate: Date;
         LastNoSeriesCode: Code[20];
         FirstRecord: Boolean;

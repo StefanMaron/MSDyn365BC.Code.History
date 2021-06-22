@@ -93,7 +93,7 @@ codeunit 5510 "Production Journal Mgt"
                         IsHandled := false;
                         OnCreateJnlLinesOnAfterFindProdOrderRtngLine(ProdOrderRtngLine, IsHandled);
                         if not IsHandled then begin
-                            InsertOutputJnlLine(ProdOrderRtngLine, ProdOrderLine);
+                            InsertOutputItemJnlLine(ProdOrderRtngLine, ProdOrderLine);
                             if ProdOrderRtngLine."Routing Link Code" <> '' then begin
                                 ProdOrderComp.Reset();
                                 ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Routing Link Code");
@@ -104,7 +104,7 @@ codeunit 5510 "Production Journal Mgt"
                                 ProdOrderComp.SetFilter("Item No.", '<>%1', '');
                                 if ProdOrderComp.FindSet then
                                     repeat
-                                        InsertConsumptionJnlLine(ProdOrderComp, ProdOrderLine, 1);
+                                        InsertConsumptionItemJnlLine(ProdOrderComp, ProdOrderLine, 1);
                                     until ProdOrderComp.Next = 0;
                             end;
                         end;
@@ -115,14 +115,14 @@ codeunit 5510 "Production Journal Mgt"
 
                     // Create line for Output Qty
                     Clear(ProdOrderRtngLine);
-                    InsertOutputJnlLine(ProdOrderRtngLine, ProdOrderLine);
+                    InsertOutputItemJnlLine(ProdOrderRtngLine, ProdOrderLine);
                 end;
             until ProdOrderLine.Next = 0;
 
         Commit();
     end;
 
-    local procedure InsertComponents(ProdOrderLine: Record "Prod. Order Line"; CheckRoutingLink: Boolean; Level: Integer)
+    procedure InsertComponents(ProdOrderLine: Record "Prod. Order Line"; CheckRoutingLink: Boolean; Level: Integer)
     var
         ProdOrderComp: Record "Prod. Order Component";
     begin
@@ -135,10 +135,10 @@ codeunit 5510 "Production Journal Mgt"
         if ProdOrderComp.Find('-') then
             repeat
                 if not CheckRoutingLink then
-                    InsertConsumptionJnlLine(ProdOrderComp, ProdOrderLine, Level)
+                    InsertConsumptionItemJnlLine(ProdOrderComp, ProdOrderLine, Level)
                 else
                     if not RoutingLinkValid(ProdOrderComp, ProdOrderLine) then
-                        InsertConsumptionJnlLine(ProdOrderComp, ProdOrderLine, Level);
+                        InsertConsumptionItemJnlLine(ProdOrderComp, ProdOrderLine, Level);
             until ProdOrderComp.Next = 0;
     end;
 
@@ -160,7 +160,7 @@ codeunit 5510 "Production Journal Mgt"
         end;
     end;
 
-    local procedure InsertConsumptionJnlLine(ProdOrderComp: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; Level: Integer)
+    procedure InsertConsumptionItemJnlLine(ProdOrderComp: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; Level: Integer)
     var
         Item: Record Item;
         Location: Record Location;
@@ -237,7 +237,7 @@ codeunit 5510 "Production Journal Mgt"
         OnAfterInsertConsumptionJnlLine(ItemJnlLine);
     end;
 
-    local procedure InsertOutputJnlLine(ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
+    procedure InsertOutputItemJnlLine(ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
     var
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
@@ -360,7 +360,7 @@ codeunit 5510 "Production Journal Mgt"
         if DoRecursion and AdditionalProdOrderLine.HasFilter then
             if AdditionalProdOrderLine.FindSet then begin
                 repeat
-                    InsertOutputJnlLine(ProdOrderRoutingLine, AdditionalProdOrderLine);
+                    InsertOutputItemJnlLine(ProdOrderRoutingLine, AdditionalProdOrderLine);
                 until AdditionalProdOrderLine.Next = 0;
             end;
     end;
@@ -493,6 +493,12 @@ codeunit 5510 "Production Journal Mgt"
 
             exit(false);
         end;
+    end;
+
+    procedure GetJnlTemplateAndBatchName(var TemplateName: Code[10]; var BatchName: Code[10])
+    begin
+        TemplateName := ToTemplateName;
+        BatchName := ToBatchName;
     end;
 
     [IntegrationEvent(false, false)]

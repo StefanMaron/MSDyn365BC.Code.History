@@ -186,7 +186,7 @@ codeunit 393 "Reminder-Issue"
         NewIssuedReminderHeader := IssuedReminderHeader;
     end;
 
-    local procedure InitGenJnlLine(AccType: Integer; AccNo: Code[20]; SystemCreatedEntry: Boolean)
+    local procedure InitGenJnlLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; SystemCreatedEntry: Boolean)
     begin
         with ReminderHeader do begin
             GenJnlLine.Init();

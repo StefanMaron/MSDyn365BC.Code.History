@@ -1026,7 +1026,7 @@ codeunit 134562 "Object Selection"
         end;
     end;
 
-    local procedure CreateReportSelection(UsageOption: Option; ReportID: Integer)
+    local procedure CreateReportSelection(UsageOption: Enum "Report Selection Usage"; ReportID: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin

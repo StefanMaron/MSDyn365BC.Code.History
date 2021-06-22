@@ -22,18 +22,18 @@ codeunit 134013 "ERM BAT Test for Application"
     [Scope('OnPrem')]
     procedure ApplyInvCustLedEntry()
     begin
-        ApplyCustLedEntry(DocumentType::Payment, DocumentType::Invoice, LibraryRandom.RandDec(100, 2));
+        ApplyCustLedEntry("Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Invoice, LibraryRandom.RandDec(100, 2));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ApplyCMCustLedEntry()
     begin
-        ApplyCustLedEntry(DocumentType::Refund, DocumentType::"Credit Memo", -LibraryRandom.RandDec(100, 2));
+        ApplyCustLedEntry("Gen. Journal Document Type"::Refund, "Gen. Journal Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2));
     end;
 
     [Normal]
-    local procedure ApplyCustLedEntry(ApplyingType: Option; AppliesToType: Option; ApplicationAmount: Decimal)
+    local procedure ApplyCustLedEntry(ApplyingType: Enum "Gen. Journal Document Type"; AppliesToType: Enum "Gen. Journal Document Type"; ApplicationAmount: Decimal)
     var
         Customer: Record Customer;
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -66,18 +66,18 @@ codeunit 134013 "ERM BAT Test for Application"
     [Scope('OnPrem')]
     procedure ApplyInvAppliesToID()
     begin
-        ApplyAppliesToID(DocumentType::Payment, DocumentType::Invoice, LibraryRandom.RandDec(100, 2));
+        ApplyAppliesToID("Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Invoice, LibraryRandom.RandDec(100, 2));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ApplyCMAppliesToID()
     begin
-        ApplyAppliesToID(DocumentType::Refund, DocumentType::"Credit Memo", -LibraryRandom.RandDec(100, 2));
+        ApplyAppliesToID("Gen. Journal Document Type"::Refund, "Gen. Journal Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2));
     end;
 
     [Normal]
-    local procedure ApplyAppliesToID(ApplyingType: Option; AppliesToType: Option; ApplicationAmount: Decimal)
+    local procedure ApplyAppliesToID(ApplyingType: Enum "Gen. Journal Document Type"; AppliesToType: Enum "Gen. Journal Document Type"; ApplicationAmount: Decimal)
     var
         Customer: Record Customer;
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -114,18 +114,18 @@ codeunit 134013 "ERM BAT Test for Application"
     [Scope('OnPrem')]
     procedure ApplyInvAppliesToDoc()
     begin
-        ApplyAppliesToDoc(DocumentType::Payment, DocumentType::Invoice, LibraryRandom.RandDec(100, 2));
+        ApplyAppliesToDoc("Gen. Journal Document Type"::Payment, "Gen. Journal Document Type"::Invoice, LibraryRandom.RandDec(100, 2));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ApplyCMAppliesToDoc()
     begin
-        ApplyAppliesToID(DocumentType::Refund, DocumentType::"Credit Memo", -LibraryRandom.RandDec(100, 2));
+        ApplyAppliesToID("Gen. Journal Document Type"::Refund, "Gen. Journal Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2));
     end;
 
     [Normal]
-    local procedure ApplyAppliesToDoc(ApplyingType: Option; AppliesToType: Option; ApplicationAmount: Decimal)
+    local procedure ApplyAppliesToDoc(ApplyingType: Enum "Gen. Journal Document Type"; AppliesToType: Enum "Gen. Journal Document Type"; ApplicationAmount: Decimal)
     var
         Customer: Record Customer;
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -174,7 +174,7 @@ codeunit 134013 "ERM BAT Test for Application"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM BAT Test for Application");
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; CustomerNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
@@ -182,7 +182,7 @@ codeunit 134013 "ERM BAT Test for Application"
     end;
 
     [Normal]
-    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentType: Option)
+    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -220,7 +220,7 @@ codeunit 134013 "ERM BAT Test for Application"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure ApplyCustLedEntryAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; ApplietoDocType: Option)
+    local procedure ApplyCustLedEntryAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; ApplietoDocType: Enum "Gen. Journal Document Type")
     begin
         // Apply Customer Entries.
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
@@ -232,7 +232,7 @@ codeunit 134013 "ERM BAT Test for Application"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure VerifyCustLedEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyCustLedEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

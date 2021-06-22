@@ -22,6 +22,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryTemplates: Codeunit "Library - Templates";
         LibraryDimension: Codeunit "Library - Dimension";
         isInitialized: Boolean;
         SelectCustErr: Label 'You must select an existing customer.';
@@ -561,7 +562,6 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
         SalesInvoice: TestPage "Sales Invoice";
-        TableNameOption: Option "Standard Text","G/L Account",Item,Resource;
     begin
         Initialize;
 
@@ -570,7 +570,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust.Modify(true);
 
         LibrarySmallBusiness.CreateItem(Item);
-        LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, TableNameOption::Item, Item."No.");
+        LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text Table Name"::Item, Item."No.");
         LibrarySmallBusiness.CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader);
 
         SalesInvoice.OpenNew;
@@ -595,7 +595,6 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
-        TableNameOption: Option "Standard Text","G/L Account",Item,Resource;
     begin
         Initialize;
 
@@ -604,7 +603,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Vendor.Modify(true);
 
         LibrarySmallBusiness.CreateItem(Item);
-        LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, TableNameOption::Item, Item."No.");
+        LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text Table Name"::Item, Item."No.");
         LibrarySmallBusiness.CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader);
 
         PurchaseInvoice.OpenNew;
@@ -1102,7 +1101,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         SalesQuote.MakeOrder.Invoke;
     end;
 
-    local procedure VerifyConvertedDocument(ReferenceQuoteSalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure VerifyConvertedDocument(ReferenceQuoteSalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         ConvertedSalesHeader: Record "Sales Header";
     begin
@@ -1257,6 +1256,41 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         OrderSalesLine.FindFirst;
 
         VerifySalesDocumentsMatch(ReferenceOrderSalesHeader, OrderSalesHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure MakeInvoiceFromQuoteWithAssembleToOrderItemThrowsError()
+    var
+        Item: Record Item;
+        Cust: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        ItemQuantity: Integer;
+        CannotConvertAssembleToOrderItemErr: Label 'You can not convert sales quote to sales invoice';
+    begin
+        Initialize;
+
+        LibrarySmallBusiness.CreateCustomer(Cust);
+        Cust.Name := Cust."No.";
+        Cust.Modify(true);
+        LibrarySmallBusiness.CreateItem(Item);
+        Item."Assembly Policy" := Item."Assembly Policy"::"Assemble-to-Order";
+        item.Modify(true);
+
+        ItemQuantity := LibraryRandom.RandIntInRange(2, 100);
+
+        SalesQuote.OpenNew;
+        SalesQuote."Sell-to Customer Name".SetValue(Cust.Name);
+
+        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines."No.".SetValue(Item."No.");
+        SalesQuote.SalesLines.Quantity.SetValue(ItemQuantity);
+
+        AssertError SalesQuote.MakeInvoice.Invoke;
+
+        Assert.ExpectedError(CannotConvertAssembleToOrderItemErr);
+
     end;
 
     [Test]
@@ -1556,7 +1590,6 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
         SalesQuote: TestPage "Sales Quote";
-        TableNameOption: Option "Standard Text","G/L Account",Item,Resource;
     begin
         Initialize;
 
@@ -1565,7 +1598,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Cust.Modify(true);
 
         LibrarySmallBusiness.CreateItem(Item);
-        LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, TableNameOption::Item, Item."No.");
+        LibrarySmallBusiness.CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text Table Name"::Item, Item."No.");
         LibrarySmallBusiness.CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader);
 
         SalesQuote.OpenNew;
@@ -2773,15 +2806,15 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
             DATABASE::Item));
 
         Assert.IsTrue(ItemCard."Unit Cost".Editable,
-          Format('Unit Cost should be enabled when Type is %1 and no ILEs exists', Item.Type::Service));
+          Format('Unit Cost should be enabled when Type is %1 and no ILEs exists', Item.Type::Service.AsInteger()));
 
         ItemCard.Type.SetValue(Format(Item.Type::Service));
         Assert.IsFalse(ItemCard."Inventory Posting Group".Editable,
-          Format('Inventory Posting Group should be disabled when Type is %1.', Item.Type::Service));
+          Format('Inventory Posting Group should be disabled when Type is %1.', Item.Type::Service.AsInteger()));
         Assert.IsFalse(ItemCard.Inventory.Editable,
-          Format('Inventory should be disabled when Type is %1.', Item.Type::Service));
+          Format('Inventory should be disabled when Type is %1.', Item.Type::Service.AsInteger()));
         Assert.IsTrue(ItemCard."Unit Cost".Editable,
-          Format('Unit Cost should be enabled when Type is %1.', Item.Type::Service));
+          Format('Unit Cost should be enabled when Type is %1.', Item.Type::Service.AsInteger()));
     end;
 
     [Test]
@@ -2992,9 +3025,9 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     end;
 
     [Test]
-    [HandlerFunctions('NoDefaultVendorPurchOrderFromSalesOrderModalPageHandler')]
+    [HandlerFunctions('EmptyPurchOrderFromSalesOrderModalPageHandler')]
     [Scope('OnPrem')]
-    procedure CreatePurchaseOrderFromSalesOrderWithAssemblyReplenishment()
+    procedure CreatePurchaseOrderFromSalesOrderWithNonPurchaseReplenishment()
     var
         SalesHeader: Record "Sales Header";
         Item: Record Item;
@@ -3007,15 +3040,45 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         // [GIVEN] Sales Order with lines, Item has replenishment type Assembly
         VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
+
+        // Add item with Assembly replenishment
         LibrarySmallBusiness.CreateItem(Item);
         Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Modify(true);
+        AddRandomNumberOfLinesToSalesHeader(SalesHeader, Item);
+
+        // [WHEN] Create Purchase Order From Sales Order
+        SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
+
+        // [THEN] Empty SalesOrderToPurchaseOrder page is opened. Verified in handler.
+    end;
+
+    [Test]
+    [HandlerFunctions('NoDefaultVendorPurchOrderFromSalesOrderModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePurchaseOrderFromSalesOrderWithPurchaseReplenishment()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        DummyPurchaseOrder: TestPage "Purchase Order";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO] User creates Purchase Order from Sales Order where the Item has replenishment system Assembly
+        Initialize;
+
+        // [GIVEN] Sales Order with lines, Item has replenishment type Assembly
+        VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
+
+        // Add item with Purchase replenishment
+        LibrarySmallBusiness.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
         Item.Modify(true);
         AddRandomNumberOfLinesToSalesHeader(SalesHeader, Item);
 
         // [WHEN] Create Purchase Order From Sales Order, user picks vendor
         LibraryVariableStorage.Enqueue(VendorNo);
         SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
-        DummyPurchaseOrder.Close;
 
         // [THEN] Last Purchase Order for Vendor."No." contains all the same lines as Sales Order.
         VerifyPurchaseDocumentCreatedFromSalesDocument(VendorNo, PurchaseHeader."Document Type"::Order, SalesHeader);
@@ -4100,7 +4163,9 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Customer: Record Customer;
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
+        AssemblySetup: Record "Assembly Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryAssembly: Codeunit "Library - Assembly";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Simplify UI Sales Invoice");
         LibraryVariableStorage.Clear;
@@ -4118,6 +4183,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Simplify UI Sales Invoice");
 
+        LibraryTemplates.DisableTemplatesFeature();
         ClearTable(DATABASE::Resource);
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
@@ -4144,6 +4210,11 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         MarketingSetup.Get();
         MarketingSetup.Validate("Maintain Dupl. Search Strings", false);
         MarketingSetup.Modify(true);
+
+        // Assembly Setup
+        if not AssemblySetup.Get() then
+            AssemblySetup.Insert();
+        LibraryAssembly.CreateAssemblySetup(AssemblySetup, '', 0, LibraryUtility.GetGlobalNoSeriesCode);
 
         isInitialized := true;
         Commit();
@@ -4673,7 +4744,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         InvoiceDiscountAmount := LibraryRandom.RandDecInRange(1, Round(Item."Unit Price" * ItemQuantity, 1, '<'), 2);
     end;
 
-    local procedure CreateSalesHeaderWithLinesAndSelectVendor(var SalesHeader: Record "Sales Header"; DocumentType: Option) VendorNo: Code[20]
+    local procedure CreateSalesHeaderWithLinesAndSelectVendor(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type") VendorNo: Code[20]
     var
         Item: Record Item;
     begin
@@ -4682,7 +4753,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         AddRandomNumberOfLinesToSalesHeader(SalesHeader, Item);
     end;
 
-    local procedure CreateSalesHeaderWithLinesForOneDefaultVendor(var SalesHeader: Record "Sales Header"; DocumentType: Option) VendorNo: Code[20]
+    local procedure CreateSalesHeaderWithLinesForOneDefaultVendor(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type") VendorNo: Code[20]
     var
         Item: Record Item;
     begin
@@ -4692,7 +4763,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         AddRandomNumberOfLinesToSalesHeader(SalesHeader, Item);
     end;
 
-    local procedure CreateSalesHeaderWithLinesForTwoDefaultVendorsAndSelectVendor(var SalesHeader: Record "Sales Header"; DocumentType: Option) VendorNo: Code[20]
+    local procedure CreateSalesHeaderWithLinesForTwoDefaultVendorsAndSelectVendor(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type") VendorNo: Code[20]
     var
         Item1: Record Item;
         Item2: Record Item;
@@ -4718,7 +4789,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateSalesHeaderAndSelectVendor(var SalesHeader: Record "Sales Header"; DocumentType: Option): Code[20]
+    local procedure CreateSalesHeaderAndSelectVendor(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         Vendor: Record Vendor;
     begin
@@ -5193,7 +5264,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Assert.AreEqual(DimSetIDArr[1], PurchaseLine."Dimension Set ID", '');
     end;
 
-    local procedure VerifyPurchaseDocumentCreatedFromSalesDocument(VendorNo: Code[20]; DocumentType: Option; var SalesHeader: Record "Sales Header")
+    local procedure VerifyPurchaseDocumentCreatedFromSalesDocument(VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
         PurchaseHeader: Record "Purchase Header";
@@ -5215,7 +5286,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Assert.RecordIsEmpty(PurchaseLine);
     end;
 
-    local procedure VerifyPurchaseDocumentCreationFromSalesDocumentCanceled(VendorNo: Code[20]; DocumentType: Option)
+    local procedure VerifyPurchaseDocumentCreationFromSalesDocumentCanceled(VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -5224,7 +5295,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Assert.RecordIsEmpty(PurchaseHeader);
     end;
 
-    local procedure VerifyPurchaseDocumentCreatedFromSelectedLineOfSalesDocument(VendorNo: Code[20]; var SalesHeader: Record "Sales Header"; SalesLineNo: Integer; DocumentType: Option)
+    local procedure VerifyPurchaseDocumentCreatedFromSelectedLineOfSalesDocument(VendorNo: Code[20]; var SalesHeader: Record "Sales Header"; SalesLineNo: Integer; DocumentType: Enum "Purchase Document Type")
     var
         SalesLine: Record "Sales Line";
         PurchaseHeader: Record "Purchase Header";
@@ -5238,7 +5309,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         VerifyPurchaseLinesCreatedFromSalesLines(PurchaseHeader, SalesLine);
     end;
 
-    local procedure VerifyPurchaseDocumentHeaderCreatedFromSalesDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure VerifyPurchaseDocumentHeaderCreatedFromSalesDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         with PurchaseHeader do begin
             SetRange("Document Type", DocumentType);
@@ -5557,6 +5628,13 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure EmptyPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        Assert.IsFalse(PurchOrderFromSalesOrder.First(), 'PurchaseOrderFr4omSalesOrder page is not empty.');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure LookupVendorPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     var
         VendorNo: Variant;
@@ -5614,14 +5692,16 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Quantity: Decimal;
         SalesOrderQuantity: Decimal;
     begin
-        PurchOrderFromSalesOrder.First;
-        repeat
-            Quantity := LibraryVariableStorage.DequeueDecimal;
-            SalesOrderQuantity := LibraryVariableStorage.DequeueDecimal;
-            PurchOrderFromSalesOrder.Quantity.AssertEquals(Quantity);
-            PurchOrderFromSalesOrder."Demand Quantity".AssertEquals(SalesOrderQuantity);
-        until not PurchOrderFromSalesOrder.Next;
-        PurchOrderFromSalesOrder.OK.Invoke;
+        if PurchOrderFromSalesOrder.First then begin
+            repeat
+                Quantity := LibraryVariableStorage.DequeueDecimal;
+                SalesOrderQuantity := LibraryVariableStorage.DequeueDecimal;
+                PurchOrderFromSalesOrder.Quantity.AssertEquals(Quantity);
+                PurchOrderFromSalesOrder."Demand Quantity".AssertEquals(SalesOrderQuantity);
+            until not PurchOrderFromSalesOrder.Next;
+            PurchOrderFromSalesOrder.OK.Invoke;
+        end else
+            PurchOrderFromSalesOrder.Cancel.Invoke();
     end;
 
     [ModalPageHandler]

@@ -1,4 +1,4 @@
-﻿codeunit 5703 "Catalog Item Management"
+codeunit 5703 "Catalog Item Management"
 {
 
     trigger OnRun()
@@ -24,6 +24,7 @@
         BOMComp: Record "BOM Component";
         ProdBOMLine: Record "Production BOM Line";
         ProdBOMHeader: Record "Production BOM Header";
+        ItemReferenceMgt: Codeunit "Item Reference Management";
         ProgWindow: Dialog;
 
     procedure NonstockAutoItem(NonStock2: Record "Nonstock Item")
@@ -51,15 +52,17 @@
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(NonStock2);
-        if CheckLicensePermission(DATABASE::"Item Cross Reference") then
+        if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
+            NonstockItemReference(NonStock2);
+        if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
             NonstockItemCrossRef(NonStock2);
     end;
 
-    local procedure NonstockItemVend(NonStock2: Record "Nonstock Item")
+    procedure NonstockItemVend(NonStock2: Record "Nonstock Item")
     begin
         ItemVend.SetRange("Item No.", NonStock2."Item No.");
         ItemVend.SetRange("Vendor No.", NonStock2."Vendor No.");
-        if ItemVend.FindFirst then
+        if ItemVend.FindFirst() then
             exit;
 
         ItemVend."Item No." := NonStock2."Item No.";
@@ -69,6 +72,7 @@
         ItemVend.Insert(true);
     end;
 
+    [Obsolete('Replaced by NonstockItemReference().', '17.0')]
     local procedure NonstockItemCrossRef(var NonStock2: Record "Nonstock Item")
     var
         ItemCrossReference: Record "Item Cross Reference";
@@ -115,17 +119,66 @@
         OnAfterNonstockItemCrossRef(NonStock2);
     end;
 
+    procedure NonstockItemReference(var NonStock2: Record "Nonstock Item")
+    var
+        ItemReference: Record "Item Reference";
+        IsHandled: Boolean;
+    begin
+        OnBeforeNonstockItemCrossRef(NonStock2, IsHandled);
+
+        ItemReference.SetRange("Item No.", NonStock2."Item No.");
+        ItemReference.SetRange("Unit of Measure", NonStock2."Unit of Measure");
+        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Vendor);
+        ItemReference.SetRange("Reference Type No.", NonStock2."Vendor No.");
+        ItemReference.SetRange("Reference No.", NonStock2."Vendor Item No.");
+        OnNonstockItemReferenceOnAfterSetVendorItemNoFilters(ItemReference, NonStock2);
+        if not ItemReference.FindFirst() then begin
+            ItemReference.Init();
+            ItemReference.Validate("Item No.", NonStock2."Item No.");
+            ItemReference.Validate("Unit of Measure", NonStock2."Unit of Measure");
+            ItemReference.Validate("Reference Type", ItemReference."Reference Type"::Vendor);
+            ItemReference.Validate("Reference Type No.", NonStock2."Vendor No.");
+            ItemReference.Validate("Reference No.", NonStock2."Vendor Item No.");
+            ItemReference.Insert();
+            OnAfterItemReferenceInsert(ItemReference, NonStock2);
+        end;
+        if NonStock2."Bar Code" <> '' then begin
+            ItemReference.Reset();
+            ItemReference.SetRange("Item No.", NonStock2."Item No.");
+            ItemReference.SetRange("Unit of Measure", NonStock2."Unit of Measure");
+            ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::"Bar Code");
+            ItemReference.SetRange("Reference No.", NonStock2."Bar Code");
+            OnNonstockItemReferenceOnAfterSetBarCodeFilters(ItemReference, NonStock2);
+            if not ItemReference.FindFirst() then begin
+                ItemReference.Init();
+                ItemReference.Validate("Item No.", NonStock2."Item No.");
+                ItemReference.Validate("Unit of Measure", NonStock2."Unit of Measure");
+                ItemReference.Validate("Reference Type", ItemReference."Reference Type"::"Bar Code");
+                ItemReference.Validate("Reference No.", NonStock2."Bar Code");
+                ItemReference.Insert();
+                OnAfterItemReferenceInsert(ItemReference, NonStock2);
+            end;
+        end;
+    end;
+
     procedure NonstockItemDel(var Item: Record Item)
     var
         ItemCrossReference: Record "Item Cross Reference";
+        ItemReference: Record "Item Reference";
     begin
         ItemVend.SetRange("Item No.", Item."No.");
         ItemVend.SetRange("Vendor No.", Item."Vendor No.");
         ItemVend.DeleteAll();
 
-        ItemCrossReference.SetRange("Item No.", Item."No.");
-        ItemCrossReference.SetRange("Variant Code", Item."Variant Filter");
-        ItemCrossReference.DeleteAll();
+        if not ItemReferenceMgt.IsEnabled() then begin
+            ItemCrossReference.SetRange("Item No.", Item."No.");
+            ItemCrossReference.SetRange("Variant Code", Item."Variant Filter");
+            ItemCrossReference.DeleteAll();
+        end else begin
+            ItemReference.SetRange("Item No.", Item."No.");
+            ItemReference.SetRange("Variant Code", Item."Variant Filter");
+            ItemReference.DeleteAll();
+        end;
 
         NonStock.SetCurrentKey("Item No.");
         NonStock.SetRange("Item No.", Item."No.");
@@ -162,7 +215,7 @@
         InsertItemUnitOfMeasure(NonStock."Unit of Measure", SalesLine2."No.");
 
         NewItem.SetRange("No.", SalesLine2."No.");
-        if NewItem.FindFirst then
+        if NewItem.FindFirst() then
             exit;
 
         ProgWindow.Open(Text003 +
@@ -180,10 +233,12 @@
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(NonStock);
-        if CheckLicensePermission(DATABASE::"Item Cross Reference") then
+        if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
+            NonstockItemReference(NonStock);
+        if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
             NonstockItemCrossRef(NonStock);
 
-        ProgWindow.Close;
+        ProgWindow.Close();
     end;
 
     procedure DelNonStockSales(var SalesLine2: Record "Sales Line")
@@ -248,7 +303,7 @@
         InsertItemUnitOfMeasure(NonStock."Unit of Measure", ServInvLine2."No.");
 
         NewItem.SetRange("No.", ServInvLine2."No.");
-        if NewItem.FindFirst then
+        if NewItem.FindFirst() then
             exit;
 
         ProgWindow.Open(Text003 +
@@ -266,10 +321,12 @@
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(NonStock);
-        if CheckLicensePermission(DATABASE::"Item Cross Reference") then
+        if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
+            NonstockItemReference(NonStock);
+        if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
             NonstockItemCrossRef(NonStock);
 
-        ProgWindow.Close;
+        ProgWindow.Close();
     end;
 
     procedure CreateItemFromNonstock(Nonstock2: Record "Nonstock Item")
@@ -295,7 +352,9 @@
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(Nonstock2);
-        if CheckLicensePermission(DATABASE::"Item Cross Reference") then
+        if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
+            NonstockItemReference(Nonstock2);
+        if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
             NonstockItemCrossRef(Nonstock2);
     end;
 
@@ -315,31 +374,31 @@
     begin
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
-        if ItemLedgEntry.FindFirst then
+        if ItemLedgEntry.FindFirst() then
             exit;
 
         SalesLine.SetCurrentKey(Type, "No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("No.", Item."No.");
-        if SalesLine.FindFirst then
+        if SalesLine.FindFirst() then
             exit;
 
         PurchLine.SetCurrentKey(Type, "No.");
         PurchLine.SetRange(Type, PurchLine.Type::Item);
         PurchLine.SetRange("No.", Item."No.");
-        if PurchLine.FindFirst then
+        if PurchLine.FindFirst() then
             exit;
 
         ServInvLine.SetCurrentKey(Type, "No.");
         ServInvLine.SetRange(Type, ServInvLine.Type::Item);
         ServInvLine.SetRange("No.", Item."No.");
-        if ServInvLine.FindFirst then
+        if ServInvLine.FindFirst() then
             exit;
 
         BOMComp.SetCurrentKey(Type, "No.");
         BOMComp.SetRange(Type, BOMComp.Type::Item);
         BOMComp.SetRange("No.", Item."No.");
-        if BOMComp.FindFirst then
+        if BOMComp.FindFirst() then
             exit;
 
         SalesLineArch.SetCurrentKey(Type, "No.");
@@ -492,6 +551,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterItemCrossReferenceInsert(var ItemCrossReference: Record "Item Cross Reference"; NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNonstockItemReferenceOnAfterSetBarCodeFilters(var ItemReference: Record "Item Reference"; NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNonstockItemReferenceOnAfterSetVendorItemNoFilters(var ItemReference: Record "Item Reference"; NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterItemReferenceInsert(var ItemReference: Record "Item Reference"; NonstockItem: Record "Nonstock Item")
     begin
     end;
 

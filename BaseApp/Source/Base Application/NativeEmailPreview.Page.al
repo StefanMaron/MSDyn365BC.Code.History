@@ -7,6 +7,9 @@ page 2823 "Native - Email Preview"
     PageType = List;
     SourceTable = "Attachment Entity Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -66,7 +69,7 @@ page 2823 "Native - Email Preview"
                         EmailParameter: Record "Email Parameter";
                     begin
                         EmailParameter.SaveParameterValueWithReportUsage(
-                          DocumentNo, ReportUsage, EmailParameter."Parameter Type"::Body, BodyText);
+                          DocumentNo, ReportUsage, EmailParameter."Parameter Type"::Body.AsInteger(), BodyText);
                     end;
                 }
             }
@@ -142,18 +145,18 @@ page 2823 "Native - Email Preview"
         if DocumentIdFilter = '' then
             Error(DocumentIDNotSpecifiedErr);
 
-        SalesHeader.SetFilter(Id, DocumentIdFilter);
+        SalesHeader.SetFilter(SystemId, DocumentIdFilter);
         if SalesHeader.FindFirst then
             DocumentRecordRef.GetTable(SalesHeader)
         else begin
-            SalesInvoiceHeader.SetFilter(Id, DocumentIdFilter);
+            SalesInvoiceHeader.SetFilter(SystemId, DocumentIdFilter);
             if SalesInvoiceHeader.FindFirst then
                 DocumentRecordRef.GetTable(SalesInvoiceHeader)
             else
                 Error(DocumentDoesNotExistErr);
         end;
 
-        DataTypeManagement.FindFieldByName(DocumentRecordRef, DocumentIdFieldRef, SalesHeader.FieldName(Id));
+        DataTypeManagement.FindFieldByName(DocumentRecordRef, DocumentIdFieldRef, SalesHeader.FieldName(SystemId));
         Evaluate(DocumentId, Format(DocumentIdFieldRef.Value));
 
         exit(DocumentId);

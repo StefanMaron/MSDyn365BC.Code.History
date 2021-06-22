@@ -223,7 +223,7 @@ page 522 "View Applied Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("&Value Entries")

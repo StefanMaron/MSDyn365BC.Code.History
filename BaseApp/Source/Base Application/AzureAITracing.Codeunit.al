@@ -21,7 +21,8 @@ codeunit 2002 "Azure AI Tracing"
     [EventSubscriber(ObjectType::Codeunit, 2020, 'OnAfterImageAnalysis', '', false, false)]
     local procedure TraceImageAnalysisEnd(var Sender: Codeunit "Image Analysis Management"; ImageAnalysisResult: Codeunit "Image Analysis Result")
     var
-        AzureAIUsage: Record "Azure AI Usage";
+        AzureAIUsage: Codeunit "Azure AI Usage";
+        AzureAIService: Enum "Azure AI Service";
         LastError: Text;
         IsUsageLimitError: Boolean;
         LimitType: Option Year,Month,Day,Hour;
@@ -32,13 +33,13 @@ codeunit 2002 "Azure AI Tracing"
         NoOfCalls: Integer;
     begin
         if Sender.GetLastError(LastError, IsUsageLimitError) then
-            SendTraceTag('000015X', AzureAICategoryTxt, VERBOSITY::Error, LastError, DATACLASSIFICATION::SystemMetadata)
+            Session.LogMessage('000015X', LastError, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AzureAICategoryTxt)
         else begin
             Sender.GetLimitParams(LimitType, LimitValue);
 
             AnalysisDuration := CurrentDateTime - AnalysisStartTime;
             ImageAnalysisResult.GetLatestAnalysisType(AnalysisType);
-            NoOfCalls := AzureAIUsage.GetTotalProcessingTime(AzureAIUsage.Service::"Computer Vision");
+            NoOfCalls := AzureAIUsage.GetTotalProcessingTime(AzureAIService::"Computer Vision");
             if AnalysisType = AnalysisType::Tags then
                 Message := StrSubstNo(TraceImageAnalysisSuccessTagsTxt,
                     NoOfCalls, LimitValue, LimitType, AnalysisDuration,
@@ -47,7 +48,7 @@ codeunit 2002 "Azure AI Tracing"
                 Message := StrSubstNo(TraceImageAnalysisSuccessTxt,
                     NoOfCalls, LimitValue, LimitType, AnalysisDuration);
 
-            SendTraceTag('000015Y', AzureAICategoryTxt, VERBOSITY::Normal, Message, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('000015Y', Message, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AzureAICategoryTxt);
         end;
     end;
 }

@@ -1,4 +1,4 @@
-codeunit 14040 "Upgrade Cortana Intelligence"
+codeunit 104045 "Upgrade Cortana Intelligence"
 {
     Subtype = Upgrade;
 

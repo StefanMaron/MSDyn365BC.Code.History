@@ -21,31 +21,6 @@ codeunit 135512 "Country/Region Entity E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestVerifyIDandLastModifiedDateTime()
-    var
-        CountryRegion: Record "Country/Region";
-        IntegrationRecord: Record "Integration Record";
-        CountryRegionCode: Text;
-        CountryRegionId: Guid;
-    begin
-        // [SCENARIO] Create a Country/Region and verify it has Id and LastDateTimeModified.
-        Initialize;
-
-        // [GIVEN] a modified Country/Region record
-        CountryRegionCode := CreateCountryRegion;
-
-        // [WHEN] we retrieve the Country/Region from the database
-        CountryRegion.Get(CountryRegionCode);
-        CountryRegionId := CountryRegion.Id;
-
-        // [THEN] the Country/Region should have an integration id and last date time modified
-        IntegrationRecord.Get(CountryRegionId);
-        IntegrationRecord.TestField("Integration ID");
-        CountryRegion.TestField("Last Modified Date Time");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestGetCountriesRegions()
     var
         CountryRegionCode: array[2] of Text;
@@ -119,7 +94,7 @@ codeunit 135512 "Country/Region Entity E2E Test"
         RequestBody := GetCountryRegionJSON(CountryRegion);
 
         // [WHEN] The user makes a patch request to the service.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(CountryRegion.Id, PAGE::"Country/Regions Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(CountryRegion.SystemId, PAGE::"Country/Regions Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, ResponseText);
 
         // [THEN] The response text contains the new values.
@@ -147,7 +122,7 @@ codeunit 135512 "Country/Region Entity E2E Test"
         CountryRegion.Get(CountryRegionCode);
 
         // [WHEN] The user makes a DELETE request to the endpoint for the Country/Region.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(CountryRegion.Id, PAGE::"Country/Regions Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(CountryRegion.SystemId, PAGE::"Country/Regions Entity", ServiceNameTxt);
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', Responsetext);
 
         // [THEN] The response is empty.

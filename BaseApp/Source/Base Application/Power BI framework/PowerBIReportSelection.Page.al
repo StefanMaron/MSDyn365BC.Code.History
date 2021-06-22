@@ -220,7 +220,7 @@ page 6304 "Power BI Report Selection"
         if not TryLoadReportsList then
             ShowLatestErrorMessage();
 
-        IsSaaS := AzureADMgt.IsSaaS;
+        IsSaaS := EnvironmentInfo.IsSaaS();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -229,7 +229,7 @@ page 6304 "Power BI Report Selection"
     end;
 
     var
-        AzureADMgt: Codeunit "Azure AD Mgt.";
+        EnvironmentInfo: Codeunit "Environment Information";
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         Context: Text[30];
         NameFilter: Text;
@@ -339,8 +339,7 @@ page 6304 "Power BI Report Selection"
             IsErrorMessageVisible := true;
         end;
 
-        SendTraceTag('0000BKG', PowerBIServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Warning,
-            StrSubstNo(FailedToLoadReportListTelemetryErr, GetLastErrorText), DataClassification::CustomerContent);
+        Session.LogMessage('0000BKG', StrSubstNo(FailedToLoadReportListTelemetryErr, GetLastErrorText), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
     end;
 }
 

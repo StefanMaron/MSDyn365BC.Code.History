@@ -276,14 +276,7 @@ page 1328 "Purch. Order From Sales Order"
 
         SetRange(Level, 1);
 
-        SetFilter("Replenishment System", '<>%1', "Replenishment System"::Purchase);
-        if FindSet then
-            repeat
-                Validate("Replenishment System", "Replenishment System"::Purchase);
-                Modify(true);
-            until Next = 0;
-        SetRange("Replenishment System");
-
+        SetRange("Replenishment System", "Replenishment System"::Purchase);
         SetFilter(Quantity, '>%1', 0);
         if OrderNo <> '' then
             SetFilter("Demand Order No.", OrderNo);

@@ -95,6 +95,11 @@ page 363 "Electronic Document Format"
                     ApplicationArea = Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies which codeunit is used to manage electronic document sending for this document sending method.';
+                    trigger OnValidate()
+                    begin
+                        if ("Codeunit ID" <> 0) and ("Codeunit ID" = "Delivery Codeunit ID") then
+                            Error(InvalidCodeunitIDErr);
+                    end;
                 }
                 field("Codeunit Caption"; "Codeunit Caption")
                 {
@@ -106,6 +111,11 @@ page 363 "Electronic Document Format"
                     ApplicationArea = Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies which delivery codeunit is used to manage electronic document sending for this document sending method.';
+                    trigger OnValidate()
+                    begin
+                        if ("Delivery Codeunit ID" <> 0) and ("Codeunit ID" = "Delivery Codeunit ID") then
+                            Error(InvalidCodeunitIDErr);
+                    end;
                 }
                 field("Delivery Codeunit Caption"; "Delivery Codeunit Caption")
                 {
@@ -129,5 +139,6 @@ page 363 "Electronic Document Format"
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
         SelectedUsage: Option " ","Sales Invoice","Sales Credit Memo";
+        InvalidCodeunitIDErr: Label 'Codeunit ID and Delivery Codeunit ID should not have the same value.';
 }
 

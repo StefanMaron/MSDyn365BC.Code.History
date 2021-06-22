@@ -1,3 +1,6 @@
+/// <summary>
+/// Saves a list of reports to be displayed for a user in each specific context.
+/// </summary>
 table 6301 "Power BI Report Configuration"
 {
     Caption = 'Power BI Report Configuration';

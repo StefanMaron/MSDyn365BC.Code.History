@@ -213,7 +213,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    local procedure AssemblyListRetrieval(ReplSystem: Option; NoOfItems: Integer; NoOfResources: Integer; NoOfTexts: Integer; NewComps: Integer)
+    local procedure AssemblyListRetrieval(ReplSystem: Enum "Replenishment System"; NoOfItems: Integer; NoOfResources: Integer; NoOfTexts: Integer; NewComps: Integer)
     var
         Item: Record Item;
         AssemblyHeader: Record "Assembly Header";
@@ -270,7 +270,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    local procedure CostInfoSync(ParentCostingMethod: Option; CompCostingMethod: Option; UpdateComp: Boolean; UpdateParent: Boolean; IndirectCost: Decimal; Overhead: Decimal)
+    local procedure CostInfoSync(ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; UpdateComp: Boolean; UpdateParent: Boolean; IndirectCost: Decimal; Overhead: Decimal)
     var
         AssemblyHeader: Record "Assembly Header";
         TempBOMComponent: Record "BOM Component" temporary;
@@ -408,7 +408,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    local procedure ModifyAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Option; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean): Code[20]
+    local procedure ModifyAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean): Code[20]
     var
         Item: Record Item;
         Resource: Record Resource;
@@ -438,7 +438,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    local procedure CostModifiedLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Option; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean)
+    local procedure CostModifiedLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean)
     var
         AssemblyHeader: Record "Assembly Header";
         Item: Record Item;
@@ -906,7 +906,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    local procedure ModifyAssemblyHeader(CostingMethod: Option; SignFactor: Integer; BaseUoM: Boolean): Code[20]
+    local procedure ModifyAssemblyHeader(CostingMethod: Enum "Costing Method"; SignFactor: Integer; BaseUoM: Boolean): Code[20]
     var
         Item: Record Item;
         Resource: Record Resource;
@@ -939,7 +939,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    local procedure CostModifiedHeader(CostingMethod: Option; SignFactor: Integer; BaseUoM: Boolean)
+    local procedure CostModifiedHeader(CostingMethod: Enum "Costing Method"; SignFactor: Integer; BaseUoM: Boolean)
     var
         AssemblyHeader: Record "Assembly Header";
     begin
@@ -1027,7 +1027,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    local procedure RefreshOrder(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Option; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean; UpdateAssemblyList: Boolean)
+    local procedure RefreshOrder(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean; UpdateAssemblyList: Boolean)
     var
         AssemblyHeader: Record "Assembly Header";
         TempBOMComponent: Record "BOM Component" temporary;
@@ -1095,7 +1095,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    local procedure MultipleLvlRollup(CostingMethod: Option; Rollup: Boolean; Level: Integer)
+    local procedure MultipleLvlRollup(CostingMethod: Enum "Costing Method"; Rollup: Boolean; Level: Integer)
     var
         Item: Record Item;
         Item1: Record Item;
@@ -1421,7 +1421,7 @@ codeunit 137091 "SCM Kitting - D2"
 
     [Normal]
     [HandlerFunctions('AvailabilityWindowHandler')]
-    local procedure ResUsage(CostingMethod: Option; UseSameRes: Boolean; LotSize: Integer)
+    local procedure ResUsage(CostingMethod: Enum "Costing Method"; UseSameRes: Boolean; LotSize: Integer)
     var
         Item: Record Item;
         Resource: Record Resource;

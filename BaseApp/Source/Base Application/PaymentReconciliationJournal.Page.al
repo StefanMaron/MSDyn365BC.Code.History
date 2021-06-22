@@ -9,6 +9,7 @@ page 1290 "Payment Reconciliation Journal"
     PromotedActionCategories = 'New,Process,Report,Manual Application,Review,Details,View,Page,Posting,Line';
     SourceTable = "Bank Acc. Reconciliation Line";
     SourceTableView = WHERE("Statement Type" = CONST("Payment Application"));
+    RefreshOnActivate = true;
 
     layout
     {
@@ -23,10 +24,21 @@ page 1290 "Payment Reconciliation Journal"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the quality of the automatic payment application on the journal line.';
+                    StyleExpr = ReviewStatusStyleTxt;
 
                     trigger OnDrillDown()
+                    var
+                        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+                        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
                     begin
-                        DisplayApplication;
+                        CurrPage.SetSelectionFilter(BankAccReconciliationLine);
+                        if not PreviousUXExperienceActive then
+                            if BankPmtApplRule.IsMatchedAutomatically(Rec."Match Confidence", Rec."Applied Entries") then begin
+                                Page.RunModal(Page::"Payment Application Review", BankAccReconciliationLine);
+                                exit;
+                            end;
+
+                        DisplayApplication();
                     end;
                 }
                 field("Transaction Date"; "Transaction Date")
@@ -151,8 +163,18 @@ page 1290 "Payment Reconciliation Journal"
                     Visible = false;
 
                     trigger OnDrillDown()
+                    var
+                        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+                        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
                     begin
-                        DisplayApplication;
+                        CurrPage.SetSelectionFilter(BankAccReconciliationLine);
+                        if not PreviousUXExperienceActive then
+                            if BankPmtApplRule.IsMatchedAutomatically(Rec."Match Confidence", Rec."Applied Entries") then begin
+                                Page.RunModal(Page::"Payment Application Review", BankAccReconciliationLine);
+                                exit;
+                            end;
+
+                        DisplayApplication();
                     end;
                 }
                 field("Applied Entries"; "Applied Entries")
@@ -213,13 +235,13 @@ page 1290 "Payment Reconciliation Journal"
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
+                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up on the General Ledger Setup page.';
                     Visible = DimVisible1;
                 }
                 field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
-                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
+                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up om the General Ledger Setup page.';
                     Visible = DimVisible2;
                 }
                 field(ShortcutDimCode3; ShortcutDimCode[3])
@@ -325,32 +347,50 @@ page 1290 "Payment Reconciliation Journal"
                     end;
                 }
             }
+
             group(Control28)
             {
                 ShowCaption = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'UI Element will be replaced, place elements within TotalsFooterGroup';
+                ObsoleteTag = '17.0';
+
                 group(Control33)
                 {
+                    Visible = PreviousUXExperienceActive;
                     Editable = false;
                     ShowCaption = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'UI Element will be replaced, place elements within TotalsFooterGroup';
+                    ObsoleteTag = '17.0';
+
                     field(BalanceOnBankAccount; BankAccReconciliation."Total Balance on Bank Account")
                     {
                         ApplicationArea = Basic, Suite;
                         AutoFormatType = 1;
                         Caption = 'Balance on Bank Account';
                         ToolTip = 'Specifies the balance of the bank account per the last time you reconciled the bank account.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'UI Element will be replaced, place elements within TotalsFooterGroup';
+                        ObsoleteTag = '17.0';
 
                         trigger OnDrillDown()
                         begin
                             BankAccReconciliation.DrillDownOnBalanceOnBankAccount;
                         end;
                     }
+
                     field(TotalTransactionAmount; BankAccReconciliation."Total Transaction Amount")
                     {
                         ApplicationArea = Basic, Suite;
                         AutoFormatType = 1;
                         Caption = 'Total Transaction Amount';
                         ToolTip = 'Specifies the sum of values in the Statement Amount field on all the lines in the Payment Reconciliation Journal window.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'UI Element will be replaced, place elements within TotalsFooterGroup';
+                        ObsoleteTag = '17.0';
                     }
+
                     field(BalanceOnBankAccountAfterPosting; BankAccReconciliation."Total Balance on Bank Account" + BankAccReconciliation."Total Unposted Applied Amount")
                     {
                         ApplicationArea = Basic, Suite;
@@ -358,17 +398,29 @@ page 1290 "Payment Reconciliation Journal"
                         Caption = 'Balance on Bank Account After Posting';
                         StyleExpr = BalanceAfterPostingStyleExpr;
                         ToolTip = 'Specifies the total amount that will exist on the bank account as a result of payment applications that you post in the Payment Reconciliation Journal window.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'UI Element will be replaced, place elements within TotalsFooterGroup';
+                        ObsoleteTag = '17.0';
                     }
                 }
+
                 group(Control3)
                 {
+                    Visible = PreviousUXExperienceActive;
                     ShowCaption = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'UI Element will be replaced, place elements within TotalsFooterGroup';
+                    ObsoleteTag = '17.0';
+
                     field(OutstandingTransactions; OutstandingTransactions)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Outstanding Transactions';
                         Editable = false;
                         ToolTip = 'Specifies the outstanding bank transactions that have not been applied.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'UI Element will be replaced, place elements within TotalsFooterGroup';
+                        ObsoleteTag = '17.0';
 
                         trigger OnDrillDown()
                         var
@@ -378,12 +430,16 @@ page 1290 "Payment Reconciliation Journal"
                               DummyOutstandingBankTransaction.Type::"Bank Account Ledger Entry", "Statement Type", "Statement No.");
                         end;
                     }
+
                     field(OutstandingPayments; OutstandingPayments)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Outstanding Payments';
                         Editable = false;
                         ToolTip = 'Specifies the outstanding check transactions that have not been applied.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'UI Element will be replaced, place elements within TotalsFooterGroup';
+                        ObsoleteTag = '17.0';
 
                         trigger OnDrillDown()
                         var
@@ -393,6 +449,7 @@ page 1290 "Payment Reconciliation Journal"
                               DummyOutstandingBankTransaction.Type::"Check Ledger Entry", "Statement Type", "Statement No.");
                         end;
                     }
+
                     field(StatementEndingBalance; BankAccReconciliation."Statement Ending Balance")
                     {
                         ApplicationArea = Basic, Suite;
@@ -400,8 +457,165 @@ page 1290 "Payment Reconciliation Journal"
                         Caption = 'Statement Ending Balance';
                         Editable = false;
                         ToolTip = 'Specifies the balance on your actual bank account after the bank has processed the payments that you have imported with the bank statement file.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'UI Element will be replaced, place elements within TotalsFooterGroup';
+                        ObsoleteTag = '17.0';
                     }
                 }
+            }
+
+            group(TotalsFooterOuterGroup)
+            {
+                ShowCaption = false;
+
+                fixed(TotalsFooterGroup)
+                {
+                    ShowCaption = false;
+                    Editable = false;
+                    Visible = not PreviousUXExperienceActive;
+
+                    group(TotalLinesGroup)
+                    {
+                        Caption = 'Number of Lines';
+                        Visible = not PreviousUXExperienceActive;
+                        field(TotalLines; TotalLinesCount)
+                        {
+                            Visible = not PreviousUXExperienceActive;
+                            ShowCaption = false;
+                            Caption = 'Number of Lines';
+                            ApplicationArea = Basic, Suite;
+                            Editable = false;
+                            ToolTip = 'Specifies the total number of lines in the journal.';
+                        }
+                    }
+
+                    group(ReviewRequiredGroup)
+                    {
+                        Caption = 'Lines to Review';
+                        Visible = not PreviousUXExperienceActive;
+                        field(ReviewRequired; LinesForReviewCount)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Editable = false;
+                            Visible = not PreviousUXExperienceActive;
+                            Caption = 'Lines to Review';
+                            ShowCaption = false;
+                            ToolTip = 'Specifies the number of lines that you should review because they were matched automatically. The matching rule used is marked as Review Required on the Payment Application Rules page.';
+
+                            trigger OnDrillDown()
+                            var
+                                BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+                            begin
+                                GetLinesForReview(BankAccReconciliationLine);
+                                Page.Run(Page::"Payment Application Review", BankAccReconciliationLine);
+                                CurrPage.Update(false);
+                            end;
+                        }
+                    }
+
+                    group(LinesWithDifferenceGroup)
+                    {
+                        Caption = 'Lines with Difference';
+                        Visible = not PreviousUXExperienceActive;
+                        field(LinesWithDifference; LinesWithDifferenceCount)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Editable = false;
+                            ShowCaption = false;
+                            Visible = not PreviousUXExperienceActive;
+                            Caption = 'Lines with Difference';
+                            ToolTip = 'Specifies the number of lines that must be addressed before posting.';
+
+                            trigger OnDrillDown()
+                            var
+                                BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+                            begin
+                                GetLinesWithDifference(BankAccReconciliationLine);
+                                Page.Run(Page::"Payment Application Review", BankAccReconciliationLine);
+                            end;
+                        }
+                    }
+
+                    group(BalanceOnBankAccountGroup)
+                    {
+                        Caption = 'Balance on Bank Account';
+                        Visible = not PreviousUXExperienceActive;
+                        field(BalanceOnBankAccountFixedLayout; BankAccReconciliation."Total Balance on Bank Account")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            AutoFormatType = 1;
+                            ShowCaption = false;
+                            Visible = not PreviousUXExperienceActive;
+                            Caption = 'Balance on Bank Account';
+                            ToolTip = 'Specifies the balance of the bank account per the last time you reconciled the bank account.';
+
+                            trigger OnDrillDown()
+                            begin
+                                BankAccReconciliation.DrillDownOnBalanceOnBankAccount();
+                            end;
+                        }
+                    }
+
+                    group(TotalTransactionAmountGroup)
+                    {
+                        Caption = 'Total Transaction Amount';
+                        Visible = not PreviousUXExperienceActive;
+                        field(TotalTransactionAmountFixedLayout; BankAccReconciliation."Total Transaction Amount")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            AutoFormatType = 1;
+                            ShowCaption = false;
+                            Caption = 'Total Transaction Amount';
+                            ToolTip = 'Specifies the sum of values in the Statement Amount field on all the lines on the Payment Reconciliation Journal page.';
+                        }
+                    }
+
+                    group(BalanceOnBankAccountAfterPostingGroup)
+                    {
+                        Caption = 'Balance on Bank Account After Posting';
+                        Visible = not PreviousUXExperienceActive;
+                        field(BalanceOnBankAccountAfterPostingFixedLayout; BankAccReconciliation."Total Balance on Bank Account" + BankAccReconciliation."Total Unposted Applied Amount")
+                        {
+                            ShowCaption = false;
+                            Visible = not PreviousUXExperienceActive;
+                            Caption = 'Balance on Bank Account After Posting';
+                            ApplicationArea = Basic, Suite;
+                            AutoFormatType = 1;
+                            ToolTip = 'Specifies the total amount that will exist on the bank account as a result of payment applications that you post on the Payment Reconciliation Journal page.';
+                        }
+                    }
+
+                    group(StatementEndingBalanceGroup)
+                    {
+                        Visible = StatementEndingBalanceVisible and (not PreviousUXExperienceActive);
+                        Caption = 'Statement Ending Balance';
+                        field(StatementEndingBalanceFixedLayout; BankAccReconciliation."Statement Ending Balance")
+                        {
+                            Visible = StatementEndingBalanceVisible and (not PreviousUXExperienceActive);
+                            ApplicationArea = Basic, Suite;
+                            AutoFormatType = 1;
+                            Editable = false;
+                            ShowCaption = false;
+                            Caption = 'Statement Ending Balance';
+                            ToolTip = 'Specifies the balance on your actual bank account after the bank has processed the payments that you have imported with the bank statement file.';
+                        }
+                    }
+                }
+            }
+        }
+
+        area(factboxes)
+        {
+            part(Control2; "Payment Rec Match Details")
+            {
+                Visible = not PreviousUXExperienceActive;
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "Bank Account No." = FIELD("Bank Account No."),
+                              "Statement No." = FIELD("Statement No."),
+                              "Statement Line No." = FIELD("Statement Line No."),
+                              "Statement Type" = FIELD("Statement Type"),
+                              "Account Type" = FIELD("Account Type"),
+                              "Account No." = FIELD("Account No.");
             }
         }
     }
@@ -431,8 +645,8 @@ page 1290 "Payment Reconciliation Journal"
                         OnAfterImportBankTransactions(SubscriberInvoked, Rec);
                         if not SubscriberInvoked then begin
                             BankAccReconciliation.Get("Statement Type", "Bank Account No.", "Statement No.");
-                            BankAccReconciliation.ImportBankStatement;
-                            if BankAccReconciliation.Find then;
+                            BankAccReconciliation.ImportBankStatement();
+                            if BankAccReconciliation.Find() then;
                         end;
                     end;
                 }
@@ -574,6 +788,7 @@ page 1290 "Payment Reconciliation Journal"
 
                     trigger OnAction()
                     var
+                        TempGenJournalLine: Record "Gen. Journal Line" temporary;
                         MatchBankPayments: Codeunit "Match Bank Payments";
                     begin
                         MatchBankPayments.TransferDiffToAccount(Rec, TempGenJournalLine)
@@ -736,8 +951,8 @@ page 1290 "Payment Reconciliation Journal"
                 trigger OnAction()
                 begin
                     BankAccReconciliation.Get("Statement Type", "Bank Account No.", "Statement No.");
-                    BankAccReconciliation.ShowDocDim;
-                    CurrPage.SaveRecord;
+                    BankAccReconciliation.ShowDocDim();
+                    CurrPage.SaveRecord();
                 end;
             }
             action(LineDimensions)
@@ -751,7 +966,7 @@ page 1290 "Payment Reconciliation Journal"
 
                 trigger OnAction()
                 begin
-                    ShowDimensions;
+                    ShowDimensions();
                 end;
             }
             action("Bank Account Card")
@@ -808,6 +1023,8 @@ page 1290 "Payment Reconciliation Journal"
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
         if not IsBankAccReconInitialized then begin
             BankAccReconciliation.Get("Statement Type", "Bank Account No.", "Statement No.");
@@ -823,9 +1040,24 @@ page 1290 "Payment Reconciliation Journal"
           BankAccReconciliation."Total Applied Amount Payments";
         OutstandingPayments := BankAccReconciliation."Total Outstd Payments" - BankAccReconciliation."Total Applied Amount Payments";
 
-        UpdateBalanceAfterPostingStyleExpr;
+        UpdateBalanceAfterPostingStyleExpr();
 
-        TestIfFiltershaveBeenRemovedWithRefreshAndClose;
+        TestIfFiltershaveBeenRemovedWithRefreshAndClose();
+        StatementEndingBalanceVisible := BankAccReconciliation."Statement Ending Balance" <> 0;
+
+        if not PreviousUXExperienceActive then begin
+            GetLinesForReview(BankAccReconciliationLine);
+            LinesForReviewCount := BankAccReconciliationLine.Count();
+            CLEAR(BankAccReconciliationLine);
+            GetLinesWithDifference(BankAccReconciliationLine);
+            LinesWithDifferenceCount := BankAccReconciliationLine.Count();
+
+            TotalLinesCount := Count();
+
+            UpdateLinesForReviewNotification();
+        end;
+
+        UpdateEmptyListNotification();
     end;
 
     trigger OnAfterGetRecord()
@@ -836,6 +1068,8 @@ page 1290 "Payment Reconciliation Journal"
 
         GetAppliedPmtData(AppliedPmtEntry, RemainingAmountAfterPosting, StatementToRemAmtDifference, PmtAppliedToTxt);
         ShowShortcutDimCode(ShortcutDimCode);
+
+        ReviewStatusStyleTxt := GetReviewStatusStyle(Rec);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -848,32 +1082,125 @@ page 1290 "Payment Reconciliation Journal"
 
     trigger OnOpenPage()
     var
+        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         ServerSetting: Codeunit "Server Setting";
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         PageClosedByPosting := false;
 
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
+        ReviewScoreFilter := BankPmtApplRule.GetReviewRequiredScoreFilter();
+
+        PreviousUXExperienceActive := not GetNewExperienceActive();
+    end;
+
+    local procedure GetReviewStatusStyle(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"): Text
+    begin
+        if (BankAccReconciliationLine."Match Confidence" in ["Match Confidence"::Accepted, "Match Confidence"::Manual]) then
+            exit('Favorable');
+
+        exit('Standard');
+    end;
+
+    local procedure GetLinesForReview(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    var
+        MatchBankPayments: Codeunit "Match Bank Payments";
+    begin
+        SetBankAccReconciliationFilter(BankAccReconciliationLine);
+        MatchBankPayments.GetLinesForReview(BankAccReconciliationLine, ReviewScoreFilter);
+    end;
+
+    local procedure GetLinesWithDifference(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+        SetBankAccReconciliationFilter(BankAccReconciliationLine);
+        BankAccReconciliationLine.SetFilter(Difference, '<>0');
+    end;
+
+    local procedure SetBankAccReconciliationFilter(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+    end;
+
+    local procedure SetBankAccountFilter(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+        BankAccReconciliationLine.SetRange("Bank Account No.", "Bank Account No.");
+    end;
+
+    local procedure UpdateEmptyListNotification()
+    var
+        ImportTransactionsNotification: Notification;
+    begin
+        ImportTransactionsNotification.Id := GetImportTransactionsNotificationId();
+        ImportTransactionsNotification.Recall();
+        if not BankStatementLinesListIsEmpty("Statement No.", "Statement Type", "Bank Account No.") then
+            exit;
+
+        ImportTransactionsNotification.Message := ListEmptyMsg;
+        ImportTransactionsNotification.Scope := NotificationScope::LocalScope;
+        ImportTransactionsNotification.Send();
+    end;
+
+    local procedure UpdateLinesForReviewNotification()
+    var
+        LinesForReviewNotification: Notification;
+    begin
+        LinesForReviewNotification.Id := GetLinesForReviewNotificationId();
+        LinesForReviewNotification.Recall();
+
+        if not (LinesForReviewCount > 0) then
+            exit;
+
+        LinesForReviewNotification.Message := LinesForReviewNotificationMsg;
+        LinesForReviewNotification.Scope := NotificationScope::LocalScope;
+        LinesForReviewNotification.SetData(FieldName("Statement No."), "Statement No.");
+        LinesForReviewNotification.SetData(FieldName("Statement Type"), Format("Statement Type"));
+        LinesForReviewNotification.SetData(FieldName("Bank Account No."), "Bank Account No.");
+        LinesForReviewNotification.SetData('ReviewScoreFilter', ReviewScoreFilter);
+        LinesForReviewNotification.AddAction(LinesForReviewDifferenceActionLbl, CODEUNIT::"Match Bank Payments", 'OpenLinesForReviewPage');
+        LinesForReviewNotification.Send();
+    end;
+
+    local procedure GetImportTransactionsNotificationId(): Guid
+    begin
+        exit('eeef0bbe-94d9-44ab-ba93-e3c5c4c07e5b');
+    end;
+
+    local procedure GetLinesForReviewNotificationId(): Guid
+    begin
+        exit('aeef0bbe-94d9-44ab-ba93-e3c5c4c07e4a');
     end;
 
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         AppliedPmtEntry: Record "Applied Payment Entry";
-        TempGenJournalLine: Record "Gen. Journal Line" temporary;
         MatchDetails: Text;
         PmtAppliedToTxt: Label 'The payment has been applied to %1 entries.', Comment = '%1=integer value for number of entries';
         IsBankAccReconInitialized: Boolean;
         StatementToRemAmtDifference: Decimal;
         FinanceChargeMemoEnabled: Boolean;
+        StatementEndingBalanceVisible: Boolean;
         RemainingAmountAfterPosting: Decimal;
         RemoveExistingApplicationsQst: Label 'When you run the Apply Automatically action, it will undo all previous applications.\\Do you want to continue?';
         BalanceAfterPostingStyleExpr: Text;
-        PageMustCloseMsg: Label 'The Payment Reconciliation Journal window has been closed because the connection was suspended.';
+        ReviewStatusStyleTxt: Text;
+        LinesForReviewCount: Integer;
+        LinesWithDifferenceCount: Integer;
+        PageMustCloseMsg: Label 'The Payment Reconciliation Journal page has been closed because the connection was suspended.';
         PageClosedByPosting: Boolean;
         OutstandingTransactions: Decimal;
         OutstandingPayments: Decimal;
-        ShortcutDimCode: array[8] of Code[20];
         IsSaaSExcelAddinEnabled: Boolean;
+        ReviewScoreFilter: Text;
+        TotalLinesCount: Integer;
+        ListEmptyMsg: Label 'No bank transaction lines exist. Choose the Import Bank Transactions action to fill in the lines from a file, or enter lines manually.';
+        LinesForReviewNotificationMsg: Label 'One or more lines must be reviewed before posting, because they were matched automatically with rules that require review.', Comment = '%1 number of lines for review';
+        LinesForReviewDifferenceActionLbl: Label 'Review applications';
+        PreviousUXExperienceActive: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -939,6 +1266,7 @@ page 1290 "Payment Reconciliation Journal"
         BankAccReconciliation."Post Payments Only" := OnlyPayments;
 
         OnBeforeInvokePost(BankAccReconciliation);
+
         if BankAccReconPostYesNo.BankAccReconPostYesNo(BankAccReconciliation) then begin
             Reset;
             PageClosedByPosting := true;
@@ -948,11 +1276,15 @@ page 1290 "Payment Reconciliation Journal"
 
     local procedure UpdateBalanceAfterPostingStyleExpr()
     begin
-        with BankAccReconciliation do
-            if "Total Balance on Bank Account" + "Total Unposted Applied Amount" <> "Statement Ending Balance" then
-                BalanceAfterPostingStyleExpr := 'Unfavorable'
-            else
-                BalanceAfterPostingStyleExpr := 'Favorable';
+        if BankAccReconciliation."Statement Ending Balance" = 0 then begin
+            BalanceAfterPostingStyleExpr := 'Standard';
+            exit;
+        end;
+
+        if BankAccReconciliation."Total Balance on Bank Account" + BankAccReconciliation."Total Unposted Applied Amount" <> BankAccReconciliation."Statement Ending Balance" then
+            BalanceAfterPostingStyleExpr := 'Unfavorable'
+        else
+            BalanceAfterPostingStyleExpr := 'Favorable';
     end;
 
     local procedure TestIfFiltershaveBeenRemovedWithRefreshAndClose()

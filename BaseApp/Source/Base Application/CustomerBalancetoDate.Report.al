@@ -5,6 +5,7 @@ report 121 "Customer - Balance to Date"
     ApplicationArea = Basic, Suite;
     Caption = 'Customer Balance to Date';
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {
@@ -302,6 +303,7 @@ report 121 "Customer - Balance to Date"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Ending Date';
                         ToolTip = 'Specifies the last date until which information in the report is shown. If left blank, the report shows information until the present time.';
+                        ShowMandatory = true;
                     }
                     field(PrintAmountInLCY; PrintAmountInLCY)
                     {

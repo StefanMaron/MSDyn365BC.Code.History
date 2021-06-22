@@ -344,7 +344,7 @@ page 99000778 "Recurring Capacity Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -508,6 +508,8 @@ page 99000778 "Recurring Capacity Journal"
         ReportPrint: Codeunit "Test Report-Print";
         CapDescription: Text[30];
         CurrentJnlBatchName: Code[10];
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

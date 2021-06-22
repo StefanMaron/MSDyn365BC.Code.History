@@ -302,9 +302,13 @@ page 5123 "Opportunity List"
 
                         trigger OnAction()
                         var
+                            Opportunity: Record Opportunity;
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CurrPage.SetSelectionFilter(Opportunity);
+                            RecRef.GetTable(Opportunity);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
                         end;
                     }
                 }

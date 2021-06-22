@@ -813,7 +813,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: array[2] of Record "Gen. Journal Line";
-        RecurringMethod: array[2] of Integer;
+        RecurringMethod: array[2] of Enum "Gen. Journal Recurring Method";
         AllocLineNo: array[2] of Integer;
         AllocAmt: array[2] of Decimal;
         Index: Integer;
@@ -1094,7 +1094,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         exit(GenJournalLine."Account No.");
     end;
 
-    local procedure CreateAndPostGeneralJournalLineWithRecurringMethod(var GenJournalLine: Record "Gen. Journal Line"; RecurringMethod: Option)
+    local procedure CreateAndPostGeneralJournalLineWithRecurringMethod(var GenJournalLine: Record "Gen. Journal Line"; RecurringMethod: Enum "Gen. Journal Recurring Method")
     var
         GLAccount: Record "G/L Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1200,14 +1200,14 @@ codeunit 134227 "ERM PostRecurringJournal"
         until GenJournalLine.Next = 0;
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Option; Amount: Decimal; AccountNo: Code[20])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Enum "Gen. Journal Recurring Method"; Amount: Decimal; AccountNo: Code[20])
     begin
         CreateGeneralJournalLineWithType(
           GenJournalLine, GenJournalBatch, RecurringMethod, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", AccountNo, Amount);
     end;
 
-    local procedure CreateGeneralJournalLineWithType(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Option; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLineWithType(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Enum "Gen. Journal Recurring Method"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         RecurringFrequency: DateFormula;
     begin
@@ -1219,7 +1219,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateJournalLineWithDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Option; Amount: Decimal; AccountNo: Code[20]; DocumentNo: Code[20])
+    local procedure CreateJournalLineWithDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Enum "Gen. Journal Recurring Method"; Amount: Decimal; AccountNo: Code[20]; DocumentNo: Code[20])
     begin
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, RecurringMethod, Amount, AccountNo);
         GenJournalLine.Validate("Document No.", DocumentNo);
@@ -1257,7 +1257,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         end;
     end;
 
-    local procedure CreatePostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreatePostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1268,7 +1268,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure UpdateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; IsSystemEntry: Boolean; AllowZeroPosting: Boolean; AccountType: Option)
+    local procedure UpdateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; IsSystemEntry: Boolean; AllowZeroPosting: Boolean; AccountType: Enum "Gen. Journal Account Type")
     begin
         GenJournalLine."Account No." := AccountNo;
         GenJournalLine."System-Created Entry" := IsSystemEntry;
@@ -1304,7 +1304,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJournalLine.FindSet;
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; BillToPayToNo: Code[20])
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20])
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);

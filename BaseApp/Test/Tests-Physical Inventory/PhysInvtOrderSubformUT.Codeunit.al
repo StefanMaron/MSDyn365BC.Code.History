@@ -39,7 +39,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
 
         // Exercise & Verify: Invoke ShowDimension function in Phys. Inventory Order Subform and verify correct values created in EditDimensionSetEntriesPageHandler.
         PhysicalInventoryOrderSubf.SetRecord(PhysInvtOrderLine);
-        PhysInvtOrderLine.ShowDimensions;  // Invokes EditDimensionSetEntriesPageHandler.
+        PhysInvtOrderLine.ShowDimensions();  // Invokes EditDimensionSetEntriesPageHandler.
     end;
 
     [Test]

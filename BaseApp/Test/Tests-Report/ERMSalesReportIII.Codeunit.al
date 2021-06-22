@@ -20,6 +20,8 @@ codeunit 134984 "ERM Sales Report III"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
+        LibraryPurchase: Codeunit "Library - Purchase";
         FileManagement: Codeunit "File Management";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         Assert: Codeunit Assert;
@@ -2216,6 +2218,204 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
     end;
 
+
+    [Test]
+    [HandlerFunctions('RHStandardSalesShipment')]
+    [Scope('OnPrem')]
+    procedure SalesStandardShipment()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        PostedShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Standard Sales - Shipment]
+        // [SCENARIO 306111] "Sales Standard Shipment" report prints basic header and line data 
+        Initialize;
+
+        // [GIVEN] Set report "Sales Standard Shipment" as default for printing sales shipments
+        SetReportSelection("Report Selection Usage"::"S.Shipment", Report::"Standard Sales - Shipment");
+
+        // [GIVEN] Set report selection for sales shipme
+        // [GIVEN] Create and post shipment for customer "C", item "I" with quantity "5"
+        CreateAndPostSalesShipment(PostedShipmentNo, CreateCustomer);
+        SalesShipmentHeader.Get(PostedShipmentNo);
+        SalesShipmentLine.SetRange("Document No.", PostedShipmentNo);
+        SalesShipmentLine.FindFirst;
+
+        // [WHEN] Report "Sales Standard Shipment" is being printed 
+        SaveStandardSalesShipmentReport(PostedShipmentNo);
+
+        // [THEN] Dataset contains data about customer "C", line with item "I" and Quantity "5"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('DocumentNo', PostedShipmentNo);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('SelltoCustomerNo', SalesShipmentHeader."Sell-to Customer No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemNo_Line', SalesShipmentLine."No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_Line', Format(SalesShipmentLine.Quantity));
+    end;
+
+    [Test]
+    [HandlerFunctions('LotItemTrackingPageHandler,ItemTrackingSummaryPageHandler,RHStandardSalesShipment')]
+    [Scope('OnPrem')]
+    procedure SalesStandardShipmentWithItemTracking()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        PostedShipmentNo: Code[20];
+        Quantity: Decimal;
+        ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Verify Entries";
+    begin
+        // [FEATURE] [Standard Sales - Shipment] [Item Tracking]
+        // [SCENARIO 306111] "Sales Standard Shipment" report prints item tracking data 
+        Initialize();
+
+        // [GIVEN] Set report "Sales Standard Shipment" as default for printing sales shipments
+        SetReportSelection("Report Selection Usage"::"S.Shipment", Report::"Standard Sales - Shipment");
+
+        // [GIVEN] Create Item "I" with lot item tracking
+        Quantity := LibraryRandom.RandDec(10, 2);
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        CreateTrackedItem(
+            Item, Item."Replenishment System"::Purchase, Item."Reordering Policy"::"Fixed Reorder Qty.", false, Quantity,
+            ItemTrackingCode.Code);
+
+        // [GIVEN] Post positive adjustment for item "I" with assigned "Lot No." = "L1" and Quantity = 5
+        CreateAndPostItemJournalLineWithTracking(Item."No.", Quantity);
+
+        // [GIVEN] Create and post sales order with item "I" and selected "Lot No." = "L1" and Quantity = 5
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", Quantity);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");  // Enqueue for Page Handler - LotItemTrackingPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Select Item Tracking on Page handler - LotItemTrackingPageHandler.
+        PostedShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Report "Sales Standard Shipment" is being printed with option "Show Serial/Lot Number Appendix" = Yes
+        SaveStandardSalesShipmentReport(PostedShipmentNo);
+
+        // [THEN] Dataset contains data about lot number "L1" for item "I" and Quantity "5"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('TrackingSpecBufferEntryNo', 1);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('TrackingSpecBufferNo', Item."No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('TrackingSpecBufferLotNo', FindAssignedLotNo(Item."No."));
+        LibraryReportDataset.AssertCurrentRowValueEquals('TrackingSpecBufferQty', Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHStandardSalesShipment')]
+    [Scope('OnPrem')]
+    procedure SalesStandardShipmentShipToBillToCustomer()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        Customer: Record Customer;
+        PostedShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Standard Sales - Shipment]
+        // [SCENARIO 306111] "Sales Standard Shipment" report dataset has ship-to and bill-to customer data
+        Initialize;
+
+        // [GIVEN] Set report "Sales Standard Shipment" as default for printing sales shipments
+        SetReportSelection("Report Selection Usage"::"S.Shipment", Report::"Standard Sales - Shipment");
+
+        // [GIVEN] Customer "C1" with Bill-to customer "C2"
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        Customer.Modify();
+
+        // [GIVEN] Create and post shipment for customer "C1"
+        CreateAndPostSalesShipment(PostedShipmentNo, Customer."No.");
+        SalesShipmentHeader.Get(PostedShipmentNo);
+        SalesShipmentLine.SetRange("Document No.", PostedShipmentNo);
+        SalesShipmentLine.FindFirst;
+
+        // [WHEN] Report "Sales Standard Shipment" is being printed 
+        SaveStandardSalesShipmentReport(PostedShipmentNo);
+
+        // [THEN] Dataset contains data for ship-to customer "C1"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('DocumentNo', PostedShipmentNo);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('ShipToAddress1', SalesShipmentHeader."Ship-to Name");
+        // [THEN] Dataset contains data for bill-to customer "C2"
+        LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress1', SalesShipmentHeader."Bill-to Name");
+    end;
+
+    [Test]
+    [HandlerFunctions('RHStandardSalesReturnReceipt')]
+    [Scope('OnPrem')]
+    procedure SalesStandardReturnReceipt()
+    var
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        ReturnReceiptLine: Record "Return Receipt Line";
+        PostedReturnReceiptNo: Code[20];
+    begin
+        // [FEATURE] [Standard Sales - Return Receipt]
+        // [SCENARIO 306111] "Standard Sales - Return Rcpt." report prints basic header and line data 
+        Initialize;
+
+        // [GIVEN] Set report "Standard Sales - Return Rcpt.." as default for printing return receipts
+        SetReportSelection("Report Selection Usage"::"S.Ret.Rcpt.", Report::"Standard Sales - Return Rcpt.");
+
+        // [GIVEN] Create and post return order for customer "C", item "I" with quantity "5"
+        CreateAndPostSalesReturnReceipt(PostedReturnReceiptNo, CreateCustomer);
+        ReturnReceiptHeader.Get(PostedReturnReceiptNo);
+        ReturnReceiptLine.SetRange("Document No.", PostedReturnReceiptNo);
+        ReturnReceiptLine.FindFirst;
+
+        // [WHEN] Report "Standard Sales - Return Rcpt.." is being printed 
+        SaveStandardSalesReturnReceiptReport(PostedReturnReceiptNo);
+
+        // [THEN] Dataset contains data about customer "C", line with item "I" and Quantity "5"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('DocumentNo', PostedReturnReceiptNo);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('SelltoCustomerNo', ReturnReceiptHeader."Sell-to Customer No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemNo_Line', ReturnReceiptLine."No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_Line', Format(ReturnReceiptLine.Quantity));
+    end;
+
+    [Test]
+    [HandlerFunctions('RHStandardSalesReturnReceipt')]
+    [Scope('OnPrem')]
+    procedure SalesStandardReturnReceiptShipToBillToCustomer()
+    var
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        ReturnReceiptLine: Record "Return Receipt Line";
+        Customer: Record Customer;
+        PostedReturnReceiptNo: Code[20];
+    begin
+        // [FEATURE] [Standard Sales - Return Receipt]
+        // [SCENARIO 306111] "Standard Sales - Return Rcpt." report dataset has ship-to and bill-to customer data
+        Initialize;
+
+        // [GIVEN] Set report "Standard Sales - Return Rcpt.." as default for printing return receipts
+        SetReportSelection("Report Selection Usage"::"S.Ret.Rcpt.", Report::"Standard Sales - Return Rcpt.");
+
+        // [GIVEN] Customer "C1" with Bill-to customer "C2"
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        Customer.Modify();
+
+        // [GIVEN] Create and post return order for customer "C1"
+        CreateAndPostSalesReturnReceipt(PostedReturnReceiptNo, Customer."No.");
+        ReturnReceiptHeader.Get(PostedReturnReceiptNo);
+        ReturnReceiptLine.SetRange("Document No.", PostedReturnReceiptNo);
+        ReturnReceiptLine.FindFirst;
+
+        // [WHEN] Report "Standard Sales - Return Rcpt.." is being printed 
+        SaveStandardSalesReturnReceiptReport(PostedReturnReceiptNo);
+
+        // [THEN] Dataset contains data for ship-to customer "C1"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('DocumentNo', PostedReturnReceiptNo);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('ShipToAddress1', ReturnReceiptHeader."Ship-to Name");
+        // [THEN] Dataset contains data for bill-to customer "C2"
+        LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress1', ReturnReceiptHeader."Bill-to Name");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2330,6 +2530,17 @@ codeunit 134984 "ERM Sales Report III"
         PostedShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
+    local procedure CreateAndPostSalesReturnReceipt(var PostedReceiptNo: Code[20]; CustomerNo: Code[20]) Quantity: Decimal
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Return Order", CustomerNo, '');
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        Quantity := SalesLine.Quantity;
+        PostedReceiptNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
     local procedure CreateSalesOrderWithSevItemsForProForma(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
@@ -2401,7 +2612,7 @@ codeunit 134984 "ERM Sales Report III"
         SaveSalesDocumentTest(SalesLine."Document No.", Ship, Invoice, false, false);
     end;
 
-    local procedure CreateGenJnlLineWithBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocType: Integer; AccountType: Integer; AccountNo: Code[20]; BalAccountType: Integer; BalAccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJnlLineWithBalAccount(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -2467,7 +2678,7 @@ codeunit 134984 "ERM Sales Report III"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Option; CurrencyCode: Code[10]; Invoice: Boolean): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; Invoice: Boolean): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -2477,7 +2688,7 @@ codeunit 134984 "ERM Sales Report III"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; CustomerNo: Code[20]; DocumentType: Option; AppliesToDocType: Option; AppliesToDocNo: Code[20]; Amount: Integer)
+    procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; Amount: Integer)
     var
         GLAccount: Record "G/L Account";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2531,7 +2742,7 @@ codeunit 134984 "ERM Sales Report III"
         end;
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -2588,7 +2799,7 @@ codeunit 134984 "ERM Sales Report III"
         ItemCharge.Modify(true);
     end;
 
-    local procedure CreateAndModifySalesLine(SalesHeader: Record "Sales Header"; Type: Option; AccountNo: Code[20])
+    local procedure CreateAndModifySalesLine(SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; AccountNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2763,6 +2974,61 @@ codeunit 134984 "ERM Sales Report III"
         end;
     end;
 
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, Quantity, '', 0D);
+    end;
+
+    local procedure CreateTrackedItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy"; IncludeInventory: Boolean; ReorderQuantity: Decimal; ItemTrackingCode: Code[10])
+    begin
+        LibraryInventory.CreateTrackedItem(
+          Item, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, ItemTrackingCode);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Reordering Policy", ReorderingPolicy);
+        Item.Validate("Include Inventory", IncludeInventory);
+        Item.Validate("Reorder Quantity", ReorderQuantity);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateAndPostItemJournalLineWithTracking(ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Verify Entries";
+    begin
+        LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot No.");  // Enqueue for Page Handler.
+        UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, '');  // Required for test when using Item Tracking.
+        CreateItemJournalLine(ItemJournalTemplate, ItemJournalBatch, ItemJournalLine, ItemNo, Quantity);
+        ItemJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        ItemJournalLine.Modify(true);
+        ItemJournalLine.OpenItemTrackingLines(false);  // Assign Tracking on Page Handler.
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+        UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
+    end;
+
+    local procedure CreateItemJournalLine(ItemJournalTemplate: Record "Item Journal Template"; ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+    end;
+
+    local procedure FindAssignedLotNo(ItemNo: Code[20]): Code[20]
+    var
+        ItemLedgEntry: Record "Item Ledger Entry";
+    begin
+        with ItemLedgEntry do begin
+            SetRange("Item No.", ItemNo);
+            FindLast;
+            exit("Lot No.");
+        end;
+    end;
+
     local procedure ClearShiptoInfoForSalesHeader(var SalesHeader: Record "Sales Header")
     begin
         with SalesHeader do begin
@@ -2850,7 +3116,7 @@ codeunit 134984 "ERM Sales Report III"
         end;
     end;
 
-    local procedure ApplyCustLedgerEntry(DocumentType: Option; CustomerNo: Code[20])
+    local procedure ApplyCustLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20])
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
@@ -3046,6 +3312,34 @@ codeunit 134984 "ERM Sales Report III"
         SalesShipment.Run;
     end;
 
+    local procedure SaveStandardSalesShipmentReport(No: Code[20])
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        StandardSalesShipment: Report "Standard Sales - Shipment";
+    begin
+        Clear(StandardSalesShipment);
+        SalesShipmentHeader.SetRange("No.", No);
+        StandardSalesShipment.SetTableView(SalesShipmentHeader);
+
+        StandardSalesShipment.InitializeRequest(false, false, false, true);
+        Commit();
+        StandardSalesShipment.Run;
+    end;
+
+    local procedure SaveStandardSalesReturnReceiptReport(No: Code[20])
+    var
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        StandardSalesReturnRcpt: Report "Standard Sales - Return Rcpt.";
+    begin
+        Clear(StandardSalesReturnRcpt);
+        ReturnReceiptHeader.SetRange("No.", No);
+        StandardSalesReturnRcpt.SetTableView(ReturnReceiptHeader);
+
+        StandardSalesReturnRcpt.InitializeRequest(false, false);
+        Commit();
+        StandardSalesReturnRcpt.Run;
+    end;
+
     local procedure SaveReturnOrderReport(No: Code[20]; ShowInternalInfo: Boolean; LogInteraction: Boolean)
     var
         SalesHeader: Record "Sales Header";
@@ -3122,7 +3416,7 @@ codeunit 134984 "ERM Sales Report III"
         end;
     end;
 
-    local procedure UpdateReportSelection(Usage: Option; ReportID: Integer)
+    local procedure UpdateReportSelection(Usage: Enum "Report Selection Usage"; ReportID: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -3186,6 +3480,12 @@ codeunit 134984 "ERM Sales Report III"
             "Unit-Amount Decimal Places" := '2:5';
             Modify;
         end;
+    end;
+
+    local procedure UpdateNoSeriesOnItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; NoSeries: Code[20])
+    begin
+        ItemJournalBatch.Validate("No. Series", NoSeries);
+        ItemJournalBatch.Modify(true);
     end;
 
     local procedure CreateCustomerAndPostGenJnlLinesWithFilters(CustomerNo: Code[20]; GlobalDimension1Code: Code[20]; GlobalDimension2Code: Code[20]; CurrencyCode: Code[10])
@@ -3297,6 +3597,22 @@ codeunit 134984 "ERM Sales Report III"
         Customer.SetRecFilter;
     end;
 
+    local procedure SetReportSelection(ReportSelectionUsage: Enum "Report Selection Usage"; ReportId: Integer)
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        ReportSelections: Record "Report Selections";
+    begin
+        ReportSelections.SetRange(Usage, ReportSelectionUsage);
+        ReportSelections.DeleteAll();
+        CustomReportSelection.SetRange(Usage, ReportSelectionUsage);
+        CustomReportSelection.DeleteAll();
+
+        ReportSelections.Init();
+        ReportSelections.Usage := ReportSelectionUsage;
+        ReportSelections."Report ID" := ReportId;
+        If ReportSelections.Insert() Then;
+    end;
+
     local procedure FormatDecimal(Value: Decimal; Decimals: Integer): Text
     begin
         exit(
@@ -3321,7 +3637,7 @@ codeunit 134984 "ERM Sales Report III"
           StrSubstNo(HeaderDimensionTxt, DimensionValueRec."Dimension Code", Separator, DimensionValueRec.Code));
     end;
 
-    local procedure VerifyInteractionLogEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyInteractionLogEntry(DocumentType: Enum "Interaction Log Entry Document Type"; DocumentNo: Code[20])
     var
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
@@ -3930,6 +4246,20 @@ codeunit 134984 "ERM Sales Report III"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    procedure RHStandardSalesShipment(var StandardSalesShipment: TestRequestPage "Standard Sales - Shipment")
+    begin
+        StandardSalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHStandardSalesReturnReceipt(var StandardSalesReturnRcpt: TestRequestPage "Standard Sales - Return Rcpt.")
+    begin
+        StandardSalesReturnRcpt.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
     procedure StatementRequestPageHandler(var StatementRequestPage: TestRequestPage Statement)
     begin
         StatementRequestPage."Start Date".SetValue(WorkDate);
@@ -4055,6 +4385,45 @@ codeunit 134984 "ERM Sales Report III"
         Assert.IsFalse(SalesAnalysisMatrix.Field30.Visible, ColumnDoesNotExistErr);
         Assert.IsFalse(SalesAnalysisMatrix.Field31.Visible, ColumnDoesNotExistErr);
         Assert.IsFalse(SalesAnalysisMatrix.Field32.Visible, ColumnDoesNotExistErr);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure LotItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Verify Entries","Set Lot No.","Set Quantity & Lot No.","Get Lot Quantity";
+    begin
+        case LibraryVariableStorage.DequeueInteger of
+            ItemTrackingMode::"Assign Lot No.":
+                ItemTrackingLines."Assign Lot No.".Invoke;
+            ItemTrackingMode::"Select Entries":
+                ItemTrackingLines."Select Entries".Invoke;
+            ItemTrackingMode::"Verify Entries":
+                begin
+                    ItemTrackingLines."Lot No.".AssertEquals(LibraryVariableStorage.DequeueText);
+                    ItemTrackingLines."Quantity (Base)".AssertEquals(LibraryVariableStorage.DequeueDecimal);
+                end;
+            ItemTrackingMode::"Set Lot No.":
+                ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+            ItemTrackingMode::"Set Quantity & Lot No.":
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                end;
+            ItemTrackingMode::"Get Lot Quantity":
+                begin
+                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText);
+                    LibraryVariableStorage.Enqueue(ItemTrackingLines."Quantity (Base)".AsDEcimal);
+                end;
+        end;
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK.Invoke;
     end;
 
     [RequestPageHandler]

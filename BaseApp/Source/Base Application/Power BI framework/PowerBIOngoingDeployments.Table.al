@@ -1,9 +1,8 @@
+/// <summary>
+/// Tracks if a user has active background sessions to deploy, delete or retry deployment of Power BI reports.
+/// </summary>
 table 6308 "Power BI Ongoing Deployments"
 {
-    // // Table for globally tracking when user is waiting on background sessions to deploy
-    // // default Power BI reports. Makes it easier to tell when these tasks are done, especially
-    // // across multiple pages.
-
     Caption = 'Power BI Ongoing Deployments';
     DataPerCompany = false;
     ReplicateData = false;

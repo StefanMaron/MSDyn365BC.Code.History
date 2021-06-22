@@ -166,9 +166,6 @@ page 1340 "Config Templates"
 
     var
         ConfigTemplateManagement: Codeunit "Config. Template Management";
-        CreateCustomerActionVisible: Boolean;
-        CreateVendorActionVisible: Boolean;
-        CreateItemActionVisible: Boolean;
         CreateConfigurationTemplateActionVisible: Boolean;
         NewMode: Boolean;
         FilteredTableId: Integer;
@@ -182,7 +179,12 @@ page 1340 "Config Templates"
         SelectItemTemplatesCap: Label 'Select a template for a new item';
         DeleteQst: Label 'Delete %1?', Comment = '%1 - configuration template code';
 
-    local procedure UpdateActionsVisibility()
+    protected var
+        CreateCustomerActionVisible: Boolean;
+        CreateVendorActionVisible: Boolean;
+        CreateItemActionVisible: Boolean;
+
+        local procedure UpdateActionsVisibility()
     begin
         CreateCustomerActionVisible := false;
         CreateItemActionVisible := false;

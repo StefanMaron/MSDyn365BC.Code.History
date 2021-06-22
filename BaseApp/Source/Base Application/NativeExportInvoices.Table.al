@@ -2,6 +2,9 @@ table 2822 "Native - Export Invoices"
 {
     Caption = 'Native - Export Invoices';
     ReplicateData = false;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     fields
     {

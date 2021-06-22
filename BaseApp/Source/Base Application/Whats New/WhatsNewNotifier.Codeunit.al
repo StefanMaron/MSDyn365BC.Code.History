@@ -27,6 +27,10 @@ codeunit 897 "What's New Notifier"
             exit;
         end;
 
+        // Notified before
+        if WhatsNewNotified.Get(UserSecurityId(), '17') then
+            exit;
+
         // Web clients session only
         if ClientTypeMgt.GetCurrentClientType() <> ClientType::Web then
             exit;
@@ -48,17 +52,15 @@ codeunit 897 "What's New Notifier"
             exit;
         end;
 
-        // Only for major version 16
-        if AppVersion <> '16' then
+        // Only for major version 17
+        if AppVersion <> '17' then
             exit;
 
-        // Notified before
-        if WhatsNewNotified.Get(UserSecurityId(), AppVersion) then
-            exit;
-
-        Commit();
-
-        Page.RunModal(Page::"What's New Wizard");
+        // Should only be shown to upgrading users.
+        if WhatsNewNotified.Get(UserSecurityId(), '16') then begin
+            Commit();
+            Page.RunModal(Page::"What's New Wizard");
+        end;
 
         MarkWhatsNewAsNotified(AppVersion);
     end;
@@ -71,8 +73,7 @@ codeunit 897 "What's New Notifier"
         WhatsNewNotified."Application Version" := CopyStr(ApplicationVersion, 1, MaxStrLen(WhatsNewNotified."Application Version"));
         WhatsNewNotified."Date Notified" := CurrentDateTime();
 
-        if WhatsNewNotified.Insert() then
-            SendTraceTag('0000CA3', 'What''s New Notifier', Verbosity::Normal, 'What''s new wizard was shown to user.', DataClassification::SystemMetadata);
+        if WhatsNewNotified.Insert() then; // Don't insert a second time
     end;
 
     [TryFunction]
@@ -99,7 +100,7 @@ codeunit 897 "What's New Notifier"
     /// <summary>
     /// Raises an event to be able to change the return value of IsGuiAllowed function. Used for testing.
     /// </summary>
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     local procedure OnGetGuiAllowed(var IsGuiAllowed: Boolean)
     begin
     end;
@@ -107,7 +108,7 @@ codeunit 897 "What's New Notifier"
     /// <summary>
     /// Raises an event to be able to change the return value of GetAppMajorVersion function. Used for testing.
     /// </summary>
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     local procedure OnGetAppMajorVersion(var MajorVersion: Text)
     begin
     end;

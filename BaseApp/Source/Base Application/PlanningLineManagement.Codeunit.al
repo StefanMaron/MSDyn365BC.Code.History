@@ -280,7 +280,7 @@ codeunit 99000809 "Planning Line Management"
 
                                 PlanningComponent."Flushing Method" := CompSKU."Flushing Method";
                                 PlanningComponent."Ref. Order Type" := ReqLine."Ref. Order Type";
-                                PlanningComponent."Ref. Order Status" := ReqLine."Ref. Order Status";
+                                PlanningComponent."Ref. Order Status" := "Production Order Status".FromInteger(ReqLine."Ref. Order Status");
                                 PlanningComponent."Ref. Order No." := ReqLine."Ref. Order No.";
                                 OnBeforeInsertAsmPlanningComponent(ReqLine, AsmBOMComp[Level], PlanningComponent);
                                 PlanningComponent.Insert();
@@ -580,7 +580,7 @@ codeunit 99000809 "Planning Line Management"
                 "Planning Level Code" := ReqLine."Planning Level" + 1;
 
             "Ref. Order Type" := ReqLine."Ref. Order Type";
-            "Ref. Order Status" := ReqLine."Ref. Order Status";
+            "Ref. Order Status" := "Production Order Status".FromInteger(ReqLine."Ref. Order Status");
             "Ref. Order No." := ReqLine."Ref. Order No.";
             OnBeforeInsertPlanningComponent(ReqLine, ProdBOMLine, PlanningComponent, LineQtyPerUOM, ItemQtyPerUOM);
             Insert;

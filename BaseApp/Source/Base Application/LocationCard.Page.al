@@ -99,6 +99,7 @@ page 5703 "Location Card"
                     field("Fax No."; "Fax No.")
                     {
                         ApplicationArea = Location;
+                        Importance = Additional;
                         ToolTip = 'Specifies the fax number of the location.';
                     }
                     field("E-Mail"; "E-Mail")

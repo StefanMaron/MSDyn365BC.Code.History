@@ -518,7 +518,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    local procedure CreateAssemblyHeaderLocal(var AssemblyHeader: Record "Assembly Header"; DueDate: Date; ParentItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; DocumentType: Option; VariantCode: Code[10]): Code[20]
+    local procedure CreateAssemblyHeaderLocal(var AssemblyHeader: Record "Assembly Header"; DueDate: Date; ParentItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; DocumentType: Enum "Assembly Document Type"; VariantCode: Code[10]): Code[20]
     begin
         Clear(AssemblyHeader);
         AssemblyHeader."Document Type" := DocumentType;
@@ -573,7 +573,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure CreateAssemblyLines(CostingMethod: Option; AssemblyHeaderNo: Code[20]; NoOfItems: Integer; NoOfResources: Integer)
+    procedure CreateAssemblyLines(CostingMethod: Enum "Costing Method"; AssemblyHeaderNo: Code[20]; NoOfItems: Integer; NoOfResources: Integer)
     var
         AssemblyHeader: Record "Assembly Header";
         TempItem: Record Item temporary;
@@ -597,7 +597,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure CreateAssemblyList(CostingMethod: Option; ParentItemNo: Code[20]; UseBaseUnitOfMeasure: Boolean; NoOfItems: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPerFactor: Integer; GenProdPostingGroup: Code[20]; InventoryPostingGroup: Code[20])
+    procedure CreateAssemblyList(CostingMethod: Enum "Costing Method"; ParentItemNo: Code[20]; UseBaseUnitOfMeasure: Boolean; NoOfItems: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPerFactor: Integer; GenProdPostingGroup: Code[20]; InventoryPostingGroup: Code[20])
     var
         BOMComponent: Record "BOM Component";
         TempItem: Record Item temporary;
@@ -754,7 +754,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure CreateItem(var Item: Record Item; CostingMethod: Option; ReplenishmentMethod: Option; GenProdPostingGroup: Code[20]; InventoryPostingGroup: Code[20]): Code[20]
+    procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentMethod: Enum "Replenishment System"; GenProdPostingGroup: Code[20]; InventoryPostingGroup: Code[20]): Code[20]
     var
         GeneralPostingSetup: Record "General Posting Setup";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -883,7 +883,7 @@ codeunit 132207 "Library - Assembly"
         AssemblyHeader.CreatePick(false, AssignedUserID, SortingMethod, SetBreakBulkFilter, DoNotFillQtyToHandle, PrintDocument);
     end;
 
-    procedure CreateMultipleLvlTree(var Item: Record Item; var Item1: Record Item; ReplenishmentMethod: Option; CostingMethod: Option; TreeDepth: Integer; NoOfComps: Integer)
+    procedure CreateMultipleLvlTree(var Item: Record Item; var Item1: Record Item; ReplenishmentMethod: Enum "Replenishment System"; CostingMethod: Enum "Costing Method"; TreeDepth: Integer; NoOfComps: Integer)
     var
         BOMComponent: Record "BOM Component";
         Item2: Record Item;
@@ -987,7 +987,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure CreateItemWithSKU(var Item: Record Item; CostingMethod: Option; ReplenishmentSystem: Option; CreatePer: Option Location,Variant,"Location & Variant"; GenProdPostingGr: Code[20]; InvtPostingGr: Code[20]; LocationCode: Code[10])
+    procedure CreateItemWithSKU(var Item: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; CreatePer: Option Location,Variant,"Location & Variant"; GenProdPostingGr: Code[20]; InvtPostingGr: Code[20]; LocationCode: Code[10])
     var
         ItemVariant: Record "Item Variant";
     begin
@@ -1232,7 +1232,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    local procedure FindHeaderValueEntries(var ValueEntry: Record "Value Entry"; PostedAssemblyHeader: Record "Posted Assembly Header"; EntryType: Option; ItemLedgerEntryType: Option)
+    local procedure FindHeaderValueEntries(var ValueEntry: Record "Value Entry"; PostedAssemblyHeader: Record "Posted Assembly Header"; EntryType: Enum "Cost Entry Type"; ItemLedgerEntryType: Enum "Item Ledger Entry Type")
     begin
         ValueEntry.Reset();
         ValueEntry.SetRange("Item No.", PostedAssemblyHeader."Item No.");
@@ -1252,7 +1252,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    local procedure FindLineValueEntries(var ValueEntry: Record "Value Entry"; PostedAssemblyLine: Record "Posted Assembly Line"; EntryType: Option; ItemLedgerEntryType: Option)
+    local procedure FindLineValueEntries(var ValueEntry: Record "Value Entry"; PostedAssemblyLine: Record "Posted Assembly Line"; EntryType: Enum "Cost Entry Type"; ItemLedgerEntryType: Enum "Item Ledger Entry Type")
     begin
         ValueEntry.Reset();
         if PostedAssemblyLine.Type = PostedAssemblyLine.Type::Item then
@@ -1266,7 +1266,7 @@ codeunit 132207 "Library - Assembly"
         ValueEntry.SetRange("Document No.", PostedAssemblyLine."Document No.");
         ValueEntry.SetRange("Location Code", PostedAssemblyLine."Location Code");
         ValueEntry.SetRange("Variant Code", PostedAssemblyLine."Variant Code");
-        if ItemLedgerEntryType = ValueEntry."Item Ledger Entry Type"::"Assembly Consumption" then
+        if ItemLedgerEntryType = "Item Ledger Entry Type"::"Assembly Consumption" then
             ValueEntry.SetRange("Valued Quantity", -PostedAssemblyLine.Quantity)
         else
             ValueEntry.SetRange("Valued Quantity", PostedAssemblyLine.Quantity);
@@ -1275,7 +1275,7 @@ codeunit 132207 "Library - Assembly"
         ValueEntry.SetRange("Order Line No.", PostedAssemblyLine."Order Line No.");
     end;
 
-    procedure FindLinkedAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; DocumentType: Option; DocumentNo: Code[20]; DocumentLineNo: Integer)
+    procedure FindLinkedAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; DocumentLineNo: Integer)
     var
         AssembleToOrderLink: Record "Assemble-to-Order Link";
     begin
@@ -1457,8 +1457,7 @@ codeunit 132207 "Library - Assembly"
         exit(ItemFilter)
     end;
 
-    [Normal]
-    local procedure GetValueEntriesAmount(PostedAssemblyHeader: Record "Posted Assembly Header"; ItemLedgerEntryType: Option; EntryType: Option; VarianceType: Option; ItemNo: Code[20]; PostedToGL: Boolean): Decimal
+    local procedure GetValueEntriesAmount(PostedAssemblyHeader: Record "Posted Assembly Header"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; EntryType: Enum "Cost Entry Type"; VarianceType: Enum "Cost Variance Type"; ItemNo: Code[20]; PostedToGL: Boolean): Decimal
     var
         ValueEntry: Record "Value Entry";
         Amount: Decimal;
@@ -1688,7 +1687,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure SetupComponents(var TempItem: Record Item temporary; var TempResource: Record Resource temporary; CostingMethod: Option; NoOfItems: Integer; NoOfResources: Integer; GenProdPostingGroup: Code[20]; InventoryPostingGroup: Code[20])
+    procedure SetupComponents(var TempItem: Record Item temporary; var TempResource: Record Resource temporary; CostingMethod: Enum "Costing Method"; NoOfItems: Integer; NoOfResources: Integer; GenProdPostingGroup: Code[20]; InventoryPostingGroup: Code[20])
     var
         Item: Record Item;
         Resource: Record Resource;
@@ -1739,7 +1738,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure SetupAssemblyData(var AssemblyHeader: Record "Assembly Header"; DueDate: Date; ParentCostingMethod: Option; CompCostingMethod: Option; ReplenishmentSystem: Option; LocationCode: Code[10]; UpdateUnitCost: Boolean)
+    procedure SetupAssemblyData(var AssemblyHeader: Record "Assembly Header"; DueDate: Date; ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; LocationCode: Code[10]; UpdateUnitCost: Boolean)
     var
         Item: Record Item;
     begin
@@ -1749,7 +1748,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure SetupAssemblyItem(var Item: Record Item; ParentCostingMethod: Option; CompCostingMethod: Option; ReplenishmentSystem: Option; LocationCode: Code[10]; UpdateUnitCost: Boolean; NoOfItems: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPerFactor: Integer)
+    procedure SetupAssemblyItem(var Item: Record Item; ParentCostingMethod: Enum "Costing Method"; CompCostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; LocationCode: Code[10]; UpdateUnitCost: Boolean; NoOfItems: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPerFactor: Integer)
     var
         AssemblyLine: Record "Assembly Line";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";

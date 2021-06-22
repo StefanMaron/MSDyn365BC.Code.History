@@ -100,6 +100,7 @@ page 99000831 "Released Production Order"
             {
                 ApplicationArea = Manufacturing;
                 SubPageLink = "Prod. Order No." = FIELD("No.");
+                UpdatePropagation = Both;
             }
             group(Schedule)
             {
@@ -110,6 +111,9 @@ page 99000831 "Released Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting time of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnValidate()
                     begin
@@ -123,6 +127,9 @@ page 99000831 "Released Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting date of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnValidate()
                     begin
@@ -136,6 +143,9 @@ page 99000831 "Released Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending time of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnValidate()
                     begin
@@ -149,6 +159,9 @@ page 99000831 "Released Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending date of the production order.';
                     Visible = DateAndTimeFieldVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnValidate()
                     begin
@@ -492,7 +505,7 @@ page 99000831 "Released Production Order"
 
                     trigger OnAction()
                     begin
-                        CurrPage.ProdOrderLines.PAGE.PageShowReservation;
+                        CurrPage.ProdOrderLines.PAGE.PageShowReservation();
                     end;
                 }
                 action(OrderTracking)
@@ -504,7 +517,7 @@ page 99000831 "Released Production Order"
 
                     trigger OnAction()
                     begin
-                        CurrPage.ProdOrderLines.PAGE.ShowTracking;
+                        CurrPage.ProdOrderLines.PAGE.ShowTracking();
                     end;
                 }
                 action("C&opy Prod. Order Document")

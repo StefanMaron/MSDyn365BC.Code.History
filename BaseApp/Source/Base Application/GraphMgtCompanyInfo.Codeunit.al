@@ -18,6 +18,7 @@ codeunit 5473 "Graph Mgt - Company Info."
             GraphMgtComplexTypes.GetPostalAddressJSON(Address, "Address 2", City, County, "Country/Region Code", "Post Code", JSON);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(IsCompanyIdFound: Boolean)
     var
         DummyCompanyInfo: Record "Company Information";

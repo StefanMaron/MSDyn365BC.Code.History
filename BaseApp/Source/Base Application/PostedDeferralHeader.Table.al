@@ -4,11 +4,9 @@ table 1704 "Posted Deferral Header"
 
     fields
     {
-        field(1; "Deferral Doc. Type"; Option)
+        field(1; "Deferral Doc. Type"; Enum "Deferral Document Type")
         {
             Caption = 'Deferral Doc. Type';
-            OptionCaption = 'Purchase,Sales,G/L';
-            OptionMembers = Purchase,Sales,"G/L";
         }
         field(2; "Gen. Jnl. Document No."; Code[20])
         {
@@ -119,11 +117,11 @@ table 1704 "Posted Deferral Header"
         if LineNo <> 0 then
             if Get(DeferralDocType, GenJnlDocNo, AccountNo, DocumentType, DocumentNo, LineNo) then begin
                 Delete;
-                DeleteLines(DeferralDocType, GenJnlDocNo, AccountNo, DocumentType, DocumentNo, LineNo);
+                DeleteLines("Deferral Document Type".FromInteger(DeferralDocType), GenJnlDocNo, AccountNo, DocumentType, DocumentNo, LineNo);
             end;
     end;
 
-    local procedure DeleteLines(DeferralDocType: Integer; GenJnlDocNo: Code[20]; AccountNo: Code[20]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer)
+    local procedure DeleteLines(DeferralDocType: Enum "Deferral Document Type"; GenJnlDocNo: Code[20]; AccountNo: Code[20]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer)
     var
         PostedDeferralLine: Record "Posted Deferral Line";
     begin

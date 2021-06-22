@@ -13,10 +13,9 @@ report 298 "Batch Post Sales Credit Memos"
 
             trigger OnPreDataItem()
             var
-                BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                 SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
             begin
-                SalesBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
+                SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
                 SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, false);
 
                 CurrReport.Break();

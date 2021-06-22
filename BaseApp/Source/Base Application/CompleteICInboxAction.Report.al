@@ -92,6 +92,7 @@ report 511 "Complete IC Inbox Action"
                                 OnAfterMoveICInboxSalesHeaderToHandled(InboxSalesHeader2, HandledInboxSalesHeader);
                             end;
                     end;
+                    OnAfterICInboxSalesHeaderToHandled(InboxSalesHeader2, HandledInboxSalesHeader);
                     InboxSalesHeader2.Delete(true);
                 end;
             }
@@ -142,6 +143,7 @@ report 511 "Complete IC Inbox Action"
                                 OnAfterMoveICInboxPurchHeaderToHandled(InboxPurchHeader2, HandledInboxPurchHeader);
                             end;
                     end;
+                    OnAfterICInboxPurchHeaderToHandled(InboxPurchHeader2, HandledInboxPurchHeader);
                     InboxPurchHeader2.Delete(true);
                 end;
             }
@@ -422,9 +424,20 @@ report 511 "Complete IC Inbox Action"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterICInboxSalesHeaderToHandled(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; var HandledICInboxSalesHeader: Record "Handled IC Inbox Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterMoveICInboxPurchHeaderToHandled(var ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"; var HandledICInboxPurchHeader: Record "Handled IC Inbox Purch. Header")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterICInboxPurchHeaderToHandled(var ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"; var HandledICInboxPurchHeader: Record "Handled IC Inbox Purch. Header")
+    begin
+    end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandledInboxTransactionInsert(var HandledICInboxTrans: Record "Handled IC Inbox Trans."; InboxTransaction: Record "IC Inbox Transaction")

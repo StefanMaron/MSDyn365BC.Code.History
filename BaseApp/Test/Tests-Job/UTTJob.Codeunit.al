@@ -1046,7 +1046,7 @@ codeunit 136350 "UT T Job"
         JobCard.Close;
     end;
 
-    local procedure UpdateTimeSheetLineStatus(var TimeSheetLine: Record "Time Sheet Line"; NewStatus: Option)
+    local procedure UpdateTimeSheetLineStatus(var TimeSheetLine: Record "Time Sheet Line"; NewStatus: Enum "Time Sheet Status")
     begin
         TimeSheetLine.Status := NewStatus;
         TimeSheetLine.Modify();

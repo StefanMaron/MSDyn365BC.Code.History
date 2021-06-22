@@ -132,7 +132,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
         end;
     end;
 
-    local procedure GetAttachedDocumentType(): Integer
+    local procedure GetAttachedDocumentType(): Enum "Gen. Journal Document Type"
     var
         DataExch: Record "Data Exch.";
         IntermediateDataImport: Record "Intermediate Data Import";
@@ -140,7 +140,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
         GenJournalLine: Record "Gen. Journal Line";
         PreMapIncomingPurchDoc: Codeunit "Pre-map Incoming Purch. Doc";
         Value: Text;
-        DocumentType: Integer;
+        DocumentType: Enum "Purchase Document Type";
     begin
         DataExch.SetRange("Incoming Entry No.", IncomingDocument."Entry No.");
         if not DataExch.FindLast then
@@ -159,7 +159,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
                 ErrorMessage.LogMessage(GenJournalLine, GenJournalLine.FieldNo("Document Type"),
                   ErrorMessage."Message Type"::Error, PreMapIncomingPurchDoc.ConstructDocumenttypeUnknownErr);
         end;
-        exit(0);
+        exit("Gen. Journal Document Type"::" ");
     end;
 
     local procedure UseDefaultGLAccount(var GenJournalLine: Record "Gen. Journal Line"; FieldName: Text; VendorName: Text)

@@ -98,6 +98,19 @@ codeunit 7200 "CDS Integration Mgt."
     end;
 
     [Scope('Cloud')]
+    procedure HasCompanyIdField(TableId: Integer): Boolean
+    begin
+        exit(CDSIntegrationImpl.HasCompanyIdField(TableId));
+    end;
+
+    [Scope('Cloud')]
+    procedure ResetCompanyId(var RecRef: RecordRef): Boolean
+    var
+    begin
+        exit(CDSIntegrationImpl.ResetCompanyId(RecRef));
+    end;
+
+    [Scope('Cloud')]
     procedure SetCompanyId(var RecRef: RecordRef): Boolean
     var
     begin
@@ -135,6 +148,12 @@ codeunit 7200 "CDS Integration Mgt."
     procedure GetCoupledBusinessUnitId(): Guid
     begin
         exit(CDSIntegrationImpl.GetCoupledBusinessUnitId());
+    end;
+
+    [Scope('Cloud')]
+    procedure IsTeamOwnershipModelSelected(): Boolean
+    begin
+        exit(CDSIntegrationImpl.IsTeamOwnershipModelSelected());
     end;
 
     [Scope('Cloud')]
@@ -206,6 +225,18 @@ codeunit 7200 "CDS Integration Mgt."
     [Scope('Cloud')]
     [IntegrationEvent(false, false)]
     procedure OnGetIntegrationSolutions(var SolutionUniqueNameList: List of [Text])
+    begin
+    end;
+
+    [Scope('Cloud')]
+    [IntegrationEvent(false, false)]
+    procedure OnGetDetailedLoggingEnabled(var Enabled: Boolean)
+    begin
+    end;
+
+    [Scope('Cloud')]
+    [IntegrationEvent(false, false)]
+    procedure OnHasCompanyIdField(TableId: Integer; var HasField: Boolean)
     begin
     end;
 }

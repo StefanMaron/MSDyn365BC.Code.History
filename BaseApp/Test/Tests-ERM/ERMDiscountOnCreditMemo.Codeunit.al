@@ -479,7 +479,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     end;
 
     [Normal]
-    local procedure ApplySalesDocuments(Amount: Decimal; AmounttoApply: Decimal; DocumentType: Option; DocumentType2: Option; CurrencyCode: Code[10]; CurrencyCode2: Code[10]; PaymentAmont: Decimal; PaymentAmont2: Decimal; SignFactor: Integer)
+    local procedure ApplySalesDocuments(Amount: Decimal; AmounttoApply: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; CurrencyCode: Code[10]; CurrencyCode2: Code[10]; PaymentAmont: Decimal; PaymentAmont2: Decimal; SignFactor: Integer)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -603,7 +603,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -660,7 +660,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         SalesHeader.Modify(true);
     end;
 
-    local procedure UpdateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; AppliestoDocType: Option; PostingDate: Date)
+    local procedure UpdateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; AppliestoDocType: Enum "Gen. Journal Document Type"; PostingDate: Date)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

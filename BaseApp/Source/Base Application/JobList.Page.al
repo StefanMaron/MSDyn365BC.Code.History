@@ -255,6 +255,10 @@ page 89 "Job List"
             {
                 Caption = '&Prices';
                 Image = Price;
+                Visible = not ExtendedPriceEnabled;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
                 action("&Resource")
                 {
                     ApplicationArea = Jobs;
@@ -263,6 +267,9 @@ page 89 "Job List"
                     RunObject = Page "Job Resource Prices";
                     RunPageLink = "Job No." = FIELD("No.");
                     ToolTip = 'View this job''s resource prices.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("&Item")
                 {
@@ -272,6 +279,9 @@ page 89 "Job List"
                     RunObject = Page "Job Item Prices";
                     RunPageLink = "Job No." = FIELD("No.");
                     ToolTip = 'View this job''s item prices.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("&G/L Account")
                 {
@@ -281,6 +291,91 @@ page 89 "Job List"
                     RunObject = Page "Job G/L Account Prices";
                     RunPageLink = "Job No." = FIELD("No.");
                     ToolTip = 'View this job''s G/L account prices.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+            }
+            group(Prices)
+            {
+                Caption = '&Prices';
+                Image = Price;
+                Visible = ExtendedPriceEnabled;
+                action(SalesPriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Price Lists (Prices)';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Price);
+                    end;
+                }
+                action(SalesPriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Discount);
+                    end;
+                }
+                action(PurchasePriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Price Lists (Prices)';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or set up different prices for products that you buy from the vendor. An product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Purchase, AmountType::Price);
+                    end;
+                }
+                action(PurchasePriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or set up different discounts for products that you buy from the vendor. An product discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Purchase, AmountType::Discount);
+                    end;
                 }
             }
             group("Plan&ning")
@@ -559,5 +654,15 @@ page 89 "Job List"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
+
+    var
+        ExtendedPriceEnabled: Boolean;
 }
 

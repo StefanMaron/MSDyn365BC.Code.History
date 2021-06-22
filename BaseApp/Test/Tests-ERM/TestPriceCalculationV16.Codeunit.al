@@ -39,7 +39,6 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesLinePrice: Codeunit "Sales Line - Price";
-        PriceType: Enum "Price Type";
     begin
         // [FEATURE] [Sales] [Campaign] [UT]
         Initialize();
@@ -59,7 +58,7 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLine.Modify(true);
 
         // [WHEN] SetLine()
-        SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, SalesLine);
+        SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
 
         // [THEN] List of sources contains one Campaign 'HdrCmp'
         VerifyCampaignSource(SalesLinePrice, Campaign[1]."No.", 1);
@@ -75,7 +74,6 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesLinePrice: Codeunit "Sales Line - Price";
-        PriceType: Enum "Price Type";
     begin
         // [FEATURE] [Sales] [Campaign] [UT]
         Initialize();
@@ -93,7 +91,7 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLine.Modify(true);
 
         // [WHEN] SetLine()
-        SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, SalesLine);
+        SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
 
         // [THEN] List of sources contains one Campaign 'CustCmp'
         VerifyCampaignSource(SalesLinePrice, Campaign[2]."No.", 2);
@@ -110,7 +108,6 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesLinePrice: Codeunit "Sales Line - Price";
-        PriceType: Enum "Price Type";
     begin
         // [FEATURE] [Sales] [Campaign] [UT]
         Initialize();
@@ -128,7 +125,7 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLine.Modify(true);
 
         // [WHEN] SetLine()
-        SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, SalesLine);
+        SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
 
         // [THEN] List of sources contains one Campaign 'ContCmp'
         VerifyCampaignSource(SalesLinePrice, Campaign[4]."No.", 2);
@@ -191,7 +188,6 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculation: interface "Price Calculation";
         LineWithPrice: Interface "Line With Price";
-        PriceCalculationHandler: Enum "Price Calculation Handler";
         ExpectedDiscount: Decimal;
         Line: Variant;
     begin
@@ -220,7 +216,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, PriceCalculationSetup.Method::"Lowest Price",
             PriceCalculationSetup.Type::Sale, PriceCalculationSetup."Asset Type"::" ",
-            Codeunit::"Price Calculation - V15", true);
+            "Price Calculation Handler"::"Business Central (Version 15.0)", true);
 
         LineWithPrice := SalesLinePrice;
         LineWithPrice.SetLine(PriceCalculationSetup.Type::Sale, SalesHeader, SalesLine);
@@ -249,7 +245,6 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculation: interface "Price Calculation";
         LineWithPrice: Interface "Line With Price";
-        PriceCalculationHandler: Enum "Price Calculation Handler";
         ExpectedDiscount: Decimal;
         Line: Variant;
     begin
@@ -279,7 +274,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryPriceCalculation.AddSetup(
             PriceCalculationSetup, PriceCalculationSetup.Method::"Lowest Price",
             PriceCalculationSetup.Type::Sale, PriceCalculationSetup."Asset Type"::" ",
-            Codeunit::"Price Calculation - V16", true);
+            "Price Calculation Handler"::"Business Central (Version 16.0)", true);
 
         LineWithPrice := SalesLinePrice;
         LineWithPrice.SetLine(PriceCalculationSetup.Type::Sale, SalesHeader, SalesLine);
@@ -302,19 +297,22 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         PriceCalculationV16: Codeunit "Price Calculation - V16";
         PriceSourceList: codeunit "Price Source List";
-        AmountType: Enum "Price Amount Type";
     begin
         // [FEATURE] [UT]
         // [GIVEN] Buffer where Quantity = 1, "Currency Code" = <blank>
-        MockBuffer('', 1, PriceCalculationBufferMgt);
+        MockBuffer("Price Type"::Sale, '', 1, PriceCalculationBufferMgt);
         // [GIVEN] Price line #1, where "Currency Code" is blank, "Unit Price" is 10
-        AddPriceLine(TempPriceListLine, '', '', 10);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 10);
         // [GIVEN] Price line #2, where "Currency Code" is blank, "Unit Price" is 15 (is worse that the first price line)
-        AddPriceLine(TempPriceListLine, '', '', 15);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 15);
+        // [GIVEN] 'Draft' Price line #3, where "Currency Code" is blank, "Unit Price" is 9 (best of 3)
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 9);
+        TempPriceListLine.Status := TempPriceListLine.Status::Draft;
+        TempPriceListLine.Modify();
 
         // [WHEN] CalcBestAmount()
         TempPriceListLine.FindFirst();
-        PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
+        PriceCalculationV16.CalcBestAmount("Price Amount Type"::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #1 is picked
         TempPriceListLine.TestField("Line No.", 10000);
     end;
@@ -327,19 +325,22 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         PriceCalculationV16: Codeunit "Price Calculation - V16";
         PriceSourceList: codeunit "Price Source List";
-        AmountType: Enum "Price Amount Type";
     begin
         // [FEATURE] [UT]
         // [GIVEN] Buffer where Quantity = 1, "Currency Code" = <blank>
-        MockBuffer('', 1, PriceCalculationBufferMgt);
+        MockBuffer("Price Type"::Sale, '', 1, PriceCalculationBufferMgt);
         // [GIVEN] Price line #1, where "Currency Code" is blank, "Unit Price" is 15 (is worse that the second price line)
-        AddPriceLine(TempPriceListLine, '', '', 15);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 15);
         // [GIVEN] Price line #2, where "Currency Code" is blank, "Unit Price" is 10
-        AddPriceLine(TempPriceListLine, '', '', 10);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 10);
+        // [GIVEN] 'Inactive' Price line #3, where "Currency Code" is blank, "Unit Price" is 9 (best of 3)
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 9);
+        TempPriceListLine.Status := TempPriceListLine.Status::Inactive;
+        TempPriceListLine.Modify();
 
         // [WHEN] CalcBestAmount()
         TempPriceListLine.FindFirst();
-        PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
+        PriceCalculationV16.CalcBestAmount("Price Amount Type"::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #2 is picked
         TempPriceListLine.TestField("Line No.", 20000);
     end;
@@ -350,7 +351,6 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine: Record "Price List Line" temporary;
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         PriceCalculationV16: Codeunit "Price Calculation - V16";
-        AmountType: Enum "Price Amount Type";
         CurrencyCode: Code[10];
         CurrencyFactor: Decimal;
     begin
@@ -359,15 +359,15 @@ codeunit 134159 "Test Price Calculation - V16"
         CurrencyFactor := 1.3;
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), CurrencyFactor, CurrencyFactor);
         // [GIVEN] Buffer line, where Quantity = 1, "Currency Code" = 'X'
-        MockBuffer(CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
+        MockBuffer("Price Type"::Sale, CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
         // [GIVEN] Price line #1, where "Currency Code" is blank, "Unit Price" is 10
-        AddPriceLine(TempPriceListLine, '', '', 10);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 10);
         // [GIVEN] Price line #2, where "Currency Code" is 'X', "Unit Price" is 15 (is worse that the first price line)
-        AddPriceLine(TempPriceListLine, CurrencyCode, '', 15);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, CurrencyCode, '', 15);
 
         // [WHEN] CalcBestAmount()
         TempPriceListLine.FindFirst();
-        PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
+        PriceCalculationV16.CalcBestAmount("Price Amount Type"::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #2 is picked
         TempPriceListLine.TestField("Line No.", 20000);
     end;
@@ -378,7 +378,6 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine: Record "Price List Line" temporary;
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         PriceCalculationV16: Codeunit "Price Calculation - V16";
-        AmountType: Enum "Price Amount Type";
         CurrencyCode: Code[10];
         CurrencyFactor: Decimal;
     begin
@@ -387,17 +386,17 @@ codeunit 134159 "Test Price Calculation - V16"
         CurrencyFactor := 1.3;
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), CurrencyFactor, CurrencyFactor);
         // [GIVEN] Buffer line, where Quantity = 1, "Currency Code" = 'X'
-        MockBuffer(CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
+        MockBuffer("Price Type"::Sale, CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
         // [GIVEN] Price line #1, where "Currency Code" is blank, "Unit Price" is 10
-        AddPriceLine(TempPriceListLine, '', '', 10);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 10);
         // [GIVEN] Price line #2, where "Currency Code" is 'X', "Unit Price" is 15 (is worse that the first price line)
-        AddPriceLine(TempPriceListLine, CurrencyCode, '', 15);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, CurrencyCode, '', 15);
         // [GIVEN] Price line #2, where "Currency Code" is 'X', "Unit Price" is 16 (is worse that the second price line)
-        AddPriceLine(TempPriceListLine, CurrencyCode, '', 16);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, CurrencyCode, '', 16);
 
         // [WHEN] CalcBestAmount()
         TempPriceListLine.FindFirst();
-        PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
+        PriceCalculationV16.CalcBestAmount("Price Amount Type"::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #2 is picked
         TempPriceListLine.TestField("Line No.", 20000);
     end;
@@ -408,7 +407,6 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine: Record "Price List Line" temporary;
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         PriceCalculationV16: Codeunit "Price Calculation - V16";
-        AmountType: Enum "Price Amount Type";
         CurrencyCode: Code[10];
         CurrencyFactor: Decimal;
         VariantCode: Code[10];
@@ -420,17 +418,17 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Variant code 'A'
         VariantCode := 'A';
         // [GIVEN] Buffer line, where Quantity = 1, "Currency Code" = 'X'
-        MockBuffer(CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
+        MockBuffer("Price Type"::Sale, CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
         // [GIVEN] Price line #1, where "Currency Code" is blank, "Variant Code" is blank, "Unit Price" is 10
-        AddPriceLine(TempPriceListLine, '', '', 10);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 10);
         // [GIVEN] Price line #2, where "Currency Code" is 'X', "Variant Code" is blank,"Unit Price" is 15 (is worse that the first price line)
-        AddPriceLine(TempPriceListLine, CurrencyCode, '', 15);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, CurrencyCode, '', 15);
         // [GIVEN] Price line #3, where "Currency Code" is blank, "Variant Code" is 'A', "Unit Price" is 16 (is worse that the second price line)
-        AddPriceLine(TempPriceListLine, '', VariantCode, 16);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', VariantCode, 16);
 
         // [WHEN] CalcBestAmount()
         TempPriceListLine.FindFirst();
-        PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
+        PriceCalculationV16.CalcBestAmount("Price Amount Type"::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #2 is picked
         TempPriceListLine.TestField("Line No.", 20000);
     end;
@@ -441,7 +439,6 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine: Record "Price List Line" temporary;
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         PriceCalculationV16: Codeunit "Price Calculation - V16";
-        AmountType: Enum "Price Amount Type";
         CurrencyCode: Code[10];
         CurrencyFactor: Decimal;
         VariantCode: Code[10];
@@ -453,17 +450,17 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Variant code 'A'
         VariantCode := 'A';
         // [GIVEN] Buffer line, where Quantity = 1, "Currency Code" = 'X'
-        MockBuffer(CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
+        MockBuffer("Price Type"::Sale, CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
         // [GIVEN] Price line #1, where "Currency Code" is blank, "Variant Code" is blank, "Unit Price" is 10
-        AddPriceLine(TempPriceListLine, '', '', 10);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 10);
         // [GIVEN] Price line #2, where "Currency Code" is 'X', "Variant Code" is blank,"Unit Price" is 15 (is worse that the first price line)
-        AddPriceLine(TempPriceListLine, CurrencyCode, '', 15);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, CurrencyCode, '', 15);
         // [GIVEN] Price line #3, where "Currency Code" is blank, "Variant Code" is 'A', "Unit Price" is 11 (is better that the second price line)
-        AddPriceLine(TempPriceListLine, '', VariantCode, 11);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', VariantCode, 11);
 
         // [WHEN] CalcBestAmount()
         TempPriceListLine.FindFirst();
-        PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
+        PriceCalculationV16.CalcBestAmount("Price Amount Type"::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #3 is picked
         TempPriceListLine.TestField("Line No.", 30000);
     end;
@@ -474,7 +471,6 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine: Record "Price List Line" temporary;
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         PriceCalculationV16: Codeunit "Price Calculation - V16";
-        AmountType: Enum "Price Amount Type";
         CurrencyCode: Code[10];
         CurrencyFactor: Decimal;
         VariantCode: Code[10];
@@ -486,19 +482,19 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Variant code 'A'
         VariantCode := 'A';
         // [GIVEN] Buffer line, where Quantity = 1, "Currency Code" = 'X'
-        MockBuffer(CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
+        MockBuffer("Price Type"::Sale, CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
         // [GIVEN] Price line #1, where "Currency Code" is blank, "Variant Code" is blank, "Unit Price" is 10
-        AddPriceLine(TempPriceListLine, '', '', 10);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 10);
         // [GIVEN] Price line #2, where "Currency Code" is 'X', "Variant Code" is blank,"Unit Price" is 15 (is worse that the first price line)
-        AddPriceLine(TempPriceListLine, CurrencyCode, '', 15);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, CurrencyCode, '', 15);
         // [GIVEN] Price line #3, where "Currency Code" is blank, "Variant Code" is 'A', "Unit Price" is 14 (is better that the second price line)
-        AddPriceLine(TempPriceListLine, '', VariantCode, 14);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', VariantCode, 14);
         // [GIVEN] Price line #4, where "Currency Code" is 'X', "Variant Code" is 'A', "Unit Price" is 20 (is worse of all price lines)
-        AddPriceLine(TempPriceListLine, CurrencyCode, VariantCode, 20);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, CurrencyCode, VariantCode, 20);
 
         // [WHEN] CalcBestAmount()
         TempPriceListLine.FindFirst();
-        PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
+        PriceCalculationV16.CalcBestAmount("Price Amount Type"::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #4 is picked
         TempPriceListLine.TestField("Line No.", 40000);
     end;
@@ -509,7 +505,6 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine: Record "Price List Line" temporary;
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         PriceCalculationV16: Codeunit "Price Calculation - V16";
-        AmountType: Enum "Price Amount Type";
         CurrencyCode: Code[10];
         CurrencyFactor: Decimal;
         VariantCode: Code[10];
@@ -521,21 +516,21 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Variant code 'A'
         VariantCode := 'A';
         // [GIVEN] Buffer line, where Quantity = 1, "Currency Code" = 'X'
-        MockBuffer(CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
+        MockBuffer("Price Type"::Sale, CurrencyCode, CurrencyFactor, PriceCalculationBufferMgt);
         // [GIVEN] Price line #1, where "Currency Code" is 'X', "Variant Code" is 'A', "Unit Price" is 10
-        AddPriceLine(TempPriceListLine, CurrencyCode, VariantCode, 10);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, CurrencyCode, VariantCode, 10);
         // [GIVEN] Price line #2, where "Currency Code" is 'X', "Variant Code" is blank,"Unit Price" is 15 (is worse that the first price line)
-        AddPriceLine(TempPriceListLine, CurrencyCode, '', 15);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, CurrencyCode, '', 15);
         // [GIVEN] Price line #3, where "Currency Code" is blank, "Variant Code" is 'A', "Unit Price" is 14 (is better that the second price line)
-        AddPriceLine(TempPriceListLine, '', VariantCode, 14);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', VariantCode, 14);
         // [GIVEN] Price line #4, where "Currency Code" is 'X', "Variant Code" is 'A', "Unit Price" is 20 (is worse of all price lines)
-        AddPriceLine(TempPriceListLine, CurrencyCode, VariantCode, 20);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, CurrencyCode, VariantCode, 20);
         // [GIVEN] Price line #5, where "Currency Code" is blank, "Variant Code" is blank, "Unit Price" is 7 (the best)
-        AddPriceLine(TempPriceListLine, '', '', 7);
+        AddPriceLine(TempPriceListLine, "Price Type"::Sale, '', '', 7);
 
         // [WHEN] CalcBestAmount()
         TempPriceListLine.FindFirst();
-        PriceCalculationV16.CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
+        PriceCalculationV16.CalcBestAmount("Price Amount Type"::Price, PriceCalculationBufferMgt, TempPriceListLine);
         // [THEN] Price line #1 is picked
         TempPriceListLine.TestField("Line No.", 10000);
     end;
@@ -553,7 +548,6 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         PriceCalculation: interface "Price Calculation";
-        PriceType: Enum "Price Type";
         ExpectedDiscount: Decimal;
         Header: Variant;
         Line: Variant;
@@ -564,8 +558,8 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", Codeunit::"Price Calculation - V16", false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         // [GIVEN] Two "Sales Line discount" records for Item 'X': 15% and 14.99%
         SalesLineDiscount.DeleteAll();
@@ -588,7 +582,7 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLine.Modify(true);
 
         // [WHEN] ApplyDiscount() for the sales line
-        SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, SalesLine);
+        SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
         PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
         PriceCalculation.ApplyDiscount();
         PriceCalculation.GetLine(Line);
@@ -611,8 +605,6 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         PriceCalculation: interface "Price Calculation";
-        PriceType: Enum "Price Type";
-        AmountType: enum "Price Amount Type";
         ExpectedPrice: Decimal;
     begin
         // [FEATURE] [Sales] [Price]
@@ -621,8 +613,8 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", Codeunit::"Price Calculation - V16", false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
 
         // [GIVEN] Item 'X', where "Unit Price" is 100
@@ -634,10 +626,10 @@ codeunit 134159 "Test Price Calculation - V16"
         LibrarySales.CreateCustomer(Customer);
         SalesPrice.DeleteAll();
         LibrarySales.CreateSalesPrice(
-            SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Customer."No.",
+            SalesPrice, Item."No.", "Sales Price Type"::Customer, Customer."No.",
             WorkDate, '', '', Item."Base Unit of Measure", 0, ExpectedPrice);
         LibrarySales.CreateSalesPrice(
-            SalesPrice, Item."No.", SalesPrice."Sales Type"::"All Customers", '',
+            SalesPrice, Item."No.", "Sales Price Type"::"All Customers", '',
             WorkDate, '', '', Item."Base Unit of Measure", 0, ExpectedPrice + 0.01);
         //if TestPriceCalculationSwitch.IsNativeDisabled() then
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
@@ -652,13 +644,45 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLine.Modify(true);
 
         // [WHEN] ApplyPrice for the sales line
-        SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, SalesLine);
+        SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
         PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
         SalesLine.ApplyPrice(SalesLine.FieldNo(Quantity), PriceCalculation);
 
         // [THEN] Line, where "Unit Price" is 99.98, "Price Calculation Method" is 'Lowest Price'
         SalesLine.TestField("Unit Price", ExpectedPrice);
         // SalesLine.TestField("Price Calculation Method", SalesLine."Price Calculation Method"::"Lowest Price");
+    end;
+
+    [Test]
+    procedure T112_ApplyPriceFromItemCardSalesLine()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Price]
+        // [SCENARIO] ApplyPrice() updates 'Unit Price' in sales line with Item's "Unit Price" if no prices set.
+        Initialize();
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Item 'X', where "Unit Price" is 100 and there is no sales prices for Item 'X'
+        LibraryInventory.CreateItem(Item);
+        Item."Unit Price" := LibraryRandom.RandDec(1000, 2);
+        Item.Modify();
+        // [GIVEN] Invoice, where "Price Calculation Method" is not defined 
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        // [GIVEN] with one line, where "Type" is 'Item'
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        SalesLine.Validate(Type, SalesLine.Type::Item);
+
+        // [WHEN] Set "No." as 'X' in the sales line
+        SalesLine.Validate("No.", Item."No.");
+
+        // [THEN] Line, where "Unit Price" is 100, "Price Calculation Method" is 'Lowest Price'
+        SalesLine.TestField("Unit Price", Item."Unit Price");
+        //SalesLine.TestField("Price Calculation Method", SalesLine."Price Calculation Method"::"Lowest Price");
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
     end;
 
     [Test]
@@ -671,7 +695,6 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceCalculationMgt: codeunit "Price Calculation Mgt.";
         PriceCalculation: interface "Price Calculation";
         Line: Variant;
-        PriceType: Enum "Price Type";
         ExpectedDiscount: Decimal;
     begin
         // [FEATURE] [Service] [Discount]
@@ -680,14 +703,14 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", Codeunit::"Price Calculation - V16", false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         ExpectedDiscount := LibraryRandom.RandInt(100);
         /*
         ServiceLine."Price Calculation Method" := ServiceLine."Price Calculation Method"::" ";
 
-        ServiceLinePrice.SetLine(PriceType::Sale, ServiceHeader, ServiceLine);
+        ServiceLinePrice.SetLine("Price Type"::Sale, ServiceHeader, ServiceLine);
         PriceCalculationMgt.GetHandler(ServiceLinePrice, PriceCalculation);
         PriceCalculation.ApplyDiscount();
         PriceCalculation.GetLine(Line);
@@ -699,6 +722,35 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
+    procedure T122_ApplyPriceFromItemCardServiceLine()
+    var
+        Item: Record Item;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Service] [Price]
+        // [SCENARIO] ApplyPrice() updates 'Unit Price' in sales line with Item's "Unit Price" if no prices set.
+        Initialize();
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Item 'X', where "Unit Price" is 100 and there is no sales prices for Item 'X'
+        LibraryInventory.CreateItem(Item);
+        Item."Unit Price" := LibraryRandom.RandDec(1000, 2);
+        Item.Modify();
+        // [GIVEN] Order, where "Price Calculation Method" is not defined 
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        // [GIVEN] with one line, where "Type" is 'Item'
+        // [WHEN] Set "No." as 'X' in the sales line
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+
+        // [THEN] Line, where "Unit Price" is 100, "Price Calculation Method" is 'Lowest Price'
+        ServiceLine.TestField("Unit Price", Item."Unit Price");
+        //SalesLine.TestField("Price Calculation Method", SalesLine."Price Calculation Method"::"Lowest Price");
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
     procedure T130_ApplyDiscountPurchLine()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -707,7 +759,6 @@ codeunit 134159 "Test Price Calculation - V16"
         PurchaseLinePrice: Codeunit "Purchase Line - Price";
         PriceCalculationMgt: codeunit "Price Calculation Mgt.";
         PriceCalculation: interface "Price Calculation";
-        PriceType: Enum "Price Type";
         Line: Variant;
         ExpectedDiscount: Decimal;
     begin
@@ -717,12 +768,12 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", Codeunit::"Price Calculation - V16", false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         ExpectedDiscount := LibraryRandom.RandInt(100);
         /*
-        PurchaseLinePrice.SetLine(PriceType::Purchase, PurchaseHeader, PurchaseLine);
+        PurchaseLinePrice.SetLine("Price Type"::Purchase, PurchaseHeader, PurchaseLine);
         PriceCalculationMgt.GetHandler(PurchaseLinePrice, PriceCalculation);
         PriceCalculation.ApplyDiscount();
         PriceCalculation.GetLine(Line);
@@ -734,6 +785,37 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
+    procedure T132_ApplyPriceFromItemCardPurchaseLine()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Purchase] [Price]
+        // [SCENARIO] ApplyPrice() updates 'Direct Unit Cost' in sales line with Item's "Last Direct Cost" if no prices set.
+        Initialize();
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Item 'X', where "Last Direct Cost" is 100 and there is no sales prices for Item 'X'
+        LibraryInventory.CreateItem(Item);
+        Item."Last Direct Cost" := LibraryRandom.RandDec(1000, 2);
+        Item.Modify();
+        // [GIVEN] Invoice, where "Price Calculation Method" is not defined 
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        // [GIVEN] with one line, where "Type" is 'Item'
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
+        // [WHEN] Set "No." as 'X' in the sales line
+        PurchaseLine.Validate("No.", Item."No.");
+
+        // [THEN] Line, where "Direct Unit Cost" is 100, "Price Calculation Method" is 'Lowest Price'
+        PurchaseLine.TestField("Direct Unit Cost", Item."Last Direct Cost");
+        //SalesLine.TestField("Price Calculation Method", SalesLine."Price Calculation Method"::"Lowest Price");
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
     procedure T140_ApplyDiscountRequisitionLine()
     var
         RequisitionLine: Record "Requisition Line";
@@ -741,7 +823,6 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceCalculationMgt: codeunit "Price Calculation Mgt.";
         RequisitionLinePrice: Codeunit "Requisition Line - Price";
         PriceCalculation: interface "Price Calculation";
-        PriceType: Enum "Price Type";
         Line: Variant;
         ExpectedDiscount: Decimal;
     begin
@@ -750,12 +831,12 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", Codeunit::"Price Calculation - V15", true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", Codeunit::"Price Calculation - V16", false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         end;
         ExpectedDiscount := LibraryRandom.RandInt(100);
         /*
-        RequisitionLinePrice.SetLine(PriceType::Purchase, RequisitionLine);
+        RequisitionLinePrice.SetLine("Price Type"::Purchase, RequisitionLine);
         PriceCalculationMgt.GetHandler(RequisitionLinePrice, PriceCalculation);
         PriceCalculation.ApplyDiscount();
         PriceCalculation.GetLine(Line);
@@ -781,7 +862,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] "Line Discount %" is 0 in sales line if Customer does not allow discount and no price line that allow it.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C', where "Allow Line Disc." is No
         CreateCustomerAllowingLineDisc(Customer, false);
         // [GIVEN] Item 'I'
@@ -817,7 +898,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] "Line Discount %" is set in sales line if Customer allows discount, but no price line that allow it.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C', where "Allow Line Disc." is Yes
         CreateCustomerAllowingLineDisc(Customer, true);
         // [GIVEN] Item 'I'
@@ -854,7 +935,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] "Line Discount %" is 0 in sales line if Customer does not allow discount and found price line does not allow it.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C', where "Allow Line Disc." is No
         CreateCustomerAllowingLineDisc(Customer, false);
         // [GIVEN] Item 'I'
@@ -891,7 +972,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] "Line Discount %" is 0 in sales line if Customer allows discount, but the found price line does not allow it.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C', where "Allow Line Disc." is Yes
         CreateCustomerAllowingLineDisc(Customer, true);
         // [GIVEN] Item 'I'
@@ -928,7 +1009,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] "Line Discount %" is set in sales line if Customer does not allow discount, but the found price line allows it.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C', where "Allow Line Disc." is No
         CreateCustomerAllowingLineDisc(Customer, false);
         // [GIVEN] Item 'I'
@@ -966,7 +1047,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] "Line Discount %" is set in sales line if Customer does allow discount and the found price line allows it.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C', where "Allow Line Disc." is Yes
         CreateCustomerAllowingLineDisc(Customer, true);
         // [GIVEN] Item 'I'
@@ -1004,7 +1085,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] Cannot pick Discount for the sales line if Customer allows discount and no price line that allow it.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C', where "Allow Line Disc." is Yes
         CreateCustomerAllowingLineDisc(Customer, true);
         // [GIVEN] Item 'I'
@@ -1043,7 +1124,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] Cannot pick price line for the sales line if minimal quantity in the price line below the quantity in the sales line.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C', where "Allow Line Disc." is No
         CreateCustomerAllowingLineDisc(Customer, false);
         // [GIVEN] Item 'I'
@@ -1082,7 +1163,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] Picked price line with not allowed discount makes previously calculated discount zero.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C', where "Allow Line Disc." is Yes
         CreateCustomerAllowingLineDisc(Customer, true);
         // [GIVEN] Item 'I'
@@ -1120,7 +1201,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] Cannot pick Discount for the sales line if Customer does not allow discount and no price line that allow it.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C', where "Allow Line Disc." is No
         CreateCustomerAllowingLineDisc(Customer, false);
         // [GIVEN] Item 'I'
@@ -1163,7 +1244,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] While picking prices "Get Price Lines" page shows lines with "Amount Type" 'Any'
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C', where "Allow Line Disc." is No
         CreateCustomerAllowingLineDisc(Customer, false);
         // [GIVEN] Item 'I'
@@ -1172,7 +1253,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] One price list line for Item 'I', where Amount Type is 'Price', "Unit Price" is 'P1'
         RemovePricesForItem(Item);
         LibraryPriceCalculation.CreatePriceHeader(
-            PriceListHeader[1], PriceListHeader[1]."Source Type"::Customer, Customer."No.");
+            PriceListHeader[1], PriceListHeader[1]."Price Type"::Sale, PriceListHeader[1]."Source Type"::Customer, Customer."No.");
         PriceListLine."Price List Code" := PriceListHeader[1].Code;
         CreatePriceLine(PriceListLine, Customer, Item, false);
         ExpectedUnitPrice[1] := PriceListLine."Unit Price";
@@ -1192,7 +1273,7 @@ codeunit 134159 "Test Price Calculation - V16"
 
         // [GIVEN] Added price list line for Item 'I', where Amount Type is 'Any', "Unit Price" is 'P2', "Line Discount %" is 'D2'
         LibraryPriceCalculation.CreatePriceHeader(
-            PriceListHeader[2], PriceListHeader[2]."Source Type"::Customer, Customer."No.");
+            PriceListHeader[2], PriceListHeader[2]."Price Type"::Sale, PriceListHeader[2]."Source Type"::Customer, Customer."No.");
         PriceListLine."Price List Code" := PriceListHeader[2].Code;
         CreatePriceLine(PriceListLine, Customer, Item, true);
         PriceListLine."Unit Price" := ExpectedUnitPrice[2];
@@ -1202,7 +1283,7 @@ codeunit 134159 "Test Price Calculation - V16"
 
         // [GIVEN] Added price list line for Item 'I', where Amount Type is 'Price', "Unit Price" is 'P3'
         LibraryPriceCalculation.CreatePriceHeader(
-            PriceListHeader[3], PriceListHeader[3]."Source Type"::Customer, Customer."No.");
+            PriceListHeader[3], PriceListHeader[3]."Price Type"::Sale, PriceListHeader[3]."Source Type"::Customer, Customer."No.");
         PriceListLine."Price List Code" := PriceListHeader[2].Code;
         CreatePriceLine(PriceListLine, Customer, Item, true);
         PriceListLine."Unit Price" := ExpectedUnitPrice[2] + 100.0;
@@ -1237,7 +1318,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] Activate campaign if price list lines for the campaign do exist.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Campaign 'C' 
         LibraryMarketing.CreateCampaign(Campaign);
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
@@ -1246,9 +1327,9 @@ codeunit 134159 "Test Price Calculation - V16"
         SegmentHeader.Validate("Campaign Target", true);
         SegmentHeader.Modify();
         // [GIVEN] Price List Line for Campaign 'C'
-        LibraryPriceCalculation.CreatePriceLine(
-            PriceListLine, PriceListLine."Source Type"::Campaign, Campaign."No.",
-            PriceListLine."Asset Type"::Item, LibraryInventory.CreateItemNo());
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::Campaign, Campaign."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
 
         // [WHEN] Activate Campaign 'C'
         CampaignTargetGroupMgt.ActivateCampaign(Campaign);
@@ -1282,7 +1363,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] Activate campaign is stopped if price list lines for the campaign do not exist.
         Initialize();
         // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Campaign 'C' 
         LibraryMarketing.CreateCampaign(Campaign);
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
@@ -1332,7 +1413,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         SalesHeaderArchive.DeleteAll();
         // [GIVEN] Default price calculation is 'V16'
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Customer 'C'
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Item 'I'
@@ -1378,7 +1459,7 @@ codeunit 134159 "Test Price Calculation - V16"
 
         // [WHEN] Copy archived order as new order
         LibrarySales.CreateSalesHeader(CopiedSalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        CopySalesDoc(SalesDocType::"Arch. Order", OrderNo, CopiedSalesHeader);
+        CopySalesDoc("Sales Document Type From"::"Arch. Order", OrderNo, CopiedSalesHeader);
         // [THEN] New Order, where Method is 'Test' in line, 'Lowest Price' in header 
         CopiedSalesHeader.Find();
         CopiedSalesHeader.TestField("Price Calculation Method", SalesHeader."Price Calculation Method");
@@ -1389,7 +1470,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LineNo := CopiedSalesLine."Line No.";
 
         // [WHEN] Copy line from invoice to order
-        CopySalesLinesToDoc(SalesDocType::"Posted Invoice", SalesInvoiceLine, CopiedSalesHeader);
+        CopySalesLinesToDoc("Sales Document Type From"::"Posted Invoice", SalesInvoiceLine, CopiedSalesHeader);
         // [THEN] New line, where Method is 'Test' in line
         CopiedSalesLine.SetFilter("Line No.", '>%1', LineNo);
         CopiedSalesLine.FindLast();
@@ -1397,7 +1478,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LineNo := CopiedSalesLine."Line No.";
 
         // [WHEN] Copy line from shipment to order
-        CopySalesLinesToDoc(SalesDocType::"Posted Shipment", SalesShipmentLine, CopiedSalesHeader);
+        CopySalesLinesToDoc("Sales Document Type From"::"Posted Shipment", SalesShipmentLine, CopiedSalesHeader);
         // [THEN] New line, where Method is 'Test' in line
         CopiedSalesLine.SetFilter("Line No.", '>%1', LineNo);
         CopiedSalesLine.FindLast();
@@ -1424,7 +1505,6 @@ codeunit 134159 "Test Price Calculation - V16"
         PurchaseHeaderArchive: Record "Purchase Header Archive";
         PurchaseLineArchive: Record "Purchase Line Archive";
         OldHandler: enum "Price Calculation Handler";
-        PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
         CrMemoDocNo: Code[20];
         OrderNo: Code[20];
         LineNo: Integer;
@@ -1434,7 +1514,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         PurchaseHeaderArchive.DeleteAll();
         // [GIVEN] Default price calculation is 'V16'
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Vendor 'V'
         LibraryPurchase.CreateVendor(Vendor);
         // [GIVEN] Item 'I'
@@ -1480,7 +1560,7 @@ codeunit 134159 "Test Price Calculation - V16"
 
         // [WHEN] Copy archived order as new order
         LibraryPurchase.CreatePurchHeader(CopiedPurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
-        CopyPurchaseDoc(PurchDocType::"Arch. Return Order", OrderNo, CopiedPurchaseHeader);
+        CopyPurchaseDoc("Purchase Document Type From"::"Arch. Return Order", OrderNo, CopiedPurchaseHeader);
         // [THEN] New Order, where Method is 'Test' in line, 'Lowest Price' in header 
         CopiedPurchaseHeader.Find();
         CopiedPurchaseHeader.TestField("Price Calculation Method", PurchaseHeader."Price Calculation Method");
@@ -1491,7 +1571,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LineNo := CopiedPurchaseLine."Line No.";
 
         // [WHEN] Copy line from credit memo to order
-        CopyPurchLinesToDoc(PurchDocType::"Posted Credit Memo", PurchCrMemoLine, CopiedPurchaseHeader);
+        CopyPurchLinesToDoc("Purchase Document Type From"::"Posted Credit Memo", PurchCrMemoLine, CopiedPurchaseHeader);
         // [THEN] New line, where Method is 'Test' in line
         CopiedPurchaseLine.SetFilter("Line No.", '>%1', LineNo);
         CopiedPurchaseLine.FindLast();
@@ -1499,7 +1579,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LineNo := CopiedPurchaseLine."Line No.";
 
         // [WHEN] Copy line from return shipment to order
-        CopyPurchLinesToDoc(PurchDocType::"Posted Return Shipment", ReturnShipmentLine, CopiedPurchaseHeader);
+        CopyPurchLinesToDoc("Purchase Document Type From"::"Posted Return Shipment", ReturnShipmentLine, CopiedPurchaseHeader);
         // [THEN] New line, where Method is 'Test' in line
         CopiedPurchaseLine.SetFilter("Line No.", '>%1', LineNo);
         CopiedPurchaseLine.FindLast();
@@ -1523,7 +1603,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] Price Calculation Method during posting is populated to posted Service Credit Memo documents.
         Initialize();
         // [GIVEN] Default price calculation is 'V16'
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Create Service Credit Memo - Service Header, one Service Line with Type as Resource, "Price Calculation Method" is 'Lowest Price'
         Initialize;
         LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
@@ -1561,7 +1641,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] Price Calculation Method during posting is populated to posted Service Invoice/Shipment documents.
         Initialize();
         // [GIVEN] Default price calculation is 'V16'
-        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         // [GIVEN] Create Service Credit Memo - Service Header, one Service Line with Type as Resource, "Price Calculation Method" is 'Lowest Price'
         Initialize;
         LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
@@ -1603,44 +1683,45 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Price Calculation - V16");
     end;
 
-    local procedure AddPriceLine(var TempPriceListLine: Record "Price List Line" temporary; CurrencyCode: code[10]; VarianCode: Code[10]; Price: Decimal)
+    local procedure AddPriceLine(var TempPriceListLine: Record "Price List Line" temporary; PriceType: Enum "Price Type"; CurrencyCode: code[10]; VarianCode: Code[10]; Price: Decimal)
     begin
         TempPriceListLine.Init();
         TempPriceListLine."Line No." += 10000;
+        TempPriceListLine."Price Type" := PriceType;
+        TempPriceListLine.Status := TempPriceListLine.Status::Active;
         TempPriceListLine."Currency Code" := CurrencyCode;
         TempPriceListLine."Variant Code" := VarianCode;
         TempPriceListLine."Unit Price" := Price;
         TempPriceListLine.Insert(true);
     end;
 
-    local procedure CopyPurchLinesToDoc(PurchDocType: Option; DocumentLine: Variant; var ToPurchaseHeader: Record "Purchase Header")
+    local procedure CopyPurchLinesToDoc(PurchDocType: Enum "Purchase Document Type From"; DocumentLine: Variant; var ToPurchaseHeader: Record "Purchase Header")
     var
         FromReturnShipmentLine: Record "Return Shipment Line";
         FromPurchInvLine: Record "Purch. Inv. Line";
         FromPurchCrMemoLine: Record "Purch. Cr. Memo Line";
         FromPurchRcptLine: Record "Purch. Rcpt. Line";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
         LinesNotCopied: Integer;
         MissingExCostRevLink: Boolean;
     begin
         case PurchDocType of
-            DocType::"Posted Invoice":
+            "Purchase Document Type From"::"Posted Invoice":
                 begin
                     FromPurchInvLine := DocumentLine;
                     FromPurchInvLine.SetRecFilter();
                 end;
-            DocType::"Posted Return Shipment":
+            "Purchase Document Type From"::"Posted Return Shipment":
                 begin
                     FromReturnShipmentLine := DocumentLine;
                     FromReturnShipmentLine.SetRecFilter();
                 end;
-            DocType::"Posted Credit Memo":
+            "Purchase Document Type From"::"Posted Credit Memo":
                 begin
                     FromPurchCrMemoLine := DocumentLine;
                     FromPurchCrMemoLine.SetRecFilter();
                 end;
-            DocType::"Posted Receipt":
+            "Purchase Document Type From"::"Posted Receipt":
                 begin
                     FromPurchRcptLine := DocumentLine;
                     FromPurchRcptLine.SetRecFilter();
@@ -1650,11 +1731,11 @@ codeunit 134159 "Test Price Calculation - V16"
         end;
         CopyDocMgt.SetProperties(false, false, false, false, true, true, true);
         CopyDocMgt.CopyPurchaseLinesToDoc(
-            PurchDocType, ToPurchaseHeader,
+            PurchDocType.AsInteger(), ToPurchaseHeader,
             FromPurchRcptLine, FromPurchInvLine, FromReturnShipmentLine, FromPurchCrMemoLine, LinesNotCopied, MissingExCostRevLink);
     end;
 
-    local procedure CopyPurchaseDoc(PurchDocType: Option; FromDocNo: Code[20]; var ToPurchaseHeader: Record "Purchase Header")
+    local procedure CopyPurchaseDoc(PurchDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20]; var ToPurchaseHeader: Record "Purchase Header")
     var
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
@@ -1663,34 +1744,33 @@ codeunit 134159 "Test Price Calculation - V16"
         CopyDocMgt.CopyPurchDoc(PurchDocType, FromDocNo, ToPurchaseHeader);
     end;
 
-    local procedure CopySalesLinesToDoc(SalesDocType: Option; DocumentLine: Variant; var ToSalesHeader: Record "Sales Header")
+    local procedure CopySalesLinesToDoc(SalesDocType: Enum "Sales Document Type From"; DocumentLine: Variant; var ToSalesHeader: Record "Sales Header")
     var
         FromSalesShptLine: Record "Sales Shipment Line";
         FromSalesInvLine: Record "Sales Invoice Line";
         FromSalesCrMemoLine: Record "Sales Cr.Memo Line";
         FromReturnRcptLine: Record "Return Receipt Line";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         LinesNotCopied: Integer;
         MissingExCostRevLink: Boolean;
     begin
         case SalesDocType of
-            DocType::"Posted Shipment":
+            "Sales Document Type From"::"Posted Shipment":
                 begin
                     FromSalesShptLine := DocumentLine;
                     FromSalesShptLine.SetRecFilter();
                 end;
-            DocType::"Posted Invoice":
+            "Sales Document Type From"::"Posted Invoice":
                 begin
                     FromSalesInvLine := DocumentLine;
                     FromSalesInvLine.SetRecFilter();
                 end;
-            DocType::"Posted Return Receipt":
+            "Sales Document Type From"::"Posted Return Receipt":
                 begin
                     FromReturnRcptLine := DocumentLine;
                     FromReturnRcptLine.SetRecFilter();
                 end;
-            DocType::"Posted Credit Memo":
+            "Sales Document Type From"::"Posted Credit Memo":
                 begin
                     FromSalesCrMemoLine := DocumentLine;
                     FromSalesCrMemoLine.SetRecFilter();
@@ -1700,11 +1780,11 @@ codeunit 134159 "Test Price Calculation - V16"
         end;
         CopyDocMgt.SetProperties(false, false, false, false, true, true, true);
         CopyDocMgt.CopySalesLinesToDoc(
-            SalesDocType, ToSalesHeader,
+            SalesDocType.AsInteger(), ToSalesHeader,
             FromSalesShptLine, FromSalesInvLine, FromReturnRcptLine, FromSalesCrMemoLine, LinesNotCopied, MissingExCostRevLink);
     end;
 
-    local procedure CopySalesDoc(SalesDocType: Option; FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header")
+    local procedure CopySalesDoc(SalesDocType: Enum "Sales Document Type From"; FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header")
     var
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
@@ -1746,23 +1826,30 @@ codeunit 134159 "Test Price Calculation - V16"
 
     local procedure CreateDiscountLine(var PriceListLine: Record "Price List Line"; Customer: Record Customer; Item: Record Item)
     begin
-        LibraryPriceCalculation.CreateDiscountLine(
-            PriceListLine, PriceListLine."Source Type"::Customer, Customer."No.", PriceListLine."Asset Type"::Item, Item."No.");
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine, PriceListLine."Price List Code",
+            "Price Source Type"::Customer, Customer."No.", "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
     end;
 
     local procedure CreatePriceLine(var PriceListLine: Record "Price List Line"; Customer: Record Customer; Item: Record Item; AllowLineDisc: Boolean)
     begin
-        LibraryPriceCalculation.CreatePriceLine(
-            PriceListLine, PriceListLine."Source Type"::Customer, Customer."No.", PriceListLine."Asset Type"::Item, Item."No.");
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListLine."Price List Code",
+            "Price Source Type"::Customer, Customer."No.", "Price Asset Type"::Item, Item."No.");
         PriceListLine."Allow Line Disc." := AllowLineDisc;
+        PriceListLine.Status := PriceListLine.Status::Active;
         PriceListLine.Modify();
     end;
 
     local procedure CreatePriceLine(var PriceListLine: Record "Price List Line"; Vendor: Record Vendor; Item: Record Item; AllowLineDisc: Boolean)
     begin
-        LibraryPriceCalculation.CreatePriceLine(
-            PriceListLine, PriceListLine."Source Type"::Vendor, Vendor."No.", PriceListLine."Asset Type"::Item, Item."No.");
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, PriceListLine."Price List Code",
+            "Price Source Type"::Vendor, Vendor."No.", "Price Asset Type"::Item, Item."No.");
         PriceListLine."Allow Line Disc." := AllowLineDisc;
+        PriceListLine.Status := PriceListLine.Status::Active;
         PriceListLine.Modify();
     end;
 
@@ -1831,12 +1918,13 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.DeleteAll();
     end;
 
-    local procedure MockBuffer(CurrencyCode: Code[10]; CurrencyFactor: Decimal; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.")
+    local procedure MockBuffer(PriceType: enum "Price Type"; CurrencyCode: Code[10]; CurrencyFactor: Decimal; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.")
     var
         PriceCalculationBuffer: Record "Price Calculation Buffer";
         DummyPriceSourceList: Codeunit "Price Source List";
     begin
         PriceCalculationBuffer.Init();
+        PriceCalculationBuffer."Price Type" := PriceType;
         PriceCalculationBuffer."Qty. per Unit of Measure" := 1;
         PriceCalculationBuffer.Quantity := 1;
         PriceCalculationBuffer."Currency Code" := CurrencyCode;

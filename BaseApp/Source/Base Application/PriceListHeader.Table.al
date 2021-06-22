@@ -18,20 +18,27 @@ table 7000 "Price List Header"
         field(2; Description; Text[250])
         {
             DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                TestStatusDraft();
+            end;
         }
         field(3; "Source Group"; Enum "Price Source Group")
         {
             DataClassification = CustomerContent;
-            Caption = 'Source Group';
+            Caption = 'Applies-to Group';
         }
         field(4; "Source Type"; Enum "Price Source Type")
         {
             DataClassification = CustomerContent;
-            Caption = 'Source Type';
+            Caption = 'Applies-to Type';
             trigger OnValidate()
             begin
                 if xRec."Source Type" = "Source Type" then
                     exit;
+
+                CheckIfLinesExist(FieldCaption("Source Type"));
                 xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Source Type", "Source Type");
                 CopyFrom(PriceSource);
@@ -40,11 +47,13 @@ table 7000 "Price List Header"
         field(5; "Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Source No.';
+            Caption = 'Applies-to No.';
             trigger OnValidate()
             begin
                 if xRec."Source No." = "Source No." then
                     exit;
+
+                CheckIfLinesExist(FieldCaption("Source No."));
                 xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Source No.", "Source No.");
                 CopyFrom(PriceSource);
@@ -53,18 +62,22 @@ table 7000 "Price List Header"
             trigger OnLookup()
             begin
                 CopyTo(PriceSource);
-                PriceSource.LookupNo();
-                CopyFrom(PriceSource);
+                if PriceSource.LookupNo() then begin
+                    CheckIfLinesExist(FieldCaption("Source No."));
+                    CopyFrom(PriceSource);
+                end;
             end;
         }
         field(6; "Parent Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Parent Source No.';
+            Caption = 'Applies-to Parent No.';
             trigger OnValidate()
             begin
                 if xRec."Parent Source No." = "Parent Source No." then
                     exit;
+
+                TestStatusDraft();
                 xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Parent Source No.", "Parent Source No.");
                 CopyFrom(PriceSource);
@@ -73,11 +86,13 @@ table 7000 "Price List Header"
         field(7; "Source ID"; Guid)
         {
             DataClassification = CustomerContent;
-            Caption = 'Source ID';
+            Caption = 'Applies-to ID';
             trigger OnValidate()
             begin
                 if xRec."Source ID" = "Source ID" then
                     exit;
+
+                TestStatusDraft();
                 xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Source ID", "Source ID");
                 CopyFrom(PriceSource);
@@ -91,14 +106,20 @@ table 7000 "Price List Header"
         field(9; "Amount Type"; Enum "Price Amount Type")
         {
             DataClassification = CustomerContent;
-            Caption = 'Amount Type';
+            Caption = 'Defines';
+            Editable = false;
         }
-
         field(10; "Currency Code"; Code[10])
         {
             DataClassification = CustomerContent;
             Caption = 'Currency Code';
             TableRelation = Currency;
+
+            trigger OnValidate()
+            begin
+                if "Currency Code" <> xRec."Currency Code" then
+                    CheckIfLinesExist(FieldCaption("Currency Code"));
+            end;
         }
         field(11; "Starting Date"; Date)
         {
@@ -106,9 +127,16 @@ table 7000 "Price List Header"
             Caption = 'Starting Date';
             trigger OnValidate()
             begin
+                if "Starting Date" = xRec."Starting Date" then
+                    exit;
+
+                TestStatusDraft();
                 xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Starting Date", "Starting Date");
                 CopyFrom(PriceSource);
+
+                if not UpdateLines(FieldNo("Starting Date"), FieldCaption("Starting Date")) then
+                    "Starting Date" := xRec."Starting Date";
             end;
         }
         field(12; "Ending Date"; Date)
@@ -117,33 +145,62 @@ table 7000 "Price List Header"
             Caption = 'Ending Date';
             trigger OnValidate()
             begin
+                if "Ending Date" = xRec."Ending Date" then
+                    exit;
+
+                TestStatusDraft();
                 xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Ending Date", "Ending Date");
                 CopyFrom(PriceSource);
+
+                if not UpdateLines(FieldNo("Ending Date"), FieldCaption("Ending Date")) then
+                    "Ending Date" := xRec."Ending Date";
             end;
         }
         field(13; "Price Includes VAT"; Boolean)
         {
             DataClassification = CustomerContent;
             Caption = 'Price Includes VAT';
+
+            trigger OnValidate()
+            begin
+                if "Price Includes VAT" <> xRec."Price Includes VAT" then
+                    CheckIfLinesExist(FieldCaption("Price Includes VAT"));
+            end;
         }
         field(14; "VAT Bus. Posting Gr. (Price)"; Code[20])
         {
             DataClassification = CustomerContent;
             Caption = 'VAT Bus. Posting Gr. (Price)';
             TableRelation = "VAT Business Posting Group";
+
+            trigger OnValidate()
+            begin
+                if "VAT Bus. Posting Gr. (Price)" <> xRec."VAT Bus. Posting Gr. (Price)" then
+                    CheckIfLinesExist(FieldCaption("VAT Bus. Posting Gr. (Price)"));
+            end;
         }
         field(15; "Allow Line Disc."; Boolean)
         {
             DataClassification = CustomerContent;
             Caption = 'Allow Line Disc.';
             InitValue = true;
+
+            trigger OnValidate()
+            begin
+                TestStatusDraft();
+            end;
         }
         field(16; "Allow Invoice Disc."; Boolean)
         {
             DataClassification = CustomerContent;
             Caption = 'Allow Invoice Disc.';
             InitValue = true;
+
+            trigger OnValidate()
+            begin
+                TestStatusDraft();
+            end;
         }
         field(17; "No. Series"; Code[20])
         {
@@ -151,6 +208,22 @@ table 7000 "Price List Header"
             Caption = 'No. Series';
             Editable = false;
             TableRelation = "No. Series";
+        }
+        field(18; Status; Enum "Price Status")
+        {
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if Status <> xRec.Status then
+                    if not UpdateStatus() then
+                        Status := xRec.Status;
+            end;
+        }
+        field(19; "Filter Source No."; Code[20])
+        {
+            DataClassification = CustomerContent;
+            Editable = false;
         }
     }
 
@@ -160,6 +233,9 @@ table 7000 "Price List Header"
         {
         }
         key(Key1; "Source Type", "Source No.", "Starting Date", "Currency Code")
+        {
+        }
+        key(Key2; Status, "Price Type", "Source Group", "Source Type", "Source No.", "Currency Code", "Starting Date", "Ending Date")
         {
         }
     }
@@ -172,9 +248,39 @@ table 7000 "Price List Header"
             NoSeriesMgt.InitSeries(GetNoSeries(), xRec."No. Series", 0D, Code, "No. Series");
     end;
 
+    trigger OnDelete()
+    begin
+        if Status = Status::Active then
+            Error(CannotDeleteActivePriceListErr, Code);
+    end;
+
     var
         PriceSource: Record "Price Source";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        ConfirmUpdateQst: Label 'Do you want to update %1 in the price list lines?', Comment = '%1 - the field caption';
+        LinesExistErr: Label 'You cannot change %1 because one or more lines exist.', Comment = '%1 - the field caption';
+        StatusUpdateQst: Label 'Do you want to update status to %1?', Comment = '%1 - status value: Draft, Active, or Inactive';
+        CannotDeleteActivePriceListErr: Label 'You cannot delete the active price list %1.', Comment = '%1 - the price list code.';
+
+    procedure IsEditable() Result: Boolean;
+    begin
+        Result := Status = Status::Draft;
+    end;
+
+    procedure AssistEditCode(xPriceListHeader: Record "Price List Header"): Boolean
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        if "Source Group" = "Source Group"::All then
+            exit(false);
+
+        PriceListHeader := Rec;
+        if NoSeriesMgt.SelectSeries(GetNoSeries(), xPriceListHeader."No. Series", PriceListHeader."No. Series") then begin
+            NoSeriesMgt.SetSeries(PriceListHeader.Code);
+            Rec := PriceListHeader;
+            exit(true);
+        end;
+    end;
 
     local procedure GetNoSeries(): Code[20];
     var
@@ -204,6 +310,19 @@ table 7000 "Price List Header"
         end;
     end;
 
+    local procedure CheckIfLinesExist(Caption: Text)
+    var
+        PriceListLine: Record "Price List Line";
+        ErrorMsg: Text;
+    begin
+        TestStatusDraft();
+        PriceListLine.SetRange("Price List Code", Code);
+        if not PriceListLine.IsEmpty then begin
+            ErrorMsg := StrSubstNo(LinesExistErr, Caption);
+            Error(ErrorMsg);
+        end;
+    end;
+
     procedure CopyFrom(PriceSource: Record "Price Source")
     begin
         "Source Group" := PriceSource."Source Group";
@@ -211,6 +330,7 @@ table 7000 "Price List Header"
         "Source No." := PriceSource."Source No.";
         "Parent Source No." := PriceSource."Parent Source No.";
         "Source ID" := PriceSource."Source ID";
+        "Filter Source No." := PriceSource."Filter Source No.";
 
         "Price Type" := PriceSource."Price Type";
         "Currency Code" := PriceSource."Currency Code";
@@ -220,6 +340,8 @@ table 7000 "Price List Header"
         "Allow Invoice Disc." := PriceSource."Allow Invoice Disc.";
         "Allow Line Disc." := PriceSource."Allow Line Disc.";
         "VAT Bus. Posting Gr. (Price)" := PriceSource."VAT Bus. Posting Gr. (Price)";
+
+        OnAfterCopyFromPriceSource(PriceSource);
     end;
 
     procedure CopyTo(var PriceSource: Record "Price Source")
@@ -238,6 +360,8 @@ table 7000 "Price List Header"
         PriceSource."Allow Invoice Disc." := "Allow Invoice Disc.";
         PriceSource."Allow Line Disc." := "Allow Line Disc.";
         PriceSource."VAT Bus. Posting Gr. (Price)" := "VAT Bus. Posting Gr. (Price)";
+
+        OnAfterCopyToPriceSource(PriceSource);
     end;
 
     procedure IsSourceNoAllowed(): Boolean;
@@ -246,5 +370,90 @@ table 7000 "Price List Header"
     begin
         PriceSourceInterface := "Source Type";
         exit(PriceSourceInterface.IsSourceNoAllowed());
+    end;
+
+    procedure UpdateAmountType()
+    var
+        xAmountType: Enum "Price Amount Type";
+    begin
+        xAmountType := "Amount Type";
+        "Amount Type" := CalcAmountType();
+        if "Amount Type" <> xAmountType then
+            Modify()
+    end;
+
+    local procedure CalcAmountType(): Enum "Price Amount Type";
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.SetRange("Price List Code", Code);
+        if PriceListLine.IsEmpty() then
+            exit("Amount Type"::Any);
+
+        PriceListLine.SetRange("Amount Type", "Amount Type"::Any);
+        if not PriceListLine.IsEmpty() then
+            exit("Amount Type"::Any);
+
+        PriceListLine.SetRange("Amount Type", "Amount Type"::Price);
+        if PriceListLine.IsEmpty() then
+            exit("Amount Type"::Discount);
+
+        PriceListLine.SetRange("Amount Type", "Amount Type"::Discount);
+        if PriceListLine.IsEmpty() then
+            exit("Amount Type"::Price);
+
+        exit("Amount Type"::Any);
+    end;
+
+    local procedure UpdateLines(FieldId: Integer; Caption: Text) Updated: Boolean;
+    var
+        PriceListLine: Record "Price List Line";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        Updated := true;
+        PriceListLine.SetRange("Price List Code", Code);
+        if PriceListLine.IsEmpty() then
+            exit;
+
+        if ConfirmManagement.GetResponse(StrSubstNo(ConfirmUpdateQst, Caption), true) then
+            case FieldId of
+                FieldNo("Starting Date"):
+                    PriceListLine.ModifyAll("Starting Date", "Starting Date");
+                FieldNo("Ending Date"):
+                    PriceListLine.ModifyAll("Ending Date", "Ending Date");
+            end
+        else
+            Updated := false;
+    end;
+
+    local procedure TestStatusDraft()
+    begin
+        TestField(Status, Status::Draft);
+    end;
+
+    local procedure UpdateStatus() Updated: Boolean;
+    var
+        PriceListLine: Record "Price List Line";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        Updated := true;
+        PriceListLine.SetRange("Price List Code", Code);
+        if PriceListLine.IsEmpty() then
+            exit;
+
+        if ConfirmManagement.GetResponse(StrSubstNo(StatusUpdateQst, Status), true) then
+            PriceListLine.ModifyAll(Status, Status)
+        else
+            Updated := false
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCopyFromPriceSource(PriceSource: Record "Price Source")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCopyToPriceSource(var PriceSource: Record "Price Source")
+    begin
     end;
 }

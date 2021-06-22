@@ -52,9 +52,6 @@ table 138 "Unlinked Attachment"
         field(8000; Id; Guid)
         {
             Caption = 'Id';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '15.0';
         }
     }
 
@@ -73,10 +70,25 @@ table 138 "Unlinked Attachment"
     {
     }
 
+    var
+        CannotInsertWithNullSystemIdErr: Label 'Attempted to insert Unlinked Attachment with null SystemId. This is a programing error.', Locked = true;
+
     trigger OnInsert()
+    var
+        NullSystemIdErrorInfo: ErrorInfo;
     begin
-        if IsNullGuid(Id) then
-            Id := CreateGuid;
+        if not Rec.IsTemporary() then
+            exit;
+
+        if IsNullGuid(Rec.SystemId) then begin
+            NullSystemIdErrorInfo.ErrorType := NullSystemIdErrorInfo.ErrorType::Internal;
+            NullSystemIdErrorInfo.DataClassification := NullSystemIdErrorInfo.DataClassification::SystemMetadata;
+            NullSystemIdErrorInfo.Verbosity := NullSystemIdErrorInfo.Verbosity::Error;
+            NullSystemIdErrorInfo.Message := CannotInsertWithNullSystemIdErr;
+            Error(NullSystemIdErrorInfo);
+        end;
+
+        Id := SystemId;
     end;
 }
 

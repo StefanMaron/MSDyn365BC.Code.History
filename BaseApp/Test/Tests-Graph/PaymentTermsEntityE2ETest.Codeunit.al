@@ -26,31 +26,6 @@ codeunit 135504 "Payment Terms Entity E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestVerifyIDandLastDateModified()
-    var
-        PaymentTerms: Record "Payment Terms";
-        IntegrationRecord: Record "Integration Record";
-        PaymentTermCode: Code[10];
-        PaymentTermsId: Guid;
-    begin
-        // [SCENARIO] Create a payment term and verify it has Id and LastDateTimeModified
-        // [GIVEN] a modified Payment Term record
-        Initialize;
-        PaymentTermCode := CreatePaymentTerm;
-
-        // [WHEN] we retrieve the payment term from the database
-        PaymentTerms.Reset();
-        PaymentTerms.Get(PaymentTermCode);
-        PaymentTermsId := PaymentTerms.Id;
-
-        // [THEN] the payment term should have an integration id and last date time modified
-        IntegrationRecord.Get(PaymentTermsId);
-        IntegrationRecord.TestField("Integration ID");
-        PaymentTerms.TestField("Last Modified Date Time");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestGetPaymentTerms()
     var
         PaymentTermCode: array[2] of Code[10];

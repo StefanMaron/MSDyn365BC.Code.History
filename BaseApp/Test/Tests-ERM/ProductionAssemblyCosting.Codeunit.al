@@ -813,7 +813,7 @@ codeunit 137617 "Production & Assembly Costing"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Production & Assembly Costing");
     end;
 
-    local procedure CreateItem(var Item: Record Item; UnitCost: Decimal; CostingMethod: Option)
+    local procedure CreateItem(var Item: Record Item; UnitCost: Decimal; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Cost", UnitCost);
@@ -821,7 +821,7 @@ codeunit 137617 "Production & Assembly Costing"
         Item.Modify(true);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; ItemNo: Code[20]; Qty: Decimal; PostingDate: Date)
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Qty: Decimal; PostingDate: Date)
     begin
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Qty);
@@ -829,7 +829,7 @@ codeunit 137617 "Production & Assembly Costing"
         ItemJournalLine.Modify(true);
     end;
 
-    local procedure CreateItemJournalLineWithAppliesFrom(ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; AppliesFromEntry: Integer; PostingDate: Date)
+    local procedure CreateItemJournalLineWithAppliesFrom(ItemJournalBatch: Record "Item Journal Batch"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; AppliesFromEntry: Integer; PostingDate: Date)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -839,7 +839,7 @@ codeunit 137617 "Production & Assembly Costing"
         ItemJournalLine.Modify(true);
     end;
 
-    local procedure CreateItemJournalLineWithAppliesTo(ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; AppliesToEntry: Integer; PostingDate: Date)
+    local procedure CreateItemJournalLineWithAppliesTo(ItemJournalBatch: Record "Item Journal Batch"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; AppliesToEntry: Integer; PostingDate: Date)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -849,7 +849,7 @@ codeunit 137617 "Production & Assembly Costing"
         ItemJournalLine.Modify(true);
     end;
 
-    local procedure CreateItemJournalLineWithUnitCost(ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; PostingDate: Date)
+    local procedure CreateItemJournalLineWithUnitCost(ItemJournalBatch: Record "Item Journal Batch"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; PostingDate: Date)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -973,7 +973,7 @@ codeunit 137617 "Production & Assembly Costing"
         SelectItemJournalBatchByTemplateType(ItemJournalBatch, ItemJournalTemplate.Type::Transfer);
     end;
 
-    local procedure SelectItemJournalBatchByTemplateType(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    local procedure SelectItemJournalBatchByTemplateType(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -989,7 +989,7 @@ codeunit 137617 "Production & Assembly Costing"
         LibraryInventory.UpdateAverageCostSettings(AvgCostCalcType, InventorySetup."Average Cost Period");
     end;
 
-    local procedure VerifyItemEntriesCost(ItemNo: Code[20]; EntryType: Option; ActualCost: Decimal)
+    local procedure VerifyItemEntriesCost(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; ActualCost: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

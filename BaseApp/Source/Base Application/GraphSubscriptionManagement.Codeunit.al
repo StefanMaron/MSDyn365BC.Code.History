@@ -22,7 +22,6 @@ codeunit 5450 "Graph Subscription Management"
         ClientTypeManagement: Codeunit "Client Type Management";
         SyncModeOption: Option Full,Delta;
         ChangeType: Option Created,Updated,Deleted,Missed;
-        SubscriptionRefreshTasksTxt: Label 'Scheduled %1 future tasks to keep graph subscriptions up to date.', Locked = true;
 
     procedure AddOrUpdateGraphSubscription(var FirstTimeSync: Boolean; WebhookExists: Boolean; var WebhookSubscription: Record "Webhook Subscription"; EntityEndpoint: Text[250])
     var
@@ -165,27 +164,6 @@ codeunit 5450 "Graph Subscription Management"
             CODEUNIT.Run(CODEUNIT::"Graph Sync. Runner - OnModify", IntegrationRecord);
     end;
 
-    local procedure CanRefreshSubscriptions(): Boolean
-    var
-        ScheduledTask: Record "Scheduled Task";
-        ClientTypeManagement: Codeunit "Client Type Management";
-    begin
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Background then
-            exit(false);
-
-        // Always allow this for UI sessions
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Web, CLIENTTYPE::Windows] then
-            exit(true);
-
-        ScheduledTask.SetRange(Company, CompanyName);
-        ScheduledTask.SetRange("Run Codeunit", CODEUNIT::"Graph Subscription Management");
-
-        // In other cases (web services), we need to apply a threshold
-        // The maximum number of refresh tasks is around 20. If we are
-        // already at that number, do not schedule more delta syncs.
-        exit(ScheduledTask.Count < 20);
-    end;
-
     local procedure CanScheduleSyncTasks() AllowBackgroundSessions: Boolean
     begin
         if TASKSCHEDULER.CanCreateTask then begin
@@ -248,84 +226,6 @@ codeunit 5450 "Graph Subscription Management"
         OnScheduleSyncTask(CodeunitID, FailureCodeunitID, NextTask, RecordID);
     end;
 
-    local procedure ScheduleFutureSubscriptionRefreshes()
-    var
-        ScheduledTask: Record "Scheduled Task";
-        DistanceIntoFuture: BigInteger;
-        MaximumFutureRefresh: BigInteger;
-        MillisecondsPerDay: BigInteger;
-        RefreshFrequency: Decimal;
-        MaximumDaysIntoFuture: Integer;
-        MaximumNumberOfTasks: Integer;
-        TasksToCreate: Integer;
-        i: Integer;
-        BufferTime: Integer;
-        LastTaskNotBefore: DateTime;
-        TasksCreated: Integer;
-    begin
-        // Refreshes the graph webhook subscriptions every period of (webhook max expiry) / 2
-        // up to 30 days in the future. This is so that users who do not frequently sign in to
-        // the system but may use it through APIs or other means do not get stale data as easily.
-
-        BufferTime := 15000;
-        MaximumDaysIntoFuture := 30;
-        MillisecondsPerDay := 86400000;
-        RefreshFrequency := GetMaximumExpirationDateTimeOffset / 2;
-        MaximumFutureRefresh := MaximumDaysIntoFuture * MillisecondsPerDay;
-        MaximumNumberOfTasks := Round(MaximumFutureRefresh / RefreshFrequency, 1, '=');
-
-        ScheduledTask.SetRange(Company, CompanyName);
-        ScheduledTask.SetRange("Run Codeunit", CODEUNIT::"Graph Subscription Management");
-        TasksToCreate := MaximumNumberOfTasks - ScheduledTask.Count();
-        for i := MaximumNumberOfTasks downto MaximumNumberOfTasks - TasksToCreate + 1 do begin
-            DistanceIntoFuture := i * RefreshFrequency + BufferTime;
-            OnScheduleSyncTask(
-              CODEUNIT::"Graph Subscription Management", CODEUNIT::"Graph Delta Sync", CurrentDateTime + DistanceIntoFuture, 0);
-            TasksCreated += 1;
-        end;
-
-        // Make sure we always have a task scheduled at the end of the period
-        LastTaskNotBefore := CreateDateTime(Today + MaximumDaysIntoFuture, 0T) - RefreshFrequency;
-        ScheduledTask.SetFilter("Not Before", '>%1', LastTaskNotBefore);
-        if ScheduledTask.IsEmpty then begin
-            DistanceIntoFuture := MaximumNumberOfTasks * RefreshFrequency;
-            OnScheduleSyncTask(
-              CODEUNIT::"Graph Subscription Management", CODEUNIT::"Graph Delta Sync", CurrentDateTime + DistanceIntoFuture, 0);
-            TasksCreated += 1;
-        end;
-
-        // Schedule one to happen immediately so that a delta sync will be triggered by the call
-        OnScheduleSyncTask(CODEUNIT::"Graph Subscription Management", CODEUNIT::"Graph Delta Sync", CurrentDateTime + BufferTime, 0);
-        TasksCreated += 1;
-
-        TasksToCreate := TasksCreated;
-        SendTraceTag(
-          '0000170', TraceCategory, VERBOSITY::Normal, StrSubstNo(SubscriptionRefreshTasksTxt, TasksToCreate),
-          DATACLASSIFICATION::SystemMetadata);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, 40, 'OnAfterCompanyOpen', '', false, false)]
-    local procedure AddOrUpdateGraphSubscriptionOnAfterCompanyOpen()
-    var
-        GraphSyncRunner: Codeunit "Graph Sync. Runner";
-        WebhookManagement: Codeunit "Webhook Management";
-    begin
-        if GetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph) <> '' then
-            exit;
-
-        if not WebhookManagement.IsCurrentClientTypeAllowed then
-            exit;
-
-        if not WebhookManagement.IsSyncAllowed then
-            exit;
-
-        if not GraphSyncRunner.IsGraphSyncEnabled then
-            exit;
-
-        if CanRefreshSubscriptions then
-            ScheduleFutureSubscriptionRefreshes;
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, 5450, 'OnScheduleSyncTask', '', false, false)]
     local procedure InvokeTaskSchedulerOnScheduleSyncTask(CodeunitID: Integer; FailureCodeunitID: Integer; NotBefore: DateTime; RecordID: Variant)
     begin
@@ -335,20 +235,6 @@ codeunit 5450 "Graph Subscription Management"
             else
                 TASKSCHEDULER.CreateTask(CodeunitID, FailureCodeunitID, true, CompanyName, NotBefore);
         end;
-    end;
-
-    [EventSubscriber(ObjectType::Table, 2000000194, 'OnAfterInsertEvent', '', false, false)]
-    local procedure SyncToNavOnWebhookNotificationInsert(var Rec: Record "Webhook Notification"; RunTrigger: Boolean)
-    var
-        GraphSyncRunner: Codeunit "Graph Sync. Runner";
-    begin
-        if not GraphSyncRunner.IsGraphSyncEnabled then
-            exit;
-
-        if CanScheduleSyncTasks then
-            TASKSCHEDULER.CreateTask(CODEUNIT::"Graph Webhook Sync To NAV", 0, true, CompanyName, 0DT, Rec.RecordId)
-        else
-            CODEUNIT.Run(CODEUNIT::"Graph Webhook Sync To NAV", Rec);
     end;
 
     [IntegrationEvent(false, false)]

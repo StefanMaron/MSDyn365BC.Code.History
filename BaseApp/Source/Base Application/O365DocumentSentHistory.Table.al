@@ -6,11 +6,9 @@ table 2158 "O365 Document Sent History"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Sales Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(2; "Document No."; Code[20])
         {
@@ -205,14 +203,13 @@ table 2158 "O365 Document Sent History"
                     exit(NewInProgressFromSalesInvoiceHeader(SalesInvoiceHeader));
                 end;
             else begin
-                    SendTraceTag('000028D', DocSentHistoryCategoryTxt, VERBOSITY::Error, StrSubstNo(UnrecognizedParentRecordErr, RecRef.Number),
-                      DATACLASSIFICATION::SystemMetadata);
+                    Session.LogMessage('000028D', StrSubstNo(UnrecognizedParentRecordErr, RecRef.Number), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocSentHistoryCategoryTxt);
                     exit(false);
                 end;
         end;
     end;
 
-    local procedure SetHistoryForDocumentAsNotified(DocumentType: Integer; DocumentNo: Code[20]; IsPosted: Boolean)
+    local procedure SetHistoryForDocumentAsNotified(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; IsPosted: Boolean)
     var
         O365DocumentSentHistory: Record "O365 Document Sent History";
     begin
@@ -229,15 +226,11 @@ table 2158 "O365 Document Sent History"
         Validate("Job Last Status", "Job Last Status"::Error);
 
         if Modify(true) then begin
-            SendTraceTag('00001ZM', DocSentHistoryCategoryTxt, VERBOSITY::Normal,
-              StrSubstNo(StatusSetTelemetryMsg, "Job Last Status"::Error),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00001ZM', StrSubstNo(StatusSetTelemetryMsg, "Job Last Status"::Error), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocSentHistoryCategoryTxt);
             exit(true);
         end;
 
-        SendTraceTag('00001ZN', DocSentHistoryCategoryTxt, VERBOSITY::Error,
-          StrSubstNo(FailedToSetStatusTelemetryErr, "Job Last Status"::Error, GetLastErrorText),
-          DATACLASSIFICATION::CustomerContent);
+        Session.LogMessage('00001ZN', StrSubstNo(FailedToSetStatusTelemetryErr, "Job Last Status"::Error, GetLastErrorText), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', DocSentHistoryCategoryTxt);
         exit(false);
     end;
 
@@ -246,15 +239,11 @@ table 2158 "O365 Document Sent History"
         Validate("Job Last Status", "Job Last Status"::Finished);
 
         if Modify(true) then begin
-            SendTraceTag('00001ZO', DocSentHistoryCategoryTxt, VERBOSITY::Normal,
-              StrSubstNo(StatusSetTelemetryMsg, "Job Last Status"::Finished),
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00001ZO', StrSubstNo(StatusSetTelemetryMsg, "Job Last Status"::Finished), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocSentHistoryCategoryTxt);
             exit(true);
         end;
 
-        SendTraceTag('00001ZP', DocSentHistoryCategoryTxt, VERBOSITY::Error,
-          StrSubstNo(FailedToSetStatusTelemetryErr, "Job Last Status"::Finished, GetLastErrorText),
-          DATACLASSIFICATION::CustomerContent);
+        Session.LogMessage('00001ZP', StrSubstNo(FailedToSetStatusTelemetryErr, "Job Last Status"::Finished, GetLastErrorText), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', DocSentHistoryCategoryTxt);
         exit(false);
     end;
 }

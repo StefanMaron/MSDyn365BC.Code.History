@@ -8,7 +8,7 @@ page 5487 "Dimensions Entity"
     EntitySetName = 'dimensions';
     InsertAllowed = false;
     ModifyAllowed = false;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = Dimension;
 
@@ -18,7 +18,7 @@ page 5487 "Dimensions Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -39,7 +39,7 @@ page 5487 "Dimensions Entity"
                     ApplicationArea = All;
                     Caption = 'LastModifiedDateTime', Locked = true;
                 }
-                part(dimensionValues; "Dimension Values Entity")
+                part(dimensionValues; "Dimension Values Entity API")
                 {
                     ApplicationArea = All;
                     Caption = 'DimensionValues', Locked = true;

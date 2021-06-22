@@ -370,7 +370,7 @@ codeunit 137380 "SCM Performance Tests"
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         WarehouseReceiptHeader.Get(
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
-            DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+            DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
 
         // [WHEN] Post the warehouse receipt
         CodeCoverageMgt.StartApplicationCoverage;
@@ -615,7 +615,7 @@ codeunit 137380 "SCM Performance Tests"
 
         // [WHEN] Open item tracking lines on the purchase line and assign 1000 serial nos.
         LibraryVariableStorage.Enqueue(DummyReservEntry."Item Tracking"::"Serial No.");
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         // [THEN] SynchronizeItemTracking2 function in codeunit 6500 is called only once.
         CodeCoverageMgt.StopApplicationCoverage;
@@ -674,7 +674,7 @@ codeunit 137380 "SCM Performance Tests"
             // [GIVEN] Open item tracking lines on the purchase line with item "J" and assign 100 serial nos.
             FindPurchaseLine(PurchaseLine, Item."No.");
             LibraryVariableStorage.Enqueue(DummyReservEntry."Item Tracking"::"Serial No.");
-            PurchaseLine.OpenItemTrackingLines;
+            PurchaseLine.OpenItemTrackingLines();
 
             // [WHEN] Successively post the purchase orders with "Receive" option and enabled Code Coverage in order to count calls of SynchronizeItemTracking function in Codeunit 6500.
             CodeCoverageMgt.StartApplicationCoverage;
@@ -794,7 +794,7 @@ codeunit 137380 "SCM Performance Tests"
               WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name,
               Location.Code, Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Sign * NoOfSN);
             LibraryVariableStorage.Enqueue(NoOfSN);
-            WarehouseJournalLine.OpenItemTrackingLines;
+            WarehouseJournalLine.OpenItemTrackingLines();
             LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Location.Code, false);
             Sign *= -1;
         end;
@@ -874,7 +874,7 @@ codeunit 137380 "SCM Performance Tests"
               WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name,
               Location.Code, Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Sign * NoOfSN);
             LibraryVariableStorage.Enqueue(NoOfSN);
-            WarehouseJournalLine.OpenItemTrackingLines;
+            WarehouseJournalLine.OpenItemTrackingLines();
             LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Location.Code, false);
             Sign *= -1;
         end;
@@ -885,7 +885,7 @@ codeunit 137380 "SCM Performance Tests"
           WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name,
           Location.Code, Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 1);
         LibraryVariableStorage.Enqueue(1);
-        WarehouseJournalLine.OpenItemTrackingLines;
+        WarehouseJournalLine.OpenItemTrackingLines();
         LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Location.Code, false);
 
         // [WHEN] Open item journal and run "Calculate Whse. Adjustment" with activated code coverage in order to count how many serial nos. are looked through to collect item tracking.
@@ -946,20 +946,20 @@ codeunit 137380 "SCM Performance Tests"
             LibraryPurchase.CreatePurchaseDocumentWithItem(
               PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", NoOfSN[i], Location.Code, WorkDate);
             LibraryVariableStorage.Enqueue(DummyReservEntry."Item Tracking"::"Serial No.");
-            PurchaseLine.OpenItemTrackingLines;
+            PurchaseLine.OpenItemTrackingLines();
 
             // [GIVEN] Create and post warehouse receipt.
             LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
             LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
             WarehouseReceiptHeader.Get(
               LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
-                DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No."));
+                DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No."));
             LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
 
             // [GIVEN] A warehouse put-away is created.
             LibraryWarehouse.FindWhseActivityBySourceDoc(
               WarehouseActivityHeader,
-              DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+              DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.");
             LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
 
             // [WHEN] Turn on Code Coverage and register the put-away. Count the number of times the posted warehouse receipt header and line are updated.
@@ -981,7 +981,7 @@ codeunit 137380 "SCM Performance Tests"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure CostAdjustmentWhenManyPosEntriesAppliedToFewNegEntries()
     var
         Item: Record Item;
@@ -1072,7 +1072,7 @@ codeunit 137380 "SCM Performance Tests"
     end;
 
     [Normal]
-    local procedure CreateLargeNumberOfSN(NoOfSerialNos: Integer; TrackingOption: Option)
+    local procedure CreateLargeNumberOfSN(NoOfSerialNos: Integer; TrackingOption: Enum "Item Tracking Entry Type")
     var
         Item: Record Item;
         PurchaseLine: Record "Purchase Line";
@@ -1092,7 +1092,7 @@ codeunit 137380 "SCM Performance Tests"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", NoOfSerialNos);
         UpdateGeneralPostingSetup(PurchaseLine);
         LibraryVariableStorage.Enqueue(TrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         // Execute: Try to assign a large number of serial nos in the page handler.
 
@@ -1302,7 +1302,7 @@ codeunit 137380 "SCM Performance Tests"
         LibraryInventory.PostItemJournalLine(ItemJnlTemplate.Name, ItemJnlBatch.Name);
     end;
 
-    local procedure PostProductionJournal(ProductionOrder: Record "Production Order"; EntryType: Option; ItemNo: Code[20])
+    local procedure PostProductionJournal(ProductionOrder: Record "Production Order"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     var
         ProdOrderLine: Record "Prod. Order Line";
         ProdJnlMgt: Codeunit "Production Journal Mgt";
@@ -1334,7 +1334,7 @@ codeunit 137380 "SCM Performance Tests"
         exit(CreateSendAheadRoutingAndUpdateItem(Item));
     end;
 
-    local procedure CreateSetupItem(var Item: Record Item; ReorderingPolicy: Option; ReplenishmentSystem: Option)
+    local procedure CreateSetupItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -1410,7 +1410,7 @@ codeunit 137380 "SCM Performance Tests"
 
         for I := 1 to NoOfLines do begin
             LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, 1);
-            PurchaseLine.OpenItemTrackingLines;
+            PurchaseLine.OpenItemTrackingLines();
         end;
 
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -1428,10 +1428,10 @@ codeunit 137380 "SCM Performance Tests"
     var
         ReservationEntry: Record "Reservation Entry";
         OptionValue: Variant;
-        TrackingOption: Option;
+        TrackingOption: Enum "Item Tracking Entry Type";
     begin
         LibraryVariableStorage.Dequeue(OptionValue);  // Dequeue variable.
-        TrackingOption := OptionValue;  // To convert Variant into Option.
+        TrackingOption := "Item Tracking Entry Type".FromInteger(OptionValue);  // To convert Variant into Option.
         case TrackingOption of
             ReservationEntry."Item Tracking"::"Serial No.":
                 begin
@@ -1482,7 +1482,7 @@ codeunit 137380 "SCM Performance Tests"
         ProductionJournalPage.FILTER.SetFilter("Entry Type", EntryType);
         ProductionJournalPage.First;
 
-        if ProductionJournalPage."Entry Type".AsInteger = ItemJnlLine."Entry Type"::Output then
+        if ProductionJournalPage."Entry Type".AsInteger = ItemJnlLine."Entry Type"::Output.AsInteger() then
             LibraryVariableStorage.Enqueue(ReservEntry."Item Tracking"::"Serial No.")
         else
             LibraryVariableStorage.Enqueue(ReservEntry."Item Tracking"::None);

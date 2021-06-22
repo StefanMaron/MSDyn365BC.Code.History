@@ -58,7 +58,7 @@ codeunit 1509 "Notification Entry Dispatcher"
         DispatchForNotificationType(NotificationEntry.GetRangeMax(Type), UserSetup, '');
     end;
 
-    local procedure DispatchForNotificationType(NotificationType: Option "New Record",Approval,Overdue; UserSetup: Record "User Setup"; SenderUserID: Code[50])
+    local procedure DispatchForNotificationType(NotificationType: Enum "Notification Entry Type"; UserSetup: Record "User Setup"; SenderUserID: Code[50])
     var
         NotificationEntry: Record "Notification Entry";
         NotificationSetup: Record "Notification Setup";
@@ -75,7 +75,7 @@ codeunit 1509 "Notification Entry Dispatcher"
 
         FilterToActiveNotificationEntries(NotificationEntry);
 
-        NotificationSetup.GetNotificationSetupForUser(NotificationType, NotificationEntry."Recipient User ID");
+        NotificationSetup.GetNotificationSetupForUser(NotificationType.AsInteger(), NotificationEntry."Recipient User ID");
 
         case NotificationSetup."Notification Method" of
             NotificationSetup."Notification Method"::Email:
@@ -85,7 +85,7 @@ codeunit 1509 "Notification Entry Dispatcher"
         end;
     end;
 
-    local procedure ScheduledInstantly(RecipientUserID: Code[50]; NotificationType: Option): Boolean
+    local procedure ScheduledInstantly(RecipientUserID: Code[50]; NotificationType: Enum "Notification Entry Type"): Boolean
     var
         NotificationSchedule: Record "Notification Schedule";
     begin
@@ -98,21 +98,27 @@ codeunit 1509 "Notification Entry Dispatcher"
     local procedure CreateMailAndDispatch(var NotificationEntry: Record "Notification Entry"; Email: Text)
     var
         NotificationSetup: Record "Notification Setup";
+        EmailFeature: Codeunit "Email Feature";
         DocumentMailing: Codeunit "Document-Mailing";
         ErrorMessageMgt: Codeunit "Error Message Management";
         BodyText: Text;
         MailSubject: Text;
+        IsEmailedSuccessfully: Boolean;
     begin
         if not GetHTMLBodyText(NotificationEntry, BodyText) then
             exit;
 
         MailSubject := NotificationMailSubjectTxt;
         OnBeforeCreateMailAndDispatch(NotificationEntry, MailSubject, Email);
-        if DocumentMailing.EmailFileWithSubjectAndSender(
-             '', '', HtmlBodyFilePath, MailSubject, Email, true, NotificationEntry."Sender User ID")
-        then
+        if EmailFeature.IsEnabled() then
+            IsEmailedSuccessfully := DocumentMailing.EmailFile(
+             '', '', HtmlBodyFilePath, MailSubject, Email, true, Enum::"Email Scenario"::"Notification")
+        else
+            IsEmailedSuccessfully := DocumentMailing.EmailFileWithSubjectAndSender(
+             '', '', HtmlBodyFilePath, MailSubject, Email, true, NotificationEntry."Sender User ID");
+        if IsEmailedSuccessfully then
             NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
-              NotificationEntry, BodyText, true, NotificationSetup."Notification Method"::Email)
+              NotificationEntry, BodyText, true, NotificationSetup."Notification Method"::Email.AsInteger())
         else begin
             NotificationEntry."Error Message" := GetLastErrorText();
             NotificationEntry.Modify(true);
@@ -128,8 +134,7 @@ codeunit 1509 "Notification Entry Dispatcher"
         repeat
             if AddNote(NotificationEntry, BodyText) then
                 NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
-                  NotificationEntry, BodyText, false,
-                  NotificationSetup."Notification Method"::Note);
+                  NotificationEntry, BodyText, false, NotificationSetup."Notification Method"::Note.AsInteger());
         until NotificationEntry.Next = 0;
     end;
 

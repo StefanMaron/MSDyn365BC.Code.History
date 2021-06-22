@@ -21,31 +21,6 @@ codeunit 135517 "Currency Entity E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestVerifyIDandLastModifiedDateTime()
-    var
-        Currency: Record Currency;
-        IntegrationRecord: Record "Integration Record";
-        CurrencyCode: Text;
-        CurrencyId: Guid;
-    begin
-        // [SCENARIO] Create a currency and verify it has Id and LastDateTimeModified.
-        Initialize;
-
-        // [GIVEN] a modified currency record
-        CurrencyCode := CreateCurrency;
-
-        // [WHEN] we retrieve the currency from the database
-        Currency.Get(CurrencyCode);
-        CurrencyId := Currency.Id;
-
-        // [THEN] the currency should have an integration id and last date time modified
-        IntegrationRecord.Get(CurrencyId);
-        IntegrationRecord.TestField("Integration ID");
-        Currency.TestField("Last Modified Date Time");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestGetCurrencies()
     var
         CurrencyCode: array[2] of Text;
@@ -119,7 +94,7 @@ codeunit 135517 "Currency Entity E2E Test"
         RequestBody := GetCurrencyJSON(Currency);
 
         // [WHEN] The user makes a patch request to the service.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Currency.Id, PAGE::"Currencies Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Currency.SystemId, PAGE::"Currencies Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, ResponseText);
 
         // [THEN] The response text contains the new values.
@@ -147,7 +122,7 @@ codeunit 135517 "Currency Entity E2E Test"
         Currency.Get(CurrencyCode);
 
         // [WHEN] The user makes a DELETE request to the endpoint for the currency.
-        TargetURL := LibraryGraphMgt.CreateTargetURL(Currency.Id, PAGE::"Currencies Entity", ServiceNameTxt);
+        TargetURL := LibraryGraphMgt.CreateTargetURL(Currency.SystemId, PAGE::"Currencies Entity", ServiceNameTxt);
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', Responsetext);
 
         // [THEN] The response is empty.

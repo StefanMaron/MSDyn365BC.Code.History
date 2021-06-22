@@ -202,7 +202,7 @@ codeunit 136126 "Service Resource Skill"
     end;
 
     [Normal]
-    local procedure CreateResourceSkill(No: Code[20]; Type: Option): Code[10]
+    local procedure CreateResourceSkill(No: Code[20]; Type: Enum "Resource Skill Type"): Code[10]
     var
         ResourceSkill: Record "Resource Skill";
         SkillCode: Record "Skill Code";
@@ -222,7 +222,7 @@ codeunit 136126 "Service Resource Skill"
     end;
 
     [Normal]
-    local procedure FindResourceSkillForItem(var ResourceSkill: Record "Resource Skill"; No: Code[20]; Type: Option)
+    local procedure FindResourceSkillForItem(var ResourceSkill: Record "Resource Skill"; No: Code[20]; Type: Enum "Resource Skill Type")
     begin
         ResourceSkill.SetRange(Type, Type);
         ResourceSkill.SetRange("No.", No);
@@ -292,7 +292,7 @@ codeunit 136126 "Service Resource Skill"
     end;
 
     [Normal]
-    local procedure VerifyResourceSkill(ItemNo: Code[20]; ServiceItemGroup: Code[10]; Type: Option)
+    local procedure VerifyResourceSkill(ItemNo: Code[20]; ServiceItemGroup: Code[10]; Type: Enum "Resource Skill Type")
     var
         ResourceSkill: Record "Resource Skill";
         ResourceSkill2: Record "Resource Skill";

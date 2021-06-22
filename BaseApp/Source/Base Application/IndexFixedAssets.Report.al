@@ -59,9 +59,9 @@ report 5690 "Index Fixed Assets"
                         IndexAmount :=
                           DepreciationCalc.CalcRounding(DeprBookCode, IndexAmount * (IndexFigure / 100 - 1));
                         if not GLIntegration[i] or "Budgeted Asset" then
-                            InsertFAJnlLine("No.", IndexAmount, i - 1)
+                            InsertFAJnlLine("No.", IndexAmount, "FA Journal Line FA Posting Type".FromInteger(i - 1))
                         else
-                            InsertGenJnlLine("No.", IndexAmount, i - 1);
+                            InsertGenJnlLine("No.", IndexAmount, "FA Journal Line FA Posting Type".FromInteger(i - 1));
                     end;
                 end;
             end;
@@ -287,31 +287,30 @@ report 5690 "Index Fixed Assets"
                 DocumentNo2 := DocumentNo;
             FirstGenJnl := false;
         end;
-        with GenJnlLine do begin
-            Init;
-            "Line No." := 0;
-            FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
-            "FA Posting Date" := FAPostingDate;
-            "Posting Date" := PostingDate;
-            if "Posting Date" = "FA Posting Date" then
-                "FA Posting Date" := 0D;
-            "FA Posting Type" := PostingType + 1;
-            "Account Type" := "Account Type"::"Fixed Asset";
-            Validate("Account No.", FANo);
-            "Document No." := DocumentNo2;
-            "Posting No. Series" := NoSeries2;
-            Description := PostingDescription;
-            Validate("Depreciation Book Code", DeprBookCode);
-            Validate(Amount, IndexAmount);
-            "Index Entry" := true;
-            GenJnlNextLineNo := GenJnlNextLineNo + 10000;
-            "Line No." := GenJnlNextLineNo;
-            Insert(true);
-            if BalAccount then begin
-                FAInsertGLAcc.GetBalAcc(GenJnlLine);
-                if FindLast then;
-                GenJnlNextLineNo := "Line No.";
-            end;
+
+        GenJnlLine.Init();
+        GenJnlLine."Line No." := 0;
+        FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
+        GenJnlLine."FA Posting Date" := FAPostingDate;
+        GenJnlLine."Posting Date" := PostingDate;
+        if GenJnlLine."Posting Date" = GenJnlLine."FA Posting Date" then
+            GenJnlLine."FA Posting Date" := 0D;
+        GenJnlLine."FA Posting Type" := "Gen. Journal Line FA Posting Type".FromInteger(PostingType.AsInteger() + 1);
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Fixed Asset";
+        GenJnlLine.Validate("Account No.", FANo);
+        GenJnlLine."Document No." := DocumentNo2;
+        GenJnlLine."Posting No. Series" := NoSeries2;
+        GenJnlLine.Description := PostingDescription;
+        GenJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+        GenJnlLine.Validate(Amount, IndexAmount);
+        GenJnlLine."Index Entry" := true;
+        GenJnlNextLineNo := GenJnlNextLineNo + 10000;
+        GenJnlLine."Line No." := GenJnlNextLineNo;
+        GenJnlLine.Insert(true);
+        if BalAccount then begin
+            FAInsertGLAcc.GetBalAcc(GenJnlLine);
+            if GenJnlLine.FindLast then;
+            GenJnlNextLineNo := GenJnlLine."Line No.";
         end;
     end;
 

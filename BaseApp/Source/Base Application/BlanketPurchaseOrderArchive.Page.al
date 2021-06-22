@@ -395,7 +395,7 @@ page 6623 "Blanket Purchase Order Archive"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")

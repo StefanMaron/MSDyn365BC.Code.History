@@ -4,11 +4,9 @@ table 7355 "Report Selection Warehouse"
 
     fields
     {
-        field(1; Usage; Option)
+        field(1; Usage; Enum "Report Selection Warehouse Usage")
         {
             Caption = 'Usage';
-            OptionCaption = 'Put-away,Pick,Movement,Invt. Put-away,Invt. Pick,Invt. Movement,Receipt,Shipment,Posted Receipt,Posted Shipment';
-            OptionMembers = "Put-away",Pick,Movement,"Invt. Put-away","Invt. Pick","Invt. Movement",Receipt,Shipment,"Posted Receipt","Posted Shipment";
         }
         field(2; Sequence; Code[10])
         {
@@ -26,7 +24,7 @@ table 7355 "Report Selection Warehouse"
         }
         field(4; "Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Report ID")));
             Caption = 'Report Caption';
             Editable = false;
@@ -65,9 +63,13 @@ table 7355 "Report Selection Warehouse"
             Sequence := '1';
     end;
 
+    [Obsolete('Replaced by PrintWhseActivityHeader().', '17.0')]
     procedure PrintWhseActivHeader(var WhseActivHeader: Record "Warehouse Activity Header"; ReportUsage: Integer; HideDialog: Boolean)
-    var
-        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
+    begin
+        PrintDocuments(WhseActivHeader, "Report Selection Warehouse Usage".FromInteger(ReportUsage), not HideDialog);
+    end;
+
+    procedure PrintWhseActivityHeader(var WhseActivHeader: Record "Warehouse Activity Header"; ReportUsage: Enum "Report Selection Warehouse Usage"; HideDialog: Boolean)
     begin
         PrintDocuments(WhseActivHeader, ReportUsage, not HideDialog);
     end;
@@ -92,7 +94,7 @@ table 7355 "Report Selection Warehouse"
         PrintDocuments(PostedWhseShipmentHeader, Usage::"Posted Shipment", not HideDialog);
     end;
 
-    local procedure PrintDocuments(RecVarToPrint: Variant; ReportUsage: Integer; ShowRequestPage: Boolean)
+    local procedure PrintDocuments(RecVarToPrint: Variant; ReportUsage: Enum "Report Selection Warehouse Usage"; ShowRequestPage: Boolean)
     var
         TempReportSelectionWarehouse: Record "Report Selection Warehouse" temporary;
         IsHandled: Boolean;
@@ -107,14 +109,14 @@ table 7355 "Report Selection Warehouse"
         end;
     end;
 
-    local procedure SelectTempReportSelectionsToPrint(var TempReportSelectionWarehouse: Record "Report Selection Warehouse"; ReportUsage: Integer)
+    local procedure SelectTempReportSelectionsToPrint(var TempReportSelectionWarehouse: Record "Report Selection Warehouse"; ReportUsage: Enum "Report Selection Warehouse Usage")
     var
         ReportSelectionMgt: Codeunit "Report Selection Mgt.";
         IsHandled: Boolean;
     begin
         SetRange(Usage, ReportUsage);
         if IsEmpty then
-            ReportSelectionMgt.InitReportUsageWhse(Usage);
+            ReportSelectionMgt.InitReportUsageWhse(Usage.AsInteger());
 
         OnSelectTempReportSelectionsToPrint(TempReportSelectionWarehouse, Rec, IsHandled);
         if IsHandled then

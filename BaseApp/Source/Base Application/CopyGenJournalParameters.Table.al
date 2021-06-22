@@ -1,0 +1,42 @@
+table 183 "Copy Gen. Journal Parameters"
+{
+    Caption = 'Copy Gen. Jnl. Line Parameters';
+
+    fields
+    {
+        field(1; "Primary Key"; Code[10])
+        {
+            Caption = 'Primary Key';
+        }
+        field(2; "Journal Template Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+            TableRelation = "Gen. Journal Template";
+        }
+        field(3; "Journal Batch Name"; Code[10])
+        {
+            Caption = 'Journal Batch Name';
+            TableRelation = "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Journal Template Name"));
+        }
+        field(4; "Replace Posting Date"; Date)
+        {
+            Caption = 'Replace Posting Date';
+        }
+        field(5; "Replace Document No."; Code[20])
+        {
+            Caption = 'Replace Document No.';
+        }
+        field(6; "Reverse Sign"; Boolean)
+        {
+            Caption = 'Reverse Sign';
+        }
+    }
+
+    keys
+    {
+        key(PK; "Primary Key")
+        {
+            Clustered = true;
+        }
+    }
+}

@@ -317,7 +317,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         exit(Filters);
     end;
 
-    local procedure CreateAssemblyList(ParentItem: Record Item; CostingMethod: Option FIFO,LIFO,Specific,"Average",Standard; UnitCost: Decimal; NoOfComponents: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPer: Decimal)
+    local procedure CreateAssemblyList(ParentItem: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal; NoOfComponents: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPer: Decimal)
     var
         Item: Record Item;
         Resource: Record Resource;
@@ -369,7 +369,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         AssemblyHeader.Modify(true);
     end;
 
-    local procedure CreateAssembledItem(var Item: Record Item; AssemblyPolicy: Option; CostingMethod: Option FIFO,LIFO,Specific,"Average",Standard; UnitCost: Decimal; NoOfComponents: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPer: Decimal)
+    local procedure CreateAssembledItem(var Item: Record Item; AssemblyPolicy: Enum "Assembly Policy"; CostingMethod: Enum "Costing Method"; UnitCost: Decimal; NoOfComponents: Integer; NoOfResources: Integer; NoOfTexts: Integer; QtyPer: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
@@ -380,7 +380,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         CreateAssemblyList(Item, CostingMethod, UnitCost, NoOfComponents, NoOfResources, NoOfTexts, QtyPer);
     end;
 
-    local procedure CreateSaleDocType(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; VariantCode: Code[10]; UnitPrice: Decimal; SalesQty: Decimal; ShipmentDate: Date; LocationCode: Code[10])
+    local procedure CreateSaleDocType(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; VariantCode: Code[10]; UnitPrice: Decimal; SalesQty: Decimal; ShipmentDate: Date; LocationCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -667,7 +667,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         WithAndWithoutATO(false, false, false);
     end;
 
-    local procedure SaleAndATOOrATS(AssemblyPolicy: Option "Assemble-to-Stock","Assemble-to-Order"; ATO: Boolean; ShowDetails: Boolean)
+    local procedure SaleAndATOOrATS(AssemblyPolicy: Enum "Assembly Policy"; ATO: Boolean; ShowDetails: Boolean)
     var
         TempATOSalesBuffer: Record "ATO Sales Buffer" temporary;
         BOMComponent: Record "BOM Component";
@@ -800,7 +800,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         ATSAndATO(Item."Costing Method"::Average);
     end;
 
-    local procedure ATSAndATO(CostingMethod: Option FIFO,LIFO,Specific,"Average",Standard)
+    local procedure ATSAndATO(CostingMethod: Enum "Costing Method")
     var
         TempATOSalesBuffer: Record "ATO Sales Buffer" temporary;
         Item: Record Item;

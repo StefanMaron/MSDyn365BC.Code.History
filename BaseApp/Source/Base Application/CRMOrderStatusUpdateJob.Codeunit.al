@@ -64,6 +64,9 @@ codeunit 5352 "CRM Order Status Update Job"
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMPostBuffer: Record "CRM Post Buffer";
     begin
+        if Result then
+            exit;
+
         if Sender."Object Type to Run" <> Sender."Object Type to Run"::Codeunit then
             exit;
 
@@ -77,7 +80,8 @@ codeunit 5352 "CRM Order Status Update Job"
             exit;
 
         CRMPostBuffer.SetRange("Table ID", DATABASE::"Sales Header");
-        Result := not CRMPostBuffer.IsEmpty;
+        if not CRMPostBuffer.IsEmpty() then
+            Result := true;
     end;
 
     local procedure CreatePost(CRMSalesorder: Record "CRM Salesorder"; Message: Text)

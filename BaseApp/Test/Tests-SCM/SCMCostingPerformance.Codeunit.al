@@ -9,7 +9,6 @@ codeunit 133504 "SCM Costing Performance"
     end;
 
     var
-        DummyItem: Record Item;
         Assert: Codeunit Assert;
         LibraryCosting: Codeunit "Library - Costing";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -80,8 +79,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure SalePurchSale_FIFO()
     begin
         Initialize;
-        DummyItem.Init();
-        SalePurchSale(DummyItem."Costing Method"::FIFO);
+        SalePurchSale("Costing Method"::FIFO);
     end;
 
     [Test]
@@ -89,8 +87,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure SalePurchSale_Avg()
     begin
         Initialize;
-        DummyItem.Init();
-        SalePurchSale(DummyItem."Costing Method"::Average);
+        SalePurchSale("Costing Method"::Average);
     end;
 
     [Test]
@@ -98,8 +95,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure Test_PurchReturnShptAnd2Sales_FIFO()
     begin
         Initialize;
-        DummyItem.Init();
-        PurchReturnShptAnd2Sales(DummyItem."Costing Method"::FIFO, false);
+        PurchReturnShptAnd2Sales("Costing Method"::FIFO, false);
     end;
 
     [Test]
@@ -107,8 +103,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure Test_PurchReturnShptAnd2Sales_AvgFixedAppln()
     begin
         Initialize;
-        DummyItem.Init();
-        PurchReturnShptAnd2Sales(DummyItem."Costing Method"::Average, false);
+        PurchReturnShptAnd2Sales("Costing Method"::Average, false);
     end;
 
     [Test]
@@ -116,8 +111,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure Test_PurchReturnShptAnd2Sales_AvgNoAppln()
     begin
         Initialize;
-        DummyItem.Init();
-        PurchReturnShptAnd2Sales(DummyItem."Costing Method"::Average, true);
+        PurchReturnShptAnd2Sales("Costing Method"::Average, true);
     end;
 
     [Test]
@@ -125,19 +119,15 @@ codeunit 133504 "SCM Costing Performance"
     procedure Test_UndoReturnReceiptAnd2Sales_FIFO()
     begin
         Initialize;
-        DummyItem.Init();
-        UndoReturnReceiptAnd2Sales(DummyItem."Costing Method"::FIFO, false);
+        UndoReturnReceiptAnd2Sales("Costing Method"::FIFO, false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure Test_UndoReturnReceiptAnd2Sales_AvgFixedAppln()
-    var
-        DummyItem: Record Item;
     begin
         Initialize;
-        DummyItem.Init();
-        UndoReturnReceiptAnd2Sales(DummyItem."Costing Method"::Average, false);
+        UndoReturnReceiptAnd2Sales("Costing Method"::Average, false);
     end;
 
     [Test]
@@ -145,8 +135,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure Test_UndoReturnReceiptAnd2Sales_AvgNoAppln()
     begin
         Initialize;
-        DummyItem.Init();
-        UndoReturnReceiptAnd2Sales(DummyItem."Costing Method"::Average, true);
+        UndoReturnReceiptAnd2Sales("Costing Method"::Average, true);
     end;
 
     [Test]
@@ -163,7 +152,7 @@ codeunit 133504 "SCM Costing Performance"
         if not CodeCoverageMgt.Running then
             CodeCoverageMgt.StartApplicationCoverage;
 
-        CreateItem(Item, Item."Costing Method"::FIFO);
+        CreateItem(Item, "Costing Method"::FIFO);
         LinesWithOneSKU := PostItemJournalLineWithSKU(Item);
         LinesWithTwoSKU := PostItemJournalLineWithSKU(Item);
         LinesWithThreeSKU := PostItemJournalLineWithSKU(Item);
@@ -265,7 +254,7 @@ codeunit 133504 "SCM Costing Performance"
         Assert.IsTrue(LibraryCalcComplexity.IsConstant(NoOfHitsSmall, NoOfHitsLarge), NotConstantCCErr);
     end;
 
-    local procedure CreateItem(var Item: Record Item; CostingMethod: Option)
+    local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -368,7 +357,7 @@ codeunit 133504 "SCM Costing Performance"
         end;
     end;
 
-    local procedure SalePurchSale(CostingMethod: Option)
+    local procedure SalePurchSale(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -422,7 +411,7 @@ codeunit 133504 "SCM Costing Performance"
         VerifyApplnEntry(SecondSaleItemApplnEntry, true, CostingMethod = Item."Costing Method"::Average);
     end;
 
-    local procedure PurchReturnShptAnd2Sales(CostingMethod: Option; AvgCostNoApplication: Boolean)
+    local procedure PurchReturnShptAnd2Sales(CostingMethod: Enum "Costing Method"; AvgCostNoApplication: Boolean)
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -504,7 +493,7 @@ codeunit 133504 "SCM Costing Performance"
         VerifyApplnEntry(SecondSaleItemApplnEntry, true, AvgCostNoApplication);
     end;
 
-    local procedure UndoReturnReceiptAnd2Sales(CostingMethod: Option; AvgCostNoApplication: Boolean)
+    local procedure UndoReturnReceiptAnd2Sales(CostingMethod: Enum "Costing Method"; AvgCostNoApplication: Boolean)
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -594,7 +583,7 @@ codeunit 133504 "SCM Costing Performance"
         VerifyApplnEntry(SecondSaleItemApplnEntry, true, AvgCostNoApplication);
     end;
 
-    local procedure SetupItemQtyCost(var Item: Record Item; var Qty1: Decimal; var Qty2: Decimal; var UnitCost: Decimal; var UnitPrice: Decimal; CostingMethod: Option)
+    local procedure SetupItemQtyCost(var Item: Record Item; var Qty1: Decimal; var Qty2: Decimal; var UnitCost: Decimal; var UnitPrice: Decimal; CostingMethod: Enum "Costing Method")
     begin
         Qty1 := LibraryRandom.RandDecInRange(1, 100, 2);
         Qty2 := LibraryRandom.RandDecInRange(1, 100, 2);

@@ -420,7 +420,7 @@ codeunit 134212 "WF Demo Item Approval"
         // Dummy message handler.
     end;
 
-    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; Status: Option; Item: Record Item)
+    local procedure VerifyApprovalEntry(ApprovalEntry: Record "Approval Entry"; Status: Enum "Approval Status"; Item: Record Item)
     begin
         ApprovalEntry.TestField("Document Type", ApprovalEntry."Document Type"::" ");
         ApprovalEntry.TestField("Document No.", '');

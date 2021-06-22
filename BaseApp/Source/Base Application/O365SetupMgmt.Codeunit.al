@@ -95,18 +95,15 @@ codeunit 2315 "O365 Setup Mgmt"
             UserPersonalization.Get(UserSecurityId);
             UserPersonalization.Validate(Company, Company.Name);
             UserPersonalization.Modify(true);
-            SendTraceTag('00007L4', InvToBusinessCentralCategoryLbl, VERBOSITY::Normal,
-              UserPersonalizationUpdatedTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00007L4', UserPersonalizationUpdatedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvToBusinessCentralCategoryLbl);
             // Update session settings
             SessionSetting.Init();
             SessionSetting.Company := Company.Name;
             SessionSetting.RequestSessionUpdate(true);
-            SendTraceTag('00007L5', InvToBusinessCentralCategoryLbl, VERBOSITY::Normal,
-              SessionSettingUpdatedTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00007L5', SessionSettingUpdatedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvToBusinessCentralCategoryLbl);
         end else begin
             Message(EvaluationCompanyDoesNotExistsMsg);
-            SendTraceTag('00007L6', InvToBusinessCentralCategoryLbl, VERBOSITY::Warning,
-              EvaluationCompanyNotSetTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00007L6', EvaluationCompanyNotSetTelemetryTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvToBusinessCentralCategoryLbl);
         end;
     end;
 
@@ -122,13 +119,11 @@ codeunit 2315 "O365 Setup Mgmt"
 
         Company.SetRange("Evaluation Company", true);
         if Company.FindFirst then begin
-            SendTraceTag('00007L3', InvToBusinessCentralCategoryLbl, VERBOSITY::Normal,
-              InvToBusinessCentralTrialTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00007L3', InvToBusinessCentralTrialTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvToBusinessCentralCategoryLbl);
             CompanyPart := StrSubstNo('?company=%1', TypeHelper.UriEscapeDataString(Company.Name));
             HyperLink(ClientUrl + CompanyPart);
         end else begin
-            SendTraceTag('00007NJ', InvToBusinessCentralCategoryLbl, VERBOSITY::Warning,
-              EvaluationCompanyNotSetTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00007NJ', EvaluationCompanyNotSetTelemetryTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvToBusinessCentralCategoryLbl);
             HyperLink(ClientUrl);
         end;
     end;

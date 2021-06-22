@@ -56,6 +56,36 @@ page 7201 "CDS Connection Setup Wizard"
                     ShowCaption = false;
                 }
             }
+            group(StepApplication)
+            {
+                InstructionalText = 'Specify the ID, secret and redirect URL of the Azure Active Directory application that will be used to connect to Common Data Service.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                ShowCaption = false;
+                Visible = ApplicationStepVisible;
+
+                field("Client Id"; "Client Id")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Client ID';
+                    ToolTip = 'Specifies the ID of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                }
+                field("Client Secret"; ClientSecret)
+                {
+                    ApplicationArea = Suite;
+                    ExtendedDatatype = Masked;
+                    Caption = 'Client Secret';
+                    ToolTip = 'Specifies the secret of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+
+                    trigger OnValidate()
+                    begin
+                        SetClientSecret(ClientSecret);
+                    end;
+                }
+                field("Redirect URL"; "Redirect URL")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the Redirect URL of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                }
+            }
             group(Step1)
             {
                 Visible = AdminStepVisible;
@@ -122,7 +152,7 @@ page 7201 "CDS Connection Setup Wizard"
                                 Error(NoEnvironmentSelectedErr);
 
                             HasAdminSignedIn := true;
-                            CDSIntegrationImpl.SignInCDSAdminUser(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken);
+                            CDSIntegrationImpl.SignInCDSAdminUser(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, false);
 
                             AreAdminCredentialsCorrect := true;
                             SetPassword(UserPassword);
@@ -358,7 +388,6 @@ page 7201 "CDS Connection Setup Wizard"
                         CDSFullSynchReview.SetRecord(CRMFullSynchReviewLine);
                         CDSFullSynchReview.SetTableView(CRMFullSynchReviewLine);
                         CDSFullSynchReview.LookupMode := true;
-
                         Window.Close();
                         if CDSFullSynchReview.RunModal() = Action::LookupOK then;
 
@@ -389,6 +418,12 @@ page 7201 "CDS Connection Setup Wizard"
                 var
                     CDSConnectionSetup: Record "CDS Connection Setup";
                 begin
+                    if Step = Step::Admin then
+                        if SoftwareAsAService then begin
+                            // skip the application step in SaaS as we use the default application
+                            NextStep(true, true);
+                            exit;
+                        end;
 
                     if Step = Step::FullSynchReview then
                         if not IsPersonOwnershipModelSelected then begin
@@ -429,12 +464,31 @@ page 7201 "CDS Connection Setup Wizard"
 
                 trigger OnAction()
                 var
+                    CDSConnectionSetup: Record "CDS Connection Setup";
                     AuthenticationType: Option Office365,AD,IFD,OAuth;
                 begin
                     if Step = Step::Info then begin
                         AuthenticationType := "Authentication Type";
                         GetCDSEnvironment();
                         "Authentication Type" := AuthenticationType;
+                        if SoftwareAsAService then begin
+                            // skip the application step in SaaS as we use the default application
+                            NextStep(false, true);
+                            exit;
+                        end;
+                    end;
+
+                    if Step = Step::Application then begin
+                        if not CDSConnectionSetup.Get() then begin
+                            CDSConnectionSetup.Init();
+                            CDSConnectionSetup.Insert();
+                        end;
+                        CDSConnectionSetup.Validate("Client Id", "Client Id");
+                        CDSConnectionSetup.SetClientSecret(ClientSecret);
+                        CDSConnectionSetup.Validate("Redirect URL", "Redirect URL");
+                        Modify();
+                        NextStep(false, false);
+                        exit;
                     end;
 
                     if (Step = Step::Admin) then begin
@@ -504,7 +558,7 @@ page 7201 "CDS Connection Setup Wizard"
                     if FinishWithoutSynchronizingData then begin
                         Window.Open('Getting things ready for you.');
                         ConfigureCDSSolution();
-                        SendTraceTag('0000CDW', CategoryTok, Verbosity::Normal, FinishWithoutSynchronizingDataTxt, DataClassification::SystemMetadata);
+                        Session.LogMessage('0000CDW', FinishWithoutSynchronizingDataTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                         if IsPersonOwnershipModelSelected then
                             if Confirm(OpenCoupleSalespeoplePageQst) then begin
                                 Window.Close();
@@ -531,7 +585,7 @@ page 7201 "CDS Connection Setup Wizard"
                     CRMFullSynchReview.SetRecord(CRMFullSynchReviewLine);
                     CRMFullSynchReview.SetTableView(CRMFullSynchReviewLine);
                     CRMFullSynchReview.LookupMode := true;
-                    SendTraceTag('0000CDZ', CategoryTok, Verbosity::Normal, FinishWithSynchronizingDataTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000CDZ', FinishWithSynchronizingDataTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     Window.Close();
                     CRMFullSynchReview.Run();
                     AssistedSetup.Complete(PAGE::"CDS Connection Setup Wizard");
@@ -542,13 +596,17 @@ page 7201 "CDS Connection Setup Wizard"
     }
 
     trigger OnInit()
+    var
+        EnvrionmentInfo: Codeunit "Environment Information";
     begin
         LoadTopBanners();
+        SoftwareAsAService := EnvrionmentInfo.IsSaaS();
     end;
 
     trigger OnOpenPage()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        AzureADMgt: Codeunit "Azure AD Mgt.";
     begin
         CDSConnectionSetup.EnsureCRMConnectionSetupIsDisabled();
         Init();
@@ -559,10 +617,19 @@ page 7201 "CDS Connection Setup Wizard"
             "User Name" := CDSConnectionSetup."User Name";
             UserPassword := CDSConnectionSetup.GetPassword();
             SetPassword(UserPassword);
+            if not SoftwareAsAService then begin
+                "Client Id" := CDSConnectionSetup."Client Id";
+                ClientSecret := CDSConnectionSetup.GetClientSecret();
+                SetClientSecret(ClientSecret);
+                "Redirect URL" := CDSConnectionSetup."Redirect URL";
+            end;
         end else begin
             TempCDSConnectionSetup."Ownership Model" := TempCDSConnectionSetup."Ownership Model"::Team;
             InitializeDefaultAuthenticationType();
         end;
+        if not SoftwareAsAService then
+            if "Redirect URL" = '' then
+                "Redirect URL" := AzureADMgt.GetDefaultRedirectUrl();
         IsPersonOwnershipModelSelected := TempCDSConnectionSetup."Ownership Model" = TempCDSConnectionSetup."Ownership Model"::Person;
         InitializeDefaultProxyVersion();
         Insert();
@@ -572,12 +639,17 @@ page 7201 "CDS Connection Setup Wizard"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
+        CDSConnectionSetup: Record "CDS Connection Setup";
         AssistedSetup: Codeunit "Assisted Setup";
     begin
         if CloseAction = ACTION::OK then
             if AssistedSetup.ExistsAndIsNotComplete(PAGE::"CDS Connection Setup Wizard") then
-                if not Confirm(ConnectionNotSetUpQst, false) then
-                    Error('');
+                if CDSConnectionSetup."Is Enabled" then begin
+                    if not Confirm(ConnectionNotCompletedQst, false) then
+                        Error('');
+                end else
+                    if not Confirm(ConnectionNotSetUpQst, false) then
+                        Error('');
     end;
 
     var
@@ -590,7 +662,7 @@ page 7201 "CDS Connection Setup Wizard"
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         ClientTypeManagement: Codeunit "Client Type Management";
         CrmHelper: DotNet CrmHelper;
-        Step: Option Info,Admin,IntegrationUser,OwnershipModel,CoupleSalespersons,FullSynchReview,Finish;
+        Step: Option Info,Application,Admin,IntegrationUser,OwnershipModel,CoupleSalespersons,FullSynchReview,Finish;
         Window: Dialog;
         [NonDebuggable]
         AdminAccessToken: Text;
@@ -598,6 +670,10 @@ page 7201 "CDS Connection Setup Wizard"
         AdminUserName: Text;
         [NonDebuggable]
         AdminPassword: Text;
+        [NonDebuggable]
+        ClientSecret: Text;
+        SoftwareAsAService: Boolean;
+        ApplicationStepVisible: Boolean;
         TopBannerVisible: Boolean;
         BackActionEnabled: Boolean;
         NextActionEnabled: Boolean;
@@ -614,7 +690,7 @@ page 7201 "CDS Connection Setup Wizard"
         HasAdminSignedIn: Boolean;
         AreAdminCredentialsCorrect: Boolean;
         FinishWithoutSynchronizingData: Boolean;
-        GlobalDiscoUrlTokTxt: Label 'https://globaldisco.crm.dynamics.com/', Locked = true;
+        GlobalDiscoUrlTok: Label 'https://globaldisco.crm.dynamics.com/', Locked = true;
         OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespersons in Business Central with users in Common Data Service before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespersons and users now?';
         SynchronizationRecommendationsLbl: Label 'Show synchronization recommendations';
         UserPassword: Text;
@@ -624,6 +700,7 @@ page 7201 "CDS Connection Setup Wizard"
         CoupleSalesPeopleTxt: Label 'Couple Salespeople to Users';
         NoEnvironmentSelectedErr: Label 'To sign in the administrator user you must specify an environment.';
         ConnectionNotSetUpQst: Label 'The connection to Common Data Service environment has not been set up.\\Are you sure you want to exit?';
+        ConnectionNotCompletedQst: Label 'The setup for Common Data Service is not complete.\\Are you sure you want to exit?';
         WrongCredentialsErr: Label 'The credentials provided are incorrect.';
         UsernameAndPasswordShouldNotBeEmptyErr: Label 'You must specify a username and a password for the integration user';
         SalespeoplShouldBeCoupledErr: Label 'When the Person ownership model is selected, coupling of salespeople is required.';
@@ -640,8 +717,13 @@ page 7201 "CDS Connection Setup Wizard"
         CDSEnvironment: Codeunit "CDS Environment";
         OAuth2: Codeunit OAuth2;
         Token: Text;
+        RedirectUrl: Text;
     begin
-        OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), GlobalDiscoUrlTokTxt, Token);
+        if SoftwareAsAService then
+            RedirectUrl := CDSIntegrationImpl.GetRedirectURL()
+        else
+            RedirectUrl := "Redirect URL";
+        OAuth2.AcquireOnBehalfOfToken(RedirectUrl, GlobalDiscoUrlTok, Token);
         CDSEnvironment.SelectTenantEnvironment(Rec, Token, false);
     end;
 
@@ -677,6 +759,8 @@ page 7201 "CDS Connection Setup Wizard"
         case Step of
             Step::Info:
                 ShowInfoStep();
+            Step::Application:
+                ShowApplicationStep();
             Step::Admin:
                 ShowAdminStep();
             Step::IntegrationUser:
@@ -698,6 +782,23 @@ page 7201 "CDS Connection Setup Wizard"
         FinishActionEnabled := false;
 
         InfoStepVisible := true;
+        ApplicationStepVisible := false;
+        AdminStepVisible := false;
+        CredentialsStepVisible := false;
+        ImportSolutionStepVisible := false;
+        OwnershipModelStepVisible := false;
+        CoupleSalespersonsStepVisible := false;
+        FullSynchReviewStepVisible := false;
+    end;
+
+    local procedure ShowApplicationStep()
+    begin
+        BackActionEnabled := true;
+        NextActionEnabled := true;
+        FinishActionEnabled := false;
+
+        InfoStepVisible := false;
+        ApplicationStepVisible := true;
         AdminStepVisible := false;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
@@ -716,6 +817,7 @@ page 7201 "CDS Connection Setup Wizard"
         FinishActionEnabled := false;
 
         InfoStepVisible := false;
+        ApplicationStepVisible := false;
         AdminStepVisible := true;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
@@ -733,6 +835,7 @@ page 7201 "CDS Connection Setup Wizard"
         FinishActionEnabled := false;
 
         InfoStepVisible := false;
+        ApplicationStepVisible := false;
         AdminStepVisible := false;
         CredentialsStepVisible := true;
         OwnershipModelStepVisible := false;
@@ -752,6 +855,7 @@ page 7201 "CDS Connection Setup Wizard"
         end;
 
         InfoStepVisible := false;
+        ApplicationStepVisible := false;
         AdminStepVisible := false;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
@@ -769,6 +873,7 @@ page 7201 "CDS Connection Setup Wizard"
         FinishActionEnabled := false;
 
         InfoStepVisible := false;
+        ApplicationStepVisible := false;
         AdminStepVisible := false;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
@@ -786,6 +891,7 @@ page 7201 "CDS Connection Setup Wizard"
         FinishActionEnabled := true;
 
         InfoStepVisible := false;
+        ApplicationStepVisible := false;
         AdminStepVisible := false;
         CredentialsStepVisible := false;
         ImportSolutionStepVisible := false;
@@ -808,6 +914,8 @@ page 7201 "CDS Connection Setup Wizard"
     begin
         "Ownership Model" := TempCDSConnectionSetup."Ownership Model";
         "Is Enabled" := IsEnabled;
+        if not SoftwareAsAService then
+            SetClientSecret(ClientSecret);
         CDSIntegrationImpl.UpdateConnectionSetupFromWizard(Rec, UserPassword);
         exit(true);
     end;

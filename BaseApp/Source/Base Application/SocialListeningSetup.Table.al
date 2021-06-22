@@ -1,6 +1,9 @@
 table 870 "Social Listening Setup"
 {
     Caption = 'Social Engagement Setup';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+    ObsoleteTag = '17.0';
 
     fields
     {

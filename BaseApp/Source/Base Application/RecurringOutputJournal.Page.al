@@ -401,7 +401,7 @@ page 99000827 "Recurring Output Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -630,6 +630,8 @@ page 99000827 "Recurring Output Journal"
         ProdOrderDescription: Text[50];
         OperationName: Text[50];
         CurrentJnlBatchName: Code[10];
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

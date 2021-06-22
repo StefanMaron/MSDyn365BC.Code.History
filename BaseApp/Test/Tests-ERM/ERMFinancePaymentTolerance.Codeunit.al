@@ -97,7 +97,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure AmountToApplyBySetAppliesToID(DocumentType: Option; DocumentType2: Option; GenJournalLineAmount: Decimal; GenJournalLineAmount2: Decimal)
+    local procedure AmountToApplyBySetAppliesToID(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; GenJournalLineAmount: Decimal; GenJournalLineAmount2: Decimal)
     var
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
@@ -164,7 +164,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure AmountToApplyToleranceWarning(DocumentType: Option; DocumentType2: Option; GenJournalLineAmount: Decimal; GenJournalLineAmount2: Decimal; DocumentType3: Option)
+    local procedure AmountToApplyToleranceWarning(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; GenJournalLineAmount: Decimal; GenJournalLineAmount2: Decimal; DocumentType3: Enum "Gen. Journal Document Type")
     var
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
@@ -2197,7 +2197,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure AmountToApplyInCustomerLedger(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure AmountToApplyInCustomerLedger(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         // Find Posted Customer Ledger Entries.
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
@@ -2214,7 +2214,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure ApplyAndPostGenJournalLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option)
+    local procedure ApplyAndPostGenJournalLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type")
     begin
         FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Account No.", DocumentType);
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
@@ -2258,7 +2258,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         PostGeneralJournalLine(GenJournalLine, GenJournalLine.Amount - DifferenceAmount);
     end;
 
-    local procedure ApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentType2: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
@@ -2367,7 +2367,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -2383,7 +2383,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJournalLineVendor(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreateGenJournalLineVendor(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -2400,7 +2400,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -2435,7 +2435,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         PaymentTerms.Modify(true);
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
@@ -2444,7 +2444,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure FindDetldCustomerLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindDetldCustomerLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -2623,7 +2623,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure VerifyAmountInDetailedLedger(DocumentType: Option; EntryType: Option; DocumentNo: Code[20]; Amount: Decimal)
+    local procedure VerifyAmountInDetailedLedger(DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option; DocumentNo: Code[20]; Amount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -2661,7 +2661,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Normal]
-    local procedure VerifyLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLineAmount: Decimal; DocumentType: Option; DocumentNo: Code[20]; MaxPaymentTolerance: Decimal)
+    local procedure VerifyLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLineAmount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; MaxPaymentTolerance: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin

@@ -420,10 +420,10 @@ codeunit 134776 "Document Attachment Tests"
         CreateSalesDoc(SalesHeader, SalesLine, Customer, Item, SalesHeader."Document Type"::Order);
 
         // [THEN] the sales header has one attachment.
-        CheckDocAttachments(DATABASE::"Sales Header", 1, SalesHeader."No.", SalesHeader."Document Type", 'cust1');
+        CheckDocAttachments(DATABASE::"Sales Header", 1, SalesHeader."No.", SalesHeader."Document Type".AsInteger(), 'cust1');
 
         // [THEN] the sales line has one attachment.
-        CheckDocAttachments(DATABASE::"Sales Line", 1, SalesLine."Document No.", SalesLine."Document Type", 'item1');
+        CheckDocAttachments(DATABASE::"Sales Line", 1, SalesLine."Document No.", SalesLine."Document Type".AsInteger(), 'item1');
     end;
 
     [Test]
@@ -460,11 +460,11 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] the purchase header has one attachment.
 
-        CheckDocAttachments(DATABASE::"Purchase Header", 1, PurchaseHeader."No.", PurchaseHeader."Document Type", 'vend1');
+        CheckDocAttachments(DATABASE::"Purchase Header", 1, PurchaseHeader."No.", PurchaseHeader."Document Type".AsInteger(), 'vend1');
 
         // [THEN] the sales line has one attachment.
 
-        CheckDocAttachments(DATABASE::"Purchase Line", 1, PurchaseLine."Document No.", PurchaseLine."Document Type", 'item1');
+        CheckDocAttachments(DATABASE::"Purchase Line", 1, PurchaseLine."Document No.", PurchaseLine."Document Type".AsInteger(), 'item1');
     end;
 
     [Test]
@@ -515,10 +515,10 @@ codeunit 134776 "Document Attachment Tests"
         OrderNo := SalesHeaderQuote."No.";
 
         // [THEN] Assert docs are flown to sales order
-        CheckDocAttachments(DATABASE::"Sales Header", 1, OrderNo, SalesHeaderQuote."Document Type"::Order, 'salesquote');
+        CheckDocAttachments(DATABASE::"Sales Header", 1, OrderNo, SalesHeaderQuote."Document Type"::Order.AsInteger(), 'salesquote');
 
         // [THEN] the sales line has one attachment for sales order
-        CheckDocAttachments(DATABASE::"Sales Line", 1, OrderNo, SalesHeaderQuote."Document Type"::Order, 'salesline');
+        CheckDocAttachments(DATABASE::"Sales Line", 1, OrderNo, SalesHeaderQuote."Document Type"::Order.AsInteger(), 'salesline');
     end;
 
     [Test]
@@ -569,10 +569,10 @@ codeunit 134776 "Document Attachment Tests"
         InvoiceNo := SalesHeader."No.";
 
         // [THEN] Assert docs are flown to Sales Invoice
-        CheckDocAttachments(DATABASE::"Sales Header", 1, InvoiceNo, SalesHeader."Document Type"::Invoice, 'salesquote');
+        CheckDocAttachments(DATABASE::"Sales Header", 1, InvoiceNo, SalesHeader."Document Type"::Invoice.AsInteger(), 'salesquote');
 
         // [THEN] the sales line should have one document attachment for sales invoice
-        CheckDocAttachments(DATABASE::"Sales Line", 1, InvoiceNo, SalesHeader."Document Type"::Invoice, 'salesline');
+        CheckDocAttachments(DATABASE::"Sales Line", 1, InvoiceNo, SalesHeader."Document Type"::Invoice.AsInteger(), 'salesline');
     end;
 
     [Test]
@@ -623,10 +623,10 @@ codeunit 134776 "Document Attachment Tests"
         OrderNo := PurchaseHeader."No.";
 
         // [THEN] Assert docs are flown to purch order
-        CheckDocAttachments(DATABASE::"Purchase Header", 1, OrderNo, PurchaseHeader."Document Type"::Order, 'purchquote');
+        CheckDocAttachments(DATABASE::"Purchase Header", 1, OrderNo, PurchaseHeader."Document Type"::Order.AsInteger(), 'purchquote');
 
         // [THEN] the sales line has one attachment for purch order
-        CheckDocAttachments(DATABASE::"Purchase Line", 1, OrderNo, PurchaseHeader."Document Type"::Order, 'purchline');
+        CheckDocAttachments(DATABASE::"Purchase Line", 1, OrderNo, PurchaseHeader."Document Type"::Order.AsInteger(), 'purchline');
     end;
 
     [Test]
@@ -673,10 +673,10 @@ codeunit 134776 "Document Attachment Tests"
         OrderNo := PurchaseHeader."No.";
 
         // [THEN] Assert docs are flown to purch order
-        CheckDocAttachments(DATABASE::"Purchase Header", 1, OrderNo, PurchaseHeader."Document Type"::Order, 'purchblanket');
+        CheckDocAttachments(DATABASE::"Purchase Header", 1, OrderNo, PurchaseHeader."Document Type"::Order.AsInteger(), 'purchblanket');
 
         // [THEN] the purch line has one attachment for purch order
-        CheckDocAttachments(DATABASE::"Purchase Line", 1, OrderNo, PurchaseHeader."Document Type"::Order, 'purchblanketline');
+        CheckDocAttachments(DATABASE::"Purchase Line", 1, OrderNo, PurchaseHeader."Document Type"::Order.AsInteger(), 'purchblanketline');
     end;
 
     [Test]
@@ -723,11 +723,11 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] Assert docs are flown to purch invoice at the header level
         CheckDocAttachments(
-          DATABASE::"Purchase Header", 1, PurchaseHeader."No.", PurchaseHeader."Document Type"::Invoice, 'vendortopurchinvoiceheader');
+          DATABASE::"Purchase Header", 1, PurchaseHeader."No.", PurchaseHeader."Document Type"::Invoice.AsInteger(), 'vendortopurchinvoiceheader');
 
         // [THEN] Assert docs are flown to purch invoice at the item line level
         CheckDocAttachments(
-          DATABASE::"Purchase Line", 1, PurchaseLine."Document No.", PurchaseHeader."Document Type"::Invoice, 'itemtopurchinvoiceline');
+          DATABASE::"Purchase Line", 1, PurchaseLine."Document No.", PurchaseHeader."Document Type"::Invoice.AsInteger(), 'itemtopurchinvoiceline');
     end;
 
     [Test]
@@ -1469,7 +1469,7 @@ codeunit 134776 "Document Attachment Tests"
         SalesQuote.AttachAsPDF.Invoke();
 
         // [THEN] New document attachment created with "Document Flow Sales" = yes
-        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type");
+        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type".AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
         DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Quote", SalesHeader."No."));
 
@@ -1560,7 +1560,7 @@ codeunit 134776 "Document Attachment Tests"
         PurchaseQuote.AttachAsPDF.Invoke();
 
         // [THEN] New document attachment created with "Document Flow Purchase" = yes
-        FindDocumentAttachment(DocumentAttachment, Database::"Purchase Header", PurchaseHeader."No.", PurchaseHeader."Document Type");
+        FindDocumentAttachment(DocumentAttachment, Database::"Purchase Header", PurchaseHeader."No.", PurchaseHeader."Document Type".AsInteger());
         DocumentAttachment.TestField("Document Flow Purchase", true);
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseHeader);
@@ -1590,7 +1590,7 @@ codeunit 134776 "Document Attachment Tests"
         PurchaseQuote.AttachAsPDF.Invoke();
 
         // [THEN] New document attachment created with "File Name" = "204 Purchase Quote 1001"
-        FindDocumentAttachment(DocumentAttachment, Database::"Purchase Header", PurchaseHeader."No.", PurchaseHeader."Document Type");
+        FindDocumentAttachment(DocumentAttachment, Database::"Purchase Header", PurchaseHeader."No.", PurchaseHeader."Document Type".AsInteger());
         DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Purchase - Quote", PurchaseHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseHeader);
@@ -1618,7 +1618,7 @@ codeunit 134776 "Document Attachment Tests"
         DocPrint.PrintSalesOrderToDocumentAttachment(SalesHeader, DocPrint.GetSalesOrderPrintToAttachmentOption((SalesHeader)));
 
         // [THEN] New document attachment created with "Document Flow Sales" = yes
-        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order);
+        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
         DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Order Conf.", SalesHeader."No."));
 
@@ -1647,7 +1647,7 @@ codeunit 134776 "Document Attachment Tests"
         DocPrint.PrintSalesOrderToDocumentAttachment(SalesHeader, DocPrint.GetSalesOrderPrintToAttachmentOption((SalesHeader)));
 
         // [THEN] New document attachment created with "Document Flow Sales" = yes
-        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order);
+        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
         DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Pick Instruction", SalesHeader."No."));
 
@@ -1676,7 +1676,7 @@ codeunit 134776 "Document Attachment Tests"
         DocPrint.PrintSalesOrderToDocumentAttachment(SalesHeader, DocPrint.GetSalesOrderPrintToAttachmentOption((SalesHeader)));
 
         // [THEN] New document attachment created with "Document Flow Sales" = yes
-        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order);
+        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
         DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Pro Forma Inv", SalesHeader."No."));
 
@@ -1705,7 +1705,7 @@ codeunit 134776 "Document Attachment Tests"
         DocPrint.PrintSalesOrderToDocumentAttachment(SalesHeader, DocPrint.GetSalesOrderPrintToAttachmentOption((SalesHeader)));
 
         // [THEN] New document attachment created with "Document Flow Sales" = yes
-        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order);
+        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
         DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Work Order", SalesHeader."No."));
 
@@ -1734,7 +1734,7 @@ codeunit 134776 "Document Attachment Tests"
         DocPrint.PrintSalesInvoiceToDocumentAttachment(SalesHeader, DocPrint.GetSalesInvoicePrintToAttachmentOption(SalesHeader));
 
         // [THEN] New document attachment created with "Document Flow Sales" = yes
-        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Invoice);
+        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Invoice.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
         DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Draft Invoice", SalesHeader."No."));
 
@@ -1763,7 +1763,7 @@ codeunit 134776 "Document Attachment Tests"
         DocPrint.PrintSalesInvoiceToDocumentAttachment(SalesHeader, DocPrint.GetSalesInvoicePrintToAttachmentOption(SalesHeader));
 
         // [THEN] New document attachment created with "Document Flow Sales" = yes
-        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Invoice);
+        FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Invoice.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
         DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Pro Forma Inv", SalesHeader."No."));
 
@@ -2014,13 +2014,13 @@ codeunit 134776 "Document Attachment Tests"
         Assert.AreEqual(FileName, DocumentAttachment."File Name", 'Unexpected file attached.');
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Customer: Record Customer; Item: Record Item; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Customer: Record Customer; Item: Record Item; DocType: Enum "Sales Document Type")
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
     end;
 
-    local procedure CreatePurchDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Vendor: Record Vendor; Item: Record Item; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure CreatePurchDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Vendor: Record Vendor; Item: Record Item; DocType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
@@ -2156,7 +2156,7 @@ codeunit 134776 "Document Attachment Tests"
         exit(StrSubstNo('%1 %2 %3', ReportId, GetReportCaption(ReportId), DocumentNo));
     end;
 
-    local procedure MockDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; TableId: Integer; DocumentNo: Code[20]; DocumentType: Option; FileName: Text; FileExtension: Text)
+    local procedure MockDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; TableId: Integer; DocumentNo: Code[20]; DocumentType: Enum "Attachment Document Type"; FileName: Text; FileExtension: Text)
     begin
         Clear(DocumentAttachment);
         with DocumentAttachment do begin
@@ -2169,7 +2169,7 @@ codeunit 134776 "Document Attachment Tests"
         end;
     end;
 
-    procedure SetupReportSelection(ReportUsage: Option; ReportId: Integer)
+    procedure SetupReportSelection(ReportUsage: Enum "Report Selection Usage"; ReportId: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin

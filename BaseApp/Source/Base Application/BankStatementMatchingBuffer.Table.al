@@ -20,12 +20,10 @@ table 1250 "Bank Statement Matching Buffer"
             Caption = 'Quality';
             DataClassification = SystemMetadata;
         }
-        field(4; "Account Type"; Option)
+        field(4; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account";
         }
         field(5; "Account No."; Code[20])
         {
@@ -71,7 +69,7 @@ table 1250 "Bank Statement Matching Buffer"
     {
     }
 
-    procedure AddMatchCandidate(LineNo: Integer; EntryNo: Integer; NewQuality: Integer; Type: Option; AccountNo: Code[20])
+    procedure AddMatchCandidate(LineNo: Integer; EntryNo: Integer; NewQuality: Integer; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         BankStatementMatchingBuffer: Record "Bank Statement Matching Buffer";
     begin
@@ -79,9 +77,9 @@ table 1250 "Bank Statement Matching Buffer"
         BankStatementMatchingBuffer."Line No." := LineNo;
         BankStatementMatchingBuffer."Entry No." := EntryNo;
         BankStatementMatchingBuffer."Account No." := AccountNo;
-        BankStatementMatchingBuffer."Account Type" := Type;
+        BankStatementMatchingBuffer."Account Type" := AccountType;
         BankStatementMatchingBuffer.Quality := NewQuality;
-        if Get(LineNo, EntryNo, Type, AccountNo) then begin
+        if Get(LineNo, EntryNo, AccountType, AccountNo) then begin
             Rec := BankStatementMatchingBuffer;
             Modify
         end else begin
@@ -90,7 +88,7 @@ table 1250 "Bank Statement Matching Buffer"
         end;
     end;
 
-    procedure InsertOrUpdateOneToManyRule(TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; LineNo: Integer; RelatedPartyMatched: Option; AccountType: Option; RemainingAmount: Decimal)
+    procedure InsertOrUpdateOneToManyRule(TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; LineNo: Integer; RelatedPartyMatched: Option; AccountType: Enum "Gen. Journal Account Type"; RemainingAmount: Decimal)
     begin
         Init;
         SetRange("Line No.", LineNo);

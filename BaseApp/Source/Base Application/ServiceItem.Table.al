@@ -59,7 +59,7 @@ table 5940 "Service Item"
             begin
                 if xRec."Service Item Group Code" = "Service Item Group Code" then begin
                     if not CancelResSkillAssignment then
-                        ResSkillMgt.RevalidateRelation(
+                        ResSkillMgt.RevalidateResSkillRelation(
                           ResSkill.Type::"Service Item",
                           "No.",
                           ResSkill.Type::"Service Item Group",
@@ -69,7 +69,7 @@ table 5940 "Service Item"
                         if CancelResSkillChanges then
                             ResSkillMgt.SkipValidationDialogs;
 
-                        if not ResSkillMgt.ChangeRelationWithGroup(
+                        if not ResSkillMgt.ChangeResSkillRelationWithGroup(
                              ResSkill.Type::"Service Item",
                              "No.",
                              ResSkill.Type::"Service Item Group",
@@ -214,7 +214,7 @@ table 5940 "Service Item"
                     if not CancelResSkillAssignment then begin
                         if CancelResSkillChanges then
                             ResSkillMgt.SkipValidationDialogs;
-                        if not ResSkillMgt.ChangeRelationWithItem(
+                        if not ResSkillMgt.ChangeResSkillRelationWithItem(
                              ResSkill.Type::"Service Item",
                              "No.",
                              ResSkill.Type::Item,
@@ -255,7 +255,7 @@ table 5940 "Service Item"
                     MessageIfServItemLinesExist(FieldCaption("Item No."));
                 end else
                     if not CancelResSkillAssignment then
-                        ResSkillMgt.RevalidateRelation(
+                        ResSkillMgt.RevalidateResSkillRelation(
                           ResSkill.Type::"Service Item",
                           "No.",
                           ResSkill.Type::Item,
@@ -1074,7 +1074,7 @@ table 5940 "Service Item"
         exit(ServItemLine.FindFirst);
     end;
 
-    local procedure MessageIfServItemLinesExist(ChangedFieldName: Text[100])
+    procedure MessageIfServItemLinesExist(ChangedFieldName: Text[100])
     var
         MessageText: Text;
         ShowMessage: Boolean;

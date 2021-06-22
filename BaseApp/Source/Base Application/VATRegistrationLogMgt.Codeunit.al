@@ -35,7 +35,7 @@ codeunit 249 "VAT Registration Log Mgt."
             exit;
 
         InsertVATRegistrationLog(
-          Customer."VAT Registration No.", CountryCode, VATRegistrationLog."Account Type"::Customer, Customer."No.");
+          Customer."VAT Registration No.", CountryCode, VATRegistrationLog."Account Type"::Customer.AsInteger(), Customer."No.");
     end;
 
     procedure LogVendor(Vendor: Record Vendor)
@@ -48,7 +48,7 @@ codeunit 249 "VAT Registration Log Mgt."
             exit;
 
         InsertVATRegistrationLog(
-          Vendor."VAT Registration No.", CountryCode, VATRegistrationLog."Account Type"::Vendor, Vendor."No.");
+          Vendor."VAT Registration No.", CountryCode, VATRegistrationLog."Account Type"::Vendor.AsInteger(), Vendor."No.");
     end;
 
     procedure LogContact(Contact: Record Contact)
@@ -61,7 +61,7 @@ codeunit 249 "VAT Registration Log Mgt."
             exit;
 
         InsertVATRegistrationLog(
-          Contact."VAT Registration No.", CountryCode, VATRegistrationLog."Account Type"::Contact, Contact."No.");
+          Contact."VAT Registration No.", CountryCode, VATRegistrationLog."Account Type"::Contact.AsInteger(), Contact."No.");
     end;
 
     [Scope('OnPrem')]
@@ -71,7 +71,7 @@ codeunit 249 "VAT Registration Log Mgt."
         FoundXmlNode: DotNet XmlNode;
     begin
         if not XMLDOMMgt.FindNodeWithNamespace(XMLDoc.DocumentElement, ValidPathTxt, 'vat', Namespace, FoundXmlNode) then begin
-            SendTraceTag('0000C4T', EUVATRegNoValidationServiceTok, VERBOSITY::Error, ValidationFailureMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000C4T', ValidationFailureMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EUVATRegNoValidationServiceTok);
             Error(UnexpectedResponseErr, VATRegistrationLog."Country/Region Code");
         end;
 
@@ -157,7 +157,7 @@ codeunit 249 "VAT Registration Log Mgt."
             Init;
             "VAT Registration No." := VATRegNo;
             "Country/Region Code" := CountryCode;
-            "Account Type" := AccountType;
+            "Account Type" := "VAT Registration Log Account Type".FromInteger(AccountType);
             "Account No." := AccountNo;
             "User ID" := UserId;
             Insert(true);

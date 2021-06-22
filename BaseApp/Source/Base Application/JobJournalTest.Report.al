@@ -305,7 +305,7 @@ report 1005 "Job Journal - Test"
 
                         TableID[1] := DATABASE::Job;
                         No[1] := "Job No.";
-                        TableID[2] := DimMgt.TypeToTableID2(Type);
+                        TableID[2] := DimMgt.TypeToTableID2(Type.AsInteger());
                         No[2] := "No.";
                         TableID[3] := DATABASE::"Resource Group";
                         No[3] := "Resource Group No.";

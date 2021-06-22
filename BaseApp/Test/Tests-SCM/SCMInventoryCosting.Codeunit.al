@@ -234,7 +234,7 @@ codeunit 137007 "SCM Inventory Costing"
         RollUpStandardCostWithDifferentVersionStatus(RoutingVersion.Status::Certified, false);  // Prod BOM Version as False.
     end;
 
-    local procedure RollUpStandardCostWithDifferentVersionStatus(VersionStatus: Option; ProdBOMVersion: Boolean)
+    local procedure RollUpStandardCostWithDifferentVersionStatus(VersionStatus: Enum "BOM Status"; ProdBOMVersion: Boolean)
     var
         Item: Record Item;
         StandardCostWorksheet: Record "Standard Cost Worksheet";
@@ -986,7 +986,6 @@ codeunit 137007 "SCM Inventory Costing"
         ItemNo: Code[20];
         ItemNo2: Code[20];
         ItemNo3: Code[20];
-        FlushingMethod: Option Manual,Forward,Backward;
     begin
         // Steps describing the sequence of actions for Test Case.
 
@@ -1002,13 +1001,13 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryInventory.SetAverageCostSetup(AverageCostCalcType::Item, AverageCostPeriod::Day);
 
         // Create Items with Costing Method FIFO, False if Cost is different from expected.
-        CreateItem(Item, Item."Costing Method"::FIFO, Item."Reordering Policy"::"Lot-for-Lot", FlushingMethod::Forward, '', '', CostExpected);
+        CreateItem(Item, Item."Costing Method"::FIFO, Item."Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Forward, '', '', CostExpected);
         ItemNo := Item."No.";
         Clear(Item);
-        CreateItem(Item, Item."Costing Method"::FIFO, Item."Reordering Policy"::"Lot-for-Lot", FlushingMethod::Forward, '', '', CostExpected);
+        CreateItem(Item, Item."Costing Method"::FIFO, Item."Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Forward, '', '', CostExpected);
         ItemNo2 := Item."No.";
         Clear(Item);
-        CreateItem(Item, Item."Costing Method"::FIFO, Item."Reordering Policy"::"Lot-for-Lot", FlushingMethod::Forward, '', '', CostExpected);
+        CreateItem(Item, Item."Costing Method"::FIFO, Item."Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Forward, '', '', CostExpected);
         ItemNo3 := Item."No.";
 
         // 2.1 Execute: Create and Post Purchase Order, True if partial receive and Invoice.
@@ -1047,7 +1046,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryInventory.PostTransferHeader(TransferHeader, true, true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Option Standard,"Average"; ItemReorderPolicy: Option; FlushingMethod: Option; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; CostExpected: Boolean)
+    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Enum "Costing Method"; ItemReorderPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; CostExpected: Boolean)
     begin
         // Create Item with required fields where random and other values are not important for test.
         LibraryManufacturing.CreateItemManufacturing(
@@ -1059,7 +1058,7 @@ codeunit 137007 "SCM Inventory Costing"
         Item.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyfromVendorNo: Code[20]; LocationCode: Code[10])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyfromVendorNo: Code[20]; LocationCode: Code[10])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, BuyfromVendorNo);
         PurchaseHeader.Validate("Location Code", LocationCode);
@@ -1092,7 +1091,7 @@ codeunit 137007 "SCM Inventory Costing"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseLineWithUnitCost(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLineWithUnitCost(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
@@ -1107,7 +1106,7 @@ codeunit 137007 "SCM Inventory Costing"
         CreateItemWithStockkeepingUnitsPerLocation(Item);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateItemJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal)
     begin
         SelectItemJournalBatch(ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
@@ -1160,7 +1159,7 @@ codeunit 137007 "SCM Inventory Costing"
         exit(QtyPer * QtyPer2);
     end;
 
-    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Option)
+    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -1173,7 +1172,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryInventory.CreateStockKeepingUnit(Item, 0, false, true); // Create stockkeeping units per location
     end;
 
-    local procedure CreateCertifiedProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; UnitOfMeasure: Code[10]; ProductionBOMLineType: Option; No: Code[20]; QuantityPer: Decimal)
+    local procedure CreateCertifiedProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; UnitOfMeasure: Code[10]; ProductionBOMLineType: Enum "Production BOM Line Type"; No: Code[20]; QuantityPer: Decimal)
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
@@ -1327,7 +1326,7 @@ codeunit 137007 "SCM Inventory Costing"
         ItemJournalLine."Journal Batch Name" := ItemJournalBatch.Name;
     end;
 
-    local procedure MockItemWithManufacturingCosts(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure MockItemWithManufacturingCosts(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
         Item."Costing Method" := Item."Costing Method"::Standard;
@@ -1456,7 +1455,7 @@ codeunit 137007 "SCM Inventory Costing"
         exit(DirectIndirectPOCost);
     end;
 
-    local procedure UpdateStatusOnProductionBOMVersion(ProductionBOMVersion: Record "Production BOM Version"; Status: Option)
+    local procedure UpdateStatusOnProductionBOMVersion(ProductionBOMVersion: Record "Production BOM Version"; Status: Enum "BOM Status")
     begin
         ProductionBOMVersion.Validate(Status, Status);
         ProductionBOMVersion.Modify(true);
@@ -1486,7 +1485,7 @@ codeunit 137007 "SCM Inventory Costing"
         StandardCostWorksheet.Modify(true);
     end;
 
-    local procedure CreateProductionBOMVersionAndUpdateStatus(ProductionBOMNo: Code[20]; Status: Option)
+    local procedure CreateProductionBOMVersionAndUpdateStatus(ProductionBOMNo: Code[20]; Status: Enum "BOM Status")
     var
         ProductionBOMVersion: Record "Production BOM Version";
         ProductionBOMHeader: Record "Production BOM Header";
@@ -1518,13 +1517,13 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
     end;
 
-    local procedure UpdateStatusOnRoutingVersion(RoutingVersion: Record "Routing Version"; Status: Option)
+    local procedure UpdateStatusOnRoutingVersion(RoutingVersion: Record "Routing Version"; Status: Enum "BOM Status")
     begin
         RoutingVersion.Validate(Status, Status);
         RoutingVersion.Modify(true);
     end;
 
-    local procedure CreateRoutingVersionAndUpdateStatus(RoutingHeader: Record "Routing Header"; Status: Option)
+    local procedure CreateRoutingVersionAndUpdateStatus(RoutingHeader: Record "Routing Header"; Status: Enum "BOM Status")
     var
         RoutingVersion: Record "Routing Version";
         RoutingLineCopyLines: Codeunit "Routing Line-Copy Lines";

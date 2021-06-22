@@ -33,7 +33,7 @@ codeunit 136141 "Service Order Release validate"
         LibraryWarehouse.CreateWhseShipmentFromServiceOrder(ServHeader);
         LibraryService.ReopenServiceDocument(ServHeader);
         WhseShptHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Service Line", ServHeader."Document Type", ServHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Service Line", ServHeader."Document Type".AsInteger(), ServHeader."No."));
         // to be done later as part of next deliverable with 'pick'
         asserterror LibraryWarehouse.PostWhseShipment(WhseShptHeader, false);
     end;

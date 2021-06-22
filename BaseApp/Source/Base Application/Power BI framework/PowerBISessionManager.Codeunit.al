@@ -22,8 +22,7 @@ codeunit 6317 "Power BI Session Manager"
     begin
         HasPowerBILicense := Value;
 
-        SendTraceTag('0000BVI', PowerBIServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Normal,
-            StrSubstNo(UserLicenseSetTelemetryMsg, Value), DataClassification::SystemMetadata);
+        Session.LogMessage('0000BVI', StrSubstNo(UserLicenseSetTelemetryMsg, Value), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
 
         PowerBIUserLicense.LockTable();
         if PowerBIUserLicense.Get(UserSecurityId) then begin

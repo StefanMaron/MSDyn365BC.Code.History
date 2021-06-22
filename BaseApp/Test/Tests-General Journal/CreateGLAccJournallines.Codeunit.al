@@ -125,7 +125,7 @@ codeunit 136401 "Create G/L Acc. Journal lines"
         CreateGLAccJnlLines.SetTableView(GLAccount);
         // Invoice is used here since document type is not important.
         CreateGLAccJnlLines.InitializeRequest(
-          GenJnlLine."Document Type"::Invoice, PostingDate, JournalTemplate, BatchName, StandardTemplate);
+          GenJnlLine."Document Type"::Invoice.AsInteger(), PostingDate, JournalTemplate, BatchName, StandardTemplate);
         CreateGLAccJnlLines.UseRequestPage(false);
         CreateGLAccJnlLines.Run;
     end;

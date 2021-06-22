@@ -477,7 +477,7 @@ page 286 "Recurring Item Jnl."
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -708,7 +708,7 @@ page 286 "Recurring Item Jnl."
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        if "Entry Type" > "Entry Type"::"Negative Adjmt." then
+        if "Entry Type".AsInteger() > "Entry Type"::"Negative Adjmt.".AsInteger() then
             Error(Text000, "Entry Type");
     end;
 
@@ -747,6 +747,8 @@ page 286 "Recurring Item Jnl."
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         NewShortcutDimCode: array[8] of Code[20];
 

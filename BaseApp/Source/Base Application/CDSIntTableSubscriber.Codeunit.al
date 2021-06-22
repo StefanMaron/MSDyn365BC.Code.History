@@ -7,6 +7,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     end;
 
     var
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
         UserCDSSetupTxt: Label 'Common Data Service User Setup';
@@ -16,34 +17,46 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         RecordNotFoundErr: Label 'Cannot find %1 in table %2.', Comment = '%1 = The lookup value when searching for the source record, %2 = Source table caption';
         ContactMustBeRelatedToCustomerOrVendorErr: Label 'The contact %1 must have a contact company that has a business relation to a customer or vendor.', Comment = '%1 = Contact No.';
         NewCodePatternTxt: Label 'SP NO. %1', Locked = true;
+        SalespersonPurchaserCodeFilterLbl: Label 'SP NO. 0*', Locked = true;
+        CouplingsNeedToBeResetErr: Label 'Common Data Service integration is enabled. The existing couplings need to be reset to enable other companies access to records coupled to the company being deleted.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnInitCDSConnection', '', true, true)]
     local procedure HandleOnInitCDSConnection(var ConnectionName: Text; var handled: Boolean)
     begin
+        if handled then
+            exit;
+
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
         if not CDSIntegrationImpl.RegisterConnection() then
             exit;
 
-        handled := CDSIntegrationImpl.ActivateConnection();
-
-        if handled then
+        if CDSIntegrationImpl.ActivateConnection() then begin
+            handled := true;
             ConnectionName := CDSIntegrationImpl.GetConnectionDefaultName();
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnCloseCDSConnection', '', true, true)]
     local procedure HandleOnCloseCDSConnection(ConnectionName: Text; var handled: Boolean)
     begin
+        if handled then
+            exit;
+
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
-        handled := CDSIntegrationImpl.UnregisterConnection(ConnectionName);
+        if CDSIntegrationImpl.UnregisterConnection(ConnectionName) then
+            handled := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnTestCDSConnection', '', true, true)]
     local procedure HandleOnTestCDSConnection(var handled: Boolean)
     begin
+        if handled then
+            exit;
+
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
@@ -57,6 +70,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CDSSystemuser: Record "CRM Systemuser";
     begin
+        if handled then
+            exit;
+
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
@@ -75,6 +91,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
+        if handled then
+            exit;
+
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
@@ -118,6 +137,11 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     begin
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
+
+        // if the CDS entity already has a correct company id, do nothing
+        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(SourceRecordRef) then
+            exit;
+
         SourceRecordRef.SetTable(CRMContact);
         // it is required to calculate these fields, otherwise CDS fails to modify the entity
         if (CRMContact.CreatedByName = '') or (CRMContact.ModifiedByName = '') or (CRMContact.TransactionCurrencyIdName = '') then begin
@@ -139,6 +163,10 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
+        // if the CDS entity already has a correct company id, do nothing
+        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(SourceRecordRef) then
+            exit;
+
         SourceRecordRef.SetTable(CRMAccount);
         // it is required to calculate these fields, otherwise CDS fails to modify the entity
         if (CRMAccount.CreatedByName = '') or (CRMAccount.ModifiedByName = '') or (CRMAccount.TransactionCurrencyIdName = '') then begin
@@ -158,11 +186,17 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         CDSConnectionSetup: Record "CDS Connection Setup";
+        DestinationRecRef: RecordRef;
+        OriginalDestinationFieldValue: Variant;
+        IsClearValueOnFailedSync: Boolean;
         OptionValue: Integer;
         EmptyGuid: Guid;
         TableValue: Text;
         SourceValue: Text;
     begin
+        if IsValueFound then
+            exit;
+
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
@@ -188,11 +222,12 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             end;
         end;
 
+        OriginalDestinationFieldValue := DestinationFieldRef.Value();
         if DestinationFieldRef.Name() = 'Primary Contact No.' then begin
             SourceValue := Format(SourceFieldRef.Value());
             if (SourceValue = '') or (SourceValue = Format(EmptyGuid)) then begin
                 // in case of bringing in a blank value for a field that is marked as "Clear Value on Failed Sync", keep the Destination value
-                NewValue := DestinationFieldRef.Value();
+                NewValue := OriginalDestinationFieldValue;
                 IsValueFound := true;
                 NeedsConversion := false;
                 exit;
@@ -211,6 +246,20 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             end else
                 if CRMSynchHelper.AreFieldsRelatedToMappedTables(SourceFieldRef, DestinationFieldRef, IntegrationTableMapping) then begin
                     IsValueFound := FindNewValueForCoupledRecordPK(IntegrationTableMapping, SourceFieldRef, DestinationFieldRef, NewValue);
+                    if IsValueFound then begin
+                        if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::ToIntegrationTable then
+                            IsClearValueOnFailedSync := CRMSynchHelper.IsClearValueOnFailedSync(SourceFieldRef, DestinationFieldRef)
+                        else
+                            if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::FromIntegrationTable then
+                                IsClearValueOnFailedSync := CRMSynchHelper.IsClearValueOnFailedSync(DestinationFieldRef, SourceFieldRef);
+
+                        if IsClearValueOnFailedSync then begin
+                            DestinationRecRef := DestinationFieldRef.Record();
+                            DestinationFieldRef.SetRange(NewValue);
+                            if DestinationRecRef.IsEmpty() then
+                                NewValue := OriginalDestinationFieldValue;
+                        end;
+                    end;
                     NeedsConversion := false;
                 end;
     end;
@@ -243,7 +292,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeModifyRecord', '', false, false)]
-    local procedure HandleOnBeforeModifyRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    local procedure HandleOnBeforeModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
     begin
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
@@ -260,7 +309,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterModifyRecord', '', false, false)]
-    local procedure HandleOnAfterModifyRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    local procedure HandleOnAfterModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
     begin
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
@@ -269,12 +318,151 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             CRMSynchHelper.UpdateContactOnModifyVendor(DestinationRecordRef);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Integration Mgt.", 'OnHasCompanyIdField', '', false, false)]
+    local procedure HandleOnHasCompanyIdField(TableId: Integer; var HasField: Boolean)
+    begin
+        case TableId of
+            Database::"CRM Account",
+            Database::"CRM Contact",
+            Database::"CRM Invoice",
+            Database::"CRM Quote",
+            Database::"CRM Salesorder",
+            Database::"CRM Opportunity",
+            Database::"CRM Product",
+            Database::"CRM Productpricelevel":
+                HasField := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Int. Rec. Uncouple Invoke", 'OnBeforeUncoupleRecord', '', false, false)]
+    local procedure HandleOnBeforeUncoupleRecord(IntegrationTableMapping: Record "Integration Table Mapping"; var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef)
+    var
+        HasField: Boolean;
+    begin
+        CDSIntegrationMgt.OnHasCompanyIdField(IntegrationRecordRef.Number(), HasField);
+        if not HasField then
+            exit;
+
+        if IntegrationRecordRef.IsEmpty() then
+            exit;
+
+        if not CDSIntegrationImpl.IsIntegrationEnabled() then
+            exit;
+
+        CDSIntegrationMgt.ResetCompanyId(IntegrationRecordRef);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Int. Rec. Uncouple Invoke", 'OnAfterUncoupleRecord', '', false, false)]
+    local procedure HandleOnAfterUncoupleRecord(IntegrationTableMapping: Record "Integration Table Mapping"; var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef)
+    begin
+        RemoveChildCouplings(LocalRecordRef, IntegrationRecordRef);
+    end;
+
+    local procedure RemoveChildCouplings(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef)
+    var
+        TempContact: Record Contact temporary;
+    begin
+        if GetCoupledChildContacts(LocalRecordRef, IntegrationRecordRef, TempContact) then
+            RemoveCouplingForChildContacts(TempContact);
+    end;
+
+    local procedure GetCoupledChildContacts(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef; var TempContact: Record Contact temporary): Boolean
+    var
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        Contact: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+        CRMAccount: Record "CRM Account";
+        CRMContact: Record "CRM Contact";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMID: Guid;
+        Found: Boolean;
+    begin
+        if IntegrationRecordRef.Number() <> Database::"CRM Account" then
+            exit(false);
+
+        IntegrationRecordRef.SetTable(CRMAccount);
+        if IsNullGuid(CRMAccount.AccountId) then
+            exit(false);
+
+        case LocalRecordRef.Number() of
+            Database::Customer:
+                begin
+                    LocalRecordRef.SetTable(Customer);
+                    if IsNullGuid(Customer.SystemId) then
+                        exit(false);
+                    ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
+                    ContBusRel.SetRange("No.", Customer."No.");
+                end;
+            Database::Vendor:
+                begin
+                    LocalRecordRef.SetTable(Vendor);
+                    if IsNullGuid(Vendor.SystemId) then
+                        exit(false);
+                    ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
+                    ContBusRel.SetRange("No.", Vendor."No.");
+                end;
+            else
+                exit(false);
+        end;
+
+        // Get the Company Contact for this Customer or Vendor
+        ContBusRel.SetCurrentKey("Link to Table", "No.");
+        if ContBusRel.FindFirst() then begin
+            // Get all Person Contacts under it
+            Contact.SetCurrentKey("Company Name", "Company No.", Type, Name);
+            Contact.SetRange("Company No.", ContBusRel."Contact No.");
+            Contact.SetRange(Type, Contact.Type::Person);
+            if Contact.FindSet() then
+                // Collect coupled CRM Contacts under the CRM Account the Customer or Vendor is coupled to
+                repeat
+                    if CRMIntegrationRecord.FindIDFromRecordID(Contact.RecordId(), CRMID) then begin
+                        CRMContact.Get(CRMID);
+                        if CRMContact.ParentCustomerId = CRMAccount.AccountId then begin
+                            TempContact.Copy(Contact);
+                            TempContact.Insert();
+                            Found := true;
+                        end;
+                    end;
+                until Contact.Next() = 0;
+        end;
+        exit(Found);
+    end;
+
+    local procedure RemoveCouplingForChildContacts(var TempContact: Record Contact temporary)
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        ContactRecordRef: RecordRef;
+        SystemIdFieldRef: Fieldref;
+        SystemIdFilter: Text;
+    begin
+        if not TempContact.FindSet() then
+            exit;
+
+        repeat
+            SystemIdFilter += TempContact.SystemId + '|';
+        until TempContact.Next() = 0;
+        SystemIdFilter := SystemIdFilter.TrimEnd('|');
+        if SystemIdFilter = '' then
+            exit;
+
+        ContactRecordRef.Open(Database::Contact);
+        SystemIdFieldRef := ContactRecordRef.Field(ContactRecordRef.SystemIdNo());
+        SystemIdFieldRef.SetFilter(SystemIdFilter);
+        if not ContactRecordRef.FindSet() then
+            exit;
+
+        CRMIntegrationManagement.RemoveCoupling(ContactRecordRef, false);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnIsCDSIntegrationEnabled', '', false, false)]
     local procedure HandleOnIsCDSIntegrationEnabled(var isEnabled: Boolean)
-    var
-        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
     begin
-        isEnabled := CDSIntegrationMgt.IsIntegrationEnabled();
+        if isEnabled then
+            exit;
+
+        if CDSIntegrationMgt.IsIntegrationEnabled() then
+            isEnabled := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Synch. Helper", 'OnGetCDSBaseCurrencyId', '', false, false)]
@@ -282,6 +470,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
+        if handled then
+            exit;
+
         if not CDSConnectionSetup.Get() then
             exit;
 
@@ -297,6 +488,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
+        if handled then
+            exit;
+
         if not CDSConnectionSetup.Get() then
             exit;
 
@@ -312,6 +506,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
+        if handled then
+            exit;
+
         if not CDSConnectionSetup.Get() then
             exit;
 
@@ -327,6 +524,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
+        if handled then
+            exit;
+
         if not CDSConnectionSetup.Get() then
             exit;
 
@@ -342,6 +542,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
     begin
+        if handled then
+            exit;
+
         if not CDSConnectionSetup.Get() then
             exit;
 
@@ -355,6 +558,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Synch. Helper", 'OnGetVendorSyncEnabled', '', false, false)]
     local procedure HandleOnGetVendorSyncEnabled(var Enabled: Boolean)
     begin
+        if Enabled then
+            exit;
+
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
@@ -371,6 +577,20 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         CDSConnectionSetup.DeleteAll();
         CRMConnectionSetup.ChangeCompany(NewCompanyName);
         CRMConnectionSetup.DeleteAll();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Company, 'OnBeforeDeleteEvent', '', false, false)]
+    local procedure DeleteCouplingOnBeforeDeleteCompany(var Rec: Record Company; RunTrigger: Boolean)
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+    begin
+        if CDSConnectionSetup.ChangeCompany(Rec.Name) then
+            if CDSConnectionSetup.Get() then
+                if CDSConnectionSetup."Is Enabled" then
+                    if CRMIntegrationRecord.ChangeCompany(Rec.Name) then
+                        if not CRMIntegrationRecord.IsEmpty() then
+                            Error(CouplingsNeedToBeResetErr);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Table Synch.", 'OnQueryPostFilterIgnoreRecord', '', false, false)]
@@ -614,22 +834,22 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         DestinationFieldRef: FieldRef;
-        NewCodeId: Integer;
+        NewCode: Text;
     begin
         // We need to create a new code for this SP.
-        // To do so we just do a SP A
-        NewCodeId := 1;
-        while SalespersonPurchaser.Get(StrSubstNo(NewCodePatternTxt, NewCodeId)) do
-            NewCodeId := NewCodeId + 1;
+        // To do so we just do a SP NO. A
+        SalespersonPurchaser.SetFilter(Code, SalespersonPurchaserCodeFilterLbl);
+        if SalespersonPurchaser.FindLast() then
+            NewCode := IncStr(SalespersonPurchaser.Code)
+        else
+            NewCode := StrSubstNo(NewCodePatternTxt, '00001');
 
         DestinationFieldRef := DestinationRecordRef.Field(SalespersonPurchaser.FieldNo(Code));
-        DestinationFieldRef.Value := StrSubstNo(NewCodePatternTxt, NewCodeId);
+        DestinationFieldRef.Value := NewCode;
     end;
 
     [Scope('OnPrem')]
     procedure SetCompanyId(DestinationRecordRef: RecordRef)
-    var
-        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
     begin
         CDSIntegrationMgt.SetCompanyId(DestinationRecordRef);
     end;
@@ -638,7 +858,6 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     procedure SetOwnerId(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
-        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         UserId: Guid;
     begin
         CDSConnectionSetup.Get();

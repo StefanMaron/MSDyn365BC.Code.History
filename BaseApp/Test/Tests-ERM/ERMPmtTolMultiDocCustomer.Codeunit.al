@@ -518,7 +518,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Pmt Tol Multi Doc Customer");
     end;
 
-    local procedure PaymentWithDiscount(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; DocumentType: Option; DocumentType2: Option; Amount: Decimal; Amount2: Decimal; NoOfLines: Integer; PostingDate: Date)
+    local procedure PaymentWithDiscount(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; Amount2: Decimal; NoOfLines: Integer; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
@@ -542,7 +542,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
           -PmtDiscount);
     end;
 
-    local procedure PaymentWithTolerance(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; DocumentType: Option; DocumentType2: Option; Amount: Decimal; Amount2: Decimal; NoOfLines: Integer; PostingDate: Date)
+    local procedure PaymentWithTolerance(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; Amount2: Decimal; NoOfLines: Integer; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
@@ -565,7 +565,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
           DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", -PmtTolAmount);
     end;
 
-    local procedure PaymentWithDiscountTolerance(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; DocumentType: Option; DocumentType2: Option; Amount: Decimal; Amount2: Decimal; NoOfLines: Integer; PostingDate: Date)
+    local procedure PaymentWithDiscountTolerance(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; Amount2: Decimal; NoOfLines: Integer; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
@@ -624,7 +624,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; CustomerNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; DocumentDate: Date; NoOfLines: Integer)
+    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; DocumentDate: Date; NoOfLines: Integer)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         Counter: Integer;
@@ -636,7 +636,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
               CurrencyCode, DocumentDate);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; Amount: Decimal; CustomerNo: Code[20]; DocumentNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CustomerNo: Code[20]; DocumentNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date)
     begin
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
@@ -734,7 +734,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
           Amount * NoOfLines - (GeneralLedgerSetup."Max. Payment Tolerance Amount" + (Amount * NoOfLines * GetDiscountPercent / 100));
     end;
 
-    local procedure ApplyAndPostJournalLines(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option)
+    local procedure ApplyAndPostJournalLines(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type")
     var
         GLRegister: Record "G/L Register";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -818,7 +818,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         until TempGenJournalLine.Next = 0;
     end;
 
-    local procedure VerifyDetldCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; EntryType: Option; AmountLCY: Decimal)
+    local procedure VerifyDetldCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option; AmountLCY: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";

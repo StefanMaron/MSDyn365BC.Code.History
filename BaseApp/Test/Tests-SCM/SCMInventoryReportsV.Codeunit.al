@@ -81,7 +81,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         SalesDocumentForItemTrackingAppendixReport(SalesLine."Document Type"::Invoice, DocType::"Sales Invoice");
     end;
 
-    local procedure SalesDocumentForItemTrackingAppendixReport(DocumentType: Option; DocType: Option "Sales Quote","Sales Order","Sales Invoice","Sales Credit Memo","Sales Return Order","Sales Post. Shipment","Sales Post. Invoice","Purch. Quote","Purch. Order","Purch. Invoice","Purch. Credit Memo","Purch. Return Order")
+    local procedure SalesDocumentForItemTrackingAppendixReport(DocumentType: Enum "Sales Document Type"; DocType: Option "Sales Quote","Sales Order","Sales Invoice","Sales Credit Memo","Sales Return Order","Sales Post. Shipment","Sales Post. Invoice","Purch. Quote","Purch. Order","Purch. Invoice","Purch. Credit Memo","Purch. Return Order")
     var
         SalesLine: Record "Sales Line";
         LotNo: Variant;
@@ -160,7 +160,6 @@ codeunit 137352 "SCM Inventory Reports - V"
         SalesLine: Record "Sales Line";
         LotNo: Variant;
         TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         DocType: Option "Sales Quote","Sales Order","Sales Invoice","Sales Credit Memo","Sales Return Order","Sales Post. Shipment","Sales Post. Invoice","Purch. Quote","Purch. Order","Purch. Invoice","Purch. Credit Memo","Purch. Return Order";
         DocumentNo: Code[20];
     begin
@@ -172,7 +171,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::"Return Order", SalesHeader."Sell-to Customer No.");
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", DocumentNo, true, false);  // Set TRUE for Include Header and FALSE for Recalculate Lines.
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", DocumentNo, true, false);  // Set TRUE for Include Header and FALSE for Recalculate Lines.
         EnqueueValuesForItemTrackingAppendixReport(DocType::"Sales Return Order", SalesHeader."No.", SalesLine."No.");
         Commit();
 
@@ -228,7 +227,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchDocumentForItemTrackingAppendixReport(PurchaseLine."Document Type"::Invoice, DocType::"Purch. Invoice");
     end;
 
-    local procedure PurchDocumentForItemTrackingAppendixReport(DocumentType: Option; DocType: Option "Sales Quote","Sales Order","Sales Invoice","Sales Credit Memo","Sales Return Order","Sales Post. Shipment","Sales Post. Invoice","Purch. Quote","Purch. Order","Purch. Invoice","Purch. Credit Memo","Purch. Return Order")
+    local procedure PurchDocumentForItemTrackingAppendixReport(DocumentType: Enum "Purchase Document Type"; DocType: Option "Sales Quote","Sales Order","Sales Invoice","Sales Credit Memo","Sales Return Order","Sales Post. Shipment","Sales Post. Invoice","Purch. Quote","Purch. Order","Purch. Invoice","Purch. Credit Memo","Purch. Return Order")
     var
         PurchaseLine: Record "Purchase Line";
         SerialNo: Variant;
@@ -278,14 +277,13 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchDocumentUsingCopyDocument(PurchaseHeader."Document Type"::"Return Order", DocType::"Purch. Return Order");
     end;
 
-    local procedure PurchDocumentUsingCopyDocument(DocumentType: Option; DocType: Option)
+    local procedure PurchDocumentUsingCopyDocument(DocumentType: Enum "Purchase Document Type"; DocType: Option)
     var
         PurchaseLine: Record "Purchase Line";
         PurchaseHeader: Record "Purchase Header";
         LotNo: Variant;
         SerialNo: Variant;
         TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries;
-        DocumentType2: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // Create and post Purchase Order with Item Tracking, create Purchase Document using copy document.
         CreatePurchaseDocumentWithIT(PurchaseLine, PurchaseLine."Document Type"::Order, TrackingOption::AssignSerialNo, true, '', '');
@@ -293,10 +291,11 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryVariableStorage.Dequeue(LotNo);
         PostPurchaseOrder(PurchaseLine, false);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType2::Order, PurchaseLine."Document No.", true, false);  // Set TRUE for Include Header and FALSE for Recalculate Lines.
+        LibraryPurchase.CopyPurchaseDocument(
+            PurchaseHeader, "Purchase Document Type From"::Order, PurchaseLine."Document No.", true, false);  // Set TRUE for Include Header and FALSE for Recalculate Lines.
         FindPurchaseLine(PurchaseLine, PurchaseHeader);
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);  // Enqueue value for ItemTrackingLinesPageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         EnqueueValuesForItemTrackingAppendixReport(DocType, PurchaseHeader."No.", PurchaseLine."No.");
 
         // [WHEN] Run Item Tracking Appendix Report.
@@ -1481,7 +1480,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchaseLine.FindSet;
         repeat
             LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
-            PurchaseLine.OpenItemTrackingLines;
+            PurchaseLine.OpenItemTrackingLines();
             LibraryVariableStorage.Dequeue(SerialNo);
             LibraryVariableStorage.Dequeue(LotNo);
         until PurchaseLine.Next = 0
@@ -1511,7 +1510,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         exit(Item."No.");
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20])
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1576,7 +1575,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         exit(Item."No.");
     end;
 
-    local procedure CreateAndModifyItem(var Item: Record Item; CostingMethod: Option)
+    local procedure CreateAndModifyItem(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         Item.Get(CreateItem);
         Item.Validate("Standard Cost", LibraryRandom.RandDec(100, 1));  // Using Random value for Standard Cost.
@@ -1631,7 +1630,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
     end;
 
-    local procedure CreatePurchaseDoc(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; ItemNo: Code[20])
+    local procedure CreatePurchaseDoc(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1660,7 +1659,7 @@ codeunit 137352 "SCM Inventory Reports - V"
           PurchaseLine."No.");
     end;
 
-    local procedure CreatePurchaseDocumentWithIT(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries; SNSpecific: Boolean; LocationCode: Code[10]; BinCode: Code[20])
+    local procedure CreatePurchaseDocumentWithIT(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries; SNSpecific: Boolean; LocationCode: Code[10]; BinCode: Code[20])
     var
         Item: Record Item;
     begin
@@ -1672,7 +1671,7 @@ codeunit 137352 "SCM Inventory Reports - V"
             PurchaseLine.Validate("Bin Code", BinCode);
         PurchaseLine.Modify(true);
         LibraryVariableStorage.Enqueue(TrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure CreatePurchaseLineWithLocation(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LocationCode: Code[10])
@@ -1682,14 +1681,14 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithIT(var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; Quantity: Decimal; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries)
+    local procedure CreateSalesDocumentWithIT(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; Quantity: Decimal; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries)
     begin
         CreateSalesDocument(SalesLine, DocumentType, ItemNo, Quantity);
         LibraryVariableStorage.Enqueue(TrackingOption);  // Enqueue value for ItemTrackingLinesPageHandler.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1761,7 +1760,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         ReturnReceiptLine.FindFirst;
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Option)
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type")
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
@@ -1850,7 +1849,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, ToInvoice);
     end;
 
-    local procedure PostSalesInvoiceOnNewPostingDate(DocumentType: Option; DocumentNo: Code[20]; NewPostingDate: Date)
+    local procedure PostSalesInvoiceOnNewPostingDate(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; NewPostingDate: Date)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1888,7 +1887,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         exit(Item."No.");
     end;
 
-    local procedure PostPurchaseOrderAndCreateSalesDoc(var SalesLine: Record "Sales Line"; DocumentType: Option; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries): Code[20]
+    local procedure PostPurchaseOrderAndCreateSalesDoc(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         LotNo: Variant;
@@ -2100,7 +2099,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         REPORT.Run(REPORT::"Sales - Shipment", true, false, SalesShipmentHeader);
     end;
 
-    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Option)
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -2408,7 +2407,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         ItemExpirationQuantity.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
-    local procedure PostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; UnitAmount: Decimal; EntryType: Option)
+    local procedure PostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; UnitAmount: Decimal; EntryType: Enum "Item Ledger Document Type")
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";

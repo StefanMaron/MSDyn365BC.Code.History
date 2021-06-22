@@ -2,9 +2,12 @@ page 2802 "Native - Item Entity"
 {
     Caption = 'invoicingItems', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = List;
     SourceTable = Item;
+    PageType = List;
+    ODataKeyFields = SystemId;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -12,7 +15,7 @@ page 2802 "Native - Item Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; Rec.SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -63,8 +66,7 @@ page 2802 "Native - Item Entity"
 
                     trigger OnValidate()
                     begin
-                        ValidateUnitOfMeasure.SetRange(Id, BaseUnitOfMeasureId);
-                        if not ValidateUnitOfMeasure.FindFirst then
+                        if not ValidateUnitOfMeasure.GetBySystemId(BaseUnitOfMeasureId) then
                             Error(BaseUnitOfMeasureIdDoesNotMatchAUnitOfMeasureErr);
 
                         BaseUnitOfMeasureCode := ValidateUnitOfMeasure.Code;
@@ -178,16 +180,14 @@ page 2802 "Native - Item Entity"
                         end;
 
                         if GeneralLedgerSetup.UseVat then begin
-                            ValidateVATProdPostingGroup.SetRange(Id, TaxGroupId);
-                            if not ValidateVATProdPostingGroup.FindFirst then
+                            if not ValidateVATProdPostingGroup.GetBySystemId(TaxGroupId) then
                                 Error(VATGroupIdDoesNotMatchAVATGroupErr);
 
                             TaxGroupCode := ValidateVATProdPostingGroup.Code;
                             "VAT Prod. Posting Group" := TaxGroupCode;
                             RegisterFieldSet(FieldNo("VAT Prod. Posting Group"));
                         end else begin
-                            ValidateTaxGroup.SetRange(Id, TaxGroupId);
-                            if not ValidateTaxGroup.FindFirst then
+                            if not ValidateTaxGroup.GetBySystemId(TaxGroupId) then
                                 Error(TaxGroupIdDoesNotMatchATaxGroupErr);
 
                             TaxGroupCode := ValidateTaxGroup.Code;
@@ -223,7 +223,7 @@ page 2802 "Native - Item Entity"
                         if not NativeEDMTypes.GetTaxGroupFromTaxable(Taxable, TaxGroup) then
                             exit;
 
-                        Validate("Tax Group Id", TaxGroup.Id);
+                        Validate("Tax Group Id", TaxGroup.SystemId);
                         RegisterFieldSet(FieldNo("Tax Group Id"));
                         RegisterFieldSet(FieldNo("Tax Group Code"));
                     end;
@@ -272,8 +272,7 @@ page 2802 "Native - Item Entity"
         if TempFieldSet.Get(DATABASE::Item, FieldNo("Base Unit of Measure")) then
             Validate("Base Unit of Measure", BaseUnitOfMeasureCode);
 
-        Item.SetRange(Id, Id);
-        Item.FindFirst;
+        Item.GetBySystemId(SystemId);
 
         if "No." = Item."No." then
             Modify(true)
@@ -331,7 +330,6 @@ page 2802 "Native - Item Entity"
 
     local procedure ClearCalculatedFields()
     begin
-        Clear(Id);
         Clear(BaseUnitOfMeasureId);
         Clear(BaseUnitOfMeasureInternationalStandardCode);
         Clear(BaseUnitOfMeasureCode);
@@ -349,7 +347,7 @@ page 2802 "Native - Item Entity"
         EmptyGuid: Guid;
     begin
         if UnitOfMeasure.Get("Base Unit of Measure") then begin
-            BaseUnitOfMeasureId := UnitOfMeasure.Id;
+            BaseUnitOfMeasureId := UnitOfMeasure.SystemId;
             BaseUnitOfMeasureInternationalStandardCode := UnitOfMeasure."International Standard Code";
             BaseUnitOfMeasureCode := "Base Unit of Measure";
             BaseUnitOfMeasureDescription := UnitOfMeasure.Description;
@@ -371,11 +369,11 @@ page 2802 "Native - Item Entity"
     begin
         if GeneralLedgerSetup.UseVat and VATProductPostingGroup.Get("VAT Prod. Posting Group") then begin
             TaxGroupCode := VATProductPostingGroup.Code;
-            TaxGroupId := VATProductPostingGroup.Id;
+            TaxGroupId := VATProductPostingGroup.SystemId;
             Taxable := true;
         end else
             if TaxGroup.Get("Tax Group Code") then begin
-                "Tax Group Id" := TaxGroup.Id;
+                "Tax Group Id" := TaxGroup.SystemId;
                 TaxGroupId := "Tax Group Id";
                 TaxGroupCode := "Tax Group Code";
                 if TaxSetup.Get then

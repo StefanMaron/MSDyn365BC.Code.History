@@ -1442,7 +1442,7 @@ codeunit 139157 "Invoice Premapping Tests"
         CODEUNIT.Run(CODEUNIT::"Pre-map Incoming Purch. Doc", DataExch);
 
         // Verify that the created purchase credit memo has the correct Applies-to Doc. No
-        ExpectedDocumentType := PurchaseHeader."Applies-to Doc. Type"::Invoice;
+        ExpectedDocumentType := PurchaseHeader."Applies-to Doc. Type"::Invoice.AsInteger();
         Assert.AreEqual(PostedPurchaseInvoiceNo,
           GetIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Applies-to Doc. No."), 1), '');
         Assert.AreEqual(Format(ExpectedDocumentType),
@@ -1513,7 +1513,7 @@ codeunit 139157 "Invoice Premapping Tests"
         CompanyInfo.Modify(true);
 
         InsertIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Document Type"),
-          PreMapIncomingPurchDoc.GetDocumentTypeOptionCaption(PurchaseHeader."Document Type"::Invoice));
+          PreMapIncomingPurchDoc.GetDocumentTypeOptionCaption(PurchaseHeader."Document Type"::Invoice.AsInteger()));
         InsertIntermediateTableRow(DataExch, DATABASE::"Company Information", CompanyInfo.FieldNo(Name), CompanyInfo.Name);
         InsertIntermediateTableRow(DataExch, DATABASE::"Company Information", CompanyInfo.FieldNo(Address), CompanyInfo.Address);
         InsertIntermediateTableRow(DataExch, DATABASE::"Company Information", CompanyInfo.FieldNo(GLN), CompanyInfo.GLN);

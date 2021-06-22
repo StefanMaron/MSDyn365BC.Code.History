@@ -7,6 +7,7 @@ codeunit 2158 "O365 Document Send Mgt"
     end;
 
     var
+        EmailFeature: Codeunit "Email Feature";
         RoleCenterEmailErrorIDTxt: Label 'c3c760b9-6405-aaaa-b2a6-1affb70c38bf', Locked = true;
         DocumentPageEmailErrorIDTxt: Label '9c8d5ebc-8c62-45a7-bc77-e260691e6de0', Locked = true;
         ShowDocumentsActionLbl: Label 'Show documents';
@@ -25,7 +26,7 @@ codeunit 2158 "O365 Document Send Mgt"
         DocumentIdMissingTelemetryErr: Label 'No document record ID could be retrieved from notification.', Locked = true;
         DocSentHistoryCategoryTxt: Label 'AL Doc Sent History', Locked = true;
 
-    local procedure ShowSendFailedNotificationForDocument(DocumentType: Option; DocumentNo: Code[20]; Posted: Boolean; DocumentRecordId: RecordID; ShowActions: Boolean)
+    local procedure ShowSendFailedNotificationForDocument(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; Posted: Boolean; DocumentRecordId: RecordID; ShowActions: Boolean)
     var
         O365DocumentSentHistory: Record "O365 Document Sent History";
         ErrorCode: Text;
@@ -33,9 +34,12 @@ codeunit 2158 "O365 Document Send Mgt"
         O365DocumentSentHistory.SetRange("Document Type", DocumentType);
         O365DocumentSentHistory.SetRange("Document No.", DocumentNo);
         O365DocumentSentHistory.SetRange(Posted, Posted);
-        if O365DocumentSentHistory.FindLast then
-            ErrorCode := SMTPMail.GetSmtpErrorCodeFromResponse(O365DocumentSentHistory.GetJobQueueErrorMessage)
-        else
+        if O365DocumentSentHistory.FindLast then begin
+            if EmailFeature.IsEnabled() then
+                ErrorCode := O365DocumentSentHistory.GetJobQueueErrorMessage()
+            else
+                ErrorCode := SMTPMail.GetSmtpErrorCodeFromResponse(O365DocumentSentHistory.GetJobQueueErrorMessage());
+        end else
             ErrorCode := '';
 
         SendNotificationFromErrorCode(O365DocumentSentHistory."Source No.", ErrorCode, DocumentRecordId, ShowActions);
@@ -77,21 +81,25 @@ codeunit 2158 "O365 Document Send Mgt"
         TargetNotification.SetData('DocumentRecordId', Format(DocumentRecordId));
         TargetNotification.SetData('ErrCode', ErrorCode);
 
-        TargetNotification.Message(StrSubstNo(EmailFailedGenericMsg, SMTPMail.GetFriendlyMessageFromSmtpErrorCode(ErrorCode)));
+        if EmailFeature.IsEnabled() then
+            TargetNotification.Message(StrSubstNo(EmailFailedGenericMsg, ErrorCode))
+        else
+            TargetNotification.Message(StrSubstNo(EmailFailedGenericMsg, SMTPMail.GetFriendlyMessageFromSmtpErrorCode(ErrorCode)));
 
         // Test framework does not allow to invoke or check notification actions. Keep MethodName in sync with COD138958
         if ShowActions then begin
-            case true of
-                SMTPMail.IsSmtpAuthErrorCode(ErrorCode):
-                    begin
+            if not EmailFeature.IsEnabled() then
+                case true of
+                    SMTPMail.IsSmtpAuthErrorCode(ErrorCode):
+                        begin
+                            TargetNotification.AddAction(
+                            EmailSetupActionLbl, CODEUNIT::"O365 Document Send Mgt", 'OpenSetupEmailFromNotification');
+                            SMTPMail.AddTroubleshootingLinksToNotification(TargetNotification);
+                        end;
+                    SMTPMail.IsSmtpRecipientErrorCode(ErrorCode):
                         TargetNotification.AddAction(
-                          EmailSetupActionLbl, CODEUNIT::"O365 Document Send Mgt", 'OpenSetupEmailFromNotification');
-                        SMTPMail.AddTroubleshootingLinksToNotification(TargetNotification);
-                    end;
-                SMTPMail.IsSmtpRecipientErrorCode(ErrorCode):
-                    TargetNotification.AddAction(
-                      EditCustomerActionLbl, CODEUNIT::"O365 Document Send Mgt", 'OpenCustomerFromNotification');
-            end;
+                        EditCustomerActionLbl, CODEUNIT::"O365 Document Send Mgt", 'OpenCustomerFromNotification');
+                end;
 
             TargetNotification.AddAction(
               ResendForegroundActionLbl, CODEUNIT::"O365 Document Send Mgt", 'ResendDocumentFromNotification');
@@ -109,14 +117,12 @@ codeunit 2158 "O365 Document Send Mgt"
         DocumentRecordId: RecordID;
     begin
         if not EmailFailedNotification.HasData('DocumentRecordId') then begin
-            SendTraceTag('00008IZ', DocSentHistoryCategoryTxt, VERBOSITY::Error, DocumentIdMissingTelemetryErr,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008IZ', DocumentIdMissingTelemetryErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocSentHistoryCategoryTxt);
             exit;
         end;
 
         if not Evaluate(DocumentRecordId, EmailFailedNotification.GetData('DocumentRecordId')) then begin
-            SendTraceTag('00008J0', DocSentHistoryCategoryTxt, VERBOSITY::Error, DocumentIdMissingTelemetryErr,
-              DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('00008J0', DocumentIdMissingTelemetryErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocSentHistoryCategoryTxt);
             exit;
         end;
 

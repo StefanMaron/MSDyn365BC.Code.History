@@ -534,14 +534,62 @@ page 5200 "Employee Card"
                                   "Applies-to ID" = FILTER('');
                     ToolTip = 'View employee ledger entries for the record with remaining amount that have not been paid yet.';
                 }
+                action(Contact)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Contact';
+                    Image = ContactPerson;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or edit detailed information about the contact person at the employee.';
+
+                    trigger OnAction()
+                    var
+                        ContBusRel: Record "Contact Business Relation";
+                        Contact: Record Contact;
+                    begin
+                        if ContBusRel.FindByRelation(ContBusRel."Link to Table"::Employee, "No.") then begin
+                            Contact.Get(ContBusRel."Contact No.");
+                            Page.Run(Page::"Contact Card", Contact);
+                        end;
+                    end;
+                }
             }
         }
     }
 
     trigger OnOpenPage()
     begin
-        SetNoFieldVisible;
+        SetNoFieldVisible();
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+    begin
+        if GuiAllowed then
+            if "No." = '' then
+                if DocumentNoVisibility.EmployeeNoSeriesIsDefault() then
+                    NewMode := true;
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Employee: Record Employee;
+        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+    begin
+        if not NewMode then
+            exit;
+        NewMode := false;
+
+        if EmployeeTemplMgt.InsertEmployeeFromTemplate(Employee) then begin
+            Copy(Employee);
+            CurrPage.Update();
+        end else
+            if EmployeeTemplMgt.TemplatesAreNotEmpty() then
+                CurrPage.Close();
     end;
 
     var
@@ -549,12 +597,13 @@ page 5200 "Employee Card"
         FormatAddress: Codeunit "Format Address";
         NoFieldVisible: Boolean;
         IsCountyVisible: Boolean;
+        NewMode: Boolean;
 
     local procedure SetNoFieldVisible()
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
-        NoFieldVisible := DocumentNoVisibility.EmployeeNoIsVisible;
+        NoFieldVisible := DocumentNoVisibility.EmployeeNoIsVisible();
     end;
 }
 

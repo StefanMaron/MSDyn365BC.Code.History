@@ -78,6 +78,7 @@ page 5714 "Responsibility Center Card"
                 field("Fax No."; "Fax No.")
                 {
                     ApplicationArea = Location;
+                    Importance = Additional;
                     ToolTip = 'Specifies the fax number of the responsibility center.';
                 }
                 field("E-Mail"; "E-Mail")

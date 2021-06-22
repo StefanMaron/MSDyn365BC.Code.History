@@ -40,19 +40,16 @@ page 7010 "Get Price Line"
                 field("Amount Type"; Rec."Amount Type")
                 {
                     Visible = false;
-                    Caption = 'Defines';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of data, either price or discount, or both.';
                 }
                 field("Source Type"; Rec."Source Type")
                 {
-                    Caption = 'Applies-to Type';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of the entity that offers the price or the line discount on the product.';
                 }
                 field("Source No."; Rec."Source No.")
                 {
-                    Caption = 'Applies-to No.';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the entity who offers the price or the line discount on the product.';
                 }
@@ -65,14 +62,12 @@ page 7010 "Get Price Line"
                 field("Asset Type"; Rec."Asset Type")
                 {
                     Visible = false;
-                    Caption = 'Product Type';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of the product that the price applies to.';
                 }
                 field("Asset No."; Rec."Asset No.")
                 {
                     Visible = false;
-                    Caption = 'Product No.';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the product that the price applies to.';
                 }

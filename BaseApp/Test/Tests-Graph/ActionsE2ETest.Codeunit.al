@@ -15,6 +15,7 @@ codeunit 135541 "Actions E2E Test"
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
+        EmailFeature: Codeunit "Email Feature";
         Initialized: Boolean;
         InvoiceServiceNameTxt: Label 'salesInvoices';
         QuoteServiceNameTxt: Label 'salesQuotes', Locked = true;
@@ -43,7 +44,10 @@ codeunit 135541 "Actions E2E Test"
     local procedure Initialize(ForSending: Boolean)
     begin
         if ForSending then begin
-            CreateSMTPMailSetup;
+            if EmailFeature.IsEnabled() then
+                RegisterEmailAccount()
+            else
+                CreateSMTPMailSetup();
             DeleteJobQueueEntry(CODEUNIT::"Document-Mailing");
             DeleteJobQueueEntry(CODEUNIT::"O365 Sales Cancel Invoice");
         end;
@@ -109,7 +113,25 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestPostAndSendInvoiceSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        PostAndSendInvoice();
+    end;
+
+    // [Test]
+    [Scope('OnPrem')]
     procedure TestPostAndSendInvoice()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        PostAndSendInvoice();
+    end;
+
+    local procedure PostAndSendInvoice()
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -181,7 +203,25 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestCancelAndSendInvoiceSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        CancelAndSendInvoice();
+    end;
+
+    // [Test]
+    [Scope('OnPrem')]
     procedure TestCancelAndSendInvoice()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        CancelAndSendInvoice();
+    end;
+
+    local procedure CancelAndSendInvoice()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempSalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate" temporary;
@@ -216,7 +256,25 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestSendPostedInvoiceSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendPostedInvoice();
+    end;
+
+    // [Test]
+    [Scope('OnPrem')]
     procedure TestSendPostedInvoice()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendPostedInvoice();
+    end;
+
+    local procedure SendPostedInvoice()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempSalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate" temporary;
@@ -247,7 +305,25 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestSendDraftInvoiceSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendDraftInvoice();
+    end;
+
+    // [Test]
+    [Scope('OnPrem')]
     procedure TestSendDraftInvoice()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendDraftInvoice();
+    end;
+
+    local procedure SendDraftInvoice()
     var
         SalesHeader: Record "Sales Header";
         TempSalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate" temporary;
@@ -278,7 +354,25 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestSendCanceledInvoiceSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendCanceledInvoice();
+    end;
+
+    // [Test]
+    [Scope('OnPrem')]
     procedure TestSendCanceledInvoice()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendCanceledInvoice();
+    end;
+
+    procedure SendCanceledInvoice()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempSalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate" temporary;
@@ -309,7 +403,25 @@ codeunit 135541 "Actions E2E Test"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestSendQuoteSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SendQuote();
+    end;
+
+    // [Test]
+    [Scope('OnPrem')]
     procedure TestSendQuote()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SendQuote();
+    end;
+
+    procedure SendQuote()
     var
         SalesHeader: Record "Sales Header";
         TempSalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer" temporary;
@@ -384,7 +496,7 @@ codeunit 135541 "Actions E2E Test"
 
         // [THEN] Quote is deleted
         SalesHeader.Reset();
-        SalesHeader.SetRange(Id, DocumentId);
+        SalesHeader.SetRange(SystemId, DocumentId);
         Assert.IsFalse(SalesHeader.FindFirst, QuoteStillExistsErr);
 
         // [THEN] Invoice is created
@@ -413,7 +525,7 @@ codeunit 135541 "Actions E2E Test"
         BalAccountNo: Code[20];
         CustomerNo: Code[20];
         Customer2No: Code[20];
-        BalAccountType: Option;
+        BalAccountType: Enum "Gen. Journal Account Type";
         Amount: Decimal;
         Amount2: Decimal;
         GenJournalBatchId: Guid;
@@ -432,7 +544,7 @@ codeunit 135541 "Actions E2E Test"
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
         LibraryERM.CreateGeneralJnlLine(GenJournalLine2, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer2No, Amount2);
-        GenJournalBatchId := GenJournalBatch.Id;
+        GenJournalBatchId := GenJournalBatch.SystemId;
         Commit();
 
         // [WHEN] A POST request is made to the API.
@@ -547,8 +659,20 @@ codeunit 135541 "Actions E2E Test"
             SMTPMailSetup.Modify(true);
     end;
 
+    local procedure RegisterEmailAccount()
+    var
+        TempAccount: Record "Email Account" temporary;
+        ConnectorMock: Codeunit "Connector Mock";
+        EmailScenarioMock: Codeunit "Email Scenario Mock";
+    begin
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(TempAccount);
+        EmailScenarioMock.DeleteAllMappings();
+        EmailScenarioMock.AddMapping(Enum::"Email Scenario"::Default, TempAccount."Account Id", TempAccount.Connector);
+    end;
+
     [Scope('OnPrem')]
-    procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountType: Option; BalAccountNo: Code[20])
+    procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
         GenJournalBatch.Validate("Bal. Account Type", BalAccountType);
@@ -561,12 +685,12 @@ codeunit 135541 "Actions E2E Test"
         EmailParameter: Record "Email Parameter";
     begin
         EmailParameter.SaveParameterValue(
-          SalesHeader."No.", SalesHeader."Document Type",
-          EmailParameter."Parameter Type"::Address,
+          SalesHeader."No.", SalesHeader."Document Type".AsInteger(),
+          EmailParameter."Parameter Type"::Address.AsInteger(),
           StrSubstNo('%1@home.local', CopyStr(CreateGuid, 2, 8)));
         EmailParameter.SaveParameterValue(
-          SalesHeader."No.", SalesHeader."Document Type",
-          EmailParameter."Parameter Type"::Subject, Format(CreateGuid));
+          SalesHeader."No.", SalesHeader."Document Type".AsInteger(),
+          EmailParameter."Parameter Type"::Subject.AsInteger(), Format(CreateGuid));
     end;
 
     local procedure GetEmailParameters(var RecordRef: RecordRef; var Email: Text; var Subject: Text)
@@ -581,11 +705,11 @@ codeunit 135541 "Actions E2E Test"
             DATABASE::"Sales Header":
                 begin
                     RecordRef.SetTable(SalesHeader);
-                    if EmailParameter.GetEntryWithReportUsage(
+                    if EmailParameter.GetParameterWithReportUsage(
                          SalesHeader."No.", SalesHeader."Document Type", EmailParameter."Parameter Type"::Address)
                     then
                         Email := EmailParameter.GetParameterValue;
-                    if EmailParameter.GetEntryWithReportUsage(
+                    if EmailParameter.GetParameterWithReportUsage(
                          SalesHeader."No.", SalesHeader."Document Type", EmailParameter."Parameter Type"::Subject)
                     then
                         Subject := EmailParameter.GetParameterValue;
@@ -593,11 +717,11 @@ codeunit 135541 "Actions E2E Test"
             DATABASE::"Sales Invoice Header":
                 begin
                     RecordRef.SetTable(SalesInvoiceHeader);
-                    if EmailParameter.GetEntryWithReportUsage(
+                    if EmailParameter.GetParameterWithReportUsage(
                          SalesInvoiceHeader."No.", SalesHeader."Document Type"::Invoice, EmailParameter."Parameter Type"::Address)
                     then
                         Email := EmailParameter.GetParameterValue;
-                    if EmailParameter.GetEntryWithReportUsage(
+                    if EmailParameter.GetParameterWithReportUsage(
                          SalesInvoiceHeader."No.", SalesHeader."Document Type"::Invoice, EmailParameter."Parameter Type"::Subject)
                     then
                         Subject := EmailParameter.GetParameterValue;
@@ -657,7 +781,7 @@ codeunit 135541 "Actions E2E Test"
         SalesHeader: Record "Sales Header";
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
     begin
-        SalesHeader.SetRange(Id, DocumentId);
+        SalesHeader.SetRange(SystemId, DocumentId);
         Assert.IsTrue(SalesHeader.FindFirst, CannotFindDraftInvoiceErr);
 
         SalesInvoiceEntityAggregate.SetRange(Id, DocumentId);
@@ -670,7 +794,7 @@ codeunit 135541 "Actions E2E Test"
         PurchaseHeader: Record "Purchase Header";
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
     begin
-        PurchaseHeader.SetRange(Id, DocumentId);
+        PurchaseHeader.SetRange(SystemId, DocumentId);
         Assert.IsTrue(PurchaseHeader.FindFirst, CannotFindDraftInvoiceErr);
 
         PurchInvEntityAggregate.SetRange(Id, DocumentId);
@@ -709,7 +833,7 @@ codeunit 135541 "Actions E2E Test"
         SalesHeader: Record "Sales Header";
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
     begin
-        SalesHeader.SetRange(Id, DocumentId);
+        SalesHeader.SetRange(SystemId, DocumentId);
         Assert.IsTrue(SalesHeader.FindFirst, CannotFindQuoteErr);
 
         SalesQuoteEntityBuffer.SetRange(Id, DocumentId);

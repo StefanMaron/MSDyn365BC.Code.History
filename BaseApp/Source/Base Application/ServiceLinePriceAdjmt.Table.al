@@ -4,11 +4,9 @@ table 6084 "Service Line Price Adjmt."
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Service Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order';
-            OptionMembers = Quote,"Order";
         }
         field(2; "Document No."; Code[20])
         {
@@ -32,12 +30,10 @@ table 6084 "Service Line Price Adjmt."
             Caption = 'Serv. Price Adjmt. Gr. Code';
             TableRelation = "Service Price Adjustment Group";
         }
-        field(7; Type; Option)
+        field(7; Type; Enum "Service Line Type")
         {
             Caption = 'Type';
             Editable = false;
-            OptionCaption = ' ,Item,Resource,Cost,G/L Account';
-            OptionMembers = " ",Item,Resource,Cost,"G/L Account";
         }
         field(8; "No."; Code[20])
         {

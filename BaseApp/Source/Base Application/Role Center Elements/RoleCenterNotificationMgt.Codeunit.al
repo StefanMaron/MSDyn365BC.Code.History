@@ -6,6 +6,7 @@ codeunit 1430 "Role Center Notification Mgt."
     end;
 
     var
+        IsPreview: Boolean;
         EvaluationNotificationIdTxt: Label 'cb28c63d-4daf-453a-b41b-a8de9963d563', Locked = true;
         TrialNotificationIdTxt: Label '9e359b60-3d2e-40c7-8680-3365d51937f7', Locked = true;
         TrialSuspendedNotificationIdTxt: Label '9e359b60-3d2e-40c7-8680-3365d51937f7', Locked = true;
@@ -29,9 +30,13 @@ codeunit 1430 "Role Center Notification Mgt."
         PaidSuspendedNotificationLinkTxt: Label 'Renew subscription...';
         EvaluationNotificationMsg: Label 'Want more? Start a free, %1-day trial to unlock advanced features and use your own company data.', Comment = '%1=Trial duration in days';
         TrialNotificationMsg: Label 'Your trial period expires in %1 days. Ready to subscribe, or do you need more time?', Comment = '%1=Count of days until trial expires';
+        TrialNotificationPreviewMsg: Label 'Your trial period expires in %1 days.', Comment = '%1=Count of days until trial expires';
         TrialSuspendedNotificationMsg: Label 'Your trial period has expired. You can subscribe or extend the period to get more time.';
+        TrialSuspendedNotificationPreviewMsg: Label 'Your trial period has expired. You can extend the period to get more time.';
         TrialExtendedNotificationMsg: Label 'Your extended trial period will expire in %1 days. If it expires you can subscribe or contact a partner to get more time.', Comment = '%1=Count of days until trial expires';
+        TrialExtendedNotificationPreviewMsg: Label 'Your extended trial period will expire in %1 days. If it expires you contact a partner to get more time.', Comment = '%1=Count of days until trial expires';
         TrialExtendedSuspendedNotificationMsg: Label 'Your extended trial period has expired. You can subscribe or contact a partner to get more time.';
+        TrialExtendedSuspendedNotificationPreviewMsg: Label 'Your extended trial period has expired. You can contact a partner to get more time.';
         PaidWarningNotificationMsg: Label 'Your subscription expires in %1 days. Renew soon to keep your work.', Comment = '%1=Count of days until block of access';
         PaidSuspendedNotificationMsg: Label 'Your subscription has expired. Unless you renew, we will delete your data in %1 days.', Comment = '%1=Count of days until data deletion';
         SandboxNotificationMsg: Label 'This is a sandbox environment (preview) for test, demo, or development purposes only.';
@@ -67,10 +72,11 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
         RemainingDays := GetLicenseRemainingDays;
         TrialNotification.Id := GetTrialNotificationId;
-        TrialNotification.Message := StrSubstNo(TrialNotificationMsg, RemainingDays);
+        TrialNotification.Message := StrSubstNo(TrialNotificationMessage(), RemainingDays);
         TrialNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
-        TrialNotification.AddAction(
-          TrialNotificationLinkTxt, CODEUNIT::"Role Center Notification Mgt.", 'TrialNotificationAction');
+        if (not IsPreview) then
+            TrialNotification.AddAction(
+                TrialNotificationLinkTxt, CODEUNIT::"Role Center Notification Mgt.", 'TrialNotificationAction');
         TrialNotification.AddAction(
           TrialNotificationExtendLinkTxt, CODEUNIT::"Role Center Notification Mgt.", 'TrialNotificationExtendAction');
         TrialNotification.Send;
@@ -81,12 +87,13 @@ codeunit 1430 "Role Center Notification Mgt."
         TrialSuspendedNotification: Notification;
     begin
         TrialSuspendedNotification.Id := GetTrialSuspendedNotificationId;
-        TrialSuspendedNotification.Message := TrialSuspendedNotificationMsg;
+        TrialSuspendedNotification.Message := TrialSuspendedNotificationMessage();
         TrialSuspendedNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
-        TrialSuspendedNotification.AddAction(
-          TrialSuspendedNotificationLinkTxt,
-          CODEUNIT::"Role Center Notification Mgt.",
-          'TrialSuspendedNotificationAction');
+        if (not IsPreview) then
+            TrialSuspendedNotification.AddAction(
+                TrialSuspendedNotificationLinkTxt,
+                CODEUNIT::"Role Center Notification Mgt.",
+                'TrialSuspendedNotificationAction');
         TrialSuspendedNotification.AddAction(
           TrialSuspendedNotificationExtendLinkTxt,
           CODEUNIT::"Role Center Notification Mgt.",
@@ -101,12 +108,13 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
         RemainingDays := GetLicenseRemainingDays;
         TrialExtendedNotification.Id := GetTrialExtendedNotificationId;
-        TrialExtendedNotification.Message := StrSubstNo(TrialExtendedNotificationMsg, RemainingDays);
+        TrialExtendedNotification.Message := StrSubstNo(TrialExtendedNotificationMessage(), RemainingDays);
         TrialExtendedNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
-        TrialExtendedNotification.AddAction(
-          TrialExtendedNotificationSubscribeLinkTxt,
-          CODEUNIT::"Role Center Notification Mgt.",
-          'TrialExtendedNotificationSubscribeAction');
+        if (not IsPreview) then
+            TrialExtendedNotification.AddAction(
+                TrialExtendedNotificationSubscribeLinkTxt,
+                CODEUNIT::"Role Center Notification Mgt.",
+                'TrialExtendedNotificationSubscribeAction');
         TrialExtendedNotification.AddAction(
           TrialExtendedNotificationPartnerLinkTxt,
           CODEUNIT::"Role Center Notification Mgt.",
@@ -119,12 +127,13 @@ codeunit 1430 "Role Center Notification Mgt."
         TrialExtendedSuspendedNotification: Notification;
     begin
         TrialExtendedSuspendedNotification.Id := GetTrialExtendedSuspendedNotificationId;
-        TrialExtendedSuspendedNotification.Message := TrialExtendedSuspendedNotificationMsg;
+        TrialExtendedSuspendedNotification.Message := TrialExtendedSuspendedNotificationMessage();
         TrialExtendedSuspendedNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
-        TrialExtendedSuspendedNotification.AddAction(
-          TrialExtendedSuspendedNotificationSubscribeLinkTxt,
-          CODEUNIT::"Role Center Notification Mgt.",
-          'TrialExtendedNotificationSubscribeAction');
+        if (not IsPreview) then
+            TrialExtendedSuspendedNotification.AddAction(
+                TrialExtendedSuspendedNotificationSubscribeLinkTxt,
+                CODEUNIT::"Role Center Notification Mgt.",
+                'TrialExtendedNotificationSubscribeAction');
         TrialExtendedSuspendedNotification.AddAction(
           TrialExtendedSuspendedNotificationPartnerLinkTxt,
           CODEUNIT::"Role Center Notification Mgt.",
@@ -137,6 +146,9 @@ codeunit 1430 "Role Center Notification Mgt."
         PaidWarningNotification: Notification;
         RemainingDays: Integer;
     begin
+        if IsPreview then
+            exit;
+
         RemainingDays := GetLicenseRemainingDays;
         PaidWarningNotification.Id := GetPaidWarningNotificationId;
         PaidWarningNotification.Message := StrSubstNo(PaidWarningNotificationMsg, RemainingDays);
@@ -151,6 +163,9 @@ codeunit 1430 "Role Center Notification Mgt."
         PaidSuspendedNotification: Notification;
         RemainingDays: Integer;
     begin
+        if IsPreview then
+            exit;
+
         RemainingDays := GetLicenseRemainingDays;
         PaidSuspendedNotification.Id := GetPaidSuspendedNotificationId;
         PaidSuspendedNotification.Message := StrSubstNo(PaidSuspendedNotificationMsg, RemainingDays);
@@ -461,6 +476,7 @@ codeunit 1430 "Role Center Notification Mgt."
         ResultSandbox: Boolean;
     begin
         OnBeforeShowNotifications;
+        IsRunningPreviewEvent();
 
         ResultEvaluation := ShowEvaluationNotification;
         if UserPermissions.IsSuper(UserSecurityId) then begin
@@ -502,6 +518,8 @@ codeunit 1430 "Role Center Notification Mgt."
 
     procedure ShowTrialNotification(): Boolean
     begin
+        IsRunningPreviewEvent();
+
         if not IsTrialNotificationEnabled then
             exit(false);
 
@@ -511,6 +529,8 @@ codeunit 1430 "Role Center Notification Mgt."
 
     procedure ShowTrialSuspendedNotification(): Boolean
     begin
+        IsRunningPreviewEvent();
+
         if not IsTrialSuspendedNotificationEnabled then
             exit(false);
 
@@ -520,6 +540,8 @@ codeunit 1430 "Role Center Notification Mgt."
 
     procedure ShowTrialExtendedNotification(): Boolean
     begin
+        IsRunningPreviewEvent();
+
         if not IsTrialExtendedNotificationEnabled then
             exit(false);
 
@@ -529,6 +551,8 @@ codeunit 1430 "Role Center Notification Mgt."
 
     procedure ShowTrialExtendedSuspendedNotification(): Boolean
     begin
+        IsRunningPreviewEvent();
+
         if not IsTrialExtendedSuspendedNotificationEnabled then
             exit(false);
 
@@ -538,6 +562,8 @@ codeunit 1430 "Role Center Notification Mgt."
 
     procedure ShowPaidWarningNotification(): Boolean
     begin
+        IsRunningPreviewEvent();
+
         if not IsPaidWarningNotificationEnabled then
             exit(false);
 
@@ -547,6 +573,8 @@ codeunit 1430 "Role Center Notification Mgt."
 
     procedure ShowPaidSuspendedNotification(): Boolean
     begin
+        IsRunningPreviewEvent();
+
         if not IsPaidSuspendedNotificationEnabled then
             exit(false);
 
@@ -568,6 +596,7 @@ codeunit 1430 "Role Center Notification Mgt."
         exit(true);
     end;
 
+    [Obsolete('This function is not being used', '17.0')]
     procedure ShowChangeToPremiumExpNotification(): Boolean
     var
         MyNotifications: Record "My Notifications";
@@ -826,21 +855,33 @@ codeunit 1430 "Role Center Notification Mgt."
 
     procedure TrialNotificationMessage(): Text
     begin
+        if IsPreview then
+            exit(TrialNotificationPreviewMsg);
+
         exit(TrialNotificationMsg);
     end;
 
     procedure TrialSuspendedNotificationMessage(): Text
     begin
+        if IsPreview then
+            exit(TrialSuspendedNotificationPreviewMsg);
+
         exit(TrialSuspendedNotificationMsg);
     end;
 
     procedure TrialExtendedNotificationMessage(): Text
     begin
+        if IsPreview then
+            exit(TrialExtendedNotificationPreviewMsg);
+
         exit(TrialExtendedNotificationMsg);
     end;
 
     procedure TrialExtendedSuspendedNotificationMessage(): Text
     begin
+        if IsPreview then
+            exit(TrialExtendedSuspendedNotificationPreviewMsg);
+
         exit(TrialExtendedSuspendedNotificationMsg);
     end;
 
@@ -884,6 +925,17 @@ codeunit 1430 "Role Center Notification Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowNotifications()
+    begin
+    end;
+
+    local procedure IsRunningPreviewEvent()
+    begin
+        if not IsPreview then
+            OnIsRunningPreview(IsPreview);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsRunningPreview(var isPreview: Boolean)
     begin
     end;
 }

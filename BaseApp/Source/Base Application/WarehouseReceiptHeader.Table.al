@@ -112,7 +112,7 @@ table 7316 "Warehouse Receipt Header"
                         Location.TestField("Directed Put-away and Pick");
                     end;
                     "Bin Code" := '';
-                    MessageIfRcptLinesExist(FieldCaption("Zone Code"));
+                    MessageIfReceiptLinesExist(FieldCaption("Zone Code"));
                 end;
             end;
         }
@@ -141,7 +141,7 @@ table 7316 "Warehouse Receipt Header"
                             "Zone Code" := Bin."Zone Code";
                         end;
                     end;
-                    MessageIfRcptLinesExist(FieldCaption("Bin Code"));
+                    MessageIfReceiptLinesExist(FieldCaption("Bin Code"));
                 end;
             end;
         }
@@ -183,7 +183,7 @@ table 7316 "Warehouse Receipt Header"
                         Location.TestField("Directed Put-away and Pick");
                     end;
                     "Cross-Dock Bin Code" := '';
-                    MessageIfRcptLinesExist(FieldCaption("Cross-Dock Zone Code"));
+                    MessageIfReceiptLinesExist(FieldCaption("Cross-Dock Zone Code"));
                 end;
             end;
         }
@@ -217,7 +217,7 @@ table 7316 "Warehouse Receipt Header"
                         Bin.TestField("Cross-Dock Bin", true);
                         "Cross-Dock Zone Code" := Bin."Zone Code";
                     end;
-                    MessageIfRcptLinesExist(FieldCaption("Cross-Dock Bin Code"));
+                    MessageIfReceiptLinesExist(FieldCaption("Cross-Dock Bin Code"));
                 end;
             end;
         }
@@ -377,7 +377,7 @@ table 7316 "Warehouse Receipt Header"
         end;
     end;
 
-    local procedure MessageIfRcptLinesExist(ChangedFieldName: Text[80])
+    procedure MessageIfReceiptLinesExist(ChangedFieldName: Text[80])
     var
         WhseRcptLine: Record "Warehouse Receipt Line";
     begin
