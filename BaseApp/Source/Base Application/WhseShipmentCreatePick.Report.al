@@ -1,4 +1,4 @@
-report 7318 "Whse.-Shipment - Create Pick"
+﻿report 7318 "Whse.-Shipment - Create Pick"
 {
     Caption = 'Whse.-Shipment - Create Pick';
     ProcessingOnly = true;
@@ -216,6 +216,7 @@ report 7318 "Whse.-Shipment - Create Pick"
         WhseActivHeader: Record "Warehouse Activity Header";
         TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
         IsHandled: Boolean;
     begin
         CreatePick.CreateWhseDocument(FirstActivityNo, LastActivityNo, true);
@@ -236,7 +237,7 @@ report 7318 "Whse.-Shipment - Create Pick"
                 IsHandled := false;
                 OnBeforePrintPickingList(WhseActivHeader, IsHandled);
                 if not IsHandled then
-                    REPORT.Run(REPORT::"Picking List", false, false, WhseActivHeader);
+                    WarehouseDocumentPrint.PrintPickHeader(WhseActivHeader);
             end;
         end else
             if not HideNothingToHandleErr then
@@ -281,6 +282,8 @@ report 7318 "Whse.-Shipment - Create Pick"
         WhseShptHeader := WhseShptHeader2;
         AssignedID := WhseShptHeader2."Assigned User ID";
         GetLocation(WhseShptLine."Location Code");
+
+        OnAfterSetWhseShipmentLine(WhseShptLine, WhseShptHeader, SortActivity);
     end;
 
     procedure GetResultMessage(): Boolean
@@ -369,6 +372,11 @@ report 7318 "Whse.-Shipment - Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSortWhseActivHeaders(var WhseActivHeader: Record "Warehouse Activity Header"; FirstActivityNo: Code[20]; LastActivityNo: Code[20]; var HideNothingToHandleError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetWhseShipmentLine(WhseShptLine: Record "Warehouse Shipment Line"; WhseShptHeader: Record "Warehouse Shipment Header"; var SortActivity: Option)
     begin
     end;
 }

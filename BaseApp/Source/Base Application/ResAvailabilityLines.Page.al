@@ -124,7 +124,6 @@ page 361 "Res. Availability Lines"
     end;
 
     var
-        Resource: Record Resource;
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         CapacityAfterOrders: Decimal;
@@ -132,6 +131,9 @@ page 361 "Res. Availability Lines"
         NetAvailability: Decimal;
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        Resource: Record Resource;
 
     procedure Set(var NewRes: Record Resource; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin

@@ -99,6 +99,7 @@ page 99000829 "Firm Planned Prod. Order"
                     Caption = 'Starting Time';
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting time of the production order.';
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -112,6 +113,7 @@ page 99000829 "Firm Planned Prod. Order"
                     Caption = 'Starting Date';
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting date of the production order.';
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -125,6 +127,7 @@ page 99000829 "Firm Planned Prod. Order"
                     Caption = 'Ending Time';
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending time of the production order.';
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -138,10 +141,33 @@ page 99000829 "Firm Planned Prod. Order"
                     Caption = 'Ending Date';
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending date of the production order.';
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
                         Validate("Ending Date", EndingDate);
+                        CurrPage.Update(true);
+                    end;
+                }
+                field("Starting Date-Time"; "Starting Date-Time")
+                {
+                    ApplicationArea = Manufacturing;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the starting date and starting time of the production order.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
+                }
+                field("Ending Date-Time"; "Ending Date-Time")
+                {
+                    ApplicationArea = Manufacturing;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the ending date and ending time of the production order.';
+
+                    trigger OnValidate()
+                    begin
                         CurrPage.Update(true);
                     end;
                 }
@@ -450,6 +476,16 @@ page 99000829 "Firm Planned Prod. Order"
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
+    trigger OnInit()
+    begin
+        DateAndTimeFieldVisible := false;
+    end;
+
+    trigger OnOpenPage()
+    begin
+        DateAndTimeFieldVisible := false;
+    end;
+
     var
         CopyProdOrderDoc: Report "Copy Production Order Document";
         ManuPrintReport: Codeunit "Manu. Print Report";
@@ -457,6 +493,7 @@ page 99000829 "Firm Planned Prod. Order"
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
+        DateAndTimeFieldVisible: Boolean;
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin

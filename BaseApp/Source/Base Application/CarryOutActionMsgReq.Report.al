@@ -55,6 +55,11 @@ report 493 "Carry Out Action Msg. - Req."
         UseOneJnl(ReqLine);
     end;
 
+    trigger OnPostReport()
+    begin
+        OnBeforePostReport();
+    end;
+
     var
         Text000: Label 'cannot be filtered when you create orders';
         Text001: Label 'There is nothing to create.';
@@ -146,6 +151,11 @@ report 493 "Carry Out Action Msg. - Req."
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforePreReport(var PrintOrders: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforePostReport()
     begin
     end;
 }

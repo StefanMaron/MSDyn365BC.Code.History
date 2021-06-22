@@ -362,7 +362,7 @@ table 7501 "Item Attribute Value"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLoadItemAttributesFactBoxDataOnBeforeInsert(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; ItemAttributeValue: Record "Item Attribute Value")
+    local procedure OnLoadItemAttributesFactBoxDataOnBeforeInsert(var ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; var ItemAttributeValue: Record "Item Attribute Value")
     begin
     end;
 }

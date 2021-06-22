@@ -366,6 +366,72 @@ codeunit 134115 "ERM Employee Application"
         EmployeeLedgerEntry.TestField("Message to Recipient", MsgToRecipient);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentTwoInvoiceSetAppliesToIdFromGeneralJournal()
+    var
+        Employee: Record Employee;
+        GenJournalLine: Record "Gen. Journal Line";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [General Journal]
+        // [SCENARIO 342909] System clean "Applies-to ID" field in employee ledger entry when it is generated from general journal line applied to employee ledger entry
+        Initialize();
+
+        CreateEmployee(Employee);
+
+        InvoiceAmount := -LibraryRandom.RandIntInRange(10, 20);
+        PaymentAmount := -InvoiceAmount * 3;
+
+        // Invoice 1
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Employee, Employee."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Invoice 2
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Employee, Employee."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Payment 1 with false "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Employee, Employee."No.", PaymentAmount);
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        LibraryERM.FindEmployeeLedgerEntry(
+          EmployeeLedgerEntry, EmployeeLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        EmployeeLedgerEntry.TestField("Applies-to ID", '');
+
+        // Payment 2 with true "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Employee, Employee."No.", PaymentAmount);
+
+        Clear(EmployeeLedgerEntry);
+        EmployeeLedgerEntry.SetRange("Employee No.", Employee."No.");
+        EmployeeLedgerEntry.SetRange("Document Type", EmployeeLedgerEntry."Document Type"::" ");
+        LibraryERM.SetAppliestoIdEmployee(EmployeeLedgerEntry);
+        EmployeeLedgerEntry.ModifyAll("Applies-to ID", GenJournalLine."Document No.");
+
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        EmployeeLedgerEntry.FindSet();
+        repeat
+            EmployeeLedgerEntry.TestField(Open, false);
+        until EmployeeLedgerEntry.Next() = 0;
+        Assert.RecordCount(EmployeeLedgerEntry, 2);
+
+        LibraryERM.FindEmployeeLedgerEntry(
+          EmployeeLedgerEntry, EmployeeLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        EmployeeLedgerEntry.TestField("Applies-to ID", '');
+    end;
+
     local procedure Initialize()
     var
         EmployeePostingGroup: Record "Employee Posting Group";

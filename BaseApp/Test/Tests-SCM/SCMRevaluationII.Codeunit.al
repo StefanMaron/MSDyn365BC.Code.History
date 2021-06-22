@@ -35,7 +35,7 @@ codeunit 137011 "SCM Revaluation-II"
         CostMustBeEqualErr: Label 'Costs must be Equal.';
         ProductionOrderNo: Code[20];
         ErrMsgCostAmount: Label 'The amounts must be equal.';
-        RevaluationPerEntryNotAllowedErr: Label 'This item ledger entry has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
+        RevaluationPerEntryNotAllowedErr: Label 'This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
         AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
         AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";

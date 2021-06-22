@@ -609,7 +609,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePreReport(var PostValueEntryToGL: Record "Post Value Entry to G/L"; ItemValueEntry: Record "Value Entry")
+    local procedure OnBeforePreReport(var PostValueEntryToGL: Record "Post Value Entry to G/L"; var ItemValueEntry: Record "Value Entry")
     begin
     end;
 

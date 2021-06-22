@@ -1162,6 +1162,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         VATAmount :=
           Round(PurchaseLine.Quantity * DirectUnitCost * PurchaseLine."VAT %" / (100 + PurchaseLine."VAT %"),
             Currency."Amount Rounding Precision");
+        OnAfterCreateSingleLinePurchaseDoc(PurchaseHeader, PurchaseLine);
     end;
 
     local procedure CreateSingleLineSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Currency: Record Currency; UnitPrice: Decimal; DocumentType: Option) VATAmount: Decimal
@@ -1510,6 +1511,11 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     begin
         LibraryVariableStorage.Dequeue(Balance);
         ApplyVendorEntries.ControlBalance.AssertEquals(Balance);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateSingleLinePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
     end;
 }
 

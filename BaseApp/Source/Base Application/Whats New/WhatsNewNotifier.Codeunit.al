@@ -71,7 +71,8 @@ codeunit 897 "What's New Notifier"
         WhatsNewNotified."Application Version" := CopyStr(ApplicationVersion, 1, MaxStrLen(WhatsNewNotified."Application Version"));
         WhatsNewNotified."Date Notified" := CurrentDateTime();
 
-        if WhatsNewNotified.Insert() then; // Don't insert a second time
+        if WhatsNewNotified.Insert() then
+            SendTraceTag('0000CA3', 'What''s New Notifier', Verbosity::Normal, 'What''s new wizard was shown to user.', DataClassification::SystemMetadata);
     end;
 
     [TryFunction]

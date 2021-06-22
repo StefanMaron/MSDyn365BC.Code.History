@@ -10,6 +10,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
     var
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -32,6 +33,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         CountryRegionDoesNotExistErr: Label 'The %1 does not exist.', Comment = '%1 - Table caption.';
         DisclaimerTxt: Label 'You are accessing a third-party website and service. Review the disclaimer before you continue.';
         VATRegNoVIESSettingIsNotEnabledErr: Label 'VAT Reg. No. Validation Setup is not enabled.';
+        NoVATNoToValidateErr: Label 'Specify the VAT registration number that you want to verify.';
         CannotInsertMultipleSettingsErr: Label 'You cannot insert multiple settings.';
         UnexpectedResponseErr: Label 'The VAT registration number could not be verified because the VIES VAT Registration No. service may be currently unavailable for the selected EU state, %1.';
 
@@ -1110,6 +1112,28 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     end;
 
     [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ThrowErrorWhenVATRegistrationLogIsEmpty()
+    var
+        VATRegistrationLog: Record "VAT Registration Log";
+        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
+    begin
+        // [SCENARIO] 
+        // When there is no VAT to validate an error is thrown
+        VATRegistrationLog.DeleteAll();
+
+        VATRegNoSrvConfig.DeleteAll();
+        VATRegNoSrvConfig.Init();
+        VATRegNoSrvConfig.Enabled := true;
+        VATRegNoSrvConfig."Service Endpoint" := LibraryUtility.GenerateGUID;
+        VATRegNoSrvConfig.Insert();
+
+        asserterror CODEUNIT.Run(CODEUNIT::"VAT Lookup Ext. Data Hndl");
+        Assert.ExpectedError(NoVATNoToValidateErr);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure ValidateHeaderVATRegistrationNoRespectsSellToCustomerSetting()
     var
@@ -1252,6 +1276,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Reg. No Validity Check");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
 
@@ -1262,10 +1287,12 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Reg. No Validity Check");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Reg. No Validity Check");
     end;
 
     local procedure InitializeVATRegistrationLog(var VATRegistrationLog: Record "VAT Registration Log"; AccountType: Option; AccountNo: Code[20])

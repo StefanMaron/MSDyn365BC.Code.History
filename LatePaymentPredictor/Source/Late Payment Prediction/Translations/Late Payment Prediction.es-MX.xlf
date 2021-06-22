@@ -5,535 +5,541 @@
       <group id="body">
         <trans-unit id="Table 523664430 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Primary Key</source>
-          <target>Clave principal</target>
+          <target state="translated">Clave principal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Primary Key - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 3595376992 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Make Predictions</source>
-          <target>Realizar predicciones</target>
+          <target state="translated">Realizar predicciones</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Make Predictions - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 4024843101 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My Model</source>
-          <target>Mi modelo</target>
+          <target state="translated">Mi modelo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field My Model - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 56611002 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Standard, My Model</source>
-          <target>Estándar, Mi modelo</target>
+          <target state="translated">Estándar, Mi modelo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Selected Model - Property OptionCaption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 56611002 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Selected Model</source>
-          <target>Modelo seleccionado</target>
+          <target state="translated">Modelo seleccionado</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Selected Model - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 1611182194 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My Model Quality</source>
-          <target>Calidad de Mi modelo</target>
+          <target state="translated">Calidad de Mi modelo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field My Model Quality - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 4050154699 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Standard Model Quality</source>
-          <target>Calidad de modelo estándar</target>
+          <target state="translated">Calidad de modelo estándar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Standard Model Quality - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 3832824975 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Model Quality Threshold</source>
-          <target>Umbral de calidad del modelo</target>
+          <target state="translated">Umbral de calidad del modelo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Model Quality Threshold - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 382237940 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Use My Azure Subscription</source>
-          <target>Usar la suscripción Mi Azure</target>
+          <target state="translated">Usar la suscripción Mi Azure</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Use My Model Credentials - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 751373631 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Custom API Uri</source>
-          <target>URI de API personalizada</target>
+          <target state="translated">URI de API personalizada</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Custom API Uri - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 3161466712 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Custom API Key</source>
-          <target>Clave API personalizada</target>
+          <target state="translated">Clave API personalizada</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Custom API Key - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 683080091 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Exact Invoice No OnLastML</source>
-          <target>Nº de factura exacto en el último ML</target>
+          <target state="translated">Nº de factura exacto en el último ML</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Exact Invoice No OnLastML - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 3276982846 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>OverestimatedInvNo OnLastReset</source>
-          <target>N.° de facturas sobreestimadas en el último restablecimiento</target>
+          <target state="translated">N.° de facturas sobreestimadas en el último restablecimiento</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field OverestimatedInvNo OnLastReset - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 1283765727 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Feature Table Reset</source>
-          <target>Restablecer la última tabla de funciones</target>
+          <target state="translated">Restablecer la última tabla de funciones</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Last Feature Table Reset - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 3417183810 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Background Analysis</source>
-          <target>Último análisis en segundo plano</target>
+          <target state="translated">Último análisis en segundo plano</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Last Background Analysis - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 3258399266 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Standard Model Pdf</source>
-          <target>PDF Modelo estándar</target>
+          <target state="translated">PDF Modelo estándar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Standard Model Pdf - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 3639179419 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My Model Pdf</source>
-          <target>PDF Mi modelo</target>
+          <target state="translated">PDF Mi modelo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field My Model Pdf - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - Field 2138793706 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Posting Date OnLastML</source>
-          <target>OnLastML de fecha de registro</target>
+          <target state="translated">OnLastML de fecha de registro</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Posting Date OnLastML - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 523664430 - NamedType 2058625442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot use the model to make predictions. The quality of the model is below the specified quality threshold, which means that its predictions are unlikely to meet your requirements for accuracy. To use the model anyway, enter a lower value in the Model Quality Threshold field.</source>
+          <target state="translated">No se puede usar el modelo para realizar predicciones. La calidad del modelo es inferior al umbral de calidad especificado, lo que significa que es poco probable que sus predicciones cumplan los requisitos de precisión. Para usar el modelo de todos modos, introduzca un valor inferior en el campo Umbral de calidad del modelo.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - NamedType CurrentModelLowerQualityThanDesiredErr</note>
+        </trans-unit>
         <trans-unit id="Table 523664430 - NamedType 358560748" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot use the model because it does not exist. Try training a new model.</source>
-          <target>No se puede usar el modelo porque no existe. Intente entrenar un nuevo modelo.</target>
+          <target state="translated">No se puede usar el modelo porque no existe. Intente entrenar un nuevo modelo.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - NamedType CurrentModelDoesNotExistErr</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Late Payment Prediction Setup</source>
-          <target>Configuración de predicción de pago atrasado</target>
+          <target state="translated">Configuración de predicción de pago atrasado</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 2445482498 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General</source>
-          <target>General</target>
+          <target state="translated">General</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control General - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 2891538263 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Enable Predictions</source>
-          <target>Activar predicciones</target>
+          <target state="translated">Activar predicciones</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control Enabled - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 2891538263 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether to use the Late Payment Prediction extension to predict if an invoice will be paid on time.</source>
-          <target>Especifica si se usa la extensión de Predicción de pago atrasado para predecir si una factura se pagará a tiempo.</target>
+          <target state="translated">Especifica si se usa la extensión de Predicción de pago atrasado para predecir si una factura se pagará a tiempo.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control Enabled - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 274479162 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the predictive model to use. This can be the standard model that we provide, or your own custom model if you have created one by using the Create My Model action.</source>
-          <target>Especifica el modelo predictivo a usar. Este puede ser el modelo estándar que proporcionamos, o su propio modelo personalizado si ha creado uno utilizando la acción Crear mi modelo.</target>
+          <target state="translated">Especifica el modelo predictivo a usar. Este puede ser el modelo estándar que proporcionamos, o su propio modelo personalizado si ha creado uno utilizando la acción Crear mi modelo.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control SelectedModel - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 1060856135 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the minimum model quality you require. The value is a percentage between zero and one, and indicates how accurate predictions will be. Typically, this field is useful when you create a custom model. If the quality of a model is below this threshold, it will not be used.</source>
-          <target>Especifica la calidad mínima del modelo que necesita. El valor es un porcentaje entre cero y uno, e indica cuán precisas serán las predicciones. Normalmente, este campo es útil cuando crea un modelo personalizado. Si la calidad de un modelo está por debajo de este umbral, no se usará.</target>
+          <target state="translated">Especifica la calidad mínima del modelo que necesita. El valor es un porcentaje entre cero y uno, e indica cuán precisas serán las predicciones. Normalmente, este campo es útil cuando crea un modelo personalizado. Si la calidad de un modelo está por debajo de este umbral, no se usará.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control ThresholdModelQuality - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 503497542 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Model Quality</source>
-          <target>Calidad del modelo</target>
+          <target state="translated">Calidad del modelo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control ModelQuality - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 503497542 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the quality value for the model you are using. For custom models, the predictive experiment determines this value when training the model. The value is a percentage between zero and one, and indicates how accurate predictions will be.</source>
-          <target>Especifica el valor de calidad para el modelo que está utilizando. Para los modelos personalizados, el experimento predictivo determina este valor al entrenar el modelo. El valor es un porcentaje entre cero y uno, e indica cuán precisas serán las predicciones.</target>
+          <target state="translated">Especifica el valor de calidad para el modelo que está utilizando. Para los modelos personalizados, el experimento predictivo determina este valor al entrenar el modelo. El valor es un porcentaje entre cero y uno, e indica cuán precisas serán las predicciones.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control ModelQuality - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 1510562767 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Usage</source>
-          <target>Uso</target>
+          <target state="translated">Uso</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control Usage - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 1563708480 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Remaining Compute Time</source>
-          <target>Tiempo de cálculo restante</target>
+          <target state="translated">Tiempo de cálculo restante</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control Remaining - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 1563708480 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The number of seconds of compute time that you have not yet used.</source>
-          <target>La cantidad de segundos de tiempo de cálculo que aún no ha utilizado.</target>
+          <target state="translated">La cantidad de segundos de tiempo de cálculo que aún no ha utilizado.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control Remaining - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 2274578115 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Original Compute Time</source>
-          <target>Tiempo de cálculo original</target>
+          <target state="translated">Tiempo de cálculo original</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control Original - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 2274578115 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The number of seconds of compute time that was originally available for the standard model, or the model for your custom experiment.</source>
-          <target>La cantidad de segundos de tiempo de cálculo que originalmente estaba disponible para el modelo estándar o el modelo para su experimento personalizado.</target>
+          <target state="translated">La cantidad de segundos de tiempo de cálculo que originalmente estaba disponible para el modelo estándar o el modelo para su experimento personalizado.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control Original - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 1362171754 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Date of Last Compute</source>
-          <target>Fecha del último cálculo</target>
+          <target state="translated">Fecha del último cálculo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control LastDateTimeUpdated - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 1362171754 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The date on which you last used Azure compute time.</source>
-          <target>La fecha en la que utilizó por última vez el tiempo de cálculo de Azure.</target>
+          <target state="translated">La fecha en la que utilizó por última vez el tiempo de cálculo de Azure.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control LastDateTimeUpdated - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 2879277585 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Use My Azure Subscription</source>
-          <target>Usar la suscripción Mi Azure</target>
+          <target state="translated">Usar la suscripción Mi Azure</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control UseMyCredentials - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 2879277585 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Use a model that you created, rather than the standard model that we provide. To use your model, you must provide your API URI and API Key. You must also choose My Model in the Selected Model field in the Late Payment Prediction Setup window.</source>
-          <target>Use un modelo que haya creado, en lugar del modelo estándar que proporcionamos. Para usar su modelo, debe proporcionar su URI de API y clave de API. También debe elegir Mi modelo en el campo Modelo seleccionado en la ventana Configuración de predicción de pago atrasado.</target>
+          <target state="translated">Use un modelo que haya creado, en lugar del modelo estándar que proporcionamos. Para usar su modelo, debe proporcionar su URI de API y clave de API. También debe elegir Mi modelo en el campo Modelo seleccionado en la ventana Configuración de predicción de pago atrasado.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control UseMyCredentials - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 3907128061 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Use My Azure Subscription</source>
-          <target>Usar la suscripción Mi Azure</target>
+          <target state="translated">Usar la suscripción Mi Azure</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control My Model Credentials - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 3397201522 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>API URI</source>
-          <target>URI de API</target>
+          <target state="translated">URI de API</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control ApiURI - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 3397201522 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Use your own Azure Machine Learning subscription, rather than the subscription you get through Business Central. For example, this is useful when you need more computing time. To use your subscription, provide your API URI and API key. You must also choose My Model in the Selected Model field on the Late Payment Prediction Setup page.</source>
-          <target>Use su propia suscripción de Azure Machine Learning, en lugar de la suscripción que obtiene a través de Business Central. Por ejemplo, esto es útil cuando necesita más tiempo de cálculo. Para usar su suscripción, proporcione su API URI y la clave API. También debe elegir Mi modelo en el campo Modelo seleccionado en la página Configuración de predicción de pago atrasado.</target>
+          <target state="translated">Use su propia suscripción de Azure Machine Learning, en lugar de la suscripción que obtiene a través de Business Central. Por ejemplo, esto es útil cuando necesita más tiempo de cálculo. Para usar su suscripción, proporcione su API URI y la clave API. También debe elegir Mi modelo en el campo Modelo seleccionado en la página Configuración de predicción de pago atrasado.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control ApiURI - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 3332662617 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>API Key</source>
-          <target>Clave de API</target>
+          <target state="translated">Clave de API</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control ApiKey - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Control 3332662617 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the API key to connect to the Azure Machine Learning service</source>
-          <target>Especifica la clave API para conectarse al servicio Azure Machine Learning</target>
+          <target state="translated">Especifica la clave API para conectarse al servicio Azure Machine Learning</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Control ApiKey - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 3685264004 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create My Model</source>
-          <target>Crear Mi modelo</target>
+          <target state="translated">Crear Mi modelo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Train - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 3685264004 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Send your data to our predictive experiment and we will prepare a predictive model for you. To use your predictive model, choose My Model in the Selected Model field.</source>
-          <target>Envíe sus datos a nuestro experimento predictivo y prepararemos un modelo predictivo para usted. Para usar su modelo predictivo, elija Mi modelo en el campo Modelo seleccionado.</target>
+          <target state="translated">Envíe sus datos a nuestro experimento predictivo y prepararemos un modelo predictivo para usted. Para usar su modelo predictivo, elija Mi modelo en el campo Modelo seleccionado.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Train - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 577499581 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Evaluate Selected Model</source>
-          <target>Evaluar el modelo seleccionado</target>
+          <target state="translated">Evaluar el modelo seleccionado</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Evaluate - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 577499581 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Send your data to our predictive experiment and we will test the selected predictive model for you.</source>
-          <target>Envíe sus datos a nuestro experimento predictivo y probaremos el modelo predictivo seleccionado para usted.</target>
+          <target state="translated">Envíe sus datos a nuestro experimento predictivo y probaremos el modelo predictivo seleccionado para usted.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Evaluate - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 1498680174 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Schedule Payment Prediction</source>
-          <target>Programar predicción de pago</target>
+          <target state="translated">Programar predicción de pago</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Schedule Payment Prediction - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 1498680174 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Define when payment predictions are updated by setting up the related job queue entry in the Job Queue Entry Card window.</source>
-          <target>Defina cuándo se actualizan las predicciones de pago configurando la entrada de cola de trabajos relacionada en la ventana Tarjeta de entrada de cola de trabajos.</target>
+          <target state="translated">Defina cuándo se actualizan las predicciones de pago configurando la entrada de cola de trabajos relacionada en la ventana Tarjeta de entrada de cola de trabajos.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Schedule Payment Prediction - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 2831486567 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Update Payment Predictions</source>
-          <target>Actualizar predicciones de pago</target>
+          <target state="translated">Actualizar predicciones de pago</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Update Payment Predictions - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 2831486567 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Update the late payment predictions for all invoices. Predictions are available only if the Late Payment Prediction extension is enabled.</source>
-          <target>Actualice las predicciones de pago atrasado para todas las facturas. Las predicciones solo están disponibles si la extensión de Predicción de pago atrasado está activada.</target>
+          <target state="translated">Actualice las predicciones de pago atrasado para todas las facturas. Las predicciones solo están disponibles si la extensión de Predicción de pago atrasado está activada.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Update Payment Predictions - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 1024674247 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Visualize Model</source>
-          <target>Visualizar modelo</target>
+          <target state="translated">Visualizar modelo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Visualize Model - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 1024674247 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Visualize the model and display it.</source>
-          <target>Visualizar el modelo y mostrarlo.</target>
+          <target state="translated">Visualizar el modelo y mostrarlo.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Visualize Model - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 1236892575 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open Azure AI Gallery</source>
-          <target>Abrir Azure AI Gallery</target>
+          <target state="translated">Abrir Azure AI Gallery</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Open Azure AI Gallery - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - Action 1236892575 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Explore models for Azure Machine Learning, and use Azure Machine Learning Studio to build, test, and deploy the Prediction Model for Microsoft Dynamics 365.</source>
-          <target>Permite explorar modelos para Azure Machine Learning y usar Azure Machine Learning Studio para generar, probar e implementar el modelo de predicción para Microsoft Dynamics 365.</target>
+          <target state="translated">Permite explorar modelos para Azure Machine Learning y usar Azure Machine Learning Studio para generar, probar e implementar el modelo de predicción para Microsoft Dynamics 365.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Open Azure AI Gallery - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - NamedType 789824084" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify the API URI and the API Key.</source>
-          <target>Debe especificar el URI de API y la clave de API.</target>
+          <target state="translated">Debe especificar el URI de API y la clave de API.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - NamedType ApiCredentialsnotSetFullyErr</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - NamedType 3455628948" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payment prediction updates are being scheduled. Please wait until the process is complete.</source>
-          <target>Se han programado la actualizaciones de predicción de pago. Espere hasta que finalice el proceso.</target>
+          <target state="translated">Se han programado la actualizaciones de predicción de pago. Espere hasta que finalice el proceso.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - NamedType JobQueueCreationInProgressErr</note>
         </trans-unit>
         <trans-unit id="Page 523664430 - NamedType 1880568342" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payment predictions are being updated in the background. This might take a minute. You can view the updated predictions on the Customer Ledger Entries page.</source>
-          <target>Las predicciones de pago se actualizan en segundo plano. Esto podría tomar un minuto. Puede ver las predicciones actualizadas en la página Movimientos de clientes.</target>
+          <target state="translated">Las predicciones de pago se actualizan en segundo plano. Esto podría tomar un minuto. Puede ver las predicciones actualizadas en la página Movimientos de clientes.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - NamedType UpdatingPaymentPredictionMsg</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 2272340397 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Number</source>
-          <target>Número</target>
+          <target state="translated">Número</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Number - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 1799284892 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payment Terms Days</source>
-          <target>Días de condiciones de pago</target>
+          <target state="translated">Días de condiciones de pago</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Payment Terms Days - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 2461167233 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Corrected</source>
-          <target>Corregido</target>
+          <target state="translated">Corregido</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Corrected - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 3882294235 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No. Paid Invoices</source>
-          <target>N.° de facturas pagadas</target>
+          <target state="translated">N.° de facturas pagadas</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field No. Paid Invoices - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 167636047 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No. Paid Late Invoices</source>
-          <target>N.° de facturas atrasadas pagadas</target>
+          <target state="translated">N.° de facturas atrasadas pagadas</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field No. Paid Late Invoices - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 3948082364 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ratio Paid Late/Paid Invoices</source>
-          <target>Proporción de facturas pagadas tarde/pagadas</target>
+          <target state="translated">Proporción de facturas pagadas tarde/pagadas</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Ratio Paid Late/Paid Invoices - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 1732071316 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Paid Invoices Amount</source>
-          <target>Importe total de facturas pagadas</target>
+          <target state="translated">Importe total de facturas pagadas</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Total Paid Invoices Amount - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 2317318635 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Paid Late Inv. Amount</source>
-          <target>Importe total de facturas atrasadas pagadas</target>
+          <target state="translated">Importe total de facturas atrasadas pagadas</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Total Paid Late Inv. Amount - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 1954682110 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ratio PaidLateAmnt/PaidAmnt</source>
-          <target>Proporción importe atrasado pagado/importe pagado</target>
+          <target state="translated">Proporción importe atrasado pagado/importe pagado</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Ratio PaidLateAmnt/PaidAmnt - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 1552632244 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Average Days Late</source>
-          <target>Promedio de días de atraso</target>
+          <target state="translated">Promedio de días de atraso</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Average Days Late - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 945733462 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No. Outstanding Inv.</source>
-          <target>N.° de facturas pendientes</target>
+          <target state="translated">N.° de facturas pendientes</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field No. Outstanding Inv. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 1043525242 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No. Outstanding Late Inv.</source>
-          <target>N.° de facturas pendientes atrasadas</target>
+          <target state="translated">N.° de facturas pendientes atrasadas</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field No. Outstanding Late Inv. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 4056374438 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ratio NoOutstngLate/NoOutstng</source>
-          <target>Proporción no pendiente atrasada/no pendiente</target>
+          <target state="translated">Proporción no pendiente atrasada/no pendiente</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Ratio NoOutstngLate/NoOutstng - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 1037504170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Outstng Invoices Amt.</source>
-          <target>Cantidad total de las facturas pendientes</target>
+          <target state="translated">Cantidad total de las facturas pendientes</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Total Outstng Invoices Amt. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 2829716225 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Total Outstng Late Inv. Amt.</source>
-          <target>Cantidad total de las facturas atrasadas pendientes</target>
+          <target state="translated">Cantidad total de las facturas atrasadas pendientes</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Total Outstng Late Inv. Amt. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 3918559005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ratio AmtLate/Amt Outstng Inv</source>
-          <target>Proporción de importe atrasado/importe de facturas pendientes</target>
+          <target state="translated">Proporción de importe atrasado/importe de facturas pendientes</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Ratio AmtLate/Amt Outstng Inv - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 2281278414 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Average Outstanding Days Late</source>
-          <target>Promedio de pagos pendientes en días</target>
+          <target state="translated">Promedio de pagos pendientes en días</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Average Outstanding Days Late - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 2965034906 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bill-to Customer No.</source>
-          <target>Factura a N.º de cliente</target>
+          <target state="translated">Factura a N.º de cliente</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Bill-to Customer No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 3278951291 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Base Amount</source>
-          <target>Importe base</target>
+          <target state="translated">Importe base</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Base Amount - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 3710982960 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Posting Date</source>
-          <target>Fecha de registro</target>
+          <target state="translated">Fecha de registro</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Posting Date - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 4085727052 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Due Date</source>
-          <target>Fecha de vencimiento</target>
+          <target state="translated">Fecha de vencimiento</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Due Date - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 3184896434 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Closed Date</source>
-          <target>Fecha cerrada</target>
+          <target state="translated">Fecha cerrada</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Closed Date - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 1778072510 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Closed</source>
-          <target>Cerrado</target>
+          <target state="translated">Cerrado</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Closed - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 3723377713 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Paid Late Days</source>
-          <target>Días de atraso pagados</target>
+          <target state="translated">Días de atraso pagados</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Paid Late Days - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 3847204869 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>UsedForPredict And ToBeDeleted</source>
-          <target>Usado para predecir y para eliminar</target>
+          <target state="translated">Usado para predecir y para eliminar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field UsedForPredict And ToBeDeleted - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 474856066 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Is Late</source>
-          <target>Está atrasada</target>
+          <target state="translated">Está atrasada</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Is Late - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 3865998304 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Confidence</source>
-          <target>Confianza</target>
+          <target state="translated">Confianza</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Field Confidence - Property Caption</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 302596633" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Late Payment Prediction extension is not enabled. Do you want to enable it?</source>
-          <target>La extensión de Predicción de pago atrasado no está habilitada. ¿Desea activarla?</target>
+          <target state="translated">La extensión de Predicción de pago atrasado no está habilitada. ¿Desea activarla?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType EnableConfirmationMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 3074054855" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Want to know if a sales document will be paid on time? The Late Payment Prediction extension can predict that.</source>
-          <target>¿Desea saber si un documento de ventas se pagará a tiempo? La extensión de Predicción de pago atrasado puede predecirlo.</target>
+          <target state="translated">¿Desea saber si un documento de ventas se pagará a tiempo? La extensión de Predicción de pago atrasado puede predecirlo.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType EnableNotificationMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 41941251" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Enable</source>
-          <target>Activar</target>
+          <target state="translated">Activar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType EnableTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 1830429907" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Don't show again</source>
-          <target>No volver a mostrar</target>
+          <target state="translated">No volver a mostrar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType NeverShowAgainTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 1671929504" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>To predict a late payment, choose the %1 action. Want to learn more about the late payment predictions?</source>
-          <target>Para predecir un pago atrasado, elija la acción %1. ¿Desea obtener más información sobre las predicciones de pagos atrasados?</target>
+          <target state="translated">Para predecir un pago atrasado, elija la acción %1. ¿Desea obtener más información sobre las predicciones de pagos atrasados?</target>
           <note from="Developer" annotates="general" priority="2">%1 is the caption of the Late Payment Prediction action</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType LearnMoreNotificationTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 3334639707" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more</source>
-          <target>Más información</target>
+          <target state="translated">Más información</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType LearnMoreTxt</note>
         </trans-unit>
@@ -544,73 +550,73 @@
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 3519161399" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Predict late payment for sales documents</source>
-          <target>Predecir el pago atrasado para los documentos de ventas</target>
+          <target state="translated">Predecir el pago atrasado para los documentos de ventas</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType SetupNotificationNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 2403516424" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Notify me of the possibility to predict late payment of sales documents.</source>
-          <target>Notificarme la posibilidad de predecir el pago atrasado de documentos de ventas.</target>
+          <target state="translated">Notificarme la posibilidad de predecir el pago atrasado de documentos de ventas.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType SetupNotificationDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 3982224871" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Predict Payment</source>
-          <target>Predecir pago</target>
+          <target state="translated">Predecir pago</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType PredictActionCaptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 2188504547" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The payment is predicted to be late, with %1 confidence in the prediction.</source>
-          <target>Se prevé que el pago será atrasado, con un %1 de confianza en la predicción.</target>
+          <target state="translated">Se prevé que el pago será atrasado, con un %1 de confianza en la predicción.</target>
           <note from="Developer" annotates="general" priority="2">%1 is High, Medium or Low</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType PredictionResultWillBeLateTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 91507088" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The payment is predicted to be on time, with %1 confidence in the prediction.</source>
-          <target>Se prevé que el pago será a tiempo, con un %1 de confianza en la predicción.</target>
+          <target state="translated">Se prevé que el pago será a tiempo, con un %1 de confianza en la predicción.</target>
           <note from="Developer" annotates="general" priority="2">%1 is High, Medium or Low</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType PredictionResultWillNotBeLateTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 499043119" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A custom machine learning model is being trained at present. Predictions can be made after the training finishes.</source>
-          <target>Un modelo de Machine Learning personalizado está siendo entrenado en este momento. Las predicciones se pueden hacer después de que termine el entrenamiento.</target>
+          <target state="translated">Un modelo de Machine Learning personalizado está siendo entrenado en este momento. Las predicciones se pueden hacer después de que termine el entrenamiento.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType ModelTrainingInProgressNotificationErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2892347051 - NamedType 121632390" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No prediction needed. The payment for this sales document is already overdue.</source>
-          <target>No se necesita ninguna predicción. El pago de este documento de venta ya ha vencido.</target>
+          <target state="translated">No se necesita ninguna predicción. El pago de este documento de venta ya ha vencido.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Mgt. - NamedType NoPredictionForLateDueDateMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 2330758652 - NamedType 298627209" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data available is insufficient to create a new model or to test an existing one.</source>
-          <target>Los datos disponibles son insuficientes para crear un nuevo modelo o para probar uno existente.</target>
+          <target state="translated">Los datos disponibles son insuficientes para crear un nuevo modelo o para probar uno existente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Model Management - NamedType NotEnoughDataAvailableErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2330758652 - NamedType 4075731924" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The quality of the new model is %1%, which is lower than the quality of the model you are using now, which is %2%. Are you sure you want to use the new model?</source>
-          <target>La calidad del nuevo modelo es %1%, que es inferior a la calidad del modelo que está usando ahora, que es %2%. ¿Seguro que desea usar el nuevo modelo?</target>
+          <target state="translated">La calidad del nuevo modelo es %1%, que es inferior a la calidad del modelo que está usando ahora, que es %2%. ¿Seguro que desea usar el nuevo modelo?</target>
           <note from="Developer" annotates="general" priority="2">%1 = Quality of new model, %2 = Quality of existing model.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Model Management - NamedType TrainedModelIsOfPoorerQualityCnfQst</note>
         </trans-unit>
         <trans-unit id="Codeunit 2330758652 - NamedType 2640373066" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A new model has been created with a quality of %1%.</source>
-          <target>Se ha creado un nuevo modelo con una calidad de %1%.</target>
+          <target state="translated">Se ha creado un nuevo modelo con una calidad de %1%.</target>
           <note from="Developer" annotates="general" priority="2">%1 = Quality of the new model</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Model Management - NamedType ModelReplacedMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 2330758652 - NamedType 2099444819" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We have tested the model on your data and determined that its quality is %1. The quality indicates how well the model has been trained, and how accurate its predictions will be. For example, 80% means you can expect correct predictions for 80 out of 100 documents.</source>
-          <target>Hemos probado el modelo en sus datos y determinamos que su calidad es %1. La calidad indica qué tan bien ha sido entrenado el modelo, y cuán precisas serán sus predicciones. Por ejemplo, un 80% significa que puede esperar predicciones correctas para 80 de 100 documentos.</target>
+          <target state="translated">Hemos probado el modelo en sus datos y determinamos que su calidad es %1. La calidad indica qué tan bien ha sido entrenado el modelo, y cuán precisas serán sus predicciones. Por ejemplo, un 80% significa que puede esperar predicciones correctas para 80 de 100 documentos.</target>
           <note from="Developer" annotates="general" priority="2">%1 = Quality of the existing model</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Model Management - NamedType ModelTestedMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 2330758652 - NamedType 3136516953" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A model is being created right now. Please try again later.</source>
-          <target>Un modelo se está creando en este momento. Por favor, inténtelo de nuevo más tarde.</target>
+          <target state="translated">Un modelo se está creando en este momento. Por favor, inténtelo de nuevo más tarde.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Model Management - NamedType TrainingInProgressErr</note>
         </trans-unit>
@@ -621,25 +627,25 @@
         </trans-unit>
         <trans-unit id="Codeunit 2330758652 - NamedType 73941145" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Not Late,Late</source>
-          <target>No tarde,Tarde</target>
+          <target state="translated">No tarde,Tarde</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Model Management - NamedType LabelsLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 2330758652 - NamedType 2173012714" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Standard Model</source>
-          <target>Modelo estándar</target>
+          <target state="translated">Modelo estándar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Model Management - NamedType StandardModelLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 2330758652 - NamedType 3457659763" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My Model</source>
-          <target>Mi modelo</target>
+          <target state="translated">Mi modelo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Model Management - NamedType MyModelLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 2361022759 - NamedType 2502994393" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>LatePaymentML</source>
-          <target>LatePaymentML</target>
+          <target state="translated">LatePaymentML</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Subscribers - NamedType TelemetryCategoryTxt</note>
         </trans-unit>
@@ -690,263 +696,263 @@
         </trans-unit>
         <trans-unit id="Codeunit 752263005 - NamedType 1605481693" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You can get the payment prediction updated automatically every day.</source>
-          <target>Puede obtener la predicción del pago actualizada automáticamente cada día.</target>
+          <target state="translated">Puede obtener la predicción del pago actualizada automáticamente cada día.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LPP Scheduler - NamedType SetupScheduledLPPMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 752263005 - NamedType 2051629486" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Enable Scheduled Payment Predictions</source>
-          <target>Activar las predicciones de pago programadas</target>
+          <target state="translated">Activar las predicciones de pago programadas</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LPP Scheduler - NamedType SetupScheduledLPPTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 752263005 - NamedType 3646224320" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Show notification if you want to enable payment prediction to be automatically updated every day</source>
-          <target>Mostrar notificación si desea habilitar la predicción de pagos para que se actualice automáticamente todos los días</target>
+          <target state="translated">Mostrar notificación si desea habilitar la predicción de pagos para que se actualice automáticamente todos los días</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LPP Scheduler - NamedType SetupScheduledLPPDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 752263005 - NamedType 3507565196" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Don't ask again</source>
-          <target>No volver a preguntar</target>
+          <target state="translated">No volver a preguntar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LPP Scheduler - NamedType DontAskAgainTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 752263005 - NamedType 3935078955" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The payment predictions will be updated every day. You can change the schedule in the Late Payment Prediction Setup window.</source>
-          <target>Las predicciones de pago se actualizarán todos los días. Puede cambiar el horario en la ventana de Configuración de predicción de pago atrasado.</target>
+          <target state="translated">Las predicciones de pago se actualizarán todos los días. Puede cambiar el horario en la ventana de Configuración de predicción de pago atrasado.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LPP Scheduler - NamedType ScheduledLPPEnabledMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 752263005 - NamedType 1427331883" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Late Payment Prediction Update</source>
-          <target>Actualización de la predicción de pago atrasado</target>
+          <target state="translated">Actualización de la predicción de pago atrasado</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LPP Scheduler - NamedType LPPUpdateJobQueueEntryDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Page 3534437048 - Control 3006891759 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Prediction</source>
-          <target>Predicción</target>
+          <target state="translated">Predicción</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Prediction FactBox - Control Prediction - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3534437048 - Control 3006891759 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies that the payment for this invoice is predicted to be late.</source>
-          <target>Especifica que se prevé que el pago de esta factura será atrasado.</target>
+          <target state="translated">Especifica que se prevé que el pago de esta factura será atrasado.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Prediction FactBox - Control Prediction - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3534437048 - Control 3865998304 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Confidence</source>
-          <target>Confianza</target>
+          <target state="translated">Confianza</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Prediction FactBox - Control Confidence - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3534437048 - Control 3865998304 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the reliability of the late payment prediction. High is above 90%, Medium is between 80% and 90%, and Low is less than 80%.</source>
-          <target>Especifica la confiabilidad de la predicción de pago atrasado. Alto es por encima del 90%, Medio es entre 80% y 90%, y Bajo es menos del 80%.</target>
+          <target state="translated">Especifica la confiabilidad de la predicción de pago atrasado. Alto es por encima del 90%, Medio es entre 80% y 90%, y Bajo es menos del 80%.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Prediction FactBox - Control Confidence - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3534437048 - Control 384312795 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Confidence %</source>
-          <target>% de confianza</target>
+          <target state="translated">% de confianza</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Prediction FactBox - Control PredictionConfidencePercentage - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3534437048 - Control 384312795 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the percentage that the prediction confidence value is based on.</source>
-          <target>Especifica el porcentaje en que se basa el valor de confianza de la predicción.</target>
+          <target state="translated">Especifica el porcentaje en que se basa el valor de confianza de la predicción.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Prediction FactBox - Control PredictionConfidencePercentage - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3534437048 - Action 1514883969 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Setup</source>
-          <target>Configurar</target>
+          <target state="translated">Configurar</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Prediction FactBox - Action Setup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3534437048 - Action 1514883969 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Manage settings for the Late Payment Prediction extension.</source>
-          <target>Administrar la configuración para la extensión de Predicción de pago tardío.</target>
+          <target state="translated">Administrar la configuración para la extensión de Predicción de pago tardío.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Prediction FactBox - Action Setup - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3534437048 - Action 1994964448 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customer</source>
-          <target>Cliente</target>
+          <target state="translated">Cliente</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Prediction FactBox - Action Customer - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3534437048 - Action 1994964448 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open details for the customer.</source>
-          <target>Abrir los detalles del cliente.</target>
+          <target state="translated">Abrir los detalles del cliente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Prediction FactBox - Action Customer - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Query 3400852568 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Late Payment Model Input</source>
-          <target>Entrada de modelo de pago atrasado</target>
+          <target state="translated">Entrada de modelo de pago atrasado</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Query LPP Sales Invoice Header Input - Property Caption</note>
         </trans-unit>
         <trans-unit id="PageExtension 1880658401 - Control 2015228584 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies sales invoices that are predicted to be paid late.</source>
-          <target>Especifica las facturas de venta que se prevé que se pagarán tarde.</target>
+          <target state="translated">Especifica las facturas de venta que se prevé que se pagarán tarde.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 3377672696</note>
         </trans-unit>
         <trans-unit id="PageExtension 1880658401 - Control 2015228584 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Invoices Predicted Overdue</source>
-          <target>Predicción de facturas de venta vencidas</target>
+          <target state="translated">Predicción de facturas de venta vencidas</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 3377672696</note>
         </trans-unit>
         <trans-unit id="PageExtension 711236209 - Control 4203233321 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payment Prediction</source>
-          <target>Predicción del pago</target>
+          <target state="translated">Predicción del pago</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2393537757</note>
         </trans-unit>
         <trans-unit id="PageExtension 711236209 - Control 4203233321 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies that the payment for this invoice is predicted to be late.</source>
-          <target>Especifica que se prevé que el pago de esta factura será atrasado.</target>
+          <target state="translated">Especifica que se prevé que el pago de esta factura será atrasado.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2393537757</note>
         </trans-unit>
         <trans-unit id="PageExtension 711236209 - Control 1165529379 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Prediction Confidence</source>
-          <target>Confianza de la predicción</target>
+          <target state="translated">Confianza de la predicción</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2393537757</note>
         </trans-unit>
         <trans-unit id="PageExtension 711236209 - Control 1165529379 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the reliability of the late payment prediction. High is above 90%, Medium is between 80% and 90%, and Low is less than 80%.</source>
-          <target>Especifica la confiabilidad de la predicción de pago atrasado. Alto es por encima del 90%, Medio es entre 80% y 90%, y Bajo es menos del 80%.</target>
+          <target state="translated">Especifica la confiabilidad de la predicción de pago atrasado. Alto es por encima del 90%, Medio es entre 80% y 90%, y Bajo es menos del 80%.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2393537757</note>
         </trans-unit>
         <trans-unit id="PageExtension 711236209 - Control 1124786408 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Prediction Confidence %</source>
-          <target>% de confianza de la predicción</target>
+          <target state="translated">% de confianza de la predicción</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2393537757</note>
         </trans-unit>
         <trans-unit id="PageExtension 711236209 - Control 1124786408 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the percentage that the prediction confidence value is based on.</source>
-          <target>Especifica el porcentaje en que se basa el valor de confianza de la predicción.</target>
+          <target state="translated">Especifica el porcentaje en que se basa el valor de confianza de la predicción.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2393537757</note>
         </trans-unit>
         <trans-unit id="PageExtension 711236209 - Control 570805394 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Late Payment Prediction</source>
-          <target>Predicción de pago atrasado</target>
+          <target state="translated">Predicción de pago atrasado</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2393537757</note>
         </trans-unit>
         <trans-unit id="PageExtension 711236209 - Action 3927615777 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Update Payment Predictions</source>
-          <target>Actualizar predicciones de pago</target>
+          <target state="translated">Actualizar predicciones de pago</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2393537757</note>
         </trans-unit>
         <trans-unit id="PageExtension 711236209 - Action 3927615777 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Update the late payment predictions for all invoices. Predictions are available only if the Late Payment Prediction extension is enabled.</source>
-          <target>Actualice las predicciones de pago atrasado para todas las facturas. Las predicciones solo están disponibles si la extensión de Predicción de pago atrasado está activada.</target>
+          <target state="translated">Actualice las predicciones de pago atrasado para todas las facturas. Las predicciones solo están disponibles si la extensión de Predicción de pago atrasado está activada.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2393537757</note>
         </trans-unit>
         <trans-unit id="PageExtension 64367162 - Action 3888950521 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Predict Payment</source>
-          <target>Predecir pago</target>
+          <target state="translated">Predecir pago</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 280137910</note>
         </trans-unit>
         <trans-unit id="PageExtension 64367162 - Action 3888950521 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Predict whether the payment for this sales document will be made on time. Predictions are available only if the Late Payment Prediction extension is enabled.</source>
-          <target>Predecir si el pago de este documento de ventas se realizará a tiempo. Las predicciones solo están disponibles si la extensión de Predicción de pago atrasado está habilitada.</target>
+          <target state="translated">Predecir si el pago de este documento de ventas se realizará a tiempo. Las predicciones solo están disponibles si la extensión de Predicción de pago atrasado está habilitada.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 280137910</note>
         </trans-unit>
         <trans-unit id="PageExtension 198070038 - Action 3888950521 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Predict Payment</source>
-          <target>Predecir pago</target>
+          <target state="translated">Predecir pago</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1673401186</note>
         </trans-unit>
         <trans-unit id="PageExtension 198070038 - Action 3888950521 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Predict whether the payment for this sales document will be made on time. Predictions are available only if the Late Payment Prediction extension is enabled.</source>
-          <target>Predecir si el pago de este documento de ventas se realizará a tiempo. Las predicciones solo están disponibles si la extensión de Predicción de pago atrasado está habilitada.</target>
+          <target state="translated">Predecir si el pago de este documento de ventas se realizará a tiempo. Las predicciones solo están disponibles si la extensión de Predicción de pago atrasado está habilitada.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1673401186</note>
         </trans-unit>
         <trans-unit id="PageExtension 2664801871 - Action 3888950521 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Predict Payment</source>
-          <target>Predecir pago</target>
+          <target state="translated">Predecir pago</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 4034894651</note>
         </trans-unit>
         <trans-unit id="PageExtension 2664801871 - Action 3888950521 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Predict whether the payment for this sales document will be made on time. Predictions are available only if the Late Payment Prediction extension is enabled.</source>
-          <target>Predecir si el pago de este documento de ventas se realizará a tiempo. Las predicciones solo están disponibles si la extensión de Predicción de pago atrasado está habilitada.</target>
+          <target state="translated">Predecir si el pago de este documento de ventas se realizará a tiempo. Las predicciones solo están disponibles si la extensión de Predicción de pago atrasado está habilitada.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 4034894651</note>
         </trans-unit>
         <trans-unit id="TableExtension 1656127619 - Field 4203233321 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> ,Late,On-Time</source>
-          <target> ,Tarde,A tiempo</target>
+          <target state="translated"> ,Tarde,A tiempo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2733917450</note>
         </trans-unit>
         <trans-unit id="TableExtension 1656127619 - Field 4203233321 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payment Prediction</source>
-          <target>Predicción del pago</target>
+          <target state="translated">Predicción del pago</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2733917450</note>
         </trans-unit>
         <trans-unit id="TableExtension 1656127619 - Field 1165529379 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> ,Low,Medium,High</source>
-          <target> ,Baja,Media,Alta</target>
+          <target state="translated"> ,Baja,Media,Alta</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2733917450</note>
         </trans-unit>
         <trans-unit id="TableExtension 1656127619 - Field 1165529379 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Prediction Confidence</source>
-          <target>Confianza de la predicción</target>
+          <target state="translated">Confianza de la predicción</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2733917450</note>
         </trans-unit>
         <trans-unit id="TableExtension 1656127619 - Field 1124786408 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Prediction Confidence %</source>
-          <target>% de confianza de la predicción</target>
+          <target state="translated">% de confianza de la predicción</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2733917450</note>
         </trans-unit>
         <trans-unit id="TableExtension 3795713173 - NamedType 3140912156" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>There must be an amount to make a prediction for.</source>
-          <target>Debe haber un importe para el que hacer una predicción.</target>
+          <target state="translated">Debe haber un importe para el que hacer una predicción.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1192395785</note>

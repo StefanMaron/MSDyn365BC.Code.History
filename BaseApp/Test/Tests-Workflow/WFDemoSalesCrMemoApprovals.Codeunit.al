@@ -716,7 +716,9 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
     local procedure Initialize()
     var
         UserSetup: Record "User Setup";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"WF Demo Sales CrMemo Approvals");
         LibraryVariableStorage.Clear;
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -724,8 +726,10 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"WF Demo Sales CrMemo Approvals");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"WF Demo Sales CrMemo Approvals");
     end;
 
     local procedure CreateSalesCreditMemo(var SalesHeader: Record "Sales Header")

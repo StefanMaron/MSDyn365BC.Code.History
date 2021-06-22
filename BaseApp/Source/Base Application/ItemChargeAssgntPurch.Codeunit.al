@@ -249,6 +249,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         SelectionTxt: Text;
         SuggestItemChargeMenuTxt: Text;
         SuggestItemChargeMessageTxt: Text;
+        IsHandled: Boolean;
     begin
         with PurchLine do begin
             TestField("Qty. to Invoice");
@@ -260,7 +261,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
             exit;
 
         ItemChargeAssgntPurch.SetFilter("Applies-to Doc. Type", '<>%1', ItemChargeAssgntPurch."Applies-to Doc. Type"::"Transfer Receipt");
-        OnSuggestAssgntOnAfterItemChargeAssgntPurchSetFilters(ItemChargeAssgntPurch);
+
+        IsHandled := false;
+        OnSuggestAssgntOnAfterItemChargeAssgntPurchSetFilters(ItemChargeAssgntPurch, PurchLine, TotalQtyToAssign, TotalAmtToAssign, IsHandled);
+        if IsHandled then
+            exit;
 
         Selection := 1;
         SuggestItemChargeMenuTxt :=
@@ -375,11 +380,13 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                   Round(
                     ItemChargeAssgntPurch."Qty. to Assign" / TotalQtyToAssign * TotalAmtToAssign,
                     Currency."Amount Rounding Precision");
+                OnAssignEquallyOnAfterAmountToAssignCalculated(ItemChargeAssgntPurch);
                 TotalQtyToAssign -= ItemChargeAssgntPurch."Qty. to Assign";
                 TotalAmtToAssign -= ItemChargeAssgntPurch."Amount to Assign";
                 RemainingNumOfLines := RemainingNumOfLines - 1;
                 OnAssignEquallyOnBeforeItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
                 ItemChargeAssgntPurch.Modify();
+                OnAssignEquallyOnAfterItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
             until TempItemChargeAssgntPurch.Next = 0;
         end;
         TempItemChargeAssgntPurch.DeleteAll();
@@ -475,6 +482,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                                     Abs(ReturnRcptLine."Item Charge Base Amount"));
                         end;
                 end;
+                OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssgntPurch, TempItemChargeAssgntPurch);
                 if TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" <> 0 then
                     TempItemChargeAssgntPurch.Insert
                 else begin
@@ -502,11 +510,13 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                       Round(
                         ItemChargeAssgntPurch."Qty. to Assign" / TotalQtyToAssign * TotalAmtToAssign,
                         Currency."Amount Rounding Precision");
+                    OnAssignByAmountOnAfterAmountToAssignCalculated(ItemChargeAssgntPurch, TempItemChargeAssgntPurch);
                     TotalQtyToAssign -= ItemChargeAssgntPurch."Qty. to Assign";
                     TotalAmtToAssign -= ItemChargeAssgntPurch."Amount to Assign";
                     TotalAppliesToDocLineAmount -= TempItemChargeAssgntPurch."Applies-to Doc. Line Amount";
                     OnAssignByAmountOnBeforeItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
                     ItemChargeAssgntPurch.Modify();
+                    OnAssignByAmountOnAfterItemChargeAssignmentPurchModify(ItemChargeAssgntPurch);
                 end;
             until TempItemChargeAssgntPurch.Next = 0;
         TempItemChargeAssgntPurch.DeleteAll();
@@ -808,7 +818,27 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAssignEquallyOnAfterAmountToAssignCalculated(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignEquallyOnAfterItemChargeAssignmentPurchModify(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAssignEquallyOnBeforeItemChargeAssignmentPurchModify(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByAmountOnAfterAmountToAssignCalculated(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByAmountOnAfterItemChargeAssignmentPurchModify(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     begin
     end;
 
@@ -818,7 +848,12 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSuggestAssgntOnAfterItemChargeAssgntPurchSetFilters(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    local procedure OnSuggestAssgntOnAfterItemChargeAssgntPurchSetFilters(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary);
     begin
     end;
 }

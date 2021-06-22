@@ -5,55 +5,55 @@
       <group id="body">
         <trans-unit id="Table 2591710920 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Payments Standard Account</source>
-          <target>Compte PayPal Payments Standard</target>
+          <target state="translated">Compte PayPal Payments Standard</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2591710920 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Primary Key</source>
-          <target>Clé primaire</target>
+          <target state="translated">Clé primaire</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - Field Primary Key - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2591710920 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Name</source>
-          <target>Nom</target>
+          <target state="translated">Nom</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - Field Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2591710920 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Description</source>
-          <target>Description</target>
+          <target state="translated">Description</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - Field Description - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2591710920 - Field 2891538263 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Enabled</source>
-          <target>Activé</target>
+          <target state="translated">Activé</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - Field Enabled - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2591710920 - Field 3302455580 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Always Include on Documents</source>
-          <target>Toujours inclure dans les documents</target>
+          <target state="translated">Toujours inclure dans les documents</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - Field Always Include on Documents - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2591710920 - Field 161526099 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Terms of Service</source>
-          <target>Conditions d'utilisation</target>
+          <target state="translated">Conditions d'utilisation</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - Field Terms of Service - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2591710920 - Field 629845928 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Account ID</source>
-          <target>Code compte</target>
+          <target state="translated">Code compte</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - Field Account ID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2591710920 - Field 2362480470 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service URL</source>
-          <target>URL service</target>
+          <target state="translated">URL service</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - Field Target URL - Property Caption</note>
         </trans-unit>
@@ -64,7 +64,7 @@
         </trans-unit>
         <trans-unit id="Table 2591710920 - NamedType 1467349039" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify an account ID for this payment service.</source>
-          <target>Vous devez spécifier un code compte pour ce service de paiement.</target>
+          <target state="translated">Vous devez spécifier un code compte pour ce service de paiement.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType AccountIDCannotBeBlankErr</note>
         </trans-unit>
@@ -75,13 +75,13 @@
         </trans-unit>
         <trans-unit id="Table 2591710920 - NamedType 3915085408" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The length of the specified PayPal account ID exceeds the maximum supported length of the webhook subscription ID, which is %1 characters.</source>
-          <target>La longueur du code compte PayPal spécifié dépasse la longueur maximale prise en charge du code abonnement webhook, à savoir %1 caractères.</target>
+          <target state="translated">La longueur du code compte PayPal spécifié dépasse la longueur maximale prise en charge du code abonnement webhook, à savoir %1 caractères.</target>
           <note from="Developer" annotates="general" priority="2">%1=integer value</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType AccountIDTooLongForWebhooksErr</note>
         </trans-unit>
         <trans-unit id="Table 2591710920 - NamedType 246429963" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A link for the PayPal payment service will be included for new sales documents. To add it to existing sales documents, you must manually select it in the Payment Service field on the sales document.</source>
-          <target>Un lien pour le service de paiement PayPal sera inclus pour les nouveaux documents vente. Pour l'ajouter à des documents vente existants, vous devez le sélectionner manuellement dans le champ Service de paiement sur le document vente.</target>
+          <target state="translated">Un lien pour le service de paiement PayPal sera inclus pour les nouveaux documents vente. Pour l'ajouter à des documents vente existants, vous devez le sélectionner manuellement dans le champ Service de paiement sur le document vente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType UpdateOpenInvoicesManuallyMsg</note>
         </trans-unit>
@@ -127,67 +127,67 @@
         </trans-unit>
         <trans-unit id="Table 2591710920 - NamedType 2592877442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The target URL is not valid.</source>
-          <target>L'URL cible n'est pas valide.</target>
+          <target state="translated">L'URL cible n'est pas valide.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Account - NamedType InvalidTargetURLErr</note>
         </trans-unit>
         <trans-unit id="Table 945518375 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Payments Standard Account Template</source>
-          <target>Modèle de compte PayPal Payments Standard</target>
+          <target state="translated">Modèle de compte PayPal Payments Standard</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 945518375 - Field 3004954119 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Code</source>
-          <target>Code</target>
+          <target state="translated">Code</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 945518375 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Name</source>
-          <target>Nom</target>
+          <target state="translated">Nom</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 945518375 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Description</source>
-          <target>Description</target>
+          <target state="translated">Description</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Description - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 945518375 - Field 161526099 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Terms of Service</source>
-          <target>Conditions d'utilisation</target>
+          <target state="translated">Conditions d'utilisation</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Terms of Service - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 945518375 - Field 1123305005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Logo</source>
-          <target>Logo</target>
+          <target state="translated">Logo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Logo - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 945518375 - Field 2362480470 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service URL</source>
-          <target>URL service</target>
+          <target state="translated">URL service</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Target URL - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 945518375 - Field 2211917788 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Logo URL</source>
-          <target>URL logo</target>
+          <target state="translated">URL logo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Logo URL - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 945518375 - Field 1402567763 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Logo Last Update DateTime</source>
-          <target>Date et heure de la dernière mise à jour du logo</target>
+          <target state="translated">Date et heure de la dernière mise à jour du logo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Logo Last Update DateTime - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 945518375 - Field 1516166834 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Logo Update Frequency</source>
-          <target>Fréquence de mise à jour du logo</target>
+          <target state="translated">Fréquence de mise à jour du logo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Logo Update Frequency - Property Caption</note>
         </trans-unit>
@@ -203,7 +203,7 @@
         </trans-unit>
         <trans-unit id="Table 945518375 - NamedType 2592877442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The target URL is not valid.</source>
-          <target>L'URL cible n'est pas valide.</target>
+          <target state="translated">L'URL cible n'est pas valide.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - NamedType InvalidTargetURLErr</note>
         </trans-unit>
@@ -214,7 +214,7 @@
         </trans-unit>
         <trans-unit id="Table 945518375 - NamedType 2024606936" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The logo URL is not valid.</source>
-          <target>L'URL du logo n'est pas valide.</target>
+          <target state="translated">L'URL du logo n'est pas valide.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - NamedType InvalidLogoURLErr</note>
         </trans-unit>
@@ -230,235 +230,235 @@
         </trans-unit>
         <trans-unit id="Page 945518375 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Payments Standard Template</source>
-          <target>Modèle PayPal Payments Standard</target>
+          <target state="translated">Modèle PayPal Payments Standard</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 2445482498 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General</source>
-          <target>Général</target>
+          <target state="translated">Général</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control General - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the default name for the PayPal payment service.</source>
-          <target>Spécifie le nom par défaut pour le service de paiement PayPal.</target>
+          <target state="translated">Spécifie le nom par défaut pour le service de paiement PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the default description for the PayPal payment service.</source>
-          <target>Spécifie la description par défaut pour le service de paiement PayPal.</target>
+          <target state="translated">Spécifie la description par défaut pour le service de paiement PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control Description - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 1123305005 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the default logo for the PayPal payment service.</source>
-          <target>Spécifie le logo par défaut pour le service de paiement PayPal.</target>
+          <target state="translated">Spécifie le logo par défaut pour le service de paiement PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control Logo - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 4086242710 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Target URL</source>
-          <target>URL cible</target>
+          <target state="translated">URL cible</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control TargetURL - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 4086242710 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the default target URL that will be used for the PayPal payment services.</source>
-          <target>Spécifie l'URL cible par défaut qui est utilisée pour les services de paiement PayPal.</target>
+          <target state="translated">Spécifie l'URL cible par défaut qui est utilisée pour les services de paiement PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control TargetURL - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 161526099 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the terms of use for the PayPal payment service.</source>
-          <target>Spécifie les conditions d'utilisation pour le service de paiement PayPal.</target>
+          <target state="translated">Spécifie les conditions d'utilisation pour le service de paiement PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control Terms of Service - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 2228795340 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Logo URL</source>
-          <target>URL logo</target>
+          <target state="translated">URL logo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control LogoURL - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 2228795340 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the URL from which the logo will be refreshed regularly.</source>
-          <target>Spécifie l'URL à partir de laquelle le logo va être actualisé régulièrement.</target>
+          <target state="translated">Spécifie l'URL à partir de laquelle le logo va être actualisé régulièrement.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control LogoURL - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 1516166834 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the frequency with which the logo is updated.</source>
-          <target>Spécifie la fréquence à laquelle le logo est mis à jour.</target>
+          <target state="translated">Spécifie la fréquence à laquelle le logo est mis à jour.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control Logo Update Frequency - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Action 3160976295 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reset To Default</source>
-          <target>Rétablir les valeurs par défaut</target>
+          <target state="translated">Rétablir les valeurs par défaut</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Action ResetToDefault - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Action 3160976295 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Resets values to default.</source>
-          <target>Réinitialise les valeurs par défaut.</target>
+          <target state="translated">Réinitialise les valeurs par défaut.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Action ResetToDefault - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - NamedType 1102136885" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Settings have been set to default.</source>
-          <target>Les paramètres ont été définis par défaut.</target>
+          <target state="translated">Les paramètres ont été définis par défaut.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - NamedType SetToDefaultMsg</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 629845928 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Account ID</source>
-          <target>Code compte</target>
+          <target state="translated">Code compte</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Account ID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 443943387 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Transaction ID</source>
-          <target>Code transaction</target>
+          <target state="translated">Code transaction</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Transaction ID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 587668972 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Transaction Status</source>
-          <target>État transaction</target>
+          <target state="translated">État transaction</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Transaction Status - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 775380468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Transaction Date</source>
-          <target>Date transaction</target>
+          <target state="translated">Date transaction</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Transaction Date - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 3773776616 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Transaction Type</source>
-          <target>Type transaction</target>
+          <target state="translated">Type transaction</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Transaction Type - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 4198939294 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Currency Code</source>
-          <target>Code devise</target>
+          <target state="translated">Code devise</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Currency Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 471669354 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Gross Amount</source>
-          <target>Montant brut</target>
+          <target state="translated">Montant brut</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Gross Amount - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 3035691293 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Net Amount</source>
-          <target>Montant net</target>
+          <target state="translated">Montant net</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Net Amount - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 3167542630 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Fee Amount</source>
-          <target>Montant des frais</target>
+          <target state="translated">Montant des frais</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Fee Amount - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 2525374026 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payer E-mail</source>
-          <target>Courriel du payeur</target>
+          <target state="translated">Courriel du payeur</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Payer E-mail - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 2434967932 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payer Name</source>
-          <target>Nom du payeur</target>
+          <target state="translated">Nom du payeur</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Payer Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 2819864851 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payer Address</source>
-          <target>Adresse du payeur</target>
+          <target state="translated">Adresse du payeur</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Payer Address - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 2898143332 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Note</source>
-          <target>Note</target>
+          <target state="translated">Note</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Note - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 3431463797 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Custom</source>
-          <target>Personnalisé</target>
+          <target state="translated">Personnalisé</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Custom - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 166038250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Invoice No.</source>
-          <target>N° facture</target>
+          <target state="translated">N° facture</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Invoice No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 2595192385 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Response Date</source>
-          <target>Date de réponse</target>
+          <target state="translated">Date de réponse</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Response Date - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 318613646 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Details</source>
-          <target>Détails</target>
+          <target state="translated">Détails</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Details - Property Caption</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 3804706331" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Invoice %1</source>
-          <target>Facture %1</target>
+          <target state="translated">Facture %1</target>
           <note from="Developer" annotates="general" priority="2">%1 Invoice No.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType InvoiceTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 3023250626" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This function is not supported for the %1 table.</source>
-          <target>Cette fonction n'est pas prise en charge pour la table %1.</target>
+          <target state="translated">Cette fonction n'est pas prise en charge pour la table %1.</target>
           <note from="Developer" annotates="general" priority="2">%1 Caption of the table</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType NotSupportedTypeErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 3295255348" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Pay with PayPal</source>
-          <target>Payer avec PayPal</target>
+          <target state="translated">Payer avec PayPal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalCaptionURLTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 3790335743" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>NOTE: This Is a test invoice. Therefore, no actual money transfer will be made.</source>
-          <target>REMARQUE : Ceci est une facture de test. En conséquence, aucun transfert d'ragent réel n'aura lieu.</target>
+          <target state="translated">REMARQUE : Ceci est une facture de test. En conséquence, aucun transfert d'ragent réel n'aura lieu.</target>
           <note from="Developer" annotates="general" priority="2">Will be shown next to Pay with PayPal link</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType DemoLinkCaptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 3836160883" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Payments Standard</source>
-          <target>PayPal Payments Standard</target>
+          <target state="translated">PayPal Payments Standard</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalStandardNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 4118283908" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Payments Standard - Fee % of Amount</source>
-          <target>PayPal Payments Standard - Frais % du montant</target>
+          <target state="translated">PayPal Payments Standard - Frais % du montant</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalStandardDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 675362307" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up and enable the PayPal Payments Standard service.</source>
-          <target>Configurez et activez le service PayPal Payments Standard.</target>
+          <target state="translated">Configurez et activez le service PayPal Payments Standard.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalStandardBusinessSetupDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 1045122670" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your Ref.</source>
-          <target>Votre Réf.</target>
+          <target state="translated">Votre Réf.</target>
           <note from="Developer" annotates="general" priority="2">Ref. is short for reference from Your Reference field. After Ref there will be a number</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType YourReferenceTxt</note>
         </trans-unit>
@@ -484,7 +484,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 3394800156" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You cannot change the target URL in the demonstration company.</source>
-          <target>Vous ne pouvez pas modifier l'URL cible de la compagnie de démonstration.</target>
+          <target state="translated">Vous ne pouvez pas modifier l'URL cible de la compagnie de démonstration.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType TargetURLCannotBeChangedInDemoCompanyErr</note>
         </trans-unit>
@@ -500,7 +500,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 4029329426" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Finance,PayPal,Payment</source>
-          <target>Finance,PayPal,Paiement</target>
+          <target state="translated">Finance,PayPal,Paiement</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalBusinessSetupKeywordsTxt</note>
         </trans-unit>
@@ -511,7 +511,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 1906247739" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal payment</source>
-          <target>Paiement PayPal</target>
+          <target state="translated">Paiement PayPal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalPaymentMethodDescTok</note>
         </trans-unit>
@@ -527,7 +527,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 1142556911" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to enable PayPal Sandbox setup?</source>
-          <target>Voulez-vous activer la configuration PayPal Sandbox ?</target>
+          <target state="translated">Voulez-vous activer la configuration PayPal Sandbox ?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalSandBoxModeQst</note>
         </trans-unit>
@@ -553,13 +553,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 4099674243" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>An error occured while creating the PayPal payment link.</source>
-          <target>Une erreur s’est produite lors de la création du lien de paiement PayPal.</target>
+          <target state="translated">Une erreur s’est produite lors de la création du lien de paiement PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalNoLinkErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 1120322070" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>An error occured while creating the PayPal payment link.\\Do you want to continue to create the document without the link?</source>
-          <target>Une erreur s’est produite lors de la création du lien de paiement PayPal.\\Voulez-vous poursuivre la création du document sans le lien ?</target>
+          <target state="translated">Une erreur s’est produite lors de la création du lien de paiement PayPal.\\Voulez-vous poursuivre la création du document sans le lien ?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType PayPalNoLinkQst</note>
         </trans-unit>
@@ -580,7 +580,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1098255835 - NamedType 101907022" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Demo Sandbox Account - </source>
-          <target>Compte de démonstration Sandbox - </target>
+          <target state="translated">Compte de démonstration Sandbox - </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Create Demo Data - NamedType DemoAccountPrefixTxt</note>
         </trans-unit>
@@ -691,7 +691,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 984218275" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal account %1 in transaction %2 is unexpected.</source>
-          <target>Le compte PayPal %1 dans la transaction %2 n’est pas attendu.</target>
+          <target state="translated">Le compte PayPal %1 dans la transaction %2 n’est pas attendu.</target>
           <note from="Developer" annotates="general" priority="2">%1=PayPal account ID, %2=transaction ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType UnexpectedAccountErr</note>
         </trans-unit>
@@ -702,7 +702,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 2741561990" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Invoice number %1 in transaction %2 is unexpected.</source>
-          <target>Le numéro de facture %1 dans la transaction %2 n'est pas attendu.</target>
+          <target state="translated">Le numéro de facture %1 dans la transaction %2 n'est pas attendu.</target>
           <note from="Developer" annotates="general" priority="2">%1=invoice number, %2=transaction ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType UnexpectedInvoiceNumberErr</note>
         </trans-unit>
@@ -713,7 +713,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 3438185550" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Currency code %1 in transaction %2 is unexpected.</source>
-          <target>Le code devise %1 dans la transaction %2 n’est pas attendu.</target>
+          <target state="translated">Le code devise %1 dans la transaction %2 n’est pas attendu.</target>
           <note from="Developer" annotates="general" priority="2">%1=currency code, %2=transaction ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType UnexpectedCurrencyCodeErr</note>
         </trans-unit>
@@ -724,13 +724,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 524254552" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Gross amount %1 in transaction %2 is unexpected.</source>
-          <target>Le montant brut %1 dans la transaction %2 n’est pas attendu.</target>
+          <target state="translated">Le montant brut %1 dans la transaction %2 n’est pas attendu.</target>
           <note from="Developer" annotates="general" priority="2">%1=decimal value, %2=transaction ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType UnexpectedAmountErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 349556811" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Transaction %2 with status %1 has already been processed.</source>
-          <target>La transaction %2 ayant l'état %1 a déjà été traitée.</target>
+          <target state="translated">La transaction %2 ayant l'état %1 a déjà été traitée.</target>
           <note from="Developer" annotates="general" priority="2">%1=status code (arbitrary text), %2=transaction ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType AlreadyProcessedErr</note>
         </trans-unit>
@@ -741,7 +741,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 2905366231" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Webhook notification is empty.</source>
-          <target>La notification webhook est vide.</target>
+          <target state="translated">La notification webhook est vide.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType EmptyNotificationErr</note>
         </trans-unit>
@@ -822,183 +822,183 @@
         </trans-unit>
         <trans-unit id="Page 4268182158 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Payments Standard Setup</source>
-          <target>Configuration de PayPal Payments Standard</target>
+          <target state="translated">Configuration de PayPal Payments Standard</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 2445482498 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General</source>
-          <target>Général</target>
+          <target state="translated">Général</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control General - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the PayPal account.</source>
-          <target>Spécifie le nom du compte PayPal.</target>
+          <target state="translated">Spécifie le nom du compte PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies description for what this PayPal account is being used for.</source>
-          <target>Spécifie la description de l'utilisation de ce compte PayPal.</target>
+          <target state="translated">Spécifie la description de l'utilisation de ce compte PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control Description - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 629845928 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the email or the Merchant account ID of the PayPal account</source>
-          <target>Spécifie le courriel ou le code du compte marchand du compte PayPal</target>
+          <target state="translated">Spécifie le courriel ou le code du compte marchand du compte PayPal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control Account ID - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 2891538263 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if the payment service is enabled.</source>
-          <target>Spécifie si le service de paiement est activé.</target>
+          <target state="translated">Spécifie si le service de paiement est activé.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control Enabled - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 3302455580 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if this PayPal account should be included on all of the Documents by default.</source>
-          <target>Spécifie si ce compte PayPal doit être inclus dans tous les documents par défaut.</target>
+          <target state="translated">Spécifie si ce compte PayPal doit être inclus dans tous les documents par défaut.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control Always Include on Documents - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 1123305005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Logo</source>
-          <target>Logo</target>
+          <target state="translated">Logo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control Logo - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 1123305005 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies Logo that should be included for this account on all invoices.</source>
-          <target>Spécifie le logo qui doit être inclus dans toutes les factures pour ce compte.</target>
+          <target state="translated">Spécifie le logo qui doit être inclus dans toutes les factures pour ce compte.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control Logo - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 4086242710 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Target URL</source>
-          <target>URL cible</target>
+          <target state="translated">URL cible</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control TargetURL - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 4086242710 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the target URL that will be opened when the customer chooses the link on the invoice.</source>
-          <target>Spécifie l'URL cible qui s'ouvre lorsque le client choisit le lien sur la facture.</target>
+          <target state="translated">Spécifie l'URL cible qui s'ouvre lorsque le client choisit le lien sur la facture.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control TargetURL - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 161526099 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies PayPal terms of service.</source>
-          <target>Spécifie les conditions d'utilisation PayPal.</target>
+          <target state="translated">Spécifie les conditions d'utilisation PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control Terms of Service - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Action 2397962153 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Setup Template</source>
-          <target>Configurer le modèle</target>
+          <target state="translated">Configurer le modèle</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Action SetupTemplate - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Action 2397962153 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens Template Setup for all PayPal accounts.</source>
-          <target>Ouvre la configuration des modèles pour tous les comptes PayPal.</target>
+          <target state="translated">Ouvre la configuration des modèles pour tous les comptes PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Action SetupTemplate - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Action 2678035379 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Activity Log</source>
-          <target>Journal des activités</target>
+          <target state="translated">Journal des activités</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Action ActivityLog - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - Action 2678035379 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Log listing events for this PayPal account.</source>
-          <target>Liste les enregistrements pour ce compte PayPal.</target>
+          <target state="translated">Liste les enregistrements pour ce compte PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Action ActivityLog - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - NamedType 3035575630" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The %1 is not enabled. Are you sure you want to exit?</source>
-          <target>Le %1 n'est pas activé. Voulez-vous vraiment quitter ?</target>
+          <target state="translated">Le %1 n'est pas activé. Voulez-vous vraiment quitter ?</target>
           <note from="Developer" annotates="general" priority="2">%1 = pagecaption (OCR Service Setup)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - NamedType EnableServiceQst</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - NamedType 2004045125" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Payment Standard has been enabled. To have invoice status updated to Paid when a customer has paid, contact your system administrator to enable API services.</source>
-          <target>PayPal Payment Standard a été activé. Pour mettre à jour l'état de la facture sur Payé lorsqu’un client a payé, contactez votre administrateur système pour activer les services API.</target>
+          <target state="translated">PayPal Payment Standard a été activé. Pour mettre à jour l'état de la facture sur Payé lorsqu’un client a payé, contactez votre administrateur système pour activer les services API.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - NamedType EnableAPIForWebhooksMsg</note>
         </trans-unit>
         <trans-unit id="Page 4268182158 - NamedType 594054157" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This extension uses the Paypal service, a third-party provider. By enabling this extension, you will be subject to the applicable terms, conditions, and privacy policies that Paypal may make available.\\When you establish a connection through the PayPal Payments Standard extension, customer data from the invoice, such as invoice number, due date, amount, and currency, as well as your PayPal account ID, will be inserted into the PayPal payment link on invoices and sent to PayPal when the customer chooses the link to pay. This data is used to ensure that the link contains enough information for your customers to pay the invoice, as well as for PayPal to identify you as the recipient of a payment using the link.\\By installing this solution, you agree for this limited set of data to be sent to the PayPal service. Note that you can disable or uninstall the PayPal Payments Standard extension at any time to discontinue the functionality.</source>
-          <target>Cette extension utilise le service PayPal, un fournisseur tiers. En activant cette extension, vous serez soumis aux termes, aux conditions et aux règles de confidentialité applicables que PayPal peut rendre disponibles.\\Lorsque vous établissez une connexion par le biais de l'extension PayPal Payments Standard, les données client sur la facture, comme le numéro de facture, la date d'échéance, le montant et la devise, ainsi que votre Code de compte PayPal, sont insérées dans le lien de paiement PayPal sur les factures et envoyées à PayPal lorsque le client clique sur le lien de paiement. Ces données permettent de s'assurer que le lien contienne suffisamment d'informations pour permettre à vos clients de payer la facture et à PayPal de vous identifier comme destinataire du paiement à l'aide du lien.\\En installant cette solution, vous acceptez que cet ensemble limité de données soit envoyé au service PayPal. Notez que vous pouvez désactiver ou désinstaller l'extension PayPal Payments Standard à tout moment pour ne plus utiliser la fonctionnalité.</target>
+          <target state="translated">Cette extension utilise le service PayPal, un fournisseur tiers. En activant cette extension, vous serez soumis aux termes, aux conditions et aux règles de confidentialité applicables que PayPal peut rendre disponibles.\\Lorsque vous établissez une connexion par le biais de l'extension PayPal Payments Standard, les données client sur la facture, comme le numéro de facture, la date d'échéance, le montant et la devise, ainsi que votre Code de compte PayPal, sont insérées dans le lien de paiement PayPal sur les factures et envoyées à PayPal lorsque le client clique sur le lien de paiement. Ces données permettent de s'assurer que le lien contienne suffisamment d'informations pour permettre à vos clients de payer la facture et à PayPal de vous identifier comme destinataire du paiement à l'aide du lien.\\En installant cette solution, vous acceptez que cet ensemble limité de données soit envoyé au service PayPal. Notez que vous pouvez désactiver ou désinstaller l'extension PayPal Payments Standard à tout moment pour ne plus utiliser la fonctionnalité.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - NamedType ExchangeWithExternalServicesMsg</note>
         </trans-unit>
         <trans-unit id="Page 113868361 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Payments Standard Accounts</source>
-          <target>Comptes PayPal Payments Standard</target>
+          <target state="translated">Comptes PayPal Payments Standard</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Accounts - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 113868361 - Action 4069333574 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New</source>
-          <target>Nouveau</target>
+          <target state="translated">Nouveau</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Accounts - Action NewAction - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4244671604 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal</source>
-          <target>PayPal</target>
+          <target state="translated">PayPal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Settings - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4244671604 - Control 2170401387 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Information</source>
-          <target>Informations PayPal</target>
+          <target state="translated">Informations PayPal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Settings - Control PayPal Information - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4244671604 - Control 2170401387 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Enter your email address for PayPal payments.</source>
-          <target>Entrez votre adresse de courriel pour les paiements PayPal.</target>
+          <target state="translated">Entrez votre adresse de courriel pour les paiements PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Settings - Control PayPal Information - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 4244671604 - Control 1807660456 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Email</source>
-          <target>Courriel PayPal</target>
+          <target state="translated">Courriel PayPal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Settings - Control AccountID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4244671604 - Control 2224294470 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sandbox active</source>
-          <target>Sandbox actif</target>
+          <target state="translated">Sandbox actif</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Settings - Control SandboxControl - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4244671604 - NamedType 961880541" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Terms of service</source>
-          <target>Conditions d'utilisation</target>
+          <target state="translated">Conditions d'utilisation</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Settings - NamedType TermsOfServiceLbl</note>
         </trans-unit>
         <trans-unit id="PageExtension 1655671086 - Control 2102977698 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ask your Office 365 administrator to change the settings for PayPal.</source>
-          <target>Contactez votre administrateur Office 365 pour modifier les paramètres de PayPal.</target>
+          <target state="translated">Contactez votre administrateur Office 365 pour modifier les paramètres de PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>
         </trans-unit>
         <trans-unit id="PageExtension 1655671086 - Control 2725778290 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal email address</source>
-          <target>Adresse électronique PayPal</target>
+          <target state="translated">Adresse électronique PayPal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>
         </trans-unit>
         <trans-unit id="PageExtension 1655671086 - NamedType 961880541" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Terms of service</source>
-          <target>Conditions d'utilisation</target>
+          <target state="translated">Conditions d'utilisation</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>

@@ -274,7 +274,6 @@ table 7134 "Item Budget Entry"
     end;
 
     var
-        Text000: Label 'The dimension value %1 has not been set up for dimension %2.';
         Text001: Label '1,5,,Budget Dimension 1 Code';
         Text002: Label '1,5,,Budget Dimension 2 Code';
         Text003: Label '1,5,,Budget Dimension 3 Code';
@@ -297,16 +296,10 @@ table 7134 "Item Budget Entry"
         ItemBudgetName.TestField(Blocked, false);
     end;
 
-    local procedure ValidateDimValue(DimCode: Code[20]; var DimValueCode: Code[20])
-    var
-        DimValue: Record "Dimension Value";
+    local procedure ValidateDimValue(DimCode: Code[20]; DimValueCode: Code[20])
     begin
-        DimValue."Dimension Code" := DimCode;
-        DimValue.Code := DimValueCode;
-        DimValue.Find('=><');
-        if DimValueCode <> CopyStr(DimValue.Code, 1, StrLen(DimValueCode)) then
-            Error(Text000, DimValueCode, DimCode);
-        DimValueCode := DimValue.Code;
+        if not DimMgt.CheckDimValue(DimCode, DimValueCode) then
+            Error(DimMgt.GetDimErr());
     end;
 
     local procedure GetGLSetup()

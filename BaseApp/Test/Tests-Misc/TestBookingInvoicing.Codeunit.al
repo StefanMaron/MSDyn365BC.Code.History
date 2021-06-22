@@ -15,6 +15,7 @@ codeunit 133784 "Test Booking Invoicing"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
 
     [Test]
     [Scope('OnPrem')]
@@ -743,6 +744,8 @@ codeunit 133784 "Test Booking Invoicing"
         BookingManager: Codeunit "Booking Manager";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Booking Invoicing");
+
         if HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, BookingManager.GetAppointmentConnectionName) then
             UnregisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, BookingManager.GetAppointmentConnectionName);
 

@@ -95,6 +95,11 @@ page 279 "Source Code Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code linked to entries that are posted from a payment reconciliation journal.';
                 }
+                field(Consolidation; Consolidation)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code linked to entries that are posted from Consolidation.';
+                }
             }
             group(Sales)
             {

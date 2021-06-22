@@ -111,10 +111,17 @@ page 9850 "Tenant Permissions"
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = AllowChangePrimaryKey;
-                    LookupPageID = "All Objects with Caption";
                     Style = Strong;
                     StyleExpr = ZeroObjStyleExpr;
                     ToolTip = 'Specifies the ID of the object that the permissions apply to.';
+                    Lookup = true;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        AllObjectswithCaption: Page "All Objects with Caption";
+                    begin
+                        exit(AllObjectswithCaption.OnLookupObjectId("Object Type", Text));
+                    end;
 
                     trigger OnValidate()
                     begin

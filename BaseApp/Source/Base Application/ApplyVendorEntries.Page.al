@@ -636,7 +636,7 @@ page 233 "Apply Vendor Entries"
         if ApplnType = ApplnType::"Applies-to Doc. No." then begin
             if OK then begin
                 RaiseError := ApplyingVendLedgEntry."Posting Date" < "Posting Date";
-                OnBeforeEarlierPostingDateError(ApplyingVendLedgEntry, Rec, RaiseError, CalcType);
+                OnBeforeEarlierPostingDateError(ApplyingVendLedgEntry, Rec, RaiseError, CalcType, PmtDiscAmount);
                 if RaiseError then begin
                     OK := false;
                     Error(
@@ -664,14 +664,11 @@ page 233 "Apply Vendor Entries"
 
     var
         ApplyingVendLedgEntry: Record "Vendor Ledger Entry" temporary;
-        AppliedVendLedgEntry: Record "Vendor Ledger Entry";
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         GenJnlLine: Record "Gen. Journal Line";
-        GenJnlLine2: Record "Gen. Journal Line";
         PurchHeader: Record "Purchase Header";
         Vend: Record Vendor;
-        VendLedgEntry: Record "Vendor Ledger Entry";
         GLSetup: Record "General Ledger Setup";
         PurchSetup: Record "Purchases & Payables Setup";
         TotalPurchLine: Record "Purchase Line";
@@ -682,11 +679,7 @@ page 233 "Apply Vendor Entries"
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         Navigate: Page Navigate;
         GenJnlLineApply: Boolean;
-        AppliedAmount: Decimal;
-        ApplyingAmount: Decimal;
-        PmtDiscAmount: Decimal;
         ApplnDate: Date;
-        ApplnCurrencyCode: Code[10];
         ApplnRoundingPrecision: Decimal;
         ApplnRounding: Decimal;
         ApplnType: Option " ","Applies-to Doc. No.","Applies-to ID";
@@ -698,7 +691,6 @@ page 233 "Apply Vendor Entries"
         VendEntryApplID: Code[50];
         AppliesToID: Code[50];
         ValidExchRate: Boolean;
-        DifferentCurrenciesInAppln: Boolean;
         Text002: Label 'You must select an applying entry before you can post the application.';
         Text003: Label 'You must post the application from the window where you entered the applying entry.';
         CannotSetAppliesToIDErr: Label 'You cannot set Applies-to ID while selecting Applies-to Doc. No.';
@@ -715,6 +707,16 @@ page 233 "Apply Vendor Entries"
         IsOfficeAddin: Boolean;
         HasDocumentAttachment: Boolean;
         VendNameVisible: Boolean;
+
+    protected var
+        AppliedVendLedgEntry: Record "Vendor Ledger Entry";
+        GenJnlLine2: Record "Gen. Journal Line";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        AppliedAmount: Decimal;
+        ApplyingAmount: Decimal;
+        PmtDiscAmount: Decimal;
+        ApplnCurrencyCode: Code[10];
+        DifferentCurrenciesInAppln: Boolean;
 
     procedure SetGenJnlLine(NewGenJnlLine: Record "Gen. Journal Line"; ApplnTypeSelect: Integer)
     begin
@@ -851,7 +853,7 @@ page 233 "Apply Vendor Entries"
     begin
         if CalcType = CalcType::GenJnlLine then begin
             RaiseError := ApplyingVendLedgEntry."Posting Date" < "Posting Date";
-            OnBeforeEarlierPostingDateError(ApplyingVendLedgEntry, Rec, RaiseError, CalcType);
+            OnBeforeEarlierPostingDateError(ApplyingVendLedgEntry, Rec, RaiseError, CalcType, PmtDiscAmount);
             if RaiseError then
                 Error(
                   EarlierPostingDateErr, ApplyingVendLedgEntry."Document Type", ApplyingVendLedgEntry."Document No.",
@@ -1379,7 +1381,7 @@ page 233 "Apply Vendor Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeEarlierPostingDateError(ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var RaiseError: Boolean; CalcType: Option)
+    local procedure OnBeforeEarlierPostingDateError(ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var RaiseError: Boolean; CalcType: Option; PmtDiscAmount: Decimal)
     begin
     end;
 

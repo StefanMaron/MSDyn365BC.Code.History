@@ -22,6 +22,7 @@ codeunit 134209 "Workflow Overview Tests"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -296,14 +297,17 @@ codeunit 134209 "Workflow Overview Tests"
     var
         UserSetup: Record "User Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Overview Tests");
         LibraryWorkflow.DisableAllWorkflows;
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Workflow Overview Tests");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Workflow Overview Tests");
     end;
 
     local procedure CreateEnabledWorkflow(var Workflow: Record Workflow; WorkflowTemplateCode: Code[17])

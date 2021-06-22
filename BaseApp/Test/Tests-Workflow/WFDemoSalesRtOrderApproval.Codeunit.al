@@ -720,7 +720,9 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
     local procedure Initialize()
     var
         UserSetup: Record "User Setup";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"WF Demo Sales RtOrder Approval");
         LibraryVariableStorage.Clear;
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -728,8 +730,10 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"WF Demo Sales RtOrder Approval");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"WF Demo Sales RtOrder Approval");
     end;
 
     local procedure CreateSalesReturnOrder(var SalesHeader: Record "Sales Header")

@@ -47,7 +47,7 @@ codeunit 312 "Cust-Check Cr. Limit"
             OnNewCheckRemoveCustomerNotifications(SalesHeader.RecordId, true);
 
         if not CustCheckCreditLimit.SalesHeaderShowWarningAndGetCause(SalesHeader, AdditionalContextId) then
-            SalesHeader.OnCustomerCreditLimitNotExceeded
+            SalesHeader.CustomerCreditLimitNotExceeded()
         else begin
             CreditLimitExceeded := true;
 
@@ -55,7 +55,7 @@ codeunit 312 "Cust-Check Cr. Limit"
                 if InstructionMgt.IsEnabled(GetInstructionType(Format(SalesHeader."Document Type"), SalesHeader."No.")) then
                     CreateAndSendNotification(SalesHeader.RecordId, AdditionalContextId, '');
 
-            SalesHeader.OnCustomerCreditLimitExceeded;
+            SalesHeader.CustomerCreditLimitExceeded();
         end;
     end;
 
@@ -71,13 +71,13 @@ codeunit 312 "Cust-Check Cr. Limit"
             OnNewCheckRemoveCustomerNotifications(SalesHeader.RecordId, false);
 
         if not CustCheckCreditLimit.SalesLineShowWarningAndGetCause(SalesLine, AdditionalContextId) then
-            SalesHeader.OnCustomerCreditLimitNotExceeded
+            SalesHeader.CustomerCreditLimitNotExceeded()
         else begin
             if GuiAllowed then
                 if InstructionMgt.IsEnabled(GetInstructionType(Format(SalesLine."Document Type"), SalesLine."Document No.")) then
                     CreateAndSendNotification(SalesHeader.RecordId, AdditionalContextId, '');
 
-            SalesHeader.OnCustomerCreditLimitExceeded;
+            SalesHeader.CustomerCreditLimitExceeded();
         end;
     end;
 

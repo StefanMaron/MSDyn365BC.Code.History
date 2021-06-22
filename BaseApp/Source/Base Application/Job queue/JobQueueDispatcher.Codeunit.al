@@ -118,6 +118,7 @@ codeunit 448 "Job Queue Dispatcher"
     var
         NewRunDateTime: DateTime;
         NewRunDate: Date;
+        IsHandled: Boolean;
     begin
         if IsNextRecurringRunTimeCalculated(JobQueueEntry, StartingDateTime, NewRunDateTime) then
             exit(NewRunDateTime);
@@ -134,6 +135,11 @@ codeunit 448 "Job Queue Dispatcher"
                 StartingDateTime := JobQueueEntry."Earliest Start Date/Time";
             NewRunDateTime := CreateDateTime(DT2Date(StartingDateTime) + 1, 0T);
         end;
+
+        IsHandled := false;
+        OnCalcNextRunTimeForRecurringJobOnAfterCalcNewRunDateTime(JobQueueEntry, NewRunDateTime, IsHandled);
+        if IsHandled then
+            exit(NewRunDateTime);
 
         exit(CalcRunTimeForRecurringJob(JobQueueEntry, NewRunDateTime));
     end;
@@ -154,11 +160,17 @@ codeunit 448 "Job Queue Dispatcher"
     procedure CalcInitialRunTime(var JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime): DateTime
     var
         EarliestPossibleRunTime: DateTime;
+        IsHandled: Boolean;
     begin
         if (JobQueueEntry."Earliest Start Date/Time" <> 0DT) and (JobQueueEntry."Earliest Start Date/Time" > StartingDateTime) then
             EarliestPossibleRunTime := JobQueueEntry."Earliest Start Date/Time"
         else
             EarliestPossibleRunTime := StartingDateTime;
+
+        IsHandled := false;
+        OnCalcInitialRunTimeOnAfterCalcEarliestPossibleRunTime(JobQueueEntry, EarliestPossibleRunTime, IsHandled);
+        if IsHandled then
+            exit(EarliestPossibleRunTime);
 
         if JobQueueEntry."Recurring Job" and not JobQueueEntry.IsNextRunDateFormulaSet then
             exit(CalcRunTimeForRecurringJob(JobQueueEntry, EarliestPossibleRunTime));
@@ -262,6 +274,16 @@ codeunit 448 "Job Queue Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry"; var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcNextRunTimeForRecurringJobOnAfterCalcNewRunDateTime(var JobQueueEntry: Record "Job Queue Entry"; var NewRunDateTime: DateTime; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcInitialRunTimeOnAfterCalcEarliestPossibleRunTime(var JobQueueEntry: Record "Job Queue Entry"; var EarliestPossibleRunTime: DateTime; var IsHandled: Boolean)
     begin
     end;
 }

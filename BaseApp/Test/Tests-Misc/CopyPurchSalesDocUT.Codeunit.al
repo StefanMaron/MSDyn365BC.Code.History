@@ -11,8 +11,10 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
 
     var
         Assert: Codeunit Assert;
+        LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         BeforeSalesTxt: Label 'BeforeSales';
@@ -21,6 +23,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         AfterPurchaseTxt: Label 'AfterPurchase';
         SwitchedToLanguageIsNotEqualToTargetTxt: Label 'Switched to language is not equal to target. Target language - %1, actual language - %2.', Comment = '%1 : target language ID, %2 : actual language ID.';
         RestoredLanguageIsNotEqualToTargetTxt: Label 'Restored language is not equal to target. To restore language - %1, actual language - %2.', Comment = '%1 : to restore language ID, %2 : actual language ID.';
+        IsInitialized: Boolean;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -33,6 +36,8 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 170312] "Copy Document Mgt.".CopySalesDoc - fires OnBeforeCopySalesDocument and OnAfterCopySalesDocument events
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Copy Purch/Sales Doc UT");
+
         // [GIVEN] Source Sales Invoice with "No." = "X"
         // [GIVEN] Destination Sales Header "Y"
         BindSubscription(CopyPurchSalesDocUT);
@@ -60,6 +65,8 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 170312] "Copy Document Mgt.".CopyPurchDoc - fires OnBeforeCopyPurchaseDocument and OnAfterCopyPurchaseDocument events
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Copy Purch/Sales Doc UT");
+
         // [GIVEN] Source Purchase Invoice with "No." = "X"
         // [GIVEN] Destination Purchase Header "Y"
         BindSubscription(CopyPurchSalesDocUT);
@@ -88,6 +95,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
     begin
         // [FEATURE] [Language]
         // [SCENARIO 381564] Switch to target language by its code through Language Management, check current language ID to target ID, restore through Language Management and check again to saved language ID.
+        Initialize();
 
         // Save for tear Down.
         SAVED_ID := GlobalLanguage;
@@ -115,6 +123,75 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
 
         // Tear Down.
         GlobalLanguage(SAVED_ID);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopySalesDocCopiesPaymentTermCodeToSalesCreditMemo()
+    var
+        FromSalesHeader: Record "Sales Header";
+        ToSalesHeader: Record "Sales Header";
+        PaymentTerms: Record "Payment Terms";
+        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 342193] CopyDocumentMgt.CopySalesDoc copies Payment Terms to Sales Credit Memo.
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Payment Term Code and Sales Credit memo.
+        LibrarySales.CreateSalesHeader(FromSalesHeader, FromSalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        FromSalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+        FromSalesHeader.Modify(true);
+        LibrarySales.CreateSalesHeader(
+          ToSalesHeader, ToSalesHeader."Document Type"::"Credit Memo", FromSalesHeader."Sell-to Customer No.");
+
+        // [WHEN] CopySalesDoc is used to copy Sales Invoice to Sales Credit memo.
+        CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
+        CopyDocumentMgt.CopySalesDoc(SalesDocType::Invoice, FromSalesHeader."No.", ToSalesHeader);
+
+        // [THEN] Sales Credit Memo has the same Payment Term Code as Sales Invoice.
+        Assert.AreEqual(PaymentTerms.Code, ToSalesHeader."Payment Terms Code", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopySalesDocCopiesPaymentTermCodeToPurchaseCreditMemo()
+    var
+        FromPurchHeader: Record "Purchase Header";
+        ToPurchHeader: Record "Purchase Header";
+        PaymentTerms: Record "Payment Terms";
+        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
+    begin
+        // [FEATURE] [Purchase] [Credit Memo]
+        // [SCENARIO 342193] CopyDocumentMgt.CopyPurchDoc copies Payment Terms to Purchase Credit Memo.
+        Initialize();
+
+        // [GIVEN] Purchase Invoice with Payment Term Code and Purchase Credit memo.
+        LibraryPurchase.CreatePurchHeader(FromPurchHeader, FromPurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        FromPurchHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+        FromPurchHeader.Modify(true);
+        LibraryPurchase.CreatePurchHeader(
+          ToPurchHeader, ToPurchHeader."Document Type"::"Credit Memo", FromPurchHeader."Sell-to Customer No.");
+
+        // [WHEN] CopyPurchDoc is used to copy Purchase Invoice to Purchase Credit memo.
+        CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
+        CopyDocumentMgt.CopyPurchDoc(PurchDocType::Invoice, FromPurchHeader."No.", ToPurchHeader);
+
+        // [THEN] Purchase Credit Memo has the same Payment Term Code as Purchase Invoice.
+        Assert.AreEqual(PaymentTerms.Code, ToPurchHeader."Payment Terms Code", '');
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Copy Purch/Sales Doc UT");
+
+        if IsInitialized then
+            exit;
+
+        IsInitialized := true;
+        Commit();
     end;
 
     local procedure CreateNewSalesHeader(CustomerNo: Code[20]; var SalesHeader: Record "Sales Header")

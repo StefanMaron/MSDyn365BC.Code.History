@@ -1086,6 +1086,46 @@ codeunit 137301 "SCM Inventory Reports - I"
         VerifyInventoryTransactionDetailQuantities(ItemLedgerEntry, 0, Abs(ItemLedgerEntry.Quantity));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure InventoryValuationFillZeroesInQtyAndExpectedCostIncluded()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        ReturnPurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        RowNo: Integer;
+        Quantity: Decimal;
+        DirectUnitCost: Decimal;
+    begin
+        // [FEATURE] [Inventory Valuation]
+        // [SCENARIO 351691] Expected Cost Included line should show Quantity = 0 and Value = 0 for Inventory Posting Group Name = Increase (LCY)
+        // [GIVEN] Created item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Posting the receipt and invoice for Purchase Order
+        Quantity := LibraryRandom.RandDec(100, 2);
+        DirectUnitCost := LibraryRandom.RandDec(100, 2);
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", Quantity, DirectUnitCost, 1);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Posting the shipment for Return Purchase Order
+        CreateReturnPurchaseOrder(ReturnPurchaseHeader, Item."No.", Quantity, DirectUnitCost);
+        LibraryPurchase.PostPurchaseDocument(ReturnPurchaseHeader, true, false);
+
+        // [WHEN] Run report "Inventory Valuation" with parameter "Include expected cost" = TRUE
+        SaveAsExcelInventoryValuationReport(Item."No.");
+
+        // [THEN] The Quantity should be equal to 0 for Inventory Posting Group Name = Increase (LCY) in Expected Cost Included line
+        // [THEN] The Value should be equal to 0 for Inventory Posting Group Name = Increase (LCY) in Expected Cost Included line
+        RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(
+            LibraryReportValidation.FindColumnNoFromColumnCaption('Item No.'), Item."No.");
+
+        LibraryReportValidation.VerifyCellValueOnWorksheet(
+          RowNo + 1, LibraryReportValidation.FindColumnNoFromColumnCaption('Increases (LCY)'), '0', '1');
+        LibraryReportValidation.VerifyCellValueOnWorksheet(
+          RowNo + 1, LibraryReportValidation.FindColumnNoFromColumnCaption('Increases (LCY)') + 2, '0', '1');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1379,6 +1419,16 @@ codeunit 137301 "SCM Inventory Reports - I"
         InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", false);
         InventorySetup.Modify(true);
+    end;
+
+    local procedure CreateReturnPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
     end;
 
     [MessageHandler]

@@ -841,7 +841,7 @@ page 6550 "Whse. Item Tracking Lines"
             InitExpirationDate();
         if WhseItemTrackingLine2.FindLast then;
         "Entry No." := WhseItemTrackingLine2."Entry No." + 1;
-        OnBeforeItemTrackingLineInsert(Rec, WhseWrkshLine);
+        OnBeforeItemTrackingLineInsert(Rec, WhseWrkshLine, WhseEntry);
         Insert();
     end;
 
@@ -880,7 +880,7 @@ page 6550 "Whse. Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeItemTrackingLineInsert(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseWorksheetLine: Record "Whse. Worksheet Line")
+    local procedure OnBeforeItemTrackingLineInsert(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseWorksheetLine: Record "Whse. Worksheet Line"; WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 

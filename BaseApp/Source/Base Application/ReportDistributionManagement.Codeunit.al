@@ -251,6 +251,45 @@ codeunit 452 "Report Distribution Management"
     end;
 
     [Scope('OnPrem')]
+    procedure RunDefaultCheckSalesElectronicDocument(SalesHeader: Record "Sales Header")
+    var
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+    begin
+        GetElectronicDocumentFormat(ElectronicDocumentFormat, SalesHeader);
+
+        ElectronicDocumentFormat.ValidateElectronicSalesDocument(SalesHeader, ElectronicDocumentFormat.Code);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RunDefaultCheckServiceElectronicDocument(ServiceHeader: Record "Service Header")
+    var
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+    begin
+        GetElectronicDocumentFormat(ElectronicDocumentFormat, ServiceHeader);
+
+        ElectronicDocumentFormat.ValidateElectronicServiceDocument(ServiceHeader, ElectronicDocumentFormat.Code);
+    end;
+
+    local procedure GetElectronicDocumentFormat(var ElectronicDocumentFormat: Record "Electronic Document Format"; DocumentVariant: Variant)
+    var
+        Customer: Record Customer;
+        DocumentSendingProfile: Record "Document Sending Profile";
+    begin
+        GetBillToCustomer(Customer, DocumentVariant);
+
+        if not DocumentSendingProfile.GET(Customer."Document Sending Profile") then
+            exit;
+
+        IF DocumentSendingProfile.Disk <> DocumentSendingProfile.Disk::No then
+            IF NOT ElectronicDocumentFormat.GET(DocumentSendingProfile."Disk Format") then
+                exit;
+
+        IF DocumentSendingProfile."Electronic Document" <> DocumentSendingProfile."Electronic Document"::No then
+            IF NOT ElectronicDocumentFormat.GET(DocumentSendingProfile."Electronic Format") then
+                exit;
+    end;
+
+    [Scope('Internal')]
     procedure CreateOrAppendZipFile(var DataCompression: Codeunit "Data Compression"; ServerFilePath: Text[250]; ClientFileName: Text[250]; var ClientZipFileName: Text[250])
     var
         FileManagement: Codeunit "File Management";

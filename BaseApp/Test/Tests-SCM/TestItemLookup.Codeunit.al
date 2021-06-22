@@ -23,6 +23,7 @@ codeunit 134835 "Test Item Lookup"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
         ItemDoesNotExistMenuTxt: Label 'This item is not registered. To continue, choose one of the following options';
         ItemDoesNotExistErr: Label 'The Item does not exist. Identification fields and values: No.=''%1''';
@@ -1199,15 +1200,223 @@ codeunit 134835 "Test Item Lookup"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDescOnPurchLine_ExactDesc_ValidatesUnitPrice()
+    var
+        Item: Record Item;
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        UnitPrice: Decimal;
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 352086] Direct Unit Cost value is assigned to Purch Line on Page when user searches item by exact description
+        Initialize();
+
+        UnitPrice := LibraryRandom.RandInt(10);
+        UnitCost := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Item I with Description = 'TestItem A' and Unit Price, Unit Cost = Last Direct Cost = X 
+        CreateItemWithUnitPriceCostDescription(Item, 'TestItem A', UnitPrice, UnitCost);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Purchase Order
+        PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoKey(PurchHeader."Document Type", PurchHeader."No.");
+
+        // [WHEN] Item is searched by exact description 'TestItem A' in Purchase Order Line
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines.Description.SetValue(Item.Description);
+
+        // [THEN] Item "No." = I, Direct Unit Cost = X on Purchase Line
+        PurchaseOrder.PurchLines."No.".AssertEquals(Item."No.");
+        PurchaseOrder.PurchLines."Direct Unit Cost".AssertEquals(UnitCost);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDescOnPurchLine_SameDesc_ValidatesUnitPrice()
+    var
+        Item: Record Item;
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        UnitPrice: Decimal;
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 352086] Direct Unit Cost value is assigned to Purch Line on Page when user searches item by description of another case
+        Initialize();
+
+        UnitPrice := LibraryRandom.RandInt(10);
+        UnitCost := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Item I with Description = 'TestItem A' and Unit Price, Unit Cost = Last Direct Cost = X 
+        CreateItemWithUnitPriceCostDescription(Item, 'TestItem A', UnitPrice, UnitCost);
+
+        // [GIVEN] Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoKey(PurchHeader."Document Type", PurchHeader."No.");
+
+        // [WHEN] Item is searched by same description but lowercased 'testitem a' in Purchase Order Line
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines.Description.SetValue('testitem a');
+
+        // [THEN] Item "No." = I, Direct Unit Cost = X on Purchase Line
+        PurchaseOrder.PurchLines."No.".AssertEquals(Item."No.");
+        PurchaseOrder.PurchLines."Direct Unit Cost".AssertEquals(UnitCost);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDescOnPurchLine_IncompleteDesc_ValidatesUnitPrice()
+    var
+        Item: Record Item;
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        UnitPrice: Decimal;
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 352086] Direct Unit Cost value is assigned to Purch Line on Page when user searches item by incomplete description
+        Initialize();
+
+        UnitPrice := LibraryRandom.RandInt(10);
+        UnitCost := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Item I with Description = 'TestItem A' and Unit Price, Unit Cost = Last Direct Cost = X 
+        CreateItemWithUnitPriceCostDescription(Item, 'TestItem A', UnitPrice, UnitCost);
+
+        // [GIVEN] Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoKey(PurchHeader."Document Type", PurchHeader."No.");
+
+        // [WHEN] Item is searched by incomplete description 'testitem' in Purchase Order Line
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines.Description.SetValue('testitem');
+
+        // [THEN] Item "No." = I, Direct Unit Cost = X on Purchase Line
+        PurchaseOrder.PurchLines."No.".AssertEquals(Item."No.");
+        PurchaseOrder.PurchLines."Direct Unit Cost".AssertEquals(UnitCost);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDescOnSalesLine_ExactDesc_ValidatesUnitPrice()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        UnitPrice: Decimal;
+    begin
+        // [FEATURE] [Sales] 
+        // [SCENARIO 352086] Unit Price value is assigned to Sales Line on Page when user searches item by exact description
+        Initialize();
+
+        // [GIVEN] Item I with Description = 'TestItem A' and Unit Price = X
+        UnitPrice := LibraryRandom.RandInt(10);
+        CreateItemWithUnitPriceCostDescription(Item, 'TestItem A', UnitPrice, UnitPrice);
+
+        // [GIVEN] Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoKey(SalesHeader."Document Type", SalesHeader."No.");
+
+        // [WHEN] Item is searched by exact description 'TestItem A' in Sales Order Line
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.Description.SetValue(Item.Description);
+
+        // [THEN] Item "No." = I, Direct Unit Cost = X on Sales Line
+        SalesOrder.SalesLines."No.".AssertEquals(Item."No.");
+        SalesOrder.SalesLines."Unit Price".AssertEquals(UnitPrice);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDescOnSalesLine_SameDesc_ValidatesUnitPrice()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        UnitPrice: Decimal;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 352086] Unit Price value is assigned to Sales Line on Page when user searches item by same description
+        Initialize();
+
+        // [GIVEN] Item I with Description = 'TestItem A' and Unit Price = X
+        UnitPrice := LibraryRandom.RandInt(10);
+        CreateItemWithUnitPriceCostDescription(Item, 'TestItem A', UnitPrice, UnitPrice);
+
+        // [GIVEN] Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoKey(SalesHeader."Document Type", SalesHeader."No.");
+
+        // [WHEN] Item is searched by same but lowercased description 'TestItem X' in Sales Order Line
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.Description.SetValue('testitem a');
+
+        // [THEN] Item "No." = I, Direct Unit Cost = X on Sales Line
+        SalesOrder.SalesLines."No.".AssertEquals(Item."No.");
+        SalesOrder.SalesLines."Unit Price".AssertEquals(UnitPrice);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDescOnSalesLine_IncompleteDesc_ValidatesUnitPrice()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        UnitPrice: Decimal;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 352086] Unit Price value is assigned to Sales Line on Page when user searches item by incomplete description
+        Initialize();
+
+        // [GIVEN] Item I with Description = 'TestItem A' and Unit Price = X
+        UnitPrice := LibraryRandom.RandInt(10);
+        CreateItemWithUnitPriceCostDescription(Item, 'TestItem A', UnitPrice, UnitPrice);
+
+        // [GIVEN] Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoKey(SalesHeader."Document Type", SalesHeader."No.");
+
+        // [WHEN] Item is searched by incomplete description 'testitem' in Sales Order Line
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.Description.SetValue('testitem');
+
+        // [THEN] Item "No." = I, Direct Unit Cost = X on Sales Line
+        SalesOrder.SalesLines."No.".AssertEquals(Item."No.");
+        SalesOrder.SalesLines."Unit Price".AssertEquals(UnitPrice);
+    end;
+
     [Scope('Internal')]
     procedure Initialize()
     var
         Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: Record "Sales Line";
         LibrarySales: Codeunit "Library - Sales";
     begin
         LibrarySetupStorage.Restore();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Item Lookup");
         Item.DeleteAll();
+        PurchaseLine.DeleteAll();
+        SalesLine.DeleteAll();
         LibraryApplicationArea.EnableFoundationSetup();
         LibrarySales.DisableWarningOnCloseUnpostedDoc();
 
@@ -1262,6 +1471,14 @@ codeunit 134835 "Test Item Lookup"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate(Description, NewDescription);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithUnitPriceCostDescription(var Item: Record Item; NewDescription: Text[100]; UnitPrice: Decimal; UnitCost: Decimal)
+    begin
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, UnitPrice, UnitCost);
+        Item.Validate(Description, NewDescription);
+        Item.Validate("Last Direct Cost", UnitCost);
         Item.Modify(true);
     end;
 

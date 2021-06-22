@@ -1800,6 +1800,52 @@ codeunit 139031 "Change Log"
         Assert.RecordIsNotEmpty(ChangeLogEntry);
     end;
 
+    [Test]
+    procedure PageVariableBasedFieldsAreNotEditableInViewMode()
+    var
+        ChangeLogSetupTableListPage: TestPage "Change Log Setup (Table) List";
+        ChangeLogSetupFieldListPage: TestPage "Change Log Setup (Field) List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 346691] Variable-based fields must not be editable when page is in View Mode
+        ChangeLogSetupTableListPage.OpenView();
+        Assert.IsFalse(ChangeLogSetupTableListPage.Editable(), '');
+        Assert.IsFalse(ChangeLogSetupTableListPage.LogInsertion.Editable(), '');
+        Assert.IsFalse(ChangeLogSetupTableListPage.LogModification.Editable(), '');
+        Assert.IsFalse(ChangeLogSetupTableListPage.LogDeletion.Editable(), '');
+        ChangeLogSetupTableListPage.Close();
+
+        ChangeLogSetupFieldListPage.OpenView();
+        Assert.IsFalse(ChangeLogSetupFieldListPage.Editable(), '');
+        Assert.IsFalse(ChangeLogSetupFieldListPage."Log Insertion".Editable(), '');
+        Assert.IsFalse(ChangeLogSetupFieldListPage."Log Modification".Editable(), '');
+        Assert.IsFalse(ChangeLogSetupFieldListPage."Log Deletion".Editable(), '');
+        ChangeLogSetupFieldListPage.Close();
+    end;
+
+    [Test]
+    procedure PageVariableBasedFieldsAreEditableInEditMode()
+    var
+        ChangeLogSetupTableListPage: TestPage "Change Log Setup (Table) List";
+        ChangeLogSetupFieldListPage: TestPage "Change Log Setup (Field) List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 346691] Variable-based fields must be editable when page is in Edit Mode
+        ChangeLogSetupTableListPage.OpenEdit();
+        Assert.IsTrue(ChangeLogSetupTableListPage.Editable(), '');
+        Assert.IsTrue(ChangeLogSetupTableListPage.LogInsertion.Editable(), '');
+        Assert.IsTrue(ChangeLogSetupTableListPage.LogModification.Editable(), '');
+        Assert.IsTrue(ChangeLogSetupTableListPage.LogDeletion.Editable(), '');
+        ChangeLogSetupTableListPage.Close();
+
+        ChangeLogSetupFieldListPage.OpenEdit();
+        Assert.IsTrue(ChangeLogSetupFieldListPage.Editable(), '');
+        Assert.IsTrue(ChangeLogSetupFieldListPage."Log Insertion".Editable(), '');
+        Assert.IsTrue(ChangeLogSetupFieldListPage."Log Modification".Editable(), '');
+        Assert.IsTrue(ChangeLogSetupFieldListPage."Log Deletion".Editable(), '');
+        ChangeLogSetupFieldListPage.Close();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)

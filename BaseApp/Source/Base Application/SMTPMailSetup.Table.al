@@ -59,6 +59,13 @@ table 409 "SMTP Mail Setup"
         field(9; "Send As"; Text[250])
         {
             Caption = 'Send As';
+
+            trigger OnValidate()
+            var
+                MailManagement: Codeunit "Mail Management";
+            begin
+                MailManagement.CheckValidEmailAddress("Send As");
+            end;
         }
         field(10; "Allow Sender Substitution"; Boolean)
         {
@@ -133,7 +140,6 @@ table 409 "SMTP Mail Setup"
     end;
 
     [NonDebuggable]
-    [Scope('OnPrem')]
     procedure HasPassword(): Boolean
     begin
         exit(GetPassword() <> '');

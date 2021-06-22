@@ -19,6 +19,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         ItemFilterIncorrectError: Label 'The value in Item Filter is incorrect.';
         ResourceFilterIncorrectError: Label 'The value in Resource Filter is incorrect.';
@@ -758,10 +759,12 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup: Record "VAT Rate Change Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Tool - UT");
         LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Tool - UT");
         // Create VAT Rate Change setup if not created in the Database.
         VATRateChangeSetup.Reset();
         if not VATRateChangeSetup.Get then begin
@@ -775,6 +778,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Tool - UT");
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)

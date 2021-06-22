@@ -83,6 +83,7 @@ codeunit 1002 "Job Create-Invoice"
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
         LineCounter: Integer;
         IsHandled: Boolean;
+        LastError: Text;
     begin
         OnBeforeCreateSalesInvoiceLines(JobPlanningLineSource, InvoiceNo, NewInvoice, PostingDate, CreditMemo);
 
@@ -115,7 +116,10 @@ codeunit 1002 "Job Create-Invoice"
                 if TransferLine(JobPlanningLine) then begin
                     LineCounter := LineCounter + 1;
                     if JobPlanningLine."Job No." <> JobNo then
-                        Error(Text009, JobPlanningLine.FieldCaption("Job No."));
+                        LastError := StrSubstNo(Text009, JobPlanningLine.FieldCaption("Job No."));
+                    OnCreateSalesInvoiceLinesOnAfterValidateJobPlanningLine(JobPlanningLine, LastError);
+                    if LastError <> '' then
+                        Error(LastError);
                     if NewInvoice then
                         TestExchangeRate(JobPlanningLine, PostingDate)
                     else
@@ -938,6 +942,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesHeaderOnBeforeUpdateSalesHeader(var SalesHeader: Record "Sales Header"; var Job: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceLinesOnAfterValidateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; var LastError: Text)
     begin
     end;
 

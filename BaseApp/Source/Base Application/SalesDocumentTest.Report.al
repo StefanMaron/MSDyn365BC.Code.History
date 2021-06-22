@@ -2283,7 +2283,7 @@ report 202 "Sales Document - Test"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDimTableIDs(var SalesLine: Record "Sales Line"; TableID: array[10] of Integer; No: array[10] of Code[20])
+    local procedure OnAfterCreateDimTableIDs(var SalesLine: Record "Sales Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
 

@@ -352,7 +352,7 @@ codeunit 1001 "Job Post-Line"
     begin
         JT.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
         Job.Get(JobPlanningLine."Job No.");
-        Cust.Get(Job."Bill-to Customer No.");
+        GetBillToCustomer(Job, JobPlanningLine, Cust);
         if JT."Job Posting Group" <> '' then
             JobPostingGr.Get(JT."Job Posting Group")
         else begin
@@ -366,6 +366,18 @@ codeunit 1001 "Job Post-Line"
         JobPlanningLine."No." := GLAcc."No.";
         JobPlanningLine."Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
         JobPlanningLine."Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
+    end;
+
+    local procedure GetBillToCustomer(Job: Record Job; var JobPlanningLine: Record "Job Planning Line"; var Cust: Record Customer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetBillToCustomer(JobPlanningLine, Cust, IsHandled);
+        if IsHandled then
+            exit;
+
+        Cust.Get(Job."Bill-to Customer No.");
     end;
 
     procedure CheckItemQuantityPurchCredit(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
@@ -468,6 +480,11 @@ codeunit 1001 "Job Post-Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemQuantityPurchCredit(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetBillToCustomer(var JobPlanningLine: Record "Job Planning Line"; var Cust: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

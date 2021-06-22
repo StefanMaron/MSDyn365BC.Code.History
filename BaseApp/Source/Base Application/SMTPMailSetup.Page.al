@@ -78,6 +78,7 @@ page 409 "SMTP Mail Setup"
                     ApplicationArea = Basic, Suite;
                     Editable = UserIDEditable;
                     ToolTip = 'Specifies the ID of the user in whose name emails will be sent. For example, this can be useful when you want multiple people to be able to send messages that appear to come from a single sender, such as sales@companyname.';
+
                 }
                 field("Allow Sender Substitution"; "Allow Sender Substitution")
                 {

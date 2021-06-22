@@ -546,6 +546,14 @@ codeunit 5477 "Sales Invoice Aggregator"
         end;
     end;
 
+    procedure SetItemVariantId(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; ItemNo: Code[20]; VariantCode: Code[20])
+    var
+        ItemVariant: Record "Item Variant";
+    begin
+        if ItemVariant.Get(ItemNo, VariantCode) then
+            SalesInvoiceLineAggregate."Variant Id" := ItemVariant.SystemId;
+    end;
+
     procedure UpdateUnitOfMeasure(var Item: Record Item; JSONUnitOfMeasureTxt: Text)
     var
         TempFieldSet: Record "Field" temporary;
@@ -772,6 +780,7 @@ codeunit 5477 "Sales Invoice Aggregator"
     local procedure LoadSalesInvoiceLines(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate")
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceEntityAggregate."No.");
 
@@ -793,6 +802,7 @@ codeunit 5477 "Sales Invoice Aggregator"
                 SalesInvoiceLineAggregate.SetDiscountValue;
                 SalesInvoiceLineAggregate.UpdateReferencedRecordIds;
                 UpdateLineAmountsFromSalesInvoiceLine(SalesInvoiceLineAggregate, SalesInvoiceLine);
+                SalesInvoiceAggregator.SetItemVariantId(SalesInvoiceLineAggregate, SalesInvoiceLine."No.", SalesInvoiceLine."Variant Code");
                 SalesInvoiceLineAggregate.Insert(true);
             until SalesInvoiceLine.Next = 0;
     end;
@@ -818,6 +828,8 @@ codeunit 5477 "Sales Invoice Aggregator"
     end;
 
     procedure TransferFromSalesLineToAggregateLine(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var SalesLine: Record "Sales Line"; DocumentId: Guid; PricesIncludingVAT: Boolean)
+    var
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         Clear(SalesInvoiceLineAggregate);
         SalesInvoiceLineAggregate.TransferFields(SalesLine, true);
@@ -834,6 +846,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceLineAggregate.SetDiscountValue;
         SalesInvoiceLineAggregate.UpdateReferencedRecordIds;
         UpdateLineAmountsFromSalesLine(SalesInvoiceLineAggregate, SalesLine);
+        SalesInvoiceAggregator.SetItemVariantId(SalesInvoiceLineAggregate, SalesLine."No.", SalesLine."Variant Code");
     end;
 
     procedure PropagateInsertLine(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var TempFieldBuffer: Record "Field Buffer" temporary)

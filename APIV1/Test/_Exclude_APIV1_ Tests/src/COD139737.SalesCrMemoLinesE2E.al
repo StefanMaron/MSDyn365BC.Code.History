@@ -902,6 +902,77 @@ codeunit 139737 "APIV1 - Sales CrMemo Lines E2E"
         VerifyIdsAreBlank(ResponseText);
     end;
 
+    [Test]
+    procedure TestPostCreditMemoLinesWithItemVariant()
+    var
+        Item: Record "Item";
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemNo: Code[20];
+        ItemVariantCode: Code[10];
+        ResponseText: Text;
+        CreditMemoLineJSON: Text;
+        LineNoFromJSON: Text;
+        CreditMemoID: Text;
+        LineNo: Integer;
+    begin
+        // [SCENARIO] POST a new line to an unposted Credit Memo with item variant
+        // [GIVEN] An existing unposted credit memo and a valid JSON describing the new credit memo line with item variant
+        Initialize();
+        CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
+        ItemNo := LibraryInventory.CreateItem(Item);
+        ItemVariantCode := LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
+        Commit();
+
+        // [WHEN] we POST the JSON to the web service
+        CreditMemoLineJSON := CreateCreditMemoLineJSONWithItemVariantId(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date", ItemVariant.SystemId);
+        CreateCreditMemoLinesThroughAPI(CreditMemoID, CreditMemoLineJSON, ResponseText);
+
+        // [THEN] the response text should contain the credit memo ID and the change should exist in the database
+        Assert.AreNotEqual('', ResponseText, 'response JSON should not be blank');
+        Assert.IsTrue(
+          LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'sequence', LineNoFromJSON), 'Could not find sequence');
+
+        Evaluate(LineNo, LineNoFromJSON);
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Line No.", LineNo);
+        SalesLine.SetRange("Variant Code", ItemVariantCode);
+        Assert.IsFalse(SalesHeader.IsEmpty(), 'The unposted credit memo line should exist');
+    end;
+
+    [Test]
+    procedure TestPostCreditMemoLinesWithWrongItemVariant()
+    var
+        Item1: Record "Item";
+        Item2: Record "Item";
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        ItemNo1: Code[20];
+        ItemNo2: Code[20];
+        ItemVariantCode: Code[10];
+        ResponseText: Text;
+        CreditMemoLineJSON: Text;
+        LineNoFromJSON: Text;
+        CreditMemoID: Text;
+    begin
+        // [SCENARIO] POST a new line to an unposted Credit Memo with wrong item variant
+        // [GIVEN] An existing unposted credit memo and a valid JSON describing the new credit memo line with item variant
+        Initialize();
+        CreditMemoID := CreateSalesCreditMemoWithLines(SalesHeader);
+        ItemNo1 := LibraryInventory.CreateItem(Item1);
+        ItemNo2 := LibraryInventory.CreateItem(Item2);
+        ItemVariantCode := LibraryInventory.CreateItemVariant(ItemVariant, ItemNo2);
+        Commit();
+
+        // [WHEN] we POST the JSON to the web service
+        CreditMemoLineJSON := CreateCreditMemoLineJSONWithItemVariantId(Item1.SystemId, LibraryRandom.RandIntInRange(1, 100), SalesHeader."Document Date", ItemVariant.SystemId);
+
+        // [THEN] the request will fail
+        asserterror CreateCreditMemoLinesThroughAPI(CreditMemoID, CreditMemoLineJSON, ResponseText);
+    end;
+
     local procedure CreateCreditMemoWithDifferentLineTypes(var SalesHeader: Record "Sales Header"; var ExpectedNumberOfLines: Integer)
     var
         SalesLine: Record "Sales Line";
@@ -959,6 +1030,16 @@ codeunit 139737 "APIV1 - Sales CrMemo Lines E2E"
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, 'shipmentDate', ShipmentDate);
 
         EXIT(LineJSON);
+    end;
+
+    local procedure CreateCreditMemoLineJSONWithItemVariantId(ItemId: Guid; Quantity: Integer; ShipmentDate: Date; ItemVariantId: Guid): Text
+    var
+        IntegrationManagement: Codeunit "Integration Management";
+        LineJSON: Text;
+    begin
+        LineJSON := CreateCreditMemoLineJSON(ItemId, Quantity, ShipmentDate);
+        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, 'itemVariantId', IntegrationManagement.GetIdWithoutBrackets(ItemVariantId));
+        exit(LineJSON);
     end;
 
     local procedure CreateCreditMemoAndLinesThroughPage(var SalesCreditMemo: TestPage 44; CustomerNo: Text; ItemNo: Text; ItemQuantity: Integer)

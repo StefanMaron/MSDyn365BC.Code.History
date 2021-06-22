@@ -42,6 +42,15 @@ table 6 "Customer Price Group"
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
             Caption = 'Price Calculation Method';
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                if "Price Calculation Method" <> "Price Calculation Method"::" " then
+                    PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Sale);
+            end;
         }
         field(7001; "Allow Line Disc."; Boolean)
         {

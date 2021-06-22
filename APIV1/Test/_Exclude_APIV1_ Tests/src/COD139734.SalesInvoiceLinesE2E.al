@@ -1159,6 +1159,91 @@ codeunit 139734 "APIV1 - Sales Inv. Lines E2E"
         VerifyIdsAreBlank(ResponseText);
     end;
 
+    [Test]
+    procedure TestPostInvoiceLinesWithItemVariant()
+    var
+        Item: Record "Item";
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemNo: Code[20];
+        ItemVariantCode: Code[10];
+        ResponseText: Text;
+        TargetURL: Text;
+        InvoiceLineJSON: Text;
+        LineNoFromJSON: Text;
+        InvoiceID: Text;
+        LineNo: Integer;
+    begin
+        // [SCENARIO] POST a new line to an unposted Invoice with item variant
+        // [GIVEN] An existing unposted invoice and a valid JSON describing the new invoice line with item variant
+        Initialize();
+        InvoiceID := CreateSalesInvoiceWithLines(SalesHeader);
+        ItemNo := LibraryInventory.CreateItem(Item);
+        ItemVariantCode := LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
+        Commit();
+
+        // [WHEN] we POST the JSON to the web service
+        InvoiceLineJSON := CreateInvoiceLineJSONWithItemVariantId(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), ItemVariant.SystemId);
+        TargetURL := LibraryGraphMgt
+          .CreateTargetURLWithSubpage(
+            InvoiceID,
+            PAGE::"APIV1 - Sales Invoices",
+            InvoiceServiceNameTxt,
+            InvoiceServiceLinesNameTxt);
+        LibraryGraphMgt.PostToWebService(TargetURL, InvoiceLineJSON, ResponseText);
+
+        // [THEN] the response text should contain the invoice ID and the change should exist in the database
+        Assert.AreNotEqual('', ResponseText, 'response JSON should not be blank');
+        Assert.IsTrue(
+          LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'sequence', LineNoFromJSON), 'Could not find sequence');
+
+        Evaluate(LineNo, LineNoFromJSON);
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Line No.", LineNo);
+        SalesLine.SetRange("Variant Code", ItemVariantCode);
+        Assert.IsFalse(SalesLine.IsEmpty(), 'The unposted invoice line should exist');
+    end;
+
+    [Test]
+    procedure TestPostInvoiceLinesWithWrongItemVariant()
+    var
+        Item1: Record "Item";
+        Item2: Record "Item";
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        ItemNo1: Code[20];
+        ItemNo2: Code[20];
+        ItemVariantCode: Code[10];
+        ResponseText: Text;
+        TargetURL: Text;
+        InvoiceLineJSON: Text;
+        LineNoFromJSON: Text;
+        InvoiceID: Text;
+    begin
+        // [SCENARIO] POST a new line to an unposted Invoice with wrong item variant
+        // [GIVEN] An existing unposted invoice and a valid JSON describing the new invoice line with item variant
+        Initialize();
+        InvoiceID := CreateSalesInvoiceWithLines(SalesHeader);
+        ItemNo1 := LibraryInventory.CreateItem(Item1);
+        ItemNo2 := LibraryInventory.CreateItem(Item2);
+        ItemVariantCode := LibraryInventory.CreateItemVariant(ItemVariant, ItemNo2);
+        Commit();
+
+        // [WHEN] we POST the JSON to the web service
+        InvoiceLineJSON := CreateInvoiceLineJSONWithItemVariantId(Item1.SystemId, LibraryRandom.RandIntInRange(1, 100), ItemVariant.SystemId);
+        TargetURL := LibraryGraphMgt
+          .CreateTargetURLWithSubpage(
+            InvoiceID,
+            PAGE::"APIV1 - Sales Invoices",
+            InvoiceServiceNameTxt,
+            InvoiceServiceLinesNameTxt);
+
+        // [THEN] the response text should contain the invoice ID and the change should exist in the database
+        asserterror LibraryGraphMgt.PostToWebService(TargetURL, InvoiceLineJSON, ResponseText);
+    end;
+
     local procedure CreateInvoiceWithAllPossibleLineTypes(var SalesHeader: Record "Sales Header"; var ExpectedNumberOfLines: Integer)
     var
         SalesLine: Record "Sales Line";
@@ -1216,6 +1301,16 @@ codeunit 139734 "APIV1 - Sales Inv. Lines E2E"
         LineJSON := LibraryGraphMgt.AddPropertytoJSON('', 'itemId', IntegrationManagement.GetIdWithoutBrackets(ItemId));
         LineJSON := LibraryGraphMgt.AddComplexTypetoJSON(LineJSON, 'quantity', FORMAT(Quantity));
         EXIT(LineJSON);
+    end;
+
+    local procedure CreateInvoiceLineJSONWithItemVariantId(ItemId: Guid; Quantity: Integer; ItemVariantId: Guid): Text
+    var
+        IntegrationManagement: Codeunit "Integration Management";
+        LineJSON: Text;
+    begin
+        LineJSON := CreateInvoiceLineJSON(ItemId, Quantity);
+        LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, 'itemVariantId', IntegrationManagement.GetIdWithoutBrackets(ItemVariantId));
+        exit(LineJSON);
     end;
 
     local procedure CreateInvoiceAndLinesThroughPage(var SalesInvoice: TestPage 43; CustomerNo: Text; ItemNo: Text; ItemQuantity: Integer)

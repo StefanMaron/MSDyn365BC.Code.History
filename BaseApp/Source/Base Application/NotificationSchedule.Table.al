@@ -129,8 +129,10 @@ table 1513 "Notification Schedule"
 
     var
         NotifyNowDescriptionTxt: Label 'Instant Notification Job';
-        NoWritePermissionsErr: Label 'You are not allowed to send notifications. Ask your system administrator to give you permission to do so. Specifically, you need the Write permission for the Sent Notification Entry table.';
+        NoPermissionsErr: Label 'You are not allowed to send notifications. Ask your system administrator to give you permission to do so. Specifically, you need the %1 for the %2 table.', Comment = '%1 Permission Type; %2 Table Name';
         NotifyNowLbl: Label 'NOTIFYNOW', Locked = true;
+        WritePermissionTok: Label 'Insert, Modify and Delete Permissions';
+        ReadPermissionTok: Label 'Read Permission';
         NotifyLaterLbl: Label 'NOTIFYLTR', Locked = true;
 
     procedure NewRecord(NewUserID: Code[50]; NewNotificationType: Option)
@@ -295,12 +297,15 @@ table 1513 "Notification Schedule"
             ScheduleForLater
     end;
 
-    local procedure CheckSentNotificationEntryPermissions()
+    local procedure CheckRequiredPermissions()
     var
         DummySentNotificationEntry: Record "Sent Notification Entry";
+        DummyNotificationSetup: Record "Notification Setup";
     begin
         if not DummySentNotificationEntry.WritePermission() then
-            Error(NoWritePermissionsErr);
+            Error(NoPermissionsErr, WritePermissionTok, DummySentNotificationEntry.TableName());
+        if not DummyNotificationSetup.ReadPermission() then
+            Error(NoPermissionsErr, ReadPermissionTok, DummyNotificationSetup.TableName());
     end;
 
     procedure ScheduleNotification(NotificationEntry: Record "Notification Entry")
@@ -321,7 +326,7 @@ table 1513 "Notification Schedule"
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueCategory: Record "Job Queue Category";
     begin
-        CheckSentNotificationEntryPermissions();
+        CheckRequiredPermissions();
         if JobQueueEntry.ReuseExistingJobFromCatagory(NotifyNowLbl, OneMinuteFromNow()) then
             exit;
 
@@ -336,7 +341,7 @@ table 1513 "Notification Schedule"
         NotificationEntry: Record "Notification Entry";
         ExcetutionDateTime: DateTime;
     begin
-        CheckSentNotificationEntryPermissions();
+        CheckRequiredPermissions();
         ExcetutionDateTime := CalculateExecutionTime(CurrentDateTime);
         if JobQueueEntry.ReuseExistingJobFromID("Last Scheduled Job", ExcetutionDateTime) then
             exit;

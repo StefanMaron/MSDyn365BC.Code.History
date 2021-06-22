@@ -241,9 +241,9 @@ report 5754 "Create Pick"
     var
         DummySalesHeader: Record "Sales Header";
         PickWhseActivHeader: Record "Warehouse Activity Header";
-        PickWhseActivHeaderToPrint: Record "Warehouse Activity Header";
         TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
         PickQty: Decimal;
         PickQtyBase: Decimal;
         TempMaxNoOfSourceDoc: Integer;
@@ -356,11 +356,8 @@ report 5754 "Create Pick"
             if PrintPick then begin
                 PickListReportID := REPORT::"Picking List";
                 OnBeforePrintPickList(PickWhseActivHeader, PickListReportID, IsHandled);
-                if not IsHandled then begin
-                    PickWhseActivHeaderToPrint := PickWhseActivHeader;
-                    PickWhseActivHeaderToPrint.SetRecFilter;
-                    REPORT.Run(PickListReportID, false, false, PickWhseActivHeader);
-                end;
+                if not IsHandled then
+                    WarehouseDocumentPrint.PrintPickHeader(PickWhseActivHeader);
                 TempMaxNoOfSourceDoc -= 1;
             end;
         until ((PickWhseActivHeader.Next = 0) or (TempMaxNoOfSourceDoc = 0));
@@ -370,6 +367,8 @@ report 5754 "Create Pick"
     begin
         PickWhseWkshLine.CopyFilters(PickWhseWkshLine2);
         LocationCode := PickWhseWkshLine2."Location Code";
+
+        OnAfterSetWkshPickLine(PickWhseWkshLine2, SortPick);
     end;
 
     procedure GetResultMessage() ReturnValue: Boolean
@@ -512,6 +511,11 @@ report 5754 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetPickFilters(var PickWhseWkshLine: Record "Whse. Worksheet Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetWkshPickLine(PickWhseWkshLine: Record "Whse. Worksheet Line"; var SortPick: Option)
     begin
     end;
 }

@@ -50,7 +50,7 @@ codeunit 378 "Transfer Extended Text"
                     end;
             end;
 
-        OnSalesCheckIfAnyExtTextOnBeforeSetFilters(SalesLine, AutoText);
+        OnSalesCheckIfAnyExtTextOnBeforeSetFilters(SalesLine, AutoText, Unconditionally);
 
         if AutoText then begin
             SalesLine.TestField("Document No.");
@@ -96,6 +96,8 @@ codeunit 378 "Transfer Extended Text"
                         AutoText := GLAcc."Automatic Ext. Texts";
             end;
 
+        OnReminderCheckIfAnyExtTextOnBeforeSetFilters(ReminderLine, AutoText, Unconditionally);
+
         if AutoText then begin
             ReminderLine.TestField("Reminder No.");
             ReminderHeader.Get(ReminderLine."Reminder No.");
@@ -126,6 +128,8 @@ codeunit 378 "Transfer Extended Text"
                     if GLAcc.Get(FinChrgMemoLine."No.") then
                         AutoText := GLAcc."Automatic Ext. Texts";
             end;
+
+        OnFinChrgMemoCheckIfAnyExtTextOnBeforeSetFilters(FinChrgMemoLine, AutoText, Unconditionally);
 
         if AutoText then begin
             FinChrgMemoLine.TestField("Finance Charge Memo No.");
@@ -170,7 +174,7 @@ codeunit 378 "Transfer Extended Text"
                         AutoText := Res."Automatic Ext. Texts";
             end;
 
-        OnPurchCheckIfAnyExtTextOnBeforeSetFilters(PurchLine, AutoText);
+        OnPurchCheckIfAnyExtTextOnBeforeSetFilters(PurchLine, AutoText, Unconditionally);
 
         if AutoText then begin
             PurchLine.TestField("Document No.");
@@ -485,7 +489,7 @@ codeunit 378 "Transfer Extended Text"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeReadLines(ExtTextHeader, DocDate, LanguageCode, IsHandled, Result);
+        OnBeforeReadLines(ExtTextHeader, DocDate, LanguageCode, IsHandled, Result, TempExtTextLine);
         if IsHandled then
             exit(Result);
 
@@ -564,7 +568,7 @@ codeunit 378 "Transfer Extended Text"
                     end;
             end;
 
-        OnServCheckIfAnyExtTextOnBeforeSetFilters(ServiceLine, AutoText);
+        OnServCheckIfAnyExtTextOnBeforeSetFilters(ServiceLine, AutoText, Unconditionally);
 
         if AutoText then begin
             case ServiceLine.Type of
@@ -688,7 +692,7 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReadLines(var ExtendedTextHeader: Record "Extended Text Header"; DocDate: Date; LanguageCode: Code[10]; var IsHandled: Boolean; var Result: Boolean)
+    local procedure OnBeforeReadLines(var ExtendedTextHeader: Record "Extended Text Header"; DocDate: Date; LanguageCode: Code[10]; var IsHandled: Boolean; var Result: Boolean; var TempExtTextLine: Record "Extended Text Line" temporary)
     begin
     end;
 
@@ -783,17 +787,27 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPurchCheckIfAnyExtTextOnBeforeSetFilters(var PurchaseLine: Record "Purchase Line"; var AutoText: Boolean)
+    local procedure OnPurchCheckIfAnyExtTextOnBeforeSetFilters(var PurchaseLine: Record "Purchase Line"; var AutoText: Boolean; Unconditionally: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSalesCheckIfAnyExtTextOnBeforeSetFilters(var SalesLine: Record "Sales Line"; var AutoText: Boolean)
+    local procedure OnSalesCheckIfAnyExtTextOnBeforeSetFilters(var SalesLine: Record "Sales Line"; var AutoText: Boolean; Unconditionally: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnServCheckIfAnyExtTextOnBeforeSetFilters(var ServiceLine: Record "Service Line"; var AutoText: Boolean)
+    local procedure OnServCheckIfAnyExtTextOnBeforeSetFilters(var ServiceLine: Record "Service Line"; var AutoText: Boolean; Unconditionally: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReminderCheckIfAnyExtTextOnBeforeSetFilters(var ReminderLine: Record "Reminder Line"; var AutoText: Boolean; Unconditionally: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinChrgMemoCheckIfAnyExtTextOnBeforeSetFilters(var FinChrgMemoLine: Record "Finance Charge Memo Line"; var AutoText: Boolean; Unconditionally: Boolean)
     begin
     end;
 }

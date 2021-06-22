@@ -13,6 +13,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         O365SalesInvoicePayment: Codeunit "O365 Sales Invoice Payment";
         Assert: Codeunit Assert;
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
@@ -208,10 +209,12 @@ codeunit 138907 "O365 Invoice Payment Test"
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
         O365SalesInitialSetup: Codeunit "O365 Sales Initial Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Invoice Payment Test");
         LibraryVariableStorage.AssertEmpty;
         LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Invoice Payment Test");
 
         // Ensure WORKDATE does not drift too far from the accounting period start date
         AccountingPeriod.DeleteAll();
@@ -235,6 +238,7 @@ codeunit 138907 "O365 Invoice Payment Test"
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
         O365C2GraphEventSettings.Modify();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Invoice Payment Test");
     end;
 
     local procedure AssertSalesInvoiceOpen(PostedSalesDocumentNo: Code[20])

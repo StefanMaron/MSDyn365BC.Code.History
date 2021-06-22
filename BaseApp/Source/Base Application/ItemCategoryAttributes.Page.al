@@ -129,13 +129,15 @@ page 5734 "Item Category Attributes"
     end;
 
     var
-        TempRecentlyItemAttributeValueMapping: Record "Item Attribute Value Mapping" temporary;
         ItemCategoryCode: Code[20];
         DeleteInheritedAttribErr: Label 'You cannot delete attributes that are inherited from a parent item category.';
         RowEditable: Boolean;
         StyleTxt: Text;
         ChangingDefaultValueMsg: Label 'The new default value will not apply to items that use the current item category, ''''%1''''. It will only apply to new items.', Comment = '%1 - item category code';
         DeleteItemInheritedParentCategoryAttributesQst: Label 'One or more items belong to item category ''''%1''''.\\Do you want to delete the inherited item attributes for the items in question?', Comment = '%1 - item category code,%2 - item category code';
+
+    protected var
+        TempRecentlyItemAttributeValueMapping: Record "Item Attribute Value Mapping" temporary;
 
     procedure LoadAttributes(CategoryCode: Code[20])
     var
@@ -162,6 +164,8 @@ page 5734 "Item Category Attributes"
                              ItemAttributeValueMapping."Item Attribute ID", ItemAttributeValueMapping."Item Attribute Value ID")
                         then begin
                             TempItemAttributeValue.TransferFields(ItemAttributeValue);
+
+                            OnLoadAttributesOnBeforeTempItemAttributeValueInsert(ItemAttributeValueMapping, TempItemAttributeValue);
                             if TempItemAttributeValue.Insert() then
                                 if not AttributeExists(TempItemAttributeValue."Attribute ID") then begin
                                     if CurrentCategoryCode = ItemCategoryCode then
@@ -306,6 +310,11 @@ page 5734 "Item Category Attributes"
     begin
         TempRecentlyItemAttributeValueMapping.SetRange("Item Attribute ID", AttributeID);
         TempRecentlyItemAttributeValueMapping.DeleteAll();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoadAttributesOnBeforeTempItemAttributeValueInsert(ItemAttributeValueMapping: Record "Item Attribute Value Mapping"; var TempItemAttributeValue: Record "Item Attribute Value" temporary)
+    begin
     end;
 }
 

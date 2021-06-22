@@ -11,6 +11,7 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
     var
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         ShipToOptions: Option "Default (Vendor Address)","Alternate Vendor Address","Custom Address";
@@ -241,13 +242,16 @@ codeunit 138087 "O365 Ship-to Addr. P.R.O"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Ship-to Addr. P.R.O");
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Ship-to Addr. P.R.O");
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Ship-to Addr. P.R.O");
     end;
 
     local procedure VerifyShipToEditableState(PurchaseReturnOrder: TestPage "Purchase Return Order"; ExpectedState: Boolean)

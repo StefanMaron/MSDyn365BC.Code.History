@@ -164,9 +164,119 @@ codeunit 134121 "Price Source List UT"
     end;
 
     [Test]
+    procedure T005_RemoveCustomerSource()
+    var
+        Customer: Record Customer;
+        TempPriceSource: Record "Price Source" temporary;
+        PriceSourceList: Codeunit "Price Source List";
+        SourceType: Enum "Price Source Type";
+    begin
+        Initialize();
+        // [GIVEN] "Customer" 'C' and "All Customers" in the source list
+        PriceSourceList.Add(SourceType::"All Customers");
+        LibrarySales.CreateCustomer(Customer);
+        PriceSourceList.Add(SourceType::Customer, Customer."No.");
+
+        // [WHEN] Remove 'Customer' element
+        Assert.IsTrue(PriceSourceList.Remove(SourceType::Customer), 'not removed');
+
+        // [THEN] GetList returns 1 record: "All Customers"
+        PriceSourceList.GetList(TempPriceSource);
+        TempPriceSource.FindFirst();
+        Assert.RecordCount(TempPriceSource, 1);
+        TempPriceSource.TestField("Source Type", SourceType::"All Customers");
+    end;
+
+    [Test]
+    procedure T006_RemoveCustomerSourceAtLevel()
+    var
+        Customer: Array[2] of Record Customer;
+        TempPriceSource: Record "Price Source" temporary;
+        PriceSourceList: Codeunit "Price Source List";
+        SourceType: Enum "Price Source Type";
+    begin
+        Initialize();
+        // [GIVEN] "Customer" 'A' at level 2 and 'B' at level 3 in the source list
+        LibrarySales.CreateCustomer(Customer[1]);
+        PriceSourceList.SetLevel(2);
+        PriceSourceList.Add(SourceType::Customer, Customer[1]."No.");
+        LibrarySales.CreateCustomer(Customer[2]);
+        PriceSourceList.IncLevel();
+        PriceSourceList.Add(SourceType::Customer, Customer[2]."No.");
+
+        // [WHEN] Remove 'Customer' element at level 2
+        Assert.IsTrue(PriceSourceList.RemoveAtLevel(SourceType::Customer, 2), 'not removed at level 2');
+
+        // [THEN] GetList returns one record: 'B' at level 3
+        PriceSourceList.GetList(TempPriceSource);
+        TempPriceSource.FindFirst();
+        Assert.RecordCount(TempPriceSource, 1);
+        TempPriceSource.TestField("Source No.", Customer[2]."No.");
+        TempPriceSource.TestField(Level, 3);
+    end;
+
+    [Test]
+    procedure T006_RemoveMultipleCustomerSources()
+    var
+        Customer: Array[2] of Record Customer;
+        TempPriceSource: Record "Price Source" temporary;
+        PriceSourceList: Codeunit "Price Source List";
+        SourceType: Enum "Price Source Type";
+    begin
+        Initialize();
+        // [GIVEN] "All Customers", "Customer" 'A' at level 1 and 'B' at level 2 in the source list
+        PriceSourceList.Add(SourceType::"All Customers");
+        LibrarySales.CreateCustomer(Customer[1]);
+        PriceSourceList.Add(SourceType::Customer, Customer[1]."No.");
+        LibrarySales.CreateCustomer(Customer[2]);
+        PriceSourceList.IncLevel();
+        PriceSourceList.Add(SourceType::Customer, Customer[2]."No.");
+
+        // [WHEN] Remove 'Customer' elements
+        Assert.IsTrue(PriceSourceList.Remove(SourceType::Customer), 'not removed');
+
+        // [THEN] GetList returns one record: "All Customers"
+        PriceSourceList.GetList(TempPriceSource);
+        Assert.RecordCount(TempPriceSource, 1);
+        TempPriceSource.FindFirst();
+        TempPriceSource.TestField("Source Type", SourceType::"All Customers");
+    end;
+
+    [Test]
+    procedure T007_RemoveMultipleCustomerSourcesAtLevels()
+    var
+        Customer: Array[2] of Record Customer;
+        TempPriceSource: Record "Price Source" temporary;
+        PriceSourceList: Codeunit "Price Source List";
+        SourceType: Enum "Price Source Type";
+    begin
+        Initialize();
+        // [GIVEN] "All Customers", "Customer" 'A' at level 0 and 'B' at level 1 in the source list
+        PriceSourceList.Add(SourceType::"All Customers");
+        LibrarySales.CreateCustomer(Customer[1]);
+        PriceSourceList.Add(SourceType::Customer, Customer[1]."No.");
+        LibrarySales.CreateCustomer(Customer[2]);
+        PriceSourceList.IncLevel();
+        PriceSourceList.Add(SourceType::Customer, Customer[2]."No.");
+
+        // [WHEN] Remove 'Customer' elements at level 1
+        Assert.IsTrue(PriceSourceList.RemoveAtLevel(SourceType::Customer, 1), 'not removed');
+
+        // [THEN] GetList returns two records: "All Customers" and "Customer" 'A' at level 0 
+        PriceSourceList.GetList(TempPriceSource);
+        Assert.RecordCount(TempPriceSource, 2);
+        TempPriceSource.FindFirst();
+        TempPriceSource.TestField("Source Type", SourceType::"All Customers");
+        TempPriceSource.Next();
+        TempPriceSource.TestField("Source No.", Customer[1]."No.");
+        TempPriceSource.TestField(Level, 0);
+    end;
+
+    [Test]
     procedure T100_GetSourceGroupFromListOfNoGroups()
     var
         Campaign: Record Campaign;
+        Contact: Record Contact;
         Customer: Record Customer;
         Job: Record Job;
         Vendor: Record Vendor;
@@ -175,8 +285,9 @@ codeunit 134121 "Price Source List UT"
         SourceType: Enum "Price Source Type";
     begin
         Initialize();
-        // [GIVEN] Campaign 'C', "Customer Disc. Group" 'CDG' are in the list
-        PriceSourceList.Add(SourceType::"Customer Disc. Group", 'CDG');
+        // [GIVEN] Campaign 'Ca', "Contact" 'Co' are in the list
+        LibraryMarketing.CreatePersonContact(Contact);
+        PriceSourceList.Add(SourceType::Contact, Contact."No.");
         LibraryMarketing.CreateCampaign(Campaign);
         PriceSourceList.Add(SourceType::Campaign, Campaign."No.");
         // [WHEN] GetSourceGroup()

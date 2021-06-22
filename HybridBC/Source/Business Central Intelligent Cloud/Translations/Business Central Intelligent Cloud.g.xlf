@@ -19,7 +19,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SqlCompatibilityErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 3448866843" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The maximum replicated data size of 150 GB has been exceeded.</source>
+          <source>The maximum replicated data size of 30 GB has been exceeded.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType DatabaseTooLargeErr</note>
         </trans-unit>

@@ -655,6 +655,7 @@ table 5092 Opportunity
     begin
         DeleteAll();
         Init;
+        OnCreateOppFromOppOnAfterInit(Opp);
         "Creation Date" := WorkDate;
         SetDefaultSalesCycle;
         if Cont.Get(Opp.GetFilter("Contact Company No.")) then begin
@@ -736,6 +737,8 @@ table 5092 Opportunity
                 OppEntry.UpdateEstimates;
             end;
         end;
+
+        OnAfterInsertOpportunity(Opp);
     end;
 
     procedure UpdateOpportunity()
@@ -1139,6 +1142,16 @@ table 5092 Opportunity
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinishWizard(var Opportunity: Record Opportunity)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInsertOpportunity(var Opportunity: Record Opportunity)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateOppFromOppOnAfterInit(var Opportunity: Record Opportunity)
     begin
     end;
 

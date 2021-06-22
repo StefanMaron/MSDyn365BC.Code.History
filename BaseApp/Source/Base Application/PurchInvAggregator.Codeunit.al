@@ -781,6 +781,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
                 PurchInvLineAggregate."Prices Including Tax" := PurchInvEntityAggregate."Prices Including VAT";
                 PurchInvLineAggregate.UpdateReferencedRecordIds;
                 UpdateLineAmountsFromPurchaseInvoiceLine(PurchInvLineAggregate);
+                SetItemVariantId(PurchInvLineAggregate, PurchInvLine."No.", PurchInvLine."Variant Code");
                 PurchInvLineAggregate.Insert(true);
             until PurchInvLine.Next = 0;
     end;
@@ -818,6 +819,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvLineAggregate."Prices Including Tax" := PurchInvEntityAggregate."Prices Including VAT";
         PurchInvLineAggregate.UpdateReferencedRecordIds;
         UpdateLineAmountsFromPurchaseLine(PurchInvLineAggregate);
+        SetItemVariantId(PurchInvLineAggregate, PurchaseLine."No.", PurchaseLine."Variant Code");
     end;
 
     procedure PropagateInsertLine(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate"; var TempFieldBuffer: Record "Field Buffer" temporary)
@@ -915,6 +917,14 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvLineAggregate."Line Tax Amount" :=
           PurchInvLineAggregate."Line Amount Including Tax" - PurchInvLineAggregate."Line Amount Excluding Tax";
         UpdateInvoiceDiscountAmount(PurchInvLineAggregate);
+    end;
+
+    local procedure SetItemVariantId(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate"; ItemNo: Code[20]; VariantCode: Code[20])
+    var
+        ItemVariant: Record "Item Variant";
+    begin
+        if ItemVariant.Get(ItemNo, VariantCode) then
+            PurchInvLineAggregate."Variant Id" := ItemVariant.SystemId;
     end;
 
     local procedure UpdateLineAmountsFromPurchaseInvoiceLine(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate")

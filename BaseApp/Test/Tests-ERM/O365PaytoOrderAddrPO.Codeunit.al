@@ -10,6 +10,7 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
 
     var
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         PayToOptions: Option "Default (Vendor)","Another Vendor";
@@ -228,13 +229,16 @@ codeunit 138084 "O365 Pay-to & Order Addr. P.O"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Pay-to & Order Addr. P.O");
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Pay-to & Order Addr. P.O");
 
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Pay-to & Order Addr. P.O");
     end;
 
     local procedure VerifyPayToEditableState(PurchaseOrder: TestPage "Purchase Order"; ExpectedState: Boolean)

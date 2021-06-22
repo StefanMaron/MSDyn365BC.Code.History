@@ -221,18 +221,27 @@ table 911 "Posted Assembly Line"
         PostedAsmHeader: Record "Posted Assembly Header";
         PostedAsmLine: Record "Posted Assembly Line";
         SalesShipmentLine: Record "Sales Shipment Line";
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
     begin
         TempPostedAssemblyLine.Reset();
         TempPostedAssemblyLine.DeleteAll();
+
         ValueEntry.SetRange("Document Type", ValueEntryDocType);
         ValueEntry.SetRange("Document No.", DocNo);
         ValueEntry.SetRange("Document Line No.", DocLineNo);
-        if not ValueEntry.FindSet then
+        ValueEntry.SetFilter("Item Ledger Entry No.", '<>%1', 0);
+        if not ValueEntry.FindSet() then
             exit;
         repeat
-            if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then
-                if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Sales Shipment" then begin
-                    SalesShipmentLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.");
+            ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.");
+            TempItemLedgerEntry := ItemLedgerEntry;
+            if TempItemLedgerEntry.Insert() then;
+        until ValueEntry.Next() = 0;
+
+        if TempItemLedgerEntry.FindSet() then
+            repeat
+                if TempItemLedgerEntry."Document Type" = TempItemLedgerEntry."Document Type"::"Sales Shipment" then begin
+                    SalesShipmentLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
                     if SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader) then begin
                         PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
                         if PostedAsmLine.FindSet then
@@ -252,7 +261,8 @@ table 911 "Posted Assembly Line"
                             until PostedAsmLine.Next = 0;
                     end;
                 end;
-        until ValueEntry.Next = 0;
+            until TempItemLedgerEntry.Next() = 0;
+
         TempPostedAssemblyLine.Reset();
     end;
 }

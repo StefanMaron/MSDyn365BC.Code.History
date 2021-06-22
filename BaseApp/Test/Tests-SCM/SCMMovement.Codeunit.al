@@ -387,7 +387,10 @@ codeunit 137931 "SCM - Movement"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM - Movement");
+
         if IsInitialized then
             exit;
 

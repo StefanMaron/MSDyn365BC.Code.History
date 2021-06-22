@@ -171,6 +171,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         SelectionTxt: Text;
         SuggestItemChargeMenuTxt: Text;
         SuggestItemChargeMessageTxt: Text;
+        IsHandled: Boolean;
     begin
         with SalesLine do begin
             TestField("Qty. to Invoice");
@@ -179,6 +180,11 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
             ItemChargeAssgntSales.SetRange("Document Line No.", "Line No.");
         end;
         if ItemChargeAssgntSales.IsEmpty then
+            exit;
+
+        IsHandled := false;
+        OnSuggestAssignmentOnBeforeSelectionItemChargeAssign(ItemChargeAssgntSales, SalesLine, TotalQtyToAssign, TotalAmtToAssign, IsHandled);
+        if IsHandled then
             exit;
 
         Selection := 1;
@@ -668,6 +674,11 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
 
     [IntegrationEvent(false, false)]
     local procedure OnAssignByAmountOnBeforeItemChargeAssignmentSalesModify(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSuggestAssignmentOnBeforeSelectionItemChargeAssign(var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; SalesLine: Record "Sales Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

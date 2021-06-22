@@ -158,9 +158,10 @@ report 357 "Copy Company"
     }
 
     var
+        [InDataSet]
+        IsSaaS: Boolean;
         ProgressWindow: Dialog;
         BreakReport: Boolean;
-        IsSaaS: Boolean;
         NewCompanyName: Text[30];
         ProgressMsg: Label 'Creating new company %1.', Comment = 'Creating new company Contoso Corporation.';
         CopySuccessMsg: Label 'Company %1 has been copied successfully.', Comment = 'Company CRONUS International Ltd. has been copied successfully.';

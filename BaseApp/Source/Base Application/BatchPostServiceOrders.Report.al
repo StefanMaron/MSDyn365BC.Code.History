@@ -182,14 +182,14 @@ report 6001 "Batch Post Service Orders"
         ReplaceDocumentDate := false;
     end;
 
-    local procedure PostServiceHeader(var ServiceHeader: Record "Service Header"): Boolean
+    local procedure PostServiceHeader(var ServiceHeader: Record "Service Header") ReturnValue: Boolean
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostServiceHeader(ServiceHeader, IsHandled);
+        OnBeforePostServiceHeader(ServiceHeader, IsHandled, ReturnValue, ReplacePostingDate, ReplaceDocumentDate, PostingDateReq, ShipReq, InvReq);
         if IsHandled then
-            exit(true);
+            exit(ReturnValue);
 
         Clear(ServPost);
         ServPost.SetPostingDate(ReplacePostingDate, ReplaceDocumentDate, PostingDateReq);
@@ -204,7 +204,7 @@ report 6001 "Batch Post Service Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostServiceHeader(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforePostServiceHeader(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean; var ReturnValue: Boolean; ReplacePostingDate: Boolean; ReplaceDocumentDate: Boolean; PostingDateReq: Date; ShipReq: Boolean; InvReq: Boolean)
     begin
     end;
 

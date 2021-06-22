@@ -15,37 +15,37 @@
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 2586591135" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SQL database must be at comptibility level 130 or higher.</source>
-          <target>SQL-Datenbank muss Kompatibilitätsebene 130 oder höher aufweisen.</target>
+          <target state="translated">SQL-Datenbank muss Kompatibilitätsebene 130 oder höher aufweisen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SqlCompatibilityErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 3448866843" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The maximum replicated data size of 150 GB has been exceeded.</source>
-          <target>Die maximale Grösse der replizierten Daten von 150 GB wurde überschritten.</target>
+          <source>The maximum replicated data size of 30 GB has been exceeded.</source>
+          <target state="translated">Die maximale Grösse der replizierten Daten von 30 GB wurde überschritten.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType DatabaseTooLargeErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 2359240154" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The table does not exist in the local instance.</source>
-          <target>Die Tabelle ist in der lokalen Instanz nicht vorhanden.</target>
+          <target state="translated">Die Tabelle ist in der lokalen Instanz nicht vorhanden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType TableNotExistsErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 778856548" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The local table schema differs from the Business Central cloud table.</source>
-          <target>Das lokale Tabellenschema weicht von der Business Central-Cloud-Tabelle ab.</target>
+          <target state="translated">Das lokale Tabellenschema weicht von der Business Central-Cloud-Tabelle ab.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SchemaMismatchErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 657071819" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to prepare data for the table.\\\\%1</source>
-          <target>Fehler beim Vorbereiten der Daten für die Tabelle.\\\\%1</target>
+          <target state="translated">Fehler beim Vorbereiten der Daten für die Tabelle.\\\\%1</target>
           <note from="Developer" annotates="general" priority="2">%1 - The inner error message.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType FailurePreparingDataErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 2948262442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to copy the table.\\\\%1</source>
-          <target>Fehler beim Kopieren der Tabelle.\\\\%1</target>
+          <target state="translated">Fehler beim Kopieren der Tabelle.\\\\%1</target>
           <note from="Developer" annotates="general" priority="2">%1 - The inner error message.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType FailureCopyingTableErr</note>
         </trans-unit>

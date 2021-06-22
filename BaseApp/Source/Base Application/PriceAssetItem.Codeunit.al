@@ -8,8 +8,8 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
     procedure GetNo(var PriceAsset: Record "Price Asset")
     begin
         if Item.GetBySystemId(PriceAsset."Asset ID") then begin
-            PriceAsset."Unit of Measure Code" := Item."Base Unit of Measure";
             PriceAsset."Asset No." := Item."No.";
+            FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
     end;
@@ -17,8 +17,8 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
     procedure GetId(var PriceAsset: Record "Price Asset")
     begin
         if Item.Get(PriceAsset."Asset No.") then begin
-            PriceAsset."Unit of Measure Code" := Item."Base Unit of Measure";
             PriceAsset."Asset ID" := Item.SystemId;
+            FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
     end;
@@ -40,6 +40,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
     procedure IsLookupUnitOfMeasureOK(var PriceAsset: Record "Price Asset"): Boolean
     begin
         if ItemUnitofMeasure.Get(PriceAsset."Asset No.", PriceAsset."Unit of Measure Code") then;
+        ItemUnitofMeasure.SetRange("Item No.", PriceAsset."Asset No.");
         if Page.RunModal(Page::"Item Units of Measure", ItemUnitofMeasure) = ACTION::LookupOK then begin
             PriceAsset.Validate("Unit of Measure Code", ItemUnitofMeasure.Code);
             exit(true);
@@ -49,6 +50,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
     procedure IsLookupVariantOK(var PriceAsset: Record "Price Asset"): Boolean
     begin
         if ItemVariant.Get(PriceAsset."Variant Code", PriceAsset."Asset No.") then;
+        ItemVariant.SetRange("Item No.", PriceAsset."Asset No.");
         if Page.RunModal(Page::"Item Variants", ItemVariant) = ACTION::LookupOK then begin
             PriceAsset.Validate("Variant Code", ItemVariant.Code);
             exit(true);
@@ -113,5 +115,28 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
         PriceAsset.Validate("Asset No.", PriceCalculationBuffer."Asset No.");
         PriceAsset."Variant Code" := PriceCalculationBuffer."Variant Code";
         PriceAsset."Unit of Measure Code" := PriceCalculationBuffer."Unit of Measure Code";
+    end;
+
+    local procedure FillAdditionalFields(var PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset."Unit of Measure Code" := GetUnitOfMeasure(PriceAsset."Price Type");
+        PriceAsset."Variant Code" := '';
+        if PriceAsset."Price Type" <> PriceAsset."Price Type"::Purchase then begin
+            PriceAsset."Allow Invoice Disc." := Item."Allow Invoice Disc.";
+            PriceAsset."Price Includes VAT" := Item."Price Includes VAT";
+            PriceAsset."VAT Bus. Posting Gr. (Price)" := Item."VAT Bus. Posting Gr. (Price)";
+        end;
+    end;
+
+    local procedure GetUnitOfMeasure(PriceType: Enum "Price Type"): Code[10]
+    begin
+        case PriceType of
+            PriceType::Any:
+                exit(Item."Base Unit of Measure");
+            PriceType::Purchase:
+                exit(Item."Purch. Unit of Measure");
+            PriceType::Sale:
+                exit(Item."Sales Unit of Measure");
+        end;
     end;
 }

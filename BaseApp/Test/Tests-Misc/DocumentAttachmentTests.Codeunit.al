@@ -10,10 +10,6 @@ codeunit 134776 "Document Attachment Tests"
     end;
 
     var
-        NoContentErr: Label 'The selected file has no content. Please choose another file.';
-        DuplicateErr: Label 'This file is already attached to the document. Please choose another file.';
-        PrintedToAttachmentTxt: Label 'The document has been printed to attachments.';
-        NoSaveToPDFReportTxt: Label 'There are no reports which could be saved to PDF for this document.';
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -27,7 +23,12 @@ codeunit 134776 "Document Attachment Tests"
         LibraryJob: Codeunit "Library - Job";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ReportSelectionUsage: Enum "Report Selection Usage";
+        NoContentErr: Label 'The selected file has no content. Please choose another file.';
+        DuplicateErr: Label 'This file is already attached to the document. Please choose another file.';
+        PrintedToAttachmentTxt: Label 'The document has been printed to attachments.';
+        NoSaveToPDFReportTxt: Label 'There are no reports which could be saved to PDF for this document.';
         isInitialized: Boolean;
 
     [Test]
@@ -1801,10 +1802,76 @@ codeunit 134776 "Document Attachment Tests"
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('PrintedToAttachmentNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure AttachToPFDCustomerReportSelection()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DocumentAttachment: Record "Document Attachment";
+    begin
+        // [FEATURE] [Print to Attachment] [Posted Sales Invoice]
+        // [SCENARIO 350302] "Attach to PDF" action uses customer's document layout
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with "Document No." = "1001" for customer "CUST"
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesInvoiceHeader.Get(
+            LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [GIVEN] Set sales invoice document layout for customer "CUST" to report 206
+        CreateCustomReportSelection(Database::Customer, SalesInvoiceHeader."Sell-to Customer No.", "Report Selection Usage"::"S.Invoice", Report::"Sales - Invoice");
+
+        // [WHEN] "Print to attachment" function is called
+        SalesInvoiceHeader.SetRecFilter();
+        SalesInvoiceHeader.PrintToDocumentAttachment(SalesInvoiceHeader);
+
+        // [THEN] Attachment file name starts from 206
+        FindDocumentAttachment(DocumentAttachment, Database::"Sales Invoice Header", SalesInvoiceHeader."No.", 0);
+        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Sales - Invoice", SalesInvoiceHeader."No."));
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesInvoiceHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('PrintedToAttachmentNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure AttachToPFDVendorReportSelection()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        DocumentAttachment: Record "Document Attachment";
+    begin
+        // [FEATURE] [Print to Attachment] [Posted Purchase Invoice]
+        // [SCENARIO 350302] "Attach to PDF" action uses vendor's document layout
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice with "Document No." = "1001" for vendor "VEND"
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchInvHeader.Get(
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [GIVEN] Set purchase invoice document layout for vendor "VEND" to report 324
+        CreateCustomReportSelection(Database::Vendor, PurchInvHeader."Buy-from Vendor No.", "Report Selection Usage"::"P.Invoice", Report::"Purchase Invoice Nos.");
+
+        // [WHEN] "Print to attachment" function is called
+        PurchInvHeader.SetRecFilter();
+        PurchInvHeader.PrintToDocumentAttachment(PurchInvHeader);
+
+        // [THEN] Attachment file name starts from 324
+        FindDocumentAttachment(DocumentAttachment, Database::"Purch. Inv. Header", PurchInvHeader."No.", 0);
+        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Purchase Invoice Nos.", PurchInvHeader."No."));
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(PurchInvHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Document Attachment Tests");
+
         LibrarySetupStorage.Restore;
         if isInitialized then
             exit;
@@ -1854,7 +1921,7 @@ codeunit 134776 "Document Attachment Tests"
         Bitmap.Dispose;
     end;
 
-    local procedure CreateCustomReportSelection(SourceType: Integer; SourceNo: Code[20]; ReportUsage: Integer; ReportID: Integer)
+    local procedure CreateCustomReportSelection(SourceType: Integer; SourceNo: Code[20]; ReportUsage: Enum "Report Selection Usage"; ReportID: Integer)
     var
         CustomReportSelection: Record "Custom Report Selection";
     begin

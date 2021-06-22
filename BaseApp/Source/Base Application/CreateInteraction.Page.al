@@ -340,7 +340,7 @@ page 5077 "Create Interaction"
     begin
         CampaignDescriptionEditable := false;
         OpportunityDescriptionEditable := false;
-        IsContactEditable := (GetFilter("Contact No.") = '') and (GetFilter("Contact Company No.") = '');
+        SetContactEditable();
         UpdateUIFlags;
 
         if SalesPurchPerson.Get(GetFilter("Salesperson Code")) then
@@ -421,8 +421,20 @@ page 5077 "Create Interaction"
         "Wizard Contact Name" := Contact.Name;
     end;
 
+    local procedure SetContactEditable()
+    begin
+        IsContactEditable := (GetFilter("Contact No.") = '') and (GetFilter("Contact Company No.") = '');
+
+        OnAfterSetContactEditable(Rec, IsContactEditable);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCaption(var SegmentLine: Record "Segment Line"; var CaptionStr: Text[260])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetContactEditable(var SegmentLine: Record "Segment Line"; var IsContactEditable: Boolean)
     begin
     end;
 }

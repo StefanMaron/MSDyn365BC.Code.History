@@ -1,4 +1,4 @@
-codeunit 5981 "Service-Post (Yes/No)"
+﻿codeunit 5981 "Service-Post (Yes/No)"
 {
     EventSubscriberInstance = Manual;
     TableNo = "Service Line";
@@ -113,7 +113,7 @@ codeunit 5981 "Service-Post (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterConfirmPost(ServiceHeader: Record "Service Header"; Ship: Boolean; Consume: Boolean; Invoice: Boolean)
+    local procedure OnAfterConfirmPost(var ServiceHeader: Record "Service Header"; Ship: Boolean; Consume: Boolean; Invoice: Boolean)
     begin
     end;
 

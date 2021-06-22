@@ -1,6 +1,6 @@
 page 5329 "CRM Redirect"
 {
-    Caption = 'CRM Redirect';
+    Caption = 'Common Data Service Redirect';
     SourceTable = "CRM Redirect";
     PageType = List;
 

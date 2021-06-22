@@ -39,6 +39,10 @@ codeunit 365 "Format Address"
                 Country.Init();
                 Country.Name := CountryCode;
             end;
+        Handled := false;
+        OnFormatAddrOnAfterGetCountry(AddrArray, Name, Name2, Contact, Addr, Addr2, City, PostCode, County, CountryCode, LanguageCode, Handled);
+        if Handled then
+            exit;
 
         if Country."Address Format" = Country."Address Format"::Custom then begin
             CustomAddressFormat.Reset();
@@ -74,6 +78,7 @@ codeunit 365 "Format Address"
         end else begin
             SetLineNos(Country, NameLineNo, Name2LineNo, AddrLineNo, Addr2LineNo, ContLineNo, PostCodeCityLineNo, CountyLineNo, CountryLineNo);
 
+            Handled := false;
             OnBeforeFormatAddress(
               Country, AddrArray, Name, Name2, Contact, Addr, Addr2, City, PostCode, County, CountryCode, NameLineNo, Name2LineNo,
               AddrLineNo, Addr2LineNo, ContLineNo, PostCodeCityLineNo, CountyLineNo, CountryLineNo, Handled);
@@ -250,7 +255,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure Company(var AddrArray: array[8] of Text[100]; var CompanyInfo: Record "Company Information")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCompany(AddrArray, CompanyInfo, IsHandled);
+        if IsHandled then
+            exit;
+
         with CompanyInfo do
             FormatAddr(
               AddrArray, Name, "Name 2", '', Address, "Address 2",
@@ -286,7 +298,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure BankAcc(var AddrArray: array[8] of Text[100]; var BankAcc: Record "Bank Account")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBankAcc(AddrArray, BankAcc, IsHandled);
+        if IsHandled then
+            exit;
+
         with BankAcc do
             FormatAddr(
               AddrArray, Name, "Name 2", Contact, Address, "Address 2",
@@ -471,13 +490,13 @@ codeunit 365 "Format Address"
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
     end;
 
-    procedure SalesInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header"): Boolean
+    procedure SalesInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header") Result: Boolean
     var
         IsHandled: Boolean;
     begin
-        OnBeforeSalesInvShipTo(AddrArray, SalesInvHeader, IsHandled);
+        OnBeforeSalesInvShipTo(AddrArray, SalesInvHeader, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         with SalesInvHeader do begin
             FormatAddr(
@@ -804,7 +823,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure VendBankAcc(var AddrArray: array[8] of Text[100]; var VendBankAcc: Record "Vendor Bank Account")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVendBankAcc(AddrArray, VendBankAcc, IsHandled);
+        if IsHandled then
+            exit;
+
         with VendBankAcc do
             FormatAddr(
               AddrArray, Name, "Name 2", Contact, Address, "Address 2",
@@ -812,7 +838,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure CustBankAcc(var AddrArray: array[8] of Text[100]; var CustBankAcc: Record "Customer Bank Account")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCustBankAcc(AddrArray, CustBankAcc, IsHandled);
+        if IsHandled then
+            exit;
+
         with CustBankAcc do
             FormatAddr(
               AddrArray, Name, "Name 2", Contact, Address, "Address 2",
@@ -938,7 +971,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure ServiceOrderSellto(var AddrArray: array[8] of Text[100]; ServHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceOrderSellto(AddrArray, ServHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServHeader do
             FormatAddr(
               AddrArray, Name, "Name 2", "Contact Name", Address, "Address 2",
@@ -946,7 +986,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure ServiceOrderShipto(var AddrArray: array[8] of Text[100]; ServHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceOrderShipto(AddrArray, ServHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServHeader do
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -954,7 +1001,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure ServContractSellto(var AddrArray: array[8] of Text[100]; ServContract: Record "Service Contract Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServContractSellto(AddrArray, ServContract, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServContract do begin
             CalcFields(Name, "Name 2", Address, "Address 2", "Post Code", City, County, "Country/Region Code");
             FormatAddr(
@@ -964,13 +1018,19 @@ codeunit 365 "Format Address"
     end;
 
     procedure ServContractShipto(var AddrArray: array[8] of Text[100]; ServiceContractHeader: Record "Service Contract Header")
+    var
+        IsHandled: Boolean;
     begin
         with ServiceContractHeader do begin
             CalcFields(
               "Ship-to Name", "Ship-to Name 2", "Ship-to Address", "Ship-to Address 2",
               "Ship-to Post Code", "Ship-to City", "Ship-to County", "Ship-to Country/Region Code");
 
-            OnBeforeServContractShipTo(AddrArray, ServiceContractHeader);
+            IsHandled := false;
+            OnBeforeServContractShipTo(AddrArray, ServiceContractHeader, IsHandled);
+            if IsHandled then
+                exit;
+
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Contact Name", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
@@ -978,15 +1038,29 @@ codeunit 365 "Format Address"
     end;
 
     procedure ServiceInvBillTo(var AddrArray: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceInvBillTo(AddrArray, ServiceInvHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceInvHeader do
             FormatAddr(
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
     end;
 
-    procedure ServiceInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header"): Boolean
+    procedure ServiceInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceInvShipTo(AddrArray, CustAddr, ServiceInvHeader, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         with ServiceInvHeader do begin
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -1001,7 +1075,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure ServiceShptShipTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceShptShipTo(AddrArray, ServiceShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceShptHeader do
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -1009,15 +1090,29 @@ codeunit 365 "Format Address"
     end;
 
     procedure ServiceShptSellTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceShptSellTo(AddrArray, ServiceShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceShptHeader do
             FormatAddr(
               AddrArray, Name, "Name 2", "Contact Name", Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
     end;
 
-    procedure ServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header"): Boolean
+    procedure ServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceShptBillTo(AddrArray, ShipToAddr, ServiceShptHeader, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         with ServiceShptHeader do begin
             FormatAddr(
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
@@ -1032,15 +1127,29 @@ codeunit 365 "Format Address"
     end;
 
     procedure ServiceCrMemoBillTo(var AddrArray: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceCrMemoBillTo(AddrArray, ServiceCrMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceCrMemoHeader do
             FormatAddr(
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
     end;
 
-    procedure ServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"): Boolean
+    procedure ServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceCrMemoShipTo(AddrArray, CustAddr, ServiceCrMemoHeader, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         with ServiceCrMemoHeader do begin
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -1055,7 +1164,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure ServiceHeaderSellTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceHeaderSellTo(AddrArray, ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceHeader do
             FormatAddr(
               AddrArray, Name, "Name 2", "Contact No.", Address, "Address 2",
@@ -1063,7 +1179,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure ServiceHeaderBillTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceHeaderBillTo(AddrArray, ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceHeader do
             FormatAddr(
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
@@ -1071,7 +1194,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure ServiceHeaderShipTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceHeaderShipTo(AddrArray, ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ServiceHeader do
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -1086,18 +1216,31 @@ codeunit 365 "Format Address"
     end;
 
     procedure SalesHeaderArchBillTo(var AddrArray: array[8] of Text[100]; var SalesHeaderArch: Record "Sales Header Archive")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesHeaderArchBillTo(AddrArray, SalesHeaderArch, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesHeaderArch do
             FormatAddr(
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
     end;
 
-    procedure SalesHeaderArchShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesHeaderArch: Record "Sales Header Archive"): Boolean
+    procedure SalesHeaderArchShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesHeaderArch: Record "Sales Header Archive") Result: Boolean
     var
         CountryRegion: Record "Country/Region";
         SellToCountry: Code[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesHeaderArchShipTo(AddrArray, CustAddr, SalesHeaderArch, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         with SalesHeaderArch do begin
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -1114,7 +1257,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchHeaderBuyFromArch(var AddrArray: array[8] of Text[100]; var PurchHeaderArch: Record "Purchase Header Archive")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchHeaderBuyFromArch(AddrArray, PurchHeaderArch, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchHeaderArch do
             FormatAddr(
               AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
@@ -1122,7 +1272,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchHeaderPayToArch(var AddrArray: array[8] of Text[100]; var PurchHeaderArch: Record "Purchase Header Archive")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchHeaderPayToArch(AddrArray, PurchHeaderArch, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchHeaderArch do
             FormatAddr(
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
@@ -1130,7 +1287,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchHeaderShipToArch(var AddrArray: array[8] of Text[100]; var PurchHeaderArch: Record "Purchase Header Archive")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchHeaderShipToArch(AddrArray, PurchHeaderArch, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchHeaderArch do
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -1138,28 +1302,56 @@ codeunit 365 "Format Address"
     end;
 
     procedure Reminder(var AddrArray: array[8] of Text[100]; var ReminderHeader: Record "Reminder Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReminder(AddrArray, ReminderHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReminderHeader do
             FormatAddr(
               AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
     end;
 
     procedure IssuedReminder(var AddrArray: array[8] of Text[100]; var IssuedReminderHeader: Record "Issued Reminder Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIssuedReminder(AddrArray, IssuedReminderHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with IssuedReminderHeader do
             FormatAddr(
               AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
     end;
 
     procedure FinanceChargeMemo(var AddrArray: array[8] of Text[100]; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFinanceChargeMemo(AddrArray, FinanceChargeMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with FinanceChargeMemoHeader do
             FormatAddr(
               AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
     end;
 
     procedure IssuedFinanceChargeMemo(var AddrArray: array[8] of Text[100]; var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIssuedFinanceChargeMemo(AddrArray, IssuedFinChargeMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with IssuedFinChargeMemoHeader do
             FormatAddr(
               AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
@@ -1236,7 +1428,17 @@ codeunit 365 "Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCompany(var AddrArray: array[8] of Text[100]; var CompanyInfo: Record "Company Information"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFormatAddress(var AddrArray: array[8] of Text[100]; var Name: Text[100]; var Name2: Text[100]; var Contact: Text[100]; var Addr: Text[100]; var Addr2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; LanguageCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBankAcc(var AddrArray: array[8] of Text[100]; var BankAccount: Record "Bank Account"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1251,7 +1453,42 @@ codeunit 365 "Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCustBankAcc(var AddrArray: array[8] of Text[100]; var CustomerBankAccount: Record "Customer Bank Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatAddress(Country: Record "Country/Region"; var AddrArray: array[8] of Text[100]; var Name: Text[100]; var Name2: Text[100]; var Contact: Text[100]; var Addr: Text[100]; var Addr2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; NameLineNo: Integer; Name2LineNo: Integer; AddrLineNo: Integer; Addr2LineNo: Integer; ContLineNo: Integer; PostCodeCityLineNo: Integer; CountyLineNo: Integer; CountryLineNo: Integer; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFinanceChargeMemo(var AddrArray: array[8] of Text[100]; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIssuedFinanceChargeMemo(var AddrArray: array[8] of Text[100]; var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIssuedReminder(var AddrArray: array[8] of Text[100]; var IssuedReminderHeader: Record "Issued Reminder Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchHeaderBuyFromArch(var AddrArray: array[8] of Text[100]; var PurchHeaderArch: Record "Purchase Header Archive"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchHeaderPayToArch(var AddrArray: array[8] of Text[100]; var PurchHeaderArch: Record "Purchase Header Archive"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchHeaderShipToArch(var AddrArray: array[8] of Text[100]; var PurchHeaderArch: Record "Purchase Header Archive"; var Handled: Boolean)
     begin
     end;
 
@@ -1321,7 +1558,22 @@ codeunit 365 "Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeReminder(var AddrArray: array[8] of Text[100]; var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePurchShptShipTo(var AddrArray: array[8] of Text[100]; var ReturnShptHeader: Record "Return Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderArchBillTo(var AddrArray: array[8] of Text[100]; var SalesHeaderArch: Record "Sales Header Archive"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderArchShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesHeaderArch: Record "Sales Header Archive"; var Handled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -1346,7 +1598,7 @@ codeunit 365 "Format Address"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesInvShipTo(var AddrArray: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header"; var Handled: Boolean)
+    local procedure OnBeforeSalesInvShipTo(var AddrArray: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header"; var Handled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -1406,12 +1658,87 @@ codeunit 365 "Format Address"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServContractShipTo(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record "Service Contract Header")
+    local procedure OnBeforeServContractShipTo(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServContractSellto(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceCrMemoBillTo(var AddrArray: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceHeaderBillTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceHeaderSellTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceHeaderShipTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceInvBillTo(var AddrArray: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceOrderSellto(var AddrArray: array[8] of Text[100]; var ServHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceOrderShipto(var AddrArray: array[8] of Text[100]; var ServHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceShptShipTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceShptSellTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVendor(var AddrArray: array[8] of Text[100]; var Vendor: Record Vendor; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVendBankAcc(var AddrArray: array[8] of Text[100]; var VendorBankAccount: Record "Vendor Bank Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFormatAddrOnAfterGetCountry(var AddrArray: array[8] of Text[100]; var Name: Text[100]; var Name2: Text[100]; var Contact: Text[100]; var Addr: Text[100]; var Addr2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; LanguageCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

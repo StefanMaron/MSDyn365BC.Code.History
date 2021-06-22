@@ -42,6 +42,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         LibraryCAMTFileMgt: Codeunit "Library - CAMT File Mgt.";
         LibraryCalcComplexity: Codeunit "Library - Calc. Complexity";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         GlobalPmtReconJnl: TestPage "Payment Reconciliation Journal";
         Initialized: Boolean;
 
@@ -336,6 +337,8 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Payment Recon. E2E Tests Perf.");
+
         if Initialized then
             exit;
         Initialized := true;

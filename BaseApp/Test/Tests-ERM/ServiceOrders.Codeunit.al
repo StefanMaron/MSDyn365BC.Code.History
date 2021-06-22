@@ -4000,6 +4000,83 @@ codeunit 136101 "Service Orders"
         end;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmMessageHandler')]
+    procedure RecreateServiceCommentLines()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceCommentLine: Record "Service Comment Line";
+    begin
+        // [FEATURE] [Service Comment Line] [UT]
+        // [SCENARIO 351187] The Service Comment Lines must be copied after Service Lines have been recreated
+        Initialize();
+        LibraryService.CreateServiceHeader(ServiceHeader, "Service Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, "Service Line Type"::Item, LibraryInventory.CreateItemNo());
+        LibraryService.CreateServiceCommentLine(ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
+            ServiceHeader."Document Type", ServiceHeader."No.", ServiceCommentLine.Type::General, ServiceLine."Line No.");
+
+        ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+
+        ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
+        ServiceCommentLine.SetRange("Table Subtype", ServiceHeader."Document Type");
+        ServiceCommentLine.SetRange("No.", ServiceHeader."No.");
+        Assert.RecordCount(ServiceCommentLine, 1);
+    end;
+ 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectCalculationLineDiscountForServiceLineWithSalesPrice()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        SalesPrice: Record "Sales Price";
+        SalesLineDiscount: Record "Sales Line Discount";
+        Item: Record Item;
+        Customer: Record Customer;
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: Record "Service Item Line";
+    begin
+        // [FEATURE] [Line Discount] [Sales Price] [Warranty]
+        // [SCENARIO 348944] Change "Exclude Warranty" to True in Service Line
+        // [GIVEN] Customer and Item 
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Service Header for Customer
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Sales Price with Item for Customer 
+        LibrarySales.CreateSalesPrice(
+          SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Customer."No.", WorkDate, '', '', '', 0, LibraryRandom.RandInt(20));
+        SalesPrice.Validate("Allow Line Disc.", false);
+        SalesPrice.Modify(true);
+
+        // [GIVEN] Sales Line Discount with Item for Customer with "Line Discount %"
+        CreateSalesLineDiscount(SalesLineDiscount, Customer."No.", Item."No.");
+        SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandInt(25));
+        SalesLineDiscount.Modify(true);
+
+        // [GIVEN] Service Item and Service Item Line
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+
+        // [GIVEN] Service Line with Item , "Line Discount %" and "Line Discount %" are equal to 0
+        CreateServiceLine(ServiceLine, ServiceHeader, ServiceItem."No.");
+        ServiceLine.Validate("No.", Item."No.");
+        ServiceLine.TestField("Line Discount %", 0);
+        ServiceLine.TestField("Line Discount Amount", 0);
+
+        // [WHEN] Set "Exclude Warranty" to True
+        ServiceLine.Validate("Exclude Warranty", true);
+
+        // [THEN] "Line Discount %" is equal to 0
+        // [THEN] "Line Discount Amount" is equal to 0
+        ServiceLine.TestField("Line Discount %", 0);
+        ServiceLine.TestField("Line Discount Amount", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6185,6 +6262,16 @@ codeunit 136101 "Service Orders"
         if not VATPostingSetup.Get(ServiceHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group") then
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, ServiceHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+    end;
+
+    local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerNo: Code[20]; ItemNo: Code[20])
+    begin
+        SalesLineDiscount.Init;
+        SalesLineDiscount.Validate(Type, SalesLineDiscount.Type::Item);
+        SalesLineDiscount.Validate(Code, ItemNo);
+        SalesLineDiscount.Validate("Sales Type", SalesLineDiscount."Sales Type"::Customer);
+        SalesLineDiscount.Validate("Sales Code", CustomerNo);
+        SalesLineDiscount.Insert(true);
     end;
 
     [ConfirmHandler]

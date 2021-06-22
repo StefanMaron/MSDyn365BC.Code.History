@@ -4288,31 +4288,79 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
             until StandardPurchaseLine.Next = 0;
     end;
 
+    local procedure FillSalesHeaderExcludedFieldList(var FieldListToExclude: List of [Text])
+    var
+        SalesHeaderRef: Record "Sales Header";
+    begin
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Document Type"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Quote No."));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("No."));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Posting Date"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Posting Description"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("No. Series"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Prepayment No. Series"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Prepmt. Cr. Memo No. Series"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName("Shipping No. Series"));
+        FieldListToExclude.Add(SalesHeaderRef.FieldName(Id));
+
+        OnAfterFillSalesHeaderExcludedFieldList(FieldListToExclude);
+    end;
+
+    local procedure FillSalesLineExcludedFieldList(var FieldListToExclude: List of [Text])
+    var
+        SalesLineRef: Record "Sales Line";
+    begin
+        FieldListToExclude.Add(SalesLineRef.FieldName("Document Type"));
+        FieldListToExclude.Add(SalesLineRef.FieldName("Document No."));
+        FieldListToExclude.Add(SalesLineRef.FieldName(Type));
+        FieldListToExclude.Add(SalesLineRef.FieldName("Posting Date"));
+        FieldListToExclude.Add(SalesLineRef.FieldName("Recalculate Invoice Disc."));
+        FieldListToExclude.Add(SalesLineRef.FieldName(Subtype));
+
+        OnAfterFillSalesLineExcludedFieldList(FieldListToExclude);
+    end;
+
+    local procedure FillPurchaseHeaderExcludedFieldList(var FieldListToExclude: List of [Text])
+    var
+        PurchaseHeaderRef: Record "Purchase Header";
+    begin
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Document Type"));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Quote No."));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("No."));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Posting Date"));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Posting Description"));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("No. Series"));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName(Id));
+
+        OnAfterFillPurchaseHeaderExcludedFieldList(FieldListToExclude);
+    end;
+
+    local procedure FillPurchaseLineExcludedFieldList(var FieldListToExclude: List of [Text])
+    var
+        PurchaseLineRef: Record "Purchase Line";
+    begin
+        FieldListToExclude.Add(PurchaseLineRef.FieldName("Document Type"));
+        FieldListToExclude.Add(PurchaseLineRef.FieldName("Document No."));
+
+        OnAfterFillPurchaseLineExcludedFieldList(FieldListToExclude);
+    end;
+
     local procedure VerifySalesDocumentsMatch(SalesHeader1: Record "Sales Header"; SalesHeader2: Record "Sales Header")
     var
         SalesLine1: Record "Sales Line";
         SalesLine2: Record "Sales Line";
         RecordRef1: RecordRef;
         RecordRef2: RecordRef;
-        SalesHeaderExcludedFieldRef: array[10] of FieldRef;
-        SalesLineExcludedFieldRef: array[6] of FieldRef;
+        SalesHeaderExcludedFieldList: List of [Text];
+        SalesLineExcludedFieldList: List of [Text];
         I: Integer;
     begin
         RecordRef1.GetTable(SalesHeader1);
         RecordRef2.GetTable(SalesHeader2);
 
-        SalesHeaderExcludedFieldRef[1] := RecordRef1.Field(SalesHeader1.FieldNo("Document Type"));
-        SalesHeaderExcludedFieldRef[2] := RecordRef1.Field(SalesHeader1.FieldNo("Quote No."));
-        SalesHeaderExcludedFieldRef[3] := RecordRef1.Field(SalesHeader1.FieldNo("No."));
-        SalesHeaderExcludedFieldRef[4] := RecordRef1.Field(SalesHeader1.FieldNo("Posting Date"));
-        SalesHeaderExcludedFieldRef[5] := RecordRef1.Field(SalesHeader1.FieldNo("Posting Description"));
-        SalesHeaderExcludedFieldRef[6] := RecordRef1.Field(SalesHeader1.FieldNo("No. Series"));
-        SalesHeaderExcludedFieldRef[7] := RecordRef1.Field(SalesHeader1.FieldNo("Prepayment No. Series"));
-        SalesHeaderExcludedFieldRef[8] := RecordRef1.Field(SalesHeader1.FieldNo("Prepmt. Cr. Memo No. Series"));
-        SalesHeaderExcludedFieldRef[9] := RecordRef1.Field(SalesHeader1.FieldNo("Shipping No. Series"));
-        SalesHeaderExcludedFieldRef[10] := RecordRef1.Field(SalesHeader1.FieldNo(Id));
+        FillSalesHeaderExcludedFieldList(SalesHeaderExcludedFieldList);
 
-        VerifyRecordRefsMatch(RecordRef1, RecordRef2, SalesHeaderExcludedFieldRef);
+        VerifyRecordRefsMatch(RecordRef1, RecordRef2, SalesHeaderExcludedFieldList);
 
         SalesLine1.SetRange("Document Type", SalesHeader1."Document Type");
         SalesLine1.SetRange("Document No.", SalesHeader1."No.");
@@ -4322,19 +4370,14 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         Clear(RecordRef1);
         RecordRef1.Open(DATABASE::"Sales Line");
-        SalesLineExcludedFieldRef[1] := RecordRef1.Field(SalesLine1.FieldNo("Document Type"));
-        SalesLineExcludedFieldRef[2] := RecordRef1.Field(SalesLine1.FieldNo("Document No."));
-        SalesLineExcludedFieldRef[3] := RecordRef1.Field(SalesLine1.FieldNo(Type));
-        SalesLineExcludedFieldRef[4] := RecordRef1.Field(SalesLine1.FieldNo("Posting Date"));
-        SalesLineExcludedFieldRef[5] := RecordRef1.Field(SalesLine1.FieldNo("Recalculate Invoice Disc."));
-        SalesLineExcludedFieldRef[6] := RecordRef1.Field(SalesLine1.FieldNo(Subtype));
+        FillSalesLineExcludedFieldList(SalesLineExcludedFieldList);
 
         for I := 1 to SalesLine1.Count do begin
             SalesLine1.Next;
             SalesLine2.Next;
             RecordRef1.GetTable(SalesLine1);
             RecordRef2.GetTable(SalesLine2);
-            VerifyRecordRefsMatch(RecordRef1, RecordRef2, SalesLineExcludedFieldRef);
+            VerifyRecordRefsMatch(RecordRef1, RecordRef2, SalesLineExcludedFieldList);
         end;
     end;
 
@@ -4358,22 +4401,15 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         PurchaseLine2: Record "Purchase Line";
         RecordRef1: RecordRef;
         RecordRef2: RecordRef;
-        PurchaseHeaderExcludedFieldRef: array[7] of FieldRef;
-        PurchaseLineExcludedFieldRef: array[2] of FieldRef;
+        PurchaseHeaderExcludedFieldList: List of [Text];
+        PurchaseLineExcludedFieldList: List of [Text];
         I: Integer;
     begin
         RecordRef1.GetTable(PurchaseHeader1);
         RecordRef2.GetTable(PurchaseHeader2);
+        FillPurchaseHeaderExcludedFieldList(PurchaseHeaderExcludedFieldList);
 
-        PurchaseHeaderExcludedFieldRef[1] := RecordRef1.Field(PurchaseHeader1.FieldNo("Document Type"));
-        PurchaseHeaderExcludedFieldRef[2] := RecordRef1.Field(PurchaseHeader1.FieldNo("Quote No."));
-        PurchaseHeaderExcludedFieldRef[3] := RecordRef1.Field(PurchaseHeader1.FieldNo("No."));
-        PurchaseHeaderExcludedFieldRef[4] := RecordRef1.Field(PurchaseHeader1.FieldNo("Posting Date"));
-        PurchaseHeaderExcludedFieldRef[5] := RecordRef1.Field(PurchaseHeader1.FieldNo("Posting Description"));
-        PurchaseHeaderExcludedFieldRef[6] := RecordRef1.Field(PurchaseHeader1.FieldNo("No. Series"));
-        PurchaseHeaderExcludedFieldRef[7] := RecordRef1.Field(PurchaseHeader1.FieldNo(Id));
-
-        VerifyRecordRefsMatch(RecordRef1, RecordRef2, PurchaseHeaderExcludedFieldRef);
+        VerifyRecordRefsMatch(RecordRef1, RecordRef2, PurchaseHeaderExcludedFieldList);
 
         PurchaseLine1.SetRange("Document Type", PurchaseHeader1."Document Type");
         PurchaseLine1.SetRange("Document No.", PurchaseHeader1."No.");
@@ -4383,15 +4419,14 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         Clear(RecordRef1);
         RecordRef1.Open(DATABASE::"Purchase Line");
-        PurchaseLineExcludedFieldRef[1] := RecordRef1.Field(PurchaseLine1.FieldNo("Document Type"));
-        PurchaseLineExcludedFieldRef[2] := RecordRef1.Field(PurchaseLine1.FieldNo("Document No."));
+        FillPurchaseLineExcludedFieldList(PurchaseLineExcludedFieldList);
 
         for I := 1 to PurchaseLine1.Count do begin
             PurchaseLine1.Next;
             PurchaseLine2.Next;
             RecordRef1.GetTable(PurchaseLine1);
             RecordRef2.GetTable(PurchaseLine2);
-            VerifyRecordRefsMatch(RecordRef1, RecordRef2, PurchaseLineExcludedFieldRef);
+            VerifyRecordRefsMatch(RecordRef1, RecordRef2, PurchaseLineExcludedFieldList);
         end;
     end;
 
@@ -4407,19 +4442,19 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         NoSeries.Modify(true);
     end;
 
-    local procedure ExcludeFromComparisment(FieldRef: FieldRef; FieldRefArrayToExclude: array[100] of FieldRef): Boolean
+    local procedure ExcludeFromComparisment(FieldRef: FieldRef; FieldListToExclude: List of [Text]): Boolean
     var
-        I: Integer;
+        ExcludedFieldName: Text;
     begin
-        for I := 1 to ArrayLen(FieldRefArrayToExclude) do begin
-            if FieldRef.Name = FieldRefArrayToExclude[I].Name then
+        foreach ExcludedFieldName in FieldListToExclude do begin
+            if FieldRef.Name = ExcludedFieldName then
                 exit(true);
         end;
 
         exit(false);
     end;
 
-    local procedure VerifyRecordRefsMatch(RecordRef1: RecordRef; RecordRef2: RecordRef; FieldRefArrayToExclude: array[100] of FieldRef)
+    local procedure VerifyRecordRefsMatch(RecordRef1: RecordRef; RecordRef2: RecordRef; FieldListToExclude: List of [Text])
     var
         FieldRef1: FieldRef;
         FieldRef2: FieldRef;
@@ -4429,7 +4464,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
             FieldRef1 := RecordRef1.FieldIndex(I);
             FieldRef2 := RecordRef2.FieldIndex(I);
 
-            if not ExcludeFromComparisment(FieldRef1, FieldRefArrayToExclude) and Assert.IsDataTypeSupported(FieldRef1.Value) then
+            if not ExcludeFromComparisment(FieldRef1, FieldListToExclude) and Assert.IsDataTypeSupported(FieldRef1.Value) then
                 Assert.AreEqual(FieldRef1.Value, FieldRef2.Value, StrSubstNo('Field values for field %1 do not match', FieldRef1.Caption));
         end;
     end;
@@ -5468,6 +5503,26 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         ItemVendorCatalog.FILTER.SetFilter("Vendor No.", VendorNo);
         ItemVendorCatalog.Last;
         ItemVendorCatalog.OK.Invoke;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillSalesHeaderExcludedFieldList(var FieldListToExclude: List of [Text])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillSalesLineExcludedFieldList(var FieldListToExclude: List of [Text])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillPurchaseHeaderExcludedFieldList(var FieldListToExclude: List of [Text])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillPurchaseLineExcludedFieldList(var FieldListToExclude: List of [Text])
+    begin
     end;
 }
 

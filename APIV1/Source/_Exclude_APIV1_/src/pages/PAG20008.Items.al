@@ -269,6 +269,14 @@ page 20008 "APIV1 - Items"
                     EntitySetName = 'defaultDimensions';
                     SubPageLink = ParentId = FIELD(SystemId);
                 }
+                part(itemVariants; 20052)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Variants', Locked = true;
+                    EntityName = 'itemVariant';
+                    EntitySetName = 'itemVariants';
+                    SubPageLink = "Item Id" = field(SystemId), "Item No." = field("No.");
+                }
             }
         }
     }

@@ -28,7 +28,7 @@ codeunit 170 "Standard Codes Mgt."
             ShowGetPurchRecurringLinesNotification(PurchHeader);
     end;
 
-    local procedure CheckCreateSalesRecurringLines(SalesHeader: Record "Sales Header")
+    procedure CheckCreateSalesRecurringLines(SalesHeader: Record "Sales Header")
     var
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin

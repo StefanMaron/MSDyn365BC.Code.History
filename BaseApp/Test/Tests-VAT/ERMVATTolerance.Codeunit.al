@@ -12,6 +12,7 @@ codeunit 134042 "ERM VAT Tolerance"
     var
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -847,10 +848,12 @@ codeunit 134042 "ERM VAT Tolerance"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Tolerance");
         LibrarySetupStorage.Restore;
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Tolerance");
         // Need to use the following setups to prevent localization test failures.
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -862,6 +865,7 @@ codeunit 134042 "ERM VAT Tolerance"
 
         isInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Tolerance");
     end;
 
     local procedure CreatePurchaseInvWithReverseChargeVATAndPmtDisc(var PurchHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DiscountPct: Decimal): Decimal

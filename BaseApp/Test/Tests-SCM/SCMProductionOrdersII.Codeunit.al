@@ -1993,6 +1993,59 @@ codeunit 137072 "SCM Production Orders II"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure ItemScrapPercentForPlanningComponentCalculationWhenRefresh()
+    var
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ParentProductionBOMHeader: Record "Production BOM Header";
+        ChildProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+        ScrapPercent: Integer;
+        Qty: Integer;
+    begin
+        // [FEATURE] [Planning Component] [Item Scrap %]
+        // [SCENARIO 222911] "Scrap %" from Item Card participates in calculation of field "Expected Quantity" and does not of field "Quantity Per" on planning component.
+        Initialize();
+        ScrapPercent := LibraryRandom.RandIntInRange(5, 10);
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Create production BOM "Comp_BOM" with component item "C".
+        // [GIVEN] Create production BOM "Prod_BOM" using "Comp_BOM" as a component.
+        LibraryInventory.CreateItem(ChildItem);
+        CreateCertifiedProductionBOMWithQtyPer(
+          ChildProductionBOMHeader, ChildItem."Base Unit of Measure", ProductionBOMLine.Type::Item, ChildItem."No.", 1);
+        CreateCertifiedProductionBOMWithQtyPer(
+          ParentProductionBOMHeader, ChildProductionBOMHeader."Unit of Measure Code",
+          ProductionBOMLine.Type::"Production BOM", ChildProductionBOMHeader."No.", 1);
+
+        // [GIVEN] Create a production item "P", set "Production BOM" = "Prod_BOM" and "Scrap %" = 5.
+        CreateProductionItemWithScrapPercent(ParentItem, ParentProductionBOMHeader."No.", ScrapPercent);
+
+        // [GIVEN] Create planning line with item "P" and quantity = 100.
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("Starting Date", WorkDate);
+        RequisitionLine.Validate("No.", ParentItem."No.");
+        RequisitionLine.Validate(Quantity, Qty);
+        RequisitionLine.Modify(true);
+
+        // [WHEN] Refresh the planning line.
+        LibraryPlanning.RefreshPlanningLine(RequisitionLine, 0, false, true);
+
+        // [THEN] Scrap percent does not affect "Quantity per" of the planning component "C".
+        // [THEN] Expected Quantity on the planning component = 105 (100 + 5% scrap).
+        FindPlanningComponent(PlanningComponent, RequisitionLine, ChildItem."No.");
+        PlanningComponent.TestField("Quantity per", 1);
+        PlanningComponent.TestField(
+          "Expected Quantity", Round(RequisitionLine.Quantity * (1 + ScrapPercent / 100), ChildItem."Rounding Precision"));
+    end;
+
+    [Test]
     [HandlerFunctions('AllLevelsStrMenuHandler')]
     [Scope('OnPrem')]
     procedure FixedScrapQtyMultipliedByQtyPerUoM()
@@ -2911,6 +2964,71 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderComponent.TestField("Planning Level Code", 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ScrapPercAndFixedScrapQtyOnReplanProductionOrder()
+    var
+        WorkCenter: array[2] of Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ItemJournalLine: Record "Item Journal Line";
+        RunTime: Decimal;
+        ScrapPerc: Decimal;
+        FixedScrapQty: Decimal;
+        OutputQty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Replan Production Order] [Scrap] [Routing] [Output]
+        // [SCENARIO 349584] Scrap % and fixed scrap quantity are added to output quantity on replanning production order.
+        Initialize;
+        RunTime := LibraryRandom.RandInt(10);
+        ScrapPerc := LibraryRandom.RandInt(10);
+        FixedScrapQty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Create and certify routing "R" with two lines.
+        // [GIVEN] First line. Work center "A", Run Time = 2, Scrap Factor = 10, Fixed Scrap Qty. = 20.
+        // [GIVEN] Second line. Work center "B", Run Time = 2, Scrap Factor = 10, Fixed Scrap Qty. = 20.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        for i := 1 to ArrayLen(WorkCenter) do begin
+            CreateWorkCenter(WorkCenter[i]);
+            LibraryManufacturing.CreateRoutingLine(
+              RoutingHeader, RoutingLine, '', Format(i), RoutingLine.Type::"Work Center", WorkCenter[i]."No.");
+            RoutingLine.Validate("Run Time", RunTime);
+            RoutingLine.Validate("Scrap Factor %", ScrapPerc);
+            RoutingLine.Validate("Fixed Scrap Quantity", FixedScrapQty);
+            RoutingLine.Modify(true);
+        end;
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Create item with the routing "R".
+        CreateProductionItemWithRoutingNo(Item, RoutingHeader."No.");
+
+        // [GIVEN] Create and refresh production order. Quantity = 5.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [WHEN] Replan the production order.
+        LibraryManufacturing.RunReplanProductionOrder(ProductionOrder, Direction::Backward, CalcMethod::"No Levels");
+
+        // [THEN] Explode routing in output journal.
+        // [THEN] Look through output lines from last to first and verify quantity.
+        // [THEN] Output quantity on the second line = 5 (prod. order) * 2 (run time) * 1.1 (added 10% scrap) + 20 (fixed scrap) = 31
+        // [THEN] Output quantity on the first line = 31 (from the second line) * 2 (run time) * 1.1 (added 10% scrap) + 20 (fixed scrap) = 88.2
+        ExplodeRoutingForProductionOrder(ItemJournalLine, ProductionOrder."No.");
+        OutputQty := ProductionOrder.Quantity;
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
+        for i := ArrayLen(WorkCenter) downto 1 do begin
+            ItemJournalLine.SetRange("Work Center No.", WorkCenter[i]."No.");
+            ItemJournalLine.FindFirst;
+            OutputQty := OutputQty * RunTime * (1 + ScrapPerc / 100) + FixedScrapQty;
+            ItemJournalLine.TestField("Output Quantity", OutputQty);
+        end;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3798,6 +3916,22 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderComponent.Delete(true);
     end;
 
+    local procedure ExplodeRoutingForProductionOrder(var ItemJournalLine: Record "Item Journal Line"; ProdOrderNo: Code[20])
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Output);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Output, '', 0);
+        ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.Validate("Order No.", ProdOrderNo);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+    end;
+
     local procedure FindProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20])
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
@@ -3900,6 +4034,15 @@ codeunit 137072 "SCM Production Orders II"
         PlanningRoutingLine.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
         PlanningRoutingLine.FindFirst;
+    end;
+
+    local procedure FindPlanningComponent(var PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
+    begin
+        PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+        PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        PlanningComponent.SetRange("Item No.", ItemNo);
+        PlanningComponent.FindFirst();
     end;
 
     local procedure FindFirstProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")

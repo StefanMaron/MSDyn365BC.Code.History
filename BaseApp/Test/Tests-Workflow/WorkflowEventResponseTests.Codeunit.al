@@ -20,6 +20,7 @@ codeunit 134303 "Workflow Event Response Tests"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         VendorNo: Code[20];
         ReleasedErr: Label 'Status must be equal to ''%1''';
         UserEmailAddressTxt: Label 'test@contoso.com';
@@ -361,6 +362,7 @@ codeunit 134303 "Workflow Event Response Tests"
         PurchInvHeader: Record "Purch. Inv. Header";
         JobQueueEntry: Record "Job Queue Entry";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Event Response Tests");
         PurchaseHeader.DeleteAll();
         PurchInvHeader.DeleteAll();
         JobQueueEntry.DeleteAll();
@@ -378,8 +380,10 @@ codeunit 134303 "Workflow Event Response Tests"
 
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Workflow Event Response Tests");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Workflow Event Response Tests");
     end;
 
     local procedure CreateWorkflowToGenerateGeneralJournalLines()

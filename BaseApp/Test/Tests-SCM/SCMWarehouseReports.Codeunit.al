@@ -1455,6 +1455,142 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CombineShipmentsWithMixedSellToAndBillToCustomerCodes()
+    var
+        CustomerSell: Record Customer;
+        CustomerBill: Record Customer;
+        Item: Record Item;
+    begin
+        // [FEATURE] [Combine Shipments]
+        // [SCENARIO 345197] Combine shipments for sales orders sorted in mixed order of sell-to and bill-to customer codes.
+        Initialize();
+
+        // [GIVEN] Customer "B".
+        // [GIVEN] Customer "A" with bill-to customer "B".
+        CreateCustomer(CustomerBill);
+        CreateCustomer(CustomerSell);
+        CustomerSell.Validate("Bill-to Customer No.", CustomerBill."No.");
+        CustomerSell.Modify(true);
+
+        // [GIVEN] 4 sales orders posted in the following order:
+        // [GIVEN] 1st: Sell-to Customer "A", Bill-to Customer "B".
+        // [GIVEN] 2nd: Sell-to Customer "B", Bill-to Customer "B".
+        // [GIVEN] 3rd: Sell-to Customer "B", Bill-to Customer "B".
+        // [GIVEN] 4th: Sell-to Customer "A", Bill-to Customer "B".
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostSalesOrder(CustomerSell."No.", Item."No.", 1, LibraryRandom.RandInt(10));
+        CreateAndPostSalesOrder(CustomerBill."No.", Item."No.", 1, LibraryRandom.RandInt(10));
+        CreateAndPostSalesOrder(CustomerBill."No.", Item."No.", 1, LibraryRandom.RandInt(10));
+        CreateAndPostSalesOrder(CustomerSell."No.", Item."No.", 1, LibraryRandom.RandInt(10));
+
+        // [WHEN] Run Combine Shipments for customers "A" and "B".
+        RunCombineShipments(StrSubstNo('%1|%2', CustomerSell."No.", CustomerBill."No."), false, false, false, false);
+
+        // [THEN] Two sales invoices are generated, each for two shipment lines.
+        VerifySalesInvoice(CustomerSell."No.", CustomerBill."No.", 2);
+        VerifySalesInvoice(CustomerBill."No.", CustomerBill."No.", 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromWhseShptRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UsingReportSelectionForPrintingPickFromShipment()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LibraryReportSelection: Codeunit "Library - Report Selection";
+    begin
+        // [FEATURE] [Report Selection] [Pick] [Warehouse Shipment]
+        // [SCENARIO 346629] A report from Report Selection is used when you choose to print pick being created from warehouse shipment.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
+
+        // [GIVEN] Post inventory to a location with directed put-away and pick.
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, Item."No.", LibraryRandom.RandIntInRange(50, 100), false);
+
+        // [GIVEN] Create and release sales order.
+        // [GIVEN] Create warehouse shipment from the sales order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [WHEN] Create pick from the warehouse shipment with "Print Pick" = TRUE.
+        BindSubscription(LibraryReportSelection);
+        LibraryVariableStorage.Enqueue('Pick activity');
+        CreateAndPrintWhsePickFromShipment(SalesHeader);
+
+        // [THEN] The printing is maintained by "Warehouse Document-Print" codeunit that takes a report set up in Report Selection for Usage = Pick.
+        Assert.IsTrue(LibraryReportSelection.GetEventHandled(), '');
+
+        UnbindSubscription(LibraryReportSelection);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UsingReportSelectionForPrintingPickFromPickWorksheet()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        LibraryReportSelection: Codeunit "Library - Report Selection";
+    begin
+        // [FEATURE] [Report Selection] [Pick] [Pick Worksheet]
+        // [SCENARIO 346629] A report from Report Selection is used when you choose to print pick being created from pick worksheet.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
+
+        // [GIVEN] Post inventory to a location with directed put-away and pick.
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(Bin, Item."No.", LibraryRandom.RandIntInRange(50, 100), false);
+
+        // [GIVEN] Create and release sales order.
+        // [GIVEN] Create warehouse shipment from the sales order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Open pick worksheet and pull the warehouse shipment to generate a worksheet line.
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+        CreateWhsePickWorksheetLine(WhseWorksheetLine, Location.Code);
+
+        // [WHEN] Create pick from the pick worksheet with "Print Pick" = TRUE.
+        BindSubscription(LibraryReportSelection);
+        LibraryWarehouse.CreatePickFromPickWorksheet(
+          WhseWorksheetLine, WhseWorksheetLine."Line No.", WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name,
+          Location.Code, '', 0, 0, 0, false, false, false, false, false, false, true);
+
+        // [THEN] The printing is maintained by "Warehouse Document-Print" codeunit that takes a report set up in Report Selection for Usage = Pick.
+        Assert.IsTrue(LibraryReportSelection.GetEventHandled(), '');
+
+        UnbindSubscription(LibraryReportSelection);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1644,6 +1780,21 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
     end;
 
+    local procedure CreateWhsePickWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10])
+    var
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhsePickRequest: Record "Whse. Pick Request";
+    begin
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Pick);
+        LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
+        WhsePickRequest.SetRange(Status, WhsePickRequest.Status::Released);
+        WhsePickRequest.SetRange("Completely Picked", false);
+        WhsePickRequest.SetRange("Location Code", LocationCode);
+        LibraryWarehouse.GetOutboundSourceDocuments(WhsePickRequest, WhseWorksheetName, LocationCode);
+        FindWhseWorkSheetLine(WhseWorksheetLine, WhseWorksheetName);
+    end;
+
     local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
@@ -1802,6 +1953,22 @@ codeunit 137305 "SCM Warehouse Reports"
         FindWhseWorkSheetLine(WhseWorksheetLine, WhseWorksheetName);
         WhseWorksheetLine.Validate("To Bin Code", Bin.Code);
         WhseWorksheetLine.Modify(true);
+    end;
+
+    local procedure CreateAndPrintWhsePickFromShipment(SalesHeader: Record "Sales Header")
+    var
+        WhseShptHeader: Record "Warehouse Shipment Header";
+        WhseShptLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentLine.SetRange(
+          "No.",
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+        WarehouseShipmentLine.FindFirst();
+        WhseShptLine.Copy(WarehouseShipmentLine);
+        WhseShptHeader.Get(WhseShptLine."No.");
+        LibraryWarehouse.ReleaseWarehouseShipment(WhseShptHeader);
+        WarehouseShipmentLine.CreatePickDoc(WhseShptLine, WhseShptHeader);
     end;
 
     local procedure FindItemLedgerEntryNo(ItemNo: Code[20]) EntryNo: Integer
@@ -1969,13 +2136,13 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, ItemsNotOnInvt, false);
     end;
 
-    local procedure RunCombineShipments(CustomerNo: Code[20]; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
+    local procedure RunCombineShipments(CustomerNoFilter: Text; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesShipmentHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesHeader.SetFilter("Sell-to Customer No.", CustomerNoFilter);
+        SalesShipmentHeader.SetFilter("Sell-to Customer No.", CustomerNoFilter);
         LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
         LibrarySales.CombineShipments(
           SalesHeader, SalesShipmentHeader, WorkDate, WorkDate, CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
@@ -2493,6 +2660,14 @@ codeunit 137305 "SCM Warehouse Reports"
         WhseCalculateInventoryPage.WhseDocumentNo.SetValue(LibraryVariableStorage.DequeueText);
         WhseCalculateInventoryPage.ZeroQty.SetValue(LibraryVariableStorage.DequeueBoolean);
         WhseCalculateInventoryPage.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePickFromWhseShptRequestPageHandler(var WhseShipmentCreatePick: TestRequestPage "Whse.-Shipment - Create Pick")
+    begin
+        WhseShipmentCreatePick.PrintDoc.SetValue(true);
+        WhseShipmentCreatePick.OK.Invoke;
     end;
 }
 

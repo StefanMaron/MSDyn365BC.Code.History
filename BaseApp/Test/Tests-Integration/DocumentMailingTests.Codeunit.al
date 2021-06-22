@@ -14,6 +14,7 @@ codeunit 135060 "Document Mailing Tests"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         MailingJobCategoryCodeTok: Label 'SENDINV', Comment = 'Must be max. 10 chars and no spacing. (Send Invoice)';
 
@@ -169,13 +170,16 @@ codeunit 135060 "Document Mailing Tests"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Document Mailing Tests");
         LibraryVariableStorage.Clear();
         InitializeSmtpSetup();
 
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Document Mailing Tests");
 
         IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Document Mailing Tests");
     end;
 
     procedure GetLibraryVariableStorage(var LibraryVariableStorageResult: Codeunit "Library - Variable Storage")

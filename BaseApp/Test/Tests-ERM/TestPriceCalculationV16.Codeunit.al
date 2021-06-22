@@ -18,21 +18,12 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         IsInitialized: Boolean;
-
-    local procedure Initialize()
-    begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Price Calculation - V16");
-        if isInitialized then
-            exit;
-
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Price Calculation - V16");
-        LibraryPriceCalculation.EnableExtendedPriceCalculation();
-        isInitialized := true;
-        Commit;
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Price Calculation - V16");
-    end;
+        AllowLineDiscErr: Label 'Allow Line Disc. must have a value in Sales Line';
+        PickedWrongMinQtyErr: Label 'The quantity in the line is below the minimum quantity of the picked price list line.';
+        CampaignActivatedMsg: Label 'Campaign %1 is now activated.';
 
     [Test]
     procedure T010_SalesLineAddsActivatedCampaignOnHeaderAsSource()
@@ -771,6 +762,483 @@ codeunit 134159 "Test Price Calculation - V16"
         Assert.KnownFailure('Line Discount % must be equal to', 303311);
     end;
 
+    [Test]
+    procedure T160_ApplyDiscountSalesLineIfNoPriceNoLineDiscAllowedByCustomer()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Discount]
+        // [SCENARIO] "Line Discount %" is 0 in sales line if Customer does not allow discount and no price line that allow it.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is No
+        CreateCustomerAllowingLineDisc(Customer, false);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] No price list lines with for Item 'I'
+        RemovePricesForItem(Item);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C
+        CreateDiscountLine(PriceListLine, Customer, Item);
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        // [WHEN] Calculate discount, by validating Quantity
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Sales Line, where "Line Discount" is 0, "Allow Line Disc." is No
+        VerifyLineDiscount(SalesLine, 0);
+
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T161_ApplyDiscountSalesLineIfNoPriceButLineDiscAllowedByCustomer()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Discount]
+        // [SCENARIO] "Line Discount %" is set in sales line if Customer allows discount, but no price line that allow it.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is Yes
+        CreateCustomerAllowingLineDisc(Customer, true);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] No price list lines with for Item 'I'
+        RemovePricesForItem(Item);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C, "Line Discount %" is 'X'
+        CreateDiscountLine(PriceListLine, Customer, Item);
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        // [WHEN] Calculate discount, by validating Quantity
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Sales Line, where "Line Discount" is 'X', "Allow Line Disc." is Yes
+        VerifyLineDiscount(SalesLine, PriceListLine."Line Discount %");
+
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T162_ApplyDiscountSalesLineIfPriceDoesNotAllowLineDiscAndNotAllowedByCustomer()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceListLineDisc: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Discount]
+        // [SCENARIO] "Line Discount %" is 0 in sales line if Customer does not allow discount and found price line does not allow it.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is No
+        CreateCustomerAllowingLineDisc(Customer, false);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C, "Alloe Line Disc." is 'No'
+        CreatePriceLine(PriceListLine, Customer, Item, False);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C
+        CreateDiscountLine(PriceListLineDisc, Customer, Item);
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        // [WHEN] Calculate discount, by validating Quantity
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Sales Line, where "Line Discount" is 0, "Allow Line Disc." is No
+        VerifyLineDiscount(SalesLine, 0);
+
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T163_ApplyDiscountSalesLineIfPriceDoesNotAllowLineDiscButDiscAllowedByCustomer()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceListLineDisc: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Discount]
+        // [SCENARIO] "Line Discount %" is 0 in sales line if Customer allows discount, but the found price line does not allow it.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is Yes
+        CreateCustomerAllowingLineDisc(Customer, true);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C, "Allow Line Disc." is 'No'
+        CreatePriceLine(PriceListLine, Customer, Item, False);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C
+        CreateDiscountLine(PriceListLineDisc, Customer, Item);
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        // [WHEN] Calculate discount, by validating Quantity
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Sales Line, where "Line Discount" is 0, "Allow Line Disc." is No
+        VerifyLineDiscount(SalesLine, 0);
+
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T164_ApplyDiscountSalesLineIfPriceAllowsLineDiscButDiscNotAllowedByCustomer()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceListLineDisc: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Discount]
+        // [SCENARIO] "Line Discount %" is set in sales line if Customer does not allow discount, but the found price line allows it.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is No
+        CreateCustomerAllowingLineDisc(Customer, false);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C, "Allow Line Disc." is 'Yes'
+        CreatePriceLine(PriceListLine, Customer, Item, true);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C
+        CreateDiscountLine(PriceListLineDisc, Customer, Item);
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [WHEN] Calculate discount, by validating Quantity
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Sales Line, where "Line Discount" is 'X', "Allow Line Disc." is Yes
+        VerifyLineDiscount(SalesLine, PriceListLineDisc."Line Discount %");
+
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T165_ApplyDiscountSalesLineIfPriceAllowsLineDiscAndDiscAllowedByCustomer()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceListLineDisc: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Discount]
+        // [SCENARIO] "Line Discount %" is set in sales line if Customer does allow discount and the found price line allows it.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is Yes
+        CreateCustomerAllowingLineDisc(Customer, true);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C, "Allow Line Disc." is 'Yes'
+        CreatePriceLine(PriceListLine, Customer, Item, true);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C
+        CreateDiscountLine(PriceListLineDisc, Customer, Item);
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [WHEN] Calculate discount, by validating Quantity
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Sales Line, where "Line Discount" is 'X', "Allow Line Disc." is Yes
+        VerifyLineDiscount(SalesLine, PriceListLineDisc."Line Discount %");
+
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPriceLineModalPageHandler')]
+    procedure T170_PickDiscountSalesLineIfNoPriceLineDiscButAllowedByCustomer()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Discount]
+        // [SCENARIO] Cannot pick Discount for the sales line if Customer allows discount and no price line that allow it.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is Yes
+        CreateCustomerAllowingLineDisc(Customer, true);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] No price list lines with for Item 'I'
+        RemovePricesForItem(Item);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C
+        CreateDiscountLine(PriceListLine, Customer, Item);
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        // [GIVEN] Calculate discount, by validating Quantity
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [WHEN] PickDiscount
+        SalesLine.PickDiscount();
+
+        // [THEN] Error message: 'Allow Line Disc. must be equal to Yes'
+        VerifyLineDiscount(SalesLine, PriceListLine."Line Discount %");
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPriceLineModalPageHandler')]
+    procedure T171_PickPriceSalesLineBelowMinQuantity()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Price]
+        // [SCENARIO] Cannot pick price line for the sales line if minimal quantity in the price line below the quantity in the sales line.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is No
+        CreateCustomerAllowingLineDisc(Customer, false);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C, "Minimum Quantity" is 10
+        CreatePriceLine(PriceListLine, Customer, Item, false);
+        PriceListLine."Minimum Quantity" := 10;
+        PriceListLine.Modify();
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I', where Quantity is 1
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [WHEN] PickPrice
+        asserterror SalesLine.PickPrice();
+
+        // [THEN] Error message: "Qunatity is below Minimal Qty"
+        Assert.ExpectedError(PickedWrongMinQtyErr);
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPriceLineModalPageHandler')]
+    procedure T172_PickPriceSalesLineWithNotAllowedLineDiscount()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceListLineDisc: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Price]
+        // [SCENARIO] Picked price line with not allowed discount makes previously calculated discount zero.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is Yes
+        CreateCustomerAllowingLineDisc(Customer, true);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C
+        CreateDiscountLine(PriceListLineDisc, Customer, Item);
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I', where Quantity is 1
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        VerifyLineDiscount(SalesLine, PriceListLineDisc."Line Discount %");
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C, "Allow Line Disc." is No
+        CreatePriceLine(PriceListLine, Customer, Item, false);
+
+        // [WHEN] PickPrice
+        SalesLine.PickPrice();
+
+        // [THEN] "Line Discount %" is 0
+        VerifyLineDiscount(SalesLine, 0);
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPriceLineModalPageHandler')]
+    procedure T173_PickDiscountSalesLineIfNoPriceNoLineDiscAllowedByCustomer()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Discount]
+        // [SCENARIO] Cannot pick Discount for the sales line if Customer does not allow discount and no price line that allow it.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is No
+        CreateCustomerAllowingLineDisc(Customer, false);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] No price list lines with for Item 'I'
+        RemovePricesForItem(Item);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C
+        CreateDiscountLine(PriceListLine, Customer, Item);
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        // [GIVEN] Calculate discount, by validating Quantity
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [WHEN] PickDiscount
+        asserterror SalesLine.PickDiscount();
+
+        // [THEN] Sales Line, where "Line Discount" is 'X', "Allow Line Disc." is Yes
+        Assert.ExpectedError(AllowLineDiscErr);
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure T180_ActivateCampaignIfPriceExists()
+    var
+        Customer: Record Customer;
+        Campaign: Record Campaign;
+        CampaignTargetGr: Record "Campaign Target Group";
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+        PriceListLine: Record "Price List Line";
+        CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
+        OldHandler: enum "Price Calculation Handler";
+        Msg: Text;
+    begin
+        // [FEATURE] [Sales] [Campaign]
+        // [SCENARIO] Activate campaign if price list lines for the campaign do exist.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Campaign 'C' 
+        LibraryMarketing.CreateCampaign(Campaign);
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+        LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeader."No.");
+        SegmentHeader.Validate("Campaign No.", Campaign."No.");
+        SegmentHeader.Validate("Campaign Target", true);
+        SegmentHeader.Modify();
+        // [GIVEN] Price List Line for Campaign 'C'
+        LibraryPriceCalculation.CreatePriceLine(
+            PriceListLine, PriceListLine."Source Type"::Campaign, Campaign."No.",
+            PriceListLine."Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        // [WHEN] Activate Campaign 'C'
+        CampaignTargetGroupMgt.ActivateCampaign(Campaign);
+
+        // [THEN] Campaign C is activated (CampaignTargetGr added)
+        CampaignTargetGr.SetRange("Campaign No.", Campaign."No.");
+        Assert.RecordIsNotEmpty(CampaignTargetGr);
+        // [THEN] Message: 'Campaign C is activated'.
+        Msg := LibraryVariableStorage.DequeueText(); // from MessageHandler
+        Assert.AreEqual(StrSubstNo(CampaignActivatedMsg, Campaign."No."), Msg, 'Wrong message.');
+
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmNoHandler')]
+    procedure T181_ActivateCampaignIfPriceDoesNotExist()
+    var
+        Customer: Record Customer;
+        Campaign: Record Campaign;
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+        PriceListLine: Record "Price List Line";
+        CampaignTargetGr: Record "Campaign Target Group";
+        CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
+        OldHandler: enum "Price Calculation Handler";
+        Msg: Text;
+    begin
+        // [FEATURE] [Sales] [Campaign]
+        // [SCENARIO] Activate campaign is stopped if price list lines for the campaign do not exist.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        // [GIVEN] Campaign 'C' 
+        LibraryMarketing.CreateCampaign(Campaign);
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+        LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeader."No.");
+        SegmentHeader.Validate("Campaign No.", Campaign."No.");
+        SegmentHeader.Validate("Campaign Target", true);
+        SegmentHeader.Modify();
+        // [GIVEN] Price List Line for Campaign 'C' does not exist
+        PriceListLine.SetRange("Source Type", PriceListLine."Source Type"::Campaign);
+        PriceListLine.SetRange("Source No.", Campaign."No.");
+        PriceListLine.DeleteAll();
+
+        // [WHEN] Activate Campaign 'C' and answer 'No' on confirmation
+        CampaignTargetGroupMgt.ActivateCampaign(Campaign);
+
+        // [THEN] Campaign C is not activated (CampaignTargetGr don't exist)
+        CampaignTargetGr.SetRange("Campaign No.", Campaign."No.");
+        Assert.RecordIsEmpty(CampaignTargetGr);
+
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryVariableStorage.Clear();
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Price Calculation - V16");
+        if isInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Price Calculation - V16");
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        isInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Price Calculation - V16");
+    end;
+
     local procedure AddPriceLine(var TempPriceListLine: Record "Price List Line" temporary; CurrencyCode: code[10]; VarianCode: Code[10]; Price: Decimal)
     begin
         TempPriceListLine.Init();
@@ -778,6 +1246,13 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine."Variant Code" := VarianCode;
         TempPriceListLine."Unit Price" := Price;
         TempPriceListLine.Insert(true);
+    end;
+
+    local procedure CreateCustomerAllowingLineDisc(var Customer: Record Customer; AllowLineDisc: Boolean)
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer."Allow Line Disc." := AllowLineDisc;
+        Customer.Modify();
     end;
 
     local procedure CreateCustomerItemDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerCode: Code[20]; Item: Record Item; Discount: Decimal)
@@ -804,6 +1279,29 @@ codeunit 134159 "Test Price Calculation - V16"
             SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, CustomerCode, WorkDate, '', '', Item."Base Unit of Measure", 0, Price);
     end;
 
+    local procedure CreateDiscountLine(var PriceListLine: Record "Price List Line"; Customer: Record Customer; Item: Record Item)
+    begin
+        LibraryPriceCalculation.CreateDiscountLine(
+            PriceListLine, PriceListLine."Source Type"::Customer, Customer."No.", PriceListLine."Asset Type"::Item, Item."No.");
+    end;
+
+    local procedure CreatePriceLine(var PriceListLine: Record "Price List Line"; Customer: Record Customer; Item: Record Item; AllowLineDisc: Boolean)
+    begin
+        LibraryPriceCalculation.CreatePriceLine(
+            PriceListLine, PriceListLine."Source Type"::Customer, Customer."No.", PriceListLine."Asset Type"::Item, Item."No.");
+        PriceListLine."Allow Line Disc." := AllowLineDisc;
+        PriceListLine.Modify();
+    end;
+
+    local procedure RemovePricesForItem(Item: Record Item)
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.SetRange("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.SetRange("Asset No.", Item."No.");
+        PriceListLine.DeleteAll();
+    end;
+
     local procedure MockBuffer(CurrencyCode: Code[10]; CurrencyFactor: Decimal; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.")
     var
         PriceCalculationBuffer: Record "Price Calculation Buffer";
@@ -815,5 +1313,30 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceCalculationBuffer."Currency Code" := CurrencyCode;
         PriceCalculationBuffer."Currency Factor" := CurrencyFactor;
         PriceCalculationBufferMgt.Set(PriceCalculationBuffer, DummyPriceSourceList);
+    end;
+
+    local procedure VerifyLineDiscount(var SalesLine: Record "Sales Line"; LineDisc: Decimal)
+    begin
+        SalesLine.TestField("Line Discount %", LineDisc);
+        SalesLine.TestField("Allow Line Disc.", LineDisc > 0);
+    end;
+
+    [ModalPageHandler]
+    procedure GetPriceLineModalPageHandler(var GetPriceLine: TestPage "Get Price Line")
+    begin
+        GetPriceLine.First;
+        GetPriceLine.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmNoHandler(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Msg: Text)
+    begin
+        LibraryVariableStorage.Enqueue(Msg);
     end;
 }

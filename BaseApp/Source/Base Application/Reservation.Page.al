@@ -282,6 +282,8 @@ page 498 Reservation
                         UpdateReservFrom();
                         if QtyReservedBefore = QtyReservedBase then
                             Error(Text002);
+
+                        OnAfterReserveFromCurrentLine(ReservEntry);
                     end;
                 }
                 action(CancelReservationCurrentLine)
@@ -320,6 +322,8 @@ page 498 Reservation
                             UpdateReservFrom
                         else
                             Error(Text005);
+
+                        OnAfterCancelReservationCurrentLine(ReservEntry);
                     end;
                 }
             }
@@ -410,84 +414,84 @@ page 498 Reservation
         end;
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line")
     begin
         SourceRecRef.GetTable(CurrentSalesLine);
         SetReservSource(SourceRecRef, 0);
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetReqLine(var CurrentReqLine: Record "Requisition Line")
     begin
         SourceRecRef.GetTable(CurrentReqLine);
         SetReservSource(SourceRecRef, 0);
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line")
     begin
         SourceRecRef.GetTable(CurrentPurchLine);
         SetReservSource(SourceRecRef, 0);
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetItemJnlLine(var CurrentItemJnlLine: Record "Item Journal Line")
     begin
         SourceRecRef.GetTable(CurrentItemJnlLine);
         SetReservSource(SourceRecRef, 0);
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line")
     begin
         SourceRecRef.GetTable(CurrentProdOrderLine);
         SetReservSource(SourceRecRef, 0);
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component")
     begin
         SourceRecRef.GetTable(CurrentProdOrderComp);
         SetReservSource(SourceRecRef, 0);
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header")
     begin
         SourceRecRef.GetTable(CurrentAssemblyHeader);
         SetReservSource(SourceRecRef, 0);
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line")
     begin
         SourceRecRef.GetTable(CurrentAssemblyLine);
         SetReservSource(SourceRecRef, 0);
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component")
     begin
         SourceRecRef.GetTable(CurrentPlanningComponent);
         SetReservSource(SourceRecRef, 0);
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetTransLine(CurrentTransLine: Record "Transfer Line"; Direction: Option Outbound,Inbound)
     begin
         SourceRecRef.GetTable(CurrentTransLine);
         SetReservSource(SourceRecRef, Direction);
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetServiceLine(var CurrentServiceLine: Record "Service Line")
     begin
         SourceRecRef.GetTable(CurrentServiceLine);
         SetReservSource(SourceRecRef, 0);
     end;
 
-    [Obsolete('Replaced by SetReservSource procedure.','16.0')]
+    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
     procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line")
     begin
         SourceRecRef.GetTable(CurrentJobPlanningLine);
@@ -675,7 +679,13 @@ page 498 Reservation
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         SignFactor: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSerialLotNo(ReservEntry, ItemTrackingQtyToReserve, ItemTrackingQtyToReserveBase, IsHandled);
+        if IsHandled then
+            exit;
+
         Item.Get(ReservEntry."Item No.");
         if Item."Item Tracking Code" = '' then
             exit;
@@ -714,16 +724,34 @@ page 498 Reservation
     end;
 
     procedure AutoReserve()
+    var
+        IsHandled: Boolean;
     begin
-        if Abs(QtyToReserveBase) - Abs(QtyReservedBase) = 0 then
-            Error(Text000);
+        OnBeforeAutoReserve(
+            ReservEntry, FullAutoReservation, QtyToReserve, QtyReserved, QtyToReserveBase, QtyReservedBase, IsHandled);
+        if not IsHandled then begin
+            if Abs(QtyToReserveBase) - Abs(QtyReservedBase) = 0 then
+                Error(Text000);
+            ReservMgt.AutoReserve(
+                FullAutoReservation, ReservEntry.Description,
+                ReservEntry."Shipment Date", QtyToReserve - QtyReserved, QtyToReserveBase - QtyReservedBase);
+        end;
 
-        ReservMgt.AutoReserve(
-          FullAutoReservation, ReservEntry.Description,
-          ReservEntry."Shipment Date", QtyToReserve - QtyReserved, QtyToReserveBase - QtyReservedBase);
         if not FullAutoReservation then
             Message(Text001);
         UpdateReservFrom();
+
+        OnAfterAutoReserve(ReservEntry);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAutoReserve(ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCancelReservationCurrentLine(ReservEntry: Record "Reservation Entry")
+    begin
     end;
 
     [IntegrationEvent(TRUE, false)]
@@ -733,6 +761,11 @@ page 498 Reservation
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRelatesToSummEntry(FromEntrySummary: Record "Entry Summary"; var FilterReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReserveFromCurrentLine(ReservEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -798,6 +831,16 @@ page 498 Reservation
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPlanningComponent(var EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutoReserve(ReservEntry: Record "Reservation Entry"; var FullAutoReservation: Boolean; QtyToReserve: Decimal; QtyReserved: Decimal; QtyToReserveBase: Decimal; QtyReservedBase: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSerialLotNo(ReservEntry: Record "Reservation Entry"; var ItemTrackingQtyToReserve: Decimal; var ItemTrackingQtyToReserveBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 

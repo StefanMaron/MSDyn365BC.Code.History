@@ -425,17 +425,20 @@ codeunit 7312 "Create Pick"
             SetRange("Item No.", ItemNo);
             SetRange("Variant Code", VariantCode);
             GetLocation(LocationCode);
-            OnBeforeSetBinCodeFilter(BinCodeFilterText, LocationCode, ItemNo, VariantCode, ToBinCode);
-            if Location."Require Pick" and (Location."Shipment Bin Code" <> '') then
-                AddToFilterText(BinCodeFilterText, '&', '<>', Location."Shipment Bin Code");
-            if Location."Require Put-away" and (Location."Receipt Bin Code" <> '') then
-                AddToFilterText(BinCodeFilterText, '&', '<>', Location."Receipt Bin Code");
-            if ToBinCode <> '' then
-                AddToFilterText(BinCodeFilterText, '&', '<>', ToBinCode);
-            if BinCodeFilterText <> '' then
-                SetFilter("Bin Code", BinCodeFilterText);
-            if WhseItemTrkgExists then
-                SetTrackingFilterFromWhseItemTrackingLine(TempWhseItemTrackingLine);
+            IsHandled := false;
+            OnBeforeSetBinCodeFilter(BinCodeFilterText, LocationCode, ItemNo, VariantCode, ToBinCode, IsHandled);
+            if not IsHandled then begin
+                if Location."Require Pick" and (Location."Shipment Bin Code" <> '') then
+                    AddToFilterText(BinCodeFilterText, '&', '<>', Location."Shipment Bin Code");
+                if Location."Require Put-away" and (Location."Receipt Bin Code" <> '') then
+                    AddToFilterText(BinCodeFilterText, '&', '<>', Location."Receipt Bin Code");
+                if ToBinCode <> '' then
+                    AddToFilterText(BinCodeFilterText, '&', '<>', ToBinCode);
+                if BinCodeFilterText <> '' then
+                    SetFilter("Bin Code", BinCodeFilterText);
+                if WhseItemTrkgExists then
+                    SetTrackingFilterFromWhseItemTrackingLine(TempWhseItemTrackingLine);
+            end;
 
             IsHandled := false;
             OnFindBWPickBinOnBeforeFindFromBinContent(FromBinContent, SourceType, TotalQtyPickedBase, IsHandled);
@@ -1240,6 +1243,7 @@ codeunit 7312 "Create Pick"
         WhseActivHeader."Breakbulk Filter" := BreakbulkFilter;
         OnBeforeWhseActivHeaderInsert(WhseActivHeader, TempWhseActivLine);
         WhseActivHeader.Insert(true);
+        OnCreateWhseActivHeaderOnAfterWhseActivHeaderInsert(WhseActivHeader, TempWhseActivLine);
 
         NoOfLines := 1;
         NoOfSourceDoc := 1;
@@ -3321,7 +3325,7 @@ codeunit 7312 "Create Pick"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCreateTempLine(LocationCode: Code[10]; ToBinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal)
     begin
     end;
@@ -3428,7 +3432,7 @@ codeunit 7312 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetBinCodeFilter(var BinCodeFilterText: Text[250]; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20])
+    local procedure OnBeforeSetBinCodeFilter(var BinCodeFilterText: Text[250]; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -3569,6 +3573,11 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateWhseDocTakeLineOnBeforeWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseActivHeaderOnAfterWhseActivHeaderInsert(var WhseActivHeader: Record "Warehouse Activity Header"; var TempWhseActivLine: Record "Warehouse Activity Line" temporary)
     begin
     end;
 }

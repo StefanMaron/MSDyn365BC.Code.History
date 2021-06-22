@@ -1121,7 +1121,7 @@ table 5405 "Production Order"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateEndingDate(ProdOrderLine, Rec, IsHandled);
+        OnBeforeUpdateEndingDate(ProdOrderLine, Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -1279,7 +1279,7 @@ table 5405 "Production Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateEndingDate(var ProdOrderLine: Record "Prod. Order Line"; ProdOrder: Record "Production Order"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateEndingDate(var ProdOrderLine: Record "Prod. Order Line"; ProdOrder: Record "Production Order"; var IsHandled: Boolean; CurrFieldNo: Integer)
     begin
     end;
 

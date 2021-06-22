@@ -558,7 +558,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         WhseShptLine2."Qty. Shipped (Base)" := "Qty. Shipped (Base)" + "Qty. to Ship (Base)";
                         WhseShptLine2."Qty. Outstanding (Base)" := "Qty. Outstanding (Base)" - "Qty. to Ship (Base)";
                         WhseShptLine2.Status := WhseShptLine2.CalcStatusShptLine;
-                        OnBeforePostUpdateWhseShptLineModify(WhseShptLine2);
+                        OnBeforePostUpdateWhseShptLineModify(WhseShptLine2, WhseShptLineBuf);
                         WhseShptLine2.Modify();
                         OnAfterPostUpdateWhseShptLine(WhseShptLine2);
                     end;
@@ -879,8 +879,7 @@ codeunit 5763 "Whse.-Post Shipment"
 
                             ModifyLine := SalesLine."Qty. to Ship" <> SumOfQtyToShip;
                             if ModifyLine then begin
-                                SalesLine.Validate("Qty. to Ship", SumOfQtyToShip);
-                                SalesLine."Qty. to Ship (Base)" := SumOfQtyToShipBase;
+                                UpdateSaleslineQtyToShip(SalesLine, WhseShptLine, ATOWhseShptLine, NonATOWhseShptLine, ATOLineFound, NonATOLineFound, SumOfQtyToShip, SumOfQtyToShipBase);
                                 if ATOLineFound then
                                     ATOLink.UpdateQtyToAsmFromWhseShptLine(ATOWhseShptLine);
                                 if Invoice then
@@ -892,6 +891,7 @@ codeunit 5763 "Whse.-Post Shipment"
                             ModifyLine := SalesLine."Return Qty. to Receive" <> -"Qty. to Ship";
                             if ModifyLine then begin
                                 SalesLine.Validate("Return Qty. to Receive", -"Qty. to Ship");
+                                OnHandleSalesLineOnAfterValidateRetQtytoReceive(SalesLine, WhseShptLine);
                                 if Invoice then
                                     SalesLine.Validate(
                                       "Qty. to Invoice",
@@ -939,6 +939,19 @@ codeunit 5763 "Whse.-Post Shipment"
         end;
     end;
 
+    local procedure UpdateSaleslineQtyToShip(var SalesLine: Record "Sales Line"; var WhseShptLine: Record "Warehouse Shipment Line"; var ATOWhseShptLine: Record "Warehouse Shipment Line"; var NonATOWhseShptLine: Record "Warehouse Shipment Line"; var ATOLineFound: Boolean; var NonATOLineFound: Boolean; SumOfQtyToShip: Decimal; SumOfQtyToShipBase: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateSaleslineQtyToShip(SalesLine, WhseShptLine, ATOWhseShptLine, NonATOWhseShptLine, ATOLineFound, NonATOLineFound, SumOfQtyToShip, SumOfQtyToShipBase, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesLine.Validate("Qty. to Ship", SumOfQtyToShip);
+        SalesLine."Qty. to Ship (Base)" := SumOfQtyToShipBase;
+    end;
+
     local procedure HandlePurchaseLine(var WhseShptLine: Record "Warehouse Shipment Line")
     var
         PurchLine: Record "Purchase Line";
@@ -956,6 +969,7 @@ codeunit 5763 "Whse.-Post Shipment"
                             ModifyLine := PurchLine."Qty. to Receive" <> -"Qty. to Ship";
                             if ModifyLine then begin
                                 PurchLine.Validate("Qty. to Receive", -"Qty. to Ship");
+                                OnHandlePurchaseLineOnAfterValidateQtytoReceive(PurchLine, WhseShptLine);
                                 if Invoice then
                                     PurchLine.Validate(
                                       "Qty. to Invoice",
@@ -965,6 +979,7 @@ codeunit 5763 "Whse.-Post Shipment"
                             ModifyLine := PurchLine."Return Qty. to Ship" <> "Qty. to Ship";
                             if ModifyLine then begin
                                 PurchLine.Validate("Return Qty. to Ship", "Qty. to Ship");
+                                OnHandlePurchaseLineOnAfterValidateRetQtytoShip(PurchLine, WhseShptLine);
                                 if Invoice then
                                     PurchLine.Validate(
                                       "Qty. to Invoice",
@@ -1175,7 +1190,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostUpdateWhseShptLineModify(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    local procedure OnBeforePostUpdateWhseShptLineModify(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var WhseShptLineBuf: Record "Warehouse Shipment Line" temporary)
     begin
     end;
 
@@ -1300,6 +1315,11 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSaleslineQtyToShip(var SalesLine: Record "Sales Line"; var WhseShptLine: Record "Warehouse Shipment Line"; var ATOWhseShptLine: Record "Warehouse Shipment Line"; var NonATOWhseShptLine: Record "Warehouse Shipment Line"; var ATOLineFound: Boolean; var NonATOLineFound: Boolean; SumOfQtyToShip: Decimal; SumOfQtyToShipBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreatePostedShptLineOnBeforePostWhseJnlLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
@@ -1311,6 +1331,21 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitSourceDocumentHeaderOnBeforeValidatePostingDate(var SalesHeader: Record "Sales Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ValidatePostingDate: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleSalesLineOnAfterValidateRetQtytoReceive(var SalesLine: Record "Sales Line"; var WhseShptLine: Record "Warehouse Shipment Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandlePurchaseLineOnAfterValidateQtytoReceive(var PurchLine: Record "Purchase Line"; var WhseShptLine: Record "Warehouse Shipment Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandlePurchaseLineOnAfterValidateRetQtytoShip(var PurchLine: Record "Purchase Line"; var WhseShptLine: Record "Warehouse Shipment Line");
     begin
     end;
 

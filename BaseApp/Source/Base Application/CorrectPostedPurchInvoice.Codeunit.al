@@ -128,6 +128,8 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         end;
 
         CopyDocMgt.CopyPurchaseDocForInvoiceCancelling(PurchInvHeader."No.", PurchaseHeader);
+
+        OnAfterCreateCopyDocument(PurchaseHeader);
     end;
 
     procedure CreateCreditMemoCopyDocument(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"): Boolean
@@ -420,6 +422,9 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     var
         GenPostingSetup: Record "General Posting Setup";
     begin
+        if PurchInvLine."VAT Calculation Type" = PurchInvLine."VAT Calculation Type"::"Sales Tax" then
+            exit;
+
         PurchasesPayablesSetup.GetRecordOnce;
 
         with GenPostingSetup do begin
@@ -430,12 +435,13 @@ codeunit 1313 "Correct Posted Purch. Invoice"
                 TestField("Purch. Credit Memo Account");
                 TestGLAccount("Purch. Credit Memo Account", PurchInvLine);
             end;
-            TestField("Direct Cost Applied Account");
-            TestGLAccount("Direct Cost Applied Account", PurchInvLine);
-            if PurchasesPayablesSetup."Discount Posting" <> PurchasesPayablesSetup."Discount Posting"::"No Discounts" then begin
-                TestField("Purch. Line Disc. Account");
-                TestGLAccount("Purch. Line Disc. Account", PurchInvLine);
+            if IsCheckDirectCostAppliedAccount(PurchInvLine) then begin
+                TestField("Direct Cost Applied Account");
+                TestGLAccount("Direct Cost Applied Account", PurchInvLine);
             end;
+            if HasLineDiscountSetup() then
+                if "Purch. Line Disc. Account" <> '' then
+                    TestGLAccount("Purch. Line Disc. Account", PurchInvLine);
         end;
     end;
 
@@ -466,7 +472,13 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     local procedure TestInventoryPostingSetup(PurchInvLine: Record "Purch. Inv. Line")
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestInventoryPostingSetup(PurchInvLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with InventoryPostingSetup do begin
             Get(PurchInvLine."Location Code", PurchInvLine."Posting Group");
             TestField("Inventory Account");
@@ -709,6 +721,21 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         PurchaseLine.Modify();
     end;
 
+    local procedure HasLineDiscountSetup() Result: Boolean
+    begin
+        with PurchasesPayablesSetup do begin
+            GetRecordOnce();
+            Result := "Discount Posting" in ["Discount Posting"::"Line Discounts", "Discount Posting"::"All Discounts"];
+        end;
+        OnHasLineDiscountSetup(PurchasesPayablesSetup, Result);
+    end;
+
+    local procedure IsCheckDirectCostAppliedAccount(PurchInvLine: Record "Purch. Inv. Line") Result: Boolean
+    begin
+        Result := PurchInvLine.Type in [PurchInvLine.Type::"Charge (Item)", PurchInvLine.Type::"Fixed Asset", PurchInvLine.Type::"G/L Account", PurchInvLine.Type::Item];
+        OnAfterIsCheckDirectCostAppliedAccount(PurchInvLine, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateCorrectivePurchCrMemo(PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"; var CancellingOnly: Boolean)
     begin
@@ -726,6 +753,26 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePurchaseOrderLineInvoicedQuantity(var PurchaseLine: Record "Purchase Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestInventoryPostingSetup(PurchInvLine: Record "Purch. Inv. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHasLineDiscountSetup(PurchasesPayablesSetup: Record "Purchases & Payables Setup"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsCheckDirectCostAppliedAccount(PurchInvLine: Record "Purch. Inv. Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCopyDocument(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

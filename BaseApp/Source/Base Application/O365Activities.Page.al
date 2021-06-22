@@ -244,17 +244,12 @@ page 1310 "O365 Activities"
                         var
                             IncomingDocument: Record "Incoming Document";
                             InStr: InStream;
+                            PictureName: Text;
                         begin
-                            if not HasCamera then
+                            if not Camera.GetPicture(InStr, PictureName) then
                                 exit;
 
-                            Camera.SetQuality(100); // 100%
-                            Camera.RunModal();
-                            if Camera.HasPicture() then begin
-                                Camera.GetPicture(InStr);
-                                IncomingDocument.CreateIncomingDocument(InStr, 'Incoming Document');
-                            end;
-                            Clear(Camera);
+                            IncomingDocument.CreateIncomingDocument(InStr, PictureName);
                             CurrPage.Update;
                         end;
                     }
@@ -508,7 +503,7 @@ page 1310 "O365 Activities"
         ClientTypeManagement: Codeunit "Client Type Management";
         EnvironmentInfo: Codeunit "Environment Information";
         UserTaskManagement: Codeunit "User Task Management";
-        Camera: Page Camera;
+        Camera: Codeunit Camera;
         [RunOnClient]
         [WithEvents]
         UserTours: DotNet UserTours;

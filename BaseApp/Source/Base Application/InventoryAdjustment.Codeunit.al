@@ -1114,7 +1114,7 @@ codeunit 5895 "Inventory Adjustment"
                 DeleteAvgBuffers(OutbndValueEntry, ExcludedValueEntry);
                 FindSet;
                 repeat
-                    if "Partial Revaluation" then begin
+                    if "Entry Type" = "Entry Type"::Revaluation then begin
                         RevaluationPoint.Number := "Entry No.";
                         if RevaluationPoint.Insert() then;
                         FillFixApplBuffer("Item Ledger Entry No.");
@@ -2232,6 +2232,8 @@ codeunit 5895 "Inventory Adjustment"
         Job: Record Job;
         UpdateJobItemCost: Report "Update Job Item Cost";
     begin
+        OnBeforeUpdateJobItemCost(TempJobToAdjustBuf);
+
         if JobsSetup.Find then
             if JobsSetup."Automatic Update Job Item Cost" then begin
                 if TempJobToAdjustBuf.FindSet() then
@@ -2606,6 +2608,11 @@ codeunit 5895 "Inventory Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(var TheItem: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var LevelExceeded: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateJobItemCost(var Job: Record Job);
     begin
     end;
 }

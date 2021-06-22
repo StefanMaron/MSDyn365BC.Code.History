@@ -1357,7 +1357,9 @@ codeunit 138100 "Streamline. Autofill No Series"
     local procedure Initialize()
     var
         NoSeries: Record "No. Series";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Streamline. Autofill No Series");
         CurrentSalesSetupDocType := -1;
         CurrentPurchSetupDocType := -1;
         LibraryVariableStorage.Clear;

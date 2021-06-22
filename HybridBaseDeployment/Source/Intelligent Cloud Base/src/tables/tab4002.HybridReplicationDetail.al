@@ -47,7 +47,7 @@ table 4002 "Hybrid Replication Detail"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Moved to the "Error Message" text field.';
             ObsoleteState = Pending;
-            ObsoleteTag = 'Pending in 16.0';
+            ObsoleteTag = '16.0';
         }
         field(11; "Error Code"; Text[10])
         {
@@ -83,7 +83,7 @@ table 4002 "Hybrid Replication Detail"
         }
     }
 
-    [Obsolete('No longer needed with the text field.', 'Obsolete in 16.0')]
+    [Obsolete('No longer needed with the text field.', '16.0')]
     procedure GetErrors() Value: Text
     var
         ErrorInStream: InStream;
@@ -95,7 +95,7 @@ table 4002 "Hybrid Replication Detail"
         end;
     end;
 
-    [Obsolete('No longer needed with the text field.', 'Obsolete in 16.0')]
+    [Obsolete('No longer needed with the text field.', '16.0')]
     procedure SetErrors(Value: Text)
     var
         ErrorsOutStream: OutStream;
@@ -105,7 +105,7 @@ table 4002 "Hybrid Replication Detail"
         "Error Message" := CopyStr(Value, 1, 2048);
     end;
 
-    [Obsolete('No longer necessary.', 'Obsolete in 16.0')]
+    [Obsolete('No longer necessary.', '16.0')]
     procedure SetFailureStatus(RunId: Text[50]; TableName: Text[250]; CompanyName: Text[250]; FailureMessage: Text)
     var
         HybridReplicationDetail: Record "Hybrid Replication Detail";

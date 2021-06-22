@@ -176,11 +176,14 @@ codeunit 5980 "Service-Post"
     end;
 
     local procedure Initialize(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
+    var
+        ReportDistributionManagement: Codeunit "Report Distribution Management";
     begin
         OnBeforeInitialize(PassedServiceHeader, PassedServiceLine, PassedShip, PassedConsume, PassedInvoice, PreviewMode);
 
         SetPostingOptions(PassedShip, PassedConsume, PassedInvoice);
         TestMandatoryFields(PassedServiceHeader, PassedServiceLine);
+        ReportDistributionManagement.RunDefaultCheckServiceElectronicDocument(PassedServiceHeader);
         ServDocumentsMgt.Initialize(PassedServiceHeader, PassedServiceLine);
 
         // Also calls procedure of the same name from ServDocMgt.

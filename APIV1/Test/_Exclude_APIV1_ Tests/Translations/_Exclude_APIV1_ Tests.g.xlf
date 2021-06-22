@@ -1058,6 +1058,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Purchase Inv Lines E2E - NamedType LineTypeFieldNameTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3215426771 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>itemVariants</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Item Variants E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
       </group>
     </body>
   </file>

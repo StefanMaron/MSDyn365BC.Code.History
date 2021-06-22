@@ -535,7 +535,9 @@ page 55 "Purch. Invoice Subform"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowDeferralSchedule;
+                        CurrPage.SaveRecord();
+                        Commit();
+                        ShowDeferralSchedule();
                     end;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")

@@ -70,6 +70,7 @@ codeunit 134387 "ERM Sales Documents III"
         TaxAreaCodeInvalidErr: Label 'The Tax Area does not exist. Identification fields and values: Code=''%1''';
         UnitPriceChangedMsg: Label 'The unit price for %1 %2 that was copied from the posted document has been changed.';
         ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
+        CannotAllowInvDiscountErr: Label 'The value of the Allow Invoice Disc. field is not valid when the VAT Calculation Type field is set to "Full VAT".';
 
     [Test]
     [Scope('OnPrem')]
@@ -4463,6 +4464,310 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure ChangePriceIncludingVATTrueValueRecalculateAmountCorrectlyForFullVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        UnitPrice: Decimal;
+        LineAmount: Decimal;
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Sales line with "Prices Including VAT" = False and Full VAT and change "Prices Including VAT" to True
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+
+        // [GIVEN] Create Sales Header with Line
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        MockSalesLineWithGLAccount(SalesLine, SalesHeader, VATPostingSetup);
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Memorize "Direct Unit Cost" as "D"
+        // [GIVEN] Memorize "Line Amount" as "L"
+        SalesLine.Validate("VAT Prod. Posting Group");
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Modify(true);
+        UnitPrice := SalesLine."Unit Price";
+        LineAmount := SalesLine."Line Amount";
+
+        // [WHEN] Change "Prices Including VAT" to True
+        SalesHeader.Validate("Prices Including VAT", true);
+
+        // [THEN] "Direct Unit Cost" are equal to "D"
+        // [THEN] "Line Amount" are equal to "L"
+        SalesLine.TestField("Unit Price", UnitPrice);
+        SalesLine.TestField("Line Amount", LineAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure ChangePriceIncludingVATFalseValueRecalculateAmountCorrectlyForFullVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        UnitPrice: Decimal;
+        LineAmount: Decimal;
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Sales line with "Prices Including VAT" = True and Full VAT and change "Prices Including VAT" to False
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+
+        // [GIVEN] Create Sales Header with Line with "Prices Including VAT" = true
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+        MockSalesLineWithGLAccount(SalesLine, SalesHeader, VATPostingSetup);
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Memorize "Direct Unit Cost" as "D"
+        // [GIVEN] Memorize "Line Amount" as "L"
+        SalesLine.Validate("VAT Prod. Posting Group");
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Modify(true);
+        UnitPrice := SalesLine."Unit Price";
+        LineAmount := SalesLine."Line Amount";
+
+        // [WHEN] Change "Prices Including VAT" to False
+        SalesHeader.Validate("Prices Including VAT", false);
+
+        // [THEN] "Direct Unit Cost" are equal to "D"
+        // [THEN] "Line Amount" are equal to "L"
+        SalesLine.TestField("Unit Price", UnitPrice);
+        SalesLine.TestField("Line Amount", LineAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure ChangePriceIncludingVATTrueValueRecalculateAmountCorrectlyForFullVATWithDiscountAmount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        UnitPrice: Decimal;
+        LineAmount: Decimal;
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Sales line with "Prices Including VAT" = False, "Inv. Discount Amount" and Full VAT and change "Prices Including VAT" to True
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+
+        // [GIVEN] Create Sales Header with Line
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        MockSalesLineWithGLAccount(SalesLine, SalesHeader, VATPostingSetup);
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Memorize "Direct Unit Cost" as "D"
+        // [GIVEN] Memorize "Line Amount" as "L"
+        SalesLine.Validate("VAT Prod. Posting Group");
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Modify(true);
+        UnitPrice := SalesLine."Unit Price";
+        LineAmount := SalesLine."Line Amount";
+
+        // [GIVEN] Mock "Inv. Discount Amount" for line
+        SalesLine."Inv. Discount Amount" := SalesLine."Line Amount" / 10;
+        SalesLine.Modify();
+
+        // [WHEN] Change "Prices Including VAT" to True
+        SalesHeader.Validate("Prices Including VAT", true);
+
+        // [THEN] "Direct Unit Cost" are equal to "D"
+        // [THEN] "Line Amount" are equal to "L"
+        SalesLine.TestField("Unit Price", UnitPrice);
+        SalesLine.TestField("Line Amount", LineAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure ChangePriceIncludingVATFalseValueRecalculateAmountCorrectlyForFullVATWithDiscountAmount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        UnitPrice: Decimal;
+        LineAmount: Decimal;
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Sales line with "Prices Including VAT" = True, "Inv. Discount Amount" and Full VAT and change "Prices Including VAT" to False
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+
+        // [GIVEN] Create Sales Header with Line with "Prices Including VAT" = true
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+        MockSalesLineWithGLAccount(SalesLine, SalesHeader, VATPostingSetup);
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Memorize "Direct Unit Cost" as "D"
+        // [GIVEN] Memorize "Line Amount" as "L"
+        SalesLine.Validate("VAT Prod. Posting Group");
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Modify(true);
+        UnitPrice := SalesLine."Unit Price";
+        LineAmount := SalesLine."Line Amount";
+
+        // [GIVEN] Mock "Inv. Discount Amount" for line
+        SalesLine."Inv. Discount Amount" := SalesLine."Line Amount" / 10;
+        SalesLine.Modify();
+
+        // [WHEN] Change "Prices Including VAT" to False
+        SalesHeader.Validate("Prices Including VAT", false);
+
+        // [THEN] "Direct Unit Cost" are equal to "D"
+        // [THEN] "Line Amount" are equal to "L"
+        SalesLine.TestField("Unit Price", UnitPrice);
+        SalesLine.TestField("Line Amount", LineAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure RecreateSalesCommentLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        // [FEATURE] [Sales Comment Line] [UT]
+        // [SCENARIO 351187] The Sales Comment Lines must be copied after Sales Lines have been recreated
+        Initialize();
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Item, LibraryInventory.CreateItemNo(), 1);
+        LibrarySales.CreateSalesCommentLine(SalesCommentLine, "Sales Document Type"::Order, SalesHeader."No.", SalesLine."Line No.");
+
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+
+        SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesCommentLine.SetRange("No.", SalesHeader."No.");
+        Assert.RecordCount(SalesCommentLine, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DocumentTotalsCalculateCorrectlyWithFullVATAndPriceIncludingVATTrue()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+        TotalSalesLine: Record "Sales Line";
+        DocumentTotals: Codeunit "Document Totals";
+        VATAmount: Decimal;
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Sales line with "Prices Including VAT" = True and Full VAT and check Totals
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup2, VATPostingSetup."VAT Bus. Posting Group", '');
+
+        // [GIVEN] Create Sales Header with "Prices Including VAT" and Sales Line
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+        CreateSalesLineWithGLAccount(SalesLine, SalesHeader, VATPostingSetup);
+
+        // [WHEN] Totals are calculated
+        DocumentTotals.CalculateSalesTotals(TotalSalesLine, VATAmount, SalesLine);
+
+        // [THEN] "Total Amount Excl. VAT" equal to 0
+        // [THEN] "Total Amount Incl. VAT" equal to "Amount Including VAT"
+        // [THEN] "Total VAT Amount" equal to "Amount Including VAT"
+        TotalSalesLine.TestField(Amount, 0);
+        TotalSalesLine.TestField("Amount Including VAT", SalesLine."Amount Including VAT");
+        SalesLine.TestField("Amount Including VAT", VATAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotSetupAllowInvoiceDiscountForFullVATLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Sales line with Full VAT and try to set "Allow Invoice Disc." to True
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup2, VATPostingSetup."VAT Bus. Posting Group", '');
+
+        // [GIVEN] Create Sales Header with "Prices Including VAT" and Sales Line
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+        CreateSalesLineWithGLAccount(SalesLine, SalesHeader, VATPostingSetup);
+
+        // [WHEN] Set "Allow Invoice Disc." to True
+        asserterror SalesLine.VALIDATE("Allow Invoice Disc.", true);
+
+        // [THEN] The error was shown
+        Assert.ExpectedError(CannotAllowInvDiscountErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AllowInvoiceDiscountResetToFalseAfterSetUpVATCalcullationTypeToFullVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Sales line with Normal VAT and change "VAT Prod. Posting Group" to Full VAT
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup for Full VAT as "Full VAT Setup"
+        // [GIVEN] VAT Posting Setup for Normal VAT as "Normal VAT Setup"
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup2, VATPostingSetup."VAT Bus. Posting Group", '');
+
+        // [GIVEN] Create Sales Header with "Prices Including VAT" and Sales Line
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+        CreateSalesLineWithGLAccount(SalesLine, SalesHeader, VATPostingSetup);
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" and "Unit Price"
+        SalesLine.Validate("VAT Prod. Posting Group");
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+
+        // [GIVEN] Changed "VAT Prod. Posting Group" to "VAT Prod. Posting Group" from "Normal VAT Setup"
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup2."VAT Prod. Posting Group");
+        SalesLine.Validate("Allow Invoice Disc.", true);
+
+        // [WHEN] Change "VAT Prod. Posting Group" to "VAT Prod. Posting Group" from "Full VAT Setup"
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        // [THEN] "Allow Invoice Disc." set to False
+        SalesLine.TestField("Allow Invoice Disc.", false);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -5522,6 +5827,28 @@ codeunit 134387 "ERM Sales Documents III"
                     SalesCreditMemo.SalesLines.Quantity.SetValue(100);
                 end;
         end;
+    end;
+
+    local procedure MockSalesLineWithGLAccount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+        SalesLine."No." := VATPostingSetup.GetSalesAccount(false);
+        SalesLine.Quantity := LibraryRandom.RandInt(10);
+        SalesLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        SalesLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        SalesLine.Modify();
+    end;
+
+    local procedure CreateSalesLineWithGLAccount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        SalesLine.Validate(Type, SalesLine.Type::"G/L Account");
+        SalesLine.Validate("No.", VATPostingSetup.GetSalesAccount(false));
+        SalesLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        SalesLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        SalesLine.Modify(true);
     end;
 
     [ConfirmHandler]

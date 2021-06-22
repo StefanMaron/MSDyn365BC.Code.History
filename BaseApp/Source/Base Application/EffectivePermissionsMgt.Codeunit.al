@@ -188,17 +188,26 @@ codeunit 9852 "Effective Permissions Mgt."
         ConvertedPermission: Enum Permission;
     begin
         ConvertedPermission := ConvertToPermission(Permission);
-        if ConvertedPermission > UpdatePermission then
+        if ConvertedPermission.AsInteger() > UpdatePermission.AsInteger() then
             UpdatePermission := ConvertedPermission;
     end;
 
     local procedure InsertPermissionConflictIfConflictExists(var PermissionConflicts: Record "Permission Conflicts")
+    var
+        RIMDConflict: Boolean;
+        ExecuteConflict: Boolean;
     begin
-        if (PermissionConflicts."Read Permission" > PermissionConflicts."Entitlement Read Permission") or
-            (PermissionConflicts."Insert Permission" > PermissionConflicts."Entitlement Insert Permission") or
-            (PermissionConflicts."Modify Permission" > PermissionConflicts."Entitlement Modify Permission") or
-            (PermissionConflicts."Delete Permission" > PermissionConflicts."Entitlement Delete Permission") or
-            (PermissionConflicts."Execute Permission" > PermissionConflicts."Entitlement Execute Permission") then
+        if (PermissionConflicts."Read Permission".AsInteger() > PermissionConflicts."Entitlement Read Permission".AsInteger()) or
+            (PermissionConflicts."Insert Permission".AsInteger() > PermissionConflicts."Entitlement Insert Permission".AsInteger()) or
+            (PermissionConflicts."Modify Permission".AsInteger() > PermissionConflicts."Entitlement Modify Permission".AsInteger()) or
+            (PermissionConflicts."Delete Permission".AsInteger() > PermissionConflicts."Entitlement Delete Permission".AsInteger()) then
+            RIMDConflict := true;
+
+        if (PermissionConflicts."Object Type" = PermissionConflicts."Object Type"::System) and
+            (PermissionConflicts."Execute Permission".AsInteger() > PermissionConflicts."Entitlement Execute Permission".AsInteger()) then
+            ExecuteConflict := true;
+
+        if RIMDConflict or ExecuteConflict then
             PermissionConflicts.Insert();
     end;
 
@@ -317,12 +326,9 @@ codeunit 9852 "Effective Permissions Mgt."
         Entitlement.SetRange("Object Type", PermissionObjectType);
         Entitlement.SetFilter("Object ID Range Start", '<=%1', PermissionObjectId);
         Entitlement.SetFilter("Object ID Range End", '>=%1', PermissionObjectId);
-        if Entitlement.IsEmpty then
-            exit(true);
-        if not Entitlement.FindFirst() then
-            exit(true);
+        if Entitlement.FindFirst() then;
 
-        if PermissionObjectType in [DummyPermission."Object Type"::"Table Data", DummyPermission."Object Type"::System] then begin
+        if PermissionObjectType = DummyPermission."Object Type"::"Table Data" then begin
             Result := PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Read Permission", Entitlement."Read Permission");
             Result := Result or PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Insert Permission", Entitlement."Insert Permission");
             Result := Result or PermissionManager.IsFirstPermissionHigherThanSecond(Permission."Modify Permission", Entitlement."Modify Permission");
@@ -750,7 +756,7 @@ codeunit 9852 "Effective Permissions Mgt."
 
     local procedure ArePermissionsInConflict(PermissionsFromPermissionSet: Enum Permission; PermissionsFromEntitlement: Enum Permission): Boolean
     begin
-        exit(PermissionsFromPermissionSet > PermissionsFromEntitlement);
+        exit(PermissionsFromPermissionSet.AsInteger() > PermissionsFromEntitlement.AsInteger());
     end;
 
     internal procedure OpenPermissionConflicts(PermissionSetID: Code[20]; PlanOrRole: Enum Licenses)

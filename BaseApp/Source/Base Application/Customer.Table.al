@@ -743,6 +743,8 @@ table 18 Customer
                 OnBeforeLookupPostCode(Rec, PostCode);
 
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+
+                OnAfterLookupPostCode(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -758,6 +760,10 @@ table 18 Customer
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
+        }
+        field(95; "Use GLN in Electronic Document"; Boolean)
+        {
+            Caption = 'Use GLN in Electronic Documents';
         }
         field(97; "Debit Amount"; Decimal)
         {
@@ -1311,7 +1317,8 @@ table 18 Customer
                 PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
                 PriceType: Enum "Price Type";
             begin
-                PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Sale);
+                if "Price Calculation Method" <> "Price Calculation Method"::" " then
+                    PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Sale);
             end;
         }
         field(7001; "Allow Line Disc."; Boolean)
@@ -2390,6 +2397,7 @@ table 18 Customer
             if Customer.Get(CopyStr(CustomerText, 1, MaxStrLen(Customer."No."))) then
                 exit(Customer."No.");
 
+        OnGetCustNoOpenCardOnBeforeFilterCustomer(Customer);
         Customer.SetRange(Blocked, Customer.Blocked::" ");
         Customer.SetRange(Name, CustomerText);
         if Customer.FindFirst then
@@ -3030,6 +3038,11 @@ table 18 Customer
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupPostCode(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateCity(var Customer: Record Customer; xCustomer: Record Customer)
     begin
     end;
@@ -3131,6 +3144,11 @@ table 18 Customer
 
     [IntegrationEvent(false, false)]
     local procedure OnGetCustNoOpenCardOnBeforeCustomerFindSet(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustNoOpenCardOnBeforeFilterCustomer(var Customer: Record Customer)
     begin
     end;
 

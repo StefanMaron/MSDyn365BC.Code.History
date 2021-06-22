@@ -568,7 +568,7 @@ codeunit 5631 "FA Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetGLIntegration(FAPostingType: Enum "FA Journal Line FA Posting Type"; var GLIntegration: Boolean; GnlJnlPosting: Boolean)
+    local procedure OnAfterSetGLIntegration(FAPostingType: Enum "FA Journal Line FA Posting Type"; var GLIntegration: Boolean; var GnlJnlPosting: Boolean)
     begin
     end;
 

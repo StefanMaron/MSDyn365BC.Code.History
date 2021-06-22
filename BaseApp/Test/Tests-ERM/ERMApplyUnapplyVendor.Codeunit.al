@@ -1224,6 +1224,64 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         VerifyVendLedgerEntryRemAmtLCYisBalanced(GenJournalLine[2]."Document No.", GenJournalLine[2]."Document Type");
     end;
 
+    [Test]
+    [Scope('Internal')]
+    procedure RoundingACYWhenPaymentAppliedToInvoiceWithRevChargeVAT()
+    var
+        PurchaseLine: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        PaymentDate: Date;
+        InvoiceNo: Code[20];
+        CurrencyCode: Code[10];
+        VATPct: Integer;
+        DiscountPct: Decimal;
+    begin
+        // [FEATURE] [Reverse Charge VAT] [Adjust For Payment Discount] [ACY]
+        // [SCENARIO 348963] Payment applied to the invoice with reverse charge VAT and payment discount gives zero Add.Curr Amount
+        Initialize;
+
+        // [GIVEN] Adjustment for Payment Discount is turned on
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+
+        // [GIVEN] Currency with specific exchange rates on 01.01 and 02.01, set as Additional Reporting Currency
+        PaymentDate := LibraryRandom.RandDate(3);
+        CurrencyCode := CreateCurrencyAndExchangeRate(1, 1.1302, WorkDate);
+        CreateExchangeRate(CurrencyCode, 1, 1.1208, PaymentDate);
+        LibraryERM.SetAddReportingCurrency(CurrencyCode);
+
+        // [GIVEN] Posted invoice of amount 678 posted on 01.01 with Reverse Charge VAT setup with "Adjust For Payment Discount"
+        // [GIVEN] Payment Discount % = 3.5
+        VATPct := 25;
+        DiscountPct := 3.5;
+        InvoiceNo :=
+          CreatePostPurchInvWithReverseChargeVATAdjForPmtDiscSetValues(PurchaseLine, CurrencyCode, 1, 678, VATPct, DiscountPct);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        VendorLedgerEntry.CalcFields(Amount);
+
+        // [WHEN] Payment of amount 654,27 on 02.01
+        CreateGenJnlLineWithPostingGroups(
+          GenJournalLine, PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment,
+          -VendorLedgerEntry.Amount + VendorLedgerEntry."Remaining Pmt. Disc. Possible", PurchaseLine);
+        GenJournalLine.Validate("Posting Date", PaymentDate);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Payment is applied to the invoice
+        ApplyVendorLedgerEntry(
+          VendorLedgerEntry."Document Type"::Payment, VendorLedgerEntry."Document Type"::Invoice,
+          GenJournalLine."Document No.", InvoiceNo);
+
+        // [THEN] Amount and "Additional-Currency Amount" not equal to 0 in reverse charge VAT Entry created for the payment
+        VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.FindLast;
+        VATEntry.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
+        VATEntry.TestField(Amount);
+        VATEntry.TestField("Additional-Currency Amount");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1925,24 +1983,37 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     end;
 
     local procedure CreatePostPurchInvWithReverseChargeVATAdjForPmtDisc(var PurchLine: Record "Purchase Line"): Code[20]
+    begin
+        exit(
+          CreatePostPurchInvWithReverseChargeVATAdjForPmtDiscSetValues(
+            PurchLine, '', LibraryRandom.RandInt(100), LibraryRandom.RandDec(100, 2), LibraryRandom.RandIntInRange(10, 20), 0));
+    end;
+
+    local procedure CreatePostPurchInvWithReverseChargeVATAdjForPmtDiscSetValues(var PurchLine: Record "Purchase Line"; CurrencyCode: Code[10]; Quantity: Integer; DirectCost: Decimal; VATPct: Decimal; DiscountPct: Decimal): Code[20]
     var
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         PurchHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
         ItemNo: Code[20];
-        VendNo: Code[20];
     begin
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        UpdateGenPostSetupWithPurchPmtDiscAccount(GeneralPostingSetup);
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", VATPct);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
         VATPostingSetup.Validate("Adjust for Payment Discount", true);
         VATPostingSetup.Modify(true);
-        VendNo :=
-          CreateVendorWithPostingSetup(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Get(
+          CreateVendorWithPostingSetup(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        Vendor.Validate("Currency Code", CurrencyCode);
+        Vendor.Validate("Payment Terms Code", CreatePaymentTermsWithGivenDiscount(DiscountPct));
+        Vendor.Modify(true);
         ItemNo :=
           CreateItemWithPostingSetup(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, VendNo);
-        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
-        UpdateDirectUnitCostOnPurchaseLine(PurchLine, LibraryRandom.RandDec(100, 2));
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, ItemNo, Quantity);
+        UpdateDirectUnitCostOnPurchaseLine(PurchLine, DirectCost);
         exit(LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true));
     end;
 
@@ -2203,6 +2274,12 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
         LibraryERM.SetGeneralPostingSetupPurchPmtDiscAccounts(GeneralPostingSetup);
         LibraryERM.SetGeneralPostingSetupSalesPmtDiscAccounts(GeneralPostingSetup);
+        GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure UpdateGenPostSetupWithPurchPmtDiscAccount(var GeneralPostingSetup: Record "General Posting Setup")
+    begin
+        LibraryERM.SetGeneralPostingSetupPurchPmtDiscAccounts(GeneralPostingSetup);
         GeneralPostingSetup.Modify(true);
     end;
 

@@ -123,7 +123,8 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             repeat
                 Window.Update;
                 IsHandled := false;
-                OnBeforeCalcInvtQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection, IsHandled);
+                OnBeforeCalcInvtQtyOnHand(
+                    DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection, IsHandled, ItemJnlLine);
                 if not IsHandled then
                     CalcInvtQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection);
             until TempPhysInvtItemSelection.Next = 0;
@@ -617,7 +618,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcInvtQtyOnHand(DocNo: Code[20]; PostingDate: Date; ZeroQty: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeCalcInvtQtyOnHand(DocNo: Code[20]; PostingDate: Date; ZeroQty: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 

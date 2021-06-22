@@ -22,9 +22,11 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         WorkflowTriggerEventTests: Codeunit "Workflow Trigger/Event Tests";
         PositiveErr: Label 'Result must be positive.';
         NegativeErr: Label 'Result must be negative.';
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -1442,12 +1444,18 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Trigger/Event Tests");
         LibraryWorkflow.DeleteAllExistingWorkflows;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryApplicationArea.EnableFoundationSetup;
         UserSetup.DeleteAll();
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Workflow Trigger/Event Tests");
+        isInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Workflow Trigger/Event Tests");
     end;
 
     local procedure CreateAndEnableOneEventStepWorkflow(EventCode: Code[128]; EventConditions: Text; var WorkflowStep: Record "Workflow Step"): Guid

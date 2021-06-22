@@ -302,7 +302,7 @@ page 1811 "Setup Email Logging"
         AssistedSetup: Codeunit "Assisted Setup";
     begin
         SetupEmailLogging.ClosePSConnection;
-        if CloseAction = ACTION::OK then 
+        if CloseAction = ACTION::OK then
             if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Setup Email Logging") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
@@ -351,6 +351,12 @@ page 1811 "Setup Email Logging"
         EmailRulesCreationTxt: Label 'Email rules creation';
         UpdatingMarketingSetupTxt: Label 'Updating Marketing Setup';
         CreatingEmailLoggingJobQueueTxt: Label 'Creating email Logging Job Queue';
+        EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
+        InitializeExchangeConnectionTxt: Label 'Initialize Exchange connection.', Locked = true;
+        CreateExchangePublicFoldersTxt: Label 'Create Exchange public folders.', Locked = true;
+        CreateMailLoggingRulesTxt: Label 'Create mail logging rules.', Locked = true;
+        UpdateMarketingSetupTxt: Label 'Update marketing setup record.', Locked = true;
+        CannotFindMarketingSetupTxt: Label 'Cannot find marketing setup record.', Locked = true;
         SkipDeployment: Boolean;
 
     local procedure NextStep(Backwards: Boolean)
@@ -442,12 +448,14 @@ page 1811 "Setup Email Logging"
 
     local procedure InitializePSExchangeConnection()
     begin
+        SendTraceTag('0000BYM', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializeExchangeConnectionTxt, DataClassification::SystemMetadata);
         SetupEmailLogging.InitializeExchangePSConnection;
     end;
 
     [TryFunction]
     local procedure CreateExchangePublicFolders()
     begin
+        SendTraceTag('0000BYN', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateExchangePublicFoldersTxt, DataClassification::SystemMetadata);
         UpdateWindow(PublicFoldersCreationTxt, 1000);
         SetupEmailLogging.CreatePublicFolders(
           PublicMailBoxName, RootQueueStorageFolder, QueueFolderName, StorageFolderName)
@@ -457,6 +465,7 @@ page 1811 "Setup Email Logging"
     var
         QueueEmailAddress: Text;
     begin
+        SendTraceTag('0000BYO', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CreateMailLoggingRulesTxt, DataClassification::SystemMetadata);
         UpdateWindow(EmailRulesCreationTxt, 8000);
         QueueEmailAddress := QueueFolderName + '@' + SetupEmailLogging.GetDomainFromEmail(Email);
         SetupEmailLogging.CreateEmailLoggingRules(QueueEmailAddress, IncomingEmailRuleName, OutgoingEmailRuleName);
@@ -471,9 +480,13 @@ page 1811 "Setup Email Logging"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
+        SendTraceTag('0000BYP', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, UpdateMarketingSetupTxt, DataClassification::SystemMetadata);
+
         UpdateWindow(UpdatingMarketingSetupTxt, 6000);
-        if not MarketingSetup.Get then
+        if not MarketingSetup.Get then begin
+            SendTraceTag('0000BYQ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CannotFindMarketingSetupTxt, DataClassification::SystemMetadata);
             exit;
+        end;
 
         MarketingSetup.Validate("Exchange Service URL", SetupEmailLogging.GetDomainFromEmail(Email));
         MarketingSetup.Validate("Autodiscovery E-Mail Address", Email);

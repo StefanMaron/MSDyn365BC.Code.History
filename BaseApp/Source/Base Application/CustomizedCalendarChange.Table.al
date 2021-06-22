@@ -237,10 +237,9 @@ table 7602 "Customized Calendar Change"
                 end;
             "Source Type"::Location:
                 begin
-                    if Location.Get("Source Code") then begin
-                        if Location."Base Calendar Code" <> '' then
-                            "Base Calendar Code" := Location."Base Calendar Code";
-                    end else
+                    if Location.Get("Source Code") and (Location."Base Calendar Code" <> '') then
+                        "Base Calendar Code" := Location."Base Calendar Code"
+                    else
                         if CompanyInfo.Get then
                             "Base Calendar Code" := CompanyInfo."Base Calendar Code";
                 end;

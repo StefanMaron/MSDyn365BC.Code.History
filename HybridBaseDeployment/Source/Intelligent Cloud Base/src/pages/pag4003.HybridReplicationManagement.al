@@ -494,8 +494,8 @@ page 4003 "Intelligent Cloud Management"
         RunReplicationTxt: Label 'Migration has been successfully triggered. You can track the status on the management page.';
         IntegrationKeyTxt: Label 'Primary key for the integration runtime is: %1', Comment = '%1 = Integration Runtime Key';
         NewIntegrationKeyTxt: Label 'New Primary key for the integration runtime is: %1', Comment = '%1 = Integration Runtime Key';
-        ResetCloudDataConfirmQst: Label 'Are you sure you want to reset all cloud data?';
+        ResetCloudDataConfirmQst: Label 'If you choose to reset cloud data, all migrated data will be deleted for all companies in the next migration run. Are you sure you want to reset cloud data?';
         ResetCloudFailedErr: Label 'Failed to reset cloud data';
-        ResetTriggeredTxt: Label 'Reset has been successfully triggered. All migration enabled data will be reset in the next sync.';
+        ResetTriggeredTxt: Label 'Reset has been successfully triggered. All migration enabled data will be reset in the next migration run.';
         TablesReadyForReplicationMsg: Label 'All tables have been successfully prepared for migration.';
 }

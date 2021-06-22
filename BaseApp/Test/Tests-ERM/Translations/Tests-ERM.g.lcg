@@ -1679,6 +1679,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Budget - NamedType AnalysisViewBudgetEntryExistsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1111060729 - NamedType 2184629082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value %1 - %2 is blocked.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Dim Code, %2 = Dim Value]D;]A;(LookupHint=Codeunit ERM Budget - NamedType DimValueBlockedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1111060729 - NamedType 3144747853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value Type for Dimension Value %1 - %2 must not be %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Dim Code, %2 = Dim Value, %3 = Dimension Value Type value]D;]A;(LookupHint=Codeunit ERM Budget - NamedType DimValueMustNotBeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1111060729 - NamedType 1320827926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value for %1 is missing.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Dim Code]D;]A;(LookupHint=Codeunit ERM Budget - NamedType DimValueMissingErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3944115356 - NamedType 638311702" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Gen. Prod. Posting Group must have a value in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. It cannot be zero]]></Val>
@@ -1762,7 +1789,7 @@
   </Item>
   <Item ItemId=";Codeunit 1932411446 - NamedType 1743333713" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Allow G/L Acc. Deletion Before must have a value in General Ledger Setup: Primary Key=. It cannot be zero or empty.]]></Val>
+      <Val><![CDATA[Check G/L Acc. Deletion After must have a value in General Ledger Setup: Primary Key=. It cannot be zero or empty.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -5333,6 +5360,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Invoice - NamedType PurchaseVatAccountIsMissingTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3007153660 - NamedType 549872427" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The value of the Allow Invoice Disc. field is not valid when the VAT Calculation Type field is set to "Full VAT".]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Invoice - NamedType CannotAllowInvDiscountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1951354433 - NamedType 3742820574" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Number of Lines for %1 and %2  must be Equal.]]></Val>
@@ -6775,11 +6811,11 @@
   </Item>
   <Item ItemId=";Codeunit 655909914 - NamedType 3546971989" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The field Freight G/L Acc. No. of table Sales & Receivables Setup contains a value (%1) that cannot be found in the related table]]></Val>
+      <Val><![CDATA[The field %1 of table Sales & Receivables Setup contains a value (%2) that cannot be found in the related table]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - G\L Acc No]D;]A;(LookupHint=Codeunit ERM Sales Documents II - NamedType NotExistingFreightGLAccNoErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - caption of "Freight G/L Acc. No.", %2 - G/L Account No.]D;]A;(LookupHint=Codeunit ERM Sales Documents II - NamedType NotExistingFreightGLAccNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 655909914 - NamedType 16987930" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7176,6 +7212,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents III - NamedType ConfirmZeroQuantityPostingMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2641639841 - NamedType 549872427" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The value of the Allow Invoice Disc. field is not valid when the VAT Calculation Type field is set to "Full VAT".]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents III - NamedType CannotAllowInvDiscountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1819602085 - NamedType 1646674215" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7626,6 +7671,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purch. Correct. Docs - NamedType CannotCancelPurchInvInventoryPeriodClosedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4208132312 - NamedType 3497734993" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot correct this posted sales invoice because %1 G/L ACCOUNT is blocked.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purch. Correct. Docs - NamedType SalesBlockedGLAccountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4208132312 - NamedType 1357064048" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot correct this posted purchase invoice because %1 G/L ACCOUNT is blocked.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purch. Correct. Docs - NamedType PurchaseBlockedGLAccountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2847078927 - NamedType 1921413626" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9986,6 +10049,51 @@
       <Cmt Name="Dev"><![CDATA[%1 - record ID]D;]A;(LookupHint=Codeunit PEPPOL Management Tests - NamedType NegativeUnitPriceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2479071172 - NamedType 2751571763" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Starting Date cannot be after Ending Date.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Line UT - NamedType StartingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2479071172 - NamedType 116630793" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Line UT - NamedType CampaignDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2479071172 - NamedType 2605087475" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Asset Type must be equal to Item or Resource.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Line UT - NamedType AssetTypeForUOMErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2479071172 - NamedType 3389759804" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Asset Type must be equal to 'Item']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Line UT - NamedType AssetTypeMustBeItemErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2479071172 - NamedType 440975670" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Job Task Type must be equal to 'Posting']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Line UT - NamedType NotPostingJobTaskTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1374955379 - NamedType 690720733" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must have a value]]></Val>
@@ -11725,7 +11833,7 @@
   </Item>
   <Item ItemId=";Codeunit 976240937 - NamedType 1808024257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 in %2 for %3 %4, %5: %6, %7:  is currently %8. It must be %9.]]></Val>
+      <Val><![CDATA[%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -13971,6 +14079,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - method name, %2 - price type name]D;]A;(LookupHint=Codeunit Test Price Calc. Setup - NamedType NotImplementedMethodErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 616764730 - NamedType 1853268737" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Allow Line Disc. must have a value in Sales Line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Price Calculation - V16 - NamedType AllowLineDiscErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 616764730 - NamedType 812739044" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The quantity in the line is below the minimum quantity of the picked price list line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Price Calculation - V16 - NamedType PickedWrongMinQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 616764730 - NamedType 465049406" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Campaign %1 is now activated.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Price Calculation - V16 - NamedType CampaignActivatedMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 220628665 - NamedType 2808191070" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

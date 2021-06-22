@@ -13,6 +13,7 @@ codeunit 134486 "Check Dimensions On Posting"
         Assert: Codeunit Assert;
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryErrorMessage: Codeunit "Library - Error Message";
         LibraryUtility: Codeunit "Library - Utility";
@@ -37,6 +38,7 @@ codeunit 134486 "Check Dimensions On Posting"
         SelectDimValueErr: Label 'The %1 dimension is the default dimension, and it must have a value. You can set the value on the Default Dimensions page.', Comment = '%1 = the value of Dimension Code; %2 = page caption of Default Dimensions';
         NothingToPostErr: Label 'There is nothing to post.';
         OnAfterCheckDocErr: Label 'OnAfterCheckDoc';
+        PostingDimensionErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -445,6 +447,8 @@ codeunit 134486 "Check Dimensions On Posting"
         // [THEN] 2nd Dimension Errors line, where "Error Message" is 'Select Dimension Code Department must not be blank for Customer X'
         // [THEN] "Context" is 'Sales Header: Order, 1002'; "Source" is 'Default Dimension: 18, X, Department'
         VerifyHeaderDimErrors(ContextDimRecID, 3, ExpectedErrorMessage, SourceDimRecID, SourceFieldNo);
+        // TearDown
+        DefaultDimension[1].Delete(); // remove mandatory dim set for all customers
     end;
 
     [Test]
@@ -2320,6 +2324,393 @@ codeunit 134486 "Check Dimensions On Posting"
         Assert.AreNotEqual(DimSetID, PurchLine."Dimension Set ID", 'Dim Set ID must be changed');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingGenJournalLineWithConflictingDimensions()
+    var
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlTemplate: Record "Gen. Journal Template";
+        GLAccount: Record "G/L Account";
+        GLAccNo: array[2] of Code[20];
+        ExpectedErrorMessage: Text;
+    begin
+        // [SCENARIO 348697] It is not possible to post Gen. Journal Line with conflicting Default Dimensions.
+        Initialize;
+
+        // [GIVEN] G/L Account "GL1" with Default Dimension having "Value Posting" = "Code Mandatory", "Dimension Code" = "DC", "Dimension Value Code" = "DV".
+        GLAccNo[1] := LibraryERM.CreateGLAccountNo();
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccNo[1], DimensionValue."Dimension Code", DimensionValue.Code);
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
+
+        // [GIVEN] G/L Account "GL2" with Default Dimension having "Value Posting" = "No Code", "Dimension Code" = "DC", blank "Dimension Value Code".
+        GLAccNo[2] := LibraryERM.CreateGLAccountNo();
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccNo[2], DimensionValue."Dimension Code", '');
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"No Code");
+        DefaultDimension.Modify(true);
+
+        // [GIVEN] Gen. Journal Line with Account = "GL1", Bal. Account "GL2", Dimension "DC" with value "DV",
+        // [GIVEN] Gen. Journal Template "GJT", Gen. Journal Batch "GJB", Line No. "1000".
+        LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
+        with GenJnlLine do
+            LibraryERM.CreateGeneralJnlLineWithBalAcc(
+              GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, "Document Type"::" ", "Account Type"::"G/L Account", GLAccNo[1],
+              "Bal. Account Type"::"G/L Account", GLAccNo[2], LibraryRandom.RandInt(100));
+
+        // [WHEN] Gen. Journal Line is posted.
+        asserterror LibraryERM.PostGeneralJnlLine(GenJnlLine);
+
+        // [THEN] Error is thrown with text "A dimension used in Gen. Journal Line "GJT, "GJB", 10000 has caused an error.
+        // [THEN] Dimension Code "DC" must not be mentioned for G/L Account "GL2"."
+        ExpectedErrorMessage := GetDimValueMentionedErrText(DimensionValue."Dimension Code", GLAccount.TableName, GLAccNo[2]);
+        ExpectedErrorMessage :=
+          StrSubstNo(
+            PostingDimensionErr, GenJnlLine.TableCaption, GenJnlTemplate.Name, GenJnlBatch.Name, GenJnlLine."Line No.", ExpectedErrorMessage);
+        Assert.ExpectedError(ExpectedErrorMessage);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDimValuePostingNoTablePriorities()
+    var
+        Customer: Record Customer;
+        DefaultDim: Record "Default Dimension";
+        DimValue: Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        DimManagement: Codeunit DimensionManagement;
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        No: array[10] of Code[20];
+        DimSetID: Integer;
+        TableID: array[10] of Integer;
+        Result: Boolean;
+        ExpectedErrorMessage: array[2] of Text;
+    begin
+        // [FEATURE] [UT] [Priority]
+        // [SCENARIO 348697] Function CheckDimValuePosting checks Default Dimension for both tables with no priority.
+        Initialize;
+
+        // [GIVEN] Customer with Default Dimension with Dimension Code = "D", Value Posting = "No Code", Dimension Value Code is blank.
+        LibraryDimension.CreateDimWithDimValue(DimValue);
+        LibrarySales.CreateCustomer(Customer);
+        CreateDefaultDimensionWithValuePostingForCustomer(
+          DefaultDim, DimValue."Dimension Code", '', Customer."No.", DefaultDim."Value Posting"::"No Code");
+
+        // [GIVEN] G/L Account with Default Dimension with Dimension Code = "D", Value Posting = "Code Mandatory", Dimension Value Code = "V"
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateDefaultDimensionWithValuePostingForGLAcc(
+          DefaultDim, DimValue."Dimension Code", '', GLAccount."No.", DefaultDim."Value Posting"::"No Code");
+
+        // [GIVEN] Customer table and G/L Account table have no dimension priority.
+        ClearDefaultDimensionPriorities('');
+
+        // [GIVEN] Dimension Set with Dimension "D" and Dimension Value Code = "V".
+        DimSetID := LibraryDimension.CreateDimSet(0, DimValue."Dimension Code", DimValue.Code);
+
+        // [WHEN] CheckDimValuePosting is run on Customer, G/L Account and Dimension set.
+        TableID[1] := DATABASE::Customer;
+        TableID[2] := DATABASE::"G/L Account";
+        No[1] := Customer."No.";
+        No[2] := GLAccount."No.";
+        ErrorMessageManagement.Activate(ErrorMessageHandler);
+        DimManagement.SetCollectErrorsMode();
+        Result := DimManagement.CheckDimValuePosting(TableID, No, DimSetID);
+
+        // [THEN] CheckDimValuePosting returns False, two errors are:
+        // [THEN] 1) "Dimension Code "D" must not be mentioned for G/L Account";
+        // [THEN] 2) "Dimension Code "D" must not be mentioned for Customer".
+        Assert.IsFalse(Result, '');
+        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.");
+        ExpectedErrorMessage[2] := GetDimValueMentionedErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.");
+        VerifyDimErrors(2, ExpectedErrorMessage, ErrorMessageHandler);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDimValuePostingFirstTableWithPriority()
+    var
+        Customer: Record Customer;
+        DefaultDim: Record "Default Dimension";
+        DefaultDimPriority: Record "Default Dimension Priority";
+        DimValue: Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        DimManagement: Codeunit DimensionManagement;
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        No: array[10] of Code[20];
+        DimSetID: Integer;
+        TableID: array[10] of Integer;
+        Result: Boolean;
+        ExpectedErrorMessage: array[2] of Text;
+    begin
+        // [FEATURE] [UT] [Priority]
+        // [SCENARIO 348697] Function CheckDimValuePosting checks Default Dimension for first table with priority and ignores the same dimension for second table without priority.
+        Initialize;
+
+        // [GIVEN] Customer with Default Dimension with Dimension Code = "D", Value Posting = "No Code", Dimension Value Code is blank.
+        LibraryDimension.CreateDimWithDimValue(DimValue);
+        LibrarySales.CreateCustomer(Customer);
+        CreateDefaultDimensionWithValuePostingForCustomer(
+          DefaultDim, DimValue."Dimension Code", '', Customer."No.", DefaultDim."Value Posting"::"No Code");
+
+        // [GIVEN] G/L Account with Default Dimension with Dimension Code = "D", Value Posting = "Code Mandatory", Dimension Value Code = "V"
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateDefaultDimensionWithValuePostingForGLAcc(
+          DefaultDim, DimValue."Dimension Code", DimValue.Code, GLAccount."No.", DefaultDim."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] Customer table has dimension priority and G/L Account doesn't.
+        ClearDefaultDimensionPriorities('');
+        CreateDefaultDimPriority(DefaultDimPriority, DATABASE::Customer, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Dimension Set with Dimension "D" and Dimension Value Code = "V".
+        DimSetID := LibraryDimension.CreateDimSet(0, DimValue."Dimension Code", DimValue.Code);
+
+        // [WHEN] CheckDimValuePosting is run on Customer, G/L Account and Dimension set.
+        TableID[1] := DATABASE::Customer;
+        TableID[2] := DATABASE::"G/L Account";
+        No[1] := Customer."No.";
+        No[2] := GLAccount."No.";
+        ErrorMessageManagement.Activate(ErrorMessageHandler);
+        DimManagement.SetCollectErrorsMode();
+        Result := DimManagement.CheckDimValuePosting(TableID, No, DimSetID);
+
+        // [THEN] CheckDimValuePosting returns False, single error is "Dimension Code "D" must not be mentioned for Customer.".
+        Assert.IsFalse(Result, '');
+        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.");
+        VerifyDimErrors(1, ExpectedErrorMessage, ErrorMessageHandler);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDimValuePostingSecondTableWithPriority()
+    var
+        Customer: Record Customer;
+        DefaultDim: Record "Default Dimension";
+        DefaultDimPriority: Record "Default Dimension Priority";
+        DimValue: Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        DimManagement: Codeunit DimensionManagement;
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        No: array[10] of Code[20];
+        DimSetID: Integer;
+        TableID: array[10] of Integer;
+        Result: Boolean;
+        ExpectedErrorMessage: array[2] of Text;
+    begin
+        // [FEATURE] [UT] [Priority]
+        // [SCENARIO 348697] Function CheckDimValuePosting ignores Default Dimension for first table without priority and checks the same dimension for second table with priority.
+        Initialize;
+
+        // [GIVEN] Customer with Default Dimension with Dimension Code = "D", Value Posting = "Code Mandatory", Dimension Value Code is blank.
+        LibraryDimension.CreateDimWithDimValue(DimValue);
+        LibrarySales.CreateCustomer(Customer);
+        CreateDefaultDimensionWithValuePostingForCustomer(
+          DefaultDim, DimValue."Dimension Code", DimValue.Code, Customer."No.", DefaultDim."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] G/L Account with Default Dimension with Dimension Code = "D", Value Posting = "No Code", Dimension Value Code = "V"
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateDefaultDimensionWithValuePostingForGLAcc(
+          DefaultDim, DimValue."Dimension Code", '', GLAccount."No.", DefaultDim."Value Posting"::"No Code");
+
+        // [GIVEN] Customer table hasn't dimension priority and G/L Account does.
+        ClearDefaultDimensionPriorities('');
+        CreateDefaultDimPriority(DefaultDimPriority, DATABASE::"G/L Account", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Dimension Set with Dimension "D" and Dimension Value Code = "V".
+        DimSetID := LibraryDimension.CreateDimSet(0, DimValue."Dimension Code", DimValue.Code);
+
+        // [WHEN] CheckDimValuePosting is run on Customer, G/L Account and Dimension set.
+        TableID[1] := DATABASE::Customer;
+        TableID[2] := DATABASE::"G/L Account";
+        No[1] := Customer."No.";
+        No[2] := GLAccount."No.";
+        ErrorMessageManagement.Activate(ErrorMessageHandler);
+        DimManagement.SetCollectErrorsMode();
+        Result := DimManagement.CheckDimValuePosting(TableID, No, DimSetID);
+
+        // [THEN] CheckDimValuePosting returns False, single error "Dimension Code "D" must not be mentioned for G/L Account.".
+        Assert.IsFalse(Result, '');
+        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.");
+        VerifyDimErrors(1, ExpectedErrorMessage, ErrorMessageHandler);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDimValuePostingFirstTableWithLowerPriority()
+    var
+        Customer: Record Customer;
+        DefaultDim: Record "Default Dimension";
+        DefaultDimPriority: Record "Default Dimension Priority";
+        DimValue: Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        DimManagement: Codeunit DimensionManagement;
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        No: array[10] of Code[20];
+        DimSetID: Integer;
+        TableID: array[10] of Integer;
+        Result: Boolean;
+        ExpectedErrorMessage: array[2] of Text;
+    begin
+        // [FEATURE] [UT] [Priority]
+        // [SCENARIO 348697] Function CheckDimValuePosting ignores Default Dimension for first table with lower priority and checks the same dimension for second table with higher priority.
+        Initialize;
+
+        // [GIVEN] Customer with Default Dimension with Dimension Code = "D", Value Posting = "Code Mandatory", Dimension Value Code = "V".
+        LibraryDimension.CreateDimWithDimValue(DimValue);
+        LibrarySales.CreateCustomer(Customer);
+        CreateDefaultDimensionWithValuePostingForCustomer(
+          DefaultDim, DimValue."Dimension Code", DimValue.Code, Customer."No.", DefaultDim."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] G/L Account with Default Dimension with Dimension Code = "D", Value Posting = "No Code", Dimension Value Code is blank.
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateDefaultDimensionWithValuePostingForGLAcc(
+          DefaultDim, DimValue."Dimension Code", '', GLAccount."No.", DefaultDim."Value Posting"::"No Code");
+
+        // [GIVEN] Customer table has lower dimension priority than G/L Account.
+        ClearDefaultDimensionPriorities('');
+        CreateDefaultDimPriority(DefaultDimPriority, DATABASE::Customer, LibraryRandom.RandIntInRange(11, 20));
+        CreateDefaultDimPriority(DefaultDimPriority, DATABASE::"G/L Account", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Dimension Set with Dimension "D" and Dimension Value Code = "V".
+        DimSetID := LibraryDimension.CreateDimSet(0, DimValue."Dimension Code", DimValue.Code);
+
+        // [WHEN] CheckDimValuePosting is run on Customer, G/L Account and Dimension set.
+        TableID[1] := DATABASE::Customer;
+        TableID[2] := DATABASE::"G/L Account";
+        No[1] := Customer."No.";
+        No[2] := GLAccount."No.";
+        ErrorMessageManagement.Activate(ErrorMessageHandler);
+        DimManagement.SetCollectErrorsMode();
+        Result := DimManagement.CheckDimValuePosting(TableID, No, DimSetID);
+
+        // [THEN] CheckDimValuePosting returns False, single error "Dimension Code "D" must not be mentioned for G/L Account.".
+        Assert.IsFalse(Result, '');
+        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.");
+        VerifyDimErrors(1, ExpectedErrorMessage, ErrorMessageHandler);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDimValuePostingEqualTablePriorities()
+    var
+        Customer: Record Customer;
+        DefaultDim: Record "Default Dimension";
+        DefaultDimPriority: Record "Default Dimension Priority";
+        DimValue: Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        DimManagement: Codeunit DimensionManagement;
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        No: array[10] of Code[20];
+        DimSetID: Integer;
+        TableID: array[10] of Integer;
+        Result: Boolean;
+        ExpectedErrorMessage: array[2] of Text;
+    begin
+        // [FEATURE] [UT] [Priority]
+        // [SCENARIO 348697] Function CheckDimValuePosting checks Default Dimension for both tables with equal priority.
+        Initialize;
+
+        // [GIVEN] Customer with Default Dimension with Dimension Code = "D", Value Posting = "No Code", Dimension Value Code is blank.
+        LibraryDimension.CreateDimWithDimValue(DimValue);
+        LibrarySales.CreateCustomer(Customer);
+        CreateDefaultDimensionWithValuePostingForCustomer(
+          DefaultDim, DimValue."Dimension Code", '', Customer."No.", DefaultDim."Value Posting"::"No Code");
+
+        // [GIVEN] G/L Account with Default Dimension with Dimension Code = "D", Value Posting = "Code Mandatory", Dimension Value Code = "V"
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateDefaultDimensionWithValuePostingForGLAcc(
+          DefaultDim, DimValue."Dimension Code", '', GLAccount."No.", DefaultDim."Value Posting"::"No Code");
+
+        // [GIVEN] Customer table and G/L Account table have the same dimension priority.
+        ClearDefaultDimensionPriorities('');
+        CreateDefaultDimPriority(DefaultDimPriority, DATABASE::Customer, LibraryRandom.RandInt(10));
+        CreateDefaultDimPriority(DefaultDimPriority, DATABASE::"G/L Account", DefaultDimPriority.Priority);
+
+        // [GIVEN] Dimension Set with Dimension "D" and Dimension Value Code = "V".
+        DimSetID := LibraryDimension.CreateDimSet(0, DimValue."Dimension Code", DimValue.Code);
+
+        // [WHEN] CheckDimValuePosting is run on Customer, G/L Account and Dimension set.
+        TableID[1] := DATABASE::Customer;
+        TableID[2] := DATABASE::"G/L Account";
+        No[1] := Customer."No.";
+        No[2] := GLAccount."No.";
+        ErrorMessageManagement.Activate(ErrorMessageHandler);
+        DimManagement.SetCollectErrorsMode();
+        Result := DimManagement.CheckDimValuePosting(TableID, No, DimSetID);
+
+        // [THEN] CheckDimValuePosting returns False, two errors are:
+        // [THEN] 1) "Dimension Code "D" must not be mentioned for G/L Account";
+        // [THEN] 2) "Dimension Code "D" must not be mentioned for Customer".
+        Assert.IsFalse(Result, '');
+        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.");
+        ExpectedErrorMessage[2] := GetDimValueMentionedErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.");
+        VerifyDimErrors(2, ExpectedErrorMessage, ErrorMessageHandler);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDimValuePostingFirstTableWithHigherPriority()
+    var
+        Customer: Record Customer;
+        DefaultDim: Record "Default Dimension";
+        DefaultDimPriority: Record "Default Dimension Priority";
+        DimValue: Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        DimManagement: Codeunit DimensionManagement;
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        No: array[10] of Code[20];
+        DimSetID: Integer;
+        TableID: array[10] of Integer;
+        Result: Boolean;
+        ExpectedErrorMessage: array[2] of Text;
+    begin
+        // [FEATURE] [UT] [Priority]
+        // [SCENARIO 348697] Function CheckDimValuePosting checks Default Dimension for first table with higher priority and ignores the same dimension for second table with lower priority.
+        Initialize;
+
+        // [GIVEN] Customer with Default Dimension with Dimension Code = "D", Value Posting = "No Code", Dimension Value Code is blank.
+        LibraryDimension.CreateDimWithDimValue(DimValue);
+        LibrarySales.CreateCustomer(Customer);
+        CreateDefaultDimensionWithValuePostingForCustomer(
+          DefaultDim, DimValue."Dimension Code", '', Customer."No.", DefaultDim."Value Posting"::"No Code");
+
+        // [GIVEN] G/L Account with Default Dimension with Dimension Code = "D", Value Posting = "Code Mandatory", Dimension Value Code = "V"
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateDefaultDimensionWithValuePostingForGLAcc(
+          DefaultDim, DimValue."Dimension Code", DimValue.Code, GLAccount."No.", DefaultDim."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] Customer table has higher dimension priority than G/L Account table.
+        ClearDefaultDimensionPriorities('');
+        CreateDefaultDimPriority(DefaultDimPriority, DATABASE::Customer, LibraryRandom.RandInt(10));
+        CreateDefaultDimPriority(DefaultDimPriority, DATABASE::"G/L Account", LibraryRandom.RandIntInRange(11, 20));
+
+        // [GIVEN] Dimension Set with Dimension "D" and Dimension Value Code = "V".
+        DimSetID := LibraryDimension.CreateDimSet(0, DimValue."Dimension Code", DimValue.Code);
+
+        // [WHEN] CheckDimValuePosting is run on Customer, G/L Account and Dimension set.
+        TableID[1] := DATABASE::Customer;
+        TableID[2] := DATABASE::"G/L Account";
+        No[1] := Customer."No.";
+        No[2] := GLAccount."No.";
+        ErrorMessageManagement.Activate(ErrorMessageHandler);
+        DimManagement.SetCollectErrorsMode();
+        Result := DimManagement.CheckDimValuePosting(TableID, No, DimSetID);
+
+        // [THEN] CheckDimValuePosting returns False, single error "Dimension Code "D" must not be mentioned for Customer".
+        Assert.IsFalse(Result, '');
+        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.");
+        VerifyDimErrors(1, ExpectedErrorMessage, ErrorMessageHandler);
+    end;
+
     local procedure Initialize()
     var
         NamedForwardLink: Record "Named Forward Link";
@@ -2359,6 +2750,14 @@ codeunit 134486 "Check Dimensions On Posting"
         TempDimSetEntry.Reset();
     end;
 
+    local procedure ClearDefaultDimensionPriorities(SourceCode: Code[10])
+    var
+        DefaultDimensionPriority: Record "Default Dimension Priority";
+    begin
+        DefaultDimensionPriority.SetRange("Source Code", SourceCode);
+        DefaultDimensionPriority.DeleteAll(true);
+    end;
+
     local procedure CreateCustBlockedDimensionValue(var DimensionValue: Record "Dimension Value"; CustomerNo: Code[20]) ExpectedErrorMessage: Text
     var
         DefaultDimension: Record "Default Dimension";
@@ -2379,6 +2778,30 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionCustomer(
           DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
+    end;
+
+    local procedure CreateDefaultDimensionWithValuePostingForCustomer(var DefaultDimension: Record "Default Dimension"; DimensionCode: Code[20]; DimensionValueCode: Code[20]; CustomerNo: Code[20]; ValuePosting: Option)
+    begin
+        LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimensionCode, DimensionValueCode);
+        DefaultDimension.Validate("Value Posting", ValuePosting);
+        DefaultDimension.Modify(true);
+    end;
+
+    local procedure CreateDefaultDimensionWithValuePostingForGLAcc(var DefaultDimension: Record "Default Dimension"; DimensionCode: Code[20]; DimensionValueCode: Code[20]; GLAccNo: Code[20]; ValuePosting: Option)
+    begin
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccNo, DimensionCode, DimensionValueCode);
+        DefaultDimension.Validate("Value Posting", ValuePosting);
+        DefaultDimension.Modify(true);
+    end;
+
+    local procedure CreateDefaultDimPriority(var DefaultDimPriority: Record "Default Dimension Priority"; TableID: Integer; Priority: Integer)
+    begin
+        if (TableID = 0) or (Priority = 0) then
+            exit;
+
+        DefaultDimPriority.Validate("Table ID", TableID);
+        DefaultDimPriority.Validate(Priority, Priority);
+        DefaultDimPriority.Insert(true);
     end;
 
     local procedure CreateVendBlockedDimensionValue(var DimensionValue: Record "Dimension Value"; VendorNo: Code[20]) ExpectedErrorMessage: Text
@@ -2423,6 +2846,13 @@ codeunit 134486 "Check Dimensions On Posting"
                 TempDimSetEntry.Insert();
             end;
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
+    end;
+
+    local procedure GetDimValueMentionedErrText(DimensionCode: Code[20]; TableName: Text; No: Code[20]): Text
+    var
+        DefaultDim: Record "Default Dimension";
+    begin
+        exit(StrSubstNo(DimValueMentionedForRecErr, DefaultDim.FieldCaption("Dimension Code"), DimensionCode, TableName, No));
     end;
 
     local procedure PostPurchDocument(PurchHeader: Record "Purchase Header"; CodeunitID: Integer)
@@ -2524,6 +2954,23 @@ codeunit 134486 "Check Dimensions On Posting"
         NamedForwardLink.Link := LibraryUtility.GenerateGUID;
         NamedForwardLink.Insert();
         exit(NamedForwardLink.Link);
+    end;
+
+    local procedure VerifyDimErrors(ErrorCount: Integer; ExpectedErrorMessage: array[2] of Text; ErrorMessageHandler: Codeunit "Error Message Handler")
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        i: Integer;
+    begin
+        LibraryErrorMessage.TrapErrorMessages();
+        ErrorMessageHandler.ShowErrors();
+        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
+        Assert.RecordCount(TempErrorMessage, ErrorCount);
+        i := 0;
+        TempErrorMessage.FindSet();
+        repeat
+            i += 1;
+            Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage.Description);
+        until TempErrorMessage.Next = 0;
     end;
 
     local procedure VerifyHeaderDimError(ContextRecID: RecordID; SourceRecID: RecordID; SourceFieldNo: Integer; ExpectedErrorMessage: array[10] of Text; ExpectedSupportURL: Text)

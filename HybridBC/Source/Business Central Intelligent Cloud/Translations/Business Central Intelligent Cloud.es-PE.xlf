@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="es-PE" original="Business Central Intelligent Cloud">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 1042648578 - NamedType 1849904554" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>DynamicsBC</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Wizard - NamedType ProductIdTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1042648578 - NamedType 283977008" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Dynamics 365 Business Central</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Wizard - NamedType ProductNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3759341074 - NamedType 2586591135" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SQL database must be at comptibility level 130 or higher.</source>
+          <target state="translated">La base de datos de SQL debe estar en el nivel de compatibilidad 130 o superior.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SqlCompatibilityErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3759341074 - NamedType 2359240154" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The table does not exist in the local instance.</source>
+          <target state="translated">La tabla no existe en la instancia local.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType TableNotExistsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3759341074 - NamedType 778856548" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The local table schema differs from the Business Central cloud table.</source>
+          <target state="translated">El esquema de tabla local difiere de la tabla en la nube de Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SchemaMismatchErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3759341074 - NamedType 657071819" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to prepare data for the table.\\\\%1</source>
+          <target state="translated">Error al preparar datos para la tabla.\\\\%1</target>
+          <note from="Developer" annotates="general" priority="2">%1 - The inner error message.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType FailurePreparingDataErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3759341074 - NamedType 2948262442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to copy the table.\\\\%1</source>
+          <target state="translated">Error al copiar la tabla.\\\\%1</target>
+          <note from="Developer" annotates="general" priority="2">%1 - The inner error message.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType FailureCopyingTableErr</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

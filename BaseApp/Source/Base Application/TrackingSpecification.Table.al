@@ -443,10 +443,10 @@ table 336 "Tracking Specification"
         CachedItem: Record Item;
         CachedItemTrackingCode: Record "Item Tracking Code";
         WMSManagement: Codeunit "WMS Management";
-        Text005: Label '%1 in %2 for %3 %4, %5: %6, %7: %8 is currently %9. It must be %10.';
         UOMMgt: Codeunit "Unit of Measure Management";
         SkipSerialNoQtyValidation: Boolean;
         RemainingQtyErr: Label 'The %1 in item ledger entry %2 is too low to cover quantity available to handle.';
+        WrongQtyForItemErr: Label '%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6.', Comment = '%1 - Qty. to Handle or Qty. to Invoice, %2 - Item No., %3 - actual value, %4 - expected value, %5 - Serial No., %6 - Lot No.';
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -881,10 +881,9 @@ table 336 "Tracking Specification"
         if CurrFieldValue = CompareValue then
             exit;
 
-        Error(Text005,
-          FieldCaptionText, TableCaption, FieldCaption("Item No."), "Item No.",
-          FieldCaption("Serial No."), "Serial No.", FieldCaption("Lot No."), "Lot No.",
-          Abs(CurrFieldValue), Abs(CompareValue));
+        Error(
+          WrongQtyForItemErr,
+          FieldCaptionText, "Item No.", Abs(CurrFieldValue), Abs(CompareValue), "Serial No.", "Lot No.");
     end;
 
     procedure SetItemData(ItemNo: Code[20]; ItemDescription: Text[100]; LocationCode: Code[10]; VariantCode: Code[10]; BinCode: Code[20]; QtyPerUoM: Decimal)
@@ -1161,23 +1160,30 @@ table 336 "Tracking Specification"
             if not (LotsToHandleUndefined or LotsToInvoiceUndefined) then
                 exit;
         end;
-        if not ReservationEntry.FindLast then
-            exit;
+
         if Handle then begin
+            ReservationEntry.SetFilter("Qty. to Handle (Base)", '<>%1', 0);
             ReservationEntry.CalcSums("Qty. to Handle (Base)");
-            HandleQtyBase += ReservationEntry."Qty. to Handle (Base)";
-        end;
-        if Invoice then begin
-            ReservationEntry.CalcSums("Qty. to Invoice (Base)");
-            InvoiceQtyBase += ReservationEntry."Qty. to Invoice (Base)";
-        end;
-        TrackingSpecification.TransferFields(ReservationEntry);
-        if Handle then
-            if Abs(HandleQtyBase) > Abs(QtyToHandleBase) then
+            HandleQtyBase := ReservationEntry."Qty. to Handle (Base)";
+            if Abs(HandleQtyBase) > Abs(QtyToHandleBase) then begin
+                ReservationEntry.FindLast();
+                TrackingSpecification.TransferFields(ReservationEntry);
                 TrackingSpecification.TestFieldError(FieldCaption("Qty. to Handle (Base)"), HandleQtyBase, QtyToHandleBase);
-        if Invoice then
-            if Abs(InvoiceQtyBase) > Abs(QtyToInvoiceBase) then
+            end;
+            ReservationEntry.SetRange("Qty. to Handle (Base)");
+        end;
+
+        if Invoice then begin
+            ReservationEntry.SetFilter("Qty. to Invoice (Base)", '<>%1', 0);
+            ReservationEntry.CalcSums("Qty. to Invoice (Base)");
+            InvoiceQtyBase := ReservationEntry."Qty. to Invoice (Base)";
+            if Abs(InvoiceQtyBase) > Abs(QtyToInvoiceBase) then begin
+                ReservationEntry.FindLast();
+                TrackingSpecification.TransferFields(ReservationEntry);
                 TrackingSpecification.TestFieldError(FieldCaption("Qty. to Invoice (Base)"), InvoiceQtyBase, QtyToInvoiceBase);
+            end;
+            ReservationEntry.SetRange("Qty. to Invoice (Base)");
+        end;
     end;
 
     local procedure GetUndefinedLots(var ReservationEntry: Record "Reservation Entry"; Handle: Boolean; Invoice: Boolean; var LotsToHandleUndefined: Boolean; var LotsToInvoiceUndefined: Boolean)

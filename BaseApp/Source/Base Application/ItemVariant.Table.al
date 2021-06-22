@@ -14,7 +14,6 @@ table 5401 "Item Variant"
         field(2; "Item No."; Code[20])
         {
             Caption = 'Item No.';
-            NotBlank = true;
             TableRelation = Item;
         }
         field(3; Description; Text[100])
@@ -24,6 +23,11 @@ table 5401 "Item Variant"
         field(4; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+        }
+        field(5; "Item Id"; Guid)
+        {
+            Caption = 'Item Id';
+            TableRelation = Item.SystemId;
         }
     }
 
@@ -39,11 +43,47 @@ table 5401 "Item Variant"
         key(Key3; Description)
         {
         }
+        key(Key4; "Item Id", "Code")
+        {
+        }
     }
 
     fieldgroups
     {
     }
+
+    trigger OnInsert()
+    var
+        Item: Record Item;
+    begin
+        if "Item No." <> '' then
+            if Item.Get("Item No.") then begin
+                "Item Id" := Item.SystemId;
+                exit;
+            end;
+
+        if not IsNullGuid("Item Id") then
+            if Item.GetBySystemId("Item Id") then
+                "Item No." := Item."No.";
+    end;
+
+    trigger OnRename()
+    var
+        Item: Record Item;
+    begin
+        if "Item No." <> '' then
+            if Item.Get("Item No.") then
+                "Item Id" := Item.SystemId;
+    end;
+
+    trigger OnModify()
+    var
+        Item: Record Item;
+    begin
+        if not IsNullGuid("Item Id") then
+            if Item.GetBySystemId("Item Id") then
+                Rename(Item."No.", Code);
+    end;
 
     trigger OnDelete()
     var

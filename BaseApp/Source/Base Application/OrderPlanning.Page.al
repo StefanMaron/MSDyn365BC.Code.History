@@ -583,12 +583,11 @@ page 5522 "Order Planning"
 
                 trigger OnAction()
                 var
-                    MakeSupplyOrders: Codeunit "Make Supply Orders (Yes/No)";
+                    ActionMsgCarriedOut: Boolean;
                 begin
-                    MakeSupplyOrders.SetManufUserTemplate(MfgUserTempl);
-                    MakeSupplyOrders.Run(Rec);
+                    ActionMsgCarriedOut := MakeSupplyOrders();
 
-                    if MakeSupplyOrders.ActionMsgCarriedOut then begin
+                    if ActionMsgCarriedOut then begin
                         RefreshTempTable;
                         SetRecFilters;
                         CurrPage.Update(false);
@@ -1163,6 +1162,20 @@ page 5522 "Order Planning"
         ReserveEditable := Level <> 0;
     end;
 
+    local procedure MakeSupplyOrders() ActionMsgCarriedOut: Boolean
+    var
+        MakeSupplyOrdersYesNo: Codeunit "Make Supply Orders (Yes/No)";
+        IsHandled: Boolean;
+    begin
+        OnBeforeMakeSupplyOrders(Rec, MfgUserTempl, ActionMsgCarriedOut, IsHandled);
+        if IsHandled then
+            exit;
+
+        MakeSupplyOrdersYesNo.SetManufUserTemplate(MfgUserTempl);
+        MakeSupplyOrdersYesNo.Run(Rec);
+        ActionMsgCarriedOut := MakeSupplyOrdersYesNo.ActionMsgCarriedOut();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDemandOrder(var RequisitionLine: Record "Requisition Line")
     begin
@@ -1175,6 +1188,11 @@ page 5522 "Order Planning"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDemandTypeTextOnFormat(var RequisitionLine: Record "Requisition Line"; var Text: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; ManufacturingUserTemplate: Record "Manufacturing User Template"; var ActionMsgCarriedOut: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

@@ -24,6 +24,7 @@ codeunit 134421 "Report Selections Tests"
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         CustomMessageTypeTxt: Text;
         FromEmailBodyTemplateTxt: Text;
         Initialized: Boolean;
@@ -1171,6 +1172,7 @@ codeunit 134421 "Report Selections Tests"
         CompanyContactNo := LibraryMarketing.CreateCompanyContactNo();
         for i := 1 to 3 do
             EmailList += CreatePersonContactWithEmail(CompanyContactNo, false) + ';';
+        EmailList := DelChr(EmailList, '>', ';');
         // [GIVEN] Sales quote custom report selection
         CreateSalesQuoteCustomReportSelection(CustomReportSelection, LibrarySales.CreateCustomerNo());
         // [WHEN] Get emails from contacts "CP1".."CP3"
@@ -1183,7 +1185,7 @@ codeunit 134421 "Report Selections Tests"
         Contact.Reset();
         Contact.SetFilter("No.", ContactFilter);
         CustomReportSelection.GetSendToEmailFromContacts(Contact);
-        // [THEN] Custom report selection "Send to Email" = "E1;E2;E3;"
+        // [THEN] Custom report selection "Send to Email" = "E1;E2;E3"
         Assert.AreEqual(CustomReportSelection."Send To Email", EmailList, 'Wrong email list.');
         Assert.IsTrue(CustomReportSelection."Use Email from Contact", 'Wrong use email from contact.');
         Assert.IsTrue(CustomReportSelection."Selected Contacts Filter".HasValue, 'Wrong selected contacts filter.');
@@ -1211,12 +1213,13 @@ codeunit 134421 "Report Selections Tests"
         for i := 1 to 3 do
             EmailList += CreatePersonContactWithEmail(CompanyContactNo, true) + ';';
         EmailList := CopyStr(EmailList, 1, 162);
+        EmailList := DelChr(EmailList, '>', ';');
         // [GIVEN] Sales quote custom report selection
         CreateSalesQuoteCustomReportSelection(CustomReportSelection, LibrarySales.CreateCustomerNo());
         // [WHEN] Get emails from contacts "CP1".."CP3"
         Contact.SetRange("Company No.", CompanyContactNo);
         CustomReportSelection.GetSendToEmailFromContacts(Contact);
-        // [THEN] Custom report selection "Send to Email" = "E1;E2;"
+        // [THEN] Custom report selection "Send to Email" = "E1;E2"
         Assert.AreEqual(CustomReportSelection."Send To Email", EmailList, 'Wrong email list.');
     end;
 
@@ -1245,6 +1248,7 @@ codeunit 134421 "Report Selections Tests"
             if (i = 1) or (i = 2) then
                 EmailList += TempEmail;
         end;
+        EmailList := DelChr(EmailList, '>', ';');
         // [GIVEN] Sales quote with custom report selection
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
         SalesHeader.Find();
@@ -1371,6 +1375,33 @@ codeunit 134421 "Report Selections Tests"
         Assert.AreEqual(SalesHeader."Sell-to E-Mail", EmailAddress, EmailAddressErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetSendToEmailFromContactWithoutEmailUT()
+    var
+        Contact: Record Contact;
+        CustomReportSelection: Record "Custom Report Selection";
+        CompanyContactNo: Code[20];
+    begin
+        // [FEATURE] [UT] [Custom Report Selection]
+        // [SCENARIO 275947] Get "Send to Email" from contact with empty email
+        Initialize();
+
+        // [GIVEN] Company contact with empty email
+        CompanyContactNo := LibraryMarketing.CreateCompanyContactNo();
+
+        // [GIVEN] Sales quote custom report selection
+        CreateSalesQuoteCustomReportSelection(CustomReportSelection, LibrarySales.CreateCustomerNo());
+
+        // [WHEN] Get emails from contact
+        Contact.SetRange("No.", CompanyContactNo);
+        CustomReportSelection.GetSendToEmailFromContacts(Contact);
+
+        // [THEN] Custom report selection "Send to Email" = " "
+        Assert.AreEqual(CustomReportSelection."Send To Email", '', 'Wrong email list.');
+        Assert.IsFalse(CustomReportSelection."Use Email from Contact", 'Wrong use email from contact.');
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -1380,6 +1411,8 @@ codeunit 134421 "Report Selections Tests"
         CompanyInformation: Record "Company Information";
         ReportLayoutSelection: Record "Report Layout Selection";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Report Selections Tests");
+
         BindActiveDirectoryMockEvents;
         LibraryVariableStorage.AssertEmpty;
         CustomReportSelection.DeleteAll();

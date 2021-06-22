@@ -123,6 +123,7 @@ table 952 "Time Sheet Detail"
     begin
         TimeSheetMgt.CheckAccPeriod(Date);
         SetLastModifiedDateTime;
+        SetDimension();
     end;
 
     trigger OnModify()
@@ -153,8 +154,18 @@ table 952 "Time Sheet Detail"
         "Assembly Order No." := TimeSheetLine."Assembly Order No.";
         "Assembly Order Line No." := TimeSheetLine."Assembly Order Line No.";
         Status := TimeSheetLine.Status;
+        "Dimension Set ID" := TimeSheetLine."Dimension Set ID";
 
         OnAfterCopyFromTimeSheetLine(Rec, TimeSheetLine);
+    end;
+
+    procedure SetDimension()
+    var
+        TimeSheetLine: Record "Time Sheet Line";
+    begin
+        if TimeSheetLine.Get("Time Sheet No.", "Time Sheet Line No.") then
+            if "Dimension Set ID" = 0 then
+                "Dimension Set ID" := TimeSheetLine."Dimension Set ID";
     end;
 
     procedure GetMaxQtyToPost(): Decimal

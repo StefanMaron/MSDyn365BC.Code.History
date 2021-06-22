@@ -1561,6 +1561,7 @@ codeunit 134399 "Test Merge Duplicates"
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
+        BlankRecordId: RecordId;
     begin
         // [FEATURE] [Customer]
         // [SCENARIO] Action 'Merge Duplicate' removes one of customers
@@ -1626,11 +1627,12 @@ codeunit 134399 "Test Merge Duplicates"
         // [THEN] Integration Record 'AAA', where "Deleted On" is filled, "Record ID" points to 'A'
         ActualIntegrationRecord.Get(IntegrationRecord[1]."Integration ID");
         Assert.AreNotEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must not be blank.');
-        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[1]."Record ID", 'Record ID #1');
-        // [THEN] Customer 'B' does exist, where Name = 'B', ID is 'BBB'
+        Assert.AreEqual(BlankRecordId, ActualIntegrationRecord."Record ID", 'Record ID #1');
+        // [THEN] Customer 'B' does exist, where Name = 'B', ID is 'BBB', SystemID is 'BBB'
         Assert.IsTrue(Customer[2].Find, 'Customer B must exist');
         Customer[2].TestField(Name, Customer[2].Name);
         Customer[2].TestField(Id, IntegrationRecord[2]."Integration ID");
+        Customer[2].TestField(SystemId, IntegrationRecord[2]."Integration ID");
         // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'B'
         ActualIntegrationRecord.Get(IntegrationRecord[2]."Integration ID");
         Assert.AreEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must be blank.');
@@ -1899,6 +1901,7 @@ codeunit 134399 "Test Merge Duplicates"
         IncomingDocument: Record "Incoming Document";
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
+        BlankRecordId: RecordId;
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO] Action 'Merge Duplicate' removes one of vendors
@@ -1935,11 +1938,12 @@ codeunit 134399 "Test Merge Duplicates"
         // [THEN] Integration Record 'AAA', where "Deleted On" is filled, "Record ID" points to 'A'
         ActualIntegrationRecord.Get(IntegrationRecord[1]."Integration ID");
         Assert.AreNotEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must not be blank.');
-        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[1]."Record ID", 'Record ID #1');
-        // [THEN] Vendor 'B' does exist, where Name = 'B', "Id" is 'BBB'
+        Assert.AreEqual(BlankRecordId, ActualIntegrationRecord."Record ID", 'Record ID #1');
+        // [THEN] Vendor 'B' does exist, where Name = 'B', "Id" is 'BBB', SystemId is 'BBB'
         Assert.IsTrue(Vendor[2].Find, 'Vendor B must exist');
         Vendor[2].TestField(Name, Vendor[2].Name);
         Vendor[2].TestField(Id, IntegrationRecord[2]."Integration ID");
+        Vendor[2].TestField(SystemId, IntegrationRecord[2]."Integration ID");
         // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'B'
         ActualIntegrationRecord.Get(IntegrationRecord[2]."Integration ID");
         Assert.AreEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must be blank.');
@@ -2001,6 +2005,96 @@ codeunit 134399 "Test Merge Duplicates"
 
     [Test]
     [HandlerFunctions('ConfirmYesHandler')]
+    procedure T220_MergeVendorsIfCurrentIntegrationIDMissed()
+    var
+        Vendor: array[2] of Record Vendor;
+        ActualIntegrationRecord: Record "Integration Record";
+        IntegrationRecord: array[2] of Record "Integration Record";
+        TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
+        BlankRecordId: RecordId;
+    begin
+        // [FEATURE] [Vendor]
+        // [SCENARIO 350424] Action 'Merge Duplicate' removes one of vendors while current Integration Record is missed.
+        Initialize;
+        // [GIVEN] Vendors 'A' (ID = 'AAA') and 'B' (ID = 'BBB')
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        IntegrationRecord[1].Get(Vendor[1].Id);
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        IntegrationRecord[2].Get(Vendor[2].Id);
+        // [GIVEN] ID = 'BBB' for Vendor 'B' does no exist.
+        IntegrationRecord[2].Delete();
+
+        // [WHEN] Merge 'A' to 'B'
+        TempMergeDuplicatesBuffer."Table ID" := DATABASE::Vendor;
+        TempMergeDuplicatesBuffer.Duplicate := Vendor[1]."No.";
+        TempMergeDuplicatesBuffer.Current := Vendor[2]."No.";
+        TempMergeDuplicatesBuffer.Insert();
+        TempMergeDuplicatesBuffer.Merge;
+
+        // [THEN] Vendor 'A' does not exist,
+        Assert.IsFalse(Vendor[1].Find, 'Vendor A must not exist');
+        // [THEN] Integration Record 'AAA', where "Deleted On" is filled, "Record ID" points to 'A'
+        ActualIntegrationRecord.Get(IntegrationRecord[1]."Integration ID");
+        Assert.AreNotEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must not be blank.');
+        Assert.AreEqual(BlankRecordId, ActualIntegrationRecord."Record ID", 'Record ID #1');
+        // [THEN] Vendor 'B' does exist, where Name = 'B', "Id" is 'BBB'
+        Assert.IsTrue(Vendor[2].Find, 'Vendor B must exist');
+        Vendor[2].TestField(Name, Vendor[2].Name);
+        Vendor[2].TestField(Id, IntegrationRecord[2]."Integration ID");
+        // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'B'
+        ActualIntegrationRecord.Get(IntegrationRecord[2]."Integration ID");
+        Assert.AreEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must be blank.');
+        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[2]."Record ID", 'Record ID #2');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure T221_MergeVendorsIfDuplicateIntegrationIDMissed()
+    var
+        Vendor: array[2] of Record Vendor;
+        ActualIntegrationRecord: Record "Integration Record";
+        IntegrationRecord: array[2] of Record "Integration Record";
+        TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
+        BlankRecordId: RecordId;
+    begin
+        // [FEATURE] [Vendor]
+        // [SCENARIO 350424] Action 'Merge Duplicate' removes one of vendors while duplicate Integration Record is missed.
+        Initialize;
+        // [GIVEN] Vendors 'A' (ID = 'AAA') and 'B' (ID = 'BBB')
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        IntegrationRecord[1].Get(Vendor[1].Id);
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        IntegrationRecord[2].Get(Vendor[2].Id);
+        // [GIVEN] ID = 'AAA' for Vendor 'A' does no exist.
+        IntegrationRecord[1].Delete();
+
+        // [WHEN] Merge 'A' to 'B'
+        TempMergeDuplicatesBuffer."Table ID" := DATABASE::Vendor;
+        TempMergeDuplicatesBuffer.Duplicate := Vendor[1]."No.";
+        TempMergeDuplicatesBuffer.Current := Vendor[2]."No.";
+        TempMergeDuplicatesBuffer.Insert();
+        TempMergeDuplicatesBuffer.Merge;
+
+        // [THEN] Vendor 'A' does not exist,
+        Assert.IsFalse(Vendor[1].Find, 'Vendor A must not exist');
+        // [THEN] Integration Record 'AAA', where "Deleted On" is filled, "Record ID" points to 'A'
+        ActualIntegrationRecord.Get(IntegrationRecord[1]."Integration ID");
+        Assert.AreNotEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must not be blank.');
+        Assert.AreEqual(BlankRecordId, ActualIntegrationRecord."Record ID", 'Record ID #1');
+        // [THEN] Vendor 'B' does exist, where Name = 'B', "Id" is 'BBB'
+        Assert.IsTrue(Vendor[2].Find, 'Vendor B must exist');
+        Vendor[2].TestField(Name, Vendor[2].Name);
+        Vendor[2].TestField(Id, IntegrationRecord[2]."Integration ID");
+        // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'B'
+        ActualIntegrationRecord.Get(IntegrationRecord[2]."Integration ID");
+        Assert.AreEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must be blank.');
+        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[2]."Record ID", 'Record ID #2');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
     [Scope('OnPrem')]
     procedure T250_MergeContacts()
     var
@@ -2011,6 +2105,7 @@ codeunit 134399 "Test Merge Duplicates"
         ActualIntegrationRecord: Record "Integration Record";
         IntegrationRecord: array[2] of Record "Integration Record";
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
+        BlankRecordId: RecordId;
     begin
         // [FEATURE] [Contact]
         // [SCENARIO] Action 'Merge Duplicate' removes one of contacts
@@ -2021,6 +2116,13 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] Customer 'B' with Contact 'CB' ("Integration ID" = 'BBB')
         LibraryMarketing.CreateContactWithCustomer(Contact[2], Customer[2]);
         IntegrationRecord[2].FindByRecordId(Contact[2].RecordId);
+        // [GIVEN] Customer 'A' is removed, both contacts are related to Customer 'B'
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.SetRange("No.", Customer[2]."No.");
+        Assert.RecordCount(ContactBusinessRelation, 2);
+        ContactBusinessRelation.SetRange("No.", Customer[1]."No.");
+        Assert.RecordCount(ContactBusinessRelation, 2);
+
         // [GIVEN] Merge Customer 'A' to 'B'
         TempMergeDuplicatesBuffer."Table ID" := DATABASE::Customer;
         TempMergeDuplicatesBuffer.Duplicate := Customer[1]."No.";
@@ -2050,10 +2152,11 @@ codeunit 134399 "Test Merge Duplicates"
         // [THEN] Integration Record 'AAA', where "Deleted On" is filled, "Record ID" points to 'CA'
         ActualIntegrationRecord.Get(IntegrationRecord[1]."Integration ID");
         Assert.AreNotEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must not be blank.');
-        Assert.AreEqual(ActualIntegrationRecord."Record ID", IntegrationRecord[1]."Record ID", 'Record ID #1');
-        // [THEN] Contact 'CB' does exist, where Name = 'B'
+        Assert.AreEqual(BlankRecordId, ActualIntegrationRecord."Record ID", 'Record ID #1');
+        // [THEN] Contact 'CB' does exist, where Name = 'B', SystemID = 'BBB' 
         Assert.IsTrue(Contact[2].Find, 'Contact B must exist');
         Contact[2].TestField(Name, Contact[2].Name);
+        Assert.AreEqual(Contact[2].SystemId, IntegrationRecord[2]."Integration ID", 'SystemID');
         // [THEN] Integration Record 'BBB', where "Deleted On" is blank, "Record ID" points to 'CB'
         ActualIntegrationRecord.Get(IntegrationRecord[2]."Integration ID");
         Assert.AreEqual(0DT, ActualIntegrationRecord."Deleted On", 'Deleted On must be blank.');

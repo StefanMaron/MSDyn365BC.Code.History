@@ -5,8 +5,17 @@ codeunit 730 "Copy Item"
     trigger OnRun()
     var
         CopyItemPage: Page "Copy Item";
+        IsItemCopied: Boolean;
+        IsHandled: Boolean;
         i: Integer;
     begin
+        OnBeforeOnRun(Rec, FirstItemNo, LastItemNo, IsItemCopied, IsHandled);
+        if IsHandled then begin
+            if IsItemCopied then
+                ShowNotification(Rec);
+            exit;
+        end;
+
         CopyItemPage.SetItem(Rec);
         if CopyItemPage.RunModal() <> ACTION::OK then
             exit;
@@ -442,6 +451,11 @@ codeunit 730 "Copy Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyItem(var CopyItemBuffer: Record "Copy Item Buffer"; SourceItem: Record Item; var TargetItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(Item: Record Item; var FirstItemNo: Code[20]; var LastItemNo: Code[20]; var IsItemCopied: Boolean; var IsHandled: Boolean)
     begin
     end;
 

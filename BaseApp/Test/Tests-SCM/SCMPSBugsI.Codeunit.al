@@ -1317,6 +1317,7 @@ codeunit 137035 "SCM PS Bugs-I"
 
         Item.Validate("Manufacturing Policy", ManufacturingPolicy);
         Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate(Description, LibraryUtility.GenerateRandomXMLText(MaxStrLen(Item.Description)));
         Item.Modify(true);
     end;
 

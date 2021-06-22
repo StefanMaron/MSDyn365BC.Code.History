@@ -672,6 +672,8 @@ table 296 "Reminder Line"
                 if "Due Date" < ReminderHeader."Document Date" then
                     Amount := "Remaining Amount" * "Interest Rate" / 100;
         end;
+
+        OnCalcFinChrgOnBeforeValidatePostingGroups(Rec, ReminderHeader, Amount);
         if Amount <> 0 then begin
             CustPostingGr.Get(ReminderHeader."Customer Posting Group");
             GLAcc.Get(CustPostingGr.GetInterestAccount);
@@ -989,6 +991,11 @@ table 296 "Reminder Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateEntryNo(var ReminderLine: Record "Reminder Line"; var xReminderLine: Record "Reminder Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFinChrgOnBeforeValidatePostingGroups(var ReminderLine: Record "Reminder Line"; var ReminderHeader: Record "Reminder Header"; var Amount: Decimal)
     begin
     end;
 

@@ -31,7 +31,7 @@ page 20047 "APIV1 - Purchase Invoice Lines"
 
                     trigger OnValidate()
                     begin
-                        IF xRec."Document Id" <> "Document Id" THEN
+                        IF (not IsNullGuid(xRec."Document Id")) and (xRec."Document Id" <> "Document Id") THEN
                             ERROR(CannotChangeDocumentIdNoErr);
                     end;
                 }
@@ -292,6 +292,16 @@ page 20047 "APIV1 - Purchase Invoice Lines"
                     trigger OnValidate()
                     begin
                         RegisterFieldSet(FIELDNO("Expected Receipt Date"));
+                    end;
+                }
+                field(itemVariantId; "Variant Id")
+                {
+                    ApplicationArea = All;
+                    Caption = 'itemVariantId', Locked = true;
+
+                    trigger OnValidate()
+                    begin
+                        RegisterFieldSet(FIELDNO("Variant Code"));
                     end;
                 }
             }

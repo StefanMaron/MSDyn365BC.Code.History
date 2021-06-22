@@ -478,6 +478,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Temp Blob - Field Blob - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3029408820 - Field 1663593181 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3029408820 - Field 3252935640 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Media</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field Media - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2488342448 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cue Setup</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1263,20 +1273,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType NotBCUserMsg</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 1164184890" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You cannot mix plans of type Basic, Essential, and Premium. User %1 and user %2 have conflicting plans. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.</source>
-          <note from="Developer" annotates="general" priority="2">%1 = First user name with conflict (guid); %2 = Second user name with conflict (guid);</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType MixedSKUsWithBasicErr</note>
+        <trans-unit id="Codeunit 1645891195 - NamedType 1383399196" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All users must be assigned to the same license, either Basic, Essential, or Premium. %1 and %2 are assigned to different licenses, for example, but there may be other mismatches. Your system administrator or Microsoft partner can verify license assignments in your Microsoft 365 admin portal.\\We will sign you out when you choose the OK button.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = %2 = Authnetication email.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType MixedPlansNonAdminErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 2470204172" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You cannot mix plans of type Essential and Premium. User %1 and user %2 have conflicting plans. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.</source>
-          <note from="Developer" annotates="general" priority="2">%1 = First user name with conflict (guid); %2 = Second user name with conflict (guid);</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType MixedSKUsWithoutBasicErr</note>
+        <trans-unit id="Codeunit 1645891195 - NamedType 1763109697" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Before you can update user information, go to your Microsoft 365 admin center and make sure that all users are assigned to the same Business Central license, either Basic, Essential, or Premium. For example, we found that users %1 and %2 are assigned to different licenses, but there may be other mismatches.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = %2 = Authnetication email.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType MixedPlansAdminErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1645891195 - NamedType 3110089295" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Changes in users plans were detected. Choose the Refresh all User Groups action in the Users window.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType ChangesInPlansDetectedMsg</note>
+        <trans-unit id="Codeunit 1645891195 - NamedType 3468023376" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more users are not assigned to the same Business Central license. For example, we found that users %1 and %2 are assigned to different licenses, but there may be other mismatches. In your Microsoft 365 admin center, make sure that all users are assigned to the same Business Central license, either Basic, Essential, or Premium.  Afterward, update Business Central by opening the Users page and using the 'Update Users from Office 365' action.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = %2 = Authnetication email.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType MixedPlansMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 1645891195 - NamedType 404590781" size-unit="char" translate="no" xml:space="preserve">
           <source>User %1 is assigned plan %2</source>
@@ -1312,6 +1322,21 @@
           <source>Graph user has plan with ID %1 and named %2 that BC user does not have.</source>
           <note from="Developer" annotates="general" priority="2">%1 = Plan ID (guid); %2 = Plan name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType GraphUserHasExtraPlanTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1645891195 - NamedType 567353834" size-unit="char" translate="no" xml:space="preserve">
+          <source>Check for mixed plans. Basic plan exists: %1, Essentials plan exists: %2; Premium plan exists: %3.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType MixedPlansExistTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1645891195 - NamedType 607416359" size-unit="char" translate="no" xml:space="preserve">
+          <source>Check for mixed plans. First conflicting user: [%1], second conflicting user [%3].</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType UsersWithMixedPlansTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1645891195 - NamedType 2303841236" size-unit="char" translate="no" xml:space="preserve">
+          <source>Checking for mixed plans...</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Plan Impl. - NamedType CheckingForMixedPlansTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1916930039 - NamedType 3474771115" size-unit="char" translate="no" xml:space="preserve">
           <source>{d9a6391b-8970-4976-bd94-5f205007c8d8}</source>
@@ -1474,44 +1499,64 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType AuthenticationEmailUpdateShouldBeTheFirstForANewUserErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 2568175304" size-unit="char" translate="no" xml:space="preserve">
-          <source>Applying update for user %1 with authentication object ID %2.</source>
+          <source>Applying update for user security ID [%1] with authentication object ID [%2]. Blank Guids indicate users not present in BC.</source>
           <note from="Developer" annotates="general" priority="2">%1 = user security ID (guid) and %2 = authentication object ID (guid)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ApplyingUserUpdateTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 3824597390" size-unit="char" translate="no" xml:space="preserve">
-          <source>User not found. Creating a new user from authentication object ID %1 and authentication email %2.</source>
+          <source>User not found. Creating a new user from authentication object ID [%1] and authentication email [%2].</source>
           <note from="Developer" annotates="general" priority="2">%1 = authentication object ID (guid), %2 = authentication email (email)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserNotFoundWhenApplyingTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 1342279027" size-unit="char" translate="no" xml:space="preserve">
-          <source>A new user with security ID %1 has been created.</source>
+          <source>A new user with security ID [%1] has been created.</source>
           <note from="Developer" annotates="general" priority="2">%1 = user security ID (guid)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserCreatedTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 4169672698" size-unit="char" translate="no" xml:space="preserve">
-          <source>Updating %1 from [%2] to [%3] for user %4</source>
+          <source>Updating %1 from [%2] to [%3] for user [%4]</source>
           <note from="Developer" annotates="general" priority="2">%1 = the update entity e.g. Full name, Plan etc.; %2 = current value of entity; %3 = new value of entity; %4 = user security ID (guid)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ApplyingEntityUpdateTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 3404424980" size-unit="char" translate="no" xml:space="preserve">
-          <source>A new user %1 has property [%2] set to [%3]. The original value from Graph is [%4].</source>
+          <source>A new user [%1] has property [%2] set to [%3]. The original value from Graph is [%4].</source>
           <note from="Developer" annotates="general" priority="2">%1 = user security ID (guid); %2 = the update entity e.g. Full name, Plan etc.; %3 = new value of entity; %4 = original value of entity from Graph</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType NewUserChangesTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 2552768081" size-unit="char" translate="no" xml:space="preserve">
-          <source>Existing user %1 has %2 changed from [%3] to [%4]. The original value from Graph is [%5].</source>
+          <source>Existing user [%1] has [%2] changed from [%3] to [%4]. The original value from Graph is [%5].</source>
           <note from="Developer" annotates="general" priority="2">%1 = user security ID (guid); %2 = the update entity e.g. Full name, Plan etc.; %3 = current value of entity; %4 = new value of entity; %5 = original value of entity from Graph</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ExistingUserChangesTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 1839344868" size-unit="char" translate="no" xml:space="preserve">
+          <source>Existing user [%1] with authentication object ID [%2] does not have a BC plan in the office portal anymore. Current plan: [%3].</source>
+          <note from="Developer" annotates="general" priority="2">%1 = user security ID (guid); %2 = authentication object ID (guid); %3 = plan name (text).</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType ExistingUserRemovedTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 1591514518" size-unit="char" translate="no" xml:space="preserve">
-          <source>Adding changes for a new user %1.</source>
+          <source>Adding changes for a new user [%1].</source>
           <note from="Developer" annotates="general" priority="2">%1 = user display name (text)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType AddingInformationForANewUserTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 390433962 - NamedType 1193264253" size-unit="char" translate="no" xml:space="preserve">
-          <source>Adding changes for an existing user %1.</source>
+          <source>Adding changes for an existing user [%1].</source>
           <note from="Developer" annotates="general" priority="2">%1 = user display name (text)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType AddingInformationForAnExistingUserTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 1641238424" size-unit="char" translate="no" xml:space="preserve">
+          <source>Adding changes for a user removed / de-licensed in Office with user name [%1].</source>
+          <note from="Developer" annotates="general" priority="2">%1 = User name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType AddingInformationForARemovedUserTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 3751871765" size-unit="char" translate="no" xml:space="preserve">
+          <source>User with AAD Object ID [%1] has plans [%2].</source>
+          <note from="Developer" annotates="general" priority="2">%1 = authentication object ID (guid); %2 = list of plans for the user (text)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType PlanNamesPerUserFromGraphTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 390433962 - NamedType 3356355549" size-unit="char" translate="no" xml:space="preserve">
+          <source>|</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType DelimiterTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4215518646 - NamedType 1905859220" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 is not an application secret.</source>
@@ -1553,25 +1598,65 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Temp Blob List Impl. - NamedType InvalidNoObjectsRequestedErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2308444729 - NamedType 1037556188" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 2776087363 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Camera</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 426738318 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Taking picture...</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 426738318 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please, take a picture using your camera.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not connect to camera</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not access the camera on the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2308444729 - NamedType 3828681647" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture_%1.jpeg</source>
+          <note from="Developer" annotates="general" priority="2">%1 = String generated from current datetime to make sure file names are unique </note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType PictureFileNameTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2308444729 - NamedType 1398852855" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The existing picture will be replaced. Do you want to continue?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType OverrideImageQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2308444729 - NamedType 3567299321" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The provided field must be of type 'Media'.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType NotAMediaFieldErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2458010968 - NamedType 1037556188" size-unit="char" translate="yes" xml:space="preserve">
           <source>The picture quality must be in the range from 0 to 100.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType QualityOutOfRangeErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Page Impl. - NamedType QualityOutOfRangeErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2308444729 - NamedType 2942640116" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 2458010968 - NamedType 2942640116" size-unit="char" translate="yes" xml:space="preserve">
           <source>No picture was taken.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType NoPictureWasTakenErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Page Impl. - NamedType NoPictureWasTakenErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3793537252 - NamedType 1061121529" size-unit="char" translate="yes" xml:space="preserve">
           <source>The file is not available.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit File Helper - NamedType FileNotAvailableErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2641961939 - NamedType 1156808680" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 1804873446 - NamedType 1156808680" size-unit="char" translate="yes" xml:space="preserve">
           <source>No media was selected.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Media Upload Impl. - NamedType NoMediaWasSelectedErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Media Upload Page Impl. - NamedType NoMediaWasSelectedErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3211594149 - NamedType 1626488870" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose the location where you want to save the encryption key.</source>
@@ -1724,7 +1809,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType NotSufficientPermissionErr</note>
         </trans-unit>
         <trans-unit id="Page 2005578726 - Property 3863440606" size-unit="char" translate="yes" xml:space="preserve">
-          <source>app,add-in,customize,plug-in</source>
+          <source>app,add-in,customize,plug-in,appsource</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Property AdditionalSearchTerms</note>
         </trans-unit>
@@ -2579,7 +2664,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page User Plans FactBox - Control Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Update users from Office</source>
+          <source>Update users from Office 365</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Property Caption</note>
         </trans-unit>
@@ -2598,15 +2683,15 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control HeaderText - Property InstructionalText</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - Control 803948870 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Disclaimer</source>
+        <trans-unit id="Page 523480673 - Control 1673237505 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Note:</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control FooterGroup - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NoteGroup - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - Control 803948870 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Updates from Office 365 can take up to 72 hours to become available.</source>
+        <trans-unit id="Page 523480673 - Control 1673237505 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>It can take up to 72 hours for a change in Office 365 to become available to Business Central. If a change within that period does not appear in Business Central after you update users, try again later.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control FooterGroup - Property InstructionalText</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NoteGroup - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 4116649837 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Available Updates</source>
@@ -2703,15 +2788,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Finished - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - Control 797259199 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Number of updates</source>
+        <trans-unit id="Page 523480673 - Control 4139032030 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Summary</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NumberOfUpdatesApplied - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 523480673 - Control 797259199 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Summarizes the count of updates applied.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NumberOfUpdatesApplied - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NumberOfUpdatesAppliedGroup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Action 788258546 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cancel</source>
@@ -2794,17 +2874,17 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType NumberOfUpdatesAppliedTxt</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 2315222883" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1 updates are available.</source>
+          <source>Number of available updates: %1.</source>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to apply</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesAvailableTxt</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 2085817347" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1 are license updates for users who have custom permissions. The default permissions from the new license will replace the custom permissions. You must either apply the new permissions now or keep the current permissions. To do that, choose Manage permission updates.</source>
+          <source>Number of license updates for users who have customized permissions: %1. The default permissions from the new license will replace the custom permissions. You must either apply the new permissions now or keep the current permissions. To do that, choose Manage permission updates.</source>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to get confirmation on</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesToConfirmTxt</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 2580697080" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1 changes are available. These can be name, email address, preferred language, and user access changes. Choose View changes to see the list.</source>
+          <source>Number of available changes: %1. These can be name, email address, preferred language, and user access changes. Choose View changes to see the list.</source>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates ready to apply</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesReadyToApplyTxt</note>
         </trans-unit>
@@ -2812,31 +2892,6 @@
           <source>You do not have sufficient previleges to update users from Office 365</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType CannotUpdateUsersFromOfficeErr</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Camera</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 426738318 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Taking picture...</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 426738318 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Please, take a picture using your camera.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property InstructionalText</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not connect to camera</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not access the camera on the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 3036139225 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Media Upload</source>
@@ -3357,6 +3412,11 @@
           <source>New,Process,Report,Manage,View</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Worksheet - Property PromotedActionCategories</note>
+        </trans-unit>
+        <trans-unit id="Page 1105213220 - Property 3863440606" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GDPR,Data Privacy,Privacy,Personal Data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Worksheet - Property AdditionalSearchTerms</note>
         </trans-unit>
         <trans-unit id="Page 1105213220 - Control 2465538441 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of the affected table.</source>
@@ -4854,7 +4914,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control No. of Records - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 54790405 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>A value expressing the average size of a record, calculated as 1024 x Size (KB)/Records</source>
+          <source>The average size of a record (in bytes)</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Record Size (Byte) - Property ToolTip</note>
         </trans-unit>
@@ -4987,6 +5047,11 @@
           <source>Change</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD Update Type - EnumValue Change - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 437327207 - EnumValue 3238504282 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Remove</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Azure AD Update Type - EnumValue Remove - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 3165356393 - EnumValue 89296664 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Authentication Email</source>

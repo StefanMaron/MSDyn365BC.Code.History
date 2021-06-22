@@ -15,37 +15,37 @@
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 2586591135" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SQL database must be at comptibility level 130 or higher.</source>
-          <target>SQL-database moet van compatibiliteitsniveau 130 of hoger zijn.</target>
+          <target state="translated">SQL-database moet van compatibiliteitsniveau 130 of hoger zijn.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SqlCompatibilityErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 3448866843" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The maximum replicated data size of 150 GB has been exceeded.</source>
-          <target>De maximale grootte van gerepliceerde gegevens van 150 GB is overschreden.</target>
+          <source>The maximum replicated data size of 30 GB has been exceeded.</source>
+          <target state="translated">De maximale grootte van gerepliceerde gegevens van 30 GB is overschreden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType DatabaseTooLargeErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 2359240154" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The table does not exist in the local instance.</source>
-          <target>De tabel bestaat niet in de locale instantie.</target>
+          <target state="translated">De tabel bestaat niet in de locale instantie.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType TableNotExistsErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 778856548" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The local table schema differs from the Business Central cloud table.</source>
-          <target>Het lokale tabelschema verschilt van de Business Central-cloudtabel.</target>
+          <target state="translated">Het lokale tabelschema verschilt van de Business Central-cloudtabel.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SchemaMismatchErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 657071819" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to prepare data for the table.\\\\%1</source>
-          <target>Voorbereiden van gegevens voor de tabel is mislukt.\\\\%1</target>
+          <target state="translated">Voorbereiden van gegevens voor de tabel is mislukt.\\\\%1</target>
           <note from="Developer" annotates="general" priority="2">%1 - The inner error message.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType FailurePreparingDataErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 2948262442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to copy the table.\\\\%1</source>
-          <target>Kopiëren van tabel is mislukt.\\\\%1</target>
+          <target state="translated">Kopiëren van tabel is mislukt.\\\\%1</target>
           <note from="Developer" annotates="general" priority="2">%1 - The inner error message.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType FailureCopyingTableErr</note>
         </trans-unit>

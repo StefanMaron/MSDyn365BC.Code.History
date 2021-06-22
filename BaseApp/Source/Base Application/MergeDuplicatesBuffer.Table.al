@@ -390,7 +390,10 @@ table 64 "Merge Duplicates Buffer"
         RecordRef[2].Get(CurrentRecID);
         RecordRef[1].Get(DuplicateRecID);
         if IntegrationManagement.IsIntegrationActivated then begin
-            IntegrationRecord[2].FindByRecordId(RecordRef[2].RecordId);
+            IntegrationManagement.InsertUpdateIntegrationRecord(RecordRef[1], CurrentDateTime());
+            IntegrationManagement.InsertUpdateIntegrationRecord(RecordRef[2], CurrentDateTime());
+            if IntegrationRecord[2].FindByRecordId(RecordRef[2].RecordId) then
+                IntegrationRecord[2].Delete();
             if IntegrationRecord[1].FindByRecordId(RecordRef[1].RecordId) then
                 IntegrationRecord[1].Delete();
         end;
@@ -398,16 +401,24 @@ table 64 "Merge Duplicates Buffer"
         OverrideSelectedFields(RecordRef[2], RecordRef[1], false);
 
         RecordRef[2].Delete();
-        RestoreIntegrationRecordDeletion(IntegrationRecord[2]."Integration ID", RecordRef[2].RecordId, IntegrationRecord[2]);
         KeyFieldCount := GetKeyValues(RecordRef[2], KeyValue);
         if not RenameRecord(RecordRef[1], KeyFieldCount, KeyValue) then
             Error(RenameErr, RecordRef[1].RecordId, RecordRef[2].RecordId);
-        if IntegrationManagement.IsIntegrationActivated then begin
+        RestoreSystemID(RecordRef[1], IntegrationRecord[2]."Integration ID");
+
+        if IntegrationManagement.IsIntegrationActivated then
             UpdateIDs(
               RecordRef[1].Number, IdFieldId, IntegrationRecord[1]."Integration ID", IntegrationRecord[2]."Integration ID");
-            IntegrationRecord[1]."Deleted On" := CurrentDateTime;
-            IntegrationRecord[1].Insert(true);
-        end;
+    end;
+
+    local procedure RestoreSystemID(RenamedRecRef: RecordRef; SystemID: Guid)
+    var
+        SystemIdFldRef: FieldRef;
+    begin
+        RenamedRecRef.Delete(); // Inserts "deleted" IntegrationRecord
+        SystemIdFldRef := RenamedRecRef.Field(RenamedRecRef.SystemIdNo);
+        SystemIdFldRef.Value(SystemID);
+        RenamedRecRef.Insert(false, true);
     end;
 
     local procedure OverrideSelectedFields(FromRecRef: RecordRef; var ToRecRef: RecordRef; PickedFieldsOnly: Boolean): Boolean
@@ -547,19 +558,6 @@ table 64 "Merge Duplicates Buffer"
                     KeyValue[1], KeyValue[2], KeyValue[3], KeyValue[4], KeyValue[5], KeyValue[6], KeyValue[7], KeyValue[8], KeyValue[9],
                     KeyValue[10], KeyValue[11], KeyValue[12], KeyValue[13], KeyValue[14], KeyValue[15], KeyValue[16]));
         end;
-    end;
-
-    local procedure RestoreIntegrationRecordDeletion(IntegrationID: Guid; RecID: RecordID; var IntegrationRecord: Record "Integration Record")
-    var
-        IntegrationManagement: Codeunit "Integration Management";
-    begin
-        if not IntegrationManagement.IsIntegrationActivated then
-            exit;
-
-        IntegrationRecord.FindByIntegrationId(IntegrationID);
-        IntegrationRecord."Record ID" := RecID;
-        Clear(IntegrationRecord."Deleted On");
-        IntegrationRecord.Modify(true);
     end;
 
     local procedure UpdateIDs(TableNo: Integer; IdFieldNo: Integer; OldID: Guid; NewID: Guid)

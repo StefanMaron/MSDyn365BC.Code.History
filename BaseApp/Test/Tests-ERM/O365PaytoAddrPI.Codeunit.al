@@ -11,6 +11,7 @@ codeunit 138081 "O365 Pay-to Addr. P.I"
     var
         LibraryPurchase: Codeunit "Library - Purchase";
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         PayToOptions: Option "Default (Vendor)","Another Vendor";
         WrongPropertyStateTxt: Label '%1 property is not %2';
@@ -195,6 +196,8 @@ codeunit 138081 "O365 Pay-to Addr. P.I"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Pay-to Addr. P.I");
+
         if IsInitialized then
             exit;
 

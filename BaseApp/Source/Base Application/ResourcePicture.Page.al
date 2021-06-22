@@ -36,31 +36,11 @@ page 407 "Resource Picture"
                 Visible = CameraAvailable;
 
                 trigger OnAction()
-                var
-                    InStream: InStream;
                 begin
                     TestField("No.");
                     TestField(Name);
 
-                    if not CameraAvailable then
-                        exit;
-
-                    Camera.SetQuality(100); // 100%
-                    Camera.RunModal();
-                    if Camera.HasPicture() then begin
-                        if Image.HasValue then
-                            if not Confirm(OverrideImageQst) then
-                                exit;
-
-                        Camera.GetPicture(Instream);
-
-                        Clear(Image);
-                        Image.ImportStream(Instream, 'Resource Picture');
-                        if not Modify(true) then
-                            Insert(true);
-                    end;
-
-                    Clear(Camera);
+                    Camera.AddPicture(Rec, Rec.FieldNo(Image));
                 end;
             }
             action(ImportPicture)
@@ -151,7 +131,7 @@ page 407 "Resource Picture"
     end;
 
     var
-        Camera: Page Camera;
+        Camera: Codeunit Camera;
         [InDataSet]
         CameraAvailable: Boolean;
         OverrideImageQst: Label 'The existing picture will be replaced. Do you want to continue?';

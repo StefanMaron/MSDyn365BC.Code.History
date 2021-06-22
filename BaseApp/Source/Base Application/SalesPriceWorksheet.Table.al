@@ -268,6 +268,7 @@ table 7023 "Sales Price Worksheet"
         end else begin
             "Current Unit Price" := 0;
             PriceAlreadyExists := false;
+            OnCalcCurrentPriceOnPriceNotFound(Rec);
         end;
     end;
 
@@ -300,6 +301,11 @@ table 7023 "Sales Price Worksheet"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcCurrentPriceOnAfterSetFilters(var SalesPrice: Record "Sales Price"; SalesPriceWorksheet: Record "Sales Price Worksheet")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCurrentPriceOnPriceNotFound(var SalesPriceWorksheet: Record "Sales Price Worksheet")
     begin
     end;
 }

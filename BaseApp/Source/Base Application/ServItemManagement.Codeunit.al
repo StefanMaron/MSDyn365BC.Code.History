@@ -531,8 +531,14 @@ codeunit 5920 ServItemManagement
         ServItem: Record "Service Item";
         ReservationEntry: Record "Reservation Entry";
         ServItemDeleted: Boolean;
+        IsHandled: Boolean;
     begin
         if not (SalesHeader."Document Type" in [SalesHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::"Return Order"]) then
+            exit;
+
+        IsHandled := false;
+        OnBeforeDeleteServItemOnSaleCreditMemo(SalesHeader, IsHandled);
+        if IsHandled then
             exit;
 
         ServItemDeleted := false;
@@ -609,6 +615,11 @@ codeunit 5920 ServItemManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateServItemOnSalesLineShpt(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteServItemOnSaleCreditMemo(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

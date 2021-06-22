@@ -518,6 +518,7 @@ codeunit 5760 "Whse.-Post Receipt"
             PostedWhseRcptHeader."Document Status" := PostedWhseRcptHeader."Document Status"::"Completely Put Away";
         OnBeforePostedWhseRcptHeaderInsert(PostedWhseRcptHeader, WhseRcptHeader);
         PostedWhseRcptHeader.Insert();
+        OnAfterPostedWhseRcptHeaderInsert(PostedWhseRcptHeader, WhseRcptHeader);
 
         WhseComment.SetRange("Table Name", WhseComment."Table Name"::"Whse. Receipt");
         WhseComment.SetRange(Type, WhseComment.Type::" ");
@@ -930,6 +931,11 @@ codeunit 5760 "Whse.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckWhseRcptLines(var WhseRcptHeader: Record "Warehouse Receipt Header"; var WhseRcptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostedWhseRcptHeaderInsert(var PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header"; WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 

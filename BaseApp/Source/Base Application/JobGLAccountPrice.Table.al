@@ -106,7 +106,7 @@ table 1014 "Job G/L Account Price"
     begin
         LockTable();
         Job.Get("Job No.");
-        TestField("G/L Account No.");
+        CheckGLAccountNotEmpty();
     end;
 
     var
@@ -117,6 +117,23 @@ table 1014 "Job G/L Account Price"
     begin
         TestField("Job No.");
         Job.Get("Job No.");
+    end;
+
+    local procedure CheckGLAccountNotEmpty()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckGLAccountNotEmpty(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("G/L Account No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLAccountNotEmpty(var JobGLAccountPrice: Record "Job G/L Account Price"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -226,7 +226,10 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
     begin
         case AmountType of
             AmountType::Discount:
-                ServiceLine.Validate("Line Discount %");
+                begin
+                    ServiceLine.TestField("Allow Line Disc.");
+                    ServiceLine.Validate("Line Discount %");
+                end;
             AmountType::Price:
                 ServiceLine.Validate("Unit Price");
         end;
@@ -234,7 +237,7 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
 
     procedure Update(AmountType: enum "Price Amount Type")
     begin
-        if not IsDiscountAllowed() then
+        if not ServiceLine."Allow Line Disc." then
             ServiceLine."Line Discount %" := 0;
     end;
 }

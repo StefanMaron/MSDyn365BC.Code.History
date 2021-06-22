@@ -76,10 +76,7 @@ table 5901 "Service Item Line"
                 ServContractExist := false;
                 ServHeader.Get("Document Type", "Document No.");
                 if ServItem.Get("Service Item No.") then begin
-                    if ServHeader."Customer No." <> ServItem."Customer No." then
-                        Error(
-                          Text012,
-                          ServItem.TableCaption, "Service Item No.", ServHeader.FieldCaption("Customer No."), ServHeader."Customer No.");
+                    CheckServItemCustomer(ServHeader, ServItem);
 
                     if ServHeader."Contract No." <> '' then begin
                         ServHeader.TestField("Order Date");
@@ -95,6 +92,8 @@ table 5901 "Service Item Line"
                             ServContractLine.ValidateServicePeriod(ServHeader."Order Date");
                         ServContractExist := true;
                     end;
+
+                    OnValidateServiceItemNoOnBeforeEmptyContractNoFindServContractLine(Rec, ServHeader, ServItem);
 
                     if ServHeader."Contract No." = '' then begin
                         ServContractLine.Reset();
@@ -850,7 +849,7 @@ table 5901 "Service Item Line"
                         Error(Text052, "Contract No.");
                     ServHeader.TestField("Order Date");
                     IsHandled := false;
-                    OnValidateContractNoOnBeforeValidateServicePeriod(Rec, xRec, CurrFieldNo, IsHandled);
+                    OnValidateContractNoOnBeforeValidateServicePeriod(Rec, xRec, CurrFieldNo, IsHandled, ServHeader);
                     if not IsHandled then
                         ServContractLine.ValidateServicePeriod(ServHeader."Order Date");
                     "Contract Line No." := ServContractLine."Line No.";
@@ -2289,6 +2288,7 @@ table 5901 "Service Item Line"
         No[2] := No2;
         TableID[3] := Type3;
         No[3] := No3;
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
@@ -2417,6 +2417,11 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDimTableIDs(var ServiceItemLine: Record "Service Item Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterAssignItemValues(var ServiceItemLine: Record "Service Item Line"; var xServiceItemLine: Record "Service Item Line"; Item: Record Item; ServiceHeader: Record "Service Header"; CurrFieldNo: Integer)
     begin
     end;
@@ -2487,12 +2492,17 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateContractNoOnBeforeValidateServicePeriod(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnValidateContractNoOnBeforeValidateServicePeriod(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; CurrentFieldNo: Integer; var IsHandled: Boolean; var ServiceHeader: Record "Service Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateServiceItemNoOnBeforeValidateServicePeriod(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnBeforeEmptyContractNoFindServContractLine(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item")
     begin
     end;
 }

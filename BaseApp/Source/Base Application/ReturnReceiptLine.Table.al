@@ -555,6 +555,7 @@ table 6661 "Return Receipt Line"
             OnBeforeInsertInvLineFromRetRcptLineBeforeInsertTextLine(Rec, SalesLine, NextLineNo, IsHandled);
             if not IsHandled then begin
                 SalesLine.Insert();
+                OnAfterDescriptionSalesLineInsert(SalesLine, Rec, NextLineNo);
                 NextLineNo := NextLineNo + 10000;
             end;
         end;
@@ -623,18 +624,8 @@ table 6661 "Return Receipt Line"
                 OnInsertInvLineFromRetRcptLineOnBeforeValidateSalesLineQuantity(Rec, SalesLine, IsHandled);
                 if not IsHandled then
                     SalesLine.Validate(Quantity, Quantity - "Quantity Invoiced");
-                SalesLine.Validate("Unit Price", SalesOrderLine."Unit Price");
-                SalesLine."Allow Line Disc." := SalesOrderLine."Allow Line Disc.";
-                SalesLine."Allow Invoice Disc." := SalesOrderLine."Allow Invoice Disc.";
-                SalesLine.Validate("Line Discount %", SalesOrderLine."Line Discount %");
-                if SalesOrderLine.Quantity = 0 then
-                    SalesLine.Validate("Inv. Discount Amount", 0)
-                else
-                    SalesLine.Validate(
-                      "Inv. Discount Amount",
-                      Round(
-                        SalesOrderLine."Inv. Discount Amount" * SalesLine.Quantity / SalesOrderLine.Quantity,
-                        Currency."Amount Rounding Precision"));
+
+                CopySalesLinePriceAndDiscountFromSalesOrderLine(SalesLine, SalesOrderLine);
             end;
             SalesLine."Attached to Line No." :=
               TransferOldExtLines.TransferExtendedText(
@@ -663,6 +654,29 @@ table 6661 "Return Receipt Line"
             SalesOrderHeader."Get Shipment Used" := true;
             SalesOrderHeader.Modify();
         end;
+    end;
+
+    local procedure CopySalesLinePriceAndDiscountFromSalesOrderLine(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopySalesLinePriceAndDiscountFromSalesOrderLine(SalesLine, SalesOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesLine.Validate("Unit Price", SalesOrderLine."Unit Price");
+        SalesLine."Allow Line Disc." := SalesOrderLine."Allow Line Disc.";
+        SalesLine."Allow Invoice Disc." := SalesOrderLine."Allow Invoice Disc.";
+        SalesLine.Validate("Line Discount %", SalesOrderLine."Line Discount %");
+        if SalesOrderLine.Quantity = 0 then
+            SalesLine.Validate("Inv. Discount Amount", 0)
+        else
+            SalesLine.Validate(
+              "Inv. Discount Amount",
+              Round(
+                SalesOrderLine."Inv. Discount Amount" * SalesLine.Quantity / SalesOrderLine.Quantity,
+                Currency."Amount Rounding Precision"));
     end;
 
     procedure GetSalesCrMemoLines(var TempSalesCrMemoLine: Record "Sales Cr.Memo Line" temporary)
@@ -784,6 +798,11 @@ table 6661 "Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopySalesLinePriceAndDiscountFromSalesOrderLine(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertInvLineFromRetRcptLine(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
     begin
     end;
@@ -800,6 +819,11 @@ table 6661 "Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRetRcptLineOnBeforeValidateSalesLineQuantity(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDescriptionSalesLineInsert(var SalesLine: Record "Sales Line"; ReturnReceiptLine: Record "Return Receipt Line"; var NextLineNo: Integer)
     begin
     end;
 }

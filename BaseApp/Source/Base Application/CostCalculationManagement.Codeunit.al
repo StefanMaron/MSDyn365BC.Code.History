@@ -62,6 +62,7 @@ codeunit 5836 "Cost Calculation Management"
                     UnitCost := MachineCenter."Unit Cost";
                 end;
         end;
+        OnAfterRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
     end;
 
     procedure CalcShareOfTotalCapCost(ProdOrderLine: Record "Prod. Order Line"; var ShareOfTotalCapCost: Decimal)
@@ -1237,6 +1238,11 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcActOutputQtyBaseOnAfterSetFilters(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
     begin
     end;
 }

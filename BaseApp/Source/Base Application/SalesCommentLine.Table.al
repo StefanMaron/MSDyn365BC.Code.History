@@ -109,6 +109,44 @@ table 44 "Sales Comment Line"
             until SalesCommentLineSource.Next() = 0;
     end;
 
+    procedure CopyLineCommentsFromSalesLines(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20]; var TempSalesLineSource: Record "Sales Line" temporary)
+    var
+        SalesCommentLineSource: Record "Sales Comment Line";
+        SalesCommentLineTarget: Record "Sales Comment Line";
+        IsHandled: Boolean;
+        NextLineNo: Integer;
+    begin
+        IsHandled := false;
+        OnBeforeCopyLineCommentsFromSalesLines(
+          SalesCommentLineTarget, IsHandled, FromDocumentType, ToDocumentType, FromNumber, ToNumber, TempSalesLineSource);
+        if IsHandled then
+            exit;
+
+        SalesCommentLineTarget.SetRange("Document Type", ToDocumentType);
+        SalesCommentLineTarget.SetRange("No.", ToNumber);
+        SalesCommentLineTarget.SetRange("Document Line No.", 0);
+        if SalesCommentLineTarget.FindLast() then;
+        NextLineNo := SalesCommentLineTarget."Line No." + 10000;
+        SalesCommentLineTarget.Reset();
+
+        SalesCommentLineSource.SetRange("Document Type", FromDocumentType);
+        SalesCommentLineSource.SetRange("No.", FromNumber);
+        if TempSalesLineSource.FindSet() then
+            repeat
+                SalesCommentLineSource.SetRange("Document Line No.", TempSalesLineSource."Line No.");
+                if SalesCommentLineSource.FindSet() then
+                    repeat
+                        SalesCommentLineTarget := SalesCommentLineSource;
+                        SalesCommentLineTarget."Document Type" := ToDocumentType;
+                        SalesCommentLineTarget."No." := ToNumber;
+                        SalesCommentLineTarget."Document Line No." := 0;
+                        SalesCommentLineTarget."Line No." := NextLineNo;
+                        SalesCommentLineTarget.Insert();
+                        NextLineNo += 10000;
+                    until SalesCommentLineSource.Next() = 0;
+            until TempSalesLineSource.Next() = 0;
+    end;
+
     procedure CopyHeaderComments(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
     var
         SalesCommentLineSource: Record "Sales Comment Line";
@@ -164,6 +202,11 @@ table 44 "Sales Comment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyLineComments(var SalesCommentLine: Record "Sales Comment Line"; var IsHandled: Boolean; FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20]; FromDocumentLineNo: Integer; ToDocumentLine: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyLineCommentsFromSalesLines(var SalesCommentLine: Record "Sales Comment Line"; var IsHandled: Boolean; FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20]; var TempSalesLineSource: Record "Sales Line" temporary)
     begin
     end;
 

@@ -60,9 +60,6 @@ page 9800 Users
                     Caption = 'Windows User Name';
                     ToolTip = 'Specifies the user''s name on Windows.';
                     Visible = not IsSaaS;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Desktop client is not supported in versions 15 and higher.';
-                    ObsoleteTag = '15.3';
 
                     trigger OnValidate()
                     var
@@ -356,9 +353,9 @@ page 9800 Users
             action(UpdateUserFromAzureGraph)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Update users from Office 365';
-                Image = Users;
+                Caption = 'Update user information from Office 365';
                 ToolTip = 'Update the names, authentication email addresses, and contact email addresses from Office 365 for the selected users.';
+                Image = Users;
                 Visible = IsSaaS;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Use the ''Update users from Office'' action instead.';
@@ -404,7 +401,7 @@ page 9800 Users
             action("Update users from Office")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Get user updates from Office 365';
+                Caption = 'Update users from Office 365';
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
@@ -469,6 +466,8 @@ page 9800 Users
 
     trigger OnDeleteRecord(): Boolean
     begin
+        if UserCard.DeleteUserIsAllowed(Rec) then
+            exit(true);
         if not UserCard.ManageUsersIsAllowed then
             Error('');
     end;

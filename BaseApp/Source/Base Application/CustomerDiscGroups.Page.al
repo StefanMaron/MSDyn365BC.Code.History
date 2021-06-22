@@ -55,11 +55,17 @@ page 512 "Customer Disc. Groups"
                     Image = SalesLineDisc;
                     Promoted = true;
                     PromotedCategory = Process;
-                    RunObject = Page "Sales Line Discounts";
-                    RunPageLink = "Sales Type" = CONST("Customer Disc. Group"),
-                                  "Sales Code" = FIELD(Code);
-                    RunPageView = SORTING("Sales Type", "Sales Code");
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
+
+                    trigger OnAction()
+                    var
+                        SalesLineDiscount: Record "Sales Line Discount";
+                    begin
+                        SalesLineDiscount.SetCurrentKey("Sales Type", "Sales Code");
+                        SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::"Customer Disc. Group");
+                        SalesLineDiscount.SetRange("Sales Code", Code);
+                        Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
+                    end;
                 }
             }
         }

@@ -35,6 +35,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         TypeOfID: Option "Auto Generated",Custom;
         VariantField: Code[10];
         WrongBalanceErr: Label 'Wrong balance for cost center %1.';
+        CostCenterBlockedErr: Label '%1 must be equal to ''No''  in Cost Center: Code=%2. Current value is ''Yes''.';
 
     [Test]
     [Scope('OnPrem')]
@@ -863,12 +864,42 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         VerifyCostCenterBalance(CostAllocationSource."Cost Center Code", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('AllocateCostsForVariant,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure TestAllocationWithTargetBlockedCostCenter()
+    var
+        CostAllocationSource: Record "Cost Allocation Source";
+        CostAllocationTarget: Record "Cost Allocation Target";
+        CostCenter: Record "Cost Center";
+        TotalShare: Decimal;
+    begin
+        // [FEATURE] [Report] [Cost Center]
+        // [SCENARIO 348340] Stan gets error on running "Cost Allocation" report with blocked Cost Center as target.
+        Initialize();
+
+        CreateAllocSourceWithCCenter(CostAllocationSource, TypeOfID::Custom);
+
+        TotalShare := LibraryRandom.RandIntInRange(50, 100);
+        CreateAllocTargetWithCCenter(CostAllocationSource, CostAllocationTarget, TotalShare);
+        CostCenter.Get(CostAllocationTarget."Target Cost Center");
+        CostCenter.Blocked := true;
+        CostCenter.Modify();
+
+        Commit();
+
+        MaxLevel := CostAllocationSource.Level;
+        asserterror REPORT.Run(REPORT::"Cost Allocation");
+
+        Assert.ExpectedError(StrSubstNo(CostCenterBlockedErr, CostCenter.FieldName(Blocked), CostCenter.Code));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cost Acc. Allocations");
-        LibraryVariableStorage.Clear;
-        ResetGlobalVariables;
-        LibraryCostAccounting.InitializeCASetup;
+        LibraryVariableStorage.Clear();
+        ResetGlobalVariables();
+        LibraryCostAccounting.InitializeCASetup();
     end;
 
     local procedure CreateAllocSourceWithCCenter(var CostAllocationSource: Record "Cost Allocation Source"; TypeOfID: Option "Auto Generated",Custom)

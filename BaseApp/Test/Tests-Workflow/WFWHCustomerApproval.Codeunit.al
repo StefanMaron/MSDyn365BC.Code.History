@@ -25,6 +25,7 @@ codeunit 134221 "WFWH Customer Approval"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         MockOnFindTaskSchedulerAllowed: Codeunit MockOnFindTaskSchedulerAllowed;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -508,6 +509,7 @@ codeunit 134221 "WFWH Customer Approval"
         ClearWorkflowWebhookEntry: Record "Workflow Webhook Entry";
         UserSetup: Record "User Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WFWH Customer Approval");
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
@@ -516,9 +518,11 @@ codeunit 134221 "WFWH Customer Approval"
         RemoveBogusUser;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WFWH Customer Approval");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
         BindSubscription(MockOnFindTaskSchedulerAllowed);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WFWH Customer Approval");
     end;
 
     local procedure CreateAndEnableCustomerWorkflowDefinition(ResponseUserID: Code[50]): Code[20]

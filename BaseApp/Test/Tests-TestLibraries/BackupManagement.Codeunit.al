@@ -469,7 +469,7 @@ codeunit 130011 "Backup Management"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 49, 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, 49, 'OnAfterGetDatabaseTableTriggerSetup', '', true, true)]
     local procedure OnAfterGetDatabaseTableTriggerSetupHandler(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
     begin
         OnDatabaseInsert := GetDatabaseTableTriggerSetup(TableId);

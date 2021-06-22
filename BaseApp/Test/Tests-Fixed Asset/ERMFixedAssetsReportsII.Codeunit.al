@@ -47,21 +47,6 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         FAPostingDateErr: Label 'FA Posting Date is not correct for %1 in FA Ledger Entry', Comment = '%1 = Fixed Asset No.';
         CompletionStatsTok: Label 'The depreciation has been calculated.';
 
-    local procedure Initialize()
-    begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Fixed Assets Reports - II");
-        Clear(LibraryReportDataset);
-        LibraryVariableStorage.Clear;
-
-        if isInitialized then
-            exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Reports - II");
-
-        isInitialized := true;
-        Commit();
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Reports - II");
-    end;
-
     [Test]
     [HandlerFunctions('RHFAProjectedValue')]
     [Scope('OnPrem')]
@@ -1539,6 +1524,63 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         until GLBudgetEntry.Next = 0;
     end;
 
+    [Test]
+    [HandlerFunctions('DepreciationCalcConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RunCalculateDepreciationForGenJnlWithBlankDocNoTwoFA()
+    var
+        FADepreciationBook: Record "FA Depreciation Book";
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Calculate Depreciation]
+        // [SCENARIO 352564] Run Calculate Depreciation for two fixed assets with blank Document No
+        Initialize;
+
+        // [GIVEN] Fixed asset "FA1" with aquisition cost
+        CreateFixedAssetWithDepreciationBook(FADepreciationBook);
+        IndexationAndIntegrationInBook(FADepreciationBook."Depreciation Book Code");
+        CreateAndPostGenJournalLine(FADepreciationBook);
+
+        // [GIVEN] Gen Journal Line has Document No "DeprDoc" after running Calculate Depreciation report for "FA1"
+        RunCalculateDepreciation(
+          FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", '', true, CalcDate('<1M>', WorkDate));
+        GenJournalLine.SetRange("Account No.", FADepreciationBook."FA No.");
+        GenJournalLine.FindFirst;
+        DocumentNo := GenJournalLine."Document No.";
+
+        // [GIVEN] Fixed asset "FA2" with aquisition cost
+        CreateFixedAssetWithDepreciationBook(FADepreciationBook);
+        IndexationAndIntegrationInBook(FADepreciationBook."Depreciation Book Code");
+        CreateAndPostGenJournalLine(FADepreciationBook);
+
+        // [WHEN]  Run Calculate Depreciation report for "FA2"
+        RunCalculateDepreciation(
+          FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", '', true, CalcDate('<1M>', WorkDate));
+
+        // [THEN] Gen Journal Line has Document No "DeprDoc" in the same journal for "FA2"
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetRange("Account No.", FADepreciationBook."FA No.");
+        GenJournalLine.FindFirst;
+        GenJournalLine.TestField("Document No.", DocumentNo);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Fixed Assets Reports - II");
+        Clear(LibraryReportDataset);
+        LibraryVariableStorage.Clear;
+
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Reports - II");
+
+        isInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Reports - II");
+    end;
+
     local procedure AttachFAPostingGroup(var FixedAsset: Record "Fixed Asset"; FAPostingGroup: Code[20])
     begin
         FixedAsset.Validate("FA Posting Group", FAPostingGroup);
@@ -1593,7 +1635,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
 
         for i := 1 to ArrayLen(NewPostingDate) do begin
             DeleteGeneralJournalLine(DepreciationBook.Code);
-            RunCalculateDepreciation(FixedAssetNo, DepreciationBook.Code, true, NewPostingDate[i]);
+            RunCalculateDepreciation(FixedAssetNo, DepreciationBook.Code, FixedAssetNo, true, NewPostingDate[i]);
             PostDepreciationWithDocumentNo(DepreciationBook.Code, i);
         end;
 
@@ -1924,7 +1966,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure RunCalculateDepreciation(No: Code[20]; DepreciationBookCode: Code[10]; BalAccount: Boolean; NewPostingDate: Date)
+    local procedure RunCalculateDepreciation(No: Code[20]; DepreciationBookCode: Code[10]; DocumentNo: Code[20]; BalAccount: Boolean; NewPostingDate: Date)
     var
         FixedAsset: Record "Fixed Asset";
         CalculateDepreciation: Report "Calculate Depreciation";
@@ -1934,7 +1976,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
 
         CalculateDepreciation.SetTableView(FixedAsset);
         CalculateDepreciation.InitializeRequest(
-          DepreciationBookCode, NewPostingDate, false, 0, NewPostingDate, No, FixedAsset.Description, BalAccount);
+          DepreciationBookCode, NewPostingDate, false, 0, NewPostingDate, DocumentNo, FixedAsset.Description, BalAccount);
         CalculateDepreciation.UseRequestPage(false);
         CalculateDepreciation.Run;
     end;

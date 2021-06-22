@@ -566,14 +566,11 @@ table 5076 "Segment Header"
         if InteractLogEntry.Find('-') then
             repeat
                 NextLineNo := NextLineNo + 10000;
-                SegLine.Init();
-                SegLine."Segment No." := "No.";
-                SegLine."Line No." := NextLineNo;
-                SegLine.Validate("Contact No.", InteractLogEntry."Contact No.");
-                SegLine."Campaign No." := InteractLogEntry."Campaign No.";
-                SegLine.Insert(true);
+                InsertSegmentLine(SegLine, InteractLogEntry, NextLineNo);
                 SegHistMgt.InsertLine("No.", SegLine."Contact No.", SegLine."Line No.");
             until InteractLogEntry.Next = 0;
+
+        OnAfterReuseLogged(Rec);
     end;
 
     procedure ReuseCriteria()
@@ -856,6 +853,23 @@ table 5076 "Segment Header"
             Validate("Salesperson Code", UserSetup."Salespers./Purch. Code");
     end;
 
+    local procedure InsertSegmentLine(var SegmentLine: Record "Segment Line"; InteractionLogEntry: Record "Interaction Log Entry"; LineNo: Integer)
+    begin
+        SegmentLine.Init();
+        SegmentLine."Segment No." := "No.";
+        SegmentLine."Line No." := LineNo;
+        SegmentLine.Validate("Contact No.", InteractionLogEntry."Contact No.");
+        SegmentLine."Campaign No." := InteractionLogEntry."Campaign No.";
+        SegmentLine.Insert(true);
+
+        OnAfterInsertSegmentLine(SegmentLine, InteractionLogEntry);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReuseLogged(var SegmentHeader: Record "Segment Header")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSegHeader(var SegmentHeader: Record "Segment Header")
     begin
@@ -873,6 +887,11 @@ table 5076 "Segment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnReuseCriteriaSavedSegmentCriteriaLineCaseElse(var SegmentHeader: Record "Segment Header"; var SavedSegmentCriteriaLine: Record "Saved Segment Criteria Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertSegmentLine(var SegmentLine: Record "Segment Line"; InteractionLogEntry: Record "Interaction Log Entry")
     begin
     end;
 }

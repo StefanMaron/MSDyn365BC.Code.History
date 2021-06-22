@@ -266,7 +266,7 @@ codeunit 9200 "Matrix Management"
 
         repeat
             CurrSetLength := CurrSetLength + 1;
-            Caption := Format(RecRef.Field(CaptionFieldNo).Value);
+            Caption := GetCaption(RecRef, CaptionFieldNo);
             if StrLen(Caption) <= MaxCaptionLength then
                 CaptionSet[CurrSetLength] := CopyStr(Caption, 1, MaxCaptionLength)
             else
@@ -277,6 +277,12 @@ codeunit 9200 "Matrix Management"
             CaptionRange := CaptionSet[1]
         else
             CaptionRange := CaptionSet[1] + '..' + CaptionSet[CurrSetLength];
+    end;
+
+    local procedure GetCaption(var RecRef: RecordRef; CaptionFieldNo: Integer) Caption: Text;
+    begin
+        Caption := Format(RecRef.Field(CaptionFieldNo).Value);
+        OnAfterGetCaption(RecRef, CaptionFieldNo, Caption);
     end;
 
     procedure GeneratePeriodMatrixData(SetWanted: Option; MaximumSetLength: Integer; UseNameForCaption: Boolean; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; DateFilter: Text; var RecordPosition: Text; var CaptionSet: array[32] of Text[80]; var CaptionRange: Text; var CurrSetLength: Integer; var PeriodRecords: array[32] of Record Date temporary)
@@ -493,6 +499,11 @@ codeunit 9200 "Matrix Management"
                 AmountDecimal := Format(1);
         end;
         exit(StrSubstNo(RoundingFormatTxt, AmountDecimal));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCaption(var RecRef: RecordRef; CaptionFieldNo: Integer; var Caption: Text)
+    begin
     end;
 }
 

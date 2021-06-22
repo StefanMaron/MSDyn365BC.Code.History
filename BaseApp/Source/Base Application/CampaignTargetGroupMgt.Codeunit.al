@@ -20,8 +20,6 @@ codeunit 7030 "Campaign Target Group Mgt"
 
     procedure ActivateCampaign(var Campaign: Record Campaign)
     var
-        SalesPrice: Record "Sales Price";
-        SalesLineDisc: Record "Sales Line Discount";
         ConfirmManagement: Codeunit "Confirm Management";
         Window: Dialog;
         Found: Boolean;
@@ -35,16 +33,10 @@ codeunit 7030 "Campaign Target Group Mgt"
         if IsHandled then
             exit;
 
-        SalesPrice.SetCurrentKey("Sales Type", "Sales Code");
-        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Campaign);
-        SalesPrice.SetRange("Sales Code", Campaign."No.");
-        SalesLineDisc.SetCurrentKey("Sales Type", "Sales Code");
-        SalesLineDisc.SetRange("Sales Type", SalesLineDisc."Sales Type"::Campaign);
-        SalesLineDisc.SetRange("Sales Code", Campaign."No.");
-        if not (SalesPrice.FindFirst or SalesLineDisc.FindFirst) then begin
+        if NoPriceDiscForCampaign(Campaign."No.") then begin
             Continue :=
-              ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, Campaign.TableCaption), true);
-            if Continue = false then
+                ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, Campaign.TableCaption), true);
+            if not Continue then
                 exit;
         end;
         CampaignTargetGr.LockTable();
@@ -250,6 +242,34 @@ codeunit 7030 "Campaign Target Group Mgt"
         CampaignTargetGr."No." := No;
         CampaignTargetGr."Campaign No." := CampaignNo;
         CampaignTargetGr.Insert(true);
+    end;
+
+    local procedure NoPriceDiscForCampaign(CampaignNo: Code[20]): Boolean
+    var
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        PriceListLine: Record "Price List Line";
+    begin
+        if PriceCalculationSetup.FindDefault(PriceCalculationSetup.Method::"Lowest Price", PriceCalculationSetup.Type::Sale) then
+            if PriceCalculationSetup.Implementation <> PriceCalculationSetup.Implementation::"Business Central (Version 15.0)" then begin
+                PriceListLine.SetRange("Source Type", PriceListLine."Source Type"::Campaign);
+                PriceListLine.SetRange("Source No.", CampaignNo);
+                exit(PriceListLine.IsEmpty());
+            end;
+        exit(NoPriceDiscV15ForCampaign(CampaignNo));
+    end;
+
+    local procedure NoPriceDiscV15ForCampaign(CampaignNo: Code[20]): Boolean;
+    var
+        SalesPrice: Record "Sales Price";
+        SalesLineDisc: Record "Sales Line Discount";
+    begin
+        SalesPrice.SetCurrentKey("Sales Type", "Sales Code");
+        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Campaign);
+        SalesPrice.SetRange("Sales Code", CampaignNo);
+        SalesLineDisc.SetCurrentKey("Sales Type", "Sales Code");
+        SalesLineDisc.SetRange("Sales Type", SalesLineDisc."Sales Type"::Campaign);
+        SalesLineDisc.SetRange("Sales Code", CampaignNo);
+        exit(SalesPrice.IsEmpty() and SalesLineDisc.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]

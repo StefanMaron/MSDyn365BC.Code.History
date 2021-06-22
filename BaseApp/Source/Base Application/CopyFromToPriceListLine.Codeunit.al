@@ -68,8 +68,10 @@ Codeunit 7009 CopyFromToPriceListLine
                         PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"Item Discount Group");
                 end;
                 PriceListLine.Validate("Asset No.", SalesLineDiscount.Code);
-                PriceListLine.Validate("Variant Code", SalesLineDiscount."Variant Code");
-                PriceListLine.Validate("Unit of Measure Code", SalesLineDiscount."Unit of Measure Code");
+                if SalesLineDiscount.Type = SalesLineDiscount.Type::Item then begin
+                    PriceListLine.Validate("Variant Code", SalesLineDiscount."Variant Code");
+                    PriceListLine.Validate("Unit of Measure Code", SalesLineDiscount."Unit of Measure Code");
+                end;
                 PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
                 PriceListLine."Line Discount %" := SalesLineDiscount."Line Discount %";
                 PriceListLine."Currency Code" := SalesLineDiscount."Currency Code";
@@ -164,8 +166,10 @@ Codeunit 7009 CopyFromToPriceListLine
                 TempSalesLineDiscount."Ending Date" := PriceListLine."Ending Date";
                 TempSalesLineDiscount.Type := ConvertAssetTypeToSalesDiscType(PriceListLine);
                 TempSalesLineDiscount.Code := PriceListLine."Asset No.";
-                TempSalesLineDiscount."Variant Code" := PriceListLine."Variant Code";
-                TempSalesLineDiscount."Unit of Measure Code" := PriceListLine."Unit of Measure Code";
+                if TempSalesLineDiscount.Type = TempSalesLineDiscount.Type::Item then begin
+                    TempSalesLineDiscount."Variant Code" := PriceListLine."Variant Code";
+                    TempSalesLineDiscount."Unit of Measure Code" := PriceListLine."Unit of Measure Code";
+                end;
                 TempSalesLineDiscount."Line Discount %" := PriceListLine."Line Discount %";
                 TempSalesLineDiscount."Currency Code" := PriceListLine."Currency Code";
                 TempSalesLineDiscount."Minimum Quantity" := PriceListLine."Minimum Quantity";

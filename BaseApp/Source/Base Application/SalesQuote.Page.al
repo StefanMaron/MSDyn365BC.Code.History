@@ -1102,9 +1102,7 @@ page 41 "Sales Quote"
                             Insert(true);
                             Commit();
                         end;
-                        CopySalesDoc.SetSalesHeader(Rec);
-                        CopySalesDoc.RunModal;
-                        Clear(CopySalesDoc);
+                        CopyDocument();
                         if Get("Document Type", "No.") then;
                     end;
                 }
@@ -1582,7 +1580,6 @@ page 41 "Sales Quote"
 
     var
         SalesHeaderArchive: Record "Sales Header Archive";
-        CopySalesDoc: Report "Copy Sales Document";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;

@@ -322,8 +322,15 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
         exit("Line No." = TempPurchRcptLine."Line No.");
     end;
 
-    local procedure IsShowRec(PurchRcptLine2: Record "Purch. Rcpt. Line"): Boolean
+    local procedure IsShowRec(PurchRcptLine2: Record "Purch. Rcpt. Line") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsShowRec(PurchRcptLine2, RevQtyFilter, Result, IsHandled, RemainingQty, RevUnitCostLCY, FillExactCostReverse);
+        if IsHandled then
+            exit(Result);
+
         with PurchRcptLine2 do begin
             RemainingQty := 0;
             if RevQtyFilter and (Type = Type::" ") then
@@ -332,6 +339,12 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
                 exit(true);
             if ("Job No." <> '') or ("Prod. Order No." <> '') then
                 exit(not RevQtyFilter);
+
+            IsHandled := false;
+            OnIsShowRecOnBeforeCalcReceivedPurchNotReturned(PurchRcptLine2, RevQtyFilter, IsHandled);
+            if IsHandled then
+                exit(not RevQtyFilter);
+
             CalcReceivedPurchNotReturned(RemainingQty, RevUnitCostLCY, FillExactCostReverse);
             if not RevQtyFilter then
                 exit(true);
@@ -385,6 +398,16 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsShowRec(PurchRcptLine: Record "Purch. Rcpt. Line"; var RevQtyFilter: Boolean; var Result: Boolean; var IsHandled: Boolean; var RemainingQty: Decimal; var RevUnitCostLCY: Decimal; FillExactCostReverse: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsShowRecOnBeforeCalcReceivedPurchNotReturned(PurchRcptLine2: Record "Purch. Rcpt. Line"; var RevQtyFilter: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

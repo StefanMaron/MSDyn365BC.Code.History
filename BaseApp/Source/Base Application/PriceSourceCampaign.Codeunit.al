@@ -6,17 +6,19 @@ codeunit 7039 "Price Source - Campaign" implements "Price Source"
 
     procedure GetNo(var PriceSource: Record "Price Source")
     begin
-        if Campaign.GetBySystemId(PriceSource."Source ID") then
-            PriceSource."Source No." := Campaign."No."
-        else
+        if Campaign.GetBySystemId(PriceSource."Source ID") then begin
+            PriceSource."Source No." := Campaign."No.";
+            FillAdditionalFields(PriceSource);
+        end else
             PriceSource.InitSource();
     end;
 
     procedure GetId(var PriceSource: Record "Price Source")
     begin
-        if Campaign.Get(PriceSource."Source No.") then
-            PriceSource."Source ID" := Campaign.SystemId
-        else
+        if Campaign.Get(PriceSource."Source No.") then begin
+            PriceSource."Source ID" := Campaign.SystemId;
+            FillAdditionalFields(PriceSource);
+        end else
             PriceSource.InitSource();
     end;
 
@@ -47,5 +49,11 @@ codeunit 7039 "Price Source - Campaign" implements "Price Source"
 
     procedure GetGroupNo(PriceSource: Record "Price Source"): Code[20];
     begin
+    end;
+
+    local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
+    begin
+        PriceSource."Starting Date" := Campaign."Starting Date";
+        PriceSource."Ending Date" := Campaign."Ending Date";
     end;
 }

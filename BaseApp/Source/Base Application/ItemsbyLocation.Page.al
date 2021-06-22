@@ -123,7 +123,7 @@ page 491 "Items by Location"
         CaptionFieldNo: Integer;
         CurrentMatrixRecordOrdinal: Integer;
     begin
-        TempMatrixLocation.SetRange("Use As In-Transit", ShowInTransit);
+        SetTempMatrixLocationFilters();
 
         Clear(MATRIX_CaptionSet);
         Clear(MatrixRecords);
@@ -157,6 +157,13 @@ page 491 "Items by Location"
         UpdateMatrixSubform;
     end;
 
+    local procedure SetTempMatrixLocationFilters()
+    begin
+        TempMatrixLocation.SetRange("Use As In-Transit", ShowInTransit);
+
+        OnAfterSetTempMatrixLocationFilters(TempMatrixLocation);
+    end;
+
     local procedure ShowColumnNameOnAfterValidate()
     begin
         SetColumns(MATRIX_SetWanted::Same);
@@ -172,6 +179,11 @@ page 491 "Items by Location"
         CurrPage.MatrixForm.PAGE.Load(MATRIX_CaptionSet, MatrixRecords, TempMatrixLocation, MATRIX_CurrSetLength);
         CurrPage.MatrixForm.PAGE.SetRecord(Rec);
         CurrPage.Update(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTempMatrixLocationFilters(var TempMatrixLocation: Record Location temporary);
+    begin
     end;
 }
 

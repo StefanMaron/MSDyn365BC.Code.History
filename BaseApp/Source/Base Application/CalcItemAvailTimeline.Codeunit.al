@@ -115,6 +115,8 @@ codeunit 5540 "Calc. Item Avail. Timeline"
     end;
 
     local procedure MapToTimelineTransactionType(var TempToTimelineEvent: Record "Timeline Event" temporary; TempInventoryEventBuffer: Record "Inventory Event Buffer" temporary)
+    var
+        IsHandled: Boolean;
     begin
         with TempInventoryEventBuffer do begin
             if Type = Type::Inventory then begin
@@ -140,8 +142,11 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                 Type::Plan:
                     if "Action Message" = "Action Message"::New then
                         TempToTimelineEvent."Transaction Type" := TempToTimelineEvent."Transaction Type"::"New Supply";
-                else
-                    Error(TXT002, TempToTimelineEvent.FieldCaption("Transaction Type"), Type);
+                else begin
+                        OnMapToTimelineTransactionTypeOnBeforeError(TempToTimelineEvent, TempInventoryEventBuffer, IsHandled);
+                        if not IsHandled then
+                            Error(TXT002, TempToTimelineEvent.FieldCaption("Transaction Type"), Type);
+                    end;
             end;
         end;
     end;
@@ -659,6 +664,11 @@ codeunit 5540 "Calc. Item Avail. Timeline"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateTimelineEventDetails(var TempToTimelineEvent: Record "Timeline Event" temporary; TempFromInventoryEventBuffer: Record "Inventory Event Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMapToTimelineTransactionTypeOnBeforeError(var TempToTimelineEvent: Record "Timeline Event" temporary; TempInventoryEventBuffer: Record "Inventory Event Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 }

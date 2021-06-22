@@ -1,4 +1,4 @@
-codeunit 134 "Import Attachment - Inc. Doc."
+﻿codeunit 134 "Import Attachment - Inc. Doc."
 {
     TableNo = "Incoming Document Attachment";
 
@@ -26,6 +26,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
     begin
+        OnBeforeUploadFile(IncomingDocumentAttachment);
         IncomingDocumentAttachment.CalcFields(Content);
         if IncomingDocumentAttachment.Content.HasValue then
             if not Confirm(ReplaceContentQst, false) then
@@ -415,6 +416,11 @@ codeunit 134 "Import Attachment - Inc. Doc."
     procedure SetTestMode()
     begin
         IsTestMode := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUploadFile(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
+    begin
     end;
 }
 

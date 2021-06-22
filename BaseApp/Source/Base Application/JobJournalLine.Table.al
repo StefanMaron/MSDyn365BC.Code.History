@@ -1,4 +1,4 @@
-table 210 "Job Journal Line"
+﻿table 210 "Job Journal Line"
 {
     Caption = 'Job Journal Line';
 
@@ -1097,17 +1097,31 @@ table 210 "Job Journal Line"
         Resource: Record Resource;
     begin
         Resource.Get("No.");
-        Resource.CheckResourcePrivacyBlocked(false);
-        Resource.TestField(Blocked, false);
+        CheckResource(Resource);
+
         Description := Resource.Name;
         "Description 2" := Resource."Name 2";
         "Resource Group No." := Resource."Resource Group No.";
         "Gen. Prod. Posting Group" := Resource."Gen. Prod. Posting Group";
         Validate("Unit of Measure Code", Resource."Base Unit of Measure");
-        if "Time Sheet No." = '' then
-            Resource.TestField("Use Time Sheet", false);
+
 
         OnAfterAssignResourceValues(Rec, Resource);
+    end;
+
+    local procedure CheckResource(Resource: Record Resource)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckResource(Rec, Resource, IsHandled);
+        if IsHandled then
+            exit;
+
+        Resource.CheckResourcePrivacyBlocked(false);
+        Resource.TestField(Blocked, false);
+        if "Time Sheet No." = '' then
+            Resource.TestField("Use Time Sheet", false);
     end;
 
     local procedure CopyFromItem()
@@ -1396,6 +1410,7 @@ table 210 "Job Journal Line"
             ItemLedgEntry.SetRange(Open, true);
         end else
             ItemLedgEntry.SetRange(Positive, false);
+        OnSelectItemEntryOnAfterSetItemLedgerEntryFilters(ItemLedgEntry, CurrentFieldNo, Rec);
 
         if PAGE.RunModal(PAGE::"Item Ledger Entries", ItemLedgEntry) = ACTION::LookupOK then begin
             JobJnlLine2 := Rec;
@@ -1981,12 +1996,22 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckResource(var JobJournalLine: Record "Job Journal Line"; Resource: Record Resource; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var JobJournalLine: Record "Job Journal Line"; var xJobJournalLine: Record "Job Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateWorkTypeCode(var JobJournalLine: Record "Job Journal Line"; var xJobJournalLine: Record "Job Journal Line"; var IsLineDiscountHandled: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSelectItemEntryOnAfterSetItemLedgerEntryFilters(var ItemLedgEntry: Record "Item Ledger Entry"; CurrentFieldNo: Integer; var JobJournalLine: Record "Job Journal Line")
     begin
     end;
 
