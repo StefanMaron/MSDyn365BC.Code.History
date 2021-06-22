@@ -1,4 +1,4 @@
-report 1001 "Inventory Valuation"
+﻿report 1001 "Inventory Valuation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './InventoryValuation.rdlc';
@@ -213,6 +213,7 @@ report 1001 "Inventory Valuation"
                 ValueEntry.SetFilter("Location Code", GetFilter("Location Filter"));
                 ValueEntry.SetFilter("Global Dimension 1 Code", GetFilter("Global Dimension 1 Filter"));
                 ValueEntry.SetFilter("Global Dimension 2 Code", GetFilter("Global Dimension 2 Filter"));
+                OnItemOnAfterGetRecordOnAfterValueEntrySetInitialFilters(ValueEntry, Item);
 
                 if StartDate > 0D then begin
                     ValueEntry.SetRange("Posting Date", 0D, CalcDate('<-1D>', StartDate));
@@ -448,6 +449,11 @@ report 1001 "Inventory Valuation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordItemOnBeforeSkipEmptyLine(var Item: Record Item; StartingInvoicedQty: Decimal; IncreaseInvoicedQty: Decimal; DecreaseInvoicedQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemOnAfterGetRecordOnAfterValueEntrySetInitialFilters(var ValueEntry: Record "Value Entry"; Item: Record Item)
     begin
     end;
 }

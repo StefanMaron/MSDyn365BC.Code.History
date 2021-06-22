@@ -15,24 +15,26 @@ page 6305 "Power BI Report Dialog"
 
                 trigger ControlAddInReady(callbackUrl: Text)
                 begin
-                    if (FilterPostMessage <> '') and (reportfirstpage <> '') then
-                        CurrPage.WebPageViewer.SubscribeToEvent('message', EmbedUrl);
-                    CurrPage.WebPageViewer.Navigate(EmbedUrl);
+                    SetReport();
                 end;
 
                 trigger DocumentReady()
                 begin
-                    CurrPage.WebPageViewer.PostMessage(PostMessage, '*', false);
-                    CurrPage.Update;
+                    if LegacyPostMessage <> '' then
+                        CurrPage.WebPageViewer.PostMessage(LegacyPostMessage, '*', false)
+                    else
+                        CurrPage.WebPageViewer.PostMessage(PowerBIEmbedHelper.GetLoadReportMessage(), PowerBIEmbedHelper.TargetOrigin(), false)
                 end;
 
                 trigger Callback(data: Text)
                 begin
-                    // apply filter and navigate to the first page if report was expanded from FactBox
-                    if StrPos(data, 'reportPageLoaded') > 0 then begin
-                        CurrPage.WebPageViewer.PostMessage(FilterPostMessage, '*', true);
-                        CurrPage.WebPageViewer.PostMessage(reportfirstpage, '*', true);
-                    end;
+                    if LegacyFilterPostMessage <> '' then begin
+                        if StrPos(data, 'reportPageLoaded') > 0 then begin
+                            CurrPage.WebPageViewer.PostMessage(LegacyFilterPostMessage, '*', true);
+                            CurrPage.WebPageViewer.PostMessage(ReportPageMessage, '*', true);
+                        end
+                    end else
+                        HandleAddinCallback(data);
                 end;
 
                 trigger Refresh(callbackUrl: Text)
@@ -47,21 +49,59 @@ page 6305 "Power BI Report Dialog"
     }
 
     var
+        PowerBIEmbedHelper: Codeunit "Power BI Embed Helper";
         EmbedUrl: Text;
-        PostMessage: Text;
-        FilterPostMessage: Text;
-        reportfirstpage: Text;
+        LegacyPostMessage: Text;  // For backwards compatibility only, remove with SetUrl
+        LegacyFilterPostMessage: Text; // For backwards compatibility only, remove with SetFilter
+        LatestReceivedFilterInfo: Text;
+        CurrentListSelection: Text;
+        ReportPageMessage: Text;
 
+    [Obsolete('Use SetReportUrl instead','18.0')]
     procedure SetUrl(Url: Text; Message: Text)
     begin
         EmbedUrl := Url;
-        PostMessage := Message;
+        LegacyPostMessage := Message;
     end;
 
+    procedure SetReportUrl(Url: Text)
+    begin
+        EmbedUrl := Url;
+    end;
+
+    [Obsolete('Use SetFilterValue instead (pass as first parameter the filter value instead of the post message).','18.0')]
     procedure SetFilter(filterMessage: Text; firstpage: Text)
     begin
-        FilterPostMessage := filterMessage;
-        reportfirstpage := firstpage;
+        LegacyFilterPostMessage := filterMessage;
+        ReportPageMessage := firstpage;
+    end;
+
+    procedure SetFilterValue(FilterValue: Text; ReportPageMsg: Text)
+    begin
+        CurrentListSelection := FilterValue;
+        ReportPageMessage := ReportPageMsg;
+    end;
+
+    local procedure HandleAddinCallback(CallbackMessage: Text)
+    var
+        MessageForWebPage: Text;
+    begin
+        PowerBiEmbedHelper.HandleAddInCallback(CallbackMessage, CurrentListSelection, ReportPageMessage, LatestReceivedFilterInfo, MessageForWebPage);
+        if MessageForWebPage <> '' then
+            CurrPage.WebPageViewer.PostMessage(MessageForWebPage, PowerBiEmbedHelper.TargetOrigin(), true);
+    end;
+
+    local procedure SetReport()
+    var
+        JsonArray: DotNet Array;
+        DotNetString: DotNet String;
+    begin
+        // subscribe to events
+        CurrPage.WebPageViewer.SubscribeToEvent('message', EmbedUrl);
+        CurrPage.WebPageViewer.Navigate(EmbedUrl);
+        JsonArray := JsonArray.CreateInstance(GetDotNetType(DotNetString), 1);
+        JsonArray.SetValue('{"statusCode":202,"headers":{}}', 0);
+        CurrPage.WebPageViewer.SetCallbacksFromSubscribedEventToIgnore('message', JsonArray);
     end;
 }
 

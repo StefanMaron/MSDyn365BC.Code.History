@@ -1,4 +1,4 @@
-codeunit 5804 ItemCostManagement
+﻿codeunit 5804 ItemCostManagement
 {
     Permissions = TableData Item = rm,
                   TableData "Stockkeeping Unit" = rm,
@@ -61,8 +61,7 @@ codeunit 5804 ItemCostManagement
             if RecalcStdCost then
                 RecalcStdCostItem(Item);
 
-            if LastDirectCost <> 0 then
-                "Last Direct Cost" := LastDirectCost;
+            CheckUpdateLastDirectCost(Item, LastDirectCost);
 
             IsHandled := false;
             OnUpdateUnitCostOnBeforeValidatePriceProfitCalculation(Item, IsHandled);
@@ -81,6 +80,19 @@ codeunit 5804 ItemCostManagement
         end;
 
         OnAfterUpdateUnitCost(Item, CalledByFieldNo);
+    end;
+
+    local procedure CheckUpdateLastDirectCost(var Item: Record Item; LastDirectCost: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckUpdateLastDirectCost(Item, LastDirectCost, IsHandled);
+        if IsHandled then
+            exit;
+
+        if LastDirectCost <> 0 then
+            Item."Last Direct Cost" := LastDirectCost;
     end;
 
     procedure UpdateStdCostShares(FromItem: Record Item)
@@ -529,6 +541,11 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateAverageCost(var Item: Record Item; var AverageCost: Decimal; var AverageCostACY: Decimal; var AvgCostCalculated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckUpdateLastDirectCost(var Item: Record Item; LastDirectCost: Decimal; var IsHandled: Boolean)
     begin
     end;
 

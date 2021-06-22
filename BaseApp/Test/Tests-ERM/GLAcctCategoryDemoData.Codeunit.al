@@ -14,6 +14,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         NoAccountCategoryMatchErr: Label 'There is no subcategory description for %1 that matches ''%2''.', Comment = '%1=account category value, %2=the user input.';
         NotAValidValueTxt: Label 'Not a valid value';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         TotalAssetsTxt: Label 'Total Assets';
         TotatLiabilitiesTxt: Label 'Total Liabilities';
         TotalEquityTxt: Label 'Total Equity';
@@ -73,6 +74,8 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
 
         // Verify
         GLAccountCard."Account Category".AssertEquals(InitialCategory);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -98,6 +101,8 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
 
         // Verify
         Assert.AreEqual(InitialSubCategory, GLAccountCard.SubCategoryDescription.Value, 'Wrong subcategory');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -145,6 +150,8 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
 
         // Verify
         Assert.AreNotEqual('', GLAccountCard.SubCategoryDescription.Value, 'No subcategory selected');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -171,6 +178,8 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
 
         // Verify
         Assert.AreEqual(InitialSubCategory, GLAccountCard.SubCategoryDescription.Value, 'Wrong subcategory selected');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -222,6 +231,8 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         GLAccountCard.SubCategoryDescription.Lookup;
 
         // Verify - Done in modal page handler
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]

@@ -1,6 +1,6 @@
 page 5331 "CRM Full Synch. Review"
 {
-    Caption = 'Common Data Service Full Synch. Review';
+    Caption = 'Dataverse Full Synch. Review';
     PageType = Worksheet;
     SourceTable = "CRM Full Synch. Review Line";
     InsertAllowed = false;
@@ -87,7 +87,7 @@ page 5331 "CRM Full Synch. Review"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Common Data Service entities, as defined on the Integration Table Mappings page.';
+                ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page.';
 
                 trigger OnAction()
                 var
@@ -116,7 +116,7 @@ page 5331 "CRM Full Synch. Review"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Restart the integration job for synchronizing Business Central record types and Common Data Service entities, as defined on the Integration Table Mappings page.';
+                ToolTip = 'Restart the integration job for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page.';
                 trigger OnAction()
                 begin
                     Delete();
@@ -174,7 +174,7 @@ page 5331 "CRM Full Synch. Review"
         JobQueueEntryStatusStyle: Text;
         ToIntTableJobStatusStyle: Text;
         FromIntTableJobStatusStyle: Text;
-        StartInitialSynchPersonOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Before running full synchronization, you should couple all %1 salespeople to %2 users.\\Do you want to continue?', Comment = '%1 - product name, %2 = CDS service name';
+        StartInitialSynchPersonOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Before running full synchronization, you should couple all %1 salespeople to %2 users.\\Do you want to continue?', Comment = '%1 - product name, %2 = Dataverse service name';
         StartInitialSynchTeamOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Do you want to continue?';
 }
 

@@ -1,6 +1,6 @@
 page 7201 "CDS Connection Setup Wizard"
 {
-    Caption = 'Common Data Service Connection Setup', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+    Caption = 'Dataverse Connection Setup', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
     PageType = NavigatePage;
     SourceTable = "CDS Connection Setup";
@@ -42,7 +42,7 @@ page 7201 "CDS Connection Setup Wizard"
                 Caption = '';
                 group(Control1)
                 {
-                    InstructionalText = 'Connect Business Central to Common Data Service to synchronize data with other business apps.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    InstructionalText = 'Connect Business Central to Dataverse to synchronize data with other business apps.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                     ShowCaption = false;
                 }
                 group(Control2)
@@ -52,13 +52,13 @@ page 7201 "CDS Connection Setup Wizard"
                 }
                 group(Control3)
                 {
-                    InstructionalText = 'If you choose Next we will try to find your Common Data Service environments so you can choose the one to connect to.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    InstructionalText = 'If you choose Next we will try to find your Dataverse environments so you can choose the one to connect to.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                     ShowCaption = false;
                 }
             }
             group(StepApplication)
             {
-                InstructionalText = 'Specify the ID, secret and redirect URL of the Azure Active Directory application that will be used to connect to Common Data Service.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                InstructionalText = 'Specify the ID, secret and redirect URL of the Azure Active Directory application that will be used to connect to Dataverse.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 ShowCaption = false;
                 Visible = ApplicationStepVisible;
 
@@ -66,14 +66,14 @@ page 7201 "CDS Connection Setup Wizard"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Client ID';
-                    ToolTip = 'Specifies the ID of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the ID of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 }
                 field("Client Secret"; ClientSecret)
                 {
                     ApplicationArea = Suite;
                     ExtendedDatatype = Masked;
                     Caption = 'Client Secret';
-                    ToolTip = 'Specifies the secret of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the secret of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
 
                     trigger OnValidate()
                     begin
@@ -83,7 +83,7 @@ page 7201 "CDS Connection Setup Wizard"
                 field("Redirect URL"; "Redirect URL")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the Redirect URL of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the Redirect URL of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 }
             }
             group(Step1)
@@ -93,15 +93,15 @@ page 7201 "CDS Connection Setup Wizard"
                 group(Control11)
                 {
                     Caption = 'SET UP THE CONNECTION';
-                    InstructionalText = 'Specify the URL of the Common Data Service environment. Your environments appear in the list, or you can enter the URL.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    InstructionalText = 'Specify the URL of the Dataverse environment. Your environments appear in the list, or you can enter the URL.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                 }
 
                 field(ServerAddress; "Server Address")
                 {
                     ApplicationArea = Suite;
                     AssistEdit = true;
-                    ToolTip = 'The Common Data Service environment URL.';
-                    Caption = 'The Common Data Service environment URL.';
+                    ToolTip = 'The Dataverse environment URL.';
+                    Caption = 'The Dataverse environment URL.';
                     ShowCaption = false;
 
                     trigger OnValidate()
@@ -130,7 +130,7 @@ page 7201 "CDS Connection Setup Wizard"
 
                 group(Control12)
                 {
-                    InstructionalText = 'Sign in with an administrator user account and give consent to the application that will be used to connect to Common Data Service. The account will be used one time to install and configure components that the integration requires.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    InstructionalText = 'Sign in with an administrator user account and give consent to the application that will be used to connect to Dataverse. The account will be used one time to install and configure components that the integration requires.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                     ShowCaption = false;
                 }
 
@@ -209,11 +209,11 @@ page 7201 "CDS Connection Setup Wizard"
                 group("Integration User")
                 {
                     Caption = '';
-                    InstructionalText = 'Provide credentials for the user account that the business apps will use to authenticate when they exchange data. This should be an account that is used only for integration with Common Data Service.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    InstructionalText = 'Provide credentials for the user account that the business apps will use to authenticate when they exchange data. This should be an account that is used only for integration with Dataverse.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     group(Control22)
                     {
-                        InstructionalText = 'This account must be a valid user in Common Data Service and must not be assigned to the System Administrator role. When you finish this guide the account will become non-interactive.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                        InstructionalText = 'This account must be a valid user in Dataverse and must not be assigned to the System Administrator role. When you finish this guide the account will become non-interactive.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                         ShowCaption = false;
                     }
 
@@ -222,7 +222,7 @@ page 7201 "CDS Connection Setup Wizard"
                         ApplicationArea = Suite;
                         Caption = 'User Name';
                         ExtendedDatatype = EMail;
-                        ToolTip = 'Specifies the email of the user that will be used to connect to the Common Data Service environment and synchronize data. This must not be the administrator user account.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                        ToolTip = 'Specifies the email of the user that will be used to connect to the Dataverse environment and synchronize data. This must not be the administrator user account.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                         trigger OnValidate()
                         begin
@@ -234,7 +234,7 @@ page 7201 "CDS Connection Setup Wizard"
                         ApplicationArea = Suite;
                         Caption = 'Password';
                         ExtendedDatatype = Masked;
-                        ToolTip = 'Specifies the password of the user that will be used to connect to the Common Data Service environment and synchronize data.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                        ToolTip = 'Specifies the password of the user that will be used to connect to the Dataverse environment and synchronize data.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                         trigger OnValidate()
                         begin
@@ -251,14 +251,14 @@ page 7201 "CDS Connection Setup Wizard"
                 group("Ownership Model Selection")
                 {
                     Caption = 'Choose an ownership model.';
-                    InstructionalText = 'People or a team own records in Common Data Service that are created from data in Business Central. We recommend the Team model.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    InstructionalText = 'People or a team own records in Dataverse that are created from data in Business Central. We recommend the Team model.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     field("Ownership Model"; TempCDSConnectionSetup."Ownership Model")
                     {
                         Caption = 'Ownership Model';
                         ShowCaption = false;
                         ApplicationArea = Suite;
-                        ToolTip = 'Specifies the type of owner that will be assigned to any record that is created while synchronizing from Business Central to Common Data Service.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                        ToolTip = 'Specifies the type of owner that will be assigned to any record that is created while synchronizing from Business Central to Dataverse.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                         trigger OnValidate()
                         begin
@@ -271,13 +271,13 @@ page 7201 "CDS Connection Setup Wizard"
                 group("Team Ownership Model")
                 {
                     Caption = '';
-                    InstructionalText = 'We will create a business unit and a team in Common Data Service. Members of the team will own the synchronized data and can assign records to other users or teams in the business unit.';
+                    InstructionalText = 'We will create a business unit and a team in Dataverse. Members of the team will own the synchronized data and can assign records to other users or teams in the business unit.';
                     Visible = not IsPersonOwnershipModelSelected;
                 }
                 group("Salesperson Ownership Model")
                 {
                     Caption = '';
-                    InstructionalText = 'Couple salespersons in Business Central with users in Common Data Service. All synchronized data will be automatically owned by salesperson coupled to users. Owner (person) will be able to assign synchronized records to other users or teams in business unit.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    InstructionalText = 'Couple salespersons in Business Central with users in Dataverse. All synchronized data will be automatically owned by salesperson coupled to users. Owner (person) will be able to assign synchronized records to other users or teams in business unit.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                     Visible = IsPersonOwnershipModelSelected;
                 }
 
@@ -290,7 +290,7 @@ page 7201 "CDS Connection Setup Wizard"
                         ApplicationArea = Suite;
                         Caption = 'Complete without synchronization ';
                         ShowCaption = false;
-                        ToolTip = 'Complete the Common Data Service Assisted Setup without synchronizing data.';
+                        ToolTip = 'Complete the Dataverse Assisted Setup without synchronizing data.';
 
                         trigger OnValidate()
                         begin
@@ -308,7 +308,7 @@ page 7201 "CDS Connection Setup Wizard"
                     group(Control31)
                     {
                         Visible = FinishWithoutSynchronizingData;
-                        InstructionalText = 'When you choose Finish, the Common Data Service connection is enabled and you can start synchronizing data.';
+                        InstructionalText = 'When you choose Finish, the Dataverse connection is enabled and you can start synchronizing data.';
                         ShowCaption = false;
                     }
                 }
@@ -317,7 +317,7 @@ page 7201 "CDS Connection Setup Wizard"
             {
                 Visible = CoupleSalespersonsStepVisible;
                 Caption = '';
-                InstructionalText = 'The Person ownership model requires that you couple salespersons in Business Central with users in Common Data Service before you synchronize data. Otherwise, synchronization will not be successful.';
+                InstructionalText = 'The Person ownership model requires that you couple salespersons in Business Central with users in Dataverse before you synchronize data. Otherwise, synchronization will not be successful.';
                 group(Control41)
                 {
                     InstructionalText = 'The salespersons will own the synchronized data and can assign records to other users or teams in the business unit.';
@@ -395,7 +395,7 @@ page 7201 "CDS Connection Setup Wizard"
                 }
                 group(Control45)
                 {
-                    InstructionalText = 'After you choose Finish, you can follow the progress of your first synchronization on the Common Data Service Full Synch Review page. You might need to refresh the page to update the status.';
+                    InstructionalText = 'After you choose Finish, you can follow the progress of your first synchronization on the Dataverse Full Synch Review page. You might need to refresh the page to update the status.';
                     ShowCaption = false;
                 }
             }
@@ -696,7 +696,7 @@ page 7201 "CDS Connection Setup Wizard"
         AreAdminCredentialsCorrect: Boolean;
         FinishWithoutSynchronizingData: Boolean;
         GlobalDiscoUrlTok: Label 'https://globaldisco.crm.dynamics.com/', Locked = true;
-        OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespersons in Business Central with users in Common Data Service before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespersons and users now?';
+        OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespersons in Business Central with users in Dataverse before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespersons and users now?';
         SynchronizationRecommendationsLbl: Label 'Show synchronization recommendations';
         UserPassword: Text;
         SuccesfullyLoggedInTxt: Label 'The administrator is signed in.';
@@ -704,16 +704,16 @@ page 7201 "CDS Connection Setup Wizard"
         SignInAdminTxt: Label 'Sign in with administrator user';
         CoupleSalesPeopleTxt: Label 'Couple Salespeople to Users';
         NoEnvironmentSelectedErr: Label 'To sign in the administrator user you must specify an environment.';
-        ConnectionNotSetUpQst: Label 'The connection to Common Data Service environment has not been set up.\\Are you sure you want to exit?';
-        ConnectionNotCompletedQst: Label 'The setup for Common Data Service is not complete.\\Are you sure you want to exit?';
+        ConnectionNotSetUpQst: Label 'The connection to Dataverse environment has not been set up.\\Are you sure you want to exit?';
+        ConnectionNotCompletedQst: Label 'The setup for Dataverse is not complete.\\Are you sure you want to exit?';
         WrongCredentialsErr: Label 'The credentials provided are incorrect.';
         UsernameAndPasswordShouldNotBeEmptyErr: Label 'You must specify a username and a password for the integration user';
         SalespeoplShouldBeCoupledErr: Label 'When the Person ownership model is selected, coupling of salespeople is required.';
-        URLShouldNotBeEmptyErr: Label 'You must specify the URL of your Common Data Service environment.';
+        URLShouldNotBeEmptyErr: Label 'You must specify the URL of your Dataverse environment.';
         AdminUserShouldBesignedInErr: Label 'The admin user must be connected in order to proceed.';
-        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
-        FinishWithoutSynchronizingDataTxt: Label 'User has chosen to finalize CDS configuration without synchronizing data.', Locked = true;
-        FinishWithSynchronizingDataTxt: Label 'User has chosen to finalize CDS configuration also synchronizing data.', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
+        FinishWithoutSynchronizingDataTxt: Label 'User has chosen to finalize Dataverse configuration without synchronizing data.', Locked = true;
+        FinishWithSynchronizingDataTxt: Label 'User has chosen to finalize Dataverse configuration also synchronizing data.', Locked = true;
 
     [NonDebuggable]
     [Scope('OnPrem')]

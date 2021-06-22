@@ -3486,6 +3486,61 @@ codeunit 137158 "SCM Orders V"
         TransferLine.TestField("Receipt Date", NewDate);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TaxLiableTakenFromAlternateShippingAddress()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        // [SCENARIO 378102] When Customer has alternative shipping address, Tax Liable is taken from the shipping address to Sales Order
+        Initialize;
+
+        // [GIVEN] Customer with alternative ship-to code and "Tax Liable" = False
+        CreateCustomerWithAlternateShippingAddress(Customer, ShipToAddress);
+
+        // [GIVEN] Alternative address has "Tax Liable" = True
+        ModifyTaxFieldsShipToAddress(ShipToAddress, true);
+
+        // [WHEN] Create Sales Header for the Customer
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+
+        // [THEN] "Tax Liable" is taken from Alternative Shipping address and is TRUE
+        SalesHeader.TestField("Tax Liable", ShipToAddress."Tax Liable");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TaxLiableTakenFromBillToCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: array[2] of Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        // [SCENARIO 378102] When Customer has alternative shipping address and Bill-to Customer No., Tax Liable is taken from the Bill-to Customer to Sales Order
+        Initialize;
+
+        // [GIVEN] Customer with alternative ship-to code and "Tax Liable" = False
+        CreateCustomerWithAlternateShippingAddress(Customer[1], ShipToAddress);
+
+        // [GIVEN] Alternative address has "Tax Liable" = True
+        ModifyTaxFieldsShipToAddress(ShipToAddress, true);
+
+        // [GIVEN] Another Customer 2 with "Tax Liable" = False
+        CreateCustomerWithTaxAreaCode(Customer[2]);
+
+        // [GIVEN] Customer 1 has "Bill-To" Customer 2
+        Customer[1].Validate("Bill-to Customer No.", Customer[2]."No.");
+        Customer[1].Modify(true);
+
+        // [WHEN] Create Sales Header for the Customer 1
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer[1]."No.");
+
+        // [THEN] "Tax Liable" is taken from Customer 2 and is False
+        SalesHeader.TestField("Tax Liable", Customer[2]."Tax Liable");
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -3780,6 +3835,34 @@ codeunit 137158 "SCM Orders V"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         Customer.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithTaxAreaCode(var Customer: Record Customer)
+    var
+        TaxArea: Record "Tax Area";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateTaxArea(TaxArea);
+        Customer.Validate("Tax Area Code", TaxArea.Code);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithAlternateShippingAddress(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
+    begin
+        CreateCustomerWithTaxAreaCode(Customer);
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+    end;
+
+    local procedure ModifyTaxFieldsShipToAddress(var ShipToAddress: Record "Ship-to Address"; NewTaxLiable: Boolean)
+    var
+        TaxArea: Record "Tax Area";
+    begin
+        LibraryERM.CreateTaxArea(TaxArea);
+        ShipToAddress.Validate("Tax Liable", NewTaxLiable);
+        ShipToAddress.Validate("Tax Area Code", TaxArea.Code);
+        ShipToAddress.Modify(true);
     end;
 
     local procedure CreateDimensionForItem(ItemNo: Code[20])

@@ -121,6 +121,47 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
 
     [Test]
     [Scope('OnPrem')]
+    procedure PostMappingCodeunitMiltiApplies()
+    var
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        CreditTransferRegister: Record "Credit Transfer Register";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        DataExch: Record "Data Exch.";
+        BankAccountNo: Code[20];
+        VendorNo: Code[20];
+        ExpectedCount: Integer;
+        i: Integer;
+        AppliesCount: Integer;
+    begin
+        // [SCENARIO 379772] Credit Transfer Entries are created per each applies-to entry per journal line
+
+        // [GIVEN] Payment journal with several lines each has several applied entries
+        DataExch.Init();
+        DataExch.Insert();
+        BankAccountNo := LibraryERM.CreateBankAccountNo();
+        CreateExportGenJournalBatch(GenJnlBatch, BankAccountNo);
+        VendorNo := LibraryPurchase.CreateVendorNo;
+
+        for i := 1 to LibraryRandom.RandIntInRange(10, 20) do begin
+            AppliesCount := LibraryRandom.RandIntInRange(10, 20);
+            CreateVendPmtJournalLineWithMultiApplies(GenJnlBatch, VendorNo, DataExch."Entry No.", AppliesCount);
+            ExpectedCount += AppliesCount;
+        end;
+
+        // [WHEN] Run Export Payment (using export setup via codeunit 1275 "Exp. Post-Mapping Gen. Jnl.")
+        CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAccountNo);
+        CODEUNIT.Run(CODEUNIT::"Exp. Post-Mapping Gen. Jnl.", DataExch);
+
+        // [THEN] Credit transfer register entries are created per each applies-to entry per journal line
+        CreditTransferEntry.SetRange("Credit Transfer Register No.", CreditTransferRegister."No.");
+        Assert.RecordCount(CreditTransferEntry, ExpectedCount);
+
+        // Cleanup
+        DataExch.Delete(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure UserFeedbackCodeunit()
     var
         BankAcc: Record "Bank Account";
@@ -278,6 +319,34 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
         GenJnlBatch.Validate("Bal. Account No.", BalAccountNo);
         GenJnlBatch.Validate("Allow Payment Export", true);
         GenJnlBatch.Modify(true);
+    end;
+
+    local procedure CreateVendPmtJournalLineWithMultiApplies(GenJnlBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; DataExchEntryNo: Integer; AppliesCount: Integer)
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        i: Integer;
+    begin
+        LibraryERM.CreateGeneralJnlLine(GenJnlLine,
+          GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
+          GenJnlLine."Account Type"::Vendor, VendorNo, LibraryRandom.RandDec(1000, 2));
+        GenJnlLine."Applies-to ID" := LibraryUtility.GenerateGUID();
+        GenJnlLine."Data Exch. Entry No." := DataExchEntryNo;
+        GenJnlLine.Modify();
+
+        for i := 1 to AppliesCount do
+            MockVendorLegderEntryWithAppliesToID(VendorNo, GenJnlLine."Applies-to ID");
+    end;
+
+    local procedure MockVendorLegderEntryWithAppliesToID(VendorNo: Code[20]; AppliesToID: Code[50])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry."Entry No." :=
+            LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo(VendorLedgerEntry."Entry No."));
+        VendorLedgerEntry."Vendor No." := VendorNo;
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry."Applies-to ID" := AppliesToID;
+        VendorLedgerEntry.Insert();
     end;
 }
 

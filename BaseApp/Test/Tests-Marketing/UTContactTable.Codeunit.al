@@ -14,6 +14,10 @@ codeunit 134826 "UT Contact Table"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryERM: Codeunit "Library - ERM";
+        DateFilterErr: Label 'Date Filter does not match expected value';
 
     [Test]
     [Scope('OnPrem')]
@@ -678,6 +682,90 @@ codeunit 134826 "UT Contact Table"
         // [THEN] The error "The email address is not valid." is thrown.
         Assert.ExpectedError('The email address "test2.com" is not valid.');
         Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OpenCustomerPageFromContactHasDateFilter()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        CustomerCard: TestPage "Customer Card";
+        DateFilter: Text;
+    begin
+        // [FEATURE] [Customer]
+        // [SCENARIO 378030] When Customer Card page is open from Contact it has filter for Due Date already set
+
+        // [GIVEN] Customer created
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Contact exists for this customer
+        Contact.Get(GetContactNoFromContBusRelations(ContactBusinessRelation."Link to Table"::Customer, Customer."No."));
+
+        // [WHEN] Call "ShowCustVendBank" for this contact
+        CustomerCard.Trap();
+        Contact.ShowCustVendBank();
+
+        // [THEN] Customer Card has Date Filter which is equal to "before today"
+        DateFilter := StrSubstNo('''''..%1', WorkDate());
+        Assert.AreEqual(DateFilter, CustomerCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OpenVendorPageFromContactHasDateFilter()
+    var
+        Contact: Record Contact;
+        Vendor: Record Vendor;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        VendorCard: TestPage "Vendor Card";
+        DateFilter: Text;
+    begin
+        // [FEATURE] [Vendor]
+        // [SCENARIO 378030] When Vendor Card page is open from Contact it has filter for Due Date already set
+
+        // [GIVEN] Vendor created
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Contact exists for this Vendor
+        Contact.Get(GetContactNoFromContBusRelations(ContactBusinessRelation."Link to Table"::Vendor, Vendor."No."));
+
+        // [WHEN] Call "ShowCustVendBank" for this contact
+        VendorCard.Trap();
+        Contact.ShowCustVendBank();
+
+        // [THEN] Vendor Card has Date Filter which is equal to "before today"
+        DateFilter := StrSubstNo('''''..%1', WorkDate());
+        Assert.AreEqual(DateFilter, VendorCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OpenBankPageFromContactHasDateFilter()
+    var
+        Contact: Record Contact;
+        BankAccount: Record "Bank Account";
+        ContactBusinessRelation: Record "Contact Business Relation";
+        BankAccountCard: TestPage "Bank Account Card";
+        DateFilter: Text;
+    begin
+        // [FEATURE] [Bank Account]
+        // [SCENARIO 378030] When Bank Account Card page is open from Contact it has filter for Due Date already set
+
+        // [GIVEN] Bank Account created
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        // [GIVEN] Contact exists for this Bank Account
+        Contact.Get(GetContactNoFromContBusRelations(ContactBusinessRelation."Link to Table"::"Bank Account", BankAccount."No."));
+
+        // [WHEN] Call "ShowCustVendBank" for this contact
+        BankAccountCard.Trap();
+        Contact.ShowCustVendBank();
+
+        // [THEN] Bank Account Card has Date Filter which is equal to "before today"
+        DateFilter := StrSubstNo('''''..%1', WorkDate());
+        Assert.AreEqual(DateFilter, BankAccountCard.FILTER.GetFilter("Date Filter"), DateFilterErr);
     end;
 
     local procedure GetContactNoFromContBusRelations(LinkOption: Enum "Contact Business Relation Link To Table"; CodeNo: Code[20]): Code[20]

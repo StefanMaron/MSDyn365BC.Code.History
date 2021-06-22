@@ -885,6 +885,8 @@ codeunit 5944 SignServContractDoc
 
         ServContractHeader.Modify();
         ServContractMgt.FinishCodeunit;
+
+        OnAfterCreateServiceLinesLedgerEntries(ServHeader, ServContractHeader);
     end;
 
     local procedure CopyServComments(FromServContractHeader: Record "Service Contract Header"; ToServContractHeader: Record "Service Contract Header")
@@ -980,6 +982,11 @@ codeunit 5944 SignServContractDoc
 
     [IntegrationEvent(false, false)]
     local procedure OnAddendumToContractOnAfterSetStartingDate(FromServContractHeader: Record "Service Contract Header"; var StartingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateServiceLinesLedgerEntries(var ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 

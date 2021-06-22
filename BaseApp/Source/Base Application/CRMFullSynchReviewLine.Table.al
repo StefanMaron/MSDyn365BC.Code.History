@@ -497,7 +497,7 @@ table 5373 "CRM Full Synch. Review Line"
     end;
 
     var
-        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
-        SynchRecommDetailsTxt: Label 'The synchronization recommendation for CDS entity %1, with the direction %2 is %3', Comment = '%1 = Name of CDS entity, %2 = Synchronization Direction of CDS entity, %3 = Synchronization Recommendation', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
+        SynchRecommDetailsTxt: Label 'The synchronization recommendation for Dataverse entity %1, with the direction %2 is %3', Comment = '%1 = Name of Dataverse entity, %2 = Synchronization Direction of Dataverse entity, %3 = Synchronization Recommendation', Locked = true;
 }
 

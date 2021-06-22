@@ -131,7 +131,7 @@ table 5332 "Coupling Record Buffer"
 
     var
         InitialSynchDisabledErr: Label 'No initial synchronization direction was specified because initial synchronization was disabled.';
-        NoSuchCRMRecordErr: Label 'A record with the name %1 does not exist in %2.', Comment = '%1 = The record name entered by the user, %2 = CDS service name';
+        NoSuchCRMRecordErr: Label 'A record with the name %1 does not exist in %2.', Comment = '%1 = The record name entered by the user, %2 = Dataverse service name';
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         LookupCRMTables: Codeunit "Lookup CRM Tables";
         CRMProductName: Codeunit "CRM Product Name";

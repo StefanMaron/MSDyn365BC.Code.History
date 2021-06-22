@@ -1247,6 +1247,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Email Accounts Test - NamedType AccountNameLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3672253045 - NamedType 3931068423" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You can only open your own email messages.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Email E2E Tests - NamedType EmailMessageOpenPermissionErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4212090257 - NamedType 1287104243" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[recipient%1@test.com]]></Val>
@@ -1553,6 +1562,24 @@
       <Cmt Name="Dev"><![CDATA[Displayed between 12:00 and 13:59.]D;]A;(LookupHint=Codeunit Headlines Test - NamedType SimpleNoonGreetingTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2606943756 - NamedType 728330450" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The bookmark is invalid]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Page Summary Provider Test - NamedType InvalidBookmarkErrorMessageTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2606943756 - NamedType 3083749102" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cannot open the specified record because it is from a different table than the Page Provider Summary Test table, which the current page is based on.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Page Summary Provider Test - NamedType CannotOpenSpecifiedRecordTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3984922275 - NamedType 1394149075" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Some Password 2!]]></Val>
@@ -1834,7 +1861,7 @@
   </Item>
   <Item ItemId=";Codeunit 1261749768 - NamedType 3149388485" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[A call to System.Xml.XmlDocument.Validate failed with this message: The element 'bookstore' in namespace 'http://www.contoso.com/books' has invalid child element 'anotherNode'.]]></Val>
+      <Val><![CDATA[The element 'bookstore' in namespace 'http://www.contoso.com/books' has invalid child element 'anotherNode'.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1857,6 +1884,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Xml Validation Test - NamedType InvalidSchemaErrTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3077929187 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[My Manual Setup]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page My Manual Setup - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1236609991 - Control 3701787576 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">

@@ -38,9 +38,9 @@ codeunit 1814 "Assisted Setup Subscribers"
         CRMConnectionSetupTxt: Label 'Set up %1 connection', Comment = '%1 = CRM product name';
         CRMConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115256', Locked = true;
         CRMConnectionSetupDescriptionTxt: Label 'Connect your Dynamics 365 services for better insights.';
-        CDSConnectionSetupTxt: Label 'Set up Common Data Service connection';
+        CDSConnectionSetupTxt: Label 'Set up Dataverse connection';
         CDSConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115257', Locked = true;
-        CDSConnectionSetupDescriptionTxt: Label 'Connect to Common Data Service for better insights across business applications.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated';
+        CDSConnectionSetupDescriptionTxt: Label 'Connect to Dataverse for better insights across business applications.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated';
         AzureAdSetupTxt: Label 'Set up Azure Active Directory';
         HelpIntroductiontoFinancialsTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828702', Locked = true;
         HelpSetupCashFlowForecastTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828693', Locked = true;
@@ -241,10 +241,12 @@ codeunit 1814 "Assisted Setup Subscribers"
             AssistedSetup.Add(GetAppId(), Page::"Email Account Wizard", EmailSetupTxt, AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, HelpSetupEmailTxt, EmailAccountSetupDescriptionTxt);
             GlobalLanguage(Language.GetDefaultApplicationLanguageId());
             AssistedSetup.AddTranslation(Page::"Email Account Wizard", Language.GetDefaultApplicationLanguageId(), EmailSetupTxt);
+            AssistedSetup.Remove(Page::"Email Setup Wizard");
         end else begin
             AssistedSetup.Add(GetAppId(), PAGE::"Email Setup Wizard", EmailSetupTxt, AssistedSetupGroup::FirstInvoice, VideoUrlSetupEmailTxt, VideoCategory::FirstInvoice, HelpSetupEmailTxt, SMTPSetupDescriptionTxt);
             GlobalLanguage(Language.GetDefaultApplicationLanguageId());
             AssistedSetup.AddTranslation(PAGE::"Email Setup Wizard", Language.GetDefaultApplicationLanguageId(), EmailSetupTxt);
+            AssistedSetup.Remove(Page::"Email Account Wizard");
         end;
         GlobalLanguage(CurrentGlobalLanguage);
 

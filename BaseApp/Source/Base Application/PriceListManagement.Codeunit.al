@@ -185,7 +185,7 @@ codeunit 7017 "Price List Management"
         if PriceListLine.FindSet() then
             repeat
                 if not DuplicatePriceLine.Get(PriceListLine."Price List Code", PriceListLine."Line No.") then
-                    if FindDuplicatePrice(PriceListLine, SearchInside, DuplicatePriceListLine) then
+                    if FindDuplicatePrice(PriceListLine, PriceListHeader."Allow Updating Defaults", SearchInside, DuplicatePriceListLine) then
                         if DuplicatePriceLine.Get(DuplicatePriceListLine."Price List Code", DuplicatePriceListLine."Line No.") then
                             DuplicatePriceLine.Add(LineNo, DuplicatePriceLine."Line No.", PriceListLine)
                         else
@@ -194,12 +194,14 @@ codeunit 7017 "Price List Management"
         Found := LineNo > 0;
     end;
 
-    local procedure FindDuplicatePrice(PriceListLine: Record "Price List Line"; SearchInside: Boolean; var DuplicatePriceListLine: Record "Price List Line"): Boolean;
+    local procedure FindDuplicatePrice(PriceListLine: Record "Price List Line"; AsLineDefaults: Boolean; SearchInside: Boolean; var DuplicatePriceListLine: Record "Price List Line"): Boolean;
     begin
         DuplicatePriceListLine.Reset();
         if SearchInside then begin
             DuplicatePriceListLine.SetRange("Price List Code", PriceListLine."Price List Code");
             DuplicatePriceListLine.SetFilter("Line No.", '<>%1', PriceListLine."Line No.");
+            if AsLineDefaults then
+                SetHeadersFilters(PriceListLine, DuplicatePriceListLine);
         end else begin
             DuplicatePriceListLine.SetFilter("Price List Code", '<>%1', PriceListLine."Price List Code");
             SetHeadersFilters(PriceListLine, DuplicatePriceListLine);

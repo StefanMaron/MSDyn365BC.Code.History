@@ -844,7 +844,44 @@ codeunit 139182 "CRM Coupling Test"
     end;
 
     [Test]
-    [HandlerFunctions('CreateNewCouplingRecordPageHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
+    procedure CoupleInactivePriceListHeaderWithCRMPriceLevel()
+    var
+        CRMProduct: Record "CRM Product";
+        CustomerPriceGroup: Record "Customer Price Group";
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        CRMCouplingTest: Codeunit "CRM Coupling Test";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [UI] [Price List]
+        // [SCENARIO] Coupling is not enabled for inactive Price List Header
+        TestInit(true);
+        // [GIVEN] Extended Price is on
+        BindSubscription(CRMCouplingTest); // to pass 'CurPage.Activate on subpage' issue
+
+        // [GIVEN] Draft Price List Header for Customer Price Group 'CPR' with one Line for Item 'I'
+        LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code);
+        PriceListHeader.TestField(Status, PriceListHeader.Status::Draft);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code,
+            "Price Asset Type"::Item, Item."No.");
+        PriceListHeader.Status := PriceListHeader.Status::Draft;
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open "Sales Price List" page
+        SalesPriceList.OpenView;
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [THEN] CRM action group is not enabled
+        Assert.IsFalse(SalesPriceList.ManageCRMCoupling.Enabled(), 'ManageCRMCoupling.Enabled');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateNewCouplingRecordNavNamePageHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure CouplePriceListHeaderWithCRMPriceLevel()
     var
@@ -865,11 +902,9 @@ codeunit 139182 "CRM Coupling Test"
         // [SCENARIO] Coupling a Price List Header with child Line, create new Pricelevel in CRM
         TestInit(true);
         // [GIVEN] Extended Price is on
-        LibraryPriceCalculation.EnableExtendedPriceCalculation();
         BindSubscription(CRMCouplingTest); // to pass 'CurPage.Activate on subpage' issue
 
-
-        // [GIVEN] A Price List Header for Customer Price Group 'CPR' with one Line for Item 'I', Status is 'Draft'
+        // [GIVEN] Active Price List Header 'PLH001' for Customer Price Group 'CPR' with one Line for Item 'I'
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
         LibraryPriceCalculation.CreatePriceHeader(
@@ -878,10 +913,13 @@ codeunit 139182 "CRM Coupling Test"
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine, PriceListHeader.Code, "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code,
             "Price Asset Type"::Item, Item."No.");
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        PriceListHeader.Modify();
 
         // [GIVEN] The "Sales Price List" page
         SalesPriceList.OpenView;
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        Assert.IsTrue(SalesPriceList.ManageCRMCoupling.Enabled(), 'ManageCRMCoupling.Enabled');
 
         // [WHEN] Invoking the Set Up Coupling action, Create New
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
@@ -894,13 +932,15 @@ codeunit 139182 "CRM Coupling Test"
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Price List Header", PriceListHeader.GetView, IntegrationTableMapping);
 
+        // NAVName is 'PLH001' on the Coupling page (from CreateNewCouplingRecordNavNamePageHandler)
+        Assert.AreEqual(PriceListHeader.Code, LibraryVariableStorage.DequeueText(), 'NAVName');
         // [THEN] The Price List Header and CRM Pricelist are coupled
         Assert.IsTrue(CRMIntegrationRecord.IsRecordCoupled(PriceListHeader.RecordId),
           'The PriceListHeader must be coupled');
-        // [THEN] CRM Price List, where State is Inactive
+        // [THEN] CRM Price List, where State is Active
         CRMIntegrationRecord.FindByRecordID(PriceListHeader.RecordId);
         CRMPricelevel.Get(CRMIntegrationRecord."CRM ID");
-        CRMPricelevel.TestField(StateCode, CRMPricelevel.StateCode::Inactive);
+        CRMPricelevel.TestField(StateCode, CRMPricelevel.StateCode::Active);
         // [THEN] The Price List Line and CRM PricelistLine are coupled
         Assert.IsTrue(CRMIntegrationRecord.IsRecordCoupled(PriceListLine.RecordId),
           'The PriceListLine must be coupled');
@@ -916,6 +956,14 @@ codeunit 139182 "CRM Coupling Test"
     [Scope('OnPrem')]
     procedure CreateNewCouplingRecordPageHandler(var CRMCouplingRecord: TestPage "CRM Coupling Record")
     begin
+        CRMCouplingRecord.CreateNewControl.SetValue(true);
+        CRMCouplingRecord.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure CreateNewCouplingRecordNavNamePageHandler(var CRMCouplingRecord: TestPage "CRM Coupling Record")
+    begin
+        LibraryVariableStorage.Enqueue(CRMCouplingRecord.NAVName.Value());
         CRMCouplingRecord.CreateNewControl.SetValue(true);
         CRMCouplingRecord.OK.Invoke;
     end;
@@ -2065,7 +2113,6 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.CreateCRMOrganization;
         ResetDefaultCRMSetupConfiguration;
-        LibraryPriceCalculation.DisableExtendedPriceCalculation();
 
         RecordLink.DeleteAll();
     end;

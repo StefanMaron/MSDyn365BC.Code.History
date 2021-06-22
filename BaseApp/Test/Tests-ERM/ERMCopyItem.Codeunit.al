@@ -58,7 +58,7 @@ codeunit 134462 "ERM Copy Item"
         CopyItem(Item."No.");
 
         // [THEN] Comment line copied
-        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item."Base Unit of Measure", Item.Description);
+        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item.Description);
         VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
@@ -89,7 +89,7 @@ codeunit 134462 "ERM Copy Item"
         CopyItem(Item."No.");
 
         // [THEN] Comment line and item translation copied
-        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", '', Item.Description);
+        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item.Description);
         VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
         VerifyItemTranslation(CopyItemBuffer."Target Item No.", Description);
         NotificationLifecycleMgt.RecallAllNotifications;
@@ -121,7 +121,7 @@ codeunit 134462 "ERM Copy Item"
         CopyItem(Item."No.");
 
         // [THEN] Comment line and default dimensions copied
-        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", '', Item.Description);
+        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item.Description);
         VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
         VerifyDefaultDimension(DefaultDimension, CopyItemBuffer."Target Item No.");
         NotificationLifecycleMgt.RecallAllNotifications;
@@ -206,7 +206,7 @@ codeunit 134462 "ERM Copy Item"
         CopyItem(Item."No.");
 
         // [THEN] Comment line and item variant copied
-        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", '', Item.Description);
+        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item.Description);
         VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
         VerifyItemVariant(ItemVariant, CopyItemBuffer."Target Item No.");
         NotificationLifecycleMgt.RecallAllNotifications;
@@ -234,7 +234,7 @@ codeunit 134462 "ERM Copy Item"
         CopyItem(Item."No.");
 
         // [THEN] Unit of Measure copied
-        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item."Base Unit of Measure", Item.Description);
+        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item.Description);
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
@@ -788,7 +788,7 @@ codeunit 134462 "ERM Copy Item"
         CopyItem(Item."No.");
 
         // [THEN] New item created with "No." = "ITEM1"
-        VerifyItemGeneralInformation(TargetItemNo, Item."Base Unit of Measure", Item.Description);
+        VerifyItemGeneralInformation(TargetItemNo, Item.Description);
 
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
@@ -823,7 +823,7 @@ codeunit 134462 "ERM Copy Item"
         for i := 1 to NumberOfCopies do begin
             if i > 1 then
                 TargetItemNo := IncStr(TargetItemNo);
-            VerifyItemGeneralInformation(TargetItemNo, Item."Base Unit of Measure", Item.Description);
+            VerifyItemGeneralInformation(TargetItemNo, Item.Description);
         end;
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
@@ -855,7 +855,7 @@ codeunit 134462 "ERM Copy Item"
         for i := 1 to NumberOfCopies do begin
             if i > 1 then
                 TargetItemNo := IncStr(TargetItemNo);
-            VerifyItemGeneralInformation(TargetItemNo, Item."Base Unit of Measure", Item.Description);
+            VerifyItemGeneralInformation(TargetItemNo, Item.Description);
         end;
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
@@ -1161,7 +1161,7 @@ codeunit 134462 "ERM Copy Item"
         CopyItemCodeunit.DoCopyItem();
 
         // [THEN] Comment line copied
-        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item."Base Unit of Measure", Item.Description);
+        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item.Description);
         VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
     end;
 
@@ -1284,6 +1284,79 @@ codeunit 134462 "ERM Copy Item"
         ItemVariant.TestField("Item Id", Item.SystemId);
 
         NotificationLifecycleMgt.RecallAllNotifications;
+    end;
+    
+    [Test]
+    [HandlerFunctions('CopyItemWithoutGeneralInformationPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemUnitsOfMeasuresFieldNotCopiedWhenRunItemCopyWithUoMandGIOptionsDisabled()
+    var
+        Item: Record Item;
+        CopyItemBuffer: Record "Copy Item Buffer";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // [FEATURE] [Item Unit of Measure]
+        // [SCENARIO 379540] Report "Copy Item" resets values of item's alternative units of measure if the options "Units of measure" and "General Information" are not selected
+        Initialize();
+
+        // [GIVEN] Item with alternative units of measure in the card: "Sales Unit of Measure", "Purch. Unit of Measure" and "Put-away Unit of Measure"
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandInt(10));
+        Item.Validate("Sales Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Validate("Purch. Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Validate("Put-away Unit of Measure Code", ItemUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        // [WHEN] Run "Item Copy" report for item "I" for item "I" when all options are disabled.
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
+        CopyItemBuffer."General Item Information" := false;
+        EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
+        CopyItem(Item."No.");
+
+        // [THEN] Item units of measure are not copied. "Base Unit of Measure", "Purch. Unit of Measure", "Sales Unit of Measure", "Put-away Unit of Measure" in the new item are blank
+        ItemUnitOfMeasure.SetRange("Item No.", CopyItemBuffer."Target Item No.");
+        Assert.RecordIsEmpty(ItemUnitOfMeasure);
+
+        Item.Get(CopyItemBuffer."Target Item No.");
+        Item.TestField("Base Unit of Measure", '');
+        Item.TestField("Purch. Unit of Measure", '');
+        Item.TestField("Sales Unit of Measure", '');
+        Item.TestField("Put-away Unit of Measure Code", '');
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyItemWithoutGeneralInformationPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemGlobalDimensionssFieldNotCopiedWhenRunItemCopyWithDandGIOptionsDisabled()
+    var
+        Item: Record Item;
+        CopyItemBuffer: Record "Copy Item Buffer";
+        DimensionValue: array[2] of Record "Dimension Value";
+    begin
+        // [FEATURE] [Global Dimension]
+        // [SCENARIO 379540] Report "Copy Item" resets values of item's global dimensions if the options "Dimensions" and "General Information" are not selected
+        Initialize();
+
+        // [GIVEN] Item with Global Dimensions codes
+        LibraryInventory.CreateItem(Item);
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
+        Item.Validate("Global Dimension 1 Code", DimensionValue[1].Code);
+        Item.Validate("Global Dimension 2 Code", DimensionValue[2].Code);
+        Item.Modify(true);
+
+        // [WHEN] Run "Item Copy" report for item "I" for item "I" when all options are disabled.
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID();
+        CopyItemBuffer."General Item Information" := false;
+        EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
+        CopyItem(Item."No.");
+
+        // [THEN] Item global dimensions are not copied. "Global Dimension 1 Code", "Global Dimension 2 Code" in the new item are blank
+        Item.Get(CopyItemBuffer."Target Item No.");
+        Item.TestField("Global Dimension 1 Code", '');
+        Item.TestField("Global Dimension 2 Code", '');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure Initialize()
@@ -1639,12 +1712,11 @@ codeunit 134462 "ERM Copy Item"
         SalesPrice2.TestField("Minimum Quantity", SalesPrice."Minimum Quantity");
     end;
 
-    local procedure VerifyItemGeneralInformation(ItemNo: Code[20]; BaseUnitofMeasure: Code[10]; Description: Text[100])
+    local procedure VerifyItemGeneralInformation(ItemNo: Code[20]; Description: Text[100])
     var
         Item: Record Item;
     begin
         Item.Get(ItemNo);
-        Item.TestField("Base Unit of Measure", BaseUnitofMeasure);
         Item.TestField(Description, Description);
     end;
 
@@ -1827,6 +1899,28 @@ codeunit 134462 "ERM Copy Item"
         CopyItem: Codeunit "Copy Item";
     begin
         CopyItem.ShowCreatedItems(Notification);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CopyItemWithoutGeneralInformationPageHandler(var CopyItem: TestPage "Copy Item")
+    begin
+        CopyItem.TargetItemNo.SetValue(LibraryVariableStorage.DequeueText);
+        CopyItem.GeneralItemInformation.SetValue(false);
+        CopyItem.Comments.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.UnitsOfMeasure.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.Translations.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.Dimensions.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.ItemVariants.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.ExtendedTexts.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.Troubleshooting.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.ResourceSkills.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.SalesLineDisc.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.SalesPrices.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.PurchaseLineDisc.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.PurchasePrices.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.BOMComponents.SetValue(LibraryVariableStorage.DequeueBoolean);
+        CopyItem.OK.Invoke;
     end;
 }
 

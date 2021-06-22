@@ -77,6 +77,11 @@ page 1382 "Customer Templ. Card"
                     Importance = Additional;
                     ToolTip = 'Specifies a different customer who will be invoiced for products that you sell to the customer in the Name field on the customer card.';
                 }
+                field("Validate EU Vat Reg. No."; "Validate EU Vat Reg. No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the VAT registration number has been validated by the VAT number validation service.';
+                }
                 group(PostingDetails)
                 {
                     Caption = 'Posting Details';

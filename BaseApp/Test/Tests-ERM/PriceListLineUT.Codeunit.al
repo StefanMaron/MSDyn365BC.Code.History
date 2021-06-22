@@ -2,6 +2,7 @@ codeunit 134123 "Price List Line UT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -38,6 +39,7 @@ codeunit 134123 "Price List Line UT"
         ItemDiscGroupMustNotBePurchaseErr: Label 'Product Type must not be Item Discount Group';
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
         SourceTypeMustBeErr: Label 'Applies-to Type must be equal to ''%1''', Comment = '%1 - source type value';
+        CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
         IsInitialized: Boolean;
 
     [Test]
@@ -277,6 +279,41 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.TestField("Allow Line Disc.", PriceListHeader."Allow Line Disc.");
         PriceListLine.TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
         PriceListLine.TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
+    end;
+
+    [Test]
+    procedure T009_CannotDeleteActiveLine()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+        // [GIVEN] Price line, where Status is Draft
+        PriceListLine."Price List Code" := LibraryUtility.GenerateGUID();
+        PriceListLine.Status := PriceListLine.Status::Draft;
+        PriceListLine."Line No." := 0;
+        PriceListLine.Insert();
+
+        // [WHEN] Delete line with status Draft
+        // [THEN] line is deleted
+        Assert.IsTrue(PriceListLine.Delete(true), 'Draft line not deleted');
+
+        // [GIVEN] Price line, where Status is Inactive
+        PriceListLine.Status := PriceListLine.Status::Inactive;
+        PriceListLine."Line No." := 0;
+        PriceListLine.Insert();
+        // [WHEN] Delete line with status Inactive
+        // [THEN] line is deleted
+        Assert.IsTrue(PriceListLine.Delete(true), 'Draft line not deleted');
+
+        // [GIVEN] Price line, where Status is Active
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine."Line No." := 0;
+        PriceListLine.Insert();
+
+        // [WHEN] Delete line with status Active
+        asserterror PriceListLine.Delete(true);
+        // [THEN] Error message: 'Caanot delete active line...'
+        Assert.ExpectedError(StrSubstNo(CannotDeleteActivePriceListLineErr, PriceListLine."Price List Code", PriceListLine."Line No."));
     end;
 
     [Test]
@@ -679,6 +716,84 @@ codeunit 134123 "Price List Line UT"
         // [THEN] 'Work Type Code' is 'WT', "Unit of Measure Code" is 'R-UOM'
         PriceListLine.TestField("Work Type Code", WorkType.Code);
         PriceListLine.TestField("Unit of Measure Code", Resource."Base Unit of Measure");
+    end;
+
+    [Test]
+    procedure T032_WorkTypeCodeAllowedForResourceGroup()
+    var
+        PriceListLine: Record "Price List Line";
+        ResourceGroup: Record "Resource Group";
+        UnitofMeasure: Record "Unit of Measure";
+        WorkType: Record "Work Type";
+    begin
+        // [FEATURE] [Work Type] [Resource Group]
+        // [SCENARIO] "Work Type Code" can be filled for product type 'Resource Group'
+        Initialize();
+        // [GIVEN] Price list line, where "Asset Type" is 'Resource', "Asset No." is 'R'
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::"Resource Group");
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+        PriceListLine.Validate("Asset No.", ResourceGroup."No.");
+        // [GIVEN] Work Group 'WT', where "Unit of Measure Code" is 'X'
+        WorkType.Get(GetWorkTypeCode());
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
+        WorkType."Unit of Measure Code" := UnitofMeasure.Code;
+        WorkType.Modify();
+
+        // [WHEN] Validate "Work Type Code" with a valid code 'WT'
+        PriceListLine.Validate("Work Type Code", WorkType.Code);
+
+        // [THEN] 'Work Type Code' is 'WT', "Unit of Measure Code" is 'X'
+        PriceListLine.TestField("Work Type Code", WorkType.Code);
+        PriceListLine.TestField("Unit of Measure Code", WorkType."Unit of Measure Code");
+    end;
+
+    [Test]
+    procedure T033_UnitOfMeasureAllowedForResourceGroup()
+    var
+        PriceListLine: Record "Price List Line";
+        ResourceGroup: Record "Resource Group";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        // [FEATURE] [Resource Group] [Unit of Measure]
+        // [SCENARIO] "Unit of Measure Code" can be filled for product type 'Resource Group'
+        Initialize();
+        // [GIVEN] Price list line, where "Asset Type" is 'Resource', "Asset No." is 'R'
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::"Resource Group");
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+        PriceListLine.Validate("Asset No.", ResourceGroup."No.");
+
+        // [WHEN] Validate "Unit of Measure Code" with a valid code 'UOM'
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
+        PriceListLine.Validate("Unit of Measure Code", UnitofMeasure.Code);
+
+        // [THEN] "Unit of Measure Code" is 'UOM'
+        PriceListLine.Validate("Unit of Measure Code", UnitofMeasure.Code);
+    end;
+
+    [Test]
+    procedure T034_UnitOfMeasureAllowedForResource()
+    var
+        PriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        ResourceUnitofMeasure: Record "Resource Unit of Measure";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        // [FEATURE] [Resource] [Unit of Measure]
+        // [SCENARIO] "Unit of Measure Code" can be filled for product type 'Resource'
+        Initialize();
+        // [GIVEN] Price list line, where "Asset Type" is 'Resource', "Asset No." is 'R'
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Resource);
+        LibraryResource.CreateResource(Resource, '');
+        PriceListLine.Validate("Asset No.", Resource."No.");
+
+        // [WHEN] Validate "Unit of Measure Code" with a valid code 'UOM'
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
+        LibraryResource.CreateResourceUnitOfMeasure(
+            ResourceUnitofMeasure, Resource."No.", UnitofMeasure.Code, 1);
+        PriceListLine.Validate("Unit of Measure Code", UnitofMeasure.Code);
+
+        // [THEN] "Unit of Measure Code" is 'UOM'
+        PriceListLine.Validate("Unit of Measure Code", UnitofMeasure.Code);
     end;
 
     [Test]
@@ -1456,7 +1571,7 @@ codeunit 134123 "Price List Line UT"
     begin
         // [FEATURE] [Campaign]
         Initialize();
-        // [GIVEN] Campaign 'C', where "Starttin Date" is '010120', "Ending Date" is '310120'
+        // [GIVEN] Campaign 'C', where "Starting Date" is '010120', "Ending Date" is '310120'
         LibraryMarketing.CreateCampaign(Campaign);
         Campaign.Validate("Starting Date", WorkDate());
         Campaign.Validate("Ending Date", WorkDate() + 10);
@@ -2055,11 +2170,269 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.TestField("Currency Code", Job."Currency Code");
     end;
 
+    [Test]
+    [HandlerFunctions('LookupJobModalHandler,LookupJobTaskModalHandler')]
+    procedure T200_LookupJobTaskInLineParentSourceBlank()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLineUT: Codeunit "Price List Line UT";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
+        Initialize(true);
+        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
+        PriceListHeader.DeleteAll();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Job Task 'JT', where Job is 'J'
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Price List Header, where "Source Group" is 'Job', "Allow Updating Defaults" is true
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list page, add new line, where SourceType is 'Job Task'
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines.JobSourceType.SetValue("Price Source Type"::"Job Task");
+
+        // [WHEN] Lookup "Source No.", setting "Job No." as 'J', "Job Task No." as JT
+        LibraryVariableStorage.Enqueue(JobTask."Job No."); // for LookupJobModalHandler
+        LibraryVariableStorage.Enqueue(JobTask."Job Task No."); // for LookupJobTaskModalHandler
+        SalesPriceList.Lines.SourceNo.Lookup();
+
+        // [THEN] "Source No." is 'JT',"Parent Source No." is 'J'
+        SalesPriceList.Lines.ParentSourceNo.AssertEquals(JobTask."Job No.");
+        SalesPriceList.Lines.SourceNo.AssertEquals(JobTask."Job Task No.");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('LookupJobModalHandler')]
+    procedure T201_LookupJobInJobTaskLine()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLineUT: Codeunit "Price List Line UT";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
+        Initialize(true);
+        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
+        PriceListHeader.DeleteAll();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Job Task 'JT', where Job is 'J'
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        // [GIVEN] Price List Header, where "Source Group" is 'Job', "Allow Updating Defaults" is true
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list page, add new line, where SourceType is 'Job Task'
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines.JobSourceType.SetValue("Price Source Type"::"Job Task");
+
+        // [WHEN] Lookup " Parent Source No.", setting "Job No." as 'J'
+        LibraryVariableStorage.Enqueue(JobTask."Job No."); // for LookupJobModalHandler
+        SalesPriceList.Lines.ParentSourceNo.Lookup();
+
+        // [THEN] "Parent Source No." is 'J', "Source No." is <blank>
+        SalesPriceList.Lines.ParentSourceNo.AssertEquals(JobTask."Job No.");
+        SalesPriceList.Lines.SourceNo.AssertEquals('');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('LookupJobTaskModalHandler')]
+    procedure T202_LookupJobThenJobTaskInJobTaskLine()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLineUT: Codeunit "Price List Line UT";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
+        Initialize(true);
+        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
+        PriceListHeader.DeleteAll();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Job Task 'JT', where Job is 'J1' (added to have two tasks with the same "Job Task No.", but diff "Job No.")
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        // [GIVEN] Job Task 'JT', where Job is 'J2'
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        // [GIVEN] Price List Header, where "Source Group" is 'Job', "Allow Updating Defaults" is true
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list page, add new line, where SourceType is 'Job Task'
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines.JobSourceType.SetValue("Price Source Type"::"Job Task");
+
+        // [GIVEN] Set "Parent Source No.", "Job No." as 'J2'
+        SalesPriceList.Lines.ParentSourceNo.SetValue(JobTask."Job No.");
+
+        // [WHEN] Lookup "Source No.", setting "Job Task No." as 'JT'
+        LibraryVariableStorage.Enqueue(JobTask."Job Task No."); // for LookupJobTaskModalHandler
+        SalesPriceList.Lines.SourceNo.Lookup();
+
+        // [THEN] "Parent Source No." is 'J2', "Source No." is 'JT'
+        SalesPriceList.Lines.ParentSourceNo.AssertEquals(JobTask."Job No.");
+        SalesPriceList.Lines.SourceNo.AssertEquals(JobTask."Job Task No.");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('LookupJobModalHandler')]
+    procedure T203_LookupJobIfJobAndTaskFilledInJobTaskLine()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLineUT: Codeunit "Price List Line UT";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
+        Initialize(true);
+        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
+        PriceListHeader.DeleteAll();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Job Task 'JT', where Job is 'J'
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        // [GIVEN] Price List Header, where "Source Group" is 'Job', "Allow Updating Defaults" is true
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list page, add new line, where SourceType is 'Job Task'
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines.JobSourceType.SetValue("Price Source Type"::"Job Task");
+
+        // [GIVEN] Set "Parent Source No." as 'J', "Source No." as 'JT'
+        SalesPriceList.Lines.ParentSourceNo.SetValue(JobTask."Job No.");
+        SalesPriceList.Lines.SourceNo.SetValue(JobTask."Job Task No.");
+
+        // [WHEN] Lookup "Parent Source No.", setting "Job No." as 'J'
+        LibraryVariableStorage.Enqueue(JobTask."Job No."); // for LookupJobModalHandler
+        SalesPriceList.Lines.ParentSourceNo.Lookup();
+
+        // [THEN] "Parent Source No." is 'J', "Source No." is <blank>
+        SalesPriceList.Lines.ParentSourceNo.AssertEquals(JobTask."Job No.");
+        SalesPriceList.Lines.SourceNo.AssertEquals('');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('LookupJobCancelModalHandler')]
+    procedure T204_LookupJobTaskCancelledInLineParentSourceBlank()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLineUT: Codeunit "Price List Line UT";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
+        Initialize(true);
+        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
+        PriceListHeader.DeleteAll();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Job Task 'JT', where Job is 'J'
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        // [GIVEN] Price List Header, where "Source Group" is 'Job', "Allow Updating Defaults" is true
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list page, add new line, where SourceType is 'Job Task'
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines.JobSourceType.SetValue("Price Source Type"::"Job Task");
+
+        // [WHEN] Lookup "Source No.", cancel on the Job list
+        SalesPriceList.Lines.SourceNo.Lookup(); // by LookupJobCancelModalHandler
+
+        // [THEN] "Source No." is <blank>,"Parent Source No." is <blank>
+        SalesPriceList.Lines.ParentSourceNo.AssertEquals('');
+        SalesPriceList.Lines.SourceNo.AssertEquals('');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure T205_JobTaskInLineSetParentSourceBlank()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLineUT: Codeunit "Price List Line UT";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
+        Initialize(true);
+        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
+        PriceListHeader.DeleteAll();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Job Task 'JT', where Job is 'J'
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        // [GIVEN] Price List Header, where "Source Group" is 'Job', "Allow Updating Defaults" is true
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list page, add new line, where SourceType is 'Job Task'
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines.JobSourceType.SetValue("Price Source Type"::"Job Task");
+
+        // [GIVEN] Set "Parent Source No." and "Source No." as 'J' and 'JT'
+        SalesPriceList.Lines.ParentSourceNo.SetValue(JobTask."Job No.");
+        SalesPriceList.Lines.SourceNo.SetValue(JobTask."Job Task No.");
+
+        // [WHEN] Set "Parent Source No." as <blank>
+        SalesPriceList.Lines.ParentSourceNo.SetValue('');
+
+        // [THEN] "Source No." is <blank>,"Parent Source No." is <blank>
+        SalesPriceList.Lines.ParentSourceNo.AssertEquals('');
+        SalesPriceList.Lines.SourceNo.AssertEquals('');
+        LibraryVariableStorage.AssertEmpty();
+    end;
 
     local procedure Initialize()
     begin
+        Initialize(false);
+    end;
+
+    local procedure Initialize(Enable: Boolean)
+    begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Price List Line UT");
         LibraryVariableStorage.Clear;
+        LibraryPriceCalculation.EnableExtendedPriceCalculation(Enable);
 
         if isInitialized then
             exit;
@@ -2283,6 +2656,12 @@ codeunit 134123 "Price List Line UT"
     end;
 
     [ModalPageHandler]
+    procedure LookupJobCancelModalHandler(var JobList: testpage "Job List")
+    begin
+        JobList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
     procedure LookupJobModalHandler(var JobList: testpage "Job List")
     begin
         JobList.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
@@ -2294,5 +2673,17 @@ codeunit 134123 "Price List Line UT"
     begin
         JobTaskList.Filter.SetFilter("Job Task No.", LibraryVariableStorage.DequeueText());
         JobTaskList.OK().Invoke();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]
+    local procedure OnAfterSetSalesSubFormLinkFilter(var Sender: Page "Price List Lines"; var SkipActivate: Boolean);
+    begin
+        SkipActivate := true;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]
+    local procedure OnAfterSetPurchSubFormLinkFilter(var Sender: Page "Purchase Price List Lines"; var SkipActivate: Boolean);
+    begin
+        SkipActivate := true;
     end;
 }

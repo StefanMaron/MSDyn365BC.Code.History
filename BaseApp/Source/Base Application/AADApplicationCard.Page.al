@@ -1,6 +1,6 @@
 page 9861 "AAD Application Card"
 {
-    Caption = 'AAD Application Card', Comment = 'AAD Application should not be translated';
+    Caption = 'Azure Active Directory Application Card', Comment = 'Azure Active Directory Application should not be translated';
     PageType = Card;
     PromotedActionCategories = 'New,Process,Report';
     RefreshOnActivate = true;
@@ -17,37 +17,42 @@ page 9861 "AAD Application Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Standard;
-                    ToolTip = 'Specifies the client Id for the external App.';
+                    Caption = 'Client ID';
+                    ToolTip = 'Specifies the client ID for the app.';
                 }
                 field(Description; Description)
                 {
                     ShowMandatory = true;
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies description.';
+                    Caption = 'Description';
+                    ToolTip = 'Specifies a description of the app.';
                 }
                 field(State; State)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Standard;
-                    ToolTip = 'Specifies the state for the external App.';
+                    Caption = 'State';
+                    ToolTip = 'Specifies if the app is enabled or disabled.';
                 }
-
                 field("Contact Information"; "Contact Information")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies contact information.';
+                    Caption = 'Contact Information';
+                    ToolTip = 'Specifies the contact information of the app.';
                 }
                 group(Extension)
                 {
                     field("App ID"; "App ID")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies App Id.';
+                        Caption = 'App ID';
+                        ToolTip = 'Specifies the app ID of the extension.';
                     }
                     field("App Name"; "App Name")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies App name.';
+                        Caption = 'App Name';
+                        ToolTip = 'Specifies the app name of the extension.';
                     }
                 }
             }

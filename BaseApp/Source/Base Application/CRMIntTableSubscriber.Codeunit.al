@@ -16,13 +16,13 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         ContactsMustBeRelatedToCompanyErr: Label 'The contact %1 must have a contact company that has a business relation to a customer.', Comment = '%1 = Contact No.';
         ContactMissingCompanyErr: Label 'The contact cannot be created because the company does not exist.';
         CRMUnitGroupExistsAndIsInactiveErr: Label 'The %1 %2 already exists in %3, but it cannot be synchronized, because it is inactive.', Comment = '%1=table caption: Unit Group,%2=The name of the indicated Unit Group;%3=product name';
-        CRMUnitGroupContainsMoreThanOneUoMErr: Label 'The %4 %1 %2 contains more than one %3. This setup cannot be used for synchronization.', Comment = '%1=table caption: Unit Group,%2=The name of the indicated Unit Group,%3=table caption: Unit., %4 = CDS service name';
-        CustomerHasChangedErr: Label 'Cannot create the invoice in %2. The customer from the original %2 sales order %1 was changed or is no longer coupled.', Comment = '%1=CRM sales order number, %2 = CDS service name';
-        NoCoupledSalesInvoiceHeaderErr: Label 'Cannot find the coupled %1 invoice header.', Comment = '%1 = CDS service name';
+        CRMUnitGroupContainsMoreThanOneUoMErr: Label 'The %4 %1 %2 contains more than one %3. This setup cannot be used for synchronization.', Comment = '%1=table caption: Unit Group,%2=The name of the indicated Unit Group,%3=table caption: Unit., %4 = Dataverse service name';
+        CustomerHasChangedErr: Label 'Cannot create the invoice in %2. The customer from the original %2 sales order %1 was changed or is no longer coupled.', Comment = '%1=CRM sales order number, %2 = Dataverse service name';
+        NoCoupledSalesInvoiceHeaderErr: Label 'Cannot find the coupled %1 invoice header.', Comment = '%1 = Dataverse service name';
         RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a record in %3.', Comment = '%1 =field caption, %2 = field value, %3 - product name ';
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        CurrencyExchangeRateMissingErr: Label 'Cannot create or update the currency %1 in %2, because there is no exchange rate defined for it.', Comment = '%1 - currency code, %2 - CDS service name';
+        CurrencyExchangeRateMissingErr: Label 'Cannot create or update the currency %1 in %2, because there is no exchange rate defined for it.', Comment = '%1 - currency code, %2 - Dataverse service name';
         NewCodePatternTxt: Label 'SP NO. %1', Locked = true;
         SourceDestCodePatternTxt: Label '%1-%2', Locked = true;
 
@@ -264,14 +264,14 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 UpdateCRMPricelevelBeforeInsertPriceListHeader(SourceRecordRef, DestinationRecordRef);
             'Item-CRM Product',
             'Resource-CRM Product':
-                UpdateCRMProductBeforeInsertRecord(SourceRecordRef, DestinationRecordRef);
+                UpdateCRMProductBeforeInsertRecord(DestinationRecordRef);
             'Sales Invoice Header-CRM Invoice':
                 begin
                     CheckSalesInvoiceLineItemsAreCoupled(SourceRecordRef);
                     UpdateCRMInvoiceBeforeInsertRecord(SourceRecordRef, DestinationRecordRef);
                 end;
             'Opportunity-CRM Opportunity':
-                UpdateCRMOpportunityBeforeInsertRecord(SourceRecordRef, DestinationRecordRef);
+                UpdateCRMOpportunityBeforeInsertRecord(DestinationRecordRef);
             'Sales Invoice Line-CRM Invoicedetail':
                 UpdateCRMInvoiceDetailsBeforeInsertRecord(SourceRecordRef, DestinationRecordRef);
         end;
@@ -304,64 +304,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 UpdateCRMInvoiceAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
             'Sales Invoice Line-CRM Invoicedetail':
                 UpdateCRMInvoiceDetailsAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
-            'CRM Product-Item',
-            'CRM Product-Resource':
-                SetCompanyIdOnCRMProduct(SourceRecordRef);
-            'CRM Opportunity-Opportunity':
-                SetCompanyIdOnCRMOpportunity(SourceRecordRef);
         end;
-    end;
-
-    local procedure SetCompanyIdOnCRMProduct(var SourceRecordRef: RecordRef)
-    var
-        CRMProduct: Record "CRM Product";
-        CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
-        RecRef: RecordRef;
-    begin
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
-            exit;
-
-        // if the CDS entity already has a correct company id, do nothing
-        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(SourceRecordRef) then
-            exit;
-
-        SourceRecordRef.SetTable(CRMProduct);
-        // it is required to calculate these fields, otherwise CDS fails to modify the entity
-        if (CRMProduct.CreatedByName = '') or (CRMProduct.ModifiedByName = '') or (CRMProduct.TransactionCurrencyIdName = '') then begin
-            CRMProduct.SetAutoCalcFields(CreatedByName, ModifiedByName, TransactionCurrencyIdName);
-            CRMProduct.Find();
-        end;
-        RecRef.GetTable(CRMProduct);
-        CDSIntTableSubscriber.SetCompanyId(RecRef);
-        RecRef.Modify();
-        CRMProduct.Find();
-        SourceRecordRef.GetTable(CRMProduct);
-    end;
-
-    local procedure SetCompanyIdOnCRMOpportunity(var SourceRecordRef: RecordRef)
-    var
-        CRMOpportunity: Record "CRM Opportunity";
-        CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
-        RecRef: RecordRef;
-    begin
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
-            exit;
-
-        // if the CDS entity already has a correct company id, do nothing
-        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(SourceRecordRef) then
-            exit;
-
-        SourceRecordRef.SetTable(CRMOpportunity);
-        // it is required to calculate these fields, otherwise CDS fails to modify the entity
-        if (CRMOpportunity.CreatedByName = '') or (CRMOpportunity.ModifiedByName = '') or (CRMOpportunity.TransactionCurrencyIdName = '') then begin
-            CRMOpportunity.SetAutoCalcFields(CreatedByName, ModifiedByName, TransactionCurrencyIdName);
-            CRMOpportunity.Find();
-        end;
-        RecRef.GetTable(CRMOpportunity);
-        CDSIntTableSubscriber.SetCompanyId(RecRef);
-        RecRef.Modify();
-        CRMOpportunity.Find();
-        SourceRecordRef.GetTable(CRMOpportunity);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeModifyRecord', '', false, false)]
@@ -377,7 +320,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             'Opportunity-CRM Opportunity',
             'Sales Header-CRM Salesorder',
             'Sales Invoice Header-CRM Invoice':
-                UpdateOwnerIdAndCompanyId(SourceRecordRef, DestinationRecordRef);
+                SetCompanyId(DestinationRecordRef);
         end;
     end;
 
@@ -462,14 +405,28 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         JobQueueEntry.DeleteTasks();
     end;
 
-    local procedure UpdateOwnerIdAndCompanyId(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    local procedure UpdateOwnerIdAndCompanyId(var DestinationRecordRef: RecordRef)
     var
-        CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
+        CDSConnectionSetup: Record "CDS Connection Setup";
     begin
         if CDSIntegrationImpl.IsIntegrationEnabled() then begin
-            CDSIntTableSubscriber.SetCompanyId(DestinationRecordRef);
-            CDSIntTableSubscriber.SetOwnerId(SourceRecordRef, DestinationRecordRef);
+            if not CDSIntegrationImpl.CheckCompanyIdNoTelemetry(DestinationRecordRef) then
+                CDSIntegrationImpl.SetCompanyId(DestinationRecordRef);
+            CDSConnectionSetup.Get();
+            if CDSConnectionSetup."Ownership Model" = CDSConnectionSetup."Ownership Model"::Team then
+                CDSIntegrationImpl.SetOwningTeam(DestinationRecordRef);
         end;
+    end;
+
+    local procedure SetCompanyId(var DestinationRecordRef: RecordRef)
+    begin
+        if not CDSIntegrationImpl.IsIntegrationEnabled() then
+            exit;
+
+        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(DestinationRecordRef) then
+            exit;
+
+        CDSIntegrationImpl.SetCompanyId(DestinationRecordRef);
     end;
 
     local procedure GetSourceDestCode(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef): Text
@@ -737,7 +694,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             CRMInvoice.PriceLevelId := CRMPricelevel.PriceLevelId;
         end;
         DestinationRecordRef.GetTable(CRMInvoice);
-        UpdateOwnerIdAndCompanyId(SourceRecordRef, DestinationRecordRef);
+        UpdateOwnerIdAndCompanyId(DestinationRecordRef);
     end;
 
     local procedure UpdateCRMInvoiceDetailsAfterInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
@@ -806,7 +763,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         OutStream.WriteText(CustomerPriceGroup.Description);
         DestinationRecordRef.GetTable(CRMPricelevel);
 
-        UpdateOwnerIdAndCompanyId(SourceRecordRef, DestinationRecordRef);
+        SetCompanyId(DestinationRecordRef);
     end;
 
     local procedure UpdateCRMPricelevelBeforeInsertPriceListHeader(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
@@ -833,12 +790,12 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             CRMPricelevel.StateCode := CRMPricelevel.StateCode::Inactive;
         DestinationRecordRef.GetTable(CRMPricelevel);
 
-        UpdateOwnerIdAndCompanyId(SourceRecordRef, DestinationRecordRef);
+        SetCompanyId(DestinationRecordRef);
     end;
 
-    local procedure UpdateCRMOpportunityBeforeInsertRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    local procedure UpdateCRMOpportunityBeforeInsertRecord(var DestinationRecordRef: RecordRef)
     begin
-        UpdateOwnerIdAndCompanyId(SourceRecordRef, DestinationRecordRef);
+        UpdateOwnerIdAndCompanyId(DestinationRecordRef);
     end;
 
     local procedure UpdateCRMPricelevelBeforeModifyRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
@@ -853,7 +810,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         DestinationRecordRef.SetTable(CRMPricelevel);
         CRMPricelevel.TestField(TransactionCurrencyId, CRMTransactioncurrency.TransactionCurrencyId);
 
-        UpdateOwnerIdAndCompanyId(SourceRecordRef, DestinationRecordRef);
+        SetCompanyId(DestinationRecordRef);
     end;
 
     local procedure UpdateCRMPricelevelBeforeModifyPriceListHeader(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
@@ -868,7 +825,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         DestinationRecordRef.SetTable(CRMPricelevel);
         CRMPricelevel.TestField(TransactionCurrencyId, CRMTransactioncurrency.TransactionCurrencyId);
 
-        UpdateOwnerIdAndCompanyId(SourceRecordRef, DestinationRecordRef);
+        SetCompanyId(DestinationRecordRef);
     end;
 
     local procedure ResetCRMProductpricelevelFromCustomerPriceGroup(SourceRecordRef: RecordRef)
@@ -1015,14 +972,14 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         DestinationRecordRef.GetTable(CRMProduct);
     end;
 
-    local procedure UpdateCRMProductBeforeInsertRecord(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    local procedure UpdateCRMProductBeforeInsertRecord(var DestinationRecordRef: RecordRef)
     var
         CRMProduct: Record "CRM Product";
     begin
         DestinationRecordRef.SetTable(CRMProduct);
         CRMSynchHelper.SetCRMDecimalsSupportedValue(CRMProduct);
         DestinationRecordRef.GetTable(CRMProduct);
-        UpdateOwnerIdAndCompanyId(SourceRecordRef, DestinationRecordRef);
+        SetCompanyId(DestinationRecordRef);
     end;
 
     local procedure UpdateItemAfterTransferRecordFields(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef) AdditionalFieldsWereModified: Boolean

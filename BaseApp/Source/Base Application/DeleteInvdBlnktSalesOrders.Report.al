@@ -17,7 +17,6 @@ report 291 "Delete Invd Blnkt Sales Orders"
             trigger OnAfterGetRecord()
             var
                 ATOLink: Record "Assemble-to-Order Link";
-                ApprovalsMgmt: Codeunit "Approvals Mgmt.";
             begin
                 OnSalesHeaderOnBeforeOnAfterGetRecord("Sales Header");
 
@@ -54,7 +53,7 @@ report 291 "Delete Invd Blnkt Sales Orders"
                                     SalesCommentLine.SetRange("No.", "No.");
                                     SalesCommentLine.DeleteAll();
 
-                                    ApprovalsMgmt.DeleteApprovalEntries(RecordId);
+                                    DeleteApprovalEntries("Sales Header");
 
                                     OnBeforeDeleteSalesHeader("Sales Header");
                                     Delete;
@@ -98,6 +97,19 @@ report 291 "Delete Invd Blnkt Sales Orders"
         ArchiveManagement: Codeunit ArchiveManagement;
         Window: Dialog;
 
+    local procedure DeleteApprovalEntries(SalesHeader: Record "Sales Header")
+    var
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteApprovalEntries(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        ApprovalsMgmt.DeleteApprovalEntries(SalesHeader.RecordId);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line")
     begin
@@ -110,6 +122,11 @@ report 291 "Delete Invd Blnkt Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteSalesLines(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteApprovalEntries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -41,10 +41,15 @@ codeunit 7037 "Price Source - Job Task" implements "Price Source"
     begin
         xPriceSource := PriceSource;
         if Job.Get(xPriceSource."Parent Source No.") then;
-        if Page.RunModal(Page::"Job List", Job) = ACTION::LookupOK then begin
-            xPriceSource.Validate("Parent Source No.", Job."No.");
-            JobTask.SetRange("Job No.", xPriceSource."Parent Source No.");
-        end;
+        if (Job."No." <> '') and (xPriceSource."Source No." = '') then
+            JobTask.SetRange("Job No.", xPriceSource."Parent Source No.")
+        else
+            if Page.RunModal(Page::"Job List", Job) = ACTION::LookupOK then begin
+                xPriceSource.Validate("Parent Source No.", Job."No.");
+                JobTask.SetRange("Job No.", xPriceSource."Parent Source No.");
+            end else
+                exit(false);
+
         if JobTask.Get(xPriceSource."Parent Source No.", xPriceSource."Source No.") then;
         JobTask.SetRange("Job Task Type", JobTask."Job Task Type"::Posting);
         if Page.RunModal(Page::"Job Task List", JobTask) = ACTION::LookupOK then begin
@@ -57,7 +62,8 @@ codeunit 7037 "Price Source - Job Task" implements "Price Source"
 
     procedure VerifyParent(var PriceSource: Record "Price Source") Result: Boolean
     begin
-        PriceSource.Testfield("Parent Source No.");
+        if PriceSource."Parent Source No." = '' then
+            exit(false);
         Result := Job.Get(PriceSource."Parent Source No.");
         if not Result then
             PriceSource."Parent Source No." := ''

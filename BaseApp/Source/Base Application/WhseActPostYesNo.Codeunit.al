@@ -27,7 +27,7 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
         IsHandled := false;
         HideDialog := false;
         DefaultOption := 2;
-        OnBeforeConfirmPost(WhseActivLine, HideDialog, Selection, DefaultOption, IsHandled);
+        OnBeforeConfirmPost(WhseActivLine, HideDialog, Selection, DefaultOption, IsHandled, PrintDoc);
         if IsHandled then
             exit;
 
@@ -93,7 +93,7 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmPost(var WhseActivLine: Record "Warehouse Activity Line"; var HideDialog: Boolean; var Selection: Integer; var DefaultOption: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeConfirmPost(var WhseActivLine: Record "Warehouse Activity Line"; var HideDialog: Boolean; var Selection: Integer; var DefaultOption: Integer; var IsHandled: Boolean; var PrintDoc: Boolean)
     begin
     end;
 }

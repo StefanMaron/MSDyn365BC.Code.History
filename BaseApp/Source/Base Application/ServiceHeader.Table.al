@@ -4273,6 +4273,11 @@
         OnAfterGetServiceMgtSetup(ServSetup, Rec, CurrFieldNo);
     end;
 
+    procedure IsCreditDocType(): Boolean
+    begin
+        exit("Document Type" = "Document Type"::"Credit Memo");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var ServiceHeader: Record "Service Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin
@@ -4338,8 +4343,8 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckBlockedCustomer(Customer: Record Customer; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckBlockedCustomer(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

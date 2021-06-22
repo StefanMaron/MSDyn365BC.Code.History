@@ -768,8 +768,9 @@ codeunit 23 "Item Jnl.-Post Batch"
         ItemJnlLine2.CopyFilters(ItemJnlLine);
         if ItemJnlLine2.FindSet then
             repeat
-                if not TempSKU.Get(ItemJnlLine2."Location Code", ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code") then
-                    InsertTempSKU(TempSKU, ItemJnlLine2);
+                if ItemJnlLine2.IsNotInternalWhseMovement() then
+                    if not TempSKU.Get(ItemJnlLine2."Location Code", ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code") then
+                        InsertTempSKU(TempSKU, ItemJnlLine2);
                 OnBeforeCheckItemAvailability(ItemJnlLine2, TempSKU);
             until ItemJnlLine2.Next = 0;
 

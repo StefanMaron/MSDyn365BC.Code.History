@@ -19,9 +19,8 @@ codeunit 139194 "CDS Connection Wizard Tests"
         ButtonTxt: Label 'Button';
         WrongCredentialsErr: Label 'A URL, user name and password are required.';
         WrongConnectionStringErr: Label 'Wrong connection string generated';
-        MustUseHttpsErr: Label 'The application is set up to support secure connections (HTTPS) to the Common Data Service environment only. You cannot use HTTP.';
-        MissingClientIdOrSecretOnPremErr: Label 'You must register an Azure Active Directory application that will be used to connect to the Common Data Service environment and specify the application id, secret and redirect URL in the Common Data Service Connection Setup page.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
-
+        MustUseHttpsErr: Label 'The application is set up to support secure connections (HTTPS) to the Dataverse environment only. You cannot use HTTP.';
+        MissingClientIdOrSecretOnPremErr: Label 'You must register an Azure Active Directory application that will be used to connect to the Dataverse environment and specify the application id, secret and redirect URL in the Dataverse Connection Setup page.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
 
     [Test]
     [HandlerFunctions('ConfirmYesHandler')]
@@ -40,7 +39,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
         CDSConnectionSetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CDS Connection Setup Wizard"), 'CDS Connection Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CDS Connection Setup Wizard"), 'Dataverse Connection Setup status should not be completed.');
     end;
 
     [Test]
@@ -61,7 +60,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
         CDSConnectionSetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CDS Connection Setup Wizard"), 'CDS Connection Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CDS Connection Setup Wizard"), 'Dataverse Connection Setup status should not be completed.');
     end;
 
     //[Test]
@@ -82,7 +81,7 @@ codeunit 139194 "CDS Connection Wizard Tests"
         CDSConnectionSetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CDS Connection Setup Wizard"), 'CDS Connection Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CDS Connection Setup Wizard"), 'Dataverse Connection Setup status should not be completed.');
     end;
 
     [Test]

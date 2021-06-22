@@ -1,4 +1,4 @@
-codeunit 5912 "ServLedgEntries-Post"
+﻿codeunit 5912 "ServLedgEntries-Post"
 {
     Permissions = TableData "Service Ledger Entry" = rimd,
                   TableData "Warranty Ledger Entry" = rimd,
@@ -796,6 +796,7 @@ codeunit 5912 "ServLedgEntries-Post"
                         "Gen. Prod. Posting Group" := ServLine."Gen. Prod. Posting Group";
                         Open := false;
                         Description := ServLine.Description;
+                        OnCreateCreditEntryOnBeforeServLedgEntryInsertFromServiceHeader(ServLedgEntry, ServHeader, ServLine);
                         Insert;
 
                         NextServLedgerEntryNo += 1;

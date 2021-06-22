@@ -1,6 +1,6 @@
 page 7206 "CDS Owning Team Roles"
 {
-    Caption = 'Common Data Service Owning Team Roles', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+    Caption = 'Dataverse Owning Team Roles', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     DeleteAllowed = false;
     ModifyAllowed = false;
     InsertAllowed = false;

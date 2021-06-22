@@ -13,18 +13,24 @@ codeunit 1202 "Import Payroll Transaction"
         FileFilterExtensionTxt: Label 'txt,csv', Locked = true;
         ProcessingSetupErr: Label 'You must specify either a reading/writing XMLport or a reading/writing codeunit.';
 
-    [Scope('OnPrem')]
     procedure SelectAndImportPayrollDataToGL(var GenJournalLine: Record "Gen. Journal Line"; DataExchDefCode: Code[20])
     var
         TempBlob: Codeunit "Temp Blob";
         FileName: Text;
     begin
-        FileName := FileMgt.BLOBImportWithFilter(TempBlob, ImportPayrollTransCap, '', FileFilterTxt, FileFilterExtensionTxt);
+        FileName := GetFileName(GenJournalLine, TempBlob, DataExchDefCode);
         if FileName <> '' then
             ImportPayrollDataToGL(GenJournalLine, FileName, TempBlob, DataExchDefCode);
     end;
 
-    [Scope('OnPrem')]
+    local procedure GetFileName(var GenJournalLine: Record "Gen. Journal Line"; var TempBlob: Codeunit "Temp Blob"; DataExchDefCode: Code[20]) FileName: Text
+    begin
+        OnBeforeGetFileName(GenJournalLine, TempBlob, DataExchDefCode, FileName);
+
+        if FileName = '' then
+            FileName := FileMgt.BLOBImportWithFilter(TempBlob, ImportPayrollTransCap, '', FileFilterTxt, FileFilterExtensionTxt);
+    end;
+
     procedure ImportPayrollDataToGL(GenJournalLine: Record "Gen. Journal Line"; FileName: Text; TempBlob: Codeunit "Temp Blob"; DataExchDefCode: Code[20])
     var
         GenJournalLineTemplate: Record "Gen. Journal Line";
@@ -89,6 +95,11 @@ codeunit 1202 "Import Payroll Transaction"
             end else
                 "Document No." := GenJournalLine."Document No.";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFileName(var GenJournalLine: Record "Gen. Journal Line"; TempBlob: Codeunit "Temp Blob"; DataExchDefCode: Code[20]; var FileName: Text)
+    begin
     end;
 }
 

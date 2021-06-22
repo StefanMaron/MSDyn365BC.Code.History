@@ -441,10 +441,12 @@ codeunit 99000889 AvailabilityManagement
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         ServLineReserve: Codeunit "Service Line-Reserve";
         JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
+        ReservMgt: Codeunit "Reservation Management";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
         NeededQty: Decimal;
         NeededQtyBase: Decimal;
+        FullAutoReservation: Boolean;
     begin
         case OrderPromisingLine."Source Type" of
             OrderPromisingLine."Source Type"::Sales:
@@ -502,6 +504,15 @@ codeunit 99000889 AvailabilityManagement
                             SalesLine2.Modify();
                         end;
                         SalesLineReserve.BindToRequisition(SalesLine2, ReqLine, ReservQty, ReservQtyBase);
+
+                        SalesLine2.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+                        if SalesLine2.Quantity <> SalesLine2."Reserved Quantity" then begin
+                            ReservMgt.SetSalesLine(SalesLine2);
+                            ReservMgt.AutoReserve(
+                              FullAutoReservation, '', SalesLine2."Shipment Date",
+                              SalesLine2.Quantity - SalesLine2."Reserved Quantity",
+                              SalesLine2."Quantity (Base)" - SalesLine2."Reserved Qty. (Base)");
+                        end;
                     end;
                 OrderPromisingLine."Source Type"::"Service Order":
                     begin

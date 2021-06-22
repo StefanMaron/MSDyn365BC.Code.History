@@ -247,7 +247,6 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                     ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
                     ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
                     ValueEntry.SetFilter("Entry Type", '<>%1', ValueEntry."Entry Type"::Rounding);
-                    ValueEntry.SetRange(Inventoriable, true);
                     ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)",
                       "Cost Amount (Non-Invtbl.)", "Cost Amount (Non-Invtbl.)(ACY)");
                     InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(-ValueEntry."Cost Amount (Actual)",

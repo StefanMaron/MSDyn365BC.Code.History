@@ -743,20 +743,33 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 "VAT Amount (LCY)" := "VAT Amount (LCY)" * Factor;
                 "VAT Base Amount (LCY)" := "VAT Base Amount (LCY)" * Factor;
                 "Source Currency Amount" := "Source Currency Amount" * Factor;
-                if "Job No." <> '' then begin
-                    "Job Quantity" := "Job Quantity" * Factor;
-                    "Job Total Cost (LCY)" := "Job Total Cost (LCY)" * Factor;
-                    "Job Total Price (LCY)" := "Job Total Price (LCY)" * Factor;
-                    "Job Line Amount (LCY)" := "Job Line Amount (LCY)" * Factor;
-                    "Job Total Cost" := "Job Total Cost" * Factor;
-                    "Job Total Price" := "Job Total Price" * Factor;
-                    "Job Line Amount" := "Job Line Amount" * Factor;
-                    "Job Line Discount Amount" := "Job Line Discount Amount" * Factor;
-                    "Job Line Disc. Amount (LCY)" := "Job Line Disc. Amount (LCY)" * Factor;
-                end;
+                if "Job No." <> '' then
+                    MultiplyJobAmounts(GenJnlLine2, Factor);
             end;
 
         OnAfterMultiplyAmounts(GenJnlLine2, Factor, SuppressCommit);
+    end;
+
+    local procedure MultiplyJobAmounts(var GenJnlLine2: Record "Gen. Journal Line"; Factor: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeMultiplyJobAmounts(GenJnlLine2, Factor, IsHandled);
+        if IsHandled then
+            exit;
+
+        with GenJnlLine2 do begin
+            "Job Quantity" := "Job Quantity" * Factor;
+            "Job Total Cost (LCY)" := "Job Total Cost (LCY)" * Factor;
+            "Job Total Price (LCY)" := "Job Total Price (LCY)" * Factor;
+            "Job Line Amount (LCY)" := "Job Line Amount (LCY)" * Factor;
+            "Job Total Cost" := "Job Total Cost" * Factor;
+            "Job Total Price" := "Job Total Price" * Factor;
+            "Job Line Amount" := "Job Line Amount" * Factor;
+            "Job Line Discount Amount" := "Job Line Discount Amount" * Factor;
+            "Job Line Disc. Amount (LCY)" := "Job Line Disc. Amount (LCY)" * Factor;
+        end;
     end;
 
     local procedure CheckDocumentNo(var GenJnlLine2: Record "Gen. Journal Line")
@@ -785,6 +798,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                           NoSeriesMgt2[PostingNoSeriesNo].GetNextNo("Posting No. Series", "Posting Date", true);
                         LastPostedDocNo := "Document No.";
                     end;
+        OnAfterCheckDocumentNo(GenJnlLine2, LastDocNo, LastPostedDocNo);
     end;
 
     local procedure PrepareGenJnlLineAddCurr(var GenJnlLine: Record "Gen. Journal Line")
@@ -1434,6 +1448,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; LastDocNo: code[20]; LastPostedDocNo: code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var GenJournalLine: Record "Gen. Journal Line"; PreviewMode: Boolean)
     begin
     end;
@@ -1523,7 +1542,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateAndDeleteLines(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1570,6 +1589,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateLineBalance(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMultiplyJobAmounts(var GenJournalLine: Record "Gen. Journal Line"; Factor: Decimal; var IsHandled: Boolean)
     begin
     end;
 

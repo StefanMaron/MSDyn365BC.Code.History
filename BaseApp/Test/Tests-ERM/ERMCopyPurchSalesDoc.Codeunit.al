@@ -24,6 +24,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         LibraryResource: Codeunit "Library - Resource";
+        LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
+        LibraryWorkflow: Codeunit "Library - Workflow";
         IsInitialized: Boolean;
         OneLineShouldBeCopiedErr: Label 'One line should be copied.';
         InvoiceNoTxt: Label 'Invoice No. %1:';
@@ -2823,6 +2825,84 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine.FindFirst();
         SalesLine.TestField("VAT Clause Code", VATClause.Code);
         SalesLine.TestField("VAT Identifier", VATIdentifier);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyReleasedPurchDocWhenWorkflowIsEnabled()
+    var
+        OriginalPurchHeader: Record "Purchase Header";
+        DestinationPurchHeader: Record "Purchase Header";
+        UserSetup: Record "User Setup";
+        Workflow: Record Workflow;
+        WorkflowSetup: Codeunit "Workflow Setup";
+        DocType: Option;
+    begin
+        // [SCENARIO 377875] It is possible to copy released purchase document with Include Header = False, Recalculate Lines = False when Purchase document approval workflow is enabled.
+        Initialize();
+
+        // [GIVEN] Original Purchase Order with Purchase line.
+        DocType := OriginalPurchHeader."Document Type"::Order;
+        CreateOneItemPurchDoc(OriginalPurchHeader, DocType);
+
+        // [GIVEN] Destination Purchase Order.
+        CreatePurchHeaderForVendor(DestinationPurchHeader, DocType, OriginalPurchHeader."Buy-from Vendor No.");
+
+        // [GIVEN] Original Purchase Order is released.
+        LibraryPurchase.ReleasePurchaseDocument(OriginalPurchHeader);
+
+        // [GIVEN] Purchase Order Approval workflow is enabled.
+        LibraryDocumentApprovals.SetupUsersForApprovals(UserSetup);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode());
+        LibraryWorkflow.EnableWorkflow(Workflow);
+
+        // [WHEN] Copy OriginalPurchHeader to Destination Purchase Header with Include Header = False, Recalculate Lines = False.
+        RunCopyPurchaseDoc(
+            OriginalPurchHeader."No.", DestinationPurchHeader,
+            MapperPurchaseHeaders(OriginalPurchHeader."Document Type"), false, false);
+
+        // [THEN] Destination Purchase Header has the same Purchase Line as Original Purchase Header.
+        DestinationPurchHeader.Get(DestinationPurchHeader."Document Type", DestinationPurchHeader."No.");
+        VerifyPurchaseLinesAreEqual(OriginalPurchHeader, DestinationPurchHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyReleasedSalesDocWhenWorkflowIsEnabled()
+    var
+        OriginalSalesHeader: Record "Sales Header";
+        DestinationSalesHeader: Record "Sales Header";
+        UserSetup: Record "User Setup";
+        Workflow: Record Workflow;
+        WorkflowSetup: Codeunit "Workflow Setup";
+        DocType: Option;
+    begin
+        // [SCENARIO 377875] It is possible to copy released sales document with Include Header = False, Recalculate Lines = False when Sales document approval workflow is enabled.
+        Initialize();
+
+        // [GIVEN] Original Sales Order with Sales line.
+        DocType := OriginalSalesHeader."Document Type"::Order;
+        CreateOneItemSalesDoc(OriginalSalesHeader, DocType);
+
+        // [GIVEN] Destination Sales Order.
+        CreateSalesHeaderForCustomer(DestinationSalesHeader, DocType, OriginalSalesHeader."Sell-to Customer No.");
+
+        // [GIVEN] Original Sales Order is released.
+        LibrarySales.ReleaseSalesDocument(OriginalSalesHeader);
+
+        // [GIVEN] Sales Order Approval workflow is enabled.
+        LibraryDocumentApprovals.SetupUsersForApprovals(UserSetup);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesOrderApprovalWorkflowCode());
+        LibraryWorkflow.EnableWorkflow(Workflow);
+
+        // [WHEN] Copy OriginalPurchHeader to Destination Sales Header with Include Header = False, Recalculate Lines = False.
+        RunCopySalesDoc(
+            OriginalSalesHeader."No.", DestinationSalesHeader,
+            MapperSalesHeaders(OriginalSalesHeader."Document Type"), false, false);
+
+        // [THEN] Destination Sales Header has the same Sales Line as Original Sales Header.
+        DestinationSalesHeader.Get(DestinationSalesHeader."Document Type", DestinationSalesHeader."No.");
+        VerifySalesLinesAreEqual(OriginalSalesHeader, DestinationSalesHeader);
     end;
 
     local procedure Initialize()

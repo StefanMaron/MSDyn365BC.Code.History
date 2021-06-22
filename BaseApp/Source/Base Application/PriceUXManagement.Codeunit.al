@@ -423,8 +423,6 @@ codeunit 7018 "Price UX Management"
     end;
 
     procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceSource: Record "Price Source"; PriceAssetList: Codeunit "Price Asset List"; AmountType: Enum "Price Amount Type")
-    var
-        AssetFilter: array[3] of Text;
     begin
         PriceListLine.FilterGroup(2);
         PriceListLine.SetRange("Price Type", PriceSource."Price Type");
@@ -437,29 +435,32 @@ codeunit 7018 "Price UX Management"
             PriceListLine.SetRange("Source Type", PriceSource."Source Type");
             PriceListLine.SetRange("Source No.", PriceSource."Source No.");
         end;
-        BuildAssetFilters(PriceAssetList, AssetFilter);
-        PriceListLine.SetFilter("Asset Type", AssetFilter[1]);
-        PriceListLine.SetFilter("Asset No.", AssetFilter[2]);
-        PriceListLine.SetFilter("Variant Code", AssetFilter[3]);
+        BuildAssetFilters(PriceListLine, PriceAssetList);
+        PriceListLine.MarkedOnly(true);
         PriceListLine.FilterGroup(0);
     end;
 
-    local procedure BuildAssetFilters(PriceAssetList: Codeunit "Price Asset List"; var AssetFilter: array[3] of Text)
+    local procedure BuildAssetFilters(var PriceListLine: Record "Price List Line"; PriceAssetList: Codeunit "Price Asset List")
     var
         PriceAsset: Record "Price Asset";
-        OrSeparator: Text[1];
-        OrSeparatorVariant: Text[1];
     begin
         if PriceAssetList.First(PriceAsset, 0) then
             repeat
-                AssetFilter[1] += OrSeparator + Format(PriceAsset."Asset Type");
-                AssetFilter[2] += OrSeparator + PriceAsset."Asset No.";
-                OrSeparator := '|';
-                if PriceAsset."Variant Code" <> '' then begin
-                    AssetFilter[3] += AssetFilter[3] + PriceAsset."Variant Code";
-                    OrSeparatorVariant := '|';
-                end;
+                PriceListLine.SetRange("Asset Type", PriceAsset."Asset Type");
+                PriceListLine.SetRange("Asset No.", PriceAsset."Asset No.");
+                if PriceAsset."Variant Code" <> '' then
+                    PriceListLine.SetRange("Variant Code", PriceAsset."Variant Code")
+                else
+                    PriceListLine.SetRange("Variant Code");
+                if PriceListLine.FindSet() then
+                    repeat
+                        PriceListLine.Mark(true);
+                    until PriceListLine.Next() = 0;
             until not PriceAssetList.Next(PriceAsset);
+
+        PriceListLine.SetRange("Asset Type");
+        PriceListLine.SetRange("Asset No.");
+        PriceListLine.SetRange("Variant Code");
     end;
 
     local procedure SetSourceFilters(PriceSourceList: Codeunit "Price Source List"; var PriceListHeader: Record "Price List Header")

@@ -83,9 +83,10 @@ codeunit 57 "Document Totals"
         VATAmount := TotalSalesLine2."Amount Including VAT" - TotalSalesLine2.Amount;
         InvoiceDiscountAmount := TotalSalesLine2."Inv. Discount Amount";
 
-        if (InvoiceDiscountAmount = 0) or (TotalSalesLine2."Line Amount" = 0) then
-            InvoiceDiscountPct := 0
-        else
+        if (InvoiceDiscountAmount = 0) or (TotalSalesLine2."Line Amount" = 0) then begin
+            InvoiceDiscountPct := 0;
+            TotalSalesHeader."Invoice Discount Value" := 0;
+        end else
             with TotalSalesHeader do
                 case "Invoice Discount Calculation" of
                     "Invoice Discount Calculation"::"%":
@@ -97,6 +98,7 @@ codeunit 57 "Document Totals"
                             SalesLine2.SetRange("Allow Invoice Disc.", true);
                             SalesLine2.CalcSums("Line Amount");
                             InvoiceDiscountPct := Round(InvoiceDiscountAmount / SalesLine2."Line Amount" * 100, 0.00001);
+                            TotalSalesHeader."Invoice Discount Value" := InvoiceDiscountAmount;
                         end;
                 end;
 
@@ -635,9 +637,10 @@ codeunit 57 "Document Totals"
         VATAmount := TotalPurchaseLine2."Amount Including VAT" - TotalPurchaseLine2.Amount;
         InvoiceDiscountAmount := TotalPurchaseLine2."Inv. Discount Amount";
 
-        if (InvoiceDiscountAmount = 0) or (TotalPurchaseLine2."Line Amount" = 0) then
-            InvoiceDiscountPct := 0
-        else
+        if (InvoiceDiscountAmount = 0) or (TotalPurchaseLine2."Line Amount" = 0) then begin
+            InvoiceDiscountPct := 0;
+            TotalPurchaseHeader."Invoice Discount Value" := 0;
+        end else
             with TotalPurchaseHeader do
                 case "Invoice Discount Calculation" of
                     "Invoice Discount Calculation"::"%":
@@ -649,6 +652,7 @@ codeunit 57 "Document Totals"
                             PurchaseLine2.SetRange("Allow Invoice Disc.", true);
                             PurchaseLine2.CalcSums("Line Amount");
                             InvoiceDiscountPct := Round(InvoiceDiscountAmount / PurchaseLine2."Line Amount" * 100, 0.00001);
+                            TotalPurchaseHeader."Invoice Discount Value" := InvoiceDiscountAmount;
                         end;
                 end;
 
@@ -759,6 +763,8 @@ codeunit 57 "Document Totals"
     end;
 
     procedure GetTotalSalesHeaderAndCurrency(var SalesLine: Record "Sales Line"; var TotalSalesHeader: Record "Sales Header"; var Currency: Record Currency)
+    var
+        SalesHeader: Record "Sales Header";
     begin
         if not SalesLinesExist then
             SalesLinesExist := not SalesLine.IsEmpty;
@@ -775,9 +781,14 @@ codeunit 57 "Document Totals"
             Clear(Currency);
             Currency.Initialize(TotalSalesHeader."Currency Code");
         end;
+        if SalesHeader.Get(TotalSalesHeader."Document Type",TotalSalesHeader."No.") then
+            if SalesHeader."Invoice Discount Value" <> TotalSalesHeader."Invoice Discount Value" then
+                TotalsUpToDate := false;
     end;
 
     procedure GetTotalPurchaseHeaderAndCurrency(var PurchaseLine: Record "Purchase Line"; var TotalPurchaseHeader: Record "Purchase Header"; var Currency: Record Currency)
+    var
+        PurchaseHeader: Record "Purchase Header";
     begin
         if not PurchaseLinesExist then
             PurchaseLinesExist := not PurchaseLine.IsEmpty;
@@ -795,6 +806,9 @@ codeunit 57 "Document Totals"
             Clear(Currency);
             Currency.Initialize(TotalPurchaseHeader."Currency Code");
         end;
+        if PurchaseHeader.Get(TotalPurchaseHeader."Document Type",TotalPurchaseHeader."No.") then
+            if PurchaseHeader."Invoice Discount Value" <> TotalPurchaseHeader."Invoice Discount Value" then
+                TotalsUpToDate := false;
     end;
 
     procedure GetInvoiceDiscAmountWithVATCaption(IncludesVAT: Boolean): Text

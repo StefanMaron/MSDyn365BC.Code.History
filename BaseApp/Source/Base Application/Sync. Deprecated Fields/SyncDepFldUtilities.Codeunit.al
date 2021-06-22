@@ -36,6 +36,20 @@ codeunit 702 "Sync.Dep.Fld-Utilities"
         exit(true);
     end;
 
+    /// <summary>
+    /// Check if synchronization is disabled.
+    /// By default is disabled when install or upgrade is in progress.
+    /// In that cases is not suitable to run synchronization.
+    /// </summary>
+    /// <returns>A boolean that indicates whether the synchronization is disabled.</returns>
+    procedure IsFieldSynchronizationDisabled() FieldSynchronizationDisabled: Boolean
+    var
+        DataUpgradeMgt: Codeunit "Data Upgrade Mgt.";
+    begin
+        FieldSynchronizationDisabled := NavApp.IsInstalling() or DataUpgradeMgt.IsUpgradeInProgress();
+        OnAfterIsFieldSynchronizationDisabled(FieldSynchronizationDisabled);
+    end;
+
     procedure SyncFields(var ObsoleteFieldValue: Boolean; var ValidFieldValue: Boolean)
     begin
         if ObsoleteFieldValue = ValidFieldValue then
@@ -158,5 +172,10 @@ codeunit 702 "Sync.Dep.Fld-Utilities"
                 ValidFieldValue := ObsoleteFieldValue
             else
                 ObsoleteFieldValue := ValidFieldValue;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsFieldSynchronizationDisabled(var FieldSynchronizationDisabled: Boolean)
+    begin
     end;
 }

@@ -1144,14 +1144,16 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
         GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
+        AttachmentEntityBufferDocType: Enum "Attachment Entity Buffer Document Type";
     begin
         if (DocumentIdFilter = '') or (DocumentTypeFilter = '') then begin
             ErrorMsg := DocumentIDorTypeNotSpecifiedForAttachmentsErr;
             exit;
         end;
 
-        case DocumentTypeFilter of
-            'Journal':
+        Evaluate(AttachmentEntityBufferDocType, DocumentTypeFilter);
+        case AttachmentEntityBufferDocType of
+            AttachmentEntityBufferDocType::Journal:
                 begin
                     if GLEntry.GetBySystemId(DocumentIdFilter) then begin
                         DocumentRecordRef.GetTable(GLEntry);
@@ -1162,12 +1164,12 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                         exit;
                     end;
                 end;
-            'Sales Order', 'Sales Quote':
+            AttachmentEntityBufferDocType::"Sales Order", AttachmentEntityBufferDocType::"Sales Quote":
                 if SalesHeader.GetBySystemId(DocumentIdFilter) then begin
                     DocumentRecordRef.GetTable(SalesHeader);
                     exit;
                 end;
-            'Sales Invoice':
+            AttachmentEntityBufferDocType::"Sales Invoice":
                 begin
                     if SalesHeader.GetBySystemId(DocumentIdFilter) then
                         if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then begin
@@ -1179,7 +1181,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                         exit;
                     end;
                 end;
-            'Sales Credit Memo':
+            AttachmentEntityBufferDocType::"Sales Credit Memo":
                 begin
                     if SalesHeader.GetBySystemId(DocumentIdFilter) then
                         if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then begin
@@ -1191,7 +1193,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                         exit;
                     end;
                 end;
-            'Purchase Invoice':
+            AttachmentEntityBufferDocType::"Purchase Invoice":
                 begin
                     if PurchaseHeader.GetBySystemId(DocumentIdFilter) then
                         if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Invoice then begin
@@ -1203,7 +1205,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                         exit;
                     end;
                 end;
-            ' ':
+            AttachmentEntityBufferDocType::" ":
                 ErrorMsg := DocumentIDorTypeNotSpecifiedForAttachmentsErr;
         end;
         ErrorMsg := DocumentTypeInvalidErr;

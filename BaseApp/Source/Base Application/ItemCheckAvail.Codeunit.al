@@ -271,7 +271,7 @@ codeunit 311 "Item-Check Avail."
           (SchedRcpt - ReservedRcpt) - (GrossReq - ReservedReq) -
           NewItemNetResChange;
 
-        OnAfterCalculate(Item, InitialQtyAvailable);
+        OnAfterCalculate(Item, InitialQtyAvailable, OldItemNetChange, QtyPerUnitOfMeasure, ContextInfo);
     end;
 
     local procedure QtyAvailToPromise(var Item: Record Item; CompanyInfo: Record "Company Information")
@@ -556,11 +556,19 @@ codeunit 311 "Item-Check Avail."
         ItemAvailabilityCheck.RunModal;
     end;
 
-    local procedure CreateAndSendNotification(UnitOfMeasureCode: Code[20]; InventoryQty: Decimal; GrossReq: Decimal; ReservedReq: Decimal; SchedRcpt: Decimal; ReservedRcpt: Decimal; CurrentQuantity: Decimal; CurrentReservedQty: Decimal; TotalQuantity: Decimal; EarliestAvailDate: Date; RecordId: RecordID; LocationCode: Code[10]): Boolean
+    local procedure CreateAndSendNotification(UnitOfMeasureCode: Code[20]; InventoryQty: Decimal; GrossReq: Decimal; ReservedReq: Decimal; SchedRcpt: Decimal; ReservedRcpt: Decimal; CurrentQuantity: Decimal; CurrentReservedQty: Decimal; TotalQuantity: Decimal; EarliestAvailDate: Date; RecordId: RecordID; LocationCode: Code[10]) Rollback: Boolean
     var
         ItemAvailabilityCheck: Page "Item Availability Check";
         AvailabilityCheckNotification: Notification;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateAndSendNotification(
+            ItemNo, UnitOfMeasureCode, InventoryQty, GrossReq, ReservedReq, SchedRcpt, ReservedRcpt, CurrentQuantity,
+            CurrentReservedQty, TotalQuantity, EarliestAvailDate, RecordId, ItemLocationCode, ContextInfo, Rollback, IsHandled);
+        if IsHandled then
+            exit(Rollback);
+
         AvailabilityCheckNotification.Id(CreateGuid);
         AvailabilityCheckNotification.Message(StrSubstNo(NotificationMsg, ItemNo));
         AvailabilityCheckNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
@@ -622,12 +630,17 @@ codeunit 311 "Item-Check Avail."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalculate(var Item: Record Item; var InitialQtyAvailable: Decimal)
+    local procedure OnAfterCalculate(var Item: Record Item; var InitialQtyAvailable: Decimal; OldItemNetChange: Decimal; QtyPerUnitOfMeasure: Decimal; var ContextInfo: Dictionary of [Text, Text])
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterItemJnlLineShowWarning(var ItemJournalLine: Record "Item Journal Line"; var ItemNetChange: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateAndSendNotification(ItemNo: Code[20]; UnitOfMeasureCode: Code[20]; InventoryQty: Decimal; GrossReq: Decimal; ReservedReq: Decimal; SchedRcpt: Decimal; ReservedRcpt: Decimal; CurrentQuantity: Decimal; CurrentReservedQty: Decimal; TotalQuantity: Decimal; EarliestAvailDate: Date; RecordId: RecordID; LocationCode: Code[10]; ContextInfo: Dictionary of [Text, Text]; var Rollback: Boolean; var IsHandled: Boolean)
     begin
     end;
 

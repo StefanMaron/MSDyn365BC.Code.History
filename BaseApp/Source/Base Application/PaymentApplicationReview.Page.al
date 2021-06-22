@@ -434,7 +434,10 @@ page 1287 "Payment Application Review"
                         MatchBankPayments: Codeunit "Match Bank Payments";
                     begin
                         TextToAccMapping.InsertRecFromBankAccReconciliationLine(Rec);
-                        MatchBankPayments.RerunTextMapper(Rec);
+
+                        Commit();
+                        if Confirm(WouldYouLikeToRunMapTexttoAccountAgainQst) then
+                            MatchBankPayments.RerunTextMapper(Rec);
                     end;
                 }
             }
@@ -535,6 +538,7 @@ page 1287 "Payment Application Review"
         ReviewRequiredLbl: Label 'Matched Automatically - Confidence: %1. Review is required for this rule.', Comment = '%1 - Matching confidence, can be None, Low, Medium, High';
         DifferenceToReconcileLbl: Label 'The difference must be resolved before you can post.';
         RemainingRecordToReviewPageCaptionLbl: Label ' - %1 Remaining', Comment = 'Text before is Payment Application Review - Remaining - %1. %1 is the total number of lines.';
+        WouldYouLikeToRunMapTexttoAccountAgainQst: Label 'Do you want to re-apply the text to account mapping rules to all lines in the bank statement?';
         DocumentMatchInfoText: Text;
         RelatedPartyMatchInfoText: Text;
 }

@@ -2211,6 +2211,38 @@ codeunit 136305 "Job Journal"
         FindJobLedgerEntry(JobLedgerEntry, DocumentNo, JobTask."Job No.", JobLedgerEntry.Type::"G/L Account", JobPlanningLine."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('JobJournalTemplateListPageHandler,JobCalcRemainingUsageRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CalcRemainingUsageForJobJournalLineWithUnitPrice()
+    var
+        JobJournalBatch: Record "Job Journal Batch";
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobJournalLine: Record "Job Journal Line";
+        Item: Record Item;
+        UnitPrice: Decimal;
+    begin
+        // [SCENARIO 379137] Test that after running Calculate Remaining Usage from Job Journal, correct Quantity and Unit Price updated on Job Journal Line from Job Planning Line
+        Initialize();
+
+        // [GIVEN] A Job Task, Item with Unit Price, Create Item Price, Create Job Planning Line and change "Unit Price" there.
+        CreateJobWithJobTask(JobTask);
+        UnitPrice := LibraryRandom.RandDec(100, 2);  // Take Random Unit Price.
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, UnitPrice * 2, UnitPrice * 2);
+        CreateJobPlanningLineAndModifyUnitPrice(
+          JobPlanningLine, JobTask, JobPlanningLine.Type::Item, LibraryInventory.CreateItemNo, UnitPrice);
+
+        // [WHEN] Calculating the remaining use from job journal
+        RunCalcRemainingUsageFromJobJournalPage(JobJournalBatch, JobTask."Job No.");
+
+        // [THEN] Verify that correct Quantity, Unit Of Measure Code and Unit Price updated on Job Journal Line for Item.
+        FindJobJournalLine(JobJournalLine, JobJournalBatch."Journal Template Name", JobJournalBatch.Name);
+        JobJournalLine.TestField(Quantity, JobPlanningLine.Quantity);
+        JobJournalLine.TestField("Unit Price", UnitPrice);
+        DeleteJobJournalTemplate(JobJournalBatch."Journal Template Name");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3017,6 +3049,13 @@ codeunit 136305 "Job Journal"
         Job.Validate("Bill-to Contact No.", ContactBusinessRelation."Contact No.");
 
         Assert.AreEqual(ContactBusinessRelation."Contact No.", Job."Bill-to Contact No.", IncorrectFieldValueErr);
+    end;
+
+    local procedure CreateJobPlanningLineAndModifyUnitPrice(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; Type: Option; No: Code[20]; UnitPrice: Decimal)
+    begin
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, No, Type);
+        JobPlanningLine.Validate("Unit Price", UnitPrice);
+        JobPlanningLine.Modify(true);
     end;
 
     [ConfirmHandler]

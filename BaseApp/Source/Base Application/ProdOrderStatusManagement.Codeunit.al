@@ -67,13 +67,7 @@
             ErrorIfUnableToClearWIP(ProdOrder);
             TransProdOrder(ProdOrder);
 
-            InvtSetup.Get();
-            if InvtSetup."Automatic Cost Adjustment" <>
-               InvtSetup."Automatic Cost Adjustment"::Never
-            then begin
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.MakeMultiLevelAdjmt;
-            end;
+            MakeMultiLevelAdjmt(ProdOrder);
 
             WhseProdRelease.FinishedDelete(ProdOrder);
             WhseOutputProdRelease.FinishedDelete(ProdOrder);
@@ -87,6 +81,24 @@
         Commit();
 
         Clear(InvtAdjmt);
+    end;
+
+    local procedure MakeMultiLevelAdjmt(ProdOrder: Record "Production Order")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeMakeMultiLevelAdjmt(ProdOrder, IsHandled);
+        if IsHandled then
+            exit;
+
+        InvtSetup.Get();
+        if InvtSetup."Automatic Cost Adjustment" <>
+           InvtSetup."Automatic Cost Adjustment"::Never
+        then begin
+            InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
+            InvtAdjmt.MakeMultiLevelAdjmt;
+        end;
     end;
 
     local procedure TransProdOrder(var FromProdOrder: Record "Production Order")
@@ -124,6 +136,7 @@
             ToProdOrder."Starting Date" := "Starting Date";
             ToProdOrder."Ending Time" := "Ending Time";
             ToProdOrder."Ending Date" := "Ending Date";
+            ToProdOrder.UpdateDatetime();
             ToProdOrder."Due Date" := "Due Date";
             ToProdOrder."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
             ToProdOrder."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
@@ -535,7 +548,7 @@
                         QtyToPost := GetNeededQty(0, false);
 
                     OnAfterCalculateQtyToPost(ProdOrderComp, QtyToPost);
-                    QtyToPost := UOMMgt.RoundToItemRndPrecision(QtyToPost, Item."Rounding Precision");
+                    RoundQtyToPost(ProdOrderComp, Item, QtyToPost);
 
                     if QtyToPost <> 0 then begin
                         InitItemJnlLineFromProdOrderComp(ItemJnlLine, ProdOrder, ProdOrderLine, ProdOrderComp, PostingDate, QtyToPost);
@@ -549,6 +562,18 @@
                 Window.Close;
             end;
         end;
+    end;
+
+    local procedure RoundQtyToPost(ProdOrderComp: Record "Prod. Order Component"; Item: Record Item; var QtyToPost: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRoundQtyToPost(ProdOrderComp, QtyToPost, IsHandled);
+        if IsHandled then
+            exit;
+
+        QtyToPost := UOMMgt.RoundToItemRndPrecision(QtyToPost, Item."Rounding Precision");
     end;
 
     local procedure FlushProdOrderProcessProdOrderRtngLine(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRtngLine: Record "Prod. Order Routing Line"; PostingDate: Date)
@@ -1030,7 +1055,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeMultiLevelAdjmt(var ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostFlushItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoundQtyToPost(ProdOrderComponent: Record "Prod. Order Component"; var QtyToPost: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -1070,7 +1105,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyFromProdOrderComp(var ToProdOrderComp: Record "Prod. Order Component"; FromProdOrderComp: Record "Prod. Order Component")
+    local procedure OnCopyFromProdOrderComp(var ToProdOrderComp: Record "Prod. Order Component"; var FromProdOrderComp: Record "Prod. Order Component")
     begin
     end;
 

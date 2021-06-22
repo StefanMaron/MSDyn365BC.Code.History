@@ -204,12 +204,7 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlLine.Validate("Item No.", "Item No.");
             ItemJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
             ItemJnlLine.Description := Description;
-            OnInsertConsumptionItemJnlLineOnBeforeValidateQuantity(ItemJnlLine, ProdOrderComp);
-            if NeededQty <> 0 then
-                if Item."Rounding Precision" > 0 then
-                    ItemJnlLine.Validate(Quantity, UOMMgt.RoundToItemRndPrecision(NeededQty, Item."Rounding Precision"))
-                else
-                    ItemJnlLine.Validate(Quantity, Round(NeededQty, UOMMgt.QtyRndPrecision));
+            ConsumptionItemJnlLineValidateQuantity(ProdOrderComp, NeededQty, Item);
 
             ItemJnlLine.Validate("Location Code", "Location Code");
             if "Bin Code" <> '' then
@@ -236,6 +231,22 @@ codeunit 5510 "Production Journal Mgt"
         NextLineNo += 10000;
 
         OnAfterInsertConsumptionJnlLine(ItemJnlLine);
+    end;
+
+    local procedure ConsumptionItemJnlLineValidateQuantity(ProdOrderComp: Record "Prod. Order Component"; NeededQty: Decimal; Item: Record Item)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnInsertConsumptionItemJnlLineOnBeforeValidateQuantity(ItemJnlLine, ProdOrderComp, NeededQty, IsHandled);
+        if IsHandled then
+            exit;
+
+        if NeededQty <> 0 then
+            if Item."Rounding Precision" > 0 then
+                ItemJnlLine.Validate(Quantity, UOMMgt.RoundToItemRndPrecision(NeededQty, Item."Rounding Precision"))
+            else
+                ItemJnlLine.Validate(Quantity, Round(NeededQty, UOMMgt.QtyRndPrecision));
     end;
 
     procedure InsertOutputItemJnlLine(ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
@@ -600,7 +611,7 @@ codeunit 5510 "Production Journal Mgt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertConsumptionItemJnlLineOnBeforeValidateQuantity(var ItemJnlLine: Record "Item Journal Line"; ProdOrderComp: Record "Prod. Order Component")
+    local procedure OnInsertConsumptionItemJnlLineOnBeforeValidateQuantity(var ItemJnlLine: Record "Item Journal Line"; ProdOrderComp: Record "Prod. Order Component"; NeededQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

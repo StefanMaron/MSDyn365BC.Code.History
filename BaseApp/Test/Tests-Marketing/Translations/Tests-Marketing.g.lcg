@@ -1166,4 +1166,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Email Logging - NamedType TestExchangeEndpointTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3612168113 - NamedType 4120771995" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Date Filter does not match expected value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT Contact Table - NamedType DateFilterErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

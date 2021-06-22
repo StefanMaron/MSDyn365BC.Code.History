@@ -113,10 +113,7 @@
                     TempWhseActivityLineGrouped.DeleteBinContent(TempWhseActivityLineGrouped."Action Type"::Take);
                 until TempWhseActivityLineGrouped.Next = 0;
 
-            CheckAndRemoveOrderToOrderBinding(TempWhseActivLineToReserve);
-            ItemTrackingMgt.SetPick(WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::Pick);
-            ItemTrackingMgt.SynchronizeWhseItemTracking(TempTrackingSpecification, RegisteredWhseActivLine."No.", false);
-            AutoReserveForSalesLine(TempWhseActivLineToReserve);
+            SyncItemTrackingAndReserveSourceDocument(TempWhseActivLineToReserve);
 
             if Location."Bin Mandatory" then begin
                 LineCount := 0;
@@ -324,6 +321,7 @@
     var
         WhseCommentLine: Record "Warehouse Comment Line";
         WhseCommentLine2: Record "Warehouse Comment Line";
+        RecordLinkManagement: Codeunit "Record Link Management";
         TableNameFrom: Option;
         TableNameTo: Option;
         RegisteredType: Option;
@@ -342,6 +340,7 @@
             RegisteredInvtMovementHdr."Invt. Movement No." := WhseActivHeader."No.";
             OnBeforeRegisteredInvtMovementHdrInsert(RegisteredInvtMovementHdr, WhseActivHeader);
             RegisteredInvtMovementHdr.Insert();
+            RecordLinkManagement.CopyLinks(WhseActivHeader, RegisteredInvtMovementHdr);
             OnAfterRegisteredInvtMovementHdrInsert(RegisteredInvtMovementHdr, WhseActivHeader);
 
             TableNameTo := WhseCommentLine."Table Name"::"Registered Invt. Movement";
@@ -357,6 +356,7 @@
             RegisteredWhseActivHeader."No. Series" := WhseActivHeader."Registering No. Series";
             OnBeforeRegisteredWhseActivHeaderInsert(RegisteredWhseActivHeader, WhseActivHeader);
             RegisteredWhseActivHeader.Insert();
+            RecordLinkManagement.CopyLinks(WhseActivHeader, RegisteredWhseActivHeader);
             OnAfterRegisteredWhseActivHeaderInsert(RegisteredWhseActivHeader, WhseActivHeader);
 
             TableNameTo := WhseCommentLine2."Table Name"::"Rgstrd. Whse. Activity Header";
@@ -1683,31 +1683,43 @@
             end;
     end;
 
-    local procedure AutoReserveForSalesLine(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary)
+    local procedure AutoReserveForSalesLine(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var TempReservEntryBefore: Record "Reservation Entry" temporary; var TempReservEntryAfter: Record "Reservation Entry" temporary)
     var
         SalesLine: Record "Sales Line";
         ReservMgt: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
         IsHandled: Boolean;
+        QtyToReserve: Decimal;
+        QtyToReserveBase: Decimal;
     begin
         IsHandled := false;
         OnBeforeAutoReserveForSalesLine(TempWhseActivLineToReserve, IsHandled);
         if IsHandled then
             exit;
 
-        if TempWhseActivLineToReserve.FindSet then
-            repeat
-                SalesLine.Get(
-                  SalesLine."Document Type"::Order, TempWhseActivLineToReserve."Source No.", TempWhseActivLineToReserve."Source Line No.");
+        with TempWhseActivLineToReserve do
+            if FindSet() then
+                repeat
+                    SalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
 
-                if not IsSalesLineCompletelyReserved(SalesLine) then begin
-                    ReservMgt.SetReservSource(SalesLine);
-                    ReservMgt.SetTrackingFromWhseActivityLine(TempWhseActivLineToReserve);
-                    ReservMgt.AutoReserve(
-                      FullAutoReservation, '', SalesLine."Shipment Date", TempWhseActivLineToReserve."Qty. to Handle",
-                      TempWhseActivLineToReserve."Qty. to Handle (Base)");
-                end;
-            until TempWhseActivLineToReserve.Next = 0;
+                    TempReservEntryBefore.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
+                    TempReservEntryBefore.SetTrackingFilterFromWhseActivityLine(TempWhseActivLineToReserve);
+                    TempReservEntryBefore.CalcSums(Quantity, "Quantity (Base)");
+
+                    TempReservEntryAfter.CopyFilters(TempReservEntryBefore);
+                    TempReservEntryAfter.CalcSums(Quantity, "Quantity (Base)");
+
+                    QtyToReserve :=
+                      "Qty. to Handle" + (TempReservEntryAfter.Quantity - TempReservEntryBefore.Quantity);
+                    QtyToReserveBase :=
+                      "Qty. to Handle (Base)" + (TempReservEntryAfter."Quantity (Base)" - TempReservEntryBefore."Quantity (Base)");
+
+                    if not IsSalesLineCompletelyReserved(SalesLine) and (QtyToReserve > 0) then begin
+                        ReservMgt.SetReservSource(SalesLine);
+                        ReservMgt.SetTrackingFromWhseActivityLine(TempWhseActivLineToReserve);
+                        ReservMgt.AutoReserve(FullAutoReservation, '', SalesLine."Shipment Date", QtyToReserve, QtyToReserveBase);
+                    end;
+                until Next() = 0;
     end;
 
     local procedure CheckAndRemoveOrderToOrderBinding(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary)
@@ -1717,7 +1729,13 @@
         ReservMgt: Codeunit "Reservation Management";
         ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
         IsConfirmed: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckAndRemoveOrderToOrderBinding(TempWhseActivLineToReserve, IsHandled);
+        if IsHandled then
+            exit;
+
         if TempWhseActivLineToReserve.FindSet then
             repeat
                 SalesLine.Get(
@@ -1741,6 +1759,38 @@
                         until ReservationEntry.Next() = 0;
                     end;
             until TempWhseActivLineToReserve.Next() = 0;
+    end;
+
+    local procedure SyncItemTrackingAndReserveSourceDocument(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary)
+    var
+        TempReservEntryBeforeSync: Record "Reservation Entry" temporary;
+        TempReservEntryAfterSync: Record "Reservation Entry" temporary;
+    begin
+        CheckAndRemoveOrderToOrderBinding(TempWhseActivLineToReserve);
+
+        CollectReservEntries(TempReservEntryBeforeSync, TempWhseActivLineToReserve);
+        ItemTrackingMgt.SetPick(WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::Pick);
+        ItemTrackingMgt.SynchronizeWhseItemTracking(TempTrackingSpecification, RegisteredWhseActivLine."No.", false);
+        CollectReservEntries(TempReservEntryAfterSync, TempWhseActivLineToReserve);
+
+        AutoReserveForSalesLine(TempWhseActivLineToReserve, TempReservEntryBeforeSync, TempReservEntryAfterSync);
+    end;
+
+    local procedure CollectReservEntries(var TempReservEntry: Record "Reservation Entry" temporary; var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary)
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        with TempWhseActivLineToReserve do
+            if FindSet() then
+                repeat
+                    ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
+                    ReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
+                    if ReservEntry.FindSet() then
+                        repeat
+                            TempReservEntry := ReservEntry;
+                            if TempReservEntry.Insert() then;
+                        until ReservEntry.Next() = 0;
+                until Next() = 0;
     end;
 
     local procedure CopyWhseActivityLineToReservBuf(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; WhseActivLine: Record "Warehouse Activity Line")
@@ -2037,6 +2087,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyBasePicked(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var QtyBasePicked: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAndRemoveOrderToOrderBinding(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean)
     begin
     end;
 

@@ -85,7 +85,7 @@ table 8622 "Config. Line"
         field(8; "No. of Records"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Table Information"."No. of Records" WHERE("Company Name" = FIELD("Company Filter"),
+            CalcFormula = Sum("Table Information"."No. of Records" WHERE("Company Name" = FIELD("Company Filter"),
                                                                           "Table No." = FIELD("Table ID")));
             Caption = 'No. of Records';
             Editable = false;
@@ -94,7 +94,7 @@ table 8622 "Config. Line"
         field(9; "No. of Records (Source Table)"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Table Information"."No. of Records" WHERE("Company Name" = FIELD("Company Filter (Source Table)"),
+            CalcFormula = Sum("Table Information"."No. of Records" WHERE("Company Name" = FIELD("Company Filter (Source Table)"),
                                                                           "Table No." = FIELD("Table ID")));
             Caption = 'No. of Records (Source Table)';
             Editable = false;
@@ -103,7 +103,7 @@ table 8622 "Config. Line"
         field(10; "Licensed Table"; Boolean)
         {
             BlankZero = true;
-            CalcFormula = Exist ("License Permission" WHERE("Object Type" = CONST(TableData),
+            CalcFormula = Exist("License Permission" WHERE("Object Type" = CONST(TableData),
                                                             "Object Number" = FIELD("Table ID"),
                                                             "Read Permission" = CONST(Yes),
                                                             "Insert Permission" = CONST(Yes),
@@ -160,7 +160,7 @@ table 8622 "Config. Line"
         }
         field(15; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Lookup(AllObjWithCaption."Object Name" WHERE("Object Type" = CONST(Page),
                                                                         "Object ID" = FIELD("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
@@ -218,7 +218,7 @@ table 8622 "Config. Line"
         field(30; "Licensed Page"; Boolean)
         {
             BlankZero = true;
-            CalcFormula = Exist ("License Permission" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Exist("License Permission" WHERE("Object Type" = CONST(Page),
                                                             "Object Number" = FIELD("Page ID"),
                                                             "Execute Permission" = CONST(Yes)));
             Caption = 'Licensed Page';
@@ -227,7 +227,7 @@ table 8622 "Config. Line"
         }
         field(31; "No. of Question Groups"; Integer)
         {
-            CalcFormula = Count ("Config. Question Area" WHERE("Table ID" = FIELD("Table ID")));
+            CalcFormula = Count("Config. Question Area" WHERE("Table ID" = FIELD("Table ID")));
             Caption = 'No. of Question Groups';
             Editable = false;
             FieldClass = FlowField;
@@ -243,14 +243,14 @@ table 8622 "Config. Line"
         }
         field(37; "Package Caption"; Text[50])
         {
-            CalcFormula = Lookup ("Config. Package"."Package Name" WHERE(Code = FIELD("Package Code")));
+            CalcFormula = Lookup("Config. Package"."Package Name" WHERE(Code = FIELD("Package Code")));
             Caption = 'Package Caption';
             Editable = false;
             FieldClass = FlowField;
         }
         field(38; "Package Exists"; Boolean)
         {
-            CalcFormula = Exist ("Config. Package" WHERE(Code = FIELD("Package Code")));
+            CalcFormula = Exist("Config. Package" WHERE(Code = FIELD("Package Code")));
             Caption = 'Package Exists';
             Editable = false;
             FieldClass = FlowField;
@@ -442,6 +442,7 @@ table 8622 "Config. Line"
         "Field": Record "Field";
     begin
         ConfigPackageMgt.SetFieldFilter(Field, "Table ID", 0);
+        OnGetRelatedTablesOnAfterFieldSetFilters(Rec, Field);
         if Field.FindSet then
             repeat
                 if Field.RelationTableNo <> 0 then
@@ -543,6 +544,11 @@ table 8622 "Config. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowTableData(ConfigLine: Record "Config. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetRelatedTablesOnAfterFieldSetFilters(var ConfigLine: Record "Config. Line"; var "Field": Record "Field")
     begin
     end;
 }

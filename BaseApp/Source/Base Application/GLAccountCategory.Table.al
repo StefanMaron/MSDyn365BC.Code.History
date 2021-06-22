@@ -1,4 +1,4 @@
-table 570 "G/L Account Category"
+﻿table 570 "G/L Account Category"
 {
     Caption = 'G/L Account Category';
     DataCaptionFields = Description;
@@ -114,6 +114,7 @@ table 570 "G/L Account Category"
         if GLAccount.FindFirst then
             Error(CategoryUsedOnAccountErr, TableCaption, Description, GLAccount.TableCaption, GLAccount."No.");
         DeleteChildren("Entry No.");
+        ShowNotificationAccSchedUpdateNeeded();
     end;
 
     var
@@ -121,6 +122,11 @@ table 570 "G/L Account Category"
         CannotDeleteSystemGeneratedErr: Label '%1 is a system generated category and cannot be deleted.', Comment = '%1 = a category value, e.g. "Assets"';
         NoAccountsInFilterErr: Label 'There are no G/L Accounts in the filter of type %1.', Comment = '%1 = either ''Balance Sheet'' or ''Income Statement''';
         CategoryUsedOnAccountErr: Label 'You cannot delete %1 %2 because it is used in %3 %4.', Comment = '%1=account category table name, %2=category description, %3=g/l account table name, %4=g/l account number.';
+        DontShowAgainActionLbl: Label 'Don''t show again';
+        AccSchedUpdateNeededNotificationMsg: Label 'You have changed one or more G/L account categories that account schedules use to calculate reports. We recommend that you update the account schedules with your changes by choosing the Generate Account Schedules action.';
+        GenerateAccountSchedulesLbl: Label 'Generate Account Schedules';
+        WarnGenerateAccountSchedulesTxt: Label 'Notify that account schedules should be updated after someone changes data for account categories.';
+        WarnAccountCategoriesUpdatedTxt: Label 'Notify about updating account categories.';
 
     procedure UpdatePresentationOrder()
     var
@@ -317,6 +323,8 @@ table 570 "G/L Account Category"
             until GLAccount.Next = 0;
         end else
             ClearGLAccountSubcategoryEntryNo(OldTotaling, "Income/Balance");
+
+        ShowNotificationAccSchedUpdateNeeded();
     end;
 
     local procedure ClearGLAccountSubcategoryEntryNo("Filter": Text; IncomeBalance: Integer)
@@ -400,6 +408,38 @@ table 570 "G/L Account Category"
 
         GLAccount.SetRange("Account Subcategory Entry No.", "Entry No.");
         exit(CopyStr(SelectionFilterManagement.GetSelectionFilterForGLAccount(GLAccount), 1, 250));
+    end;
+
+    procedure ShowNotificationAccSchedUpdateNeeded()
+    var
+        MyNotifications: Record "My Notifications";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        AccSchedUpdateNeededNotification: Notification;
+    begin
+        if not MyNotifications.IsEnabled(GetAccSchedUpdateNeededNotificationId()) then
+            exit;
+
+        AccSchedUpdateNeededNotification.Id := GetAccSchedUpdateNeededNotificationId();
+        AccSchedUpdateNeededNotification.Message := AccSchedUpdateNeededNotificationMsg;
+        AccSchedUpdateNeededNotification.AddAction(GenerateAccountSchedulesLbl, CODEUNIT::"Categ. Generate Acc. Schedules", 'RunGenerateAccSchedules');
+        AccSchedUpdateNeededNotification.AddAction(
+          DontShowAgainActionLbl, CODEUNIT::"Categ. Generate Acc. Schedules", 'HideAccSchedUpdateNeededNotificationForCurrentUser');
+        AccSchedUpdateNeededNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
+        NotificationLifecycleMgt.SendNotification(AccSchedUpdateNeededNotification, RecordId);
+    end;
+
+    procedure GetAccSchedUpdateNeededNotificationId(): Guid
+    begin
+        exit('a9b554dd-98ea-4713-90c8-ecc652419a50');
+    end;
+
+    procedure DontNotifyCurrentUserAgain(NotificationID: Guid)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(NotificationID) then
+            MyNotifications.InsertDefault(NotificationID, WarnAccountCategoriesUpdatedTxt,
+              WarnGenerateAccountSchedulesTxt, false);
     end;
 
     [IntegrationEvent(false, false)]

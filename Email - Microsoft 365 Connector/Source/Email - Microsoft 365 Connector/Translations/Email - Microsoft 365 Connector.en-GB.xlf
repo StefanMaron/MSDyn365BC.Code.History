@@ -60,7 +60,7 @@
         </trans-unit>
         <trans-unit id="Page 1107894685 - Control 907109761 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Enter the email address of your shared mailbox in the Microsoft 365 admin center.</source>
-          <target state="translated">Enter the email address of your shared mailbox in the Microsoft 365 admin Centre.</target>
+          <target state="translated">Enter the email address of your shared mailbox in the Microsoft 365 admin centre.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control Header - Property InstructionalText</note>
         </trans-unit>

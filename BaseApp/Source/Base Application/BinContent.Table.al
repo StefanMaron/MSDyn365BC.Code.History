@@ -559,6 +559,7 @@
         TotalATOComponentsPickQtyBase := CalcTotalATOComponentsPickQtyBase;
         SetFilterOnUnitOfMeasure;
         CalcFields("Pick Quantity (Base)");
+        OnCalcTotalQtyAvailToTakeOnAfterCalcPickQuantityBase(Rec, ExcludeQtyBase);
         exit(
           TotalQtyBase -
           ("Pick Quantity (Base)" + TotalATOComponentsPickQtyBase - ExcludeQtyBase + TotalNegativeAdjmtQtyBase));
@@ -1380,6 +1381,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcTotalQtyBaseOnAfterSetFilters(var WarehouseEntry: Record "Warehouse Entry"; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcTotalQtyAvailToTakeOnAfterCalcPickQuantityBase(BinContent: Record "Bin Content"; var ExcludeQtyBase: Decimal)
     begin
     end;
 

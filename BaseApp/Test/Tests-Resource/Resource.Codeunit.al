@@ -1437,6 +1437,54 @@ codeunit 136907 Resource
         Assert.ExpectedError(StrSubstNo(DocumentExistsErr, Resource."No.", PurchaseLine."Document Type"::Order));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ResLedgEntryHaveSourceInformationAfterPostingUsageEntryFromJobJournalLine()
+    var
+        JobTask: Record "Job Task";
+        Resource: Record Resource;
+        JobJournalLine: Record "Job Journal Line";
+        ResLedgerEntry: Record "Res. Ledger Entry";
+    begin
+        // [SCENARIO 377641] Resource Ledger Entry has "Source Type" and "Source No." after posting Job Journal Line with "Entry Type" equals "Usage"
+
+        Initialize();
+
+        // [GIVEN] Job with job task "X"
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Resource "Y"
+        LibraryResource.CreateResourceNew(Resource);
+
+        // [GIVEN] Job Journal Line with type "Both Budget and Billable", "Job Task" = "X", Type = "Resource", "No." = "Y"
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::"Both Budget and Billable", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Resource);
+        JobJournalLine.Validate("No.", Resource."No.");
+        JobJournalLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        JobJournalLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        JobJournalLine.Validate("Unit Cost (LCY)", LibraryRandom.RandDec(100, 2));
+        JobJournalLine.Modify(true);
+        LibraryVariableStorage.Enqueue(WantToPostJournalLinesQst);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(JournalLinesPostedMsg);
+
+        // [WHEN] Post Job Journal Line
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [THEN] Single resource ledger entry with "Entry Type" = Usage is created
+        ResLedgerEntry.SetRange("Resource No.", Resource."No.");
+        Assert.RecordCount(ResLedgerEntry, 1);
+
+        // [THEN] Resource Ledger Entry has "Source Type" and "Source No." fields specified
+        ResLedgerEntry.FindFirst();
+        ResLedgerEntry.TestField("Entry Type", ResLedgerEntry."Entry Type"::Usage);
+        ResLedgerEntry.TestField("Source Type");
+        ResLedgerEntry.TestField("Source No.");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+    
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

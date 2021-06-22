@@ -1415,7 +1415,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckRequisitionLines(var RequisitionLine: Record "Requisition Line"; var StartLineNo: Integer; var IsHandled: Boolean)
     begin
     end;

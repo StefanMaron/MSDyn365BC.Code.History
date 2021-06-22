@@ -18,8 +18,12 @@ codeunit 9996 "Upgrade Tag Impl."
     procedure HasUpgradeTag(Tag: Code[250]; TagCompanyName: Code[30]): Boolean
     var
         UpgradeTags: Record "Upgrade Tags";
+        UpgradeTagExists: Boolean;
     begin
-        exit(UpgradeTags.Get(Tag, TagCompanyName));
+        UpgradeTagExists := UpgradeTags.Get(Tag, TagCompanyName);
+        Session.LogMessage('0000EAV', StrSubstNo(HasUpgradeTagLbl, Tag, TagCompanyName, Session.GetExecutionContext(), UpgradeTagExists), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', CategoryLbl);
+
+        exit(UpgradeTagExists);
     end;
 
     procedure SetUpgradeTag(NewTag: Code[250])
@@ -82,6 +86,8 @@ codeunit 9996 "Upgrade Tag Impl."
         UpgradeTags.Validate("Tag Timestamp", CurrentDateTime());
         UpgradeTags.Validate(Company, NewCompanyName);
         UpgradeTags.Insert(true);
+
+        Session.LogMessage('0000EAW', StrSubstNo(SetUpgradeTagLbl, NewTag, NewCompanyName, Session.GetExecutionContext()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', CategoryLbl);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Company", 'OnAfterRenameEvent', '', false, false)]
@@ -123,5 +129,10 @@ codeunit 9996 "Upgrade Tag Impl."
         UpgradeTags.SetRange(Company, Rec.Name);
         UpgradeTags.DeleteAll();
     end;
+
+    var
+        HasUpgradeTagLbl: Label 'Executing HasUpgradeTag: %1, Company Name: %2, ExecutionContext: %3, Value: %4', Comment = '%1 tag name, %2 company name, %3 ExecutionContext, %4 Value', Locked = true;
+        SetUpgradeTagLbl: Label 'Executing SetUpgradeTag: %1, Company Name: %2, ExecutionContext: %3', Comment = '%1 tag name, %2 company name, %3 ExecutionContext', Locked = true;
+        CategoryLbl: Label 'ALUpgrade', Locked = true;
 }
 

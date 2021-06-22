@@ -40,20 +40,20 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field Id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3074962881 - Field 2788077256 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ClientId</source>
-          <target state="translated">Clientid</target>
+          <source>Client Id</source>
+          <target state="translated">ID klienta</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field ClientId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3074962881 - Field 4069789961 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ClientSecret</source>
-          <target state="translated">TajnýKlíčKlienta</target>
+          <source>Client Secret</source>
+          <target state="translated">Tajný klíč klienta</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field ClientSecret - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3074962881 - Field 1464062987 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>RedirectURL</source>
-          <target state="translated">AdresaURLpřesměrování</target>
+          <source>Redirect URL</source>
+          <target state="translated">Adresa URL přesměrování</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field RedirectURL - Property Caption</note>
         </trans-unit>
@@ -234,7 +234,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1049555962 - NamedType 3435643268" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>To connect to your email account you must create an App registration in Azure Active Directory and then enter information about the registration on the Email Application AAD Registration Page in Business Central. Do you want to do that now?</source>
-          <target state="translated">Chcete-li se připojit ke svému e-mailovému účtu, musíte vytvořit registraci aplikace ve službě Azure Active Directory a potom zadat informace o registraci na stránce Registrace e-mailové aplikace AAD v Business Central. Chcete to udělat teď?</target>
+          <target state="translated">Chcete-li se připojit ke svému e-mailovému účtu, musíte vytvořit registraci aplikace ve službě Azure Active Directory a potom zadat informace o registraci na stránce registrace AAD e-mailové aplikace v Business Central. Chcete to udělat teď?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType SetupOutlookAPIQst</note>
         </trans-unit>

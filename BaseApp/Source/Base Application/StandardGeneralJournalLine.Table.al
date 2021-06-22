@@ -1526,6 +1526,8 @@
             "VAT Bus. Posting Group" := '';
             "VAT Prod. Posting Group" := '';
         end;
+
+        OnAfterGetGLAccount(Rec, GLAcc);
     end;
 
     local procedure GetGLBalAccount()
@@ -1827,6 +1829,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var StandardGenJournalLine: Record "Standard General Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetGLAccount(var StandardGenJournalLine: Record "Standard General Journal Line"; GLAcc: Record "G/L Account")
     begin
     end;
 

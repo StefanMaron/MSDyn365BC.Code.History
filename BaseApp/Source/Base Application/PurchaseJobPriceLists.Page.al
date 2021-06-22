@@ -23,62 +23,101 @@ page 7020 "Purchase Job Price Lists"
                 {
                     ApplicationArea = Jobs;
                     Visible = false;
-                    ToolTip = 'Specifies the code of the price list.';
+                    Caption = 'Code';
+                    ToolTip = 'Specifies the unique identifier of the price list.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Jobs;
+                    Caption = 'Description';
                     ToolTip = 'Specifies the description of the price list.';
                 }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the price list status.';
+                    Caption = 'Status';
+                    ToolTip = 'Specifies whether the price list is in Draft status and can be edited, Inactive and cannot be edited or used, or Active and used for price calculations.';
+                }
+                field("Allow Updating Defaults"; Rec."Allow Updating Defaults")
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Multi-Type Price List';
+                    ToolTip = 'Specifies whether users can change the values in the fields on the price list line that contain default values from the header.';
                 }
                 field(Defines; Rec."Amount Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether the price list defines prices, discounts or both.';
+                    Caption = 'Defines';
+                    ToolTip = 'Specifies whether the price list defines prices, discounts, or both.';
                 }
-                field("Currency Code"; Rec."Currency Code")
+                field("Currency Code"; CurrRec."Currency Code")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the currency code of the price list.';
+                    Caption = 'Currency';
+                    ToolTip = 'Specifies the currency that is used on the price list.';
                 }
                 field(SourceGroup; Rec."Source Group")
                 {
                     ApplicationArea = Jobs;
+                    Caption = 'Applies-to Group';
                     Visible = false;
-                    ToolTip = 'Specifies the source group of the price list.';
+                    ToolTip = 'Specifies whether the prices come from groups of customers, vendors or jobs.';
                 }
-                field(SourceType; Rec."Source Type")
+                field(SourceType; CurrRec."Source Type")
                 {
                     ApplicationArea = Jobs;
+                    Caption = 'Applies-to Type';
                     ToolTip = 'Specifies the source type of the price list.';
                 }
-                field(SourceNo; Rec."Source No.")
+                field(SourceNo; CurrRec."Source No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the source for the price list.';
+                    Caption = 'Applies-to No.';
+                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
                 }
-                field(ParentSourceNo; Rec."Parent Source No.")
+                field(ParentSourceNo; CurrRec."Parent Source No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job number that is the parent of the job task the price list applies to.';
+                    Caption = 'Applies-to Job No.';
+                    ToolTip = 'Specifies the job that is the source of the price on the price list line.';
                 }
-                field("Starting Date"; Rec."Starting Date")
+                field("Starting Date"; CurrRec."Starting Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the date from which the purchase price is valid.';
+                    Caption = 'Starting Date';
+                    ToolTip = 'Specifies the date from which the price is valid.';
                 }
-                field("Ending Date"; Rec."Ending Date")
+                field("Ending Date"; CurrRec."Ending Date")
                 {
                     ApplicationArea = Jobs;
+                    Caption = 'Ending Date';
                     ToolTip = 'Specifies the date when the purchase price agreement ends.';
                 }
             }
         }
     }
+
+    trigger OnInit()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        PriceCalculationMgt.TestIsEnabled();
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        CurrRec := Rec;
+        CurrRec.BlankDefaults();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        CurrRec := Rec;
+        CurrRec.BlankDefaults();
+    end;
+
+    var
+        CurrRec: Record "Price List Header";
 
     procedure SetRecordFilter(var PriceListHeader: Record "Price List Header")
     begin
@@ -87,13 +126,6 @@ page 7020 "Purchase Job Price Lists"
         Rec.SetRange("Source Group", Rec."Source Group"::Job);
         Rec.SetRange("Price Type", Rec."Price Type"::Purchase);
         Rec.FilterGroup := 0;
-    end;
-
-    trigger OnInit()
-    var
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-    begin
-        PriceCalculationMgt.TestIsEnabled();
     end;
 
     procedure SetSource(PriceSourceList: Codeunit "Price Source List"; AmountType: Enum "Price Amount Type")

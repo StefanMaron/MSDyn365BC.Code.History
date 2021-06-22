@@ -1,4 +1,4 @@
-codeunit 7008 "Price Calculation Buffer Mgt."
+﻿codeunit 7008 "Price Calculation Buffer Mgt."
 {
     var
         PriceCalculationBuffer: Record "Price Calculation Buffer";
@@ -45,6 +45,7 @@ codeunit 7008 "Price Calculation Buffer Mgt."
     procedure GetAssets(var NewPriceAssetList: Codeunit "Price Asset List")
     begin
         NewPriceAssetList.Copy(PriceAssetList);
+        OnAfterGetAssets(PriceCalculationBuffer, NewPriceAssetList);
     end;
 
     procedure GetBuffer(var ResultPriceCalculationBuffer: Record "Price Calculation Buffer")
@@ -57,9 +58,10 @@ codeunit 7008 "Price Calculation Buffer Mgt."
         SourceNo := PriceSourceList.GetValue(SourceType);
     end;
 
-    procedure GetSources(var TempPriceSource: Record "Price Source" temporary): Boolean;
+    procedure GetSources(var TempPriceSource: Record "Price Source" temporary) Found: Boolean;
     begin
-        exit(PriceSourceList.GetList(TempPriceSource));
+        Found := PriceSourceList.GetList(TempPriceSource);
+        OnAfterGetSources(PriceCalculationBuffer, TempPriceSource, Found);
     end;
 
     procedure GetSources(var NewPriceSourceList: Codeunit "Price Source List")
@@ -190,6 +192,7 @@ codeunit 7008 "Price Calculation Buffer Mgt."
             PriceListLine."Line Discount %" := PriceCalculationBuffer."Line Discount %"
         else
             PriceListLine."Line Discount %" := 0;
+        OnAfterSetLineDiscountPctForPickBestLine(PriceCalculationBuffer, PriceListLine);
     end;
 
     procedure FillBestLine(AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line")
@@ -249,7 +252,22 @@ codeunit 7008 "Price Calculation Buffer Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAssets(PriceCalculationBuffer: Record "Price Calculation Buffer"; var NewPriceAssetList: Codeunit "Price Asset List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSources(PriceCalculationBuffer: Record "Price Calculation Buffer"; var TempPriceSource: Record "Price Source"; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetFilters(var PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var PriceCalculationBuffer: Record "Price Calculation Buffer"; ShowAll: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLineDiscountPctForPickBestLine(PriceCalculationBuffer: Record "Price Calculation Buffer"; var PriceListLine: Record "Price List Line")
     begin
     end;
 

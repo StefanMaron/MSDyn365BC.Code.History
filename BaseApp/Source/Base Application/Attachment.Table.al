@@ -1,4 +1,4 @@
-table 5062 Attachment
+﻿table 5062 Attachment
 {
     Caption = 'Attachment';
 
@@ -318,10 +318,16 @@ table 5062 Attachment
     end;
 
     [Scope('OnPrem')]
-    procedure ExportAttachmentToServerFile(var ExportToFile: Text): Boolean
+    procedure ExportAttachmentToServerFile(var ExportToFile: Text) Result: Boolean
     var
         TempBlob: Codeunit "Temp Blob";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExportAttachmentToServerFile(Rec, ExportToFile, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         // This function assumes that CALCFIELDS on the attachment field has been called before
         RMSetup.Get();
         if RMSetup."Attachment Storage Type" = RMSetup."Attachment Storage Type"::"Disk File" then
@@ -352,11 +358,17 @@ table 5062 Attachment
     end;
 
     [Scope('OnPrem')]
-    procedure ImportAttachmentFromServerFile(ImportFromFile: Text; IsTemporary: Boolean; Overwrite: Boolean): Boolean
+    procedure ImportAttachmentFromServerFile(ImportFromFile: Text; IsTemporary: Boolean; Overwrite: Boolean) Result: Boolean
     var
         TempBlob: Codeunit "Temp Blob";
         FileExt: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeImportAttachmentFromServerFile(Rec, ImportFromFile, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if IsTemporary then begin
             ImportTemporaryAttachmentFromServerFile(ImportFromFile);
             exit(true);
@@ -757,6 +769,16 @@ table 5062 Attachment
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunAttachment(var SegLine: Record "Segment Line"; WordCaption: Text[260]; IsTemporary: Boolean; IsVisible: Boolean; Handler: Boolean; var iSHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportAttachmentToServerFile(var Attachment: Record Attachment; ExportToFile: Text; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImportAttachmentFromServerFile(var Attachment: Record Attachment; ImportFromFile: Text; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

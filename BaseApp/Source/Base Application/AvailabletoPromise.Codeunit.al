@@ -1,4 +1,4 @@
-codeunit 5790 "Available to Promise"
+﻿codeunit 5790 "Available to Promise"
 {
     Permissions = TableData "Prod. Order Line" = r,
                   TableData "Prod. Order Component" = r;
@@ -64,9 +64,14 @@ codeunit 5790 "Available to Promise"
     end;
 
     procedure CalcGrossRequirement(var Item: Record Item) GrossRequirement: Decimal
+    var
+        IsHandled: Boolean;
     begin
         CalcAllItemFields(Item);
-        OnBeforeCalcGrossRequirement(Item);
+        IsHandled := false;
+        OnBeforeCalcGrossRequirement(Item, GrossRequirement, IsHandled);
+        if IsHandled then
+            exit(GrossRequirement);
 
         with Item do begin
             GrossRequirement :=
@@ -87,8 +92,15 @@ codeunit 5790 "Available to Promise"
     end;
 
     procedure CalcReservedRequirement(var Item: Record Item) ReservedRequirement: Decimal
+    var
+        IsHandled: Boolean;
     begin
         CalcAllItemFields(Item);
+        IsHandled := false;
+        OnBeforeCalcReservedRequirement(Item, ReservedRequirement, IsHandled);
+        if IsHandled then
+            exit(ReservedRequirement);
+
         with Item do begin
             ReservedRequirement :=
               "Res. Qty. on Prod. Order Comp." +
@@ -106,9 +118,14 @@ codeunit 5790 "Available to Promise"
     end;
 
     procedure CalcScheduledReceipt(var Item: Record Item) ScheduledReceipt: Decimal
+    var
+        IsHandled: Boolean;
     begin
         CalcAllItemFields(Item);
-        OnBeforeCalcScheduledReceipt(Item);
+        IsHandled := false;
+        OnBeforeCalcScheduledReceipt(Item, ScheduledReceipt, IsHandled);
+        if IsHandled then
+            exit(ScheduledReceipt);
 
         with Item do begin
             ScheduledReceipt :=
@@ -127,8 +144,14 @@ codeunit 5790 "Available to Promise"
     end;
 
     procedure CalcReservedReceipt(var Item: Record Item) ReservedReceipt: Decimal
+    var
+        IsHandled: Boolean;
     begin
         CalcAllItemFields(Item);
+        IsHandled := false;
+        OnBeforeCalcReservedReceipt(Item, ReservedReceipt, IsHandled);
+        if IsHandled then
+            exit(ReservedReceipt);
 
         with Item do begin
             ReservedReceipt :=
@@ -724,12 +747,22 @@ codeunit 5790 "Available to Promise"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcGrossRequirement(var Item: Record Item)
+    local procedure OnBeforeCalcGrossRequirement(var Item: Record Item; var GrossRequirement: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcScheduledReceipt(var Item: Record Item)
+    local procedure OnBeforeCalcScheduledReceipt(var Item: Record Item; var ScheduledReceipt: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcReservedRequirement(var Item: Record Item; var ReservedRequirement: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcReservedReceipt(var Item: Record Item; var ReservedReceipt: Decimal; var IsHandled: Boolean)
     begin
     end;
 

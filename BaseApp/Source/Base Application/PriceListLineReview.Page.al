@@ -20,7 +20,7 @@ page 7005 "Price List Line Review"
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = 'Specifies the code of the price list.';
+                    ToolTip = 'Specifies the unique identifier of the price list.';
 
                     trigger OnDrillDown()
                     begin
@@ -31,7 +31,7 @@ page 7005 "Price List Line Review"
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = 'Specifies the status of the price list line.';
+                    ToolTip = 'Specifies whether the price list line is in Draft status and can be edited, Inactive and cannot be edited or used, or Active and used for price calculations.';
                 }
                 field("Source Type"; Rec."Source Type")
                 {
@@ -47,7 +47,7 @@ page 7005 "Price List Line Review"
                     ApplicationArea = All;
                     Editable = false;
                     Visible = not HideSourceControls;
-                    ToolTip = 'Specifies the number of the source the price applies to.';
+                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
                 }
                 field("Asset Type"; Rec."Asset Type")
                 {
@@ -110,7 +110,7 @@ page 7005 "Price List Line Review"
                     Importance = Standard;
                     Visible = AmountTypeIsVisible;
                     Editable = AmountTypeIsEditable and IsDraft;
-                    ToolTip = 'Specifies the data that is defined in the price list line. It can be either price or discount, or both';
+                    ToolTip = 'Specifies whether the price list line defines prices, discounts, or both.';
                     trigger OnValidate()
                     begin
                         SetMandatoryAmount();
@@ -173,7 +173,7 @@ page 7005 "Price List Line Review"
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    ToolTip = 'Specifies the date when the price agreement ends.';
+                    ToolTip = 'Specifies the last date that the price is valid.';
                 }
                 field("Allow Line Disc."; Rec."Allow Line Disc.")
                 {
@@ -440,32 +440,38 @@ page 7005 "Price List Line Review"
     local procedure SetDataCaptionExpr(PriceAssetList: Codeunit "Price Asset List")
     var
         TempPriceAsset: Record "Price Asset" temporary;
+        FirstEntryNo: Integer;
     begin
-        if PriceAssetList.GetList(TempPriceAsset) then
+        if PriceAssetList.GetList(TempPriceAsset) then begin
+            FirstEntryNo := TempPriceAsset."Entry No.";
             if TempPriceAsset.FindLast() then begin
                 TempPriceAsset.ValidateAssetNo();
                 DataCaptionExpr :=
                     StrSubstNo(DataCaptionAssetTok,
                         TempPriceAsset."Asset Type", TempPriceAsset."Asset No.", TempPriceAsset.Description);
-                HideProductControls := true;
+                HideProductControls := FirstEntryNo = TempPriceAsset."Entry No.";
             end;
+        end;
     end;
 
     local procedure SetDataCaptionExpr(PriceSource: Record "Price Source"; PriceAssetList: Codeunit "Price Asset List")
     var
         TempPriceAsset: Record "Price Asset" temporary;
+        FirstEntryNo: Integer;
     begin
         if PriceSource."Source No." <> '' then
-            if PriceAssetList.GetList(TempPriceAsset) then
+            if PriceAssetList.GetList(TempPriceAsset) then begin
+                FirstEntryNo := TempPriceAsset."Entry No.";
                 if TempPriceAsset.FindLast() then begin
                     TempPriceAsset.ValidateAssetNo();
                     DataCaptionExpr :=
                         StrSubstNo(DataCaptionSourceAssetTok,
                             PriceSource."Source Type", PriceSource."Source No.",
                             TempPriceAsset."Asset Type", TempPriceAsset."Asset No.", TempPriceAsset.Description);
-                    HideProductControls := true;
+                    HideProductControls := FirstEntryNo = TempPriceAsset."Entry No.";
                     HideSourceControls := true;
                 end;
+            end;
     end;
 
     local procedure SetEditable()

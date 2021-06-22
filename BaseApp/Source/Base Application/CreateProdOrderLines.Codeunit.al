@@ -114,7 +114,7 @@
         ErrorOccured: Boolean;
         QuantityBase: Decimal;
     begin
-        OnBeforeCopyFromSalesOrder(SalesHeader, SalesLine, ProdOrder);
+        OnBeforeCopyFromSalesOrder(SalesHeader, SalesLine, ProdOrder, NextProdOrderLineNo);
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -624,7 +624,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyFromSalesOrder(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ProductionOrder: Record "Production Order")
+    local procedure OnBeforeCopyFromSalesOrder(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ProductionOrder: Record "Production Order"; var NextProdOrderLineNo: Integer)
     begin
     end;
 

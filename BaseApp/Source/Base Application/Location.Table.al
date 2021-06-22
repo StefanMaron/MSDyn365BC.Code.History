@@ -207,7 +207,14 @@
             Caption = 'Use Cross-Docking';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateUseCrossDocking(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Use Cross-Docking" then begin
                     TestField("Require Receive");
                     TestField("Require Shipment");
@@ -908,6 +915,11 @@
         end;
 
         FindFirst;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUseCrossDocking(var Location: Record Location; xLocation: Record Location; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

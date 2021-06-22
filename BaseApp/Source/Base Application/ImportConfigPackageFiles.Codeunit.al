@@ -53,7 +53,10 @@ codeunit 1805 "Import Config. Package Files"
         ErrorCount: Integer;
         TotalNoOfErrors: Integer;
     begin
+        OnBeforeImportConfigurationFile(ConfigurationPackageFile);
+
         AssistedCompanySetupStatus.Get(CompanyName);
+
         ConfigurationPackageFile.SetCurrentKey("Processing Order");
         if ConfigurationPackageFile.FindSet then begin
             repeat
@@ -115,6 +118,8 @@ codeunit 1805 "Import Config. Package Files"
         AssistedCompanySetupStatus."Server Instance ID" := 0;
         AssistedCompanySetupStatus.Modify();
         Commit();
+
+        OnAfterImportConfigurationFile(ConfigurationPackageFile);
     end;
 
     local procedure InitVirtualJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; TaskID: Guid)
@@ -189,6 +194,16 @@ codeunit 1805 "Import Config. Package Files"
         // <param name="LanguageId">The id of the language to be set as global</param>
 
         GlobalLanguage(LanguageId);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImportConfigurationFile(var ConfigurationPackageFile: Record "Configuration Package File")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterImportConfigurationFile(var ConfigurationPackageFile: Record "Configuration Package File")
+    begin
     end;
 }
 

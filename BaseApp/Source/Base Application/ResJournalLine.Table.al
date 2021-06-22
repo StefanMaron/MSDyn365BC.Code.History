@@ -629,6 +629,8 @@ table 207 "Res. Journal Line"
     end;
 
     procedure CopyFromJobJnlLine(JobJnlLine: Record "Job Journal Line")
+    var
+        Job: Record Job;
     begin
         "Entry Type" := JobJnlLine."Entry Type";
         "Document No." := JobJnlLine."Document No.";
@@ -639,6 +641,11 @@ table 207 "Res. Journal Line"
         Description := JobJnlLine.Description;
         "Work Type Code" := JobJnlLine."Work Type Code";
         "Job No." := JobJnlLine."Job No.";
+        if "Job No." <> '' then
+            if Job.Get("Job No.") and (Job."Bill-to Customer No." <> '') then begin
+                "Source Type" := "Source Type"::Customer;
+                "Source No." := Job."Bill-to Customer No.";
+            end;
         "Shortcut Dimension 1 Code" := JobJnlLine."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := JobJnlLine."Shortcut Dimension 2 Code";
         "Dimension Set ID" := JobJnlLine."Dimension Set ID";

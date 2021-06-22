@@ -1,7 +1,7 @@
 table 7201 "CDS Coupled Business Unit"
 {
     Access = Internal;
-    Caption = 'Common Data Service Coupled Business Unit';
+    Caption = 'Dataverse Coupled Business Unit';
     DataPerCompany = false;
 
     fields
@@ -58,9 +58,9 @@ table 7201 "CDS Coupled Business Unit"
     }
 
     var
-        BusinessUnitAlreadyCoupledQst: Label 'The specified business unit in Common Data Service is coupled to another Business Central company.\\Do you want to continue anyway?';
-        CompanyAlreadyCoupledQst: Label 'The specified Business Central company is coupled to another business unit in Common Data Service.\\Do you want to continue anyway?';
-        BusinessUnitAlreadyCoupledTxt: Label 'The specified business unit in Common Data Service is coupled to another Business Central company.';
-        CompanyAlreadyCoupledTxt: Label 'The specified Business Central company is coupled to another business unit in Common Data Service.';
-        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        BusinessUnitAlreadyCoupledQst: Label 'The specified business unit in Dataverse is coupled to another Business Central company. Coupling with multiple companies can cause synchronization errors.\\Do you want to continue anyway?';
+        CompanyAlreadyCoupledQst: Label 'The specified Business Central company is coupled to another business unit in Dataverse. Coupling with multiple business units can cause synchronization errors.\\Do you want to continue anyway?';
+        BusinessUnitAlreadyCoupledTxt: Label 'The specified business unit in Dataverse is coupled to another Business Central company.';
+        CompanyAlreadyCoupledTxt: Label 'The specified Business Central company is coupled to another business unit in Dataverse.';
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
 }

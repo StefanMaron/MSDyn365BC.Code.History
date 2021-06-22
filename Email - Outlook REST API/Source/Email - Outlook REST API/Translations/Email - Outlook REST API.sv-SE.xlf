@@ -40,20 +40,20 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field Id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3074962881 - Field 2788077256 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ClientId</source>
-          <target state="translated">ClientId</target>
+          <source>Client Id</source>
+          <target state="translated">Klient-ID</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field ClientId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3074962881 - Field 4069789961 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ClientSecret</source>
-          <target state="translated">ClientSecret</target>
+          <source>Client Secret</source>
+          <target state="translated">Klienthemlighet</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field ClientSecret - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3074962881 - Field 1464062987 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>RedirectURL</source>
-          <target state="translated">RedirectURL</target>
+          <source>Redirect URL</source>
+          <target state="translated">Omdirigerings-URL</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field RedirectURL - Property Caption</note>
         </trans-unit>
