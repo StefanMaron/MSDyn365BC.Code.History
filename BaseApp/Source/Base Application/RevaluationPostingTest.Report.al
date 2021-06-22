@@ -185,7 +185,7 @@ report 5812 "Revaluation Posting - Test"
                     InvtPeriodEndDate: Date;
                     TempErrorText: Text[250];
                 begin
-                    OnBeforeItemJournalLineOnAfterGetRecord("Item Journal Line");
+                    OnBeforeItemJournalLineOnAfterGetRecord("Item Journal Line", ErrorCounter, ErrorText);
 
                     if ("Item No." = '') and (Quantity = 0) then
                         exit;
@@ -261,6 +261,8 @@ report 5812 "Revaluation Posting - Test"
                     No[2] := "Salespers./Purch. Code";
                     if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                         AddError(DimMgt.GetDimValuePostingErr);
+
+                    OnAfterItemJournalLineOnAfterGetRecord("Item Journal Line", ErrorCounter, ErrorText);
                 end;
 
                 trigger OnPreDataItem()
@@ -370,7 +372,12 @@ report 5812 "Revaluation Posting - Test"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeItemJournalLineOnAfterGetRecord(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnAfterItemJournalLineOnAfterGetRecord(var ItemJournalLine: Record "Item Journal Line"; var ErrorCounter: Integer; ErrorText: array[30] of Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemJournalLineOnAfterGetRecord(var ItemJournalLine: Record "Item Journal Line"; var ErrorCounter: Integer; ErrorText: array[30] of Text[250])
     begin
     end;
 }

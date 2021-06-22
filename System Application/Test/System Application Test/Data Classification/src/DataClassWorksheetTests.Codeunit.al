@@ -18,8 +18,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     var
         DataSensitivity: Record "Data Sensitivity";
         DataPrivacyEntities: Record "Data Privacy Entities";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
     begin
         // [GIVEN] The Data Sensitivity table contains a single entry
         DataSensitivity.DeleteAll();
@@ -71,8 +71,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
         DataSensitivity: Record "Data Sensitivity";
         Field: Record Field;
         FieldsSyncStatus: Record "Fields Sync Status";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgtImpl: Codeunit "Data Classification Mgt. Impl.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         FieldCount: Integer;
     begin
         // [GIVEN] The number of enabled, sensitive, normal fields
@@ -109,8 +109,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
         DataSensitivity: Record "Data Sensitivity";
         FieldsSyncStatus: Record "Fields Sync Status";
         Field: Record Field;
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgtImpl: Codeunit "Data Classification Mgt. Impl.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         TableNo: Integer;
         UnclassifiedFieldNo: Integer;
         SensitiveFieldNo: Integer;
@@ -167,9 +167,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     var
         DataSensitivity: Record "Data Sensitivity";
         DataPrivacyEntities: Record "Data Privacy Entities";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
-        FieldContentBuffer: TestPage "Field Content Buffer";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
     begin
         // [GIVEN] The Data Sensitivity table contains an entry for a field of type Text
         DataSensitivity.DeleteAll();
@@ -202,9 +201,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     var
         DataSensitivity: Record "Data Sensitivity";
         FieldSyncStatus: Record "Fields Sync Status";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
-        FieldContentBuffer: TestPage "Field Content Buffer";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
     begin
         // [GIVEN] The Data Sensitivity table contains an entry for a field of type Code
         DataSensitivity.DeleteAll();
@@ -238,9 +236,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     var
         DataSensitivity: Record "Data Sensitivity";
         DataPrivacyEntities: Record "Data Privacy Entities";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
-        FieldContentBuffer: TestPage "Field Content Buffer";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
     begin
         // [GIVEN] The Data Sensitivity table contains an entry for a field of type Code
         DataSensitivity.DeleteAll();
@@ -262,8 +259,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     var
         DataSensitivity: Record "Data Sensitivity";
         DataPrivacyEntities: Record "Data Privacy Entities";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         TableNo: Integer;
         SensitiveFieldNo: Integer;
         UnclassifiedFieldNo: Integer;
@@ -323,8 +320,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     var
         DataSensitivity: Record "Data Sensitivity";
         DataPrivacyEntities: Record "Data Privacy Entities";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         TableNo: Integer;
         SensitiveFieldNo: Integer;
         UnclassifiedFieldNo: Integer;
@@ -384,8 +381,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     var
         DataSensitivity: Record "Data Sensitivity";
         DataPrivacyEntities: Record "Data Privacy Entities";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         TableNo: Integer;
         PersonalFieldNo: Integer;
         CompanyConfidentialFieldNo: Integer;
@@ -446,8 +443,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     var
         DataSensitivity: Record "Data Sensitivity";
         DataPrivacyEntities: Record "Data Privacy Entities";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         TableNo: Integer;
         NormalFieldNo: Integer;
         CompanyConfidentialFieldNo: Integer;
@@ -508,8 +505,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     var
         DataSensitivity: Record "Data Sensitivity";
         DataPrivacyEntities: Record "Data Privacy Entities";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         TableNo: Integer;
         PersonalFieldNo: Integer;
         CompanyConfidentialFieldNo: Integer;
@@ -571,8 +568,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     var
         DataSensitivity: Record "Data Sensitivity";
         DataPrivacyEntities: Record "Data Privacy Entities";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         TableNo: Integer;
         UnclassifiedFieldNo: Integer;
         SensitiveFieldNo: Integer;
@@ -628,25 +625,6 @@ codeunit 135159 "Data Class. Worksheet Tests"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure TestViewSimilarFields()
-    var
-        DataSensitivity: Record "Data Sensitivity";
-        DataPrivacyEntities: Record "Data Privacy Entities";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
-        DataClassificationMgt: Codeunit "Data Classification Mgt.";
-        TableNo: Integer;
-        UnclassifiedFieldNo: Integer;
-        SensitiveFieldNo: Integer;
-        NormalFieldNo1: Integer;
-        NormalFieldNo2: Integer;
-        PersonalFieldNo: Integer;
-        CompanyConfidentialFieldNo: Integer;
-    begin
-
-    end;
-
-    [Test]
     [HandlerFunctions('IncreaseNotificationCounter')]
     [Scope('OnPrem')]
     procedure TestLegalDisclaimerNotification()
@@ -668,8 +646,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     procedure TestSetSensitivities()
     var
         DataSensitivity: Record "Data Sensitivity";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
     begin
         // [WHEN] A user changes a data sensitivity classification
         // [THEN] Change the value on the page
@@ -698,8 +676,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     procedure TestLastModifiedBy()
     var
         DataSensitivity: Record "Data Sensitivity";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
     begin
         // [WHEN] A user changes a data sensitivity classification
         // [THEN] The last modified by value is also changed in the page
@@ -719,8 +697,8 @@ codeunit 135159 "Data Class. Worksheet Tests"
     procedure TestLastModified()
     var
         DataSensitivity: Record "Data Sensitivity";
-        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
+        DataClassificationWorksheet: TestPage "Data Classification Worksheet";
         BaseDate: DateTime;
     begin
         // [WHEN] A user changes a data sensitivity classification

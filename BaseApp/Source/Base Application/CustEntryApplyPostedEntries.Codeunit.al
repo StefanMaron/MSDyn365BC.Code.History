@@ -64,12 +64,19 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     procedure GetApplicationDate(CustLedgEntry: Record "Cust. Ledger Entry") ApplicationDate: Date
     var
         ApplyToCustLedgEntry: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetApplicationDate(CustLedgEntry, ApplicationDate, IsHandled);
+        if IsHandled then
+            exit(ApplicationDate);
+
         with CustLedgEntry do begin
             ApplicationDate := 0D;
             ApplyToCustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID");
             ApplyToCustLedgEntry.SetRange("Customer No.", "Customer No.");
             ApplyToCustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
+            OnGetApplicationDateOnAfterSetFilters(ApplyToCustLedgEntry, CustLedgEntry);
             ApplyToCustLedgEntry.FindSet;
             repeat
                 if ApplyToCustLedgEntry."Posting Date" > ApplicationDate then
@@ -484,12 +491,22 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetApplicationDate(CustLedgEntry: Record "Cust. Ledger Entry"; var ApplicationDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostApplyCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostUnapplyCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetApplicationDateOnAfterSetFilters(var ApplyToCustLedgEntry: Record "Cust. Ledger Entry"; CustLedgEntry: Record "Cust. Ledger Entry");
     begin
     end;
 

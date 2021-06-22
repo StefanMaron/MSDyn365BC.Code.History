@@ -342,7 +342,7 @@ table 60 "Document Sending Profile"
                 until RecRefSource.Next = 0;
         end;
 
-        OnAfterSendCustomerRecords(ReportUsage,RecordVariant,DocName,CustomerNo,DocumentNo,CustomerFieldNo,DocumentFieldNo);
+        OnAfterSendCustomerRecords(ReportUsage, RecordVariant, DocName, CustomerNo, DocumentNo, CustomerFieldNo, DocumentFieldNo);
     end;
 
     procedure SendVendorRecords(ReportUsage: Integer; RecordVariant: Variant; DocName: Text[150]; VendorNo: Code[20]; DocumentNo: Code[20]; VendorFieldNo: Integer; DocumentFieldNo: Integer)
@@ -653,8 +653,13 @@ table 60 "Document Sending Profile"
         ClientFilePath: Text[250];
         ZipPath: Text[250];
         ClientZipFileName: Text[250];
+        IsHandled: Boolean;
     begin
         if Disk = Disk::No then
+            exit;
+
+        OnBeforeSendToDisk(ReportUsage, RecordVariant, DocNo, DocName, ToCust, IsHandled);
+        if IsHandled then
             exit;
 
         case Disk of
@@ -891,6 +896,11 @@ table 60 "Document Sending Profile"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendVendorRecords(ReportUsage: Integer; RecordVariant: Variant; DocName: Text[150]; VendorNo: Code[20]; DocumentNo: Code[20]; VendorFieldNo: Integer; DocumentFieldNo: Integer; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSendToDisk(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; ToCust: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

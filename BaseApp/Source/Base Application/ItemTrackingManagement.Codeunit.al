@@ -176,6 +176,8 @@ codeunit 6500 "Item Tracking Management"
                     else
                         LotRequired := ItemTrackingCode."Lot Assembly Outbound Tracking";
             end;
+
+        OnAfterGetItemTrackingSettings(ItemTrackingCode);
     end;
 
     procedure RetrieveInvoiceSpecification(SourceSpecification: Record "Tracking Specification"; var TempInvoicingSpecification: Record "Tracking Specification" temporary) OK: Boolean
@@ -1512,6 +1514,7 @@ codeunit 6500 "Item Tracking Management"
                 ItemTrackingCode.Get(Item."Item Tracking Code");
             SNRequired := ItemTrackingCode."SN Warehouse Tracking";
             LNRequired := ItemTrackingCode."Lot Warehouse Tracking";
+            OnCheckWhseItemTrkgSetupOnAfterItemTrackingCodeGet(ItemTrackingCode);
         end;
         if not (SNRequired or LNRequired) and ShowError then
             Error(Text005, Item.FieldCaption("No."), ItemNo);
@@ -3329,6 +3332,11 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItemTrackingSettings(var ItemTrackingCode: Record "Item Tracking Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitReservEntry(var ReservEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -3380,6 +3388,11 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseSplitTrackingSpec: Record "Tracking Specification" temporary; var WhseSNRequired: Boolean; var WhseLNRequired: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckWhseItemTrkgSetupOnAfterItemTrackingCodeGet(var ItemTrackingCode: Record "Item Tracking Code")
     begin
     end;
 }

@@ -1128,6 +1128,34 @@ codeunit 137044 "SCM Order Promising"
         VerifyReservEntryShipmentDate(DATABASE::"Job Planning Line", Item."No.", JobPlanningLine."Planned Delivery Date");
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UT_ReservedQtyOnProdOrderIsCalculatedAtAvailableToPromise()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        ProductionOrder: Record "Production Order";
+        AvailableToPromise: Codeunit "Available to Promise";
+        OrderType: Option ItemOrder,ProjectOrder;
+        ExpectedQuantity: Integer;
+    begin
+        // [FEATURE] [UT] [Availability]
+        // [SCENARIO 338140] Item."Reserved Qty. on Prod. Order" is calculated at COD5790.CalcAllItemFields function.
+        Initialize;
+
+        CreateItem(Item, Item."Replenishment System"::"Prod. Order");
+
+        ExpectedQuantity := LibraryRandom.RandIntInRange(2, 4);
+        CreateSalesOrderWithRequestedDeliveryDate(SalesHeader, Item."No.", ExpectedQuantity, 0D, WorkDate + 7);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+          SalesHeader, ProductionOrder.Status::"Firm Planned", OrderType::ItemOrder);
+        AvailableToPromise.CalcAvailableInventory(Item);
+
+        Assert.AreEqual(
+          ExpectedQuantity, Item."Reserved Qty. on Prod. Order", 'Expected "Reserved Qty. on Prod. Order" to match with ExpectedQuantity');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

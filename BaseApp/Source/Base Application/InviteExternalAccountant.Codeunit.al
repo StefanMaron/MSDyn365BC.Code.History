@@ -29,6 +29,9 @@ codeunit 9033 "Invite External Accountant"
         InviteExternalAccountantTelemetryUserTablePermissionFailTxt: Label 'Invite External Accountant wizard failed to start due to the session not being admin or the user being Super in all companies.', Locked = true;
         InviteExternalAccountantTelemetryCreateNewUserSuccessTxt: Label 'Invite External Accountant wizard successfully created a new user.', Locked = true;
         InviteExternalAccountantTelemetryCreateNewUserFailedTxt: Label 'Invite External Accountant wizard was unable to create a new user.', Locked = true;
+        InviteExternalAccountantWizardFailedTxt: Label 'Invite External Accountant wizard has failed on step %1, ErrorMessage %2.', Locked = true;
+        InvokeWebRequestFailedTxt: Label 'Invoking web request has failed. Status %1, Message %2', Locked = true;
+        InvokeWebRequestFailedDetailedTxt: Label 'Invoking web request has failed. Status %1, Message %2, Response Details %3', Locked = true;
         ResponseCodeTxt: Label 'responseCode', Locked = true;
         InsufficientDataReturnedFromInvitationsApiTxt: Label 'Insufficient information was returned when inviting the user. Please contact your administrator.';
         WidsClaimNameTok: Label 'WIDS', Locked = true;
@@ -215,16 +218,22 @@ codeunit 9033 "Invite External Accountant"
         AzureADGraph: codeunit "Azure AD Graph";
         UserAssignedPlans: DotNet GenericList1;
         GuestGraphUser: DotNet UserInfo;
+        NumberOfAssignedPlan: Integer;
         "Count": Integer;
     begin
         repeat
             Sleep(2000);
             Count := Count + 1;
-            AzureADGraph.TryGetUserByObjectId(InvitedUserId, GuestGraphUser);
-            AzureADGraph.GetUserAssignedPlans(GuestGraphUser, UserAssignedPlans);
-        until (UserAssignedPlans.Count > 1) or (Count = 10);
 
-        if UserAssignedPlans.Count > 1 then begin
+            if AzureADGraph.TryGetUserByObjectId(InvitedUserId, GuestGraphUser) then begin
+                AzureADGraph.GetUserAssignedPlans(GuestGraphUser, UserAssignedPlans);
+
+                if (not IsNull(UserAssignedPlans)) then
+                    NumberOfAssignedPlan := UserAssignedPlans.Count;
+            end;
+        until (NumberOfAssignedPlan > 1) or (Count = 10);
+
+        if NumberOfAssignedPlan > 1 then begin
             OnInvitationCreateNewUser(true);
             AzureADUserManagement.CreateNewUserFromGraphUser(GuestGraphUser);
         end else
@@ -250,10 +259,8 @@ codeunit 9033 "Invite External Accountant"
     procedure UpdateAssistedSetup()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
-        NavApp.GetCurrentModuleInfo(Info);
-        AssistedSetup.Complete(Info.Id(), PAGE::"Invite External Accountant");
+        AssistedSetup.Complete(PAGE::"Invite External Accountant");
     end;
 
     local procedure InvokeRequestWithGraphAccessToken(Url: Text; Verb: Text; Body: Text; var ResponseContent: Text): Boolean
@@ -263,19 +270,14 @@ codeunit 9033 "Invite External Accountant"
 
     local procedure InvokeRequest(Url: Text; Verb: Text; Body: Text; AuthResourceUrl: Text; var ResponseContent: Text): Boolean
     var
-        TempBlob: Codeunit "Temp Blob";
         AzureADMgt: Codeunit "Azure AD Mgt.";
         AzureADTenant: Codeunit "Azure AD Tenant";
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
-        WebRequestHelper: Codeunit "Web Request Helper";
         HttpStatusCode: DotNet HttpStatusCode;
         ResponseHeaders: DotNet NameValueCollection;
-        WebException: DotNet WebException;
-        InStr: InStream;
+        ResponseErrorMessage: Text;
+        ResponseErrorDetails: Text;
         AccessToken: Text;
-        ServiceUrl: Text;
-        ChunkText: Text;
-        WasSuccessful: Boolean;
     begin
         AccessToken := AzureADMgt.GetGuestAccessToken(AuthResourceUrl, AzureADTenant.GetAadTenantId);
 
@@ -291,21 +293,17 @@ codeunit 9033 "Invite External Accountant"
         if Verb <> 'GET' then
             HttpWebRequestMgt.AddBodyAsText(Body);
 
-        TempBlob.CreateInStream(InStr);
-        if HttpWebRequestMgt.GetResponse(InStr, HttpStatusCode, ResponseHeaders) then
-            WasSuccessful := true
+        if HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseContent, ResponseErrorMessage, ResponseErrorDetails, HttpStatusCode, ResponseHeaders) then
+            exit(true)
         else begin
-            WebRequestHelper.GetWebResponseError(WebException, ServiceUrl);
-            WebException.Response.GetResponseStream.CopyTo(InStr);
-            WasSuccessful := false;
-        end;
+            SendTraceTag('0000B3O', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Error,
+              StrSubstNo(InvokeWebRequestFailedTxt, HttpStatusCode, ResponseErrorMessage), DATACLASSIFICATION::SystemMetadata);
 
-        while not InStr.EOS do begin
-            InStr.ReadText(ChunkText);
-            ResponseContent += ChunkText;
-        end;
+            SendTraceTag('0000B3P', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Error,
+                StrSubstNo(InvokeWebRequestFailedDetailedTxt, HttpStatusCode, ResponseErrorMessage, ResponseErrorDetails), DATACLASSIFICATION::CustomerContent);
 
-        exit(WasSuccessful);
+            exit(false);
+        end;
     end;
 
     local procedure GetMessageFromErrorJSON(ResponseContent: Text): Text
@@ -339,6 +337,12 @@ codeunit 9033 "Invite External Accountant"
     local procedure GetGraphSubscribedSkusUrl(): Text
     begin
         exit(UrlHelper.GetGraphUrl + 'v1.0/subscribedSkus');
+    end;
+
+    procedure SendTelemetryForWizardFailure(stepFailed: Text; ErrorMessage: Text)
+    begin
+        SendTraceTag('0000B97', InviteExternalAccountantTelemetryCategoryTxt, VERBOSITY::Error,
+          StrSubstNo(InviteExternalAccountantWizardFailedTxt, stepFailed, ErrorMessage), DATACLASSIFICATION::SystemMetadata);
     end;
 
     [EventSubscriber(ObjectType::Page, 9033, 'OnInvitationStart', '', false, false)]

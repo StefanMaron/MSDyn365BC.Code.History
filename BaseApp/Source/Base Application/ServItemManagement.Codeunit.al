@@ -165,6 +165,8 @@ codeunit 5920 ServItemManagement
             "Service Order No." := ServiceLine."Document No.";
             "Last Date Modified" := Today;
         end;
+
+        OnAfterInitNewServItemComponent(NewServItemComponent, ServiceLine);
     end;
 
     local procedure InsertServItemComponent(var ServiceItemComponent: Record "Service Item Component"; BOMComponent: Record "BOM Component"; BOMComponent2: Record "BOM Component"; SalesHeader: Record "Sales Header"; SalesShipmentLine: Record "Sales Shipment Line")
@@ -598,6 +600,11 @@ codeunit 5920 ServItemManagement
                 if SalesLine.Get(SalesLine."Document Type"::Order, PurchaseLine."Sales Order No.", PurchaseLine."Sales Order Line No.") then
                     CopyReservationEntryLine(SalesLine);
             until PurchaseLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitNewServItemComponent(var ServItemComponent: Record "Service Item Component"; ServiceLine: Record "Service Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

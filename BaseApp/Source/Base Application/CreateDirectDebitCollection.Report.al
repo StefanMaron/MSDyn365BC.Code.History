@@ -37,7 +37,7 @@ report 1200 "Create Direct Debit Collection"
                     SetRange("Due Date", FromDate, ToDate);
                     if OnlyInvoicesWithMandate then
                         SetFilter("Direct Debit Mandate ID", '<>%1', '');
-                    SetRange("Currency Code", GLSetup.GetCurrencyCode('EUR'))
+                    SetFilter("Currency Code", BankAccount."Currency Code");
                 end;
             }
 

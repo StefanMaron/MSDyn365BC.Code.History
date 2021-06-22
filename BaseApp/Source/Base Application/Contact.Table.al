@@ -1191,7 +1191,7 @@
             OnBeforeDuplicateCheck(Rec, xRec, IsDuplicateCheckNeeded);
 
             if IsDuplicateCheckNeeded then
-                CheckDupl;
+                CheckDuplicates;
         end;
 
         OnAfterOnModify(Rec, xRec);
@@ -1269,7 +1269,7 @@
 
         if Cont.Get("No.") then begin
             if Type = Type::Company then
-                CheckDupl
+                CheckDuplicates
             else
                 DuplMgt.RemoveContIndex(Rec, false);
         end;
@@ -1278,7 +1278,13 @@
     procedure AssistEdit(OldCont: Record Contact): Boolean
     var
         Cont: Record Contact;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(Rec, OldCont, IsHandled);
+        if IsHandled then
+            exit(true);
+
         with Cont do begin
             Cont := Rec;
             RMSetup.Get;
@@ -1424,6 +1430,8 @@
         OnAfterVendorInsert(Vend, Rec);
 
         UpdateCustVendBank.UpdateVendor(ContComp, ContBusRel);
+
+        OnCreateVendorOnAfterUpdateVendor(Vend, Rec);
 
         if OfficeMgt.IsAvailable then
             PAGE.Run(PAGE::"Vendor Card", Vend)
@@ -1706,11 +1714,19 @@
             "Search Name" := Name;
     end;
 
-    local procedure CheckDupl()
+    local procedure CheckDuplicates()
+    var
+        IsHandled: Boolean;
     begin
         if RMSetup."Maintain Dupl. Search Strings" then
             DuplMgt.MakeContIndex(Rec);
-        if GuiAllowed then
+
+        if not GuiAllowed then
+            exit;
+
+        IsHandled := false;
+        OnBeforeLaunchDuplicateForm(Rec, IsHandled);
+        if not IsHandled then
             if DuplMgt.DuplicateExist(Rec) then begin
                 Modify;
                 Commit;
@@ -2645,6 +2661,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var Contact: record Contact; OldContact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeBankAccountInsert(var BankAccount: Record "Bank Account");
     begin
     end;
@@ -2700,12 +2721,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLaunchDuplicateForm(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var Contact: Record Contact; var PostCode: Record "Post Code");
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateCustomerOnBeforeUpdateQuotes(var Customer: Record Customer; Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateVendorOnAfterUpdateVendor(var Vendor: Record Vendor; Contact: Record Contact)
     begin
     end;
 

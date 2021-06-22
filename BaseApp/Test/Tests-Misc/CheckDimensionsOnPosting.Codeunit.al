@@ -700,6 +700,65 @@ codeunit 134486 "Check Dimensions On Posting"
     [Scope('OnPrem')]
     procedure T140_BatchPostingSalesHeadersWithTwoDimErrors()
     var
+        SalesHeader: Record "Sales Header";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
+        ContextDimRecID: array[10] of RecordID;
+        SourceDimRecID: array[10] of RecordID;
+        SourceFieldNo: array[10] of Integer;
+        CustomerNo: Code[20];
+        ExpectedErrorMessage: array[10] of Text;
+    begin
+        // [FEATURE] [Sales] [Batch Posting]
+        // [SCENARIO] Batch posting of two documents opens "Error Messages" page that contains three lines per document.
+        Initialize;
+        LibrarySales.SetPostWithJobQueue(false);
+        // [GIVEN] Customer 'A' with default dimensions: 'Department' and 'Project'.
+        CustomerNo := CreateCustDefaultDimensionValue(DimensionValue);
+        // [GIVEN] Dimension 'Department' is blocked
+        ExpectedErrorMessage[1] := SetDimensionBlocked(DimensionValue."Dimension Code", Dimension);
+        ExpectedErrorMessage[4] := ExpectedErrorMessage[1];
+        ExpectedErrorMessage[3] := NothingToPostErr;
+        SourceDimRecID[1] := Dimension.RecordId;
+        SourceFieldNo[1] := Dimension.FieldNo(Blocked);
+        SourceDimRecID[4] := SourceDimRecID[1];
+        SourceFieldNo[4] := SourceFieldNo[1];
+        // [GIVEN] Dimension value 'Project','TOYOTA' is blocked
+        ExpectedErrorMessage[2] := CreateCustBlockedDimensionValue(DimensionValue, CustomerNo);
+        ExpectedErrorMessage[5] := ExpectedErrorMessage[2];
+        ExpectedErrorMessage[6] := NothingToPostErr;
+        SourceDimRecID[2] := DimensionValue.RecordId;
+        SourceFieldNo[2] := DimensionValue.FieldNo(Blocked);
+        SourceDimRecID[5] := SourceDimRecID[2];
+        SourceFieldNo[5] := SourceFieldNo[2];
+
+        // [GIVEN] Sales Order '1002', where "Sell-To Customer No." is 'A'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeaderToPost(SalesHeader);
+        SetArray(ContextDimRecID, 1, 3, SalesHeader.RecordId);
+        SourceDimRecID[3] := SalesHeader.RecordId;
+        // [GIVEN] Sales Order '1003', where "Sell-To Customer No." is 'A'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeaderToPost(SalesHeader);
+        SetArray(ContextDimRecID, 4, 6, SalesHeader.RecordId);
+        SourceDimRecID[6] := SalesHeader.RecordId;
+
+        // [WHEN] Post two Sales Orders '1002' and '1003' as a batch
+        LibraryErrorMessage.TrapErrorMessages;
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesBatchPostMgt.RunWithUI(SalesHeader, 2, '');
+
+        // [THEN] Opened page "Error Messages" with six lines, where 2 are 'Nothing to post.':
+        // [THEN] 3 lines for 'Sales Header: Order, 1002' and 3 lines for 'Sales Header: Order, 1003'
+        VerifyHeaderDimErrors(ContextDimRecID, 6, ExpectedErrorMessage, SourceDimRecID, SourceFieldNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    [Scope('OnPrem')]
+    procedure T141_BatchPostingSalesHeadersWithTwoDimErrorsBackground()
+    var
         SalesHeader: array[3] of Record "Sales Header";
         SalesLine: Record "Sales Line";
         Dimension: Record Dimension;
@@ -716,8 +775,9 @@ codeunit 134486 "Check Dimensions On Posting"
         i: Integer;
     begin
         // [FEATURE] [Sales] [Batch Posting]
-        // [SCENARIO] Batch posting of two documents opens "Error Messages" page that contains three lines per document.
+        // [SCENARIO] Batch posting (in background) of two documents opens "Error Messages" page that contains three lines per document.
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         InitialErrorMessageRecordCount := ErrorMessage.Count;
@@ -1549,6 +1609,65 @@ codeunit 134486 "Check Dimensions On Posting"
     [Scope('OnPrem')]
     procedure T240_BatchPostingPurchHeadersWithTwoDimErrors()
     var
+        PurchHeader: Record "Purchase Header";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        PurchBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
+        ContextDimRecID: array[10] of RecordID;
+        SourceDimRecID: array[10] of RecordID;
+        SourceFieldNo: array[10] of Integer;
+        VendorNo: Code[20];
+        ExpectedErrorMessage: array[10] of Text;
+    begin
+        // [FEATURE] [Purchase] [Batch Posting]
+        // [SCENARIO] Batch posting of two documents opens "Error Messages" page that contains three lines per document.
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+        // [GIVEN] Vendor 'A' with default dimensions: 'Department' and 'Project'.
+        VendorNo := CreateVendDefaultDimensionValue(DimensionValue);
+        // [GIVEN] Dimension 'Department' is blocked
+        ExpectedErrorMessage[1] := SetDimensionBlocked(DimensionValue."Dimension Code", Dimension);
+        ExpectedErrorMessage[4] := ExpectedErrorMessage[1];
+        ExpectedErrorMessage[3] := NothingToPostErr;
+        SourceDimRecID[1] := Dimension.RecordId;
+        SourceFieldNo[1] := Dimension.FieldNo(Blocked);
+        SourceDimRecID[4] := SourceDimRecID[1];
+        SourceFieldNo[4] := SourceFieldNo[1];
+        // [GIVEN] Dimension value 'Project','TOYOTA' is blocked
+        ExpectedErrorMessage[2] := CreateVendBlockedDimensionValue(DimensionValue, VendorNo);
+        ExpectedErrorMessage[5] := ExpectedErrorMessage[2];
+        ExpectedErrorMessage[6] := NothingToPostErr;
+        SourceDimRecID[2] := DimensionValue.RecordId;
+        SourceFieldNo[2] := DimensionValue.FieldNo(Blocked);
+        SourceDimRecID[5] := SourceDimRecID[2];
+        SourceFieldNo[5] := SourceFieldNo[2];
+
+        // [GIVEN] Purchase Order '1002', where "Buy-from Vendor No." is 'A'
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
+        PurchHeaderToPost(PurchHeader);
+        SetArray(ContextDimRecID, 1, 3, PurchHeader.RecordId);
+        SourceDimRecID[3] := PurchHeader.RecordId;
+        // [GIVEN] Purchase Order '1003', where "Buy-from Vendor No." is 'A'
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
+        PurchHeaderToPost(PurchHeader);
+        SetArray(ContextDimRecID, 4, 6, PurchHeader.RecordId);
+        SourceDimRecID[6] := PurchHeader.RecordId;
+
+        // [WHEN] Post two Sales Orders '1002' and '1003' as a batch
+        LibraryErrorMessage.TrapErrorMessages;
+        PurchHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchBatchPostMgt.RunWithUI(PurchHeader, 2, '');
+
+        // [THEN] Opened page "Error Messages" with six lines, where 2 are 'Nothing to post.':
+        // [THEN] 3 lines for 'Purchase Header: Order, 1002' and 3 lines for 'Purchase Header: Order, 1003'
+        VerifyHeaderDimErrors(ContextDimRecID, 6, ExpectedErrorMessage, SourceDimRecID, SourceFieldNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    [Scope('OnPrem')]
+    procedure T241_BatchPostingPurchHeadersWithTwoDimErrorsBackground()
+    var
         PurchHeader: array[3] of Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         Dimension: Record Dimension;
@@ -1565,8 +1684,9 @@ codeunit 134486 "Check Dimensions On Posting"
         i: Integer;
     begin
         // [FEATURE] [Purchase] [Batch Posting]
-        // [SCENARIO] Batch posting of two documents opens "Error Messages" page that contains three lines per document.
+        // [SCENARIO] Batch posting (in background) of two documents opens "Error Messages" page that contains three lines per document.
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         InitialErrorMessageRecordCount := ErrorMessage.Count;

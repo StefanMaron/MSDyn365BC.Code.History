@@ -449,8 +449,11 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        if (not DocNoVisible) and ("No." = '') then
+        if (not DocNoVisible) and ("No." = '') then begin
             SetCustomerFromFilter;
+            if "Customer No." <> '' then
+                SetReminderNo();
+        end;
     end;
 
     trigger OnOpenPage()

@@ -76,6 +76,7 @@ report 498 "Batch Post Purch. Credit Memos"
                     field(PrintDoc; PrintDoc)
                     {
                         ApplicationArea = Basic, Suite;
+                        Visible = PrintDocVisible;
                         Caption = 'Print';
                         ToolTip = 'Specifies if you want to print the credit memo after posting. In the Report Output Type field on the Purchases and Payables page, you define if the report will be printed or output as a PDF.';
 
@@ -105,6 +106,7 @@ report 498 "Batch Post Purch. Credit Memos"
             PurchasesPayablesSetup.Get;
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;
+            PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";
         end;
     }
 
@@ -119,5 +121,7 @@ report 498 "Batch Post Purch. Credit Memos"
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
         PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
 }
 

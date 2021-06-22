@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 
 /// <summary>
-/// This codeunit is used as a helper for managing interations between
+/// This codeunit is used as a helper for managing interactions between
 /// Business Central and the AppSource marketplace. The marketplace provides a gallery
 /// that users can use to select and install Extensions published (an thus
 /// available) on Business Central.
@@ -20,7 +20,6 @@
 codeunit 2501 "Extension Marketplace"
 {
     Access = Internal;
-    Permissions = Tabledata "NAV App" = r;
 
     var
         HttpWebRequest: DotNet HttpWebRequest;
@@ -192,7 +191,7 @@ codeunit 2501 "Extension Marketplace"
                   StrSubstNo(MarketPlaceUnsuccInstallTxt, OperationResult, GetLastErrorText()));
     end;
 
-    procedure InstallMarketplaceExtension(ApplicationId: GUID; ResponseURL: Text; lcid: Integer)
+    procedure InstallMarketplaceExtension(ApplicationId: Guid; ResponseURL: Text; lcid: Integer)
     var
         NavAppTable: Record "NAV App";
         ExtensionInstallationImpl: Codeunit "Extension Installation Impl";
@@ -222,7 +221,6 @@ codeunit 2501 "Extension Marketplace"
     [TryFunction]
     procedure InstallExtension(ApplicationID: Text; ResponseURL: Text)
     var
-        NAVApp: Record "NAV App";
         MarketplaceExtnDeployment: Page "Marketplace Extn Deployment";
         ID: Guid;
     begin

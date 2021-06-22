@@ -144,8 +144,8 @@ codeunit 392 "Reminder-Make"
                     ReminderHeader."Use Header Level" := ReminderHeaderReq."Use Header Level";
                 end;
                 ReminderHeader."Reminder Level" := ReminderLevel."No.";
-                OnBeforeReminderHeaderModify(ReminderHeader, ReminderHeaderReq, HeaderExists, ReminderTerms, Cust);
-                ReminderHeader.Modify;
+                OnBeforeReminderHeaderModify(ReminderHeader, ReminderHeaderReq, HeaderExists, ReminderTerms, Cust, ReminderLevel);
+                ReminderHeader.Modify();
                 NextLineNo := 0;
                 ReminderLevel.MarkedOnly(true);
                 CustLedgEntry.MarkedOnly(true);
@@ -539,7 +539,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReminderHeaderModify(var ReminderHeader: Record "Reminder Header"; var ReminderHeaderReq: Record "Reminder Header"; HeaderExists: Boolean; ReminderTerms: Record "Reminder Terms"; Customer: Record Customer)
+    local procedure OnBeforeReminderHeaderModify(var ReminderHeader: Record "Reminder Header"; var ReminderHeaderReq: Record "Reminder Header"; HeaderExists: Boolean; ReminderTerms: Record "Reminder Terms"; Customer: Record Customer; ReminderLevel: Record "Reminder Level")
     begin
     end;
 

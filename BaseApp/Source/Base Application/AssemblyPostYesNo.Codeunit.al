@@ -20,7 +20,6 @@ codeunit 901 "Assembly-Post (Yes/No)"
                 exit;
 
             CODEUNIT.Run(CODEUNIT::"Assembly-Post", AssemblyHeader);
-            Commit;
         end;
     end;
 }

@@ -1413,6 +1413,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         if Location."Bin Mandatory" and IsInvtMovement then begin
             // Place Action for inventory movement
+            OnMakeLineOnBeforeUpdatePlaceLine(NewWhseActivLine, PlaceBinCode);
             NextLineNo := NextLineNo + 10000;
             NewWhseActivLine."Line No." := NextLineNo;
             NewWhseActivLine."Action Type" := NewWhseActivLine."Action Type"::Place;
@@ -1731,6 +1732,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnInvtMvntWithoutSourceOnBeforeWhseActivHeaderModify(var WarehouseActivityHeader: Record "Warehouse Activity Header"; InternalMovementHeader: Record "Internal Movement Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeLineOnBeforeUpdatePlaceLine(var NewWhseActivLine: Record "Warehouse Activity Line"; var PlaceBinCode: Code[20])
     begin
     end;
 

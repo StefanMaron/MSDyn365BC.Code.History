@@ -38,6 +38,7 @@ codeunit 139157 "Invoice Premapping Tests"
         InvalidItem2Txt: Label 'BADITEM2', Locked = true;
         ExpectedErrorMsgNotFoundErr: Label 'Expected error message ''%1'' was not logged in table ''%2''.', Comment = '%1 - error message,%2 - table caption';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         YouMustFirstPostTheRelatedInvoiceErr: Label 'The incoming document references invoice %1 from the vendor. You must post related purchase invoice %2 before you create a new purchase document from this incoming document.', Comment = '%1 - vendor invoice no.,%2 posted purchase invoice no.';
         UnableToFindRelatedInvoiceErr: Label 'The incoming document references invoice %1 from the vendor, but no purchase invoice exists for %1.', Comment = '%1 - vendor invoice no.';
         UnableToFindAppropriateAccountErr: Label 'Cannot find an appropriate G/L account for the line with description ''%1''. Choose the Map Text to Account button, and then map the core part of ''%1'' to the relevant G/L account.', Comment = '%1 - arbitrary text';
@@ -58,6 +59,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Invoice Premapping Tests");
         LibraryVariableStorage.Clear;
     end;
 

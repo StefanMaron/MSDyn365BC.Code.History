@@ -340,6 +340,7 @@ codeunit 5054 WordManagement
                         FaxMailToValue := '';
                 end;
 
+                OnBeforeAddFieldsToMergeSource(TempSegLine, TempDeliverySorter);
                 AddFieldsToMergeSource(WordMergefile, InteractLogEntry, TempSegLine, FaxMailToValue, HeaderFieldCount);
                 Row := Row + 1;
                 Window.Update(4, Round(Row / NoOfRecords * 10000, 1))
@@ -1115,6 +1116,11 @@ codeunit 5054 WordManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateHeaderAddFields(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; Salesperson: Record "Salesperson/Purchaser"; Country: Record "Country/Region"; Contact: Record Contact; CompanyInfo: Record "Company Information"; SegmentLine: Record "Segment Line"; InteractionLogEntry: Record "Interaction Log Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddFieldsToMergeSource(var TempSegmentLine: Record "Segment Line" temporary; var TempDeliverySorter: Record "Delivery Sorter" temporary)
     begin
     end;
 

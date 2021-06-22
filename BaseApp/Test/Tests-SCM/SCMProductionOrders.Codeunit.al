@@ -2470,21 +2470,21 @@ codeunit 137069 "SCM Production Orders"
         CreateOutputJournalLine(ItemJournalLine, ProdOrderLine, 0, 0, 89.99997);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
-        // [THEN] The overall flushed quantity of the component item = 66.66665 kg.
+        // [THEN] The overall flushed quantity of the component item = 66.66664 kg.
         // [THEN] That includes 10 * 0.6666666 kg = 6.666666 kg -> rounded up to 6.66667 kg according to the precision setting, and
-        // [THEN] 89.99997 * 0.6666666 kg = 59.999974 kg -> rounded up to 59.99998 kg.
-        VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -66.66665);
+        // [THEN] 89.99997 * 0.6666666 kg = 59.999974 kg -> rounded first to default quantity precision of 0.00001 and then to the rounding precision on the item card -> 59.99997 kg.
+        VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -66.66664);
 
-        // [THEN] Remaining quantity to be flushed is equal to 0.00001.
+        // [THEN] Remaining quantity to be flushed is equal to 0.00002.
         CompItem.CalcFields("Qty. on Component Lines");
-        CompItem.TestField("Qty. on Component Lines", 0.00001);
+        CompItem.TestField("Qty. on Component Lines", 0.00002);
 
         // [WHEN] Finish the output by posting remaining 0.00003 kg of "P".
         CreateOutputJournalLine(ItemJournalLine, ProdOrderLine, 0, 0, 0.00003);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [THEN] The overall flushed quantity of "C" = 66.66666 kg.
-        // [THEN] That includes 59.99998 kg flushed earlier and the remaining quantity 0.00001 kg.
+        // [THEN] That includes 59.99998 kg flushed earlier and the remaining quantity 0.00002 kg.
         // [THEN] The formula 0.00003 * 0.6666666 kg = 0.0000199 kg -> rounded up to 0.00002 kg, was not applied.
         VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -66.66666);
 
@@ -3134,6 +3134,260 @@ codeunit 137069 "SCM Production Orders"
         RecordLink.TestField(Type, RecordLink.Type::Note);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PreliminaryRoundingBeforeApplyingRoundingPrecisionOnItem()
+    var
+        UOMMgt: Codeunit "Unit of Measure Management";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Rounding] [UT]
+        // [SCENARIO 333533] RoundToItemRndPrecision function first rounds quantity to standard 5-digit precision and then to the precision defined by the parameter.
+        Initialize;
+
+        Qty := 1.0000001;
+
+        Assert.AreEqual(1, UOMMgt.RoundToItemRndPrecision(Qty, 1), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundingPrecisionOfProdOrderComponentOnRefreshProdOrder()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [FEATURE] [Rounding] [Prod. Order Component]
+        // [SCENARIO 333533] Rounding precision on item is applied after standard 5-digit rounding when prod. order component is created.
+        Initialize;
+
+        // [GIVEN] Component item "C" with rounding precision = 1.
+        // [GIVEN] Manufacturing item "P".
+        CreateItemWithRoundingPrecision(CompItem, 1);
+        CreateItem(ProdItem, ProdItem."Replenishment System"::"Prod. Order");
+
+        // [GIVEN] "Quantity per" = 1.0000001 (7 digits) on the production BOM line with component "C".
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1.0000001);
+        UpdateProductionBOMOnItem(ProdItem, ProductionBOMHeader."No.");
+
+        // [WHEN] Create and refresh production order for "P", quantity = 1.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItem."No.", 1);
+
+        // [THEN] "Expected Quantity" on prod. order component "C" is rounded to 1 (1.0000001 -> 1.00000 -> 1).
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.");
+        ProdOrderComponent.TestField("Expected Quantity", 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostProdJournalByPageHandler,ConfirmHandlerTRUE,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RoundingPrecisionOfProdOrderComponentOnFinishProdOrder()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [FEATURE] [Rounding] [Prod. Order Component] [Flushing]
+        // [SCENARIO 333533] Rounding precision is applied after standard 5-digit rounding when consumption is flushed on finishing production order.
+        Initialize;
+
+        // [GIVEN] Component item "C" with rounding precision = 1 and set up for backward flushing.
+        // [GIVEN] Post inventory for "C".
+        CreateItemWithRoundingPrecision(CompItem, 1);
+        UpdateFlushingMethodOnItem(CompItem, CompItem."Flushing Method"::Backward);
+        CreateAndPostItemJournalLine(CompItem."No.");
+
+        // [GIVEN] Manufacturing item "P".
+        CreateItem(ProdItem, ProdItem."Replenishment System"::"Prod. Order");
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+        UpdateProductionBOMOnItem(ProdItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Released production order for "P", quantity = 1.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItem."No.", 1);
+
+        // [GIVEN] Post the output of "P".
+        PostProductionJournal(ProductionOrder);
+
+        // [GIVEN] Update quantity of component "C" to 1.0000001 (7 digits).
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.");
+        UpdateQtyOnProdOrderComponent(ProdOrderComponent, 1.0000001);
+
+        // [WHEN] Finish the production order. That triggers automatic consumption of "C".
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] Consumed quantity = 1.
+        VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -1);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('PostProdJournalByPageHandler,ConfirmHandlerTRUE,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RoundingPrecisionOfProdOrderComponentOnPostOutputAndEnabledFlushing()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        RoutingLink: Record "Routing Link";
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [FEATURE] [Rounding] [Prod. Order Component] [Flushing]
+        // [SCENARIO 333533] Rounding precision is applied after standard 5-digit rounding when consumption is flushed on posting output with routing link.
+        Initialize;
+
+        // [GIVEN] Component item "C" with rounding precision = 1 and set up for backward flushing.
+        // [GIVEN] Post inventory for "C".
+        CreateItemWithRoundingPrecision(CompItem, 1);
+        UpdateFlushingMethodOnItem(CompItem, CompItem."Flushing Method"::Backward);
+        CreateAndPostItemJournalLine(CompItem."No.");
+
+        // [GIVEN] Manufacturing item "P".
+        CreateItem(ProdItem, ProdItem."Replenishment System"::"Prod. Order");
+
+        // [GIVEN] Create production BOM and routing line linked to each other via Routing Link.
+        // [GIVEN] That will trigger flushing of component "C" the moment you post the output of "P".
+        LibraryManufacturing.CreateRoutingLink(RoutingLink);
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLine(RoutingLine, RoutingHeader, RoutingLine.Type::"Work Center", WorkCenter."No.", RoutingLink.Code);
+        ChangeStatusOfProductionRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem."Base Unit of Measure");
+        CreateProductionBOMLineWithRoutingLinkCode(ProductionBOMHeader, CompItem."No.", RoutingLink.Code);
+        ChangeStatusOfProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        UpdateRoutingAndBOMOnItem(ProdItem, ProductionBOMHeader."No.", RoutingHeader."No.");
+
+        // [GIVEN] Released production order for "P", quantity = 1.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItem."No.", 1);
+
+        // [GIVEN] Update quantity of component "C" to 1.0000001 (7 digits).
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.");
+        UpdateQtyOnProdOrderComponent(ProdOrderComponent, 1.0000001);
+
+        // [WHEN] Post the output of "P". The consumption of "C" is automatically posted by this.
+        PostProductionJournal(ProductionOrder);
+
+        // [THEN] Consumed quantity = 1.
+        VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -1);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalViewFlushedCompModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure RoundingPrecisionOnProductionJournalLineForConsumption()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [FEATURE] [Rounding] [Production Journal] [Prod. Order Component]
+        // [SCENARIO 333533] Quantity is rounded first to standard 5 digits and then to "Rounding Precision" on item card on production journal.
+        Initialize;
+
+        // [GIVEN] Component item "C" with rounding precision = 1.
+        // [GIVEN] Manufacturing item "P".
+        CreateItemWithRoundingPrecision(CompItem, 1);
+        CreateItem(ProdItem, ProdItem."Replenishment System"::"Prod. Order");
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+        UpdateProductionBOMOnItem(ProdItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Released production order for "P", quantity = 1.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItem."No.", 1);
+
+        // [GIVEN] Update quantity of component "C" to 1.0000001 (7 digits).
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.");
+        UpdateQtyOnProdOrderComponent(ProdOrderComponent, 1.0000001);
+
+        // [WHEN] Open production journal.
+        LibraryVariableStorage.Enqueue(CompItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderComponent."Prod. Order Line No.");
+
+        // [THEN] Quantity on the consumption line = 1.
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueDecimal, '');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundingPrecisionOnPopulatingConsumptionJournalLine()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Rounding] [Consumption]
+        // [SCENARIO 333533] Quantity is rounded first to standard 5 digits and then to "Rounding Precision" on item card on calculating consumption journal.
+        Initialize;
+
+        // [GIVEN] Component item "C" with rounding precision = 1.
+        // [GIVEN] Manufacturing item "P".
+        CreateItemWithRoundingPrecision(CompItem, 1);
+        CreateItem(ProdItem, ProdItem."Replenishment System"::"Prod. Order");
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+        UpdateProductionBOMOnItem(ProdItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Released production order for "P", quantity = 1.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItem."No.", 1);
+
+        // [GIVEN] Update quantity of component "C" to 1.0000001 (7 digits).
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.");
+        UpdateQtyOnProdOrderComponent(ProdOrderComponent, 1.0000001);
+
+        // [WHEN] Calculate consumption in the journal.
+        CreateConsumptionJournal(ProductionOrder."No.");
+
+        // [THEN] Quantity on the consumption journal line = 1.
+        ItemJournalLine.SetRange("Item No.", CompItem."No.");
+        ItemJournalLine.FindFirst;
+        ItemJournalLine.TestField(Quantity, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoundingPrecisionOnValidateExpectedQtyOnPlanningComponent()
+    var
+        Item: Record Item;
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+    begin
+        // [FEATURE] [Rounding] [Planning Component] [UT]
+        // [SCENARIO 333533] Quantity is rounded first to standard 5 digits and then to "Rounding Precision" on validating "Expected Quantity" on planning component.
+        Initialize;
+
+        CreateItemWithRoundingPrecision(Item, 1);
+
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
+        PlanningComponent.Validate("Item No.", Item."No.");
+
+        PlanningComponent.Validate("Expected Quantity", 1.000001);
+
+        PlanningComponent.TestField("Expected Quantity", 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3740,6 +3994,13 @@ codeunit 137069 "SCM Production Orders"
         CreateItem(Item, Item."Replenishment System"::"Prod. Order");
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
         Item.Validate("Description 2", Description2);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithRoundingPrecision(var Item: Record Item; RndPrecision: Decimal)
+    begin
+        CreateItem(Item, Item."Replenishment System"::Purchase);
+        Item.Validate("Rounding Precision", RndPrecision);
         Item.Modify(true);
     end;
 
@@ -4524,6 +4785,17 @@ codeunit 137069 "SCM Production Orders"
         ProdOrderLine.OpenItemTrackingLines;
     end;
 
+    local procedure UpdateQtyOnProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; NewQty: Decimal)
+    var
+        UOMMgt: Codeunit "Unit of Measure Management";
+    begin
+        ProdOrderComponent.Quantity := NewQty;
+        ProdOrderComponent."Quantity (Base)" := UOMMgt.CalcBaseQty(NewQty, ProdOrderComponent."Qty. per Unit of Measure");
+        ProdOrderComponent."Remaining Quantity" := NewQty;
+        ProdOrderComponent."Remaining Qty. (Base)" := UOMMgt.CalcBaseQty(NewQty, ProdOrderComponent."Qty. per Unit of Measure");
+        ProdOrderComponent.Modify(true);
+    end;
+
     local procedure VerifyCapacityEntryPosted(ProdOrderNo: Code[20]; ItemNo: Code[20])
     var
         CapacityLedgerEntry: Record "Capacity Ledger Entry";
@@ -5061,6 +5333,14 @@ codeunit 137069 "SCM Production Orders"
         LibraryVariableStorage.Dequeue(ProductionOrderNo);
         ProductionJournal.FILTER.SetFilter("Document No.", ProductionOrderNo);
         ProductionJournal.Post.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalViewFlushedCompModalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.FILTER.SetFilter("Item No.", LibraryVariableStorage.DequeueText);
+        LibraryVariableStorage.Enqueue(ProductionJournal.Quantity.AsDEcimal);
     end;
 
     [ModalPageHandler]

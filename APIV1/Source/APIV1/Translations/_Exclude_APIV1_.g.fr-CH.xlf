@@ -197,6 +197,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extensions - Control versionMinor - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2435319090 - Control 4256479544 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>versionBuild</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extensions - Control versionBuild - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2435319090 - Control 1065569955 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>versionRevision</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extensions - Control versionRevision - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2435319090 - Control 1729288206 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>scope</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -991,6 +1001,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control invoiceDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3424186788 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>postingDate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control postingDate - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3424186788 - Control 2763176388 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>dueDate</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1172,7 +1187,7 @@
         </trans-unit>
         <trans-unit id="Page 3424186788 - Control 998393528 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the Sales Invoice (cancelled, paid, on hold, created).</source>
-          <target>Spécifie le statut de la facture vente (annulée, payée, en attente, créée).</target>
+          <target>Spécifie le statut de la facture vente (annulée, payée, suspendue, créée).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control status - Property ToolTip</note>
         </trans-unit>
@@ -2054,6 +2069,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control orderDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2686554897 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>postingDate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control postingDate - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2686554897 - Control 38468747 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>customerId</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2220,7 +2240,7 @@
         </trans-unit>
         <trans-unit id="Page 2686554897 - Control 998393528 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the Sales Invoice (cancelled, paid, on hold, created).</source>
-          <target>Spécifie le statut de la facture vente (annulée, payée, en attente, créée).</target>
+          <target>Spécifie le statut de la facture vente (annulée, payée, suspendue, créée).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control status - Property ToolTip</note>
         </trans-unit>
@@ -2675,6 +2695,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Control documentDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1019532645 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>postingDate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Control postingDate - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1019532645 - Control 2763176388 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>dueDate</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2956,6 +2981,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control creditMemoDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1278005506 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>postingDate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control postingDate - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1278005506 - Control 2763176388 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>dueDate</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3096,7 +3126,7 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 998393528 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the Sales Credit Memo (cancelled, paid, on hold, created).</source>
-          <target>Spécifie le statut de l'avoir vente (annulé, payé, en attente, créé).</target>
+          <target>Spécifie le statut de l'avoir vente (annulé, payé, suspendu, créé).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control status - Property ToolTip</note>
         </trans-unit>
@@ -3464,6 +3494,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Time Registr. Entries - NamedType CannotModifyDateErr</note>
         </trans-unit>
+        <trans-unit id="Page 2305153529 - NamedType 1415552295" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Value for employee ID cannot be modified.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Time Registr. Entries - NamedType CannotChangeEmployeeIdErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2305153529 - NamedType 2901946605" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Value for employee number cannot be modified.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Time Registr. Entries - NamedType CannotChangeEmployeeNumberErr</note>
+        </trans-unit>
         <trans-unit id="Page 1789293813 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>purchaseInvoices</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3483,6 +3523,11 @@
           <source>invoiceDate</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoices - Control invoiceDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1789293813 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>postingDate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoices - Control postingDate - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1789293813 - Control 2763176388 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>dueDate</source>
@@ -4660,6 +4705,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - JournalLines - Control lineNumber - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2402706850 - Control 1486462331 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>AccountType</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - JournalLines - Control accountType - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2402706850 - Control 1406037800 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>AccountId</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4766,6 +4816,26 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Jobs - Control displayName - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1197922690 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>bankAccounts</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Bank Accounts - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1197922690 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Bank Accounts - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1197922690 - Control 2757394829 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>number</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Bank Accounts - Control number - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1197922690 - Control 460507951 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>displayName</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Bank Accounts - Control displayName - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Query 2195829034 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>customerSales</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4780,6 +4850,11 @@
           <source>DateFilter</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Query APIV1 - Customer Sales - QueryFilter dateFilter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2195829034 - QueryColumn 38468747 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>SystemId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query APIV1 - Customer Sales - QueryColumn customerId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Query 2195829034 - QueryColumn 3226897001 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>No</source>
@@ -4805,6 +4880,11 @@
           <source>DateFilter</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Query APIV1 - Vendor Purchases - QueryFilter dateFilter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1984868130 - QueryColumn 149332515 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>SystemId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query APIV1 - Vendor Purchases - QueryColumn vendorId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Query 1984868130 - QueryColumn 712552689 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>No</source>

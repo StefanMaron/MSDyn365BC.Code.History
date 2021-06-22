@@ -27,6 +27,7 @@ report 5194 "Create Conts. from Vendors"
                 Cont.Init;
                 Cont.TransferFields(Vendor);
                 Cont."No." := '';
+                OnBeforeSetSkipDefaults(Vendor, Cont);
                 Cont.SetSkipDefault;
                 OnBeforeContactInsert(Vendor, Cont);
                 Cont.Insert(true);
@@ -103,6 +104,11 @@ report 5194 "Create Conts. from Vendors"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeContactInsert(Vendor: Record Vendor; var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSkipDefaults(var Vendor: Record Vendor; var Contact: Record Contact)
     begin
     end;
 }

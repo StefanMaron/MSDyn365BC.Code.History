@@ -211,6 +211,15 @@ codeunit 1380 "Batch Processing Mgt."
         Commit;
     end;
 
+    procedure DeleteBatchProcessingSessionMapForRecordId(RecordIdToClean: RecordId)
+    var
+        BatchProcessingSessionMap: Record "Batch Processing Session Map";
+    begin
+        BatchProcessingSessionMap.SetRange("Batch ID", BatchID);
+        BatchProcessingSessionMap.SetRange("Record ID", RecordIdToClean);
+        BatchProcessingSessionMap.DeleteAll;
+    end;
+
     local procedure DeleteLostParameters(RecordID: RecordID)
     var
         BatchProcessingSessionMap: Record "Batch Processing Session Map";

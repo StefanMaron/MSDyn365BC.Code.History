@@ -4529,6 +4529,72 @@ codeunit 134902 "ERM Account Schedule"
           PeriodTextCaptionLbl + Format(DMY2Date(1, 2, 2019)) + '..' + Format(EndDate));
     end;
 
+    [Test]
+    [HandlerFunctions('AccountScheduleSetSkipEmptyLinesRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportSkipEmptyLinesNo()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        GLAccount: Record "G/L Account";
+    begin
+        // [SCENARIO 316070] Account Schedule report prints lines with 0 amounts when SkipEmptyLines = false
+        Initialize;
+
+        // [GIVEN] Account Schedule Name with Posting line Totaling = "GLACC1" with description "Line1"
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryLowerPermissions.SetFinancialReporting;
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        CreateAccountSchedulePosting(AccScheduleLine, AccScheduleName.Name, GLAccount."No.");
+        Commit;
+        AccScheduleName.SetRecFilter;
+
+        // [GIVEN] No entries for G/L account "GLACC1"
+
+        // [WHEN] Run Account Schedule report with Show Zero Amount Lines = No
+        LibraryVariableStorage.Enqueue(false);
+        REPORT.Run(REPORT::"Account Schedule", true, false, AccScheduleName);
+
+        // [THEN] "Line1" line printed
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists(LineSkippedTok, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetSkipEmptyLinesRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportSkipEmptyLinesYes()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        GLAccount: Record "G/L Account";
+    begin
+        // [SCENARIO 316070] Account Schedule report does not print lines with 0 amounts when SkipEmptyLines = true
+        Initialize;
+
+        // [GIVEN] Account Schedule Name with Posting line Totaling = "GLACC1" with description "Line1"
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryLowerPermissions.SetFinancialReporting;
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        CreateAccountSchedulePosting(AccScheduleLine, AccScheduleName.Name, GLAccount."No.");
+        Commit;
+        AccScheduleName.SetRecFilter;
+
+        // [GIVEN] No entries for G/L account "GLACC1"
+
+        // [WHEN] Run Account Schedule report with Show Zero Amount Lines = yes
+        LibraryVariableStorage.Enqueue(true);
+        REPORT.Run(REPORT::"Account Schedule", true, false, AccScheduleName);
+
+        // [THEN] "Line1" line not printed
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists(LineSkippedTok, true);
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -5696,6 +5762,17 @@ codeunit 134902 "ERM Account Schedule"
     begin
         AccountSchedule.StartDate.SetValue(LibraryVariableStorage.DequeueDate);
         AccountSchedule.EndDate.SetValue(LibraryVariableStorage.DequeueDate);
+        LibraryVariableStorage.AssertEmpty;
+        AccountSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AccountScheduleSetSkipEmptyLinesRequestHandler(var AccountSchedule: TestRequestPage "Account Schedule")
+    begin
+        AccountSchedule.StartDate.SetValue(WorkDate());
+        AccountSchedule.EndDate.SetValue(WorkDate());
+        AccountSchedule.SkipEmptyLines.SetValue(LibraryVariableStorage.DequeueBoolean());
         LibraryVariableStorage.AssertEmpty;
         AccountSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

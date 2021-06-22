@@ -12,6 +12,7 @@ codeunit 139161 "CRM Integration Record Test"
         Assert: Codeunit Assert;
         LibrarySales: Codeunit "Library - Sales";
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
 
     [Test]
     [Scope('OnPrem')]
@@ -554,6 +555,8 @@ codeunit 139161 "CRM Integration Record Test"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Integration Record Test");
+
         // [FEATURE] [Sales] [Order]
         // [SCENARIO] Removal of the coupled Sales Order should remove the coupling.
         LibraryCRMIntegration.ResetEnvironment;

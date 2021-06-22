@@ -126,7 +126,6 @@ codeunit 132909 "Azure AD User Management Test"
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
         AzureADPlan: Codeunit "Azure AD Plan";
         UserLoginTestLibrary: Codeunit "User Login Test Library";
-        CompanyTriggers: Codeunit "Company Triggers";
         AzureADUserManagementTest: Codeunit "Azure AD User Management Test";
         PlanId: Guid;
     begin

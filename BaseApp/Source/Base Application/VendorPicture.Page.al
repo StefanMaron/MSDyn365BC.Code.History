@@ -37,7 +37,7 @@ page 786 "Vendor Picture"
 
                 trigger OnAction()
                 var
-                    CameraOptions: DotNet CameraOptions;
+                    InStream: InStream;
                 begin
                     TestField("No.");
                     TestField(Name);
@@ -45,9 +45,20 @@ page 786 "Vendor Picture"
                     if not CameraAvailable then
                         exit;
 
-                    CameraOptions := CameraOptions.CameraOptions;
-                    CameraOptions.Quality := 50;
-                    CameraProvider.RequestPictureAsync(CameraOptions);
+                    Camera.RunModal();
+
+                    if Image.HasValue then
+                        if not Confirm(OverrideImageQst) then
+                            exit;
+
+                    Camera.GetPicture(Instream);
+
+                    Clear(Image);
+                    Image.ImportStream(Instream, 'Vendor Picture');
+                    if not Modify(true) then
+                        Insert(true);
+
+                    Clear(Camera);
                 end;
             }
             action(ImportPicture)
@@ -136,15 +147,12 @@ page 786 "Vendor Picture"
 
     trigger OnOpenPage()
     begin
-        CameraAvailable := CameraProvider.IsAvailable;
-        if CameraAvailable then
-            CameraProvider := CameraProvider.Create;
+        CameraAvailable := Camera.IsAvailable();
     end;
 
     var
-        [RunOnClient]
-        [WithEvents]
-        CameraProvider: DotNet CameraProvider;
+        Camera: Page Camera;
+        [InDataSet]
         CameraAvailable: Boolean;
         OverrideImageQst: Label 'The existing picture will be replaced. Do you want to continue?';
         DeleteImageQst: Label 'Are you sure you want to delete the picture?';
@@ -154,32 +162,6 @@ page 786 "Vendor Picture"
     local procedure SetEditableOnPictureActions()
     begin
         DeleteExportEnabled := Image.HasValue;
-    end;
-
-    trigger CameraProvider::PictureAvailable(PictureName: Text; PictureFilePath: Text)
-    var
-        File: File;
-        Instream: InStream;
-    begin
-        if (PictureName = '') or (PictureFilePath = '') then
-            exit;
-
-        if Image.HasValue then
-            if not Confirm(OverrideImageQst) then begin
-                if Erase(PictureFilePath) then;
-                exit;
-            end;
-
-        File.Open(PictureFilePath);
-        File.CreateInStream(Instream);
-
-        Clear(Image);
-        Image.ImportStream(Instream, PictureName);
-        if not Modify(true) then
-            Insert(true);
-
-        File.Close;
-        if Erase(PictureFilePath) then;
     end;
 }
 

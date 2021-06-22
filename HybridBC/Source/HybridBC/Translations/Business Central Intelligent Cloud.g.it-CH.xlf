@@ -14,8 +14,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Wizard - NamedType ProductNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 2586591135" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SQL database must be at comptibility level 130 or higher.</source>
-          <target>Il database SQL deve trovarsi al livello di contabilità 130 o superiore.</target>
+          <source>SQL database must be at compatibility level 130 or higher.</source>
+          <target>Il livello di compatibilità del database SQL deve essere 130 o superiore.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SqlCompatibilityErr</note>
         </trans-unit>

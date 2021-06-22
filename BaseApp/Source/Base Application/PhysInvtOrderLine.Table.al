@@ -55,7 +55,6 @@ table 5876 "Phys. Invt. Order Line"
                 end else
                     "Unit of Measure" := '';
 
-                "Shelf No." := Item."Shelf No.";
                 "Item Category Code" := Item."Item Category Code";
 
                 Validate("Gen. Bus. Posting Group", PhysInvtOrderHeader."Gen. Bus. Posting Group");
@@ -69,7 +68,7 @@ table 5876 "Phys. Invt. Order Line"
 
                 "Use Item Tracking" := PhysInvtTrackingMgt.SuggestUseTrackingLines(Item);
 
-                GetFieldsFromSKU;
+                GetShelfNo;
             end;
         }
         field(21; "Variant Code"; Code[10])
@@ -84,7 +83,7 @@ table 5876 "Phys. Invt. Order Line"
 
                 if "Variant Code" <> xRec."Variant Code" then begin
                     ResetQtyExpected;
-                    GetFieldsFromSKU;
+                    GetShelfNo;
                 end;
 
                 if "Variant Code" = '' then
@@ -110,7 +109,7 @@ table 5876 "Phys. Invt. Order Line"
                 if "Location Code" <> xRec."Location Code" then
                     ResetQtyExpected;
 
-                GetFieldsFromSKU;
+                GetShelfNo;
             end;
         }
         field(23; "Bin Code"; Code[20])
@@ -534,8 +533,8 @@ table 5876 "Phys. Invt. Order Line"
             WhseEntry.SetRange("Item No.", "Item No.");
             WhseEntry.SetRange("Variant Code", "Variant Code");
             WhseEntry.SetRange("Registering Date", 0D, PhysInvtOrderHeader."Posting Date");
-            WhseEntry.CalcSums("Qty. (Base)");
             OnCalcQtyAndLastItemLedgExpectedSetWhseEntryFilters(WhseEntry, Rec);
+            WhseEntry.CalcSums("Qty. (Base)");
             QtyExpected := WhseEntry."Qty. (Base)";
         end else begin
             TestField("Bin Code", '');
@@ -634,6 +633,8 @@ table 5876 "Phys. Invt. Order Line"
         GetPhysInvtOrderHeader;
 
         ItemJnlLine.Init;
+        OnCalcCostsOnAfterInitItemJnlLine(Rec, ItemJnlLine);
+
         ItemJnlLine."Posting Date" := PhysInvtOrderHeader."Posting Date";
         case "Entry Type" of
             "Entry Type"::"Positive Adjmt.":
@@ -827,6 +828,13 @@ table 5876 "Phys. Invt. Order Line"
         PAGE.RunModal(0, PhysInvtLedgEntry);
     end;
 
+    local procedure GetShelfNo()
+    begin
+        GetItem;
+        "Shelf No." := Item."Shelf No.";
+        GetFieldsFromSKU;
+    end;
+
     procedure GetFieldsFromSKU()
     begin
         if SKU.Get("Location Code", "Item No.", "Variant Code") then
@@ -879,6 +887,11 @@ table 5876 "Phys. Invt. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPhysInvtLedgerEntries(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCostsOnAfterInitItemJnlLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 

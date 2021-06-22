@@ -1511,11 +1511,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Stat Factbox - Control MigrationStatistics - Property InstructionalText</note>
         </trans-unit>
+        <trans-unit id="Page 3988794227 - Control 2079533778 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the selected source product for the migration.</source>
+          <target>Spécifie le produit source sélectionné pour la migration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Stat Factbox - Control Source Product - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3988794227 - Control 2167643701 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Tables Successful</source>
           <target>Tables réussies</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Stat Factbox - Control Total Successful Tables - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3988794227 - Control 2167643701 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Indicates the total number of tables that have been successfully migrated.</source>
+          <target>Indique le nombre total de tables dont la migration a réussi.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Stat Factbox - Control Total Successful Tables - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3988794227 - Control 4181933880 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Run Statistics</source>

@@ -182,6 +182,8 @@ report 5899 "Calculate Inventory Value"
                     CalculateStdCost.CalcItems(Item, NewStdCostItem);
                     Clear(CalculateStdCost);
                 end;
+
+                OnAfterOnPreDataItem();
             end;
         }
     }
@@ -361,7 +363,7 @@ report 5899 "Calculate Inventory Value"
 
     local procedure ValidateCalcLevel()
     begin
-        PageValidateCalcLevel;
+        PageValidateCalcLevel();
         exit;
     end;
 
@@ -372,7 +374,7 @@ report 5899 "Calculate Inventory Value"
         ValJnlBuffer.SetRange("Item No.", ItemNo2);
         ValJnlBuffer.SetRange("Location Code", LocationCode2);
         ValJnlBuffer.SetRange("Variant Code", VariantCode2);
-        if ValJnlBuffer.FindFirst then begin
+        if ValJnlBuffer.FindFirst() then begin
             ValJnlBuffer.Quantity := ValJnlBuffer.Quantity + Quantity2;
             ValJnlBuffer."Inventory Value (Calculated)" :=
               ValJnlBuffer."Inventory Value (Calculated)" + Amount2;
@@ -484,26 +486,9 @@ report 5899 "Calculate Inventory Value"
                         HideDuplWarning := true
                     else
                         Error('');
-            if NextLineNo = 0 then begin
-                LockTable;
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                if FindLast then
-                    NextLineNo := "Line No.";
-            end;
 
-            NextLineNo := NextLineNo + 10000;
-            Init;
-            "Line No." := NextLineNo;
-            "Value Entry Type" := "Value Entry Type"::Revaluation;
-            Validate("Posting Date", PostingDate);
-            Validate("Entry Type", EntryType2);
-            Validate("Document No.", NextDocNo);
-            Validate("Item No.", ItemNo2);
-            "Reason Code" := ItemJnlBatch."Reason Code";
-            "Variant Code" := VariantCode2;
-            "Location Code" := LocationCode2;
-            "Source Code" := SourceCodeSetup."Revaluation Journal";
+            InitItemJnlLine(ItemJnlLine, EntryType2, ItemNo2, VariantCode2, LocationCode2);
+
             Validate("Unit Amount", 0);
             if ApplyToEntry2 <> 0 then
                 "Inventory Value Per" := "Inventory Value Per"::" "
@@ -563,6 +548,34 @@ report 5899 "Calculate Inventory Value"
             Insert;
             OnAfterInsertItemJnlLine(ItemJnlLine);
         end;
+    end;
+
+    local procedure InitItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; EntryType2: Option; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10])
+    begin
+        with ItemJnlLine do begin
+            if NextLineNo = 0 then begin
+                LockTable();
+                SetRange("Journal Template Name", "Journal Template Name");
+                SetRange("Journal Batch Name", "Journal Batch Name");
+                if FindLast then
+                    NextLineNo := "Line No.";
+            end;
+
+            NextLineNo := NextLineNo + 10000;
+            Init;
+            "Line No." := NextLineNo;
+            "Value Entry Type" := "Value Entry Type"::Revaluation;
+            Validate("Posting Date", PostingDate);
+            Validate("Entry Type", EntryType2);
+            Validate("Document No.", NextDocNo);
+            Validate("Item No.", ItemNo2);
+            "Reason Code" := ItemJnlBatch."Reason Code";
+            "Variant Code" := VariantCode2;
+            "Location Code" := LocationCode2;
+            "Source Code" := SourceCodeSetup."Revaluation Journal";
+        end;
+
+        OnAfterInitItemJnlLine(ItemJnlLine);
     end;
 
     procedure InitializeRequest(NewPostingDate: Date; NewDocNo: Code[20]; NewHideDuplWarning: Boolean; NewCalculatePer: Option; NewByLocation: Boolean; NewByVariant: Boolean; NewUpdStdCost: Boolean; NewCalcBase: Option; NewShowDialog: Boolean)
@@ -643,12 +656,27 @@ report 5899 "Calculate Inventory Value"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreDataItem()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePreReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitItemJnlLineOnBeforeValidateFields(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }

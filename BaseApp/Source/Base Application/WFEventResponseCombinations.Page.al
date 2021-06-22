@@ -63,7 +63,7 @@ page 1507 "WF Event/Response Combinations"
         MatrixManagement: Codeunit "Matrix Management";
         SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
         ColumnSetResponses: Text;
-        MATRIX_ColumnCaptions_Responses: array[12] of Text[80];
+        MATRIX_ColumnCaptions_Responses: array[12] of Text[250];
         PKFirstRecInCurrSetResponses: Text;
         ColumnSetLengthResponses: Integer;
 
@@ -73,9 +73,9 @@ page 1507 "WF Event/Response Combinations"
         ResponseRecRef: RecordRef;
     begin
         ResponseRecRef.Open(DATABASE::"Workflow Response");
-        MatrixManagement.GenerateMatrixData(ResponseRecRef, SetWanted, ArrayLen(MATRIX_ColumnCaptions_Responses),
+        MatrixManagement.GenerateMatrixDataExtended(ResponseRecRef, SetWanted, ArrayLen(MATRIX_ColumnCaptions_Responses),
           WorkflowResponse.FieldNo(Description), PKFirstRecInCurrSetResponses, MATRIX_ColumnCaptions_Responses,
-          ColumnSetResponses, ColumnSetLengthResponses);
+          ColumnSetResponses, ColumnSetLengthResponses, MaxStrLen(MATRIX_ColumnCaptions_Responses[1]));
 
         CurrPage.MatrixResponseSubpage.PAGE.SetMatrixColumns(MATRIX_ColumnCaptions_Responses, ColumnSetLengthResponses);
         CurrPage.Update(false);

@@ -38,15 +38,12 @@ page 5733 "Item Category Card"
 
                     trigger OnValidate()
                     var
-                        NewParentCategoryCode: Code[20];
+                        ItemCategory: Record "Item Category";
                     begin
                         if Code <> '' then begin
-                            NewParentCategoryCode := "Parent Category";
-                            Get(Code);
-                            if "Parent Category" <> NewParentCategoryCode then begin
-                                "Parent Category" := NewParentCategoryCode;
+                            ItemCategory.Get(Code);
+                            if "Parent Category" <> ItemCategory."Parent Category" then
                                 Modify;
-                            end;
                             PersistCategoryAttributes;
                             UpdateItemCategoriesPresentationOrder := true;
                         end;

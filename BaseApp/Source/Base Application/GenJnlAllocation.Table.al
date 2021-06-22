@@ -40,12 +40,15 @@ table 221 "Gen. Jnl. Allocation"
                     GLAcc.TestField("Direct Posting", true);
                 end;
                 "Account Name" := GLAcc.Name;
-                "Gen. Posting Type" := GLAcc."Gen. Posting Type";
-                "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
-                "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
-                "VAT Bus. Posting Group" := GLAcc."VAT Bus. Posting Group";
-                "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
-                Validate("VAT Prod. Posting Group");
+
+                if CopyVATSetupToJnlLines() then begin
+                    "Gen. Posting Type" := GLAcc."Gen. Posting Type";
+                    "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
+                    "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
+                    "VAT Bus. Posting Group" := GLAcc."VAT Bus. Posting Group";
+                    "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
+                    Validate("VAT Prod. Posting Group");
+                end;
 
                 CreateDim(DATABASE::"G/L Account", "Account No.");
             end;
@@ -301,6 +304,17 @@ table 221 "Gen. Jnl. Allocation"
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         GenProdPostingGrp: Record "Gen. Product Posting Group";
         DimMgt: Codeunit DimensionManagement;
+
+    local procedure CopyVATSetupToJnlLines(): Boolean
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        if ("Journal Template Name" <> '') and ("Journal Batch Name" <> '') then
+            if GenJournalBatch.Get("Journal Template Name", "Journal Batch Name") then
+                exit(GenJournalBatch."Copy VAT Setup to Jnl. Lines");
+
+        exit(true);
+    end;
 
     procedure UpdateAllocations(var GenJnlLine: Record "Gen. Journal Line")
     var

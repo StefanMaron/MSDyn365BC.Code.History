@@ -24,6 +24,13 @@ page 410 "SMTP User-Specified Address"
                         SMTPMail.CheckValidEmailAddresses(EmailAddress);
                     end;
                 }
+
+                label(AnonymousAuthenticationMessage)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = IsAnonymousAuthentication;
+                    Caption = 'This will be the To and From email addresses for the test message.';
+                }
             }
         }
     }
@@ -32,8 +39,17 @@ page 410 "SMTP User-Specified Address"
     {
     }
 
+    trigger OnOpenPage()
+    var
+        SMTPMailSetup: Record "SMTP Mail Setup";
+    begin
+        if SMTPMailSetup.GetSetup() then
+            IsAnonymousAuthentication := SMTPMailSetup.Authentication = SMTPMailSetup.Authentication::Anonymous;
+    end;
+
     var
         EmailAddress: Text;
+        IsAnonymousAuthentication: Boolean;
 
     procedure GetEmailAddress(): Text
     begin

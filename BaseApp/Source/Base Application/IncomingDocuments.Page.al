@@ -228,13 +228,15 @@ page 190 "Incoming Documents"
 
                 trigger OnAction()
                 var
-                    CameraOptions: DotNet CameraOptions;
+                    InStr: InStream;
                 begin
                     if not HasCamera then
                         exit;
-                    CameraOptions := CameraOptions.CameraOptions;
-                    CameraOptions.Quality := 100; // 100%
-                    CameraProvider.RequestPictureAsync(CameraOptions);
+                    Camera.SetQuality(100); // 100%
+                    Camera.RunModal();
+                    Camera.GetPicture(InStr);
+                    CreateIncomingDocument(InStr, 'Incoming Document');
+                    Clear(Camera);
                 end;
             }
             action(CreateFromAttachment)
@@ -263,8 +265,6 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Setup';
                     Image = Setup;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category5;
                     RunObject = Page "Incoming Documents Setup";
                     ToolTip = 'Define the general journal type to use when creating journal lines. You can also specify whether it requires approval to create documents and journal lines.';
                 }
@@ -273,8 +273,6 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Data Exchange Types';
                     Image = Entries;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category5;
                     RunObject = Page "Data Exchange Types";
                     ToolTip = 'View the data exchange types that are available to convert electronic documents to documents in Dynamics 365.';
                 }
@@ -325,10 +323,6 @@ page 190 "Incoming Documents"
                     Caption = 'Create Document';
                     Enabled = AutomaticCreationActionsAreEnabled;
                     Image = CreateDocument;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Process;
-                    //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedIsBig = true;
                     ToolTip = 'Create a document, such as a purchase invoice, automatically by converting the electronic document that is attached to the incoming document record.';
 
                     trigger OnAction()
@@ -343,10 +337,6 @@ page 190 "Incoming Documents"
                     Caption = 'Create Journal Line';
                     Enabled = AutomaticCreationActionsAreEnabled;
                     Image = TransferToGeneralJournal;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Process;
-                    //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedIsBig = true;
                     ToolTip = 'Create a journal line automatically by converting the electronic document that is attached to the incoming document record.';
 
                     trigger OnAction()
@@ -375,8 +365,6 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Attach File';
                     Image = Attach;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Process;
                     Scope = Repeater;
                     ToolTip = 'Attach a file to the incoming document record.';
 
@@ -390,8 +378,6 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Map Text to Account';
                     Image = MapAccounts;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category5;
                     RunObject = Page "Text-to-Account Mapping Wksh.";
                     ToolTip = 'Create a mapping of text on incoming documents to identical text on specific debit, credit, and balancing accounts in the general ledger or on bank accounts so that the resulting document or journal lines are prefilled with the specified information.';
                 }
@@ -408,7 +394,7 @@ page 190 "Incoming Documents"
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     Scope = Repeater;
-                    ToolTip = 'Release the incoming document to indicate that it has been approved by the incoming document approver. Note that this is not related to approval workflows.';
+                    ToolTip = 'Release the incoming document to indicate that it has been approved by the incoming document approver.';
 
                     trigger OnAction()
                     begin
@@ -424,7 +410,7 @@ page 190 "Incoming Documents"
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     Scope = Repeater;
-                    ToolTip = 'Reopen the incoming document record after it has been approved by the incoming document approver. Note that this is not related to approval workflows.';
+                    ToolTip = 'Reopen the incoming document record after it has been approved by the incoming document approver.';
 
                     trigger OnAction()
                     begin
@@ -440,7 +426,7 @@ page 190 "Incoming Documents"
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     Scope = Repeater;
-                    ToolTip = 'Reject to approve the incoming document. Note that this is not related to approval workflows.';
+                    ToolTip = 'Reject to approve the incoming document.';
 
                     trigger OnAction()
                     begin
@@ -552,8 +538,6 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove Reference to Record';
                     Image = ClearLog;
-                    //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Remove the link that exists from the incoming document to a document, journal line, or entry.';
 
@@ -567,8 +551,6 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Navigate';
                     Image = Navigate;
-                    //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
 
@@ -668,8 +650,6 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send to Job Queue';
                     Image = Translation;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category4;
                     ToolTip = 'Set the incoming document to be sent to its recipient as soon as possible.';
                     Visible = OCRServiceIsEnabled;
 
@@ -683,8 +663,6 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove from Job Queue';
                     Image = Translation;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category4;
                     ToolTip = 'Remove the scheduled processing of this record from the job queue.';
                     Visible = OCRServiceIsEnabled;
 
@@ -698,8 +676,6 @@ page 190 "Incoming Documents"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send to OCR Service';
                     Image = Translations;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category4;
                     ToolTip = 'Send the attached PDF or image file to the OCR service immediately.';
                     Visible = OCRServiceIsEnabled;
 
@@ -714,10 +690,6 @@ page 190 "Incoming Documents"
                     Caption = 'Receive from OCR Service';
                     Enabled = EnableReceiveFromOCR;
                     Image = Import;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category4;
-                    //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedIsBig = true;
                     ToolTip = 'Get any electronic documents that are ready to receive from the OCR service.';
                     Visible = OCRServiceIsEnabled;
 
@@ -791,9 +763,7 @@ page 190 "Incoming Documents"
     begin
         IsDataExchTypeEditable := true;
         if GuiAllowed then begin
-            HasCamera := CameraProvider.IsAvailable;
-            if HasCamera then
-                CameraProvider := CameraProvider.Create;
+            HasCamera := Camera.IsAvailable()
         end;
         EnableReceiveFromOCR := WaitingToReceiveFromOCR;
         UpdateOCRSetupVisibility;
@@ -806,9 +776,8 @@ page 190 "Incoming Documents"
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
         AutomaticProcessingQst: Label 'The Data Exchange Type field is filled on at least one of the selected Incoming Documents.\\Are you sure you want to create documents manually?';
         ClientTypeManagement: Codeunit "Client Type Management";
-        [RunOnClient]
-        [WithEvents]
-        CameraProvider: DotNet CameraProvider;
+        Camera: Page Camera;
+        [InDataSet]
         HasCamera: Boolean;
         URL: Text;
         StatusStyleText: Text;
@@ -922,11 +891,6 @@ page 190 "Incoming Documents"
     begin
         OCRServiceIsEnabled := OCRIsEnabled;
         ShowOCRSetup := not OCRServiceIsEnabled;
-    end;
-
-    trigger CameraProvider::PictureAvailable(PictureName: Text; PictureFilePath: Text)
-    begin
-        CreateIncomingDocumentFromServerFile(PictureName, PictureFilePath);
     end;
 }
 

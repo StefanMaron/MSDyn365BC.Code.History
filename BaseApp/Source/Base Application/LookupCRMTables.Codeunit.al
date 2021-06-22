@@ -304,7 +304,7 @@ codeunit 5332 "Lookup CRM Tables"
                 end;
             until IntegrationTableMapping.Next = 0;
 
-        exit(RecRef[1].GetView);
+        exit(RecRef[1].GetView(false));
     end;
 }
 

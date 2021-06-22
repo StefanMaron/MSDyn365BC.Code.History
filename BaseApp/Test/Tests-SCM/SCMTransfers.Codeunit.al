@@ -1826,6 +1826,53 @@ codeunit 137038 "SCM Transfers"
         TransferLine.TestField("Variant Code", ItemVariant.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchModalPageHandler,PostedTransferReceiptLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure AssignPostedTransferReceiptLinesBlankItemNoToItemChargePurchase()
+    var
+        TransferReceiptHeader: Record "Transfer Receipt Header";
+        TransferReceiptLine: Record "Transfer Receipt Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [UT] [Transfer Receipt] [Item Charge] [Purchase]
+        // [SCENARIO 335337] Transfer Receipt Lines with blank Item No. and zero Quantity can't be assigned to Item Charges
+        Initialize;
+
+        // [GIVEN] Transfer Receipt "TR1"
+        TransferReceiptHeader.Init;
+        TransferReceiptHeader."No." := LibraryUtility.GenerateRandomCode(
+            TransferReceiptHeader.FieldNo("No."), DATABASE::"Transfer Receipt Header");
+        TransferReceiptHeader.Insert;
+        LibraryVariableStorage.Enqueue(TransferReceiptHeader."No.");
+
+        // [GIVEN] Transfer Receipt Line "TR1",10000 for Item "ITEM1" with Quantity 10
+        MockTransferReceiptLine(
+          TransferReceiptLine, TransferReceiptHeader."No.", LibraryUtility.GenerateGUID, '', LibraryRandom.RandDec(10, 0));
+        LibraryVariableStorage.Enqueue(TransferReceiptLine."Item No.");
+
+        // [GIVEN] Transfer Receipt Line "TR1",20000 with blank Item No., Description = "Description 1" (Comment line)
+        MockTransferReceiptLine(
+          TransferReceiptLine, TransferReceiptHeader."No.", '', LibraryUtility.GenerateGUID, LibraryRandom.RandDec(10, 0));
+
+        // [GIVEN] Transfer Receipt Line "TR1",30000 for Item "ITEM2" with Quantity 0
+        MockTransferReceiptLine(TransferReceiptLine, TransferReceiptHeader."No.", LibraryUtility.GenerateGUID, '', 0);
+
+        // [GIVEN] Purchase Order with Item Charge Line "PO01",10000
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, LibraryRandom.RandDec(100, 0));
+
+        // [WHEN] Invoke "Get Transfer Receipt Lines" action on the "Item Charge Assignment (Purch)" page for the Purchase Line "PO01",10000
+        PurchaseLine.ShowItemChargeAssgnt;
+
+        // [THEN] Only Transfer Receipt Line 10000 shown for the Transfer Receipt "TR1"
+        // Verification done in PostedTransferReceiptLinesModalPageHandler
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2413,6 +2460,19 @@ codeunit 137038 "SCM Transfers"
         end;
     end;
 
+    local procedure MockTransferReceiptLine(var TransferReceiptLine: Record "Transfer Receipt Line"; DocumentNo: Code[20]; ItemNo: Code[20]; Desc: Text[100]; Qty: Decimal)
+    begin
+        with TransferReceiptLine do begin
+            Init;
+            "Document No." := DocumentNo;
+            "Line No." := LibraryUtility.GetNewRecNo(TransferReceiptLine, FieldNo("Line No."));
+            "Item No." := ItemNo;
+            Description := Desc;
+            Quantity := Qty;
+            Insert;
+        end;
+    end;
+
     local procedure CalculateNetChangePlan(var RequisitionLine: Record "Requisition Line"; StartDate: Date; ItemNo: array[4] of Code[20])
     var
         Item: Record Item;
@@ -2785,6 +2845,23 @@ codeunit 137038 "SCM Transfers"
         PostedPurchaseReceiptLines.SetRecord(PurchRcptLine);
 
         Response := ACTION::LookupOK;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentPurchModalPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch.GetTransferReceiptLines.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedTransferReceiptLinesModalPageHandler(var PostedTransferReceiptLines: TestPage "Posted Transfer Receipt Lines")
+    begin
+        PostedTransferReceiptLines.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
+        PostedTransferReceiptLines.Last;
+        PostedTransferReceiptLines."Item No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        Assert.IsFalse(PostedTransferReceiptLines.Previous, 'Invalid number of records on the page');
     end;
 
     [RecallNotificationHandler]

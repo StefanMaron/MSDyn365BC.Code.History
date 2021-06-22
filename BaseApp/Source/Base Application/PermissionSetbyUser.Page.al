@@ -429,7 +429,7 @@
            AccessControl.Get(UserSecurityID, "Role ID", Company.Name, Scope, "App ID")
         then begin
             if not UserHasPermission then
-                AccessControl.Delete;
+                AccessControl.Delete(true);
             exit;
         end;
         if not UserHasPermission then

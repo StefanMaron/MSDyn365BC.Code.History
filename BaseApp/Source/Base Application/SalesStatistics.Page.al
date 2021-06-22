@@ -326,6 +326,8 @@ page 160 "Sales Statistics"
             AdjProfitPct := 0
         else
             AdjProfitPct := Round(100 * AdjProfitLCY / TotalSalesLineLCY.Amount, 0.01);
+
+        OnAfterUpdateHeaderInfo();
     end;
 
     local procedure GetVATSpecification()
@@ -475,6 +477,11 @@ page 160 "Sales Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateTotals(var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TotalAmt1: Decimal; var TotalAmt2: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateHeaderInfo()
     begin
     end;
 

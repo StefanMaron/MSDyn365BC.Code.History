@@ -14,7 +14,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Wizard - NamedType ProductNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3759341074 - NamedType 2586591135" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SQL database must be at comptibility level 130 or higher.</source>
+          <source>SQL database must be at compatibility level 130 or higher.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SqlCompatibilityErr</note>
         </trans-unit>
@@ -42,11 +42,6 @@
           <source>Failed to copy the table. Inner error: %1</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType FailureCopyingTableErr</note>
-        </trans-unit>
-        <trans-unit id="PageExtension 733216455 - NamedType 283977008" size-unit="char" translate="no" xml:space="preserve" al-object-target="Page 3988794227">
-          <source>Dynamics 365 Business Central</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PageExtension Intelligent Cloud Stat Ext - NamedType ProductNameTxt</note>
         </trans-unit>
         <trans-unit id="PageExtension 742431685 - Action 1433251765 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 1208606375">
           <source>Setup Checklist</source>

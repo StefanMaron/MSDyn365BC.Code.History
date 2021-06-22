@@ -3868,7 +3868,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CalendarEntry.SetCurrentKey("Capacity Type", "No.", Date, "Starting Time", "Ending Time", "Work Shift Code");
         CalendarEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Work Center");
         CalendarEntry.SetRange("No.", WorkCenterNo);
-        CalendarEntry.SetRange(Date, CalcDate('<' + '-' + Format(1 + LibraryRandom.RandInt(2)) + 'D>', WorkDate));  // Value important for Test.
+        CalendarEntry.SetRange(Date, CalcDate('<-WD1>', WorkDate - LibraryRandom.RandIntInRange(1, 3))); // Value important for Test.
         CalendarEntry.CalcSums("Capacity (Effective)");
         exit(CalendarEntry."Capacity (Effective)");
     end;
@@ -3879,7 +3879,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     begin
         ProdOrderCapacityNeed.SetCurrentKey("Work Center No.", Date, Active, "Starting Date-Time");
         ProdOrderCapacityNeed.SetRange("Work Center No.", WorkCenterNo);
-        ProdOrderCapacityNeed.SetRange(Date, CalcDate('<' + '-' + Format(1 + LibraryRandom.RandInt(2)) + 'D>', WorkDate));  // Value important for Test.
+        ProdOrderCapacityNeed.SetRange(Date, CalcDate('<-WD1>', WorkDate - LibraryRandom.RandIntInRange(1, 3))); // Value important for Test.
         ProdOrderCapacityNeed.CalcSums("Needed Time");
         exit(ProdOrderCapacityNeed."Needed Time");
     end;

@@ -242,14 +242,18 @@ page 1310 "O365 Activities"
 
                         trigger OnAction()
                         var
-                            CameraOptions: DotNet CameraOptions;
+                            IncomingDocument: Record "Incoming Document";
+                            InStr: InStream;
                         begin
                             if not HasCamera then
                                 exit;
 
-                            CameraOptions := CameraOptions.CameraOptions;
-                            CameraOptions.Quality := 100; // 100%
-                            CameraProvider.RequestPictureAsync(CameraOptions);
+                            Camera.SetQuality(100); // 100%
+                            Camera.RunModal();
+                            Camera.GetPicture(InStr);
+                            IncomingDocument.CreateIncomingDocument(InStr, 'Incoming Document');
+                            Clear(Camera);
+                            CurrPage.Update;
                         end;
                     }
                 }
@@ -476,9 +480,7 @@ page 1310 "O365 Activities"
 
         SetFilter("User ID Filter", UserId);
 
-        HasCamera := CameraProvider.IsAvailable;
-        if HasCamera then
-            CameraProvider := CameraProvider.Create;
+        HasCamera := Camera.IsAvailable();
 
         PrepareOnLoadDialog;
 
@@ -503,15 +505,14 @@ page 1310 "O365 Activities"
         ClientTypeManagement: Codeunit "Client Type Management";
         EnvironmentInfo: Codeunit "Environment Information";
         UserTaskManagement: Codeunit "User Task Management";
-        [RunOnClient]
-        [WithEvents]
-        CameraProvider: DotNet CameraProvider;
+        Camera: Page Camera;
         [RunOnClient]
         [WithEvents]
         UserTours: DotNet UserTours;
         [RunOnClient]
         [WithEvents]
         PageNotifier: DotNet PageNotifier;
+        [InDataSet]
         HasCamera: Boolean;
         ShowDocumentsPendingDocExchService: Boolean;
         ShowAwaitingIncomingDoc: Boolean;
@@ -630,14 +631,6 @@ page 1310 "O365 Activities"
             if O365GettingStartedMgt.WizardHasToBeLaunched(false) then
                 HideSatisfactionSurvey := true;
         exit(true);
-    end;
-
-    trigger CameraProvider::PictureAvailable(PictureName: Text; PictureFilePath: Text)
-    var
-        IncomingDocument: Record "Incoming Document";
-    begin
-        IncomingDocument.CreateIncomingDocumentFromServerFile(PictureName, PictureFilePath);
-        CurrPage.Update;
     end;
 
     trigger UserTours::ShowTourWizard(hasTourCompleted: Boolean)

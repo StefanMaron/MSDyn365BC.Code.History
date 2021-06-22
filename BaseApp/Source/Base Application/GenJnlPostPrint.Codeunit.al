@@ -32,7 +32,6 @@ codeunit 232 "Gen. Jnl.-Post+Print"
     var
         ConfirmManagement: Codeunit "Confirm Management";
         HideDialog: Boolean;
-        IsHandled: Boolean;
     begin
         HideDialog := false;
         with GenJnlLine do begin
@@ -68,6 +67,8 @@ codeunit 232 "Gen. Jnl.-Post+Print"
                     Message(JournalsScheduledMsg);
             end else begin
                 CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
+                OnAfterPostJournalBatch(GenJnlLine);
+
                 RecRefToPrint.GetTable(GenJnlLine);
                 BatchPostingPrintMgt.PrintJournal(RecRefToPrint);
 
@@ -91,6 +92,11 @@ codeunit 232 "Gen. Jnl.-Post+Print"
                 "Line No." := 1;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostJournalBatch(var GenJournalLine: Record "Gen. Journal Line");
+    begin
     end;
 
     [IntegrationEvent(false, false)]

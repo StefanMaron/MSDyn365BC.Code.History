@@ -19,10 +19,43 @@ codeunit 4005 "Hybrid BC Wizard"
     var
         IntelligentCloudSetup: Record "Intelligent Cloud Setup";
     begin
-        if not IntelligentCloudSetup.Get() then
+        if not (IntelligentCloudSetup.Get() and CanHandle(IntelligentCloudSetup."Product ID")) then
             exit;
 
-        CanRun := (IntelligentCloudSetup."Product ID" = ProductId());
+        CanRun := true;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Intelligent Cloud Management", 'CanShowMapUsers', '', false, false)]
+    local procedure OnCanShowMapUsers(var Enabled: Boolean)
+    var
+        IntelligentCloudSetup: Record "Intelligent Cloud Setup";
+    begin
+        if not (IntelligentCloudSetup.Get() and CanHandle(IntelligentCloudSetup."Product ID")) then
+            exit;
+
+        Enabled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Intelligent Cloud Management", 'CanShowSetupChecklist', '', false, false)]
+    local procedure OnCanShowSetupChecklist(var Enabled: Boolean)
+    var
+        IntelligentCloudSetup: Record "Intelligent Cloud Setup";
+    begin
+        if not (IntelligentCloudSetup.Get() and CanHandle(IntelligentCloudSetup."Product ID")) then
+            exit;
+
+        Enabled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Intelligent Cloud Stat Factbox", 'CanShowTablesNotMigrated', '', false, false)]
+    local procedure OnCanShowTablesNotMigrated(var Enabled: Boolean)
+    var
+        IntelligentCloudSetup: Record "Intelligent Cloud Setup";
+    begin
+        if not (IntelligentCloudSetup.Get() and CanHandle(IntelligentCloudSetup."Product ID")) then
+            exit;
+
+        Enabled := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Hybrid Cloud Management", 'OnGetHybridProductType', '', false, false)]
@@ -60,9 +93,9 @@ codeunit 4005 "Hybrid BC Wizard"
         CompanyDataType := CompanyDataType::None;
     end;
 
-    local procedure CanHandle(productId: Text): Boolean
+    local procedure CanHandle(ProductId: Text): Boolean
     begin
-        exit(productId = ProductIdTxt);
+        exit(ProductId = ProductIdTxt);
     end;
 
 }

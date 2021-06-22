@@ -17,7 +17,13 @@ codeunit 1106 CostJnlManagement
     procedure TemplateSelection(var CostJnlLine: Record "Cost Journal Line"; var JnlSelected: Boolean)
     var
         CostJnlTemplate: Record "Cost Journal Template";
+        IsHandled: Boolean;
     begin
+        IsHandled := FALSE;
+        OnBeforeTemplateSelection(CostJnlLine, JnlSelected, IsHandled);
+        if IsHandled then
+            exit;
+
         JnlSelected := true;
         CostJnlTemplate.Reset;
 
@@ -77,7 +83,13 @@ codeunit 1106 CostJnlManagement
         CostJnlTemplate: Record "Cost Journal Template";
         CostJnlLine: Record "Cost Journal Line";
         JnlSelected: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := FALSE;
+        OnBeforeOpenJnlBatch(CostJnlBatch, IsHandled);
+        if IsHandled then
+            exit;
+
         if CostJnlBatch.GetFilter("Journal Template Name") <> '' then
             exit;
         CostJnlBatch.FilterGroup(2);
@@ -194,6 +206,16 @@ codeunit 1106 CostJnlManagement
                     Balance := Balance + LastCostJnlLine.Balance;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTemplateSelection(var CostJournalLine: Record "Cost Journal Line"; var JnlSelected: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnlBatch(var CostJournalBatch: Record "Cost Journal Batch"; var IsHandled: Boolean)
+    begin
     end;
 }
 

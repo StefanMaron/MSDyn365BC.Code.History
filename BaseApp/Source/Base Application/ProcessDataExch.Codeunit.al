@@ -94,6 +94,7 @@ codeunit 1201 "Process Data Exch."
         OutStream: OutStream;
         FieldRef: FieldRef;
         TransformedValue: Text;
+        NegativeSignIdentifier: Text;
         IsHandled: Boolean;
     begin
         DataExchColumnDef.Get(
@@ -120,9 +121,11 @@ codeunit 1201 "Process Data Exch."
                     if DataExchColumnDef."Negative-Sign Identifier" = '' then begin
                         SetDateDecimalField(TransformedValue, DataExchField, FieldRef, DataExchColumnDef);
                         AdjustDecimalWithMultiplier(FieldRef, DataExchFieldMapping.Multiplier, FieldRef.Value);
-                    end else
-                        if DataExchColumnDef."Negative-Sign Identifier" = DataExchField.Value then
+                    end else begin
+                        NegativeSignIdentifier := DataExchField.Value;
+                        if UpperCase(DataExchColumnDef."Negative-Sign Identifier") = Uppercase(NegativeSignIdentifier) then
                             SaveNegativeSignForField(DataExchFieldMapping."Field ID", TempFieldIdsToNegate);
+                    end;
                 'Option':
                     SetOptionField(TransformedValue, FieldRef);
                 'BLOB':

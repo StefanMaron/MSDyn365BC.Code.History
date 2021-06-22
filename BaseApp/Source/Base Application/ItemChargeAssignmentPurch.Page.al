@@ -271,6 +271,11 @@ page 5805 "Item Charge Assignment (Purch)"
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
 
+                        TransferRcptLine.FilterGroup(2);
+                        TransferRcptLine.SetFilter("Item No.", '<>%1', '');
+                        TransferRcptLine.SetFilter(Quantity, '<>0');
+                        TransferRcptLine.FilterGroup(0);
+
                         PostedTransferReceiptLines.SetTableView(TransferRcptLine);
                         if ItemChargeAssgntPurch.FindLast then
                             PostedTransferReceiptLines.Initialize(ItemChargeAssgntPurch, PurchLine2."Unit Cost")

@@ -35,7 +35,7 @@ report 1320 "Notification Email"
             }
             dataitem("Notification Entry"; "Notification Entry")
             {
-                column(UserName; ReceipientUser."Full Name")
+                column(UserName; RecipientUser."Full Name")
                 {
                 }
                 column(DocumentType; DocumentType)
@@ -88,14 +88,13 @@ report 1320 "Notification Email"
                 var
                     RecRef: RecordRef;
                 begin
-                    FindReceipientUser;
-                    NotificationSetup.GetNotificationSetupForUser(Type, ReceipientUser."User Name");
-                    CreateSettingsLink;
+                    FindRecipientUser();
+                    CreateSettingsLink();
                     DataTypeManagement.GetRecordRef("Triggered By Record", RecRef);
                     SetDocumentTypeAndNumber(RecRef);
-                    SetActionText;
+                    SetActionText();
                     SetReportFieldPlaceholders(RecRef);
-                    SetReportLinePlaceholders;
+                    SetReportLinePlaceholders();
                 end;
             }
         }
@@ -123,9 +122,8 @@ report 1320 "Notification Email"
     end;
 
     var
-        NotificationSetup: Record "Notification Setup";
         CompanyInformation: Record "Company Information";
-        ReceipientUser: Record User;
+        RecipientUser: Record User;
         PageManagement: Codeunit "Page Management";
         DataTypeManagement: Codeunit "Data Type Management";
         NotificationManagement: Codeunit "Notification Management";
@@ -155,25 +153,19 @@ report 1320 "Notification Email"
         Line2: Text;
         DetailsLbl: Label 'Details';
 
-    local procedure FindReceipientUser()
+    local procedure FindRecipientUser()
     begin
-        ReceipientUser.SetRange("User Name", "Notification Entry"."Recipient User ID");
-        if not ReceipientUser.FindFirst then
-            ReceipientUser.Init;
+        RecipientUser.SetRange("User Name", "Notification Entry"."Recipient User ID");
+        if not RecipientUser.FindFirst then
+            RecipientUser.Init;
     end;
 
     local procedure CreateSettingsLink()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
-        RecRef: RecordRef;
-        PageID: Integer;
     begin
         if SettingsURL <> '' then
             exit;
 
-        DataTypeManagement.GetRecordRef(NotificationSetup, RecRef);
-        PageID := PageManagement.GetPageID(RecRef);
-        SettingsURL := PageManagement.GetWebUrl(RecRef, PageID);
+        SettingsURL := GetUrl(CLIENTTYPE::Web, CompanyName, OBJECTTYPE::Page, Page::"Notification Setup");
     end;
 
     local procedure SetDocumentTypeAndNumber(SourceRecRef: RecordRef)
@@ -322,7 +314,7 @@ report 1320 "Notification Email"
 
     local procedure SetReportLinePlaceholders()
     begin
-        Line1 := StrSubstNo(Line1Lbl, ReceipientUser."Full Name");
+        Line1 := StrSubstNo(Line1Lbl, RecipientUser."Full Name");
         Line2 := StrSubstNo(Line2Lbl, CompanyInformation.Name);
     end;
 

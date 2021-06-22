@@ -1162,6 +1162,8 @@
            (xRec."No." <> '')
         then
             CurrPage.SaveRecord;
+
+        OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
     local procedure LocationCodeOnAfterValidate()
@@ -1192,6 +1194,8 @@
             AutoReserve;
             CurrPage.Update(false);
         end;
+
+        OnAfterQuantityOnAfterValidate(Rec, xRec);
     end;
 
     local procedure ShipmentDateOnAfterValidate()
@@ -1246,11 +1250,8 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then begin
-            CurrPage.SaveRecord;
+        if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
-            CurrPage.Update(false);
-        end;
     end;
 
     local procedure ReverseReservedQtySign(): Decimal
@@ -1315,6 +1316,16 @@
                 Clear(Currency);
                 Currency.InitRoundingPrecision;
             end
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

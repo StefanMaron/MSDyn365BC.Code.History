@@ -194,17 +194,24 @@ codeunit 1371 "Sales Batch Post Mgt."
     local procedure HandleOnCustomProcessing(var RecRef: RecordRef; var Handled: Boolean; var KeepParameters: Boolean)
     var
         SalesHeader: Record "Sales Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesPostViaJobQueue: Codeunit "Sales Post via Job Queue";
     begin
         RecRef.SetTable(SalesHeader);
 
-        SalesPostViaJobQueue.EnqueueSalesDocWithUI(SalesHeader, false);
-        if not IsNullGuid(SalesHeader."Job Queue Entry ID") then begin
-            Commit;
-            KeepParameters := true;
+        SalesReceivablesSetup.Get();
+        if SalesReceivablesSetup."Post with Job Queue" then begin
+            SalesHeader."Print Posted Documents" :=
+              SalesHeader."Print Posted Documents" and SalesReceivablesSetup."Post & Print with Job Queue";
+            SalesPostViaJobQueue.EnqueueSalesDocWithUI(SalesHeader, false);
+            if not IsNullGuid(SalesHeader."Job Queue Entry ID") then begin
+                Commit();
+                KeepParameters := true;
+            end;
+            SalesHeader."Print Posted Documents" := false;
+            RecRef.GetTable(SalesHeader);
+            Handled := true;
         end;
-        RecRef.GetTable(SalesHeader);
-        Handled := true;
     end;
 
     [IntegrationEvent(false, false)]

@@ -414,7 +414,7 @@ codeunit 139653 "Replication Mgt Page Tests"
 
         // [THEN] The company is wasn't selected to replicate.
         HybridCompany.Get(SelectCompany);
-        Assert.AreEqual(false, HybridCompany.Replicate, 'Company should NOT be selected for replication.');
+        Assert.AreEqual(false, HybridCompany.Replicate, 'Company should not be selected for replication.');
     end;
 
     [Test]
@@ -432,7 +432,7 @@ codeunit 139653 "Replication Mgt Page Tests"
         HybridCompaniesManagement.Trap();
         Page.Run(Page::"Hybrid Companies Management");
 
-        // [WHEN] User selects each company to NOT replicate and clicks 'OK'
+        // [WHEN] User selects each company to not replicate and clicks 'OK'
         HybridCompaniesManagement.First();
         repeat
             HybridCompaniesManagement.Replicate.SetValue(false);

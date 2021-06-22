@@ -9504,10 +9504,11 @@
                                   </TablixMember>
                                 </TablixMembers>
                               </TablixRowHierarchy>
-                              <Top>4.29399cm</Top>
+                              <KeepTogether>true</KeepTogether>
+                              <Top>4.61149cm</Top>
                               <Left>0.01537cm</Left>
                               <Height>0.35278cm</Height>
-                              <Width>17.9419cm</Width>
+                              <Width>17.94177cm</Width>
                               <ZIndex>3</ZIndex>
                               <Style>
                                 <FontFamily>Segoe UI</FontFamily>

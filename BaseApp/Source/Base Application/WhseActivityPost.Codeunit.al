@@ -527,12 +527,26 @@ codeunit 7324 "Whse.-Activity-Post"
                     Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
                 end;
 
+                UpdateWhseActivityLine(WhseActivLine);
+
                 if Location."Bin Mandatory" then
                     PostWhseJnlLine(WhseActivLine);
 
                 CreatePostedActivLine(WhseActivLine, PostedInvtPutAwayHeader, PostedInvtPickHeader);
             until WhseActivLine.Next = 0;
         end;
+    end;
+
+    local procedure UpdateWhseActivityLine(var WhseActivLine: Record "Warehouse Activity Line")
+    var
+        EntriesExist: Boolean;
+    begin
+        with WhseActivLine do
+            if CheckItemTracking(WhseActivLine) and
+                ("Activity Type" = "Activity Type"::"Invt. Put-away")
+            then
+                "Expiration Date" := ItemTrackingMgt.ExistingExpirationDate(
+                    "Item No.", "Variant Code", "Lot No.", "Serial No.", false, EntriesExist);
     end;
 
     local procedure PostWhseJnlLine(WhseActivLine: Record "Warehouse Activity Line")
@@ -650,7 +664,9 @@ codeunit 7324 "Whse.-Activity-Post"
             PostedInvtPutAwayHeader."Invt. Put-away No." := WhseActivHeader."No.";
             PostedInvtPutAwayHeader."Source No." := PostedSourceNo;
             PostedInvtPutAwayHeader."Source Type" := PostedSourceType;
+            OnBeforePostedInvtPutAwayHeaderInsert(PostedInvtPutAwayHeader, WhseActivHeader);
             PostedInvtPutAwayHeader.Insert(true);
+            OnAfterPostedInvtPutAwayHeaderInsert(PostedInvtPutAwayHeader, WhseActivHeader);
         end else begin
             PostedInvtPickHeader.Init;
             PostedInvtPickHeader.TransferFields(WhseActivHeader);
@@ -658,7 +674,9 @@ codeunit 7324 "Whse.-Activity-Post"
             PostedInvtPickHeader."Invt Pick No." := WhseActivHeader."No.";
             PostedInvtPickHeader."Source No." := PostedSourceNo;
             PostedInvtPickHeader."Source Type" := PostedSourceType;
+            OnBeforePostedInvtPickHeaderInsert(PostedInvtPickHeader, WhseActivHeader);
             PostedInvtPickHeader.Insert(true);
+            OnAfterPostedInvtPickHeaderInsert(PostedInvtPickHeader, WhseActivHeader);
         end;
 
         WhseComment.SetRange("Table Name", WhseComment."Table Name"::"Whse. Activity Header");
@@ -949,6 +967,16 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostedInvtPickHeaderInsert(var PostedInvtPickHeader: Record "Posted Invt. Pick Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostedInvtPutAwayHeaderInsert(var PostedInvtPutAwayHeader: Record "Posted Invt. Put-Away Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPurchLineModify(var PurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -994,7 +1022,17 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostedInvtPickHeaderInsert(var PostedInvtPickHeader: Record "Posted Invt. Pick Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostedInvtPickLineInsert(var PostedInvtPickLine: Record "Posted Invt. Pick Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostedInvtPutAwayHeaderInsert(var PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 
@@ -1007,7 +1045,6 @@ codeunit 7324 "Whse.-Activity-Post"
     local procedure OnBeforePostWhseActivLine(WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; var PostedSourceNo: Code[20]; var PostedSourceType: Integer; var PostedSourceSubType: Integer; var IsHandled: Boolean)
     begin
     end;
-
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)

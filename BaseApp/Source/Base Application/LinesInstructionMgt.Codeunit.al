@@ -7,6 +7,7 @@ codeunit 1320 "Lines Instruction Mgt."
 
     var
         LinesMissingQuantityErr: Label 'One or more document lines with a value in the Item No. field do not have a quantity specified.';
+        LinesMissingQuantityConfirmQst: Label 'One or more document lines with a value in the Item No. field do not have a quantity specified. \Do you want to continue?';
 
     procedure SalesCheckAllLinesHaveQuantityAssigned(SalesHeader: Record "Sales Header")
     var
@@ -20,7 +21,14 @@ codeunit 1320 "Lines Instruction Mgt."
         OnAfterSetSalesLineFilters(SalesLine, SalesHeader);
 
         if not SalesLine.IsEmpty then
-            Error(LinesMissingQuantityErr);
+            if (SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo") then
+                if Confirm(LinesMissingQuantityConfirmQst, false) then
+                    exit
+                else
+                    Error(LinesMissingQuantityErr)
+            else
+                Error(LinesMissingQuantityErr);
+
     end;
 
     procedure PurchaseCheckAllLinesHaveQuantityAssigned(PurchaseHeader: Record "Purchase Header")

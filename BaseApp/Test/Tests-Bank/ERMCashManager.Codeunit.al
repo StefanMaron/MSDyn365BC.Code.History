@@ -743,6 +743,73 @@ codeunit 134500 "ERM Cash Manager"
         Assert.ExpectedError(ExportedToPaymentFileMustBeNoMsg);
     end;
 
+    [Test]
+    [HandlerFunctions('TestPrintCheckRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestPrintCheckDoesNotIncrementLastCheckNo()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] Check report with TestPrint do not increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Check" with TestPrint option enabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(true);
+        Commit;
+        REPORT.Run(REPORT::Check, true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was not changed
+        BankAccount.Find;
+        BankAccount.TestField("Last Check No.", LastCheckNo);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('TestPrintCheckRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure LastCheckNoIncrementedWhenCheckPrintedWithTestPrintDisabled()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastCheckNo: Code[20];
+    begin
+        // [FEATURE] [Report] [Check] [UT]
+        // [SCENARIO 338023] "Check" report without TestPrint option increment bank account "Last Check No."
+        Initialize;
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        LastCheckNo := CreateBankAccountLastCheckNo(BankAccount);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Check" with TestPrint option disabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(false);
+        Commit;
+        REPORT.Run(REPORT::Check, true, false, GenJournalLine);
+
+        // [THEN] Bank Account "Last Check No." was updated to the next value
+        BankAccount.Find;
+        Assert.AreNotEqual(BankAccount."Last Check No.", LastCheckNo, 'Last Check No. must be updated');
+        BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -851,7 +918,7 @@ codeunit 134500 "ERM Cash Manager"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateBankAccountLastCheckNo(var BankAccount: Record "Bank Account")
+    local procedure CreateBankAccountLastCheckNo(var BankAccount: Record "Bank Account"): Code[20]
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate(
@@ -861,6 +928,7 @@ codeunit 134500 "ERM Cash Manager"
             1,
             LibraryUtility.GetFieldLength(DATABASE::"Bank Account", BankAccount.FieldNo("Last Check No."))));
         BankAccount.Modify(true);
+        exit(BankAccount."Last Check No.");
     end;
 
     local procedure CreateBankAccountStatementNo(var BankAccount: Record "Bank Account")
@@ -1063,6 +1131,15 @@ codeunit 134500 "ERM Cash Manager"
         BankAccount.Modify(true);
     end;
 
+    local procedure PrepareGenJnlLineForCheckPrinting(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20])
+    begin
+        CreateGenJnlLineWithBankPaymentType(
+          GenJournalLine, BankAccountNo, LibraryPurchase.CreateVendorNo,
+          GenJournalLine."Bank Payment Type"::"Computer Check");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+    end;
+
     local procedure SuggestLines(BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccount: Record "Bank Account")
     var
         SuggestBankAccReconLines: Report "Suggest Bank Acc. Recon. Lines";
@@ -1230,6 +1307,23 @@ codeunit 134500 "ERM Cash Manager"
         CheckRequestPage.LastCheckNo.SetValue(Format(LastCheckNo));
         CheckRequestPage.OneCheckPerVendorPerDocumentNo.SetValue(true);
         CheckRequestPage.ReprintChecks.SetValue(true);
+        CheckRequestPage.SaveAsPdf(Format(CreateGuid));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TestPrintCheckRequestPageHandler(var CheckRequestPage: TestRequestPage Check)
+    var
+        LastCheckNo: Variant;
+        BankAccountNo: Variant;
+        TestPrint: Boolean;
+    begin
+        LibraryVariableStorage.Dequeue(BankAccountNo);
+        LibraryVariableStorage.Dequeue(LastCheckNo);
+        TestPrint := LibraryVariableStorage.DequeueBoolean;
+        CheckRequestPage.BankAccount.SetValue(Format(BankAccountNo));
+        CheckRequestPage.LastCheckNo.SetValue(Format(LastCheckNo));
+        CheckRequestPage.TestPrinting.SetValue(TestPrint);
         CheckRequestPage.SaveAsPdf(Format(CreateGuid));
     end;
 

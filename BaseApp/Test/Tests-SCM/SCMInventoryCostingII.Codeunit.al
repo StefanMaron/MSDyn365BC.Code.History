@@ -454,49 +454,101 @@ codeunit 137287 "SCM Inventory Costing II"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PurchOrderWithPositiveChgAssigntToPurchRcpt()
+    procedure PurchOrderOrInvoiceWithPositiveChgAssigntToPositivePurchRcpt()
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        // Verify Non-inventoriable Cost on Value Entry for Posted Purchase Invoice after assigning Charge to Purchase Receipt.
+        // [SCENARIO 330811] When Positive Item Charge is assigned in Purchase Order to Purchase Receipt with positive Qty then Value Entry has positive actual cost
         Initialize;
-        PurchDocWithChgAssigntToPurchRcpt(PurchaseHeader."Document Type"::Order, 1, 1, -1);  // Respective SignFactors for Quantity, Cost and Amount.
+        PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::Order, 1, 1, 1, 1);
+        PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::Invoice, 1, 1, 1, 1);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure PurchOrderWithNegativeChgAssigntToPurchRcpt()
+    procedure PurchOrderOrInvoiceWithPositiveChgAssigntToNegativePurchRcpt()
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        // Verify Non-inventoriable Cost on Value Entry for Posted Purchase Invoice after assigning Negative Charge to Purchase Receipt.
+        // [SCENARIO 330811] When Positive Item Charge is assigned in Purchase Order to Purchase Receipt with negative Qty then Value Entry has positive non-invt cost
         Initialize;
-        PurchDocWithChgAssigntToPurchRcpt(PurchaseHeader."Document Type"::Order, -1, 1, -1);  // Respective SignFactors for Quantity, Cost and Amount.
+        PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::Order, -1, 1, 1, 1);
+        PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::Invoice, -1, 1, 1, 1);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure PurchRetOrderWithChgAssigntToPurchRcpt()
+    procedure PurchOrderOrInvoiceWithNegativeChgAssigntToPositivePurchRcpt()
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        // Verify Non-inventoriable Cost on Value Entry for Posted Purchase Credit Memo after assigning Charge to Purchase Receipt.
+        // [SCENARIO 330811] When Negative Item Charge is assigned in Purchase Order to Purchase Receipt with positive Qty then Value Entry has negative actual cost
         Initialize;
-        PurchDocWithChgAssigntToPurchRcpt(PurchaseHeader."Document Type"::"Return Order", 1, 1, 1);  // Respective SignFactors for Quantity, Cost and Amount.
+        PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::Order, 1, -1, 1, -1);
+        PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::Invoice, 1, -1, 1, -1);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure PurchCrMemoWithNegtiveCostChgAssigntToPurchRcpt()
+    procedure PurchOrderOrInvoiceWithNegativeChgAssigntToNegativePurchRcpt()
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        // Verify Non-inventoriable Cost on Value Entry for Posted Purchase Credit Memo after assigning Charge with negative Cost to Purchase Receipt.
+        // [SCENARIO 330811] When Negative Item Charge is assigned in Purchase Order to Purchase Receipt with negative Qty then Value Entry has negative non-invt cost
         Initialize;
-        PurchDocWithChgAssigntToPurchRcpt(PurchaseHeader."Document Type"::"Credit Memo", 1, -1, 1);  // Respective SignFactors for Quantity, Cost and Amount.
+        PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::Order, -1, -1, 1, -1);
+        PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::Invoice, -1, -1, 1, -1);
     end;
 
-    local procedure PurchDocWithChgAssigntToPurchRcpt(DocumentType: Option; QuantitySignFactor: Integer; CostSignFactor: Integer; AmountSignFactor: Integer)
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchRetOrderOrCrMemoWithPositiveChgAssigntToPositivePurchRcpt()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 330811] When Positive Item Charge is assigned in Purchase Return Order to Purchase Receipt with positive Qty then Value Entry has negative actual cost
+        Initialize;
+        PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::"Return Order", 1, 1, 1, -1);
+        PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::"Credit Memo", 1, 1, 1, -1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchRetOrderOrCrMemoWithPositiveChgAssigntToNegativePurchRcpt()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 330811] When Positive Item Charge is assigned in Purchase Return Order to Purchase Receipt with negative Qty then Value Entry has negative non-invt cost
+        Initialize;
+        PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::"Return Order", -1, 1, 1, -1);
+        PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::"Credit Memo", -1, 1, 1, -1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchRetOrderOrCrMemoWithNegativeChgAssigntToPositivePurchRcpt()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 330811] When Negative Item Charge is assigned in Purchase Return Order to Purchase Receipt with positive Qty then Value Entry has positive actual cost
+        Initialize;
+        PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::"Return Order", 1, -1, 1, 1);
+        PurchDocWithChgAssigntToPurchRcptActualCost(PurchaseHeader."Document Type"::"Credit Memo", 1, -1, 1, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchRetOrderOrCrMemoWithNegativeChgAssigntToNegativePurchRcpt()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 330811] When Negative Item Charge is assigned in Purchase Return Order to Purchase Receipt with negative Qty then Value Entry has positive non-invt cost
+        Initialize;
+        PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::"Return Order", -1, -1, 1, 1);
+        PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::"Credit Memo", -1, -1, 1, 1);
+    end;
+
+    local procedure PurchDocWithChgAssigntToPurchRcptNonInvtCost(DocumentType: Option; PurchDocSign: Integer; QuantitySignFactor: Integer; CostSignFactor: Integer; AmountSignFactor: Integer)
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         PurchaseHeader: Record "Purchase Header";
@@ -506,7 +558,7 @@ codeunit 137287 "SCM Inventory Costing II"
         DocumentNo: Code[20];
     begin
         // Setup: Create Purchase Order with negative Quantity.
-        CreateAndPostPurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Order, -1);  // -1 for Quantity SignFactor.
+        CreateAndPostPurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Order, PurchDocSign);
         FindReceiptLine(PurchRcptLine, PurchaseLine."Document No.", PurchaseLine."No.");
 
         // Create Purchase Document for Charge Item and assign to Receipt.
@@ -523,7 +575,37 @@ codeunit 137287 "SCM Inventory Costing II"
         // Verify: Verify Value Entry for Charge Item.
         VerifyNonInventoriableCost(
           DocumentNo, PurchaseLine2."No.", PurchaseLine.Quantity,
-          AmountSignFactor * PurchaseLine2.Quantity * PurchaseLine2."Direct Unit Cost");
+          AmountSignFactor * Abs(PurchaseLine2.Quantity * PurchaseLine2."Direct Unit Cost"));
+    end;
+
+    local procedure PurchDocWithChgAssigntToPurchRcptActualCost(DocumentType: Option; PurchDocSign: Integer; QuantitySignFactor: Integer; CostSignFactor: Integer; AmountSignFactor: Integer)
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        DocumentNo: Code[20];
+    begin
+        // Setup: Create Purchase Order with negative Quantity.
+        CreateAndPostPurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Order, PurchDocSign);
+        FindReceiptLine(PurchRcptLine, PurchaseLine."Document No.", PurchaseLine."No.");
+
+        // Create Purchase Document for Charge Item and assign to Receipt.
+        CreatePurchaseDocumentWithChargeItemAndItem(
+          PurchaseLine2, DocumentType, PurchaseLine."Buy-from Vendor No.", QuantitySignFactor, CostSignFactor);
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLine2, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
+          PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."No.");
+        PurchaseHeader.Get(PurchaseLine2."Document Type", PurchaseLine2."Document No.");
+
+        // Exercise: Post Purchase Document.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // Verify: Verify Value Entry for Charge Item.
+        VerifyActualCost(
+          DocumentNo, PurchaseLine2."No.", PurchaseLine.Quantity,
+          AmountSignFactor * Abs(PurchaseLine2.Quantity * PurchaseLine2."Direct Unit Cost"));
     end;
 
     [Test]
@@ -2556,6 +2638,14 @@ codeunit 137287 "SCM Inventory Costing II"
         FindValueEntry(ValueEntry, DocumentNo, ItemChargeNo, ValuedQuantity);
         ValueEntry.TestField("Cost Amount (Non-Invtbl.)", Round(CostAmountNonInvtbl, LibraryERM.GetAmountRoundingPrecision));
         ValueEntry.TestField("Cost per Unit", 0);  // Cost per Unit must be zero.
+    end;
+
+    local procedure VerifyActualCost(DocumentNo: Code[20]; ItemChargeNo: Code[20]; ValuedQuantity: Decimal; CostAmountActual: Decimal)
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        FindValueEntry(ValueEntry, DocumentNo, ItemChargeNo, ValuedQuantity);
+        ValueEntry.TestField("Cost Amount (Actual)", Round(CostAmountActual, LibraryERM.GetAmountRoundingPrecision));
     end;
 
     local procedure VerifyPostedSalesInvoiceStatistic(No: Code[20]; ExpAdjustedProfit: Decimal)

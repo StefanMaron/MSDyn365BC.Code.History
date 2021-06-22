@@ -45,11 +45,15 @@ table 222 "Ship-to Address"
 
             trigger OnLookup()
             begin
+                OnBeforeLookupCity(Rec, PostCode);
+
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidateCity(Rec, PostCode);
+
                 PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
@@ -139,11 +143,15 @@ table 222 "Ship-to Address"
 
             trigger OnLookup()
             begin
+                OnBeforeLookupPostCode(Rec, PostCode);
+
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidatePostCode(Rec, PostCode);
+
                 PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
@@ -251,6 +259,26 @@ table 222 "Ship-to Address"
         if GetFilter("Customer No.") <> '' then
             if GetRangeMin("Customer No.") = GetRangeMax("Customer No.") then
                 exit(GetRangeMax("Customer No."));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupCity(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPostCode(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    begin
     end;
 }
 

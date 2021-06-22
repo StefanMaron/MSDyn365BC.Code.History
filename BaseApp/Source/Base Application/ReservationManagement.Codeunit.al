@@ -3866,7 +3866,8 @@ codeunit 99000845 "Reservation Management"
             Error(Text009, CurrentSerialNo, CurrentLotNo, Abs(QtyToRelease));
     end;
 
-    local procedure ReservEntryPositiveTypeIsItemLedgerEntry(ReservationEntryNo: Integer): Boolean
+    [Scope('OnPrem')]
+    procedure ReservEntryPositiveTypeIsItemLedgerEntry(ReservationEntryNo: Integer): Boolean
     var
         ReservationEntryPositive: Record "Reservation Entry";
     begin

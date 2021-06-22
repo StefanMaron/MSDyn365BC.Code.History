@@ -1269,6 +1269,8 @@ page 5914 "Service Order Statistics"
             AdjProfitPct[IndexNo] := 0
         else
             AdjProfitPct[IndexNo] := Round(100 * AdjProfitLCY[IndexNo] / TotalServLineLCY[IndexNo].Amount, 0.1);
+
+        OnAfterUpdateHeaderInfo();
     end;
 
     local procedure GetVATSpecification(QtyType: Option General,Details,Shipping)
@@ -1465,6 +1467,11 @@ page 5914 "Service Order Statistics"
         end;
         ActiveTab := ActiveTab::General;
         UpdateInvDiscAmount(1);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateHeaderInfo()
+    begin
     end;
 }
 

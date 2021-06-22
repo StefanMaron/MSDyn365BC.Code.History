@@ -149,7 +149,8 @@ table 1173 "Document Attachment"
             Error(NoDocumentAttachedErr);
 
         Validate("Attached Date", CurrentDateTime);
-        "Attached By" := UserSecurityId;
+        if IsNullGuid("Attached By") then
+            "Attached By" := UserSecurityId;
     end;
 
     var

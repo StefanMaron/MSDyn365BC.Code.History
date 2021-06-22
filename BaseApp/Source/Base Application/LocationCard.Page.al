@@ -639,7 +639,7 @@ page 5703 "Location Card"
     var
         TransferHeader: Record "Transfer Header";
     begin
-        TransferHeader.SetFilter("In-Transit Code", Code);
+        TransferHeader.SetRange("In-Transit Code", Code);
         EditInTransit := TransferHeader.IsEmpty;
     end;
 }

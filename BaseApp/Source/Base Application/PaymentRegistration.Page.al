@@ -299,7 +299,7 @@ page 981 "Payment Registration"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
+                    ToolTip = 'Review the different types of entries that will be created when you post the document or journal. When you perform the actual posting, you may be asked how to post payment tolerance entries. The posting preview assumes the default option: that each payment tolerance is posted as one entry.';
 
                     trigger OnAction()
                     var
@@ -315,7 +315,7 @@ page 981 "Payment Registration"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    ToolTip = 'Review the different types of entries that will be created when you post the document or journal as a lump sum of amounts.';
+                    ToolTip = 'Review the different types of entries that will be created when you post the document or journal as a lump sum of amounts. When you perform the actual posting, you may be asked how to post payment tolerance entries. The posting preview assumes the default option: that each payment tolerance is posted as one entry.';
 
                     trigger OnAction()
                     var

@@ -12,6 +12,7 @@ report 7052 "Suggest Sales Price on Wksh."
 
             trigger OnAfterGetRecord()
             var
+                IsHandled: Boolean;
                 SkipRecord: Boolean;
             begin
                 if Item."No." <> "Item No." then begin
@@ -100,8 +101,12 @@ report 7052 "Suggest Sales Price on Wksh."
                 SalesPriceWksh."New Unit Price" :=
                   Round(SalesPriceWksh."New Unit Price", Currency2."Unit-Amount Rounding Precision");
 
-                if SalesPriceWksh."New Unit Price" > PriceLowerLimit then
-                    SalesPriceWksh."New Unit Price" := SalesPriceWksh."New Unit Price" * UnitPriceFactor;
+                IsHandled := false;
+                OnBeforeSetNewUnitPriceAbovePriceLimit(SalesPriceWksh, PriceLowerLimit, IsHandled);
+                if not IsHandled then
+                    if SalesPriceWksh."New Unit Price" > PriceLowerLimit then
+                        SalesPriceWksh."New Unit Price" := SalesPriceWksh."New Unit Price" * UnitPriceFactor;
+
                 if RoundingMethod.Code <> '' then begin
                     RoundingMethod."Minimum Amount" := SalesPriceWksh."New Unit Price";
                     if RoundingMethod.Find('=<') then begin
@@ -123,7 +128,8 @@ report 7052 "Suggest Sales Price on Wksh."
                 SalesPriceWksh."Allow Line Disc." := "Allow Line Disc.";
                 SalesPriceWksh.CalcCurrentPrice(PriceAlreadyExists);
 
-                OnBeforeModifyOrInsertSalesPriceWksh(SalesPriceWksh, "Sales Price");
+                OnBeforeModifyOrInsertSalesPriceWksh(
+                    SalesPriceWksh, "Sales Price", UnitPriceFactor, PriceLowerLimit, RoundingMethod, CreateNewPrices);
 
                 if PriceAlreadyExists or CreateNewPrices then begin
                     TempSalesPriceWksh := SalesPriceWksh;
@@ -404,6 +410,11 @@ report 7052 "Suggest Sales Price on Wksh."
         RoundingMethod.SetRange(Code, RoundingMethod.Code);
     end;
 
+    trigger OnPostReport()
+    begin
+        OnAfterPostReport();
+    end;
+
     var
         Text001: Label 'Processing items  #1##########';
         SalesPriceWksh2: Record "Sales Price Worksheet";
@@ -464,7 +475,17 @@ report 7052 "Suggest Sales Price on Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeModifyOrInsertSalesPriceWksh(var SalesPriceWorksheet: Record "Sales Price Worksheet"; var SalesPrice: Record "Sales Price")
+    local procedure OnAfterPostReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyOrInsertSalesPriceWksh(var SalesPriceWorksheet: Record "Sales Price Worksheet"; var SalesPrice: Record "Sales Price"; UnitPriceFactor: Decimal; PriceLowerLimit: Decimal; RoundingMethod: Record "Rounding Method"; CreateNewPrices: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetNewUnitPriceAbovePriceLimit(var SalesPriceWorksheet: Record "Sales Price Worksheet"; PriceLowerLimit: Decimal; var IsHandled: Boolean)
     begin
     end;
 

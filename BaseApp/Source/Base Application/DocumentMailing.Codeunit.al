@@ -149,6 +149,8 @@ codeunit 260 "Document-Mailing"
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeGetAttachmentFileName(AttachmentFileName, PostedDocNo, EmailDocumentName, ReportUsage);
+        
         if AttachmentFileName = '' then
             if PostedDocNo = '' then begin
                 if ReportUsage = ReportSelections.Usage::"P.Order" then
@@ -325,6 +327,7 @@ codeunit 260 "Document-Mailing"
             if HtmlBodyFilePath <> '' then begin
                 Validate("Plaintext Formatted", false);
                 Validate("Body File Path", HtmlBodyFilePath);
+                Validate("Message Type", "Message Type"::"From Email Body Template");
             end;
 
             OnBeforeSendEmail(TempEmailItem, IsFromPostedDoc, PostedDocNo, HideDialog, ReportUsage);
@@ -448,6 +451,11 @@ codeunit 260 "Document-Mailing"
 
         SMTPMailSetup.GetSetup;
         exit(SMTPMailSetup."Allow Sender Substitution");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAttachmentFileName(var AttachmentFileName: Text[250]; PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer)
+    begin
     end;
 }
 

@@ -60,13 +60,40 @@ codeunit 550 "VAT Rate Change Conversion"
                     GenProductPostingGroup."Auto Insert Default" := false;
                     GenProductPostingGroup.Modify;
                 until GenProductPostingGroup.Next = 0;
-            UpdateItem;
-            UpdateRessouce;
-            UpdateGLAccount;
-            UpdateServPriceAdjDetail;
-            UpdatePurchase;
-            UpdateSales;
-            UpdateService;
+            UpdateItem();
+            UpdateRessouce();
+            UpdateGLAccount();
+            UpdateServPriceAdjDetail();
+            UpdatePurchase();
+            UpdateSales();
+            UpdateService();
+            UpdateTables();
+
+            GenProductPostingGroup.DeleteAll;
+            if TempGenProductPostingGroup.Find('-') then
+                repeat
+                    GenProductPostingGroup := TempGenProductPostingGroup;
+                    GenProductPostingGroup.Insert();
+                    TempGenProductPostingGroup.Delete();
+                until TempGenProductPostingGroup.Next = 0;
+        end;
+        ProgressWindow.Close;
+
+        if VATRateChangeSetup."Perform Conversion" then begin
+            VATRateChangeSetup."VAT Rate Change Tool Completed" := true;
+            VATRateChangeSetup.Modify();
+            VATRateChangeConversion.Reset();
+            if VATRateChangeConversion.FindSet(true) then
+                repeat
+                    VATRateChangeConversion."Converted Date" := WorkDate;
+                    VATRateChangeConversion.Modify();
+                until VATRateChangeConversion.Next = 0;
+        end;
+    end;
+
+    local procedure UpdateTables()
+    begin
+        with VATRateChangeSetup do begin
             UpdateTable(
               DATABASE::"Item Template",
               ConvertVATProdPostGrp("Update Item Templates"), ConvertGenProdPostGrp("Update Item Templates"));
@@ -109,25 +136,9 @@ codeunit 550 "VAT Rate Change Conversion"
             UpdateTable(
               DATABASE::"Finance Charge Memo Line",
               ConvertVATProdPostGrp("Update Finance Charge Memos"), ConvertGenProdPostGrp("Update Finance Charge Memos"));
-            GenProductPostingGroup.DeleteAll;
-            if TempGenProductPostingGroup.Find('-') then
-                repeat
-                    GenProductPostingGroup := TempGenProductPostingGroup;
-                    GenProductPostingGroup.Insert;
-                    TempGenProductPostingGroup.Delete;
-                until TempGenProductPostingGroup.Next = 0;
         end;
-        ProgressWindow.Close;
-        if VATRateChangeSetup."Perform Conversion" then begin
-            VATRateChangeSetup."VAT Rate Change Tool Completed" := true;
-            VATRateChangeSetup.Modify;
-            VATRateChangeConversion.Reset;
-            if VATRateChangeConversion.FindSet(true) then
-                repeat
-                    VATRateChangeConversion."Converted Date" := WorkDate;
-                    VATRateChangeConversion.Modify;
-                until VATRateChangeConversion.Next = 0;
-        end;
+
+        OnAfterUpdateTables(VATRateChangeSetup);
     end;
 
     local procedure TestVATPostingSetup()
@@ -1489,6 +1500,11 @@ codeunit 550 "VAT Rate Change Conversion"
             if OutstandingQuantity <> 0 then
                 VATRateChangeLogEntry.Description := StrSubstNo(Text0017, LineNo)
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateTables(VATRateChangeSetup: Record "VAT Rate Change Setup")
+    begin
     end;
 }
 

@@ -100,6 +100,8 @@ table 420 "Handled IC Inbox Trans."
             "Source Type"::"Purchase Document":
                 if HndlICInboxPurchHdr.Get("Transaction No.", "IC Partner Code", "Transaction Source") then
                     HndlICInboxPurchHdr.Delete(true);
+            else
+                OnDeleteOnSourceTypeCase(Rec);
         end;
         DeleteComments("Transaction No.", "IC Partner Code");
     end;
@@ -152,6 +154,11 @@ table 420 "Handled IC Inbox Trans."
         ICCommentLine.SetRange("Transaction No.", TransactionNo);
         ICCommentLine.SetRange("IC Partner Code", ICPartnerCode);
         ICCommentLine.DeleteAll;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnSourceTypeCase(var HandledICInboxTrans: Record "Handled IC Inbox Trans.")
+    begin
     end;
 }
 

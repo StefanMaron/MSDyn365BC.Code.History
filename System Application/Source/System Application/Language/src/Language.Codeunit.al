@@ -25,11 +25,11 @@ codeunit 43 Language
         exit(LanguageImpl.GetUserLanguageCode());
     end;
 
-    // <summary>
-    // Gets the language ID based on its code. Or defaults to the current user language.
-    // </summary>
-    // <param name="LanguageCode">The code of the language</param>
-    // <returns>The ID for the language code that was provided for this function. If no ID is found for the language code, then it returns the ID of the current user's language.</returns>
+    /// <summary>
+    /// Gets the language ID based on its code. Or defaults to the current user language.
+    /// </summary>
+    /// <param name="LanguageCode">The code of the language</param>
+    /// <returns>The ID for the language code that was provided for this function. If no ID is found for the language code, then it returns the ID of the current user's language.</returns>
     procedure GetLanguageIdOrDefault(LanguageCode: Code[10]): Integer;
     var
         LanguageImpl: Codeunit "Language Impl.";
@@ -99,6 +99,7 @@ codeunit 43 Language
     /// <summary>
     /// Gets the default application language ID.
     /// </summary>
+    /// <returns>The ID of the default language for the application.</returns>
     procedure GetDefaultApplicationLanguageId(): Integer
     var
         LanguageImpl: Codeunit "Language Impl.";
@@ -152,12 +153,23 @@ codeunit 43 Language
     end;
 
     /// <summary>
+    /// Returns the parent LanguageId based on Windows Culture Info.
+    /// </summary>
+    /// <param name="LanguageId">Exit parameter that holds the chosen language ID.</param>
+    procedure GetParentLanguageId(LanguageId: Integer): Integer
+    var
+        LanguageImpl: Codeunit "Language Impl.";
+    begin
+        exit(LanguageImpl.GetParentLanguageId((LanguageId)));
+    end;
+    
+    /// <summary>
     /// Integration event, emitted from <see cref="GetUserLanguageCode"/>.
     /// Subscribe to this event to change the default behavior by changing the provided parameter(s).
     /// </summary>
     /// <seealso cref="GetUserLanguageCode"/>
     /// <param name="UserLanguageCode">Exit parameter that holds the user language code.</param>
-    /// <param name="IsHandled">To change the default behavior of the function that emits the event, set this parameter to true.</param>
+    /// <param name="Handled">To change the default behavior of the function that emits the event, set this parameter to true.</param>
     [IntegrationEvent(false, false)]
     internal procedure OnGetUserLanguageCode(var UserLanguageCode: Code[10]; var Handled: Boolean)
     begin

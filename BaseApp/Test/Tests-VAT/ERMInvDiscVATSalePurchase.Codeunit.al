@@ -1522,6 +1522,210 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         Assert.ExpectedError(LineDiscountPctErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesLineDiscountWhenPostItemCharge()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        ItemChargeSalesLine: Record "Sales Line";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [FEATURE] [Sales Invoice] [Item Charge] [Line Discount] [Posting]
+        // [SCENARIO 333460] Line Discount for assigned Item Charge is considered when posting a sales document
+        Initialize;
+
+        // [GIVEN] Creatd Item and Item Charge
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
+
+        // [GIVEN] Created Sales Invoice with two lines for Item and Item Charge
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeaderInvoice, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(
+          ItemChargeSalesLine, SalesHeaderInvoice, SalesLine.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+        ItemChargeSalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        ItemChargeSalesLine.Validate("Line Amount", LibraryRandom.RandInt(10));
+        ItemChargeSalesLine.Validate("Line Discount %", LibraryRandom.RandInt(10));
+        ItemChargeSalesLine.Modify(true);
+
+        // [GIVEN] Item Charge assigned to Item
+        LibrarySales.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, ItemChargeSalesLine, ItemCharge, SalesHeaderInvoice."Document Type", SalesHeaderInvoice."No.",
+          SalesLine."Line No.", SalesLine."No.", ItemChargeSalesLine.Quantity, LibraryRandom.RandInt(100));
+        ItemChargeAssignmentSales.Insert(true);
+
+        // [WHEN] Post Sales Invoice
+        LibrarySales.PostSalesDocument(SalesHeaderInvoice, false, false);
+
+        // [THEN] Get Value Entry, its "Discount Amount" is calculated correctly
+        ValueEntry.SetFilter("Item No.", Item."No.");
+        ValueEntry.FindLast;
+        Assert.AreEqual(
+          (-ItemChargeSalesLine."Inv. Discount Amount" - ItemChargeSalesLine."Line Discount Amount") /
+          ItemChargeSalesLine."Quantity (Base)" * ItemChargeAssignmentSales."Qty. to Assign",
+          ValueEntry."Discount Amount", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesLineDiscountWhenPostItemChargeLCY()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        ItemChargeSalesLine: Record "Sales Line";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [FEATURE] [Sales Invoice] [Item Charge] [Line Discount] [Posting] [Currency]
+        // [SCENARIO 333460] Line Discount for assigned Item Charge is considered when posting a sales document with Current Currency
+        Initialize;
+
+        // [GIVEN] Creatd Item and Item Charge
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
+
+        // [GIVEN] Created Sales Invoice with Currency setup, two lines for Item and Item Charge
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        SalesHeaderInvoice.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        SalesHeaderInvoice.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeaderInvoice, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(
+          ItemChargeSalesLine, SalesHeaderInvoice, SalesLine.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+        ItemChargeSalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        ItemChargeSalesLine.Validate("Line Amount", LibraryRandom.RandInt(10));
+        ItemChargeSalesLine.Validate("Line Discount %", LibraryRandom.RandInt(10));
+        ItemChargeSalesLine.Modify(true);
+
+        // [GIVEN] Item Charge assigned to Item
+        LibrarySales.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, ItemChargeSalesLine, ItemCharge, SalesHeaderInvoice."Document Type", SalesHeaderInvoice."No.",
+          SalesLine."Line No.", SalesLine."No.", ItemChargeSalesLine.Quantity, LibraryRandom.RandInt(100));
+        ItemChargeAssignmentSales.Insert(true);
+
+        // [WHEN] Post Sales Invoice
+        LibrarySales.PostSalesDocument(SalesHeaderInvoice, false, false);
+
+        // [THEN] Get Value Entry, its "Discount Amount" is calculated correctly
+        ValueEntry.SetFilter("Item No.", Item."No.");
+        ValueEntry.FindLast;
+        Assert.AreEqual(
+          (-ItemChargeSalesLine."Inv. Discount Amount" - ItemChargeSalesLine."Line Discount Amount") /
+          ItemChargeSalesLine."Quantity (Base)" * ItemChargeAssignmentSales."Qty. to Assign" / SalesHeaderInvoice."Currency Factor",
+          ValueEntry."Discount Amount", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseLineDiscountWhenPostItemCharge()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ItemChargePurchaseLine: Record "Purchase Line";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [FEATURE] [Purchase Invoice] [Item Charge] [Line Discount] [Posting]
+        // [SCENARIO 333460] Line Discount for assigned Item Charge is considered when posting a purchase document
+        Initialize;
+
+        // [GIVEN] Creatd Item and Item Charge
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
+
+        // [GIVEN] Created Purchase Invoice with two lines for Item and Item Charge
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeaderInvoice, PurchaseLine, PurchaseHeaderInvoice."Document Type"::Invoice,
+          LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(10), '', 0D);
+        LibraryPurchase.CreatePurchaseLine(
+          ItemChargePurchaseLine, PurchaseHeaderInvoice, ItemChargePurchaseLine.Type::"Charge (Item)",
+          ItemCharge."No.", LibraryRandom.RandInt(10));
+        ItemChargePurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        ItemChargePurchaseLine.Validate(Amount, LibraryRandom.RandInt(10));
+        ItemChargePurchaseLine.Validate("Line Discount %", LibraryRandom.RandInt(10));
+        ItemChargePurchaseLine.Modify(true);
+
+        // [GIVEN] Item Charge assigned to Item
+        LibraryPurchase.CreateItemChargeAssignment(
+          ItemChargeAssignmentPurch, ItemChargePurchaseLine, ItemCharge, PurchaseHeaderInvoice."Document Type", PurchaseHeaderInvoice."No.",
+          PurchaseLine."Line No.", PurchaseLine."No.", ItemChargePurchaseLine.Quantity, LibraryRandom.RandInt(100));
+        ItemChargeAssignmentPurch.Insert(true);
+
+        // [WHEN] Post Purchase Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, false, false);
+
+        // [THEN] Get Value Entry, its "Discount Amount" is calculated correctly
+        ValueEntry.SetFilter("Item No.", Item."No.");
+        ValueEntry.FindLast;
+        Assert.AreEqual(
+          (ItemChargePurchaseLine."Inv. Discount Amount" + ItemChargePurchaseLine."Line Discount Amount") /
+          ItemChargePurchaseLine."Quantity (Base)" * ItemChargeAssignmentPurch."Qty. to Assign",
+          ValueEntry."Discount Amount", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PurchaseLineDiscountWhenPostItemChargeLCY()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ItemChargePurchaseLine: Record "Purchase Line";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [FEATURE] [Purchase Invoice] [Item Charge] [Line Discount] [Posting] [Currency]
+        // [SCENARIO 333460] Line Discount for assigned Item Charge is considered when posting a purchase document with Current Currency
+        Initialize;
+
+        // [GIVEN] Creatd Item and Item Charge
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
+
+        // [GIVEN] Created Purchase Invoice with Currency setup, two lines for Item and Item Charge
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeaderInvoice, PurchaseLine, PurchaseHeaderInvoice."Document Type"::Invoice,
+          LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(10), '', 0D);
+        PurchaseHeaderInvoice.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
+        PurchaseHeaderInvoice.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          ItemChargePurchaseLine, PurchaseHeaderInvoice, ItemChargePurchaseLine.Type::"Charge (Item)",
+          ItemCharge."No.", LibraryRandom.RandInt(10));
+        ItemChargePurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        ItemChargePurchaseLine.Validate(Amount, LibraryRandom.RandInt(10));
+        ItemChargePurchaseLine.Validate("Line Discount %", LibraryRandom.RandInt(10));
+        ItemChargePurchaseLine.Modify(true);
+
+        // [GIVEN] Item Charge assigned to Item
+        LibraryPurchase.CreateItemChargeAssignment(
+          ItemChargeAssignmentPurch, ItemChargePurchaseLine, ItemCharge, PurchaseHeaderInvoice."Document Type", PurchaseHeaderInvoice."No.",
+          PurchaseLine."Line No.", PurchaseLine."No.", ItemChargePurchaseLine.Quantity, LibraryRandom.RandInt(100));
+        ItemChargeAssignmentPurch.Insert(true);
+
+        // [WHEN] Post Purchase Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, false, false);
+
+        // [THEN] Get Value Entry, its "Discount Amount" is calculated correctly
+        ValueEntry.SetFilter("Item No.", Item."No.");
+        ValueEntry.FindLast;
+        Assert.AreEqual(
+          (ItemChargePurchaseLine."Inv. Discount Amount" + ItemChargePurchaseLine."Line Discount Amount") /
+          ItemChargePurchaseLine."Quantity (Base)" * ItemChargeAssignmentPurch."Qty. to Assign" /
+          PurchaseHeaderInvoice."Currency Factor",
+          ValueEntry."Discount Amount", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2219,6 +2423,13 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
     procedure GetReturnShipmentLinesForPurchasePageHandler(var GetReturnShipmentLines: TestPage "Get Return Shipment Lines")
     begin
         GetReturnShipmentLines.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Answer: Boolean)
+    begin
+        Answer := true;
     end;
 }
 

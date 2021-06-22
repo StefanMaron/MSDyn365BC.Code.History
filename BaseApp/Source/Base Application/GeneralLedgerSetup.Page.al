@@ -180,6 +180,18 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies which type of amounts are shown in journals and in ledger entries windows. Amount Only: The Amount and Amount (LCY) fields are shown. Debit/Credit Only: The Debit Amount, Debit Amount (LCY), Credit Amount, and Credit Amount (LCY) fields are shown. All Amounts: All amount fields are shown. ';
                 }
+                field(SEPANonEuroExport; "SEPA Non-Euro Export")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether to use SEPA export for journal lines with currencies different from Euro.';
+                }
+                field(SEPAExportWoBankAccData; "SEPA Export w/o Bank Acc. Data")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if it is possible to use SEPA direct debit export by filling in the Bank Branch No. and Bank Account No. fields instead of the IBAN and SWIFT No. fields on the bank account and customer bank account cards.';
+                }
             }
             group(Control1900309501)
             {

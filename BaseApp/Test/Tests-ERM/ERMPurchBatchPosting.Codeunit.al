@@ -35,6 +35,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -60,6 +61,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -85,6 +87,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -111,6 +114,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
     begin
         // [SCENARIO 204056] Batch Posting of Purchase Invoice with Replace Posting Date and Calc. Inv. Discount options for special Purchase Setup
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -141,6 +145,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -169,6 +174,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -194,6 +200,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -219,6 +226,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -245,6 +253,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -276,6 +285,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -315,6 +325,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -354,6 +365,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -393,6 +405,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -432,6 +445,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         // [FEATURE] [Order] [Job  Queue] [Invoice Discount]
         // [SCENARIO 268223] Stan can post multiple orders in a batch when "Calc. Invoice Discount" and "Post with Job Queue" are enabled in setup
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
 
         // [GIVEN] Purchase setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
         LibraryVariableStorageCounter.Clear;
@@ -481,6 +495,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         // [FEATURE] [Order] [Job  Queue]
         // [SCENARIO 275869] Stan can try post with job queue multiple time bad orders without error 'Batch Processing Parameter Map already exists.'
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
 
         // [GIVEN] Purchase setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
         LibraryVariableStorageCounter.Clear;
@@ -537,6 +552,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         // [FEATURE] [Invoice]
         // [SCENARIO 306600] Stan can run "Batch Post Purchase Invoices" report when concurrent batch is active having the same document
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -646,11 +662,39 @@ codeunit 134337 "ERM Purch. Batch Posting"
     procedure PrintBatchPostPurchaseInvoices()
     var
         PurchaseHeader: array[2] of Record "Purchase Header";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         // [FEATURE] [Print]
         // [SCENARIO 267099] Print "Purchase - Invoice" when batch post purchase invoices
         Initialize();
+        LibraryPurchase.SetPostWithJobQueue(false);
+        CreateInvoiceReportSelection();
+
+        // [GIVEN] Two invoices
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Invoice, FALSE);
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, FALSE);
+
+        // [WHEN] Batch post two invoices (set Print = TRUE in BatchPostSalesInvoicesPrintRequestPageHandler)
+        RunBatchPostPurchase(
+          PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", 0D, FALSE);
+
+        // [THEN] 'Print' checkbox is not visible, so number "Purchase - Invoice" report runs = 0 (calculated in PurchaseInvoiceReportHandler)
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueInteger, 'Number of printed invoice is not correct');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Print checkbox should not be invisible');
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchaseInvoicesPrintRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintBatchPostPurchaseInvoicesBackground()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [FEATURE] [Print]
+        // [SCENARIO 267099] Print "Purchase - Invoice" when batch post purchase invoices in background
+        Initialize();
+        LibraryPurchase.SetPostWithJobQueue(true);
+        LibraryPurchase.SetPostAndPrintWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         CreateInvoiceReportSelection();
@@ -667,6 +711,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
 
         // [THEN] There are two records in the "Job Queue Entry" with "PDF" output type
         VerifyPrintJobQueueEntries(PurchaseHeader);
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Print checkbox should be visible');
     end;
 
     [Test]
@@ -710,32 +755,30 @@ codeunit 134337 "ERM Purch. Batch Posting"
         CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, true);
         PostingDate[2] := PurchaseHeader[2]."Posting Date";
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader[2]);
-        PurchaseHeader[2].SetRecFilter;
-        PurchaseBatchPostMgt.RunBatch(PurchaseHeader[2], true, PostingDate[2] + 2, true, true, false, true);
-        //LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader[2].RecordId);
+        PurchaseHeader[2].SetRecFilter();
+        RunBatchPostPurchase(PurchaseHeader[2]."Document Type", PurchaseHeader[2]."No.", PostingDate[2] + 2, true);
 
-        // [WHEN] Job queue for Invoice "A" ran
+        // [GIVEN] Job Queue Entries created for Invoice 'A'. 
         PurchaseHeader[1].Find;
         JobQueueEntry.Get(PurchaseHeader[1]."Job Queue Entry ID");
+
+        // [WHEN] Run Job Queue Entries for Invoice "A"
         CODEUNIT.Run(JobQueueEntry."Object ID to Run", JobQueueEntry);
 
-        PurchaseHeader[2].Find;
-        JobQueueEntry.Get(PurchaseHeader[2]."Job Queue Entry ID");
-        CODEUNIT.Run(JobQueueEntry."Object ID to Run", JobQueueEntry);
+        // [THEN] Invoice 'B' is posted directly. 
+        Assert.IsFalse(PurchaseHeader[2].Find, 'Second Invoice should be posted');
 
         // [THEN] InvoiceDiscount is calculated and Posting Date is updated in Invoices "A"
         VerifyPostedPurchaseInvoice(PurchaseHeader[1]."No.", PostingDate[1] + 1, true);
         // [THEN] InvoiceDiscount is calculated and Posting Date is updated in Invoice "B"
         VerifyPostedPurchaseInvoice(PurchaseHeader[2]."No.", PostingDate[2] + 2, true);
 
-        // [THEN] Batch tables cleaned after job queue execution
+        // [THEN] Batch Processing Session Map table cleaned after job queue execution
         BatchProcessingSessionMap.SetRange("Record ID", PurchaseHeader[1].RecordId);
         Assert.RecordIsEmpty(BatchProcessingSessionMap);
 
         BatchProcessingSessionMap.SetRange("Record ID", PurchaseHeader[2].RecordId);
         Assert.RecordIsEmpty(BatchProcessingSessionMap);
-
-        Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
 
     local procedure Initialize()
@@ -845,6 +888,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
     begin
         JobQueueEntry.Get(PurchaseHeader."Job Queue Entry ID");
         CODEUNIT.Run(JobQueueEntry."Object ID to Run", JobQueueEntry);
+        JobQueueEntry.SetStatus(JobQueueEntry.Status::Finished);
     end;
 
     local procedure UpdateCalcInvDiscPurchasePayablesSetup(CalcInvDisc: Boolean)
@@ -1102,6 +1146,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         PurchaseHeader: Record "Purchase Header";
         PostingDate: Variant;
         DocumentNoFilter: Variant;
+        PrintVisible: Boolean;
     BEGIN
         LibraryVariableStorage.Dequeue(DocumentNoFilter);
         LibraryVariableStorage.Dequeue(PostingDate);
@@ -1109,9 +1154,12 @@ codeunit 134337 "ERM Purch. Batch Posting"
         BatchPostPurchaseInvoices."Purchase Header".SETFILTER("No.", DocumentNoFilter);
         BatchPostPurchaseInvoices."Purchase Header".SETFILTER("Document Type", FORMAT(PurchaseHeader."Document Type"::Invoice));
 
-        BatchPostPurchaseInvoices.PrintDoc.SETVALUE(TRUE);
+        PrintVisible := BatchPostPurchaseInvoices.PrintDoc.Visible();
+        if PrintVisible then
+            BatchPostPurchaseInvoices.PrintDoc.SETVALUE(TRUE);
         BatchPostPurchaseInvoices.OK.INVOKE;
 
+        LibraryVariableStorage.Enqueue(PrintVisible);
         LibraryVariableStorage.Enqueue(0); // initialize report run counter
     END;
 

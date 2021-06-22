@@ -46,7 +46,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         CreateNewLotNo: Boolean;
         PartialTracking: Boolean;
         ItemTrackingSummaryCancel: Boolean;
-        AssignTracking: Option "None",SerialNo,LotNo,SelectTrackingEntries;
+        AssignTracking: Option "None",SerialNo,LotNo,SelectTrackingEntries,GivenLotNo,GetQty;
         ItemTrackingAction: Option "None",AvailabilitySerialNo,AvailabilityLotNo;
         TrackingQuantity: Decimal;
         MessageCounter: Integer;
@@ -2126,6 +2126,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
             Qty[i] := LibraryRandom.RandIntInRange(50, 100);
             QtyRemToPutaway[i] := LibraryRandom.RandIntInRange(5, 10);
             CreatePurchaseLine(PurchaseHeader, PurchaseLine, Item."No.", LocationWhite.Code, Qty[i]);
+            LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
             LibraryVariableStorage.Enqueue(LotNo[i]);
             LibraryVariableStorage.Enqueue(Qty[i]);
             PurchaseLine.OpenItemTrackingLines;
@@ -2662,6 +2663,57 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         SalesInvoiceLine.TestField("No.", NonTrackedItem."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLotPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemTrackingCreatedOnlyForQtyToShipWhenCopiedFromBlanketSalesOrder()
+    var
+        Item: Record Item;
+        BlanketSalesHeader: Record "Sales Header";
+        BlanketSalesLine: Record "Sales Line";
+        SalesLine: Record "Sales Line";
+        SalesOrderNo: Code[20];
+        LotNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Blanket Order] [Order]
+        // [SCENARIO 340083] Item Tracking on a sales order line created from blanket order matches the quantity being ordered.
+        Initialize;
+        LotNo := LibraryUtility.GenerateGUID;
+
+        // [GIVEN] Lot-tracked item with inventory.
+        LibraryItemTracking.CreateLotItem(Item);
+        CreateAndPostItemJnlLineWithLot(Item."No.", LotNo, LibraryRandom.RandIntInRange(100, 200));
+
+        // [GIVEN] Blanket sales order for 100 pcs, assign lot no.
+        LibrarySales.CreateSalesDocumentWithItem(
+          BlanketSalesHeader, BlanketSalesLine, BlanketSalesHeader."Document Type"::"Blanket Order", '',
+          Item."No.", LibraryRandom.RandIntInRange(50, 100), '', WorkDate);
+        LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(BlanketSalesLine.Quantity);
+        BlanketSalesLine.OpenItemTrackingLines;
+
+        // [GIVEN] Set "Qty. to Ship" on the blanket line to 10 pcs.
+        UpdateQtyToShipOnSalesLine(BlanketSalesLine, LibraryRandom.RandInt(10));
+
+        // [WHEN] Make sales order from the blanket order.
+        SalesOrderNo := LibrarySales.BlanketSalesOrderMakeOrder(BlanketSalesHeader);
+
+        // [THEN] Sales order for 10 pcs is created.
+        SelectSalesLine(SalesLine, SalesOrderNo);
+        SalesLine.TestField(Quantity, BlanketSalesLine."Qty. to Ship");
+        SalesLine.TestField("Qty. to Ship", BlanketSalesLine."Qty. to Ship");
+
+        // [THEN] Quantity and "Qty. to Ship" in item tracking assigned to the sales order line are equal to 10 pcs.
+        LibraryVariableStorage.Enqueue(AssignTracking::GetQty);
+        LibraryVariableStorage.Enqueue(LotNo);
+        SalesLine.OpenItemTrackingLines;
+        Assert.AreEqual(SalesLine.Quantity, LibraryVariableStorage.DequeueDecimal, '');
+        Assert.AreEqual(SalesLine."Qty. to Ship", LibraryVariableStorage.DequeueDecimal, '');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2867,6 +2919,18 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Item.Modify(true);
     end;
 
+    local procedure CreateAndPostItemJnlLineWithLot(ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, '', '', Qty);
+        LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
     local procedure CreateAndReleasePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         // Purchase Order.
@@ -2921,6 +2985,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         for i := 1 to NoOfLines do begin
             CreatePurchaseLine(PurchaseHeader, PurchaseLine, ItemNo, LocationCode, Qty);
+            LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
             LibraryVariableStorage.Enqueue(LotNo);
             LibraryVariableStorage.Enqueue(Qty);
             PurchaseLine.OpenItemTrackingLines;
@@ -3054,6 +3119,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     var
         Direction: Option Outbound,Inbound;
     begin
+        LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty);
         TransferLine.OpenItemTrackingLines(Direction::Outbound);
@@ -4201,12 +4267,23 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     var
         Qty: Decimal;
     begin
-        ItemTrackingLines.Last;
-        ItemTrackingLines.Next;
-        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        Qty := LibraryVariableStorage.DequeueDecimal;
-        ItemTrackingLines."Quantity (Base)".SetValue(Qty);
-        ItemTrackingLines."Qty. to Handle (Base)".SetValue(Qty);
+        case LibraryVariableStorage.DequeueInteger of
+            AssignTracking::GivenLotNo:
+                begin
+                    ItemTrackingLines.Last;
+                    ItemTrackingLines.Next;
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+                    Qty := LibraryVariableStorage.DequeueDecimal;
+                    ItemTrackingLines."Quantity (Base)".SetValue(Qty);
+                    ItemTrackingLines."Qty. to Handle (Base)".SetValue(Qty);
+                end;
+            AssignTracking::GetQty:
+                begin
+                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText);
+                    LibraryVariableStorage.Enqueue(ItemTrackingLines."Quantity (Base)".AsDEcimal);
+                    LibraryVariableStorage.Enqueue(ItemTrackingLines."Qty. to Handle (Base)".AsDEcimal);
+                end;
+        end;
         ItemTrackingLines.OK.Invoke;
     end;
 

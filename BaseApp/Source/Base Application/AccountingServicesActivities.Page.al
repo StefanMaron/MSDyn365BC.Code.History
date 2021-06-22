@@ -40,14 +40,18 @@ page 9070 "Accounting Services Activities"
 
                         trigger OnAction()
                         var
-                            CameraOptions: DotNet CameraOptions;
+                            IncomingDocument: Record "Incoming Document";
+                            InStr: InStream;
                         begin
                             if not HasCamera then
                                 exit;
 
-                            CameraOptions := CameraOptions.CameraOptions;
-                            CameraOptions.Quality := 100; // 100%
-                            CameraProvider.RequestPictureAsync(CameraOptions);
+                            Camera.SetQuality(100); // 100%
+                            Camera.RunModal();
+                            Camera.GetPicture(InStr);
+                            IncomingDocument.CreateIncomingDocument(InStr, 'Incoming Document Picture');
+                            Clear(Camera);
+                            CurrPage.Update;
                         end;
                     }
                 }
@@ -97,24 +101,13 @@ page 9070 "Accounting Services Activities"
 
         SetRange("User ID Filter", UserId);
 
-        HasCamera := CameraProvider.IsAvailable;
-        if HasCamera then
-            CameraProvider := CameraProvider.Create;
+        HasCamera := Camera.IsAvailable();
     end;
 
     var
         UserTaskManagement: Codeunit "User Task Management";
-        [RunOnClient]
-        [WithEvents]
-        CameraProvider: DotNet CameraProvider;
+        Camera: Page Camera;
+        [InDataSet]
         HasCamera: Boolean;
-
-    trigger CameraProvider::PictureAvailable(PictureName: Text; PictureFilePath: Text)
-    var
-        IncomingDocument: Record "Incoming Document";
-    begin
-        IncomingDocument.CreateIncomingDocumentFromServerFile(PictureName, PictureFilePath);
-        CurrPage.Update;
-    end;
 }
 

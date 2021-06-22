@@ -25,6 +25,7 @@ codeunit 134231 "ERM Bank Account"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
+        IBANConfirmationMsg: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -34,7 +35,7 @@ codeunit 134231 "ERM Bank Account"
         AccountNo: Code[20];
         AccountName: Text[50];
     begin
-        Initialize;
+        Initialize();
         // Create a new bank account
         Evaluate(AccountNo, LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("No."), DATABASE::"Bank Account"));
         Evaluate(AccountName, LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(Name), DATABASE::"Bank Account"));
@@ -75,7 +76,7 @@ codeunit 134231 "ERM Bank Account"
         "Code": Code[20];
         Name: Text[100];
     begin
-        Initialize;
+        Initialize();
         // Create a new SWIFT code
         Evaluate(Code, LibraryUtility.GenerateRandomCode(SWIFTCode.FieldNo(Code), DATABASE::"SWIFT Code"));
         Evaluate(Name, LibraryUtility.GenerateRandomCode(SWIFTCode.FieldNo(Name), DATABASE::"SWIFT Code"));
@@ -153,7 +154,7 @@ codeunit 134231 "ERM Bank Account"
     begin
         // [FEATURE] [Vendor Bank Account] [UT] [Purchase]
         // [SCENARIO 378203] Vendor Bank Account cannot be deleted when it has associated open entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Vendor Bank Account "X"
         LibraryPurchase.CreateVendor(Vendor);
@@ -179,7 +180,7 @@ codeunit 134231 "ERM Bank Account"
     begin
         // [FEATURE] [Customer Bank Account] [UT] [Sales]
         // [SCENARIO 378203] Customer Bank Account cannot be deleted when it has associated open entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Customer Bank Account "X"
         LibrarySales.CreateCustomer(Customer);
@@ -207,7 +208,7 @@ codeunit 134231 "ERM Bank Account"
     begin
         // [FEATURE] [UT] [Purchase]
         // [SCENARIO 378203] Vendor Bank Account can be deleted when it has associated closed entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Vendor Bank Account "X"
         LibraryPurchase.CreateVendor(Vendor);
@@ -239,7 +240,7 @@ codeunit 134231 "ERM Bank Account"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 378203] Customer Bank Account can be deleted when it has associated closed entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Customer Bank Account "X"
         LibrarySales.CreateCustomer(Customer);
@@ -268,7 +269,7 @@ codeunit 134231 "ERM Bank Account"
         SWIFTCode: Record "SWIFT Code";
     begin
         // [FEATURE] [UT] [Bank Account]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account and new SWIFT Code created
         LibraryERM.CreateBankAccount(BankAccount);
@@ -288,7 +289,7 @@ codeunit 134231 "ERM Bank Account"
         SWIFTCode: Record "SWIFT Code";
     begin
         // [FEATURE] [UT] [Bank Account]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Customer Bank Account "X"
         LibrarySales.CreateCustomer(Customer);
@@ -309,7 +310,7 @@ codeunit 134231 "ERM Bank Account"
         SWIFTCode: Record "SWIFT Code";
     begin
         // [FEATURE] [UT] [Bank Account]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Vendor Bank Account "X"
         LibraryPurchase.CreateVendor(Vendor);
@@ -328,7 +329,7 @@ codeunit 134231 "ERM Bank Account"
         SWIFTCode: Record "SWIFT Code";
     begin
         // [FEATURE] [UT] [Bank Account]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Information
         CompanyInformation.Get;
@@ -347,7 +348,7 @@ codeunit 134231 "ERM Bank Account"
         SWIFTCode: Record "SWIFT Code";
     begin
         // [FEATURE] [UT] [Bank Account]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee
         LibraryHumanResource.CreateEmployee(Employee);
@@ -377,14 +378,58 @@ codeunit 134231 "ERM Bank Account"
           BankAccountBalance.BankAccBalanceLines.NetChange.Visible, 'BankAccBalanceLines.NetChange  must be visible');
         Assert.IsTrue(
           BankAccountBalance.BankAccBalanceLines."BankAcc.""Net Change (LCY)""".Visible, 'BankAccBalanceLines.NetChangeLCY must be visible');
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [HandlerFunctions('IBANConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure IBANWithoutPrefixValidation()
+    var
+        CompanyInformation: Record "Company Information";
+        IBANCode: Code[100];
+    begin
+        // [SCENARIO 337588] IBAN '60050777122' does not pass validation since it does not have country code as prefix
+        Initialize();
+
+        IBANCode := '60050777122';
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(IBANConfirmationMsg, IBANCode));
+        LibraryVariableStorage.Enqueue(false); // do not confirm invalid IBAN
+        asserterror CompanyInformation.CheckIBAN(IBANCode);
+
+        Assert.ExpectedError('');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('IBANConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure IBANWithPrefixValidation()
+    var
+        CompanyInformation: Record "Company Information";
+        IBANCode: Code[100];
+    begin
+        // [SCENARIO 337588] IBAN 'IT60050777122' does not pass checksum validation.
+        Initialize();
+
+        IBANCode := 'IT60050777122';
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(IBANConfirmationMsg, IBANCode));
+        LibraryVariableStorage.Enqueue(false); // do not confirm invalid IBAN
+        asserterror CompanyInformation.CheckIBAN(IBANCode);
+
+        Assert.ExpectedError('');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Account");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -398,7 +443,7 @@ codeunit 134231 "ERM Bank Account"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         exit(CompanyInformation.IBAN);
     end;
 
@@ -410,8 +455,9 @@ codeunit 134231 "ERM Bank Account"
     begin
         BankAccount.Init;
         OldIBAN := BankAccount.IBAN;
-        LibraryVariableStorage.Enqueue(ConfirmReply);
         IBANNumber := LibraryUtility.GenerateGUID;
+        LibraryVariableStorage.Enqueue(StrSubstNo(IBANConfirmationMsg, IBANNumber));
+        LibraryVariableStorage.Enqueue(ConfirmReply);
 
         if ConfirmReply then
             BankAccount.Validate(IBAN, IBANNumber)
@@ -420,7 +466,8 @@ codeunit 134231 "ERM Bank Account"
             IBANNumber := OldIBAN;
         end;
 
-        VerifyIBAN(BankAccount.IBAN, IBANNumber)
+        VerifyIBAN(BankAccount.IBAN, IBANNumber);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure AssignVendBankAccIBANnumber(ConfirmReply: Boolean)
@@ -431,8 +478,9 @@ codeunit 134231 "ERM Bank Account"
     begin
         VendBankAccount.Init;
         OldIBAN := VendBankAccount.IBAN;
-        LibraryVariableStorage.Enqueue(ConfirmReply);
         IBANNumber := LibraryUtility.GenerateGUID;
+        LibraryVariableStorage.Enqueue(StrSubstNo(IBANConfirmationMsg, IBANNumber));
+        LibraryVariableStorage.Enqueue(ConfirmReply);
 
         if ConfirmReply then
             VendBankAccount.Validate(IBAN, IBANNumber)
@@ -441,7 +489,8 @@ codeunit 134231 "ERM Bank Account"
             IBANNumber := OldIBAN;
         end;
 
-        VerifyIBAN(VendBankAccount.IBAN, IBANNumber)
+        VerifyIBAN(VendBankAccount.IBAN, IBANNumber);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CreateVendLedgEntry(VendorBankAccount: Record "Vendor Bank Account"; IsOpen: Boolean)
@@ -450,13 +499,13 @@ codeunit 134231 "ERM Bank Account"
         RecRef: RecordRef;
     begin
         with VendLedgEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(VendLedgEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Vendor No." := VendorBankAccount."Vendor No.";
             "Recipient Bank Account" := VendorBankAccount.Code;
             Open := IsOpen;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -466,19 +515,19 @@ codeunit 134231 "ERM Bank Account"
         RecRef: RecordRef;
     begin
         with CustLedgEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(CustLedgEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Customer No." := CustomerBankAccount."Customer No.";
             "Recipient Bank Account" := CustomerBankAccount.Code;
             Open := IsOpen;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CreateSWIFTCode(var SWIFTCode: Record "SWIFT Code")
     begin
-        SWIFTCode.Init;
+        SWIFTCode.Init();
         SWIFTCode.Validate(
           Code,
           CopyStr(LibraryUtility.GenerateRandomCode(SWIFTCode.FieldNo(Code), DATABASE::"SWIFT Code"),
@@ -496,7 +545,8 @@ codeunit 134231 "ERM Bank Account"
     [Scope('OnPrem')]
     procedure IBANConfirmHandler(Message: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

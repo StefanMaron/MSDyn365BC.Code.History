@@ -26,6 +26,8 @@ codeunit 5640 "Duplicate Depr. Book"
     var
         FADeprBook: Record "FA Depreciation Book";
     begin
+        OnBeforeGenJnlLineDuplicate(GenJnlLine, FAAmount2);
+
         with GenJnlLine do begin
             FAAmount := FAAmount2;
             DeprBook.Get("Depreciation Book Code");
@@ -220,6 +222,8 @@ codeunit 5640 "Duplicate Depr. Book"
             "FA Reclassification Entry" := FAJnlLine."FA Reclassification Entry";
             "Index Entry" := FAJnlLine."Index Entry"
         end;
+
+        OnAfterMakeGenJnlLine(GenJnlLine, FAJnlLine);
     end;
 
     local procedure MakeFAJnlLine(var FAJnlLine: Record "FA Journal Line"; var GenJnlLine: Record "Gen. Journal Line")
@@ -253,6 +257,8 @@ codeunit 5640 "Duplicate Depr. Book"
             "FA Reclassification Entry" := GenJnlLine."FA Reclassification Entry";
             "Index Entry" := GenJnlLine."Index Entry"
         end;
+
+        OnAfterMakeFAJnlLine(FAJnlLine, GenJnlLine);
     end;
 
     local procedure AdjustGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
@@ -291,6 +297,8 @@ codeunit 5640 "Duplicate Depr. Book"
             "FA Reclassification Entry" := GenJnlLine2."FA Reclassification Entry";
             "Index Entry" := GenJnlLine2."Index Entry"
         end;
+
+        OnAfterAdjustGenJnlLine(GenJnlLine, GenJnlLine2);
     end;
 
     local procedure AdjustFAJnlLine(var FAJnlLine: Record "FA Journal Line")
@@ -328,6 +336,8 @@ codeunit 5640 "Duplicate Depr. Book"
             "FA Reclassification Entry" := FAJnlLine2."FA Reclassification Entry";
             "Index Entry" := FAJnlLine2."Index Entry"
         end;
+
+        OnAfterAdjustFAJnlLine(FAJnlLine, FAJnlLine2);
     end;
 
     local procedure CalcExchangeRateAmount(DuplicateInGenJnl: Boolean; FANo: Code[20]; var GenJnlLine: Record "Gen. Journal Line"; var FAJnlLine: Record "FA Journal Line")
@@ -402,7 +412,7 @@ codeunit 5640 "Duplicate Depr. Book"
                 if DeprBook."Use Default Dimension" then
                     CreateDim(DATABASE::"Fixed Asset", "FA No.");
                 "Line No." := FAJnlLine2."Line No." + 10000;
-                OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl);
+                OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl, DeprBook);
                 Insert(true);
             end;
 
@@ -443,9 +453,29 @@ codeunit 5640 "Duplicate Depr. Book"
                 if DeprBook."Use Default Dimension" then
                     CreateDim(DATABASE::"Fixed Asset", "FA No.");
                 "Line No." := FAJnlLine2."Line No." + 10000;
-                OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl);
+                OnBeforeFAJnlLineInsert(GenJnlLine, FAJnlLine, GenJnlPosting, DuplicateInGenJnl, DeprBook);
                 Insert(true);
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAdjustGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalLine2: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAdjustFAJnlLine(var FAJournalLine: Record "FA Journal Line"; var FAJournalLine2: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMakeGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var FAJnlLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMakeFAJnlLine(var FAJnlLine: Record "FA Journal Line"; var GenJnlLine: Record "Gen. Journal Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -454,7 +484,12 @@ codeunit 5640 "Duplicate Depr. Book"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFAJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; var FAJournalLine: Record "FA Journal Line"; GenJnlPosting: Boolean; DuplicateInGenJnl: Boolean)
+    local procedure OnBeforeFAJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; var FAJournalLine: Record "FA Journal Line"; GenJnlPosting: Boolean; DuplicateInGenJnl: Boolean; DepreciationBook: Record "Depreciation Book")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJnlLineDuplicate(var GenJournalLine: Record "Gen. Journal Line"; var FAAmount: Decimal)
     begin
     end;
 }

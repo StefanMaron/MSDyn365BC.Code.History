@@ -97,6 +97,7 @@ xmlport 5876 "Import Phys. Invt. Recording"
                         PhysInvtRecordLine.Validate("Date Recorded", "Phys. Invt. Record Line"."Date Recorded");
                         PhysInvtRecordLine.Validate("Time Recorded", "Phys. Invt. Record Line"."Time Recorded");
                         PhysInvtRecordLine.Validate("Person Recorded", "Phys. Invt. Record Line"."Person Recorded");
+                        OnImportOnBeforePhysInvtRecordLineMofify(PhysInvtRecordLine);
                         PhysInvtRecordLine.Modify;
                     end else begin
                         PhysInvtRecordLine.Init;
@@ -118,6 +119,7 @@ xmlport 5876 "Import Phys. Invt. Recording"
                         PhysInvtRecordLine.Validate("Date Recorded", "Phys. Invt. Record Line"."Date Recorded");
                         PhysInvtRecordLine.Validate("Time Recorded", "Phys. Invt. Record Line"."Time Recorded");
                         PhysInvtRecordLine.Validate("Person Recorded", "Phys. Invt. Record Line"."Person Recorded");
+                        OnImportOnBeforePhysInvtRecordLineInsert(PhysInvtRecordLine);
                         PhysInvtRecordLine.Insert;
                     end;
                 end;
@@ -145,6 +147,16 @@ xmlport 5876 "Import Phys. Invt. Recording"
     procedure Set(NewPhysInvtRecordHeader: Record "Phys. Invt. Record Header")
     begin
         PhysInvtRecordHeader := NewPhysInvtRecordHeader;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnImportOnBeforePhysInvtRecordLineInsert(var PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnImportOnBeforePhysInvtRecordLineMofify(var PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    begin
     end;
 }
 

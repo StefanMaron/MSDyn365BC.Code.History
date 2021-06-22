@@ -1222,6 +1222,7 @@ codeunit 134103 "ERM Prepayment IV"
     procedure PurchasePrepaymentInvoiceACY()
     var
         PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
         VendorPostingGroup: Record "Vendor Posting Group";
         CurrencyCode: Code[10];
         PostedPurchaseDocumentNo: Code[20];
@@ -1236,12 +1237,16 @@ codeunit 134103 "ERM Prepayment IV"
         // 2. Exercise: Create and Post Purchase Prepayment Invoice with CurrencyExchangeRate.
         PrepaymentAmountInLCY :=
           CreateAndPostPurchasePrepaymentInvoiceWith100Pct(PurchaseHeader, CurrencyCode);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
         SimulatePurchaseRounding(PurchaseHeader."No.", PrepaymentAmountInLCY);
         VendorPostingGroup.Get(PurchaseHeader."Vendor Posting Group");
         PostedPurchaseDocumentNo := PostPurchaseDocument(PurchaseHeader, true, true);
 
         // 3. Verify: Verify ACY amount is zero on rounding G/L Entry after posting final Invoice.
         VerifyACYAmountOnGLEntry(PostedPurchaseDocumentNo, VendorPostingGroup."Invoice Rounding Account");
+
+        // Tear down.
+        UpdateSalesPrepmtAccount('', PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
     end;
 
     [Test]
@@ -1249,6 +1254,7 @@ codeunit 134103 "ERM Prepayment IV"
     procedure SalesPrepaymentInvoiceACY()
     var
         SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
         CustomerPostingGroup: Record "Customer Posting Group";
         CurrencyCode: Code[10];
         PostedSalesDocumentNo: Code[20];
@@ -1263,12 +1269,16 @@ codeunit 134103 "ERM Prepayment IV"
         // 2. Exercise: Create and Post Purchase Prepayment Invoice with CurrencyExchangeRate.
         PrepaymentAmountInLCY :=
           CreateAndPostSalesPrepaymentInvoiceWith100Pct(SalesHeader, CurrencyCode);
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
         SimulateSalesRounding(SalesHeader."No.", PrepaymentAmountInLCY);
         CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
         PostedSalesDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // 3. Verify: Verify ACY amount is zero on rounding G/L Entry after posting final Invoice.
         VerifyACYAmountOnGLEntry(PostedSalesDocumentNo, CustomerPostingGroup."Invoice Rounding Account");
+
+        // Tear down.
+        UpdateSalesPrepmtAccount('', SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
     end;
 
     [Test]
@@ -2773,6 +2783,92 @@ codeunit 134103 "ERM Prepayment IV"
         VerifyVATEntryBalanceWithCalcType(
           VendorNo, VATEntryType::Purchase, VATCalculationType::"Normal VAT",
           PurchaseHeader.Amount, PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeletingSalesInvoiceLineCreatedWithGetShipmentLinesWhenPremptPosted()
+    var
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineOrder: Record "Sales Line";
+        SalesLineInvoice: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+        SalesShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Order] [Invoice] [Get Shipment Lines]
+        // [SCENARIO 335549] You can delete sales invoice line created with "Get Shipment Line" for the shipped order with posted prepayment.
+        Initialize();
+
+        // [GIVEN] Sales order set up for 100% prepayment.
+        CreateSalesOrder(SalesHeaderOrder, SalesLineOrder, LibraryERM.CreateGLAccountWithSalesSetup());
+
+        // [GIVEN] Post the prepayment invoice.
+        PostSalesPrepaymentInvoice(SalesHeaderOrder);
+
+        // [GIVEN] Ship the sales order.
+        SalesShipmentNo := LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        // [GIVEN] Create a new sales invoice.
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeaderOrder."Sell-to Customer No.");
+
+        // [GIVEN] Create a sales invoice line from the shipped line via "Get Shipment Lines".
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentNo);
+        SalesGetShipment.SetSalesHeader(SalesHeaderInvoice);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+        SalesLineInvoice.SetRange("No.", SalesLineOrder."No.");
+        LibrarySales.FindFirstSalesLine(SalesLineInvoice, SalesHeaderInvoice);
+
+        // [WHEN] Delete the sales invoice line.
+        SalesLineInvoice.Delete(true);
+
+        // [THEN] The sales invoice line has been deleted.
+        Assert.RecordIsEmpty(SalesLineInvoice);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeletingPurchaseInvoiceLineCreatedWithGetReceiptLinesWhenPremptPosted()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseLineInvoice: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+        PurchRcptNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Order] [Invoice] [Get Receipt Lines]
+        // [SCENARIO 335549] You can delete purchase invoice line created with "Get Receipt Line" for the received order with posted prepayment.
+        Initialize();
+
+        // [GIVEN] Purchase order set up for 100% prepayment.
+        CreatePurchaseOrder(PurchaseHeaderOrder, PurchaseLineOrder, LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [GIVEN] Post the prepayment invoice.
+        PostPurchasePrepaymentInvoice(PurchaseHeaderOrder);
+
+        // [GIVEN] Receive the purchase order.
+        PurchRcptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        // [GIVEN] Create a new purchase invoice.
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+
+        // [GIVEN] Create a purchase invoice line from the received line via "Get Receipt Lines".
+        PurchRcptLine.SetRange("Document No.", PurchRcptNo);
+        PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+        PurchaseLineInvoice.SetRange("No.", PurchaseLineOrder."No.");
+        LibraryPurchase.FindFirstPurchLine(PurchaseLineInvoice, PurchaseHeaderInvoice);
+
+        // [WHEN] Delete the purchase invoice line.
+        PurchaseLineInvoice.Delete(true);
+
+        // [THEN] The purchase invoice line has been deleted.
+        Assert.RecordIsEmpty(PurchaseLineInvoice);
     end;
 
     local procedure Initialize()

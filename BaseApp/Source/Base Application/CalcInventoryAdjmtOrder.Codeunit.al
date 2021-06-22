@@ -18,6 +18,8 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         if not Item.Get(SourceInvtAdjmtEntryOrder."Item No.") then
             Item.Init;
 
+        OnCalculateOnAfterGetItem(Item, SourceInvtAdjmtEntryOrder);
+
         OutputQty := CalcOutputQty(SourceInvtAdjmtEntryOrder, false);
         CalcActualUsageCosts(SourceInvtAdjmtEntryOrder, OutputQty, ActInvtAdjmtEntryOrder);
         CalcActualVariances(SourceInvtAdjmtEntryOrder, OutputQty, ActInvtAdjmtEntryOrder);
@@ -244,6 +246,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                     ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
                     ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
                     ValueEntry.SetFilter("Entry Type", '<>%1', ValueEntry."Entry Type"::Rounding);
+                    ValueEntry.SetRange(Inventoriable, true);
                     ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)",
                       "Cost Amount (Non-Invtbl.)", "Cost Amount (Non-Invtbl.)(ACY)");
                     InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(-ValueEntry."Cost Amount (Actual)",
@@ -419,6 +422,11 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcActualMaterialCosts(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnAfterGetItem(var Item: Record Item; var SourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     begin
     end;
 }

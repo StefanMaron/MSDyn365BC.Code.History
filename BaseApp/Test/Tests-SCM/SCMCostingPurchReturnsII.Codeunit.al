@@ -879,8 +879,8 @@ codeunit 137032 "SCM Costing Purch Returns II"
                   TempPurchaseLine2.Quantity * TempPurchaseLine2."Direct Unit Cost";
             TempPurchaseLine2."Document Type"::"Return Order":
                 ExpectedPurchaseAmt :=
-                  Abs(TempPurchaseLine.Quantity * Abs(TempPurchaseLine."Direct Unit Cost") -
-                    TempPurchaseLine2.Quantity * TempPurchaseLine2."Direct Unit Cost");
+                  TempPurchaseLine.Quantity * TempPurchaseLine."Direct Unit Cost" -
+                  TempPurchaseLine2.Quantity * TempPurchaseLine2."Direct Unit Cost";
         end;
 
         Assert.AreNearlyEqual(ExpectedPurchaseAmt, ItemLedgerEntry."Purchase Amount (Actual)", 0.1, ErrPurchaseAmountMustBeSame);

@@ -1,6 +1,7 @@
 table 1313 "Activities Cue"
 {
     Caption = 'Activities Cue';
+    ReplicateData = false;
 
     fields
     {

@@ -41,6 +41,7 @@ table 471 "Job Queue Category"
         Insert;
     end;
 
+    [Obsolete('Job Queue Category should be defined by the feature that is creating the Job Queue Entry.')]
     procedure NotifyNowCode(): Code[10]
     begin
         exit(UpperCase('NotifyNow'));

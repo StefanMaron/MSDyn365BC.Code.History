@@ -226,101 +226,6 @@ codeunit 139026 "Test Job Queue"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerVerifyRequest')]
-    [Scope('OnPrem')]
-    procedure SendTwoInvoicesInJobQueueDeclineConfirmJobQueueNotScheduled()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        JobQueueEntry: Record "Job Queue Entry";
-        DocumentSendingProfile: Record "Document Sending Profile";
-    begin
-        // [FEATURE] [Email] [Document Sending Profile]
-        // [SCENARIO 262624] Susan tries to schedule several invoices to be sent to the customer in the job queue, sees a confirmation request and refuses to continue. No job is scheduled
-
-        Initialize;
-
-        // [GIVEN] Customer "C" with the default document sending profile. Documents are set to be sent via e-mail without setup dialog.
-        // [GIVEN] Two sales invoices for the customer "C"
-        CreateSalesInvoiceSendingSetup(SalesInvoiceHeader, DocumentSendingProfile);
-
-        // [GIVEN] Select both sales invoices and schedule a job queue task to send the invoices
-        LibraryVariableStorage.Enqueue(OneRecordWillBeSentQst);
-
-        // [WHEN] In the confirmation dialog, discard the task scheduling
-        LibraryVariableStorage.Enqueue(false);
-        SalesInvoiceHeader.SendProfile(DocumentSendingProfile);
-
-        // [THEN] Job queue entry is not crerated
-        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Document-Mailing");
-        Assert.RecordIsEmpty(JobQueueEntry);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandlerVerifyRequest')]
-    [Scope('OnPrem')]
-    procedure SendTwoInvoicesInJobQueueAcceptConfirmJobQueueScheduled()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        DocumentSendingProfile: Record "Document Sending Profile";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
-    begin
-        // [FEATURE] [Email] [Document Sending Profile]
-        // [SCENARIO 262624] Susan tries to schedule several invoices to be sent to the customer in the job queue, sees a confirmation request and accepts the reuqest. Document sending job is scheduled
-
-        Initialize;
-
-        // [GIVEN] Customer "C" with the default document sending profile. Documents are set to be sent via e-mail without setup dialog.
-        // [GIVEN] Two sales invoices for the customer "C"
-        CreateSalesInvoiceSendingSetup(SalesInvoiceHeader, DocumentSendingProfile);
-
-        // [GIVEN] Select both sales invoices and schedule a job queue task to send the invoices
-        BindSubscription(LibraryJobQueue);
-        LibraryVariableStorage.Enqueue(OneRecordWillBeSentQst);
-
-        // [WHEN] Accept the cofirmation request
-        LibraryVariableStorage.Enqueue(true);
-        SalesInvoiceHeader.SendProfile(DocumentSendingProfile);
-
-        // [THEN] Job queue entry is created
-        VerifyJobQueueEntry(SalesInvoiceHeader.RecordId);
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SendOneInvoiceInJobQueueJobQueueScheduledWithoutConfirm()
-    var
-        Customer: Record Customer;
-        SalesInvoiceHeader: array[2] of Record "Sales Invoice Header";
-        DocumentSendingProfile: Record "Document Sending Profile";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
-    begin
-        // [FEATURE] [Email] [Document Sending Profile]
-        // [SCENARIO 262624] Susan tries to schedule a single invoice to be sent to the customer in the job queue. Job is scheduled without a confirmation request.
-
-        Initialize;
-
-        // [GIVEN] Customer "C" with the default document sending profile. Documents are set to be sent via e-mail without setup dialog.
-        // [GIVEN] Two sales invoices for the customer "C"
-        CreateCustomerWithDocumentSendingSetup(Customer, DocumentSendingProfile);
-
-        MockSalesInvoiceHeaderWithEmailAddress(SalesInvoiceHeader[1], Customer);
-        MockSalesInvoiceHeaderWithEmailAddress(SalesInvoiceHeader[2], Customer);
-
-        // [WHEN] Select the first invoice and schedule a job queue task to send it
-        BindSubscription(LibraryJobQueue);
-        SalesInvoiceHeader[1].SetRecFilter;
-        SalesInvoiceHeader[1].SendProfile(DocumentSendingProfile);
-
-        // [THEN] Job queue entry is created without user confirmation
-        VerifyJobQueueEntry(SalesInvoiceHeader[1].RecordId);
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure ScheduleJobQueueForSalesDaily()
     var
@@ -492,32 +397,6 @@ codeunit 139026 "Test Job Queue"
         DeleteAllJobQueueEntries;
     end;
 
-    local procedure CreateCustomerWithDocumentSendingSetup(var Customer: Record Customer; var DocumentSendingProfile: Record "Document Sending Profile")
-    begin
-        MockSMTPMailServerSetup;
-        CreateDefaultDocumentSendingProfile(DocumentSendingProfile);
-        CreateCustomerWithEMailAndSendingProfile(Customer, DocumentSendingProfile.Code);
-    end;
-
-    local procedure CreateCustomerWithEMailAndSendingProfile(var Customer: Record Customer; DocSendingProfileCode: Code[20])
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
-        Customer.Validate("Document Sending Profile", DocSendingProfileCode);
-        Customer.Modify(true);
-    end;
-
-    local procedure CreateDefaultDocumentSendingProfile(var DocumentSendingProfile: Record "Document Sending Profile")
-    begin
-        with DocumentSendingProfile do begin
-            Validate(Code, LibraryUtility.GenerateGUID);
-            Validate(Printer, Printer::No);
-            Validate("E-Mail", "E-Mail"::"Yes (Use Default Settings)");
-            Validate("E-Mail Attachment", "E-Mail Attachment"::PDF);
-            Insert(true);
-        end;
-    end;
-
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; ObjectType: Integer; ObjectID: Integer; JQEntryStatus: Option)
     begin
         with JobQueueEntry do begin
@@ -551,23 +430,6 @@ codeunit 139026 "Test Job Queue"
             Modify(true);
             SetStatus(JQEntryStatus);
         end;
-    end;
-
-    local procedure CreateSalesInvoiceSendingSetup(var SalesInvoiceHeader: Record "Sales Invoice Header"; var DocumentSendingProfile: Record "Document Sending Profile")
-    var
-        Customer: Record Customer;
-        SalesInvoiceNos: array[2] of Code[20];
-    begin
-        CreateCustomerWithDocumentSendingSetup(Customer, DocumentSendingProfile);
-
-        MockSalesInvoiceHeaderWithEmailAddress(SalesInvoiceHeader, Customer);
-        SalesInvoiceNos[1] := SalesInvoiceHeader."No.";
-
-        MockSalesInvoiceHeaderWithEmailAddress(SalesInvoiceHeader, Customer);
-        SalesInvoiceNos[2] := SalesInvoiceHeader."No.";
-
-        SalesInvoiceHeader.SetFilter("No.", '%1|%2', SalesInvoiceNos[1], SalesInvoiceNos[2]);
-        SalesInvoiceHeader.FindFirst;
     end;
 
     local procedure CreateTimeBasedRecurringJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; StartingTime: Time; EndingTime: Time; Duration: Integer; EarliestStartingDatetTime: DateTime; JQEntryStatus: Option)
@@ -619,23 +481,6 @@ codeunit 139026 "Test Job Queue"
         JobQueueEntry.DeleteAll(true);
         JobQueueLogEntry.DeleteAll(true);
         Commit;
-    end;
-
-    local procedure MockSalesInvoiceHeaderWithEmailAddress(var SalesInvoiceHeader: Record "Sales Invoice Header"; Customer: Record Customer)
-    begin
-        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
-        SalesInvoiceHeader."Sell-to Customer No." := Customer."No.";
-        SalesInvoiceHeader."Bill-to Customer No." := Customer."No.";
-        SalesInvoiceHeader.Insert;
-    end;
-
-    local procedure MockSMTPMailServerSetup()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-    begin
-        SMTPMailSetup.DeleteAll;
-        SMTPMailSetup."SMTP Server" := LibraryUtility.GenerateGUID;
-        SMTPMailSetup.Insert;
     end;
 
     local procedure VerifyJobQueueEntry(ExpectedRecID: RecordID)

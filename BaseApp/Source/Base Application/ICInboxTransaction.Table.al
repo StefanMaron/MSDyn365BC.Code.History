@@ -128,6 +128,8 @@ table 418 "IC Inbox Transaction"
                     if ICInboxPurchHdr.FindFirst then
                         ICInboxPurchHdr.Delete(true);
                 end;
+            else
+                OnDeleteOnSourceTypeCase(Rec);
         end;
     end;
 
@@ -245,6 +247,11 @@ table 418 "IC Inbox Transaction"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInboxCheckAccept(var ICInboxTransaction: Record "IC Inbox Transaction"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnSourceTypeCase(var ICInboxTransaction: Record "IC Inbox Transaction")
     begin
     end;
 }

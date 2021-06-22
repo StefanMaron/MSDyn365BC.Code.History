@@ -80,15 +80,24 @@ codeunit 1530 "Request Page Parameters Helper"
     local procedure GetFiltersForTable(RecRef: RecordRef; FoundXmlNodeList: DotNet XmlNodeList): Boolean
     var
         FoundXmlNode: DotNet XmlNode;
+        XmlTableName: Text;
+        TableName: Text;
+        TableCaption: Text;
+        TableNumber: Text;
     begin
-        foreach FoundXmlNode in FoundXmlNodeList do
-            if (FoundXmlNode.Attributes.ItemOf('name').Value = GetTableCaption(RecRef.Number)) or
-               (FoundXmlNode.Attributes.ItemOf('name').Value = GetTableName(RecRef.Number)) or
-               (FoundXmlNode.Attributes.ItemOf('name').Value = StrSubstNo('Table%1', RecRef.Number))
+        foreach FoundXmlNode in FoundXmlNodeList do begin
+            XmlTableName := UpperCase(FoundXmlNode.Attributes.ItemOf('name').Value);
+            TableCaption := UpperCase(GetTableCaption(RecRef.Number()));
+            TableName := UpperCase(GetTableName(RecRef.Number()));
+            TableNumber := StrSubstNo('TABLE%1', RecRef.Number());
+            if (StrPos(TableCaption, XmlTableName) <> 0) or
+               (StrPos(TableName, XmlTableName) <> 0) or
+               (StrPos(TableNumber, XmlTableName) <> 0)
             then begin
                 RecRef.SetView(FoundXmlNode.InnerText);
                 exit(true);
             end;
+        end;
 
         exit(false);
     end;

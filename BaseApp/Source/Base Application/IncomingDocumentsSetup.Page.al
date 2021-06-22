@@ -43,6 +43,7 @@ page 191 "Incoming Documents Setup"
                 PromotedCategory = Process;
                 RunObject = Page "Incoming Document Approvers";
                 ToolTip = 'View or add incoming document approvers.';
+                Visible = false;
             }
         }
     }

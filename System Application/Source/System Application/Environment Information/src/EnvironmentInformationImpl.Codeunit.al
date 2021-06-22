@@ -94,8 +94,6 @@ codeunit 3702 "Environment Information Impl."
     end;
 
     local procedure GetAppId() AppId: Text
-    var
-        EnvironmentInformation: Codeunit "Environment Information";
     begin
         OnBeforeGetApplicationIdentifier(AppId);
         if AppId = '' then

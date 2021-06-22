@@ -319,7 +319,10 @@ table 454 "Approval Entry"
                     CustVendorNo := Customer."No.";
                     CustVendorName := Customer.Name;
                 end;
+            else
         end;
+
+        OnAfterGetCustVendorDetails(Rec, CustVendorNo, CustVendorName);
     end;
 
     procedure GetChangeRecordDetails() ChangeDetails: Text
@@ -369,6 +372,11 @@ table 454 "Approval Entry"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterGetRecordDetails(RecRef: RecordRef; ChangeRecordDetails: Text; var Details: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCustVendorDetails(var ApprovalEntry: Record "Approval Entry"; var CustVendorNo: Code[20]; var CustVendorName: Text[100])
     begin
     end;
 }

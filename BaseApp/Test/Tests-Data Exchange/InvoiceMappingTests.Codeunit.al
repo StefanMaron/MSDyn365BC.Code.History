@@ -20,6 +20,7 @@ codeunit 139158 "Invoice Mapping Tests"
         LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryIncomingDocuments: Codeunit "Library - Incoming Documents";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         ValueErr: Label 'Cannot find a value for field %1 of table %2 in table %3.', Comment = '%1 - field caption, %2 - table caption, %3 - table caption';
         NotValidOptionErr: Label 'not a valid option.';
@@ -737,6 +738,8 @@ codeunit 139158 "Invoice Mapping Tests"
         TextToAccountMapping: Record "Text-to-Account Mapping";
         PurchaseHeader: Record "Purchase Header";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Invoice Mapping Tests");
+
         IntermediateDataImport.DeleteAll;
         TextToAccountMapping.DeleteAll;
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
@@ -746,6 +749,7 @@ codeunit 139158 "Invoice Mapping Tests"
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Invoice Mapping Tests");
         CompanyInfo.Get;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
@@ -757,6 +761,7 @@ codeunit 139158 "Invoice Mapping Tests"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Invoice Mapping Tests");
     end;
 
     local procedure UpdateGLSetupLCYCode(CurrencyCode: Code[10])

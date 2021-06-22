@@ -8,7 +8,6 @@ table 3700 "Manual Setup"
     Access = Internal;
     Caption = 'Manual Setup';
     DataPerCompany = false;
-    Permissions = Tabledata "NAV App" = r;
 
     fields
     {

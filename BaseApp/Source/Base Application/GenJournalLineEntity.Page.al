@@ -893,6 +893,11 @@ page 6407 "Gen. Journal Line Entity"
         GlobalSystemId := SystemId;
     end;
 
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Clear(GlobalSystemId);
+    end;
+
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         if (not IsNullGuid(GlobalSystemId)) then begin

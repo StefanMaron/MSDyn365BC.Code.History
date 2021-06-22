@@ -569,6 +569,39 @@ codeunit 134207 "WF Supported Combinations Test"
         until WorkflowEvent.Next = 0;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowEventResponseCombinationExtended()
+    var
+        WorkflowEvent1: Record "Workflow Event";
+        WorkflowEvent2: Record "Workflow Event";
+        WorkflowResponse1: Record "Workflow Response";
+        WorkflowResponse2: Record "Workflow Response";
+        WFEventResponseCombinations: TestPage "WF Event/Response Combinations";
+    begin
+        // [FEATURE] [Field Length]
+        // [SCENARIO 334262] WF Event/Response Combinations page shows Captions of MAXIMUM(WorkflowResponse.Description) length.
+        Initialize;
+
+        // [GIVEN] Created two WorkflowEvents and WorkflowResponses, cross-connected
+        CreateAnyEvent(WorkflowEvent1);
+        CreateAnyEvent(WorkflowEvent2);
+        CreateLongResponse(WorkflowResponse1);
+        CreateLongResponse(WorkflowResponse2);
+
+        LibraryWorkflow.CreateResponsePredecessor(WorkflowResponse2."Function Name", WorkflowEvent1."Function Name");
+        LibraryWorkflow.CreateResponsePredecessor(WorkflowResponse1."Function Name", WorkflowEvent2."Function Name");
+
+        // [WHEN] WF Event/Response Combinations page
+        WFEventResponseCombinations.Trap;
+        PAGE.Run(PAGE::"WF Event/Response Combinations");
+
+        // [THEN] WF Event/Response Combinations shows full captions
+        WFEventResponseCombinations.MatrixResponseSubpage.First;
+        Assert.AreEqual(WorkflowResponse1.Description, WFEventResponseCombinations.MatrixResponseSubpage.Cell1.Caption, '');
+        Assert.AreEqual(WorkflowResponse2.Description, WFEventResponseCombinations.MatrixResponseSubpage.Cell2.Caption, '');
+    end;
+
     local procedure Initialize()
     var
         WorkflowEvent: Record "Workflow Event";
@@ -596,6 +629,15 @@ codeunit 134207 "WF Supported Combinations Test"
         WorkflowResponse.Init;
         WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowResponse.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
+        WorkflowResponse."Table ID" := DATABASE::"Purchase Header";
+        WorkflowResponse.Insert(true);
+    end;
+
+    local procedure CreateLongResponse(var WorkflowResponse: Record "Workflow Response")
+    begin
+        WorkflowResponse.Init;
+        WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
+        WorkflowResponse.Description := CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(WorkflowResponse.Description)), 1);
         WorkflowResponse."Table ID" := DATABASE::"Purchase Header";
         WorkflowResponse.Insert(true);
     end;

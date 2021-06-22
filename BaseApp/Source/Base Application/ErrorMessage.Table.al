@@ -314,7 +314,14 @@ table 700 "Error Message"
     end;
 
     procedure LogSimpleMessage(MessageType: Option; NewDescription: Text): Integer
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLogSimpleMessage(MessageType, NewDescription, IsHandled);
+        if IsHandled then
+            exit;
+
         AssertRecordTemporaryOrInContext;
 
         ID := FindLastMessageID + 1;
@@ -707,6 +714,11 @@ table 700 "Error Message"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLogMessage(RecRelatedVariant: Variant; FieldNumber: Integer; MessageType: Option; NewDescription: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLogSimpleMessage(MessageType: Option; NewDescription: Text; var IsHandled: Boolean)
     begin
     end;
 }

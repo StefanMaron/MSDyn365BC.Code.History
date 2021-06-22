@@ -298,6 +298,8 @@ table 1101 "Cost Journal Line"
         "Bal. Cost Type No." := CostJournalBatch."Bal. Cost Type No.";
         "Bal. Cost Center Code" := CostJournalBatch."Bal. Cost Center Code";
         "Bal. Cost Object Code" := CostJournalBatch."Bal. Cost Object Code";
+
+        OnAfterSetUpNewLine(Rec, CostJournalTemplate, CostJournalBatch, LastCostJournalLine);
     end;
 
     procedure EmptyLine(): Boolean
@@ -342,6 +344,11 @@ table 1101 "Cost Journal Line"
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpNewLine(var CostJournalLine: Record "Cost Journal Line"; CostJournalTemplate: Record "Cost Journal Template"; CostJournalBatch: Record "Cost Journal Batch"; LastCostJournalLine: Record "Cost Journal Line")
+    begin
     end;
 }
 

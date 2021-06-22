@@ -20,7 +20,6 @@ codeunit 230 GenJnlManagement
     procedure TemplateSelection(PageID: Integer; PageTemplate: Option General,Sales,Purchases,"Cash Receipts",Payments,Assets,Intercompany,Jobs; RecurringJnl: Boolean; var GenJnlLine: Record "Gen. Journal Line"; var JnlSelected: Boolean)
     var
         GenJnlTemplate: Record "Gen. Journal Template";
-        GenJnlTemplateName: Code[10];
     begin
         JnlSelected := true;
 
@@ -31,32 +30,8 @@ codeunit 230 GenJnlManagement
             GenJnlTemplate.SetRange(Type, PageTemplate);
         OnTemplateSelectionSetFilter(GenJnlTemplate, PageTemplate, RecurringJnl);
 
-        case GenJnlTemplate.Count of
-            0:
-                begin
-                    GenJnlTemplate.Init;
-                    GenJnlTemplate.Type := PageTemplate;
-                    GenJnlTemplate.Recurring := RecurringJnl;
-                    if not RecurringJnl then begin
-                        GenJnlTemplateName := Format(GenJnlTemplate.Type, MaxStrLen(GenJnlTemplate.Name));
-                        GenJnlTemplate.Name := GetAvailableGeneralJournalTemplateName(GenJnlTemplateName);
-                        if PageTemplate = PageTemplate::Assets then
-                            GenJnlTemplate.Description := Text000
-                        else
-                            GenJnlTemplate.Description := StrSubstNo(Text001, GenJnlTemplate.Type);
-                    end else begin
-                        GenJnlTemplate.Name := Text002;
-                        GenJnlTemplate.Description := Text003;
-                    end;
-                    GenJnlTemplate.Validate(Type);
-                    GenJnlTemplate.Insert;
-                    Commit;
-                end;
-            1:
-                GenJnlTemplate.FindFirst;
-            else
-                JnlSelected := PAGE.RunModal(0, GenJnlTemplate) = ACTION::LookupOK;
-        end;
+        JnlSelected := FindTemplateFromSelection(GenJnlTemplate, PageTemplate, RecurringJnl);
+
         if JnlSelected then begin
             GenJnlLine.FilterGroup := 2;
             GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
@@ -66,6 +41,8 @@ codeunit 230 GenJnlManagement
                 PAGE.Run(GenJnlTemplate."Page ID", GenJnlLine);
             end;
         end;
+
+        OnAfterTemplateSelection(GenJnlTemplate, GenJnlLine, JnlSelected, OpenFromBatch, RecurringJnl);
     end;
 
     procedure TemplateSelectionFromBatch(var GenJnlBatch: Record "Gen. Journal Batch")
@@ -163,7 +140,8 @@ codeunit 230 GenJnlManagement
         exit(GenJnlBatch."No. Series" = '');
     end;
 
-    local procedure CheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10])
+    [Scope('OnPrem')]
+    procedure CheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10])
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
@@ -357,6 +335,8 @@ codeunit 230 GenJnlManagement
                 end;
         end;
 
+        OnAfterGetAccounts(GenJnlLine, AccName, BalAccName);
+
         LastGenJnlLine := GenJnlLine;
     end;
 
@@ -394,7 +374,7 @@ codeunit 230 GenJnlManagement
         end;
     end;
 
-    local procedure GetAvailableGeneralJournalTemplateName(TemplateName: Code[10]): Code[10]
+    procedure GetAvailableGeneralJournalTemplateName(TemplateName: Code[10]): Code[10]
     var
         GenJnlTemplate: Record "Gen. Journal Template";
         PotentialTemplateName: Code[10];
@@ -419,8 +399,58 @@ codeunit 230 GenJnlManagement
         end;
     end;
 
+    local procedure FindTemplateFromSelection(var GenJnlTemplate: Record "Gen. Journal Template"; TemplateType: Option; RecurringJnl: Boolean) TemplateSelected: Boolean
+    begin
+        TemplateSelected := true;
+        case GenJnlTemplate.Count of
+            0:
+                begin
+                    GenJnlTemplate.Init;
+                    GenJnlTemplate.Type := TemplateType;
+                    GenJnlTemplate.Recurring := RecurringJnl;
+                    if not RecurringJnl then begin
+                        GenJnlTemplate.Name :=
+                          GetAvailableGeneralJournalTemplateName(Format(GenJnlTemplate.Type, MaxStrLen(GenJnlTemplate.Name)));
+                        if TemplateType = GenJnlTemplate.Type::Assets then
+                            GenJnlTemplate.Description := Text000
+                        else
+                            GenJnlTemplate.Description := StrSubstNo(Text001, GenJnlTemplate.Type);
+                    end else begin
+                        GenJnlTemplate.Name := Text002;
+                        GenJnlTemplate.Description := Text003;
+                    end;
+                    GenJnlTemplate.Validate(Type);
+                    GenJnlTemplate.Insert;
+                    Commit;
+                end;
+            1:
+                GenJnlTemplate.FindFirst;
+            else
+                TemplateSelected := PAGE.RunModal(0, GenJnlTemplate) = ACTION::LookupOK;
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure TemplateSelectionSimple(var GenJnlTemplate: Record "Gen. Journal Template"; TemplateType: Option; RecurringJnl: Boolean): Boolean
+    begin
+        GenJnlTemplate.Reset;
+        GenJnlTemplate.SetRange(Type, TemplateType);
+        GenJnlTemplate.SetRange(Recurring, RecurringJnl);
+        exit(FindTemplateFromSelection(GenJnlTemplate, TemplateType, RecurringJnl));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAccounts(var GenJournalLine: Record "Gen. Journal Line"; var AccName: Text[100]; var BalAccName: Text[100])
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetName(var GenJournalLine: Record "Gen. Journal Line"; CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTemplateSelection(var GenJnlTemplate: Record "Gen. Journal Template"; var GenJnlLine: Record "Gen. Journal Line"; var JnlSelected: Boolean; var OpenFromBatch: Boolean; RecurringJnl: Boolean)
     begin
     end;
 

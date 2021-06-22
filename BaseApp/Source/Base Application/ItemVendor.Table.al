@@ -59,6 +59,9 @@ table 99 "Item Vendor"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Vendor No.", "Item No.", "Variant Code")
+        {
+        }
     }
 
     trigger OnDelete()

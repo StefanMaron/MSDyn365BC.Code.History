@@ -93,6 +93,9 @@ table 7012 "Purchase Price"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Item No.", "Vendor No.", "Starting Date", "Currency Code", "Variant Code", "Unit of Measure Code", "Minimum Quantity")
+        {
+        }
     }
 
     trigger OnInsert()

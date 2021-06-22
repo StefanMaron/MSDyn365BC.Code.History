@@ -1339,7 +1339,7 @@
   </Item>
   <Item ItemId=";Codeunit 1438280909 - NamedType 1711373790" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The password that you entered does not meet the minimum requirements. It must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number.]]></Val>
+      <Val><![CDATA[The password that you entered does not meet the minimum requirements. It must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

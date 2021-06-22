@@ -850,7 +850,7 @@
                         ActualConsumpQty :=
                           ProdOrderComp."Act. Consumption (Qty)" / "Qty. per Unit of Measure";
                         if Item."Rounding Precision" > 0 then
-                            ActualConsumpQty := Round(ActualConsumpQty, Item."Rounding Precision", '>')
+                            ActualConsumpQty := UOMMgt.RoundToItemRndPrecision(ActualConsumpQty, Item."Rounding Precision")
                         else
                             ActualConsumpQty := Round(ActualConsumpQty, UOMMgt.QtyRndPrecision);
                     end;
@@ -870,8 +870,8 @@
                             ActualOutputQty := ActualOutputQty / "Qty. per Unit of Measure";
                             ActualScrapQty := ActualScrapQty / "Qty. per Unit of Measure";
                             if Item."Rounding Precision" > 0 then begin
-                                ActualOutputQty := Round(ActualOutputQty, Item."Rounding Precision", '>');
-                                ActualScrapQty := Round(ActualScrapQty, Item."Rounding Precision", '>');
+                                ActualOutputQty := UOMMgt.RoundToItemRndPrecision(ActualOutputQty, Item."Rounding Precision");
+                                ActualScrapQty := UOMMgt.RoundToItemRndPrecision(ActualScrapQty, Item."Rounding Precision");
                             end else begin
                                 ActualOutputQty := Round(ActualOutputQty, UOMMgt.QtyRndPrecision);
                                 ActualScrapQty := Round(ActualScrapQty, UOMMgt.QtyRndPrecision);

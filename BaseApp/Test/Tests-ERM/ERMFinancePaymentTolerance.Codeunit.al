@@ -14,6 +14,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -1871,6 +1872,330 @@ codeunit 134024 "ERM Finance Payment Tolerance"
           GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Appln. Rounding", -Currency."Appln. Rounding Precision");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure OverPaymentToInvoicesRemainingPmtDiscAmountZeroSales()
+    var
+        Customer: Record Customer;
+        CustLedgerEntryPayment: Record "Cust. Ledger Entry";
+        CustLedgerEntryInvoice: Record "Cust. Ledger Entry";
+        GenJournalLinePayment: Record "Gen. Journal Line";
+        GenJournalLineInvoice: Record "Gen. Journal Line";
+        PaymentTerms: Record "Payment Terms";
+        InvoiceAmount: array[3] of Decimal;
+        PaymentAmount: Decimal;
+        AmountToApplyInvoice: array[3] of Decimal;
+        PaymentTolerancePercent: Decimal;
+        PaymentDiscountDayRange: Integer;
+        Index: Integer;
+        PostingDateInvoice: array[3] of Date;
+        InvoiceNo: array[3] of Code[20];
+    begin
+        // [FEATURE] [Sales] [Payment] [Invoice]
+        // [SCENARIO 333081] CLE is not closed when it is applied to payment when its "Amount to Apply" < "Remaining Amount" and "Remaining Pmt. Disc. Possible" = 0
+        // See the scenario on refered TFS
+        Initialize;
+        PaymentDiscountDayRange := LibraryRandom.RandIntInRange(5, 10);
+        PaymentTolerancePercent := LibraryRandom.RandDecInRange(2, 5, 2);
+        CreatePaymentTerms(PaymentTerms, PaymentDiscountDayRange, PaymentTolerancePercent);
+        CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
+        WarningsInGeneralLedgerSetup(false, false);
+
+        PostingDateInvoice[1] := CalcDate('<-CY>', WorkDate);
+        PostingDateInvoice[2] := CalcDate('<-' + Format(PaymentDiscountDayRange + 1) + 'D>', WorkDate);
+        PostingDateInvoice[3] := CalcDate('<' + Format(PaymentDiscountDayRange + 3) + 'D>', WorkDate);
+
+        PaymentAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+        InvoiceAmount[1] := PaymentAmount;
+        for Index := 2 to ArrayLen(InvoiceAmount) do
+            InvoiceAmount[Index] := Round(PaymentAmount / 3);
+
+        AmountToApplyInvoice[1] := Round(PaymentAmount / 3);
+        AmountToApplyInvoice[2] := Round(InvoiceAmount[2] * (1 - PaymentTolerancePercent / 100));
+        AmountToApplyInvoice[3] := InvoiceAmount[3];
+
+        RunChangePaymentTolerance('', PaymentTolerancePercent, InvoiceAmount[3]);
+
+        for Index := 1 to ArrayLen(InvoiceAmount) do begin
+            Clear(GenJournalLineInvoice);
+            CreateGenJournalLine(
+              GenJournalLineInvoice, Customer."No.", '',
+              GenJournalLineInvoice."Document Type"::Invoice, InvoiceAmount[Index], PostingDateInvoice[Index]);
+            LibraryERM.PostGeneralJnlLine(GenJournalLineInvoice);
+            InvoiceNo[Index] := GenJournalLineInvoice."Document No.";
+        end;
+
+        CreateGenJournalLine(
+          GenJournalLinePayment, Customer."No.", '',
+          GenJournalLinePayment."Document Type"::Payment, -PaymentAmount, WorkDate);
+        LibraryERM.PostGeneralJnlLine(GenJournalLinePayment);
+
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryPayment, CustLedgerEntryPayment."Document Type"::Payment, GenJournalLinePayment."Document No.");
+        CustLedgerEntryPayment.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntryPayment, CustLedgerEntryPayment."Remaining Amount");
+
+        for Index := 1 to ArrayLen(InvoiceAmount) do begin
+            LibraryERM.FindCustomerLedgerEntry(
+              CustLedgerEntryInvoice, CustLedgerEntryInvoice."Document Type"::Invoice, InvoiceNo[Index]);
+            CustLedgerEntryInvoice.CalcFields("Remaining Amount");
+            CustLedgerEntryInvoice.Validate("Remaining Pmt. Disc. Possible", 0);
+            CustLedgerEntryInvoice.Validate("Amount to Apply", AmountToApplyInvoice[Index]);
+            CustLedgerEntryInvoice.Validate("Applies-to ID", UserId);
+            CustLedgerEntryInvoice.Modify(true);
+        end;
+
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntryPayment);
+
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryInvoice, CustLedgerEntryInvoice."Document Type"::Invoice, InvoiceNo[2]);
+        CustLedgerEntryInvoice.TestField(Open, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure OverPaymentToInvoicesRemainingPmtDiscAmountZeroPurchase()
+    var
+        Vendor: Record Vendor;
+        VendorLedgerEntryPayment: Record "Vendor Ledger Entry";
+        VendorLedgerEntryInvoice: Record "Vendor Ledger Entry";
+        GenJournalLinePayment: Record "Gen. Journal Line";
+        GenJournalLineInvoice: Record "Gen. Journal Line";
+        PaymentTerms: Record "Payment Terms";
+        InvoiceAmount: array[3] of Decimal;
+        PaymentAmount: Decimal;
+        AmountToApplyInvoice: array[3] of Decimal;
+        PaymentTolerancePercent: Decimal;
+        PaymentDiscountDayRange: Integer;
+        Index: Integer;
+        PostingDateInvoice: array[3] of Date;
+        InvoiceNo: array[3] of Code[20];
+    begin
+        // [FEATURE] [Purchase] [Payment] [Invoice]
+        // [SCENARIO 333081] VLE is not closed when it is applied to payment when its "Amount to Apply" < "Remaining Amount" and "Remaining Pmt. Disc. Possible" = 0
+        // See the scenario on refered TFS
+        Initialize;
+        PaymentDiscountDayRange := LibraryRandom.RandIntInRange(5, 10);
+        PaymentTolerancePercent := LibraryRandom.RandDecInRange(2, 5, 2);
+        CreatePaymentTerms(PaymentTerms, PaymentDiscountDayRange, PaymentTolerancePercent);
+        CreateVendorWithCurrency(Vendor, PaymentTerms.Code);
+        WarningsInGeneralLedgerSetup(false, false);
+
+        PostingDateInvoice[1] := CalcDate('<-CY>', WorkDate);
+        PostingDateInvoice[2] := CalcDate('<-' + Format(PaymentDiscountDayRange + 1) + 'D>', WorkDate);
+        PostingDateInvoice[3] := CalcDate('<' + Format(PaymentDiscountDayRange + 3) + 'D>', WorkDate);
+
+        PaymentAmount := -LibraryRandom.RandDecInRange(100, 200, 2);
+        InvoiceAmount[1] := PaymentAmount;
+        for Index := 2 to ArrayLen(InvoiceAmount) do
+            InvoiceAmount[Index] := Round(PaymentAmount / 3);
+
+        AmountToApplyInvoice[1] := Round(PaymentAmount / 3);
+        AmountToApplyInvoice[2] := Round(InvoiceAmount[2] * (1 - PaymentTolerancePercent / 100));
+        AmountToApplyInvoice[3] := InvoiceAmount[3];
+
+        RunChangePaymentTolerance('', PaymentTolerancePercent, InvoiceAmount[3]);
+
+        for Index := 1 to ArrayLen(InvoiceAmount) do begin
+            Clear(GenJournalLineInvoice);
+            CreateGenJournalLineVendor(
+              GenJournalLineInvoice, Vendor."No.", '',
+              GenJournalLineInvoice."Document Type"::Invoice, InvoiceAmount[Index], PostingDateInvoice[Index]);
+            LibraryERM.PostGeneralJnlLine(GenJournalLineInvoice);
+            InvoiceNo[Index] := GenJournalLineInvoice."Document No.";
+        end;
+
+        CreateGenJournalLineVendor(
+          GenJournalLinePayment, Vendor."No.", '',
+          GenJournalLinePayment."Document Type"::Payment, -PaymentAmount, WorkDate);
+        LibraryERM.PostGeneralJnlLine(GenJournalLinePayment);
+
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntryPayment, VendorLedgerEntryPayment."Document Type"::Payment, GenJournalLinePayment."Document No.");
+        VendorLedgerEntryPayment.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntryPayment, VendorLedgerEntryPayment."Remaining Amount");
+
+        for Index := 1 to ArrayLen(InvoiceAmount) do begin
+            LibraryERM.FindVendorLedgerEntry(
+              VendorLedgerEntryInvoice, VendorLedgerEntryInvoice."Document Type"::Invoice, InvoiceNo[Index]);
+            VendorLedgerEntryInvoice.CalcFields("Remaining Amount");
+            VendorLedgerEntryInvoice.Validate("Remaining Pmt. Disc. Possible", 0);
+            VendorLedgerEntryInvoice.Validate("Amount to Apply", AmountToApplyInvoice[Index]);
+            VendorLedgerEntryInvoice.Validate("Applies-to ID", UserId);
+            VendorLedgerEntryInvoice.Modify(true);
+        end;
+
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntryPayment);
+
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntryInvoice, VendorLedgerEntryInvoice."Document Type"::Invoice, InvoiceNo[2]);
+        VendorLedgerEntryInvoice.TestField(Open, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure OverRefundToCreditMemosRemainingPmtDiscAmountZeroSales()
+    var
+        Customer: Record Customer;
+        CustLedgerEntryRefund: Record "Cust. Ledger Entry";
+        CustLedgerEntryCreditMemo: Record "Cust. Ledger Entry";
+        GenJournalLineRefund: Record "Gen. Journal Line";
+        GenJournalLineCreditMemo: Record "Gen. Journal Line";
+        PaymentTerms: Record "Payment Terms";
+        CreditMemoAmount: array[3] of Decimal;
+        RefundAmount: Decimal;
+        AmountToApplyCreditMemo: array[3] of Decimal;
+        PaymentTolerancePercent: Decimal;
+        PaymentDiscountDayRange: Integer;
+        Index: Integer;
+        PostingDateCreditMemo: array[3] of Date;
+        CreditMemoNo: array[3] of Code[20];
+    begin
+        // [FEATURE] [Sales] [Refund] [Credit Memo]
+        // [SCENARIO 333081] CLE is not closed when it is applied to payment when its "Amount to Apply" < "Remaining Amount" and "Remaining Pmt. Disc. Possible" = 0
+        // See the scenario on refered TFS
+        Initialize;
+        PaymentDiscountDayRange := LibraryRandom.RandIntInRange(5, 10);
+        PaymentTolerancePercent := LibraryRandom.RandDecInRange(2, 5, 2);
+        CreatePaymentTerms(PaymentTerms, PaymentDiscountDayRange, PaymentTolerancePercent);
+        CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
+        WarningsInGeneralLedgerSetup(false, false);
+
+        PostingDateCreditMemo[1] := CalcDate('<-CY>', WorkDate);
+        PostingDateCreditMemo[2] := CalcDate('<-' + Format(PaymentDiscountDayRange + 1) + 'D>', WorkDate);
+        PostingDateCreditMemo[3] := CalcDate('<' + Format(PaymentDiscountDayRange + 3) + 'D>', WorkDate);
+
+        RefundAmount := -LibraryRandom.RandDecInRange(100, 200, 2);
+        CreditMemoAmount[1] := RefundAmount;
+        for Index := 2 to ArrayLen(CreditMemoAmount) do
+            CreditMemoAmount[Index] := Round(RefundAmount / 3);
+
+        AmountToApplyCreditMemo[1] := Round(RefundAmount / 3);
+        AmountToApplyCreditMemo[2] := Round(CreditMemoAmount[2] * (1 - PaymentTolerancePercent / 100));
+        AmountToApplyCreditMemo[3] := CreditMemoAmount[3];
+
+        RunChangePaymentTolerance('', PaymentTolerancePercent, CreditMemoAmount[3]);
+
+        for Index := 1 to ArrayLen(CreditMemoAmount) do begin
+            Clear(GenJournalLineCreditMemo);
+            CreateGenJournalLine(
+              GenJournalLineCreditMemo, Customer."No.", '',
+              GenJournalLineCreditMemo."Document Type"::"Credit Memo", CreditMemoAmount[Index], PostingDateCreditMemo[Index]);
+            LibraryERM.PostGeneralJnlLine(GenJournalLineCreditMemo);
+            CreditMemoNo[Index] := GenJournalLineCreditMemo."Document No.";
+        end;
+
+        CreateGenJournalLine(
+          GenJournalLineRefund, Customer."No.", '',
+          GenJournalLineRefund."Document Type"::Refund, -RefundAmount, WorkDate);
+        LibraryERM.PostGeneralJnlLine(GenJournalLineRefund);
+
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryRefund, CustLedgerEntryRefund."Document Type"::Refund, GenJournalLineRefund."Document No.");
+        CustLedgerEntryRefund.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntryRefund, CustLedgerEntryRefund."Remaining Amount");
+
+        for Index := 1 to ArrayLen(CreditMemoAmount) do begin
+            LibraryERM.FindCustomerLedgerEntry(
+              CustLedgerEntryCreditMemo, CustLedgerEntryCreditMemo."Document Type"::"Credit Memo", CreditMemoNo[Index]);
+            CustLedgerEntryCreditMemo.CalcFields("Remaining Amount");
+            CustLedgerEntryCreditMemo.Validate("Remaining Pmt. Disc. Possible", 0);
+            CustLedgerEntryCreditMemo.Validate("Amount to Apply", AmountToApplyCreditMemo[Index]);
+            CustLedgerEntryCreditMemo.Validate("Applies-to ID", UserId);
+            CustLedgerEntryCreditMemo.Modify(true);
+        end;
+
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntryRefund);
+
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryCreditMemo, CustLedgerEntryCreditMemo."Document Type"::"Credit Memo", CreditMemoNo[2]);
+        CustLedgerEntryCreditMemo.TestField(Open, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure OverRefundToCreditMemosRemainingPmtDiscAmountZeroPurchase()
+    var
+        Vendor: Record Vendor;
+        VendorLedgerEntryRefund: Record "Vendor Ledger Entry";
+        VendorLedgerEntryCreditMemo: Record "Vendor Ledger Entry";
+        GenJournalLineRefund: Record "Gen. Journal Line";
+        GenJournalLineCreditMemo: Record "Gen. Journal Line";
+        PaymentTerms: Record "Payment Terms";
+        CreditMemoAmount: array[3] of Decimal;
+        RefundAmount: Decimal;
+        AmountToApplyCreditMemo: array[3] of Decimal;
+        PaymentTolerancePercent: Decimal;
+        PaymentDiscountDayRange: Integer;
+        Index: Integer;
+        PostingDateCreditMemo: array[3] of Date;
+        CreditMemoNo: array[3] of Code[20];
+    begin
+        // [FEATURE] [Purchase] [Refund] [Credit Memo]
+        // [SCENARIO 333081] Credit Memo VLE is not closed when it is applied to refund when its "Amount to Apply" < "Remaining Amount" and "Remaining Pmt. Disc. Possible" = 0
+        // See the scenario on refered TFS
+        Initialize;
+        PaymentDiscountDayRange := LibraryRandom.RandIntInRange(5, 10);
+        PaymentTolerancePercent := LibraryRandom.RandDecInRange(2, 5, 2);
+        CreatePaymentTerms(PaymentTerms, PaymentDiscountDayRange, PaymentTolerancePercent);
+        CreateVendorWithCurrency(Vendor, PaymentTerms.Code);
+        WarningsInGeneralLedgerSetup(false, false);
+
+        PostingDateCreditMemo[1] := CalcDate('<-CY>', WorkDate);
+        PostingDateCreditMemo[2] := CalcDate('<-' + Format(PaymentDiscountDayRange + 1) + 'D>', WorkDate);
+        PostingDateCreditMemo[3] := CalcDate('<' + Format(PaymentDiscountDayRange + 3) + 'D>', WorkDate);
+
+        RefundAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+        CreditMemoAmount[1] := RefundAmount;
+        for Index := 2 to ArrayLen(CreditMemoAmount) do
+            CreditMemoAmount[Index] := Round(RefundAmount / 3);
+
+        AmountToApplyCreditMemo[1] := Round(RefundAmount / 3);
+        AmountToApplyCreditMemo[2] := Round(CreditMemoAmount[2] * (1 - PaymentTolerancePercent / 100));
+        AmountToApplyCreditMemo[3] := CreditMemoAmount[3];
+
+        RunChangePaymentTolerance('', PaymentTolerancePercent, CreditMemoAmount[3]);
+
+        for Index := 1 to ArrayLen(CreditMemoAmount) do begin
+            Clear(GenJournalLineCreditMemo);
+            CreateGenJournalLineVendor(
+              GenJournalLineCreditMemo, Vendor."No.", '',
+              GenJournalLineCreditMemo."Document Type"::"Credit Memo", CreditMemoAmount[Index], PostingDateCreditMemo[Index]);
+            LibraryERM.PostGeneralJnlLine(GenJournalLineCreditMemo);
+            CreditMemoNo[Index] := GenJournalLineCreditMemo."Document No.";
+        end;
+
+        CreateGenJournalLineVendor(
+          GenJournalLineRefund, Vendor."No.", '',
+          GenJournalLineRefund."Document Type"::Refund, -RefundAmount, WorkDate);
+        LibraryERM.PostGeneralJnlLine(GenJournalLineRefund);
+
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntryRefund, VendorLedgerEntryRefund."Document Type"::Refund, GenJournalLineRefund."Document No.");
+        VendorLedgerEntryRefund.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntryRefund, VendorLedgerEntryRefund."Remaining Amount");
+
+        for Index := 1 to ArrayLen(CreditMemoAmount) do begin
+            LibraryERM.FindVendorLedgerEntry(
+              VendorLedgerEntryCreditMemo, VendorLedgerEntryCreditMemo."Document Type"::"Credit Memo", CreditMemoNo[Index]);
+            VendorLedgerEntryCreditMemo.CalcFields("Remaining Amount");
+            VendorLedgerEntryCreditMemo.Validate("Remaining Pmt. Disc. Possible", 0);
+            VendorLedgerEntryCreditMemo.Validate("Amount to Apply", AmountToApplyCreditMemo[Index]);
+            VendorLedgerEntryCreditMemo.Validate("Applies-to ID", UserId);
+            VendorLedgerEntryCreditMemo.Modify(true);
+        end;
+
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntryRefund);
+
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntryCreditMemo, VendorLedgerEntryCreditMemo."Document Type"::"Credit Memo", CreditMemoNo[2]);
+        VendorLedgerEntryCreditMemo.TestField(Open, true);
+    end;
+
     [Normal]
     local procedure AmountToApplyInCustomerLedger(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Option)
     begin
@@ -2015,6 +2340,18 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         Customer.Modify(true);
     end;
 
+    local procedure CreateVendorWithCurrency(var Vendor: Record Vendor; PaymentTermsCode: Code[10]): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Payment Terms Code", PaymentTermsCode);
+        Vendor.Modify(true);
+        CreateCurrencyWithSetup(Currency);
+        RunChangePaymentTolerance(Currency.Code, LibraryRandom.RandDec(5, 2), LibraryRandom.RandDec(10, 2));
+        exit(Currency.Code);
+    end;
+
     [Normal]
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     var
@@ -2039,6 +2376,22 @@ codeunit 134024 "ERM Finance Payment Tolerance"
           GenJournalLine,
           GenJournalBatch."Journal Template Name",
           GenJournalBatch.Name, DocumentType, GenJournalLine."Account Type"::Customer, AccountNo, Amount);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateGenJournalLineVendor(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option; Amount: Decimal; PostingDate: Date)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        CreateGeneralJournalBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine,
+          GenJournalBatch."Journal Template Name",
+          GenJournalBatch.Name, DocumentType, GenJournalLine."Account Type"::Vendor, AccountNo, Amount);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");

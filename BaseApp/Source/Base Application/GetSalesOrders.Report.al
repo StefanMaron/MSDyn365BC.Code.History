@@ -12,7 +12,14 @@ report 698 "Get Sales Orders"
             RequestFilterHeading = 'Sales Order Line';
 
             trigger OnAfterGetRecord()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeOnAfterGetRecord("Sales Line", IsHandled);
+                if IsHandled then
+                    CurrReport.Skip();
+
                 if ("Purchasing Code" = '') and (SpecOrder <> 1) then
                     if "Drop Shipment" then begin
                         LineCount := LineCount + 1;
@@ -195,6 +202,11 @@ report 698 "Get Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertReqWkshLine(var ReqLine: Record "Requisition Line"; SalesLine: Record "Sales Line"; SpecOrder: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterGetRecord(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

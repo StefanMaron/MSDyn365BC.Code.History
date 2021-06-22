@@ -15,6 +15,8 @@ codeunit 134314 "WF Notification Schedule Tests"
         WrongFieldErr: Label 'The notification schedule contains a wrong field value.';
         LibraryJobQueue: Codeunit "Library - Job Queue";
         WFNotificationScheduleTests: Codeunit "WF Notification Schedule Tests";
+        NotifyNowLbl: Label 'NOTIFYNOW', Locked = true;
+        NotifyLaterLbl: Label 'NOTIFYLTR', Locked = true;
         IsInitialized: Boolean;
 
     [Test]
@@ -47,7 +49,6 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationSchedule: Record "Notification Schedule";
         NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
-        JobQueueCategory: Record "Job Queue Category";
         EarliestDateTimeOfExecution: DateTime;
         LatestDateTimeOfExecution: DateTime;
     begin
@@ -64,7 +65,7 @@ codeunit 134314 "WF Notification Schedule Tests"
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
         Assert.AreEqual(1509, JobQueueEntry."Object ID to Run", 'Invalid Dispatcher');
-        Assert.AreEqual(JobQueueCategory.NotifyNowCode, JobQueueEntry."Job Queue Category Code", 'Category should be instant');
+        Assert.AreEqual(NotifyNowLbl, JobQueueEntry."Job Queue Category Code", 'Category should be instant');
         Assert.IsTrue((JobQueueEntry."Earliest Start Date/Time" - EarliestDateTimeOfExecution) >= 0,
           StrSubstNo('Job sceduled too early Earliest:%1 Actual:%2', EarliestDateTimeOfExecution, JobQueueEntry."Earliest Start Date/Time"));
         Assert.IsTrue((LatestDateTimeOfExecution - JobQueueEntry."Earliest Start Date/Time") >= 0,
@@ -102,7 +103,6 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationSchedule: Record "Notification Schedule";
         NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
-        JobQueueCategory: Record "Job Queue Category";
         ApprovalEntry: Record "Approval Entry";
         OverdueApprovalEntry: Record "Overdue Approval Entry";
     begin
@@ -120,7 +120,7 @@ codeunit 134314 "WF Notification Schedule Tests"
         // [THEN] A Instant Job Queue Entry is created
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
-        Assert.AreEqual(JobQueueCategory.NotifyNowCode, JobQueueEntry."Job Queue Category Code", 'Category should be instant');
+        Assert.AreEqual(NotifyNowLbl, JobQueueEntry."Job Queue Category Code", 'Category should be instant');
     end;
 
     [Test]
@@ -130,7 +130,6 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationSchedule: Record "Notification Schedule";
         NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
-        JobQueueCategory: Record "Job Queue Category";
         ApprovalEntry: Record "Approval Entry";
     begin
         // [SCENARIO] By default all instant notification are reusing the same job.
@@ -147,7 +146,7 @@ codeunit 134314 "WF Notification Schedule Tests"
         // [THEN] A Instant Job Queue Entry is created
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
-        Assert.AreEqual(JobQueueCategory.NotifyNowCode, JobQueueEntry."Job Queue Category Code", 'Category should be instant');
+        Assert.AreEqual(NotifyNowLbl, JobQueueEntry."Job Queue Category Code", 'Category should be instant');
     end;
 
     [Test]
@@ -181,7 +180,7 @@ codeunit 134314 "WF Notification Schedule Tests"
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
         Assert.AreEqual(1509, JobQueueEntry."Object ID to Run", 'Invalid Dispatcher');
-        Assert.AreEqual('', JobQueueEntry."Job Queue Category Code", 'Category should not be instant');
+        Assert.AreEqual(NotifyLaterLbl, JobQueueEntry."Job Queue Category Code", 'Category should not be instant');
         NotificationEntry.SetView(JobQueueEntry."Parameter String");
         Assert.AreEqual(UserName, NotificationEntry.GetRangeMax("Recipient User ID"), 'User should be in the filter');
         Assert.AreEqual(NotificationEntry.Type::Approval, NotificationEntry.GetRangeMax(Type), 'Type shold be in the filter');
@@ -220,7 +219,7 @@ codeunit 134314 "WF Notification Schedule Tests"
         // [THEN] The corresponding Job Queue Entry is adjusted accordingly
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
-        Assert.AreEqual('', JobQueueEntry."Job Queue Category Code", 'Category should not be instant');
+        Assert.AreEqual(NotifyLaterLbl, JobQueueEntry."Job Queue Category Code", 'Category should not be instant');
         Assert.IsTrue(
           (JobQueueEntry."Earliest Start Date/Time" - OldEarliestDateTimeOfExecution) = 1000, 'Job schedule has not been adjusted');
     end;
@@ -232,7 +231,6 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationSchedule: Record "Notification Schedule";
         NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
-        JobQueueCategory: Record "Job Queue Category";
         ApprovalEntry: Record "Approval Entry";
     begin
         // [GIVEN] A schedule and an event already exist
@@ -248,7 +246,7 @@ codeunit 134314 "WF Notification Schedule Tests"
         // [THEN] The corresponding Job Queue Entry is changed to instant
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
-        Assert.AreEqual(JobQueueCategory.NotifyNowCode, JobQueueEntry."Job Queue Category Code", 'Job should be instant');
+        Assert.AreEqual(NotifyNowLbl, JobQueueEntry."Job Queue Category Code", 'Job should be instant');
     end;
 
     [Test]
@@ -397,7 +395,6 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationSchedule: Record "Notification Schedule";
         NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
-        JobQueueCategory: Record "Job Queue Category";
         ApprovalEntry: Record "Approval Entry";
     begin
         // [GIVEN] A schedule and an event already exist
@@ -414,11 +411,11 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationEntry.CreateNew(NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '');
 
         // [THEN] We end up with two Job Queue entries one instant and one scheduled.
-        JobQueueEntry.SetRange("Job Queue Category Code", JobQueueCategory.NotifyNowCode);
+        JobQueueEntry.SetRange("Job Queue Category Code", NotifyNowLbl);
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'One Instant Job Queue Entry exist');
 
-        JobQueueEntry.SetRange("Job Queue Category Code", '');
+        JobQueueEntry.SetRange("Job Queue Category Code", NotifyLaterLbl);
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'One Scheduled Job Queue Entry exist');
     end;

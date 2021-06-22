@@ -94,14 +94,7 @@ codeunit 60 "Sales-Calc. Discount"
                 if not TempServiceChargeLine.IsEmpty then begin
                     TempServiceChargeLine.FindLast;
                     SalesLine2.Get("Document Type", "Document No.", TempServiceChargeLine."Line No.");
-                    if SalesHeader."Prices Including VAT" then
-                        SalesLine2.Validate(
-                          "Unit Price",
-                          Round(
-                            (1 + SalesLine2."VAT %" / 100) * CustInvDisc."Service Charge",
-                            Currency."Unit-Amount Rounding Precision"))
-                    else
-                        SalesLine2.Validate("Unit Price", CustInvDisc."Service Charge");
+                    SetSalesLineServiceCharge(SalesHeader, SalesLine2);
                     SalesLine2.Modify;
                 end else begin
                     SalesLine2.Reset;
@@ -126,14 +119,7 @@ codeunit 60 "Sales-Calc. Discount"
                         SalesLine2.Validate("Return Qty. to Receive", SalesLine2.Quantity)
                     else
                         SalesLine2.Validate("Qty. to Ship", SalesLine2.Quantity);
-                    if SalesHeader."Prices Including VAT" then
-                        SalesLine2.Validate(
-                          "Unit Price",
-                          Round(
-                            (1 + SalesLine2."VAT %" / 100) * CustInvDisc."Service Charge",
-                            Currency."Unit-Amount Rounding Precision"))
-                    else
-                        SalesLine2.Validate("Unit Price", CustInvDisc."Service Charge");
+                    SetSalesLineServiceCharge(SalesHeader, SalesLine2);
                     SalesLine2.Insert;
                 end;
                 SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
@@ -174,6 +160,23 @@ codeunit 60 "Sales-Calc. Discount"
 
         SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(SalesHeader);
         OnAfterCalcSalesDiscount(SalesHeader);
+    end;
+
+    local procedure SetSalesLineServiceCharge(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetSalesLineServiceCharge(SalesHeader, SalesLine, CustInvDisc, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SalesHeader."Prices Including VAT" then
+            SalesLine.Validate(
+                "Unit Price",
+                Round((1 + SalesLine."VAT %" / 100) * CustInvDisc."Service Charge", Currency."Unit-Amount Rounding Precision"))
+        else
+            SalesLine.Validate("Unit Price", CustInvDisc."Service Charge");
     end;
 
     local procedure CustInvDiscRecExists(InvDiscCode: Code[20]): Boolean
@@ -261,6 +264,11 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateSalesLine2Quantity(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustInvoiceDisc: Record "Cust. Invoice Disc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSalesLineServiceCharge(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustInvoiceDisc: Record "Cust. Invoice Disc."; var IsHandled: Boolean)
     begin
     end;
 }

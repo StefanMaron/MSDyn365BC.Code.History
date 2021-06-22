@@ -70,6 +70,8 @@ codeunit 5703 "Catalog Item Management"
     var
         ItemCrossReference: Record "Item Cross Reference";
     begin
+        OnBeforeNonstockItemCrossRef(NonStock2);
+
         ItemCrossReference.SetRange("Item No.", NonStock2."Item No.");
         ItemCrossReference.SetRange("Unit of Measure", NonStock2."Unit of Measure");
         ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
@@ -471,6 +473,11 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateNewItem(var Item: Record Item; ItemTemplate: Record "Item Template"; NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNonstockItemCrossRef(var NonstockItem: Record "Nonstock Item")
     begin
     end;
 }

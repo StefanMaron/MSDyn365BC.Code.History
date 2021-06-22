@@ -161,6 +161,7 @@ report 5881 "Make Phys. Invt. Recording"
             Description := PhysInvtOrderLine.Description;
             "Description 2" := PhysInvtOrderLine."Description 2";
             "Use Item Tracking" := PhysInvtOrderLine."Use Item Tracking";
+            "Shelf No." := PhysInvtOrderLine."Shelf No.";
             Validate("Unit of Measure Code", PhysInvtOrderLine."Base Unit of Measure Code");
             Recorded := false;
             OnBeforePhysInvtRecordLineInsert(PhysInvtRecordLine, PhysInvtOrderLine);

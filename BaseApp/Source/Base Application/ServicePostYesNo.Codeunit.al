@@ -63,9 +63,6 @@ codeunit 5981 "Service-Post (Yes/No)"
 
             ServicePost.SetPreviewMode(PreviewMode);
             ServicePost.PostWithLines(PassedServiceHeader, PassedServLine, Ship, Consume, Invoice);
-
-            if not PreviewMode then
-                Commit;
         end;
 
         OnAfterPost(PassedServiceHeader);
