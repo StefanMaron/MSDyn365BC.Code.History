@@ -83,8 +83,7 @@ report 1510 "Copy Workflow"
         FromWorkflowRule: Record "Workflow Rule";
         ToWorkflowRule: Record "Workflow Rule";
     begin
-        FromWorkflowStep.FindWorkflowRules(FromWorkflowRule);
-        if FromWorkflowRule.FindSet then
+        if FromWorkflowStep.FindWorkflowRules(FromWorkflowRule) then
             repeat
                 ToWorkflowRule.Copy(FromWorkflowRule);
                 ToWorkflowRule.ID := 0;

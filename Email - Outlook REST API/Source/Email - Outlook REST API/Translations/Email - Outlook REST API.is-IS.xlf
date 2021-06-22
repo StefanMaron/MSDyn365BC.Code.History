@@ -53,7 +53,7 @@
         </trans-unit>
         <trans-unit id="Table 3074962881 - Field 1464062987 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Redirect URL</source>
-          <target state="translated">Framsendingarvefslóð</target>
+          <target state="translated">Framsendingarslóð</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field RedirectURL - Property Caption</note>
         </trans-unit>

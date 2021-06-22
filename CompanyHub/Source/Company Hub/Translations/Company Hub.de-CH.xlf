@@ -341,7 +341,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 1689784731 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Vendors-Payment on Hold Style</source>
-          <target state="translated">Kreditoren - Zahlung abwarten – Format</target>
+          <target state="translated">Kreditoren-Zahlung abwarten – Format</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Vendors-Payment on Hold Style - Property Caption</note>
         </trans-unit>
@@ -515,7 +515,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2103948034 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc Doc Awaiting Verf Style</source>
-          <target state="translated">Einfacher Beleg wartet auf Verif. – Format</target>
+          <target state="translated">Eingehender Beleg wartet auf Verif. – Format</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Inc Doc Awaiting Verf Style - Property Caption</note>
         </trans-unit>
@@ -917,7 +917,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1689784731 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Vendors-Payment on Hold Style</source>
-          <target state="translated">Kreditoren - Zahlung abwarten – Format</target>
+          <target state="translated">Kreditoren-Zahlung abwarten – Format</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Vendors-Payment on Hold Style - Property Caption</note>
         </trans-unit>
@@ -1091,7 +1091,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2103948034 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc Doc Awaiting Verf Style</source>
-          <target state="translated">Einfacher Beleg wartet auf Verif. – Format</target>
+          <target state="translated">Eingehender Beleg wartet auf Verif. – Format</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Inc Doc Awaiting Verf Style - Property Caption</note>
         </trans-unit>
@@ -1943,7 +1943,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 1037431910 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the company.</source>
-          <target state="translated">Gibt den Namen des Mandanten an.</target>
+          <target state="translated">Gibt den Namen des Unternehmens an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Company Display Name - Property ToolTip</note>
         </trans-unit>

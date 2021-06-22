@@ -62,6 +62,17 @@ page 99000921 "Demand Forecast Names"
                     DemandForecast.Run;
                 end;
             }
+            action("Copy Demand Forecast")
+            {
+                ApplicationArea = Planning;
+                Caption = 'Copy Demand Forecast';
+                Ellipsis = true;
+                Image = CopyForecast;
+                Promoted = true;
+                PromotedCategory = Process;
+                RunObject = Report "Copy Production Forecast";
+                ToolTip = 'Copy an existing demand forecast to quickly create a similar forecast.';
+            }
         }
     }
 }

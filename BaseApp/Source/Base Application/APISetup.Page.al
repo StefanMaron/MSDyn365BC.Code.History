@@ -106,6 +106,40 @@ page 5469 "API Setup"
                     Message(AllRecordsHaveBeenUpdatedMsg);
                 end;
             }
+
+            action(FixSalesShipmentLine)
+            {
+                ApplicationArea = All;
+                Caption = 'Fix Sales Shipment Line API Records';
+                Image = Setup;
+                Promoted = false;
+                ToolTip = 'Updates records that are used by the salesShipmentLines API.';
+
+                trigger OnAction()
+                var
+                    GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+                begin
+                    Codeunit.Run(CODEUNIT::"API Fix Sales Shipment Line");
+                    GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Sales Shipment Line");
+                end;
+            }
+
+            action(FixPurchRcptLine)
+            {
+                ApplicationArea = All;
+                Caption = 'Fix Purchase Recepit Line API Records';
+                Image = Setup;
+                Promoted = false;
+                ToolTip = 'Updates records that are used by the purchaseReceiptLines API.';
+
+                trigger OnAction()
+                var
+                    GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+                begin
+                    Codeunit.Run(CODEUNIT::"API Fix Purch Rcpt Line");
+                    GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Purch Rcpt Line");
+                end;
+            }
         }
     }
 

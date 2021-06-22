@@ -535,6 +535,39 @@ codeunit 134119 "Price Asset UT"
         Assert.ExpectedError(AssetNoMustHaveValueErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemVariantsPageHandler')]
+    procedure VariantLookupShowsCorrespondingRecords()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PriceAsset: Record "Price Asset";
+        PriceAssetItem: Codeunit "Price Asset - Item";
+    begin
+        // [SCENARIO 384368] The page Item Variants shows corresponding records for Item with No. of max length
+        Initialize();
+
+        // [GIVEN] Item ("I") with No. = 'MAXLENGHTNAME_CODE20'
+        LibraryInventory.CreateItem(Item);
+        Item.Rename(LibraryUtility.GenerateRandomCode20(Item.FieldNo("No."), Database::Item));
+
+        // [GIVEN] Item Variant ("IV") for item "I"
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] Price Asset for item "I"
+        PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::Item);
+        PriceAsset.Validate("Asset No.", Item."No.");
+        LibraryVariableStorage.Enqueue(ItemVariant.Code);
+
+        // [WHEN] Open Lookup for Item Variants
+        PriceAssetItem.IsLookupVariantOK(PriceAsset);
+
+        // [THEN] Item Variant shows item variant "IV" 
+        // Validation is in ItemVariantsPageHandler
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Price Asset UT");
@@ -569,6 +602,20 @@ codeunit 134119 "Price Asset UT"
         LibraryResource.CreateResourceUnitOfMeasure(
             ResourceUnitofMeasure, ResourceNo, UnitofMeasure.Code, 2.0);
         exit(UnitofMeasure.Code);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmTrueHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemVariantsPageHandler(var ItemVariants: TestPage "Item Variants")
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ItemVariants.Code.Value, 'Wrong Item Variant Code.');
     end;
 
 }

@@ -3285,7 +3285,7 @@
         </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2719673386 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to State</source>
-          <target state="translated">Země/oblast příjemce</target>
+          <target state="translated">Stát příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control shipToState - Property Caption</note>
         </trans-unit>
@@ -3529,11 +3529,13 @@
         </trans-unit>
         <trans-unit id="Page 3772100527 - Control 1889388274 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-To Name</source>
+          <target state="translated">Název příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Receipts - Control shipToName - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3772100527 - Control 1979445219 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-To Contact</source>
+          <target state="translated">Kontakt příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Receipts - Control shipToContact - Property Caption</note>
         </trans-unit>
@@ -3579,21 +3581,25 @@
         </trans-unit>
         <trans-unit id="Page 3772100527 - Control 1336190306 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to City</source>
+          <target state="translated">Město příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Receipts - Control shipToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3772100527 - Control 3828400819 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Country/Region Code</source>
+          <target state="translated">Kód země/oblasti příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Receipts - Control shipToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3772100527 - Control 2719673386 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to State</source>
+          <target state="translated">Stát příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Receipts - Control shipToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3772100527 - Control 2895959832 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Post Code</source>
+          <target state="translated">PSČ příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Receipts - Control shipToPostCode - Property Caption</note>
         </trans-unit>
@@ -4794,7 +4800,7 @@
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2719673386 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to State</source>
-          <target state="translated">Země/oblast příjemce</target>
+          <target state="translated">Stát příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control shipToState - Property Caption</note>
         </trans-unit>
@@ -5484,7 +5490,7 @@
         </trans-unit>
         <trans-unit id="Page 48856144 - Control 2719673386 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to State</source>
-          <target state="translated">Země/oblast příjemce</target>
+          <target state="translated">Stát příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control shipToState - Property Caption</note>
         </trans-unit>
@@ -6080,7 +6086,7 @@
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 2719673386 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to State</source>
-          <target state="translated">Země/oblast příjemce</target>
+          <target state="translated">Stát příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control shipToState - Property Caption</note>
         </trans-unit>
@@ -6425,11 +6431,13 @@
         </trans-unit>
         <trans-unit id="Page 3546002718 - Control 1889388274 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Name</source>
+          <target state="translated">Název příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Control shipToName - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3546002718 - Control 1979445219 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Contact</source>
+          <target state="translated">Kontakt příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Control shipToContact - Property Caption</note>
         </trans-unit>
@@ -6505,21 +6513,25 @@
         </trans-unit>
         <trans-unit id="Page 3546002718 - Control 1336190306 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to City</source>
+          <target state="translated">Město příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Control shipToCity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3546002718 - Control 3828400819 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Country/Region Code</source>
+          <target state="translated">Kód země/oblasti příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Control shipToCountry - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3546002718 - Control 2719673386 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to State</source>
+          <target state="translated">Stát příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Control shipToState - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3546002718 - Control 2895959832 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ship-to Post Code</source>
+          <target state="translated">PSČ příjemce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Control shipToPostCode - Property Caption</note>
         </trans-unit>
@@ -6540,6 +6552,7 @@
         </trans-unit>
         <trans-unit id="Page 3546002718 - Control 1999593414 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shipment Method Code</source>
+          <target state="translated">Kód způsobu dodávky</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Control shipmentMethodCode - Property Caption</note>
         </trans-unit>
@@ -6734,7 +6747,7 @@
         </trans-unit>
         <trans-unit id="Page 4020415616 - Control 3045250155 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Job Task No.</source>
-          <target state="translated">Číslo úkolu projektu</target>
+          <target state="translated">Číslo úlohy projektu</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Time Registr. Entries - Control jobTaskNumber - Property Caption</note>
         </trans-unit>
@@ -6988,11 +7001,13 @@
         </trans-unit>
         <trans-unit id="Page 2253128152 - Control 2410987416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Journal Id</source>
+          <target state="translated">ID deníku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control journalId - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2253128152 - Control 2006501256 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Journal Display Name</source>
+          <target state="translated">Zobrazovaný název deníku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control journalDisplayName - Property Caption</note>
         </trans-unit>

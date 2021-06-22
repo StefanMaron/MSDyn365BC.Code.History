@@ -1535,7 +1535,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 1037431910 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the company.</source>
-          <target state="translated">Определяет название компании.</target>
+          <target state="translated">Определяет название организации.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Company Display Name - Property ToolTip</note>
         </trans-unit>
@@ -1769,7 +1769,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 4238549263 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue purchase invoices.</source>
-          <target state="translated">Определяет общую сумму по просроченным счетам покупки.</target>
+          <target state="translated">Определяет итоговую сумму по просроченным счетам покупки.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Overdue Purch. Invoice Amount - Property ToolTip</note>
         </trans-unit>
@@ -1781,13 +1781,13 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 1154576810 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue purchase invoices.</source>
-          <target state="translated">Определяет общую сумму по просроченным счетам покупки.</target>
+          <target state="translated">Определяет итоговую сумму по просроченным счетам покупки.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Overdue Purch. Invoice Amount Decimal - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 2949566721 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue sales invoices.</source>
-          <target state="translated">Определяет общую сумму по просроченным счетам продажи.</target>
+          <target state="translated">Определяет итоговую сумму по просроченным счетам продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Overdue Sales Invoice Amount - Property ToolTip</note>
         </trans-unit>
@@ -1799,7 +1799,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 3097378552 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue sales invoices.</source>
-          <target state="translated">Определяет общую сумму по просроченным счетам продажи.</target>
+          <target state="translated">Определяет итоговую сумму по просроченным счетам продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Overdue Sales Invoice Amount Decimal - Property ToolTip</note>
         </trans-unit>
@@ -1943,7 +1943,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 1037431910 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the company.</source>
-          <target state="translated">Определяет название компании.</target>
+          <target state="translated">Определяет название организации.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Company Display Name - Property ToolTip</note>
         </trans-unit>
@@ -2189,7 +2189,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 1154576810 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue purchase invoices.</source>
-          <target state="translated">Определяет общую сумму по просроченным счетам покупки.</target>
+          <target state="translated">Определяет итоговую сумму по просроченным счетам покупки.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Overdue Purch. Invoice Amount Decimal - Property ToolTip</note>
         </trans-unit>
@@ -2207,7 +2207,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 3097378552 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue sales invoices.</source>
-          <target state="translated">Определяет общую сумму по просроченным счетам продажи.</target>
+          <target state="translated">Определяет итоговую сумму по просроченным счетам продажи.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Overdue Sales Invoice Amount Decimal - Property ToolTip</note>
         </trans-unit>
@@ -2561,7 +2561,7 @@
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 2306852000 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies additional address information.</source>
-          <target state="translated">Определяет сведения о дополнительном адресе.</target>
+          <target state="translated">Определяет дополнительные сведения адреса.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Address 2 - Property ToolTip</note>
         </trans-unit>
@@ -2573,7 +2573,7 @@
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 714791889 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the company's city.</source>
-          <target state="translated">Определяет город компании.</target>
+          <target state="translated">Определяет город организации.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control City - Property ToolTip</note>
         </trans-unit>
@@ -2729,7 +2729,7 @@
         </trans-unit>
         <trans-unit id="Page 1103215212 - Control 1037431910 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the display name of the company.</source>
-          <target state="translated">Определяет отображаемое название компании.</target>
+          <target state="translated">Определяет отображаемое название организации.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB My User Tasks - Control Company Display Name - Property ToolTip</note>
         </trans-unit>

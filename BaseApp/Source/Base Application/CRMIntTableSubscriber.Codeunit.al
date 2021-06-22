@@ -25,6 +25,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CurrencyExchangeRateMissingErr: Label 'Cannot create or update the currency %1 in %2, because there is no exchange rate defined for it.', Comment = '%1 - currency code, %2 - Dataverse service name';
         NewCodePatternTxt: Label 'SP NO. %1', Locked = true;
         SourceDestCodePatternTxt: Label '%1-%2', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
+        UpdateContactParentCompanyTxt: Label 'Updating contact parent company.', Locked = true;
+        UpdateContactParentCompanyFailedTxt: Label 'Updating contact parent company failed. Parent Customer ID: %1', Locked = true, Comment = '%1 - parent customer id';
+        UpdateContactParentCompanySuccessfulTxt: Label 'Updated contact parent company successfully.', Locked = true;
 
     procedure ClearCache()
     begin
@@ -463,12 +467,16 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         SourceFieldRef: FieldRef;
         ParentCustomerId: Guid;
     begin
+        Session.LogMessage('0000ECA', UpdateContactParentCompanyTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         // When inserting we also want to set the company contact id
         // We only allow creation of new contacts if the company has already been created
         SourceFieldRef := SourceRecordRef.Field(CRMContact.FieldNo(ParentCustomerId));
         ParentCustomerId := SourceFieldRef.Value();
-        if not CRMSynchHelper.SetContactParentCompany(ParentCustomerId, DestinationRecordRef) then
+        if not CRMSynchHelper.SetContactParentCompany(ParentCustomerId, DestinationRecordRef) then begin
+            Session.LogMessage('0000ECB', StrSubstNo(UpdateContactParentCompanyFailedTxt, ParentCustomerId), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             Error(ContactMissingCompanyErr);
+        end;
+        Session.LogMessage('0000ECH', UpdateContactParentCompanySuccessfulTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
     local procedure HandleContactQueryPostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
@@ -651,7 +659,6 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMSalesOrderToSalesOrder: Codeunit "CRM Sales Order to Sales Order";
         OutStream: OutStream;
         AccountId: Guid;
-        OutOfMapFilter: Boolean;
     begin
         SourceRecordRef.SetTable(SalesInvoiceHeader);
         DestinationRecordRef.SetTable(CRMInvoice);
@@ -672,7 +679,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             if not CRMSalesOrderToSalesOrder.GetCoupledCustomer(CRMSalesorder, Customer) then begin
                 if not CRMSalesOrderToSalesOrder.GetCRMAccountOfCRMSalesOrder(CRMSalesorder, CRMAccount) then
                     Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.CDSServiceName());
-                if not CRMSynchHelper.SynchRecordIfMappingExists(DATABASE::"CRM Account", CRMAccount.AccountId, OutOfMapFilter) then
+                if not CRMSynchHelper.SynchRecordIfMappingExists(Database::Customer, Database::"CRM Account", CRMAccount.AccountId) then
                     Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.CDSServiceName());
             end;
             if Customer."No." <> SalesInvoiceHeader."Sell-to Customer No." then
@@ -684,7 +691,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
 
             if not CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId) then
-                if not CRMSynchHelper.SynchRecordIfMappingExists(DATABASE::Customer, Customer.RecordId(), OutOfMapFilter) then
+                if not CRMSynchHelper.SynchRecordIfMappingExists(Database::Customer, Database::"CRM Account", Customer.RecordId()) then
                     Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.CDSServiceName());
             CRMInvoice.CustomerId := AccountId;
             CRMInvoice.CustomerIdType := CRMInvoice.CustomerIdType::account;
@@ -1289,7 +1296,6 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMIntegrationRecord: Record "CRM Integration Record";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         Resource: Record Resource;
-        OutOfMapFilter: Boolean;
     begin
         Clear(CRMID);
         SalesReceivablesSetup.Get();
@@ -1303,7 +1309,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 begin
                     Resource.Get(SalesInvoiceLine."No.");
                     if not CRMIntegrationRecord.FindIDFromRecordID(Resource.RecordId(), CRMID) then begin
-                        if not CRMSynchHelper.SynchRecordIfMappingExists(DATABASE::Resource, Resource.RecordId(), OutOfMapFilter) then
+                        if not CRMSynchHelper.SynchRecordIfMappingExists(Database::Resource, Database::"CRM Product", Resource.RecordId()) then
                             Error(CannotSynchProductErr, Resource."No.");
                         if not CRMIntegrationRecord.FindIDFromRecordID(Resource.RecordId(), CRMID) then
                             Error(CannotFindSyncedProductErr);
@@ -1316,11 +1322,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     var
         Item: Record Item;
         CRMIntegrationRecord: Record "CRM Integration Record";
-        OutOfMapFilter: Boolean;
     begin
         Item.Get(ItemNo);
         if not CRMIntegrationRecord.FindIDFromRecordID(Item.RecordId(), CRMID) then begin
-            if not CRMSynchHelper.SynchRecordIfMappingExists(DATABASE::Item, Item.RecordId(), OutOfMapFilter) then
+            if not CRMSynchHelper.SynchRecordIfMappingExists(Database::Item, Database::"CRM Product", Item.RecordId()) then
                 Error(CannotSynchProductErr, Item."No.");
             if not CRMIntegrationRecord.FindIDFromRecordID(Item.RecordId(), CRMID) then
                 Error(CannotFindSyncedProductErr);
@@ -1331,11 +1336,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     var
         Resource: Record Resource;
         CRMIntegrationRecord: Record "CRM Integration Record";
-        OutOfMapFilter: Boolean;
     begin
         Resource.Get(ResourceNo);
         if not CRMIntegrationRecord.FindIDFromRecordID(Resource.RecordId(), CRMID) then begin
-            if not CRMSynchHelper.SynchRecordIfMappingExists(DATABASE::Resource, Resource.RecordId(), OutOfMapFilter) then
+            if not CRMSynchHelper.SynchRecordIfMappingExists(Database::Resource, Database::"CRM Product", Resource.RecordId()) then
                 Error(CannotSynchProductErr, Resource."No.");
             if not CRMIntegrationRecord.FindIDFromRecordID(Resource.RecordId(), CRMID) then
                 Error(CannotFindSyncedProductErr);

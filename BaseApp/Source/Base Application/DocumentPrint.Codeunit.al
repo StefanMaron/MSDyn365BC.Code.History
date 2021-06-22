@@ -1,4 +1,4 @@
-codeunit 229 "Document-Print"
+﻿codeunit 229 "Document-Print"
 {
 
     trigger OnRun()
@@ -484,12 +484,17 @@ codeunit 229 "Document-Print"
         end;
     end;
 
-    local procedure GetPurchDocTypeUsage(PurchHeader: Record "Purchase Header"): Enum "Report Selection Usage"
+    procedure GetPurchDocTypeUsage(PurchHeader: Record "Purchase Header") ReportSelectionUsage: Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPurchDocTypeUsage(PurchHeader, ReportSelectionUsage, IsHandled);
+        if IsHandled then
+            exit(ReportSelectionUsage);
+
         case PurchHeader."Document Type" of
             PurchHeader."Document Type"::Quote:
                 exit(ReportSelections.Usage::"P.Quote");
@@ -730,6 +735,11 @@ codeunit 229 "Document-Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPurchDisc(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPurchDocTypeUsage(PurchaseHeader: Record "Purchase Header"; var ReportSelectionUsage: Enum "Report Selection Usage"; var IsHandled: Boolean)
     begin
     end;
 

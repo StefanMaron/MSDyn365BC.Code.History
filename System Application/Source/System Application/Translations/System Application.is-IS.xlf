@@ -609,6 +609,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field MediaSet - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 31410331 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Index</source>
+          <target state="translated">Lykilvísir</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 4003695205 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Signature Algorithm</source>
+          <target state="translated">Reiknirit undirskriftar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Signature Algorithm - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 2020331656 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value Type</source>
+          <target state="translated">Gerð lykilgildis</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 5357697 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value</source>
+          <target state="translated">Lykilgildi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Blob - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2488342448 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cue Setup</source>
           <target state="translated">Bunkagrunnur</target>
@@ -1979,6 +2003,12 @@
           <target state="translated">Efnisauðkenni</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Content Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2046056834 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Lengd</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Length - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 474016873 - Field 2931190102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Message Id</source>
@@ -3606,8 +3636,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordMismatchErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3991262771 - NamedType 1260724060" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
-          <target state="translated">Aðgangsorðið sem slegið var inn uppfyllir ekki lágmarkskröfurnar. Það verður að vera minnst %1 stafir og innihalda minnst einn hástaf, einn lágstaf og einn tölustaf. Það má ekki innihalda fleiri en 3 stafi í hækkandi-, lækkandi- eða endurtekinni röð.</target>
+          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
+          <target state="translated">Aðgangsorðið sem slegið var inn uppfyllir ekki lágmarkskröfurnar. Það verður að vera minnst %1 stafir og innihalda minnst einn hástaf, einn lágstaf, einn tölustaf og einn sérstaf. Það má ekki innihalda fleiri en 3 stafi í hækkandi-, lækkandi- eða endurtekinni röð.</target>
           <note from="Developer" annotates="general" priority="2">%1: The minimum number of characters required in the password</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordTooSimpleErr</note>
         </trans-unit>
@@ -3682,6 +3712,12 @@
           <target state="translated">Farið yfir hámarksútreikningsmörk fyrir endurtekningu. Breyta upphafsdagsetningu svo hún sé í dag.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recurrence Schedule Impl. - NamedType RecurrenceMaximumCalculateLimitTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3808397429 - NamedType 525889370" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The regular expression timeout should be at least 1000 ms</source>
+          <target state="translated">Tímalokun segðar ætti að vera a.m.k. 1000 ms</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Regex Impl. - NamedType TimeoutTooLowErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1036847876 - NamedType 1933092856" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Couldn't initialize the App Key Vault Secret Provider.\\Common reasons include:\- The extension doesn't specify a key vault in its app.json file.\- The extension wasn't published with a PublisherAzureActiveDirectoryTenantId and the server requires it\- The server's Azure Key Vault settings are incorrect\- The server lacks permission to the private key of Azure Key Vault client certificate\\Please check the Event Log or Application Insights for more details.</source>
@@ -3880,6 +3916,12 @@
           <target state="translated">Uppgefinn tölvupóstsreikningur er ekki til.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InvalidEmailAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3795645336 - NamedType 3880130517" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have the permissions required to send emails. Ask your administrator to grant you the Read, Insert, Modify and Delete permissions for the Sent Email and Email Outbox tables.</source>
+          <target state="translated">Þú hefur ekki nauðsynlegar heimildir til að senda tölvupóst. Biddu kerfisstjóra um að veita þér heimildir til að lesa, setja inn, breyta og eyða fyrir sendan tölvupóst og úthólf.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InsufficientPermisionsErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 728726451 - NamedType 2815685970" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot edit the email because it has been queued to be sent.</source>
@@ -7375,7 +7417,7 @@
         </trans-unit>
         <trans-unit id="Page 2927108320 - Control 2504843590 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more about feature management.</source>
-          <target state="translated">Frekari upplýsingar um eiginleikastjórnun.</target>
+          <target state="translated">Nánari upplýsingar um eiginleikastjórnun.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - Control LearnMoreNewFeatures - Property ToolTip</note>
         </trans-unit>
@@ -7399,7 +7441,7 @@
         </trans-unit>
         <trans-unit id="Page 2927108320 - NamedType 915252812" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>See the Release Plan</source>
-          <target state="translated">Sjá „Útgáfuáætlun“</target>
+          <target state="translated">Sjá Útgáfuáætlun</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upcoming Changes Factbox - NamedType ReleasePlanLbl</note>
         </trans-unit>
@@ -7447,7 +7489,7 @@
         </trans-unit>
         <trans-unit id="Page 2536897829 - Control 166597695 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the field.</source>
-          <target state="translated">Tilgreinir heiti reitarins.</target>
+          <target state="translated">Tilgreinir heiti reitsins.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Fields Lookup - Control FieldName - Property ToolTip</note>
         </trans-unit>
@@ -7465,6 +7507,7 @@
         </trans-unit>
         <trans-unit id="Page 1750020835 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Languages</source>
+          <target state="translated">Tungumál</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Languages - Property Caption</note>
         </trans-unit>
@@ -7494,7 +7537,7 @@
         </trans-unit>
         <trans-unit id="Page 1750020835 - Control 2802526462 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if you enter an ID in the Windows Language ID field.</source>
-          <target state="translated">Tilgreinir hvort kenni er skráð í reitinn „Kenni tungumáls“ í Windows.</target>
+          <target state="translated">Tilgreinir hvort kenni er skráð í reitinn „Kenni tungumáls í Windows“.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Languages - Control Windows Language Name - Property ToolTip</note>
         </trans-unit>
@@ -7536,7 +7579,7 @@
         </trans-unit>
         <trans-unit id="Page 4035890834 - Control 1085746399 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the object type.</source>
-          <target state="translated">Tilgreinir tegund hlutarins.</target>
+          <target state="translated">Tilgreinir gerð hlutarins.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Objects - Control Object Type - Property ToolTip</note>
         </trans-unit>

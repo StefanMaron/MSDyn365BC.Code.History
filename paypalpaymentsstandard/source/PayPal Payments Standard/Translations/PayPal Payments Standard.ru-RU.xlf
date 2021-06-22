@@ -671,7 +671,7 @@
         </trans-unit>
         <trans-unit id="Page 4268182158 - NamedType 3035575630" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The %1 is not enabled. Are you sure you want to exit?</source>
-          <target state="translated">%1 не включен. Выйти?</target>
+          <target state="translated">Функциональность "%1" не включена. Вы действительно хотите выйти?</target>
           <note from="Developer" annotates="general" priority="2">%1 = pagecaption (OCR Service Setup)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - NamedType EnableServiceQst</note>
         </trans-unit>

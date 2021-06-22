@@ -609,6 +609,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field MediaSet - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 31410331 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Index</source>
+          <target state="translated">Indice chiave</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 4003695205 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Signature Algorithm</source>
+          <target state="translated">Algoritmo di firma</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Signature Algorithm - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 2020331656 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value Type</source>
+          <target state="translated">Tipo di valore chiave</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 5357697 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value</source>
+          <target state="translated">Valore chiave</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Blob - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2488342448 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cue Setup</source>
           <target state="translated">Setup pila</target>
@@ -1980,6 +2004,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Content Id - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2046056834 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Lunghezza</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Length - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 474016873 - Field 2931190102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Message Id</source>
           <target state="translated">ID messaggio e-mail</target>
@@ -3038,7 +3068,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1128445799 - NamedType 4090787537" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 is already installed.</source>
-          <target state="translated">L'estensione %1 è già installata.</target>
+          <target state="translated">Estensione %1 già installata.</target>
           <note from="Developer" annotates="general" priority="2">%1=name of app</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType AlreadyInstalledMsg</note>
         </trans-unit>
@@ -3337,7 +3367,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3666029466 - NamedType 4090787537" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 is already installed.</source>
-          <target state="translated">L'estensione %1 è già installata.</target>
+          <target state="translated">Estensione %1 già installata.</target>
           <note from="Developer" annotates="general" priority="2">%1=name of app</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType AlreadyInstalledMsg</note>
         </trans-unit>
@@ -3606,8 +3636,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordMismatchErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3991262771 - NamedType 1260724060" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
-          <target state="translated">La password immessa non soddisfa i requisiti minimi. Deve essere lunga almeno %1 caratteri e contenere almeno una lettera maiuscola, una lettera minuscola e un numero. Non deve avere una sequenza di 3 o più caratteri ascendenti, discendenti o ripetuti.</target>
+          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
+          <target state="translated">La password immessa non soddisfa i requisiti minimi. Deve essere lunga almeno %1 caratteri e contenere almeno una lettera maiuscola, una lettera minuscola, un numero e un carattere speciale. Non deve includere una sequenza di 3 o più caratteri in ordine crescente, decrescente oppure ripetuti.</target>
           <note from="Developer" annotates="general" priority="2">%1: The minimum number of characters required in the password</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordTooSimpleErr</note>
         </trans-unit>
@@ -3682,6 +3712,12 @@
           <target state="translated">Limite massimo di calcolo superato per la ricorrenza. Modificare la data di inizio in oggi.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recurrence Schedule Impl. - NamedType RecurrenceMaximumCalculateLimitTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3808397429 - NamedType 525889370" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The regular expression timeout should be at least 1000 ms</source>
+          <target state="translated">Il timeout dell'espressione regolare deve essere almeno 1000 ms</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Regex Impl. - NamedType TimeoutTooLowErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1036847876 - NamedType 1933092856" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Couldn't initialize the App Key Vault Secret Provider.\\Common reasons include:\- The extension doesn't specify a key vault in its app.json file.\- The extension wasn't published with a PublisherAzureActiveDirectoryTenantId and the server requires it\- The server's Azure Key Vault settings are incorrect\- The server lacks permission to the private key of Azure Key Vault client certificate\\Please check the Event Log or Application Insights for more details.</source>
@@ -3880,6 +3916,12 @@
           <target state="translated">L'account e-mail fornito non esiste.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InvalidEmailAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3795645336 - NamedType 3880130517" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have the permissions required to send emails. Ask your administrator to grant you the Read, Insert, Modify and Delete permissions for the Sent Email and Email Outbox tables.</source>
+          <target state="translated">Non si dispone delle autorizzazioni necessarie per inviare messaggi e-mail. Richiedere all'amministratore le autorizzazioni di lettura, inserimento, modifica ed eliminazione per le tabelle dei messaggi e-mail inviati e della posta in uscita.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InsufficientPermisionsErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 728726451 - NamedType 2815685970" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot edit the email because it has been queued to be sent.</source>
@@ -7465,6 +7507,7 @@
         </trans-unit>
         <trans-unit id="Page 1750020835 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Languages</source>
+          <target state="translated">Lingue</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Languages - Property Caption</note>
         </trans-unit>
@@ -8296,7 +8339,7 @@
         </trans-unit>
         <trans-unit id="Page 3389183890 - Control 1459871223 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the account.</source>
-          <target state="translated">Specifica il nome dell'account.</target>
+          <target state="translated">Specifica il nome del conto.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control NameField - Property ToolTip</note>
         </trans-unit>
@@ -8308,7 +8351,7 @@
         </trans-unit>
         <trans-unit id="Page 3389183890 - Control 1983663785 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the account.</source>
-          <target state="translated">Specifica il nome dell'account.</target>
+          <target state="translated">Specifica il nome del conto.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control NameFieldLookup - Property ToolTip</note>
         </trans-unit>
@@ -9588,7 +9631,7 @@
         </trans-unit>
         <trans-unit id="Enum 2157280740 - EnumValue 4044244568 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Updating Data</source>
-          <target state="translated">Aggiornamento dati</target>
+          <target state="translated">Aggiornamento dati in corso</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Feature Status - EnumValue Updating - Property Caption</note>
         </trans-unit>

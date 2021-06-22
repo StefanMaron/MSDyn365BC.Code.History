@@ -1,4 +1,4 @@
-codeunit 134382 "ERM Dimension Journals"
+﻿codeunit 134382 "ERM Dimension Journals"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd,
                   TableData "Vendor Ledger Entry" = rimd;
@@ -33,6 +33,8 @@ codeunit 134382 "ERM Dimension Journals"
         ValueIncorrectErr: Label '%1 value is incorrect';
         DimFactBoxDimSetIDErr: Label 'Dimensions FactBox contains incorrect dimension set.';
         CurrentSaveValuesId: Integer;
+        RecurringMethodsDimFilterErr: Label 'Recurring method B  Balance cannot be used for the line with dimension filter setup.';
+        RecurringMethodsLineDimdErr: Label 'Recurring method BD Balance by Dimension cannot be used for the line with dimension setup.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1238,6 +1240,160 @@ codeunit 134382 "ERM Dimension Journals"
         GeneralJournal.Close;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AssignBDBalanceByDimensionRecurringMethod()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 334592] User can select and assign "BD Balance by Dimension" recurring method in the recurring gen. jnl. line
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"B  Balance");
+
+        // [WHEN] User assign recurring method "BD Balance by Dimension"
+        GenJournalLine.SetHideValidation(true);
+        GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [THEN] Recurring method = "BD Balance by Dimension"
+        Assert.AreEqual(GenJournalLine."Recurring Method"::"BD Balance by Dimension", GenJournalLine."Recurring Method", 'Wrong recurring method');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AssignRBDReverseBalanceByDimensionRecurringMethod()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 334592] User can select and assign "RBD Reversing Balance by Dimension" recurring method in the recurring gen. jnl. line
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"B  Balance");
+
+        // [WHEN] User assign recurring method "RBD Reversing Balance by Dimension"
+        GenJournalLine.SetHideValidation(true);
+        GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension");
+
+        // [THEN] Recurring method = "RBD Reversing Balance by Dimension"
+        Assert.AreEqual(GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension", GenJournalLine."Recurring Method", 'Wrong recurring method');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue,GenJnlDimFiltersHandler')]
+    procedure SetDimensionFilterWhenValidateRecurringMethodBDBalancebyDimension()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 334592] User can set dimension filters when assign "BD Balance by Dimension" recurring method in the recurring gen. jnl. line
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"B  Balance");
+
+        // [WHEN] User assign recurring method "BD Balance by Dimension"
+        GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [THEN] Dimension filters are stored in the "Gen. Jnl. Dim. Filter" table
+        VerifyGenJnlDimFilters(GenJournalLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue,GenJnlDimFiltersHandler')]
+    procedure SetDimensionFilterWhenValidateRecurringMethodRBDReversingBalancebyDimension()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 334592] User can set dimension filters when assign "RBD Reversing Balance by Dimension" recurring method in the recurring gen. jnl. line
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"B  Balance");
+
+        // [WHEN] User assign recurring method "BD Balance by Dimension"
+        GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension");
+
+        // [THEN] Dimension filters are stored in the "Gen. Jnl. Dim. Filter" table
+        VerifyGenJnlDimFilters(GenJournalLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerFalse,GenJnlDimFiltersHandler')]
+    procedure SetDimensionFilterFromRecurringGeneralJournal()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [SCENARIO 334592] User can set dimension filters from the recurring general journal page
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Invoke "Set Dimension Filter" action
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        RecurringGeneralJournal.SetDimFilters.Invoke();
+
+        // [THEN] Dimension filters are stored in the "Gen. Jnl. Dim. Filter" table
+        VerifyGenJnlDimFilters(GenJournalLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    //[HandlerFunctions('ConfirmHandlerFalse,GenJnlDimFiltersHandler')]
+    procedure ChangeRecurringMethodToBDBalanceByDimension()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
+        DimensionValue: Record "Dimension Value";
+        DimensionManagement: Codeunit DimensionManagement;
+    begin
+        // [SCENARIO 334592] User cannot change recurring method to "BD Balance by Dimension" or "RBD Reversing Balance by Dimension" if there any dimensions assigned to line
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line with dimensions
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"B  Balance");
+        DimensionValue.FindFirst();
+        TempDimensionSetEntry.Init();
+        TempDimensionSetEntry."Dimension Code" := DimensionValue."Dimension Code";
+        TempDimensionSetEntry."Dimension Value Code" := DimensionValue.Code;
+        TempDimensionSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
+        TempDimensionSetEntry.Insert();
+        GenJournalLine.Validate("Dimension Set ID", DimensionManagement.GetDimensionSetID(TempDimensionSetEntry));
+        GenJournalLine.Modify();
+
+        // [WHEN] Change recurring method from "B  Balance" to "BD Balance by Dimension"
+        asserterror GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [THEN] Error that recurring method cannot be assigned if dimensions exists
+        Assert.ExpectedError(RecurringMethodsLineDimdErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue,GenJnlDimFiltersHandler')]
+    procedure ChangeRecurringMethodFromBDBalanceByDimension()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 334592] User can set dimension filters from the recurring general journal page
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line with dimension filter
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Change recurring method from "BD Balance by Dimension" to "B  Balance"
+        asserterror GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"B  Balance");
+
+        // [THEN] Error that recurring method cannot be assigned if dimension filter exists
+        Assert.ExpectedError(RecurringMethodsDimFilterErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";
@@ -2343,6 +2499,25 @@ codeunit 134382 "ERM Dimension Journals"
         end;
     end;
 
+    local procedure CreateRecurringGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalRecurringMethod: Enum "Gen. Journal Recurring Method")
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJnlDimFilter: Record "Gen. Jnl. Dim. Filter";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        GenJnlDimFilter.DeleteAll();
+        FindGLRecurringBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        ClearGenJournalBatchAllocation(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 0);
+        GenJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(GenJournalBatch."Posting No. Series", WorkDate, false));
+        GenJournalLine.Validate("Recurring Method", GenJournalRecurringMethod);
+        Evaluate(GenJournalLine."Recurring Frequency", '<1M>');
+        GenJournalLine.Modify(true);
+    end;
+
     local procedure VerifyDimensionSetEntry(DimensionSetID: Integer; DefaultDimension: Record "Default Dimension")
     var
         DimensionSetEntry: Record "Dimension Set Entry";
@@ -2435,6 +2610,22 @@ codeunit 134382 "ERM Dimension Journals"
                     GeneralJournal.Control1900919607."Dimension Value Code".Value);
             until not GeneralJournal.Control1900919607.Next;
         Assert.AreEqual(ExpectedDimSetId, FactBoxDimSetId, DimFactBoxDimSetIDErr);
+    end;
+
+    local procedure VerifyGenJnlDimFilters(GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJnlDimFilter: Record "Gen. Jnl. Dim. Filter";
+        DimensionValue: Record "Dimension Value";
+    begin
+        GenJnlDimFilter.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJnlDimFilter.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJnlDimFilter.SetRange("Journal Line No.", GenJournalLine."Line No.");
+        GenJnlDimFilter.FindFirst();
+        Assert.RecordCount(GenJnlDimFilter, 1);
+
+        DimensionValue.FindFirst();
+        Assert.AreEqual(DimensionValue."Dimension Code", GenJnlDimFilter."Dimension Code", 'Wrong value in dimension code');
+        Assert.AreEqual(DimensionValue.Code, GenJnlDimFilter."Dimension Value Filter", 'Wrong value in dimension value filter');
     end;
 
     [ModalPageHandler]
@@ -2728,6 +2919,26 @@ codeunit 134382 "ERM Dimension Journals"
     [Scope('OnPrem')]
     procedure DocumentNoIsBlankMessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GenJnlDimFiltersHandler(var GenJnlDimFilters: TestPage "Gen. Jnl. Dim. Filters")
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        DimensionValue.FindFirst();
+
+        GenJnlDimFilters."Dimension Code".Value(DimensionValue."Dimension Code");
+        GenJnlDimFilters."Dimension Value Filter".Value(DimensionValue.Code);
+        GenJnlDimFilters.New();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

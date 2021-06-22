@@ -641,7 +641,7 @@
         </trans-unit>
         <trans-unit id="Page 3997127860 - Control 1620293444 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the range of deviation, plus or minus, that you'll accept in the forecast. Lower percentages represent more accurate forecasts, and are typically between 20 and 40. Forecasts outside the range are considered inaccurate, and do not display.</source>
-          <target state="translated">Gibt den Bereich der Abweichung – plus oder minus – an, den Sie in der Planung akzeptieren. Niedrigere Prozentsätze stehen für genauere Planungen und liegen normalerweise zwischen 20 und 40. Planungen außerhalb dieses Bereichs werden als ungenau eingestuft und nicht angezeigt.</target>
+          <target state="translated">Gibt den Bereich der Abweichung – plus oder minus – an, den Sie in der Vorhersage akzeptieren. Niedrigere Prozentsätze stehen für genauere Vorhersagen und liegen normalerweise zwischen 20 und 40. Vorhersagen außerhalb dieses Bereichs werden als ungenau eingestuft und nicht angezeigt.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Variance % - Property ToolTip</note>
         </trans-unit>

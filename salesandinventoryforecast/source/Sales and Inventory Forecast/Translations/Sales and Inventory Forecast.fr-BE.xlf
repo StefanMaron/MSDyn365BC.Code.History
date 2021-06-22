@@ -599,7 +599,7 @@
         </trans-unit>
         <trans-unit id="Page 3997127860 - Control 95864743 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the type of period that you want to see the forecast by.</source>
-          <target state="translated">Spécifie le type de période à appliquer à la prévision.</target>
+          <target state="translated">Spécifie pour quel type de période vous souhaitez voir la prévision.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Period Type - Property ToolTip</note>
         </trans-unit>
@@ -641,7 +641,7 @@
         </trans-unit>
         <trans-unit id="Page 3997127860 - Control 1620293444 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the range of deviation, plus or minus, that you'll accept in the forecast. Lower percentages represent more accurate forecasts, and are typically between 20 and 40. Forecasts outside the range are considered inaccurate, and do not display.</source>
-          <target state="translated">Spécifie la plage d'écart (en plus ou en moins) acceptée dans la prévision. Les pourcentages plus faibles représentent des prévisions plus précises, et se situent généralement entre 20 et 40. Les prévisions en dehors de cette plage sont considérées comme inexactes, et ne sont pas affichées.</target>
+          <target state="translated">Spécifie la plage d’écart (en plus ou en moins) acceptée dans la prévision. Les pourcentages plus faibles représentent des prévisions plus précises, et se situent généralement entre 20 et 40. Les prévisions en dehors de cette plage sont considérées comme inexactes, et ne sont pas affichées.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Variance % - Property ToolTip</note>
         </trans-unit>

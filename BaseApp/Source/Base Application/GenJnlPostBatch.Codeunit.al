@@ -1,4 +1,4 @@
-codeunit 13 "Gen. Jnl.-Post Batch"
+﻿codeunit 13 "Gen. Jnl.-Post Batch"
 {
     Permissions = TableData "Gen. Journal Batch" = imd;
     TableNo = "Gen. Journal Line";
@@ -57,6 +57,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         GLSetup: Record "General Ledger Setup";
         FAJnlSetup: Record "FA Journal Setup";
         GenJnlLineTemp: Record "Gen. Journal Line" temporary;
+        SavedGenJournalLine: Record "Gen. Journal Line";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
@@ -98,6 +99,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         SuppressCommit: Boolean;
         ReversePostingDateErr: Label 'Posting Date for reverse cannot be less than %1', Comment = '%1 = Posting Date';
         FirstLine: Boolean;
+        TempBatchNameTxt: Label 'BD_TEMP_B', Locked = true;
 
     local procedure "Code"(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -126,6 +128,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             OnBeforeRaiseExceedLengthError(GenJnlBatch, RaiseError, GenJnlLine);
 
             if GenJnlTemplate.Recurring then begin
+                PrepareDimensionBalancedGenJnlLine(GenJnlLine);
                 TempMarkedGenJnlLine.Copy(GenJnlLine);
                 CheckGenJnlLineDates(TempMarkedGenJnlLine, GenJnlLine);
                 TempMarkedGenJnlLine.SetRange("Posting Date", 0D, WorkDate);
@@ -226,7 +229,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             RecRef.SetTable(TempGenJnlLine4);
             PostReversingLines(TempGenJnlLine4);
 
-            OnProcessLinesOnAfterPostGenJnlLines(GenJnlLine, GLReg, GLRegNo);
+            OnProcessLinesOnAfterPostGenJnlLines(GenJnlLine, GLReg, GLRegNo, PreviewMode);
 
             // Copy register no. and current journal batch name to general journal
             IsHandled := false;
@@ -256,6 +259,8 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                     Evaluate(PostingNoSeriesNo, NoSeries.Description);
                     NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
                 until NoSeries.Next = 0;
+
+            DeleteDimBalBatch(GenJnlLine);
 
             OnBeforeCommit(GLRegNo, GenJnlLine, GenJnlPostLine);
 
@@ -507,7 +512,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckCorrection(GenJournalLine, IsHandled);
+        OnBeforeCheckCorrection(GenJournalLine, IsHandled, GenJnlTemplate, LastDate, LastDocType, LastDocNo, DocCorrection);
         if IsHandled then
             exit;
 
@@ -827,7 +832,13 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
         JnlLineTotalQty: Integer;
         RefPostingSubState: Option "Check account","Check bal. account","Update lines";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyFields(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlLine6.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
         GenJnlLine4.FilterGroup(2);
         GenJnlLine4.Copy(GenJnlLine);
@@ -1128,6 +1139,8 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     local procedure CheckGenJnlLineDates(var MarkedGenJnlLine: Record "Gen. Journal Line"; var GenJournalLine: Record "Gen. Journal Line")
+    var
+        StartBatchName: Code[10];
     begin
         with GenJournalLine do begin
             if not Find then
@@ -1135,14 +1148,21 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             SetRange("Posting Date", 0D, WorkDate);
             if FindSet then begin
                 StartLineNo := "Line No.";
+                StartBatchName := "Journal Batch Name";
                 repeat
                     if IsNotExpired(GenJournalLine) and IsPostingDateAllowed(GenJournalLine) then begin
                         MarkedGenJnlLine := GenJournalLine;
-                        MarkedGenJnlLine.Insert();
+                        if GenJournalLine."Recurring Method" in
+                            [GenJournalLine."Recurring Method"::"BD Balance by Dimension", GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension"]
+                        then begin
+                            if GenJournalLine."Journal Batch Name" <> GenJnlBatch.Name then
+                                MarkedGenJnlLine.Insert();
+                        end else
+                            MarkedGenJnlLine.Insert();
                     end;
                     if Next = 0 then
                         FindFirst;
-                until "Line No." = StartLineNo
+                until ("Line No." = StartLineNo) and (StartBatchName = "Journal Batch Name");
             end;
             MarkedGenJnlLine := GenJournalLine;
         end;
@@ -1344,7 +1364,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                ("IC Direction" = "IC Direction"::Outgoing) and (ICTransactionNo > 0)
             then
                 ICOutboxMgt.CreateOutboxJnlLine(ICTransactionNo, 1, GenJnlLine5);
-            if ("Recurring Method".AsInteger() >= "Recurring Method"::"RF Reversing Fixed".AsInteger()) and ("Posting Date" <> 0D) then begin
+            if ("Recurring Method".AsInteger() >= "Recurring Method"::"RF Reversing Fixed".AsInteger()) and ("Posting Date" <> 0D) and ("Recurring Method".AsInteger() <> "Recurring Method"::"BD Balance by Dimension".AsInteger()) then begin
                 SavedPostingDate := "Posting Date";
                 "Posting Date" := CalcReversePostingDate(GenJournalLine);
                 "Document Date" := "Posting Date";
@@ -1447,6 +1467,136 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         OnAfterCalcReversePostingDate(GenJournalLine, PostingDate);
     end;
 
+    local procedure PrepareDimensionBalancedGenJnlLine(var SrcGenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.Copy(SrcGenJournalLine);
+        GenJournalLine.SetFilter(
+            "Recurring Method", '%1|%2',
+            GenJournalLine."Recurring Method"::"BD Balance by Dimension",
+            GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension");
+        if GenJournalLine.IsEmpty then
+            exit;
+
+        SavedGenJournalLine := SrcGenJournalLine;
+        CreateDimBalGenJnlBatch(SrcGenJournalLine);
+        CreateDimBalGenJnlLines(GenJournalLine);
+        SrcGenJournalLine.FilterGroup(2);
+        SrcGenJournalLine.SetFilter("Journal Batch Name", '%1|%2', SrcGenJournalLine."Journal Batch Name", TempBatchNameTxt);
+        SrcGenJournalLine.FilterGroup(0);
+        SrcGenJournalLine.SetFilter("Journal Batch Name", '%1|%2', SrcGenJournalLine."Journal Batch Name", TempBatchNameTxt);
+    end;
+
+    local procedure CreateDimBalGenJnlBatch(SrcGenJournalLine: Record "Gen. Journal Line")
+    var
+        SrcGenJournalBatch: Record "Gen. Journal Batch";
+        DstGenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        SrcGenJournalBatch.Get(SrcGenJournalLine."Journal Template Name", SrcGenJournalLine."Journal Batch Name");
+        DstGenJournalBatch := SrcGenJournalBatch;
+        DstGenJournalBatch.Name := TempBatchNameTxt;
+        DstGenJournalBatch.Insert();
+    end;
+
+    local procedure CreateDimBalGenJnlLines(var SrcGenJournalLine: Record "Gen. Journal Line");
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DimBalGLEntry: Record "G/L Entry";
+        TempInteger: Record Integer temporary;
+        LineNo: Integer;
+    begin
+        if SrcGenJournalLine.FindSet() then
+            repeat
+                DimBalGLEntry.SetRange("G/L Account No.", SrcGenJournalLine."Account No.");
+                DimBalGLEntry.SetRange("Posting Date", 0D, SrcGenJournalLine."Posting Date");
+                SetGLEntryDimensionFilters(DimBalGLEntry, SrcGenJournalLine);
+                if DimBalGLEntry.FindSet() then
+                    repeat
+                        TempInteger.Number := DimBalGLEntry."Dimension Set ID";
+                        if TempInteger.Insert() then;
+                    until DimBalGLEntry.Next() = 0;
+
+                if TempInteger.FindSet() then
+                    repeat
+                        LineNo += 1;
+                        DimBalGLEntry.SetRange("Dimension Set ID", TempInteger.Number);
+                        DimBalGLEntry.CalcSums(Amount);
+                        if DimBalGLEntry.Amount <> 0 then begin
+                            GenJournalLine := SrcGenJournalLine;
+                            GenJournalLine."Journal Batch Name" := TempBatchNameTxt;
+                            GenJournalLine."Line No." := LineNo;
+                            GenJournalLine.Validate("Dimension Set ID", TempInteger.Number);
+                            GenJournalLine.Validate(Amount, -DimBalGLEntry.Amount);
+                            GenJournalLine.Insert();
+
+                            CopyDimBalGenJnlAlloc(SrcGenJournalLine, GenJournalLine);
+                        end;
+                    until TempInteger.Next() = 0;
+            until SrcGenJournalLine.Next() = 0;
+    end;
+
+    local procedure SetGLEntryDimensionFilters(var DimBalGLEntry: Record "G/L Entry"; SrcGenJournalLine: Record "Gen. Journal Line")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GenJnlDimFilter: Record "Gen. Jnl. Dim. Filter";
+    begin
+        GeneralLedgerSetup.Get();
+
+        GenJnlDimFilter.SetRange("Journal Template Name", SrcGenJournalLine."Journal Template Name");
+        GenJnlDimFilter.SetRange("Journal Batch Name", SrcGenJournalLine."Journal Batch Name");
+        GenJnlDimFilter.SetRange("Journal Line No.", SrcGenJournalLine."Line No.");
+        GenJnlDimFilter.SetFilter("Dimension Value Filter", '<>%1', '');
+        if GenJnlDimFilter.FindSet() then
+            repeat
+                case GenJnlDimFilter."Dimension Code" of
+                    GeneralLedgerSetup."Global Dimension 1 Code":
+                        DimBalGLEntry.SetFilter("Global Dimension 1 Code", GenJnlDimFilter."Dimension Value Filter");
+                    GeneralLedgerSetup."Global Dimension 2 Code":
+                        DimBalGLEntry.SetFilter("Global Dimension 2 Code", GenJnlDimFilter."Dimension Value Filter");
+                    GeneralLedgerSetup."Shortcut Dimension 3 Code":
+                        DimBalGLEntry.SetFilter("Shortcut Dimension 3 Code", GenJnlDimFilter."Dimension Value Filter");
+                    GeneralLedgerSetup."Shortcut Dimension 4 Code":
+                        DimBalGLEntry.SetFilter("Shortcut Dimension 4 Code", GenJnlDimFilter."Dimension Value Filter");
+                    GeneralLedgerSetup."Shortcut Dimension 5 Code":
+                        DimBalGLEntry.SetFilter("Shortcut Dimension 5 Code", GenJnlDimFilter."Dimension Value Filter");
+                    GeneralLedgerSetup."Shortcut Dimension 6 Code":
+                        DimBalGLEntry.SetFilter("Shortcut Dimension 6 Code", GenJnlDimFilter."Dimension Value Filter");
+                    GeneralLedgerSetup."Shortcut Dimension 7 Code":
+                        DimBalGLEntry.SetFilter("Shortcut Dimension 7 Code", GenJnlDimFilter."Dimension Value Filter");
+                    GeneralLedgerSetup."Shortcut Dimension 8 Code":
+                        DimBalGLEntry.SetFilter("Shortcut Dimension 8 Code", GenJnlDimFilter."Dimension Value Filter");
+                end;
+            until GenJnlDimFilter.Next() = 0;
+    end;
+
+    local procedure CopyDimBalGenJnlAlloc(SrcGenJournalLine: Record "Gen. Journal Line"; DstGenJournalLine: Record "Gen. Journal Line")
+    var
+        SrcGenJnlAllocation: Record "Gen. Jnl. Allocation";
+        DstGenJnlAllocation: Record "Gen. Jnl. Allocation";
+    begin
+        SrcGenJnlAllocation.SetRange("Journal Template Name", SrcGenJournalLine."Journal Template Name");
+        SrcGenJnlAllocation.SetRange("Journal Batch Name", SrcGenJournalLine."Journal Batch Name");
+        SrcGenJnlAllocation.SetRange("Journal Line No.", SrcGenJournalLine."Line No.");
+        if SrcGenJnlAllocation.FindSet() then
+            repeat
+                DstGenJnlAllocation := SrcGenJnlAllocation;
+                DstGenJnlAllocation."Journal Batch Name" := DstGenJournalLine."Journal Batch Name";
+                DstGenJnlAllocation."Journal Line No." := DstGenJournalLine."Line No.";
+                DstGenJnlAllocation.Insert();
+            until SrcGenJnlAllocation.Next() = 0;
+    end;
+
+    local procedure DeleteDimBalBatch(var SrcGenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        if GenJournalBatch.Get(GenJnlTemplate.Name, TempBatchNameTxt) then begin
+            GenJournalBatch.Delete(true);
+            SrcGenJournalLine := SavedGenJournalLine;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; LastDocNo: code[20]; LastPostedDocNo: code[20])
     begin
@@ -1478,7 +1628,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckCorrection(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckCorrection(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; GenJnlTemplate: Record "Gen. Journal Template"; var LastDate: Date; var LastDocType: Enum "Gen. Journal Document Type"; var LastDocNo: Code[20]; var DocCorrection: Boolean)
     begin
     end;
 
@@ -1494,6 +1644,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCommit(GLRegNo: Integer; var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFields(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1623,7 +1778,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnProcessLinesOnAfterPostGenJnlLines(GenJournalLine: Record "Gen. Journal Line"; GLRegister: Record "G/L Register"; var GLRegNo: Integer)
+    local procedure OnProcessLinesOnAfterPostGenJnlLines(GenJournalLine: Record "Gen. Journal Line"; GLRegister: Record "G/L Register"; var GLRegNo: Integer; PreviewMode: Boolean)
     begin
     end;
 

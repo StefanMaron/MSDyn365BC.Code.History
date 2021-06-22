@@ -3316,9 +3316,11 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLineCharge, PurchaseHeader, PurchaseLineCharge.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);
         PurchaseLineCharge.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
-        PurchaseLineCharge.Validate("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         PurchaseLineCharge.Validate("Gen. Prod. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        PurchaseLineCharge.Validate("VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         PurchaseLineCharge.Modify(true);
+        LibraryERM.UpdatePurchPrepmtAccountVATGroup(
+            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         LocationCode := ModifyWarehouseLocation(true);
 
         // [GIVEN] Prepayment is posted for Purchase Order

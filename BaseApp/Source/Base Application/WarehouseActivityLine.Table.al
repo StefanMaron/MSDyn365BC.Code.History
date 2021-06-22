@@ -270,7 +270,8 @@
                     CheckReservedItemTrkg(ItemTrackingType::"Lot No.", "Lot No.");
 
                 if ("Qty. to Handle" = 0) and RegisteredWhseActLineIsEmpty then
-                    UpdateReservation(Rec, false)
+                    if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
+                        UpdateReservation(Rec, false);
             end;
         }
         field(27; "Qty. to Handle (Base)"; Decimal)

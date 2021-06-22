@@ -317,13 +317,13 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2427663917 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>POs Pending Approval Style</source>
-          <target state="translated">Stijl van inkooporders wachtend op goedkeuring</target>
+          <target state="translated">Stijl van inkooporders die wachten op goedkeuring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field POs Pending Approval Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3159236076 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SOs Pending Approval Style</source>
-          <target state="translated">Stijl van verkooporders wachtend op goedkeuring</target>
+          <target state="translated">Stijl van verkooporders die wachten op goedkeuring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field SOs Pending Approval Style - Property Caption</note>
         </trans-unit>
@@ -497,7 +497,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2776116579 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My Incoming Documents Style</source>
-          <target state="translated">Stijl van Mijn inkomende documenten</target>
+          <target state="translated">Stijl van mijn inkomende documenten</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field My Incoming Documents Style - Property Caption</note>
         </trans-unit>
@@ -545,7 +545,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2299868809 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My User Task Style</source>
-          <target state="translated">Stijl van Mijn gebruikerstaak</target>
+          <target state="translated">Stijl van mijn gebruikerstaak</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field My User Task Style - Property Caption</note>
         </trans-unit>
@@ -869,7 +869,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3027363170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc. Doc. Awaiting Verfication</source>
-          <target state="translated">Inkomende documenten in afwachting van verificatie</target>
+          <target state="translated">Inkomend document in afwachting van verificatie</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Inc. Doc. Awaiting Verfication - Property Caption</note>
         </trans-unit>
@@ -893,13 +893,13 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2427663917 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>POs Pending Approval Style</source>
-          <target state="translated">Stijl van inkooporders wachtend op goedkeuring</target>
+          <target state="translated">Stijl van inkooporders die wachten op goedkeuring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field POs Pending Approval Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3159236076 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SOs Pending Approval Style</source>
-          <target state="translated">Stijl van verkooporders wachtend op goedkeuring</target>
+          <target state="translated">Stijl van verkooporders die wachten op goedkeuring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field SOs Pending Approval Style - Property Caption</note>
         </trans-unit>
@@ -1073,7 +1073,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2776116579 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My Incoming Documents Style</source>
-          <target state="translated">Stijl van Mijn inkomende documenten</target>
+          <target state="translated">Stijl van mijn inkomende documenten</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field My Incoming Documents Style - Property Caption</note>
         </trans-unit>
@@ -1115,7 +1115,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2299868809 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>My User Task Style</source>
-          <target state="translated">Stijl van Mijn gebruikerstaak</target>
+          <target state="translated">Stijl van mijn gebruikerstaak</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field My User Task Style - Property Caption</note>
         </trans-unit>
@@ -1721,7 +1721,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 2113664607 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the balance on cash accounts.  </source>
-          <target state="translated">Hiermee wordt het saldo van kasrekeningen opgegeven. </target>
+          <target state="translated">Hiermee wordt het saldo op kasrekeningen opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Cash Accounts Balance - Property ToolTip</note>
         </trans-unit>
@@ -1733,7 +1733,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 2364333754 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the balance on cash accounts.  </source>
-          <target state="translated">Hiermee wordt het saldo op kasrekeningen opgegeven. </target>
+          <target state="translated">Hiermee wordt het saldo op kasrekeningen opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Cash Accounts Balance Decimal - Property ToolTip</note>
         </trans-unit>
@@ -1769,7 +1769,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 4238549263 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue purchase invoices.</source>
-          <target state="translated">Hiermee wordt het totale bedrag van achterstallige inkoopfacturen opgegeven.</target>
+          <target state="translated">Hiermee wordt het totale bedrag op achterstallige inkoopfacturen opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Overdue Purch. Invoice Amount - Property ToolTip</note>
         </trans-unit>
@@ -1787,7 +1787,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 2949566721 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue sales invoices.</source>
-          <target state="translated">Hiermee wordt het totale bedrag van achterstallige verkoopfacturen opgegeven.</target>
+          <target state="translated">Hiermee wordt het totale bedrag op achterstallige verkoopfacturen opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Overdue Sales Invoice Amount - Property ToolTip</note>
         </trans-unit>
@@ -2129,7 +2129,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 2113664607 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the balance on cash accounts.  </source>
-          <target state="translated">Hiermee wordt het saldo van kasrekeningen opgegeven. </target>
+          <target state="translated">Hiermee wordt het saldo op kasrekeningen opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Cash Accounts Balance - Property ToolTip</note>
         </trans-unit>
@@ -2141,7 +2141,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 2364333754 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the balance on cash accounts.  </source>
-          <target state="translated">Hiermee wordt het saldo op kasrekeningen opgegeven. </target>
+          <target state="translated">Hiermee wordt het saldo op kasrekeningen opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Cash Accounts Balance Decimal - Property ToolTip</note>
         </trans-unit>
@@ -2177,7 +2177,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 4238549263 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue purchase invoices.</source>
-          <target state="translated">Hiermee wordt het totale bedrag van achterstallige inkoopfacturen opgegeven.</target>
+          <target state="translated">Hiermee wordt het totale bedrag op achterstallige inkoopfacturen opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Overdue Purch. Invoice Amount - Property ToolTip</note>
         </trans-unit>
@@ -2195,7 +2195,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 2949566721 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total amount on overdue sales invoices.</source>
-          <target state="translated">Hiermee wordt het totale bedrag van achterstallige verkoopfacturen opgegeven.</target>
+          <target state="translated">Hiermee wordt het totale bedrag op achterstallige verkoopfacturen opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Overdue Sales Invoice Amount - Property ToolTip</note>
         </trans-unit>
@@ -2279,7 +2279,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 2432407826 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the last refreshed date.</source>
-          <target state="translated">Hiermee wordt de datum opgegeven waarop het laatst is vernieuwd.</target>
+          <target state="translated">Hiermee wordt de datum opgegeven waarop voor het laatst is vernieuwd.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Last Refreshed - Property ToolTip</note>
         </trans-unit>
@@ -2291,7 +2291,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Action 3913955181 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Get fresh data for the chosen company.</source>
-          <target state="translated">Vernieuw gegevens voor het gekozen bedrijf.</target>
+          <target state="translated">Recente gegevens ophalen voor het gekozen bedrijf.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Action RefreshCurrentCompany - Property ToolTip</note>
         </trans-unit>
@@ -2303,7 +2303,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Action 1864769499 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reload all enviroments and update company data.</source>
-          <target state="translated">Laad alle omgevingen opnieuw en werk bedrijfsgegevens bij.</target>
+          <target state="translated">Alle omgevingen opnieuw laden en bedrijfsgegevens bijwerken.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Action ReloadAllCompanies - Property ToolTip</note>
         </trans-unit>
@@ -2315,7 +2315,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Action 3486028960 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Open this company in a new window.</source>
-          <target state="translated">Open dit bedrijf in een nieuw venster.</target>
+          <target state="translated">Dit bedrijf in een nieuw venster openen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Action GoToCompany - Property ToolTip</note>
         </trans-unit>

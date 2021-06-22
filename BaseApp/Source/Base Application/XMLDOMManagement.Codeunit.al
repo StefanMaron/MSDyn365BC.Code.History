@@ -24,6 +24,12 @@ codeunit 6224 "XML DOM Management"
         exit(AddElementToNode(XMLNode, NewChildNode, NodeText, CreatedXMLNode));
     end;
 
+    procedure AddElement(var ParentXmlNode: XmlNode; NodeName: Text; NodeText: Text; NameSpace: Text; var CreatedXmlNode: XmlNode): Boolean
+    begin
+        CreatedXmlNode := XmlElement.Create(NodeName, NameSpace, NodeText).AsXmlNode();
+        exit(ParentXmlNode.AsXmlElement().Add(CreatedXmlNode));
+    end;
+
     [Scope('OnPrem')]
     procedure AddRootElement(var XMLDoc: DotNet XmlDocument; NodeName: Text; var CreatedXMLNode: DotNet XmlNode)
     begin
@@ -31,11 +37,24 @@ codeunit 6224 "XML DOM Management"
         XMLDoc.AppendChild(CreatedXMLNode);
     end;
 
+    procedure AddRootElement(var RootXmlDocument: XmlDocument; NodeName: Text; var CreatedXmlNode: XmlNode): Boolean
+    begin
+        CreatedXmlNode := XmlElement.Create(NodeName).AsXmlNode();
+        exit(RootXmlDocument.Add(CreatedXmlNode));
+    end;
+
     [Scope('OnPrem')]
     procedure AddRootElementWithPrefix(var XMLDoc: DotNet XmlDocument; NodeName: Text; Prefix: Text; NameSpace: Text; var CreatedXMLNode: DotNet XmlNode)
     begin
         CreatedXMLNode := XMLDoc.CreateElement(Prefix, NodeName, NameSpace);
         XMLDoc.AppendChild(CreatedXMLNode);
+    end;
+
+    procedure AddRootElementWithPrefix(var RootXmlDocument: XmlDocument; NodeName: Text; Prefix: Text; NameSpace: text; var CreatedXmlNode: XmlNode): Boolean
+    begin
+        CreatedXmlNode := XmlElement.Create(NodeName, NameSpace).AsXmlNode();
+        CreatedXmlNode.AsXmlElement().Add(XmlAttribute.CreateNamespaceDeclaration(Prefix, NameSpace));
+        exit(RootXmlDocument.Add(CreatedXmlNode));
     end;
 
     [Scope('OnPrem')]
@@ -46,6 +65,13 @@ codeunit 6224 "XML DOM Management"
         OnBeforeAddElementWithPrefix(NodeName);
         NewChildNode := XMLNode.OwnerDocument.CreateElement(Prefix, NodeName, NameSpace);
         exit(AddElementToNode(XMLNode, NewChildNode, NodeText, CreatedXMLNode));
+    end;
+
+    procedure AddElementWithPrefix(var ParentXmlNode: XmlNode; NodeName: Text; NodeText: Text; Prefix: Text; NameSpace: text; var CreatedXmlNode: XmlNode): Boolean
+    begin
+        CreatedXmlNode := XmlElement.Create(NodeName, NameSpace, NodeText).AsXmlNode();
+        CreatedXmlNode.AsXmlElement().Add(XmlAttribute.CreateNamespaceDeclaration(Prefix, NameSpace));
+        exit(ParentXmlNode.AsXmlElement().Add(CreatedXmlNode));
     end;
 
     local procedure AddElementToNode(var XMLNode: DotNet XmlNode; var NewChildNode: DotNet XmlNode; NodeText: Text; var CreatedXMLNode: DotNet XmlNode) ExitStatus: Integer
@@ -73,6 +99,12 @@ codeunit 6224 "XML DOM Management"
         exit(AddAttributeToNode(XMLNode, XMLNewAttributeNode, NodeValue));
     end;
 
+    [TryFunction]
+    procedure AddAttribute(var ParentXmlNode: XmlNode; Name: Text; NodeValue: Text)
+    begin
+        ParentXmlNode.AsXmlElement().SetAttribute(Name, NodeValue);
+    end;
+
     [Scope('OnPrem')]
     procedure AddAttributeWithPrefix(var XMLNode: DotNet XmlNode; Name: Text; Prefix: Text; NameSpace: Text; NodeValue: Text): Integer
     var
@@ -80,6 +112,11 @@ codeunit 6224 "XML DOM Management"
     begin
         XMLNewAttributeNode := XMLNode.OwnerDocument.CreateAttribute(Prefix, Name, NameSpace);
         exit(AddAttributeToNode(XMLNode, XMLNewAttributeNode, NodeValue));
+    end;
+
+    procedure AddAttributeWithPrefix(var ParentXmlNode: XmlNode; Name: Text; Prefix: Text; NameSpace: Text; NodeValue: Text): Boolean
+    begin
+        exit(ParentXmlNode.AsXmlElement().Add(XmlAttribute.Create(Name, NameSpace, NodeValue), XmlAttribute.CreateNamespaceDeclaration(Prefix, NameSpace)));
     end;
 
     local procedure AddAttributeToNode(var XMLNode: DotNet XmlNode; var XMLNewAttributeNode: DotNet XmlNode; NodeValue: Text) ExitStatus: Integer
@@ -95,6 +132,11 @@ codeunit 6224 "XML DOM Management"
         XMLNode.Attributes.SetNamedItem(XMLNewAttributeNode);
     end;
 
+    procedure AddNamespaceDeclaration(var ParentXmlNode: XmlNode; Prefix: Text; NameSpace: Text): Boolean
+    begin
+        exit(ParentXmlNode.AsXmlElement().Add(XmlAttribute.CreateNamespaceDeclaration(Prefix, NameSpace)));
+    end;
+
     [Scope('OnPrem')]
     procedure FindNode(XMLRootNode: DotNet XmlNode; NodePath: Text; var FoundXMLNode: DotNet XmlNode): Boolean
     begin
@@ -107,6 +149,11 @@ codeunit 6224 "XML DOM Management"
             exit(false);
 
         exit(true);
+    end;
+
+    procedure FindNode(RootXmlNode: XmlNode; NodePath: Text; var FoundXmlNode: XmlNode): Boolean
+    begin
+        exit(RootXmlNode.SelectSingleNode(NodePath, FoundXmlNode));
     end;
 
     [Scope('OnPrem')]
@@ -127,6 +174,21 @@ codeunit 6224 "XML DOM Management"
         exit(true);
     end;
 
+    procedure FindNodeWithNamespace(RootXmlNode: XmlNode; NodePath: Text; Prefix: Text; Namespace: Text; var FoundXmlNode: XmlNode): Boolean
+    var
+        XmlNamespaceManager: XmlNamespaceManager;
+        RootXmlDocument: XmlDocument;
+    begin
+        if RootXmlNode.IsXmlDocument() then
+            XmlNamespaceManager.NameTable(RootXmlNode.AsXmlDocument().NameTable())
+        else begin
+            RootXmlNode.GetDocument(RootXmlDocument);
+            XmlNamespaceManager.NameTable(RootXmlDocument.NameTable());
+        end;
+        XmlNamespaceManager.AddNamespace(Prefix, Namespace);
+        exit(RootXmlNode.SelectSingleNode(NodePath, XmlNamespaceManager, FoundXmlNode));
+    end;
+
     [Scope('OnPrem')]
     procedure FindNodesWithNamespace(XMLRootNode: DotNet XmlNode; XPath: Text; Prefix: Text; NameSpace: Text; var FoundXMLNodeList: DotNet XmlNodeList): Boolean
     var
@@ -135,6 +197,21 @@ codeunit 6224 "XML DOM Management"
         XMLNamespaceMgr := XMLNamespaceMgr.XmlNamespaceManager(XMLRootNode.OwnerDocument.NameTable);
         XMLNamespaceMgr.AddNamespace(Prefix, NameSpace);
         exit(FindNodesWithNamespaceManager(XMLRootNode, XPath, XMLNamespaceMgr, FoundXMLNodeList));
+    end;
+
+    procedure FindNodesWithNamespace(RootXmlNode: XmlNode; XPath: Text; Prefix: Text; Namespace: Text; var FoundXmlNodeList: XmlNodeList): Boolean
+    var
+        XmlNamespaceManager: XmlNamespaceManager;
+        RootXmlDocument: XmlDocument;
+    begin
+        if RootXmlNode.IsXmlDocument() then
+            XmlNamespaceManager.NameTable(RootXmlNode.AsXmlDocument().NameTable())
+        else begin
+            RootXmlNode.GetDocument(RootXmlDocument);
+            XmlNamespaceManager.NameTable(RootXmlDocument.NameTable());
+        end;
+        XmlNamespaceManager.AddNamespace(Prefix, Namespace);
+        exit(FindNodesWithNamespaceManager(RootXmlNode, XPath, XmlNamespaceManager, FoundXmlNodeList));
     end;
 
     [Scope('OnPrem')]
@@ -151,6 +228,15 @@ codeunit 6224 "XML DOM Management"
         if FoundXMLNodeList.Count = 0 then
             exit(false);
 
+        exit(true);
+    end;
+
+    procedure FindNodesWithNamespaceManager(RootXmlNode: XmlNode; XPath: Text; XmlNamespaceManager: XmlNamespaceManager; var FoundXmlNodeList: XmlNodeList): Boolean
+    begin
+        if not RootXmlNode.SelectNodes(XPath, XmlNamespaceManager, FoundXmlNodeList) then
+            exit(false);
+        if FoundXmlNodeList.Count() = 0 then
+            exit(false);
         exit(true);
     end;
 
@@ -247,6 +333,25 @@ codeunit 6224 "XML DOM Management"
             exit('');
 
         exit(xmlAttribute.Value)
+    end;
+
+    procedure GetAttributeValue(ParentXmlNode: XmlNode; AttributeName: Text): Text
+    begin
+        exit(GetAttributeValue(ParentXmlNode, AttributeName, ''));
+    end;
+
+    procedure GetAttributeValue(ParentXmlNode: XmlNode; AttributeName: Text; Namespace: Text): Text
+    var
+        FoundXmlAttribute: XmlAttribute;
+        IsFounded: Boolean;
+    begin
+        if Namespace <> '' then
+            IsFounded := ParentXmlNode.AsXmlElement().Attributes().Get(AttributeName, Namespace, FoundXmlAttribute)
+        else
+            IsFounded := ParentXmlNode.AsXmlElement().Attributes().Get(AttributeName, FoundXmlAttribute);
+
+        if IsFounded then
+            exit(FoundXmlAttribute.Value());
     end;
 
     [Scope('OnPrem')]

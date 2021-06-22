@@ -1698,6 +1698,7 @@
 
     local procedure RecalculateAmounts(JobExchCalculation: Option "Fixed FCY","Fixed LCY"; xAmount: Decimal; var Amount: Decimal; var AmountLCY: Decimal)
     begin
+        OnBeforeRecalculateAmounts(Rec, xRec);
         if (xRec."Currency Factor" <> "Currency Factor") and
            (Amount = xAmount) and (JobExchCalculation = JobExchCalculation::"Fixed LCY")
         then
@@ -2323,6 +2324,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleCostFactor(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecalculateAmounts(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line")
     begin
     end;
 

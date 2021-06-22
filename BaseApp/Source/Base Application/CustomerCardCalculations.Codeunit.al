@@ -8,6 +8,7 @@ codeunit 32 "Customer Card Calculations"
         Params: Dictionary of [Text, Text];
         Results: Dictionary of [Text, Text];
         CustomerNo: Code[20];
+        CustomerFilters: Text;
         AmountOnPostedInvoices: Decimal;
         AmountOnPostedCrMemos: Decimal;
         AmountOnOutstandingInvoices: Decimal;
@@ -30,6 +31,9 @@ codeunit 32 "Customer Card Calculations"
         CustomerNo := CopyStr(Params.Get(GetCustomerNoLabel()), 1, MaxStrLen(CustomerNo));
         if not Customer.Get(CustomerNo) then
             exit;
+        CustomerFilters := Params.Get(GetFiltersLabel());
+        if CustomerFilters <> '' then
+            Customer.SetView(CustomerFilters);
         if Evaluate(NewWorkDate, Params.Get(GetWorkDateLabel())) then
             WorkDate := NewWorkDate;
         AmountOnPostedInvoices := CustomerMgt.CalcAmountsOnPostedInvoices(Customer."No.", NoPostedInvoices);
@@ -63,6 +67,7 @@ codeunit 32 "Customer Card Calculations"
         Results.Add(GetNoPostedCrMemosLabel(), Format(NoPostedCrMemos));
         Results.Add(GetNoOutstandingInvoicesLabel(), Format(NoOutstandingInvoices));
         Results.Add(GetNoOutstandingCrMemosLabel(), Format(NoOutstandingCrMemos));
+        Results.Add(GetOverdueBalanceLabel(), Format(Customer.CalcOverdueBalance()));
 
         Page.SetBackgroundTaskResult(Results);
     end;
@@ -87,7 +92,9 @@ codeunit 32 "Customer Card Calculations"
         NoPostedCrMemosLbl: label 'No. Posted Cr. Memos', Locked = true;
         NoOutstandingInvoicesLbl: label 'No. Outstanding Invoices', Locked = true;
         NoOutstandingCrMemosLbl: label 'No. Outstanding Cr. Memos', Locked = true;
+        OverdueBalanceLbl: label 'Overdue Balance', Locked = true;
         CustomerNoLbl: label 'Customer No.', Locked = true;
+        FiltersLbl: label 'Filters', Locked = true;
         WorkDateLbl: label 'Work Date', Locked = true;
 
 
@@ -194,5 +201,15 @@ codeunit 32 "Customer Card Calculations"
     internal procedure GetNoOutstandingCrMemosLabel(): Text
     begin
         exit(NoOutstandingCrMemosLbl);
+    end;
+
+    internal procedure GetOverdueBalanceLabel(): Text
+    begin
+        exit(OverdueBalanceLbl);
+    end;
+
+    internal procedure GetFiltersLabel(): Text
+    begin
+        exit(FiltersLbl);
     end;
 }

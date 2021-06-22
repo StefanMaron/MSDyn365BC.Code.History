@@ -65,7 +65,7 @@
         </trans-unit>
         <trans-unit id="Page 4012389571 - NamedType 2275507930" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please upload a Rapid Start File, before running the import.</source>
-          <target state="translated">Upload een Rapid Start-bestand voordat u de import uitvoert.</target>
+          <target state="translated">Upload een RapidStart-bestand voordat u de import uitvoert.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Config. Packages - NamedType MissingRapisStartFileErr</note>
         </trans-unit>
@@ -202,7 +202,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - Control 2571795694 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the Base Unit of Measure.</source>
-          <target state="translated">Hiermee wordt de basismaateenheid opgegeven.</target>
+          <target state="translated">Hiermee wordt de basiseenheid opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control baseUnitOfMeasure - Property ToolTip</note>
         </trans-unit>
@@ -250,7 +250,7 @@
         </trans-unit>
         <trans-unit id="Page 43150540 - NamedType 1184042849" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>There is nothing to post.</source>
-          <target state="translated">Niets te boeken.</target>
+          <target state="translated">Er valt niets te boeken.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Journals - NamedType ThereIsNothingToPostErr</note>
         </trans-unit>
@@ -742,7 +742,7 @@
         </trans-unit>
         <trans-unit id="Page 3908586298 - Control 3260766182 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the line amount excluding tax.</source>
-          <target state="translated">Hiermee wordt het regelbedrag exclusief BTW opgegeven.</target>
+          <target state="translated">Hiermee wordt het regelbedrag exclusief btw opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Control amountExcludingTax - Property ToolTip</note>
         </trans-unit>

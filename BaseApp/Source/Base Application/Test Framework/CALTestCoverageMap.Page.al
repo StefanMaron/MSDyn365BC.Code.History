@@ -70,6 +70,7 @@ page 130408 "CAL Test Coverage Map"
                     XMLPORT.Run(XMLPORT::"CAL Test Coverage Map");
                 end;
             }
+#if not CLEAN17
             action(ImportFromFolder)
             {
                 ApplicationArea = All;
@@ -77,6 +78,9 @@ page 130408 "CAL Test Coverage Map"
                 Image = ImportExport;
                 //The property 'ToolTip' cannot be empty.
                 //ToolTip = '';
+                ObsoleteReason = 'FileManagement.SelectFolderDialog will always return false and this action will do nothing.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '17.3';
 
                 trigger OnAction()
                 var
@@ -100,6 +104,7 @@ page 130408 "CAL Test Coverage Map"
                     end;
                 end;
             }
+#endif
         }
     }
 

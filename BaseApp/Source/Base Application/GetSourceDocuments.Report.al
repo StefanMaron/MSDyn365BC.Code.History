@@ -703,7 +703,13 @@
     procedure ShowReceiptDialog()
     var
         SpecialHandlingMessage: Text[1024];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReceiptDialog(IsHandled);
+        if IsHandled then
+            exit;
+
         if not LineCreated then
             Error(Text000);
 
@@ -1032,6 +1038,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostReport(WhseRequest: Record "Warehouse Request"; RequestType: Option; OneHeaderCreated: Boolean; var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var ErrorOccured: Boolean; var LineCreated: Boolean; var ActivitiesCreated: Integer; Location: record Location; var WhseShptLine: record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReceiptDialog(var IsHandled: Boolean)
     begin
     end;
 

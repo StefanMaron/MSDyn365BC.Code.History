@@ -905,69 +905,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Role Center - NamedType Text005)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1498758536 - NamedType 672997049" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Value is not found in exported Worksheet Line.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Setup External Files - NamedType ValueIsNotFoundErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1498758536 - NamedType 95063322" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Package Data imported incorrectly.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Setup External Files - NamedType Text003)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1498758536 - NamedType 732759939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Record must be exported for value %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Setup External Files - NamedType Text004)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1498758536 - NamedType 1370456556" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No records must be exported for value %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Setup External Files - NamedType Text005)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1498758536 - NamedType 2008153173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Field %1 must be exported.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Setup External Files - NamedType Text006)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1498758536 - NamedType 2645849790" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Field %1 must not be exported.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Setup External Files - NamedType Text007)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1498758536 - NamedType 3111952567" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Value is incorrect for table ID %1.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Setup External Files - NamedType ValueIsIncorrectErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1935028868 - NamedType 1625426480" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect number of tables for Get Config. Tables report with IncludeWithDataOnly option.]]></Val>

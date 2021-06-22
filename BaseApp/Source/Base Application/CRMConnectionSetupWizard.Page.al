@@ -53,6 +53,7 @@ page 1817 "CRM Connection Setup Wizard"
                     {
                         ApplicationArea = Suite;
                         Editable = ConnectionStringFieldsEditable;
+                        ToolTip = 'Specifies the URL of the Dynamics 365 Sales server that hosts the Dynamics 365 Sales solution that you want to connect to.';
 
                         trigger OnValidate()
                         var
@@ -83,6 +84,7 @@ page 1817 "CRM Connection Setup Wizard"
                         Caption = 'Email';
                         ExtendedDatatype = EMail;
                         Editable = ConnectionStringFieldsEditable;
+                        ToolTip = 'Specifies the user name of a Dynamics 365 Sales account.';
                     }
                     field(Password; Password)
                     {
@@ -90,6 +92,7 @@ page 1817 "CRM Connection Setup Wizard"
                         Caption = 'Password';
                         ExtendedDatatype = Masked;
                         Editable = ConnectionStringFieldsEditable;
+                        ToolTip = 'Specifies the password of a Dynamics 365 Sales user account.';
                     }
                 }
                 group(Control22)
@@ -107,6 +110,7 @@ page 1817 "CRM Connection Setup Wizard"
                         ApplicationArea = Suite;
                         Caption = 'Import Dynamics 365 Sales Solution';
                         Enabled = ImportCRMSolutionEnabled;
+                        ToolTip = 'Specifies that the Dynamics 365 Sales Solution will be imported.';
 
                         trigger OnValidate()
                         begin
@@ -118,6 +122,7 @@ page 1817 "CRM Connection Setup Wizard"
                         ApplicationArea = Suite;
                         Caption = 'Publish Item Availability Web Service';
                         Enabled = PublishItemAvailabilityServiceEnabled;
+                        ToolTip = 'Specifies that the Item Availability web service for Business Central is enabled.';
 
                         trigger OnValidate()
                         begin
@@ -140,6 +145,7 @@ page 1817 "CRM Connection Setup Wizard"
                         Enabled = PublishItemAvailabilityServiceEnabled;
                         Lookup = true;
                         LookupPageID = Users;
+                        ToolTip = 'Specifies the user name to access Dynamics 365 OData web services.';
 
                         trigger OnLookup(var Text: Text): Boolean
                         var
@@ -163,12 +169,14 @@ page 1817 "CRM Connection Setup Wizard"
                         ApplicationArea = Suite;
                         Caption = 'Enable Sales Order Integration';
                         Enabled = EnableSalesOrderIntegrationEnabled;
+                        ToolTip = 'Specifies that it is possible for Dynamics 365 Sales users to submit sales orders that can then be viewed and imported in Dynamics 365.';
                     }
                     field(EnableCRMConnection; EnableCRMConnection)
                     {
                         ApplicationArea = Suite;
                         Caption = 'Enable Dynamics 365 Sales Connection';
                         Enabled = EnableCRMConnectionEnabled;
+                        ToolTip = 'Specifies if the connection to Dynamics 365 Sales will be enabled.';
                     }
                     field(SDKVersion; "Proxy Version")
                     {
@@ -176,6 +184,7 @@ page 1817 "CRM Connection Setup Wizard"
                         AssistEdit = true;
                         Caption = 'Dynamics 365 SDK Version';
                         Editable = false;
+                        ToolTip = 'Specifies the Microsoft Dynamics 365 (CRM) software development kit version that is used to connect to Dynamics 365 Sales.';
 
                         trigger OnAssistEdit()
                         var

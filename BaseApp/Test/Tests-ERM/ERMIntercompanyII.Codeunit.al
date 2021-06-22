@@ -56,6 +56,7 @@ codeunit 134152 "ERM Intercompany II"
         ICInboxTransaction: Record "IC Inbox Transaction";
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
+        TestClientType: Codeunit "Test Client Type Subscriber";
         CustomerNo: Code[20];
         VendorNo: Code[20];
         ICPartnerCode: array[2] of Code[20];
@@ -64,6 +65,8 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Import Transaction File]
         // [SCENARIO 375225] IC Transaction file should be imported when IC Partner Codes of two companies are different
         Initialize;
+        BindSubscription(TestClientType);
+        TestClientType.SetClientType(ClientType::Windows);
 
         // [GIVEN] Two Companies, where "IC Partner Code" are "A" and "B"
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
@@ -113,6 +116,8 @@ codeunit 134152 "ERM Intercompany II"
         ICInboxTransaction.SetRange("Source Type", ICInboxTransaction."Source Type"::"Purchase Document");
         ICInboxTransaction.FindFirst;
         ICInboxTransaction.TestField("Document No.", SalesHeader."No.");
+
+        UnbindSubscription(TestClientType);
     end;
 
     [Test]
@@ -121,6 +126,7 @@ codeunit 134152 "ERM Intercompany II"
     procedure ExportImportICTransactionToSameCompanyError()
     var
         PurchaseHeader: Record "Purchase Header";
+        TestClientType: Codeunit "Test Client Type Subscriber";
         VendorNo: Code[20];
         ICPartnerCode: array[2] of Code[20];
         FileName: Text;
@@ -128,6 +134,8 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Import Transaction File]
         // [SCENARIO 375225] IC Transaction file should not be imported to Company with wrong IC Partner Code
         Initialize;
+        BindSubscription(TestClientType);
+        TestClientType.SetClientType(ClientType::Windows);
 
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
         ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation;
@@ -155,6 +163,8 @@ codeunit 134152 "ERM Intercompany II"
 
         // [THEN] Error message: 'Data Sent to IC Partner "B". Current company's IC Partner Code "A"'
         Assert.ExpectedError(StrSubstNo(WrongCompanyErr, ICPartnerCode[1], ICPartnerCode[2]));
+
+        UnbindSubscription(TestClientType);
     end;
 
     [Test]

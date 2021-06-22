@@ -67,21 +67,22 @@ report 99003803 "Copy Production Forecast"
                         Caption = 'Copy to';
                         field(ProductionForecastName; ToProdForecastEntry."Production Forecast Name")
                         {
-                            ApplicationArea = Manufacturing;
+                            ApplicationArea = Planning;
                             Caption = 'Demand Forecast Name';
                             TableRelation = "Production Forecast Name";
                             ToolTip = 'Specifies the name of the demand forecast to which you want to copy the entries. Before you can select a demand forecast name, it must be set up in the Demand Forecast Names window, which you open by clicking the field.';
+                            ShowMandatory = true;
                         }
                         field(ItemNo; ToProdForecastEntry."Item No.")
                         {
-                            ApplicationArea = Manufacturing;
+                            ApplicationArea = Planning;
                             Caption = 'Item No.';
                             TableRelation = Item;
                             ToolTip = 'Specifies the number of the item to which you want to copy the entries. To see the existing item numbers, click the field.';
                         }
                         field(LocationCode; ToProdForecastEntry."Location Code")
                         {
-                            ApplicationArea = Location;
+                            ApplicationArea = Planning;
                             Caption = 'Location Code';
                             TableRelation = Location;
                             ToolTip = 'Specifies a location for the demand forecast to which you are copying entries.';
@@ -89,13 +90,13 @@ report 99003803 "Copy Production Forecast"
                     }
                     field(ComponentForecast; ToProdForecastEntry."Component Forecast")
                     {
-                        ApplicationArea = Manufacturing;
+                        ApplicationArea = Planning;
                         Caption = 'Component Forecast';
                         ToolTip = 'Specifies whether the entry is for a component item. Leave the field blank if the entry is for a sales item.';
                     }
                     field(DateChangeFormula; ChangeDateExpression)
                     {
-                        ApplicationArea = Manufacturing;
+                        ApplicationArea = Planning;
                         Caption = 'Date Change Formula';
                         ToolTip = 'Specifies how the dates on the entries that are copied will be changed. Use a date formula; for example, to copy last week''s forecast to this week, use the formula 1W (one week).';
                     }

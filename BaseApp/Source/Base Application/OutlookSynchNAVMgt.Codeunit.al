@@ -1330,6 +1330,12 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
         MasterTableRef.Close;
     end;
 
+    [TryFunction]
+    procedure TryCopyRecordReference(FromRec: RecordRef; var ToRec: RecordRef; ValidateOnInsert: Boolean)
+    begin
+        CopyRecordReference(FromRec, ToRec, ValidateOnInsert);
+    end;
+
     procedure CopyRecordReference(FromRec: RecordRef; var ToRec: RecordRef; ValidateOnInsert: Boolean)
     var
         FromField: FieldRef;

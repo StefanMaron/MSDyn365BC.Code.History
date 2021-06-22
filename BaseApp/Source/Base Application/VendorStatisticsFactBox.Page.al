@@ -120,16 +120,20 @@ page 9094 "Vendor Statistics FactBox"
     {
     }
 
+    trigger OnOpenPage()
+    begin
+        SetAutoCalcFields("Balance (LCY)", "Outstanding Orders (LCY)", "Amt. Rcd. Not Invoiced (LCY)", "Outstanding Invoices (LCY)");
+    end;
+
     trigger OnAfterGetRecord()
     var
         VendorNo: Code[20];
         VendorNoFilter: Text;
     begin
-        FilterGroup(4);
-        SetAutoCalcFields("Balance (LCY)", "Outstanding Orders (LCY)", "Amt. Rcd. Not Invoiced (LCY)", "Outstanding Invoices (LCY)");
         TotalAmountLCY := "Balance (LCY)" + "Outstanding Orders (LCY)" + "Amt. Rcd. Not Invoiced (LCY)" + "Outstanding Invoices (LCY)";
 
         // Get the vendor number and set the current vendor number
+        FilterGroup(4);
         VendorNoFilter := GetFilter("No.");
         if (VendorNoFilter = '') then begin
             FilterGroup(0);

@@ -131,7 +131,7 @@
         </trans-unit>
         <trans-unit id="Table 945518375 - Field 1402567763 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Logo Last Update DateTime</source>
-          <target state="translated">Letzte Logoaktualisierung – DateTime</target>
+          <target state="translated">Letzte Logoaktualisierung – Datum/Uhrzeit</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Logo Last Update DateTime - Property Caption</note>
         </trans-unit>

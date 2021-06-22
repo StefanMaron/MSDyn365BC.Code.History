@@ -28,7 +28,13 @@ codeunit 1247 "Process Gen. Journal  Lines"
         DataExch: Record "Data Exch.";
         GenJnlLineTemplate: Record "Gen. Journal Line";
         ProgressWindow: Dialog;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeImportBankStatement(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
 
         case GenJnlBatch."Bal. Account Type" of
@@ -112,6 +118,11 @@ codeunit 1247 "Process Gen. Journal  Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateGeneralJournalLineTemplate(var GenJournalLineTemplate: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImportBankStatement(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

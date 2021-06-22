@@ -202,7 +202,7 @@
         </trans-unit>
         <trans-unit id="Page 715696992 - Control 2571795694 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the Base Unit of Measure.</source>
-          <target state="translated">Hiermee wordt de basismaateenheid opgegeven.</target>
+          <target state="translated">Hiermee wordt de basiseenheid opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Items - Control baseUnitOfMeasure - Property ToolTip</note>
         </trans-unit>

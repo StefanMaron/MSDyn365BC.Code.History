@@ -551,7 +551,7 @@
         </trans-unit>
         <trans-unit id="Page 4244671604 - Control 161526099 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies PayPal terms of service.</source>
-          <target state="translated">Hiermee worden de PayPal-servicevoorwaarden opgegeven.</target>
+          <target state="translated">Hiermee worden de servicevoorwaarden van PayPal opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Settings - Control Terms of Service - Property ToolTip</note>
         </trans-unit>
@@ -717,7 +717,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 1655671086 - Control 161526099 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies PayPal terms of service.</source>
-          <target state="translated">Hiermee worden de PayPal-servicevoorwaarden opgegeven.</target>
+          <target state="translated">Hiermee worden de servicevoorwaarden van PayPal opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>

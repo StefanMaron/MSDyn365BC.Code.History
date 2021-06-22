@@ -357,29 +357,6 @@ codeunit 134600 "Report Layout Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestExportSchema()
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-        FileManagement: Codeunit "File Management";
-        DefaultFileName: Text;
-        LayoutCode: Code[20];
-    begin
-        // init
-        Initialize;
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::Word.AsInteger());
-        CustomReportLayout.Get(LayoutCode);
-        DefaultFileName := CustomReportLayout.ExportReportLayout(FileManagement.ClientTempFileName('xml'), false);
-
-        // Execute
-        DefaultFileName := CustomReportLayout.ExportSchema(DefaultFileName, false);
-
-        // verify
-        Assert.IsTrue(FileManagement.ClientFileExists(DefaultFileName), '');
-        FileManagement.DeleteClientFile(DefaultFileName);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestValidateCustomRrdlcOk()
     var
         CustomReportLayout: Record "Custom Report Layout";

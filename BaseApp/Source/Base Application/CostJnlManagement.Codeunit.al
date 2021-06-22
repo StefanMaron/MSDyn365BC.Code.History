@@ -56,7 +56,13 @@ codeunit 1106 CostJnlManagement
     var
         CostJnlLine: Record "Cost Journal Line";
         CostJnlTemplate: Record "Cost Journal Template";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTemplateSelectionFromBatch(CostJnlBatch, IsHandled);
+        if IsHandled then
+            exit;
+
         OpenFromBatch := true;
         CostJnlTemplate.Get(CostJnlBatch."Journal Template Name");
         CostJnlBatch.TestField(Name);
@@ -210,6 +216,11 @@ codeunit 1106 CostJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTemplateSelection(var CostJournalLine: Record "Cost Journal Line"; var JnlSelected: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTemplateSelectionFromBatch(var CostJnlBatch: Record "Cost Journal Batch"; var IsHandled: Boolean)
     begin
     end;
 

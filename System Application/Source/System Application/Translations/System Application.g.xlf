@@ -508,6 +508,26 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field MediaSet - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 31410331 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Index</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 4003695205 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Signature Algorithm</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Signature Algorithm - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 2020331656 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 5357697 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Blob - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2488342448 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cue Setup</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1652,6 +1672,11 @@
           <source>Content Id</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Content Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2046056834 - Field 1881551368 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Length - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 474016873 - Field 2931190102 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Message Id</source>
@@ -3009,7 +3034,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordMismatchErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3991262771 - NamedType 1260724060" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
+          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
           <note from="Developer" annotates="general" priority="2">%1: The minimum number of characters required in the password</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordTooSimpleErr</note>
         </trans-unit>
@@ -3072,6 +3097,11 @@
           <source>Exceeded maximum calculation limit for recurrence. Change start date to be today.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recurrence Schedule Impl. - NamedType RecurrenceMaximumCalculateLimitTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3808397429 - NamedType 525889370" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The regular expression timeout should be at least 1000 ms</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Regex Impl. - NamedType TimeoutTooLowErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1036847876 - NamedType 1933092856" size-unit="char" translate="yes" xml:space="preserve">
           <source>Couldn't initialize the App Key Vault Secret Provider.\\Common reasons include:\- The extension doesn't specify a key vault in its app.json file.\- The extension wasn't published with a PublisherAzureActiveDirectoryTenantId and the server requires it\- The server's Azure Key Vault settings are incorrect\- The server lacks permission to the private key of Azure Key Vault client certificate\\Please check the Event Log or Application Insights for more details.</source>
@@ -3237,6 +3267,11 @@
           <source>The provided email account does not exist.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InvalidEmailAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3795645336 - NamedType 3880130517" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have the permissions required to send emails. Ask your administrator to grant you the Read, Insert, Modify and Delete permissions for the Sent Email and Email Outbox tables.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InsufficientPermisionsErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 728726451 - NamedType 2815685970" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot edit the email because it has been queued to be sent.</source>

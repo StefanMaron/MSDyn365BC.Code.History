@@ -293,7 +293,7 @@ codeunit 1102 "CA Jnl.-Post Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterRunWithCheck(var CostJournalLine: Record "Cost Journal Line")
     begin
     end;

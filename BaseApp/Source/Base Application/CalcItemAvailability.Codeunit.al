@@ -525,6 +525,8 @@ codeunit 5530 "Calc. Item Availability"
                     end;
                 until Next = 0;
         end;
+
+        OnAfterGetPlanningLines(InvtEventBuf, Item, ReqLine, RecRef);
     end;
 
     local procedure GetPlanningComponents(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item)
@@ -1081,6 +1083,11 @@ codeunit 5530 "Calc. Item Availability"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDocumentEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var CurrEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPlanningLines(var InvtEventBuf: Record "Inventory Event Buffer"; Item: Record "Item"; ReqLine: Record "Requisition Line"; FromRecRef: RecordRef)
     begin
     end;
 

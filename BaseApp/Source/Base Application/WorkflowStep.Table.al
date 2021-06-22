@@ -559,8 +559,10 @@ table 1502 "Workflow Step"
     var
         WorkflowRule: Record "Workflow Rule";
     begin
-        if FindWorkflowRules(WorkflowRule) then
+        if HasWorkflowRules() then begin
+            SetFilters(WorkflowRule);
             WorkflowRule.DeleteAll();
+        end;
     end;
 
     local procedure InstantiateStepRules(InstanceID: Guid)
@@ -582,6 +584,20 @@ table 1502 "Workflow Step"
     end;
 
     procedure FindWorkflowRules(var WorkflowRule: Record "Workflow Rule"): Boolean
+    begin
+        SetFilters(WorkflowRule);
+        exit(WorkflowRule.FindSet());
+    end;
+
+    procedure HasWorkflowRules(): Boolean
+    var
+        WorkflowRule: Record "Workflow Rule";
+    begin
+        SetFilters(WorkflowRule);
+        exit(not WorkflowRule.IsEmpty());
+    end;
+
+    procedure SetFilters(var WorkflowRule: Record "Workflow Rule")
     var
         ZeroGuid: Guid;
     begin
@@ -590,7 +606,6 @@ table 1502 "Workflow Step"
         WorkflowRule.SetRange("Workflow Code", "Workflow Code");
         WorkflowRule.SetRange("Workflow Step ID", ID);
         WorkflowRule.SetRange("Workflow Step Instance ID", ZeroGuid);
-        exit(WorkflowRule.FindSet);
     end;
 
     procedure HasParentEvent(var WorkflowStep: Record "Workflow Step"): Boolean

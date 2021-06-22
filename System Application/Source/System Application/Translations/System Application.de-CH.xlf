@@ -609,6 +609,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field MediaSet - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 31410331 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Index</source>
+          <target state="translated">Schlüsselindex</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 4003695205 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Signature Algorithm</source>
+          <target state="translated">Signaturalgorithmus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Signature Algorithm - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 2020331656 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value Type</source>
+          <target state="translated">Schlüsselwerttyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 5357697 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value</source>
+          <target state="translated">Schlüsselwert</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Blob - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2488342448 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cue Setup</source>
           <target state="translated">Stapeleinrichtung</target>
@@ -1979,6 +2003,12 @@
           <target state="translated">Inhalts-ID</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Content Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2046056834 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Länge</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Length - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 474016873 - Field 2931190102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Message Id</source>
@@ -3606,8 +3636,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordMismatchErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3991262771 - NamedType 1260724060" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
-          <target state="translated">Das eingegebene Kennwort entspricht nicht den Minimalanforderungen. Es muss mindestens %1 Zeichen lang sein und mindestens einen Grossbuchstaben, einen Kleinbuchstaben und eine Zahl enthalten. Es darf keine Folge von 3 oder mehr aufsteigenden, absteigenden oder wiederholten Zeichen enthalten.</target>
+          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
+          <target state="translated">Das eingegebene Kennwort entspricht nicht den Minimalanforderungen. Es muss mindestens %1 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben und eine Zahl enthalten. Es darf keine Folge von drei oder mehr aufsteigenden, absteigenden oder wiederholten Zeichen enthalten.</target>
           <note from="Developer" annotates="general" priority="2">%1: The minimum number of characters required in the password</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordTooSimpleErr</note>
         </trans-unit>
@@ -3682,6 +3712,12 @@
           <target state="translated">Die maximale Berechnungsgrenze für die Wiederholung wurde überschritten. Ändern Sie das Startdatum auf den heutigen Tag.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recurrence Schedule Impl. - NamedType RecurrenceMaximumCalculateLimitTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3808397429 - NamedType 525889370" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The regular expression timeout should be at least 1000 ms</source>
+          <target state="translated">Das Timeout für reguläre Ausdrücke sollte mindestens 1000 ms sein</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Regex Impl. - NamedType TimeoutTooLowErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1036847876 - NamedType 1933092856" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Couldn't initialize the App Key Vault Secret Provider.\\Common reasons include:\- The extension doesn't specify a key vault in its app.json file.\- The extension wasn't published with a PublisherAzureActiveDirectoryTenantId and the server requires it\- The server's Azure Key Vault settings are incorrect\- The server lacks permission to the private key of Azure Key Vault client certificate\\Please check the Event Log or Application Insights for more details.</source>
@@ -3880,6 +3916,12 @@
           <target state="translated">Das angegebene E-Mail-Konto ist nicht vorhanden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InvalidEmailAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3795645336 - NamedType 3880130517" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have the permissions required to send emails. Ask your administrator to grant you the Read, Insert, Modify and Delete permissions for the Sent Email and Email Outbox tables.</source>
+          <target state="translated">Sie verfügen nicht über die erforderlichen Berechtigungen zum Senden von E-Mails. Bitten Sie Ihren Administrator, Ihnen die Berechtigungen „Lesen“, „Einfügen“, „Ändern“ und „Löschen“ für die Tabellen „Gesendete E-Mails“ und „E-Mail-Ausgang“ zu erteilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InsufficientPermisionsErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 728726451 - NamedType 2815685970" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot edit the email because it has been queued to be sent.</source>
@@ -4701,7 +4743,7 @@
         </trans-unit>
         <trans-unit id="Page 4021082514 - Action 1042419861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Edit and send the email.</source>
-          <target state="translated">E-Mail bearbeiten und senden.</target>
+          <target state="translated">E-Mail bearbeiten und senden..</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Viewer - Action EditAndSend - Property ToolTip</note>
         </trans-unit>
@@ -7465,6 +7507,7 @@
         </trans-unit>
         <trans-unit id="Page 1750020835 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Languages</source>
+          <target state="translated">Sprachen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Languages - Property Caption</note>
         </trans-unit>
@@ -8525,7 +8568,7 @@
         </trans-unit>
         <trans-unit id="Page 3756518970 - Control 59836318 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose Next to get started.</source>
-          <target state="translated">Klicken Sie auf „Weiter“, um zu beginnen.</target>
+          <target state="translated">Wählen Sie „Weiter“ aus, um zu beginnen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control GetStartedText - Property InstructionalText</note>
         </trans-unit>
@@ -9354,7 +9397,7 @@
         </trans-unit>
         <trans-unit id="Page 709229469 - Action 1042419861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Edit and send the email.</source>
-          <target state="translated">E-Mail bearbeiten und senden</target>
+          <target state="translated">E-Mail bearbeiten und senden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Action EditAndSend - Property ToolTip</note>
         </trans-unit>

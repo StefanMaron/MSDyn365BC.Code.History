@@ -1,6 +1,10 @@
+#if not CLEAN17
 codeunit 9652 "Edit RDLC Report Layout"
 {
     TableNo = "Custom Report Layout";
+    ObsoleteReason = 'The codeunit uses .NET which does not work with the web client. The codeunit will be removed.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '17.3';
 
     trigger OnRun()
     begin
@@ -93,4 +97,4 @@ codeunit 9652 "Edit RDLC Report Layout"
         exit(FileName);
     end;
 }
-
+#endif

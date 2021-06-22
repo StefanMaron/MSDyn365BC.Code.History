@@ -209,6 +209,11 @@ table 9500 "Email Item"
         AttachmentNames: List of [Text];
         TargetEmailAddressErr: Label 'The target email address has not been specified.';
 
+    procedure HasAttachments(): Boolean
+    begin
+        exit(Attachments.Count() > 0);
+    end;
+
     procedure GetAttachments(var TempBlobList: Codeunit "Temp Blob List"; var Names: List of [Text])
     begin
         TempBlobList := Attachments;
@@ -233,7 +238,7 @@ table 9500 "Email Item"
         Attachments.Add(TempBlob);
         AttachmentNames.Add(AttachementName);
     end;
-    
+
     procedure Initialize()
     begin
         ID := CreateGuid();

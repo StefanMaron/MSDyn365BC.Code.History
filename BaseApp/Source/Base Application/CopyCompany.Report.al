@@ -204,11 +204,11 @@ report 357 "Copy Company"
         exit(NewCompanyName);
     end;
 
-    local procedure RegisterUpgradeTags(CompanyName: Code[30])
+    local procedure RegisterUpgradeTags(NewCompanyName: Code[30])
     var
         UpgradeTag: codeunit "Upgrade Tag";
     begin
-        UpgradeTag.SetAllUpgradeTags(CompanyName);
+        UpgradeTag.CopyUpgradeTags(CopyStr(CompanyName(), 1, MaxStrLen(NewCompanyName)), NewCompanyName);
     end;
 
     local procedure SetNewNameToNewCompanyInfo()

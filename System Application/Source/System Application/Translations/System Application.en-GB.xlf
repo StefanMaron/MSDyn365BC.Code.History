@@ -607,6 +607,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field MediaSet - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 31410331 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Index</source>
+          <target state="translated">Key Index</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 4003695205 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Signature Algorithm</source>
+          <target state="translated">Signature Algorithm</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Signature Algorithm - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 2020331656 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value Type</source>
+          <target state="translated">Key Value Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 5357697 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value</source>
+          <target state="translated">Key Value</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Blob - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2488342448 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cue Setup</source>
           <target state="translated">Cue Setup</target>
@@ -1977,6 +2001,12 @@
           <target state="translated">Content Id</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Content Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2046056834 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Length</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Length - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 474016873 - Field 2931190102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Message Id</source>
@@ -3599,8 +3629,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordMismatchErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3991262771 - NamedType 1260724060" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
-          <target state="translated">The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.</target>
+          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
+          <target state="translated">The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character. It must not have a sequence of 3 or more ascending, descending or repeating characters.</target>
           <note from="Developer" annotates="general" priority="2">%1: The minimum number of characters required in the password</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordTooSimpleErr</note>
         </trans-unit>
@@ -3675,6 +3705,12 @@
           <target state="translated">Exceeded maximum calculation limit for recurrence. Change start date to be today.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recurrence Schedule Impl. - NamedType RecurrenceMaximumCalculateLimitTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3808397429 - NamedType 525889370" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The regular expression timeout should be at least 1000 ms</source>
+          <target state="translated">The regular expression timeout should be at least 1000 ms</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Regex Impl. - NamedType TimeoutTooLowErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1036847876 - NamedType 1933092856" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Couldn't initialize the App Key Vault Secret Provider.\\Common reasons include:\- The extension doesn't specify a key vault in its app.json file.\- The extension wasn't published with a PublisherAzureActiveDirectoryTenantId and the server requires it\- The server's Azure Key Vault settings are incorrect\- The server lacks permission to the private key of Azure Key Vault client certificate\\Please check the Event Log or Application Insights for more details.</source>
@@ -3873,6 +3909,12 @@
           <target state="translated">The provided email account does not exist.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InvalidEmailAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3795645336 - NamedType 3880130517" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have the permissions required to send emails. Ask your administrator to grant you the Read, Insert, Modify and Delete permissions for the Sent Email and Email Outbox tables.</source>
+          <target state="translated">You do not have the permissions required to send emails. Ask your administrator to grant you the Read, Insert, Modify and Delete permissions for the Sent Email and Email Outbox tables.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InsufficientPermisionsErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 728726451 - NamedType 2815685970" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot edit the email because it has been queued to be sent.</source>
@@ -5286,31 +5328,31 @@
         </trans-unit>
         <trans-unit id="Page 1122678929 - Control 2051953352 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the color of the indicator when the value of data in the Cue is less than the value that is specified by the Threshold 1 field.</source>
-          <target state="translated">Specifies the Colour of the indicator when the value of data in the Cue is less than the value that is specified by the Threshold 1 field.</target>
+          <target state="translated">Specifies the colour of the indicator when the value of data in the Cue is less than the value that is specified by the Threshold 1 field.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup Administrator - Control Low Range Style - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1122678929 - Control 2870768530 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the value in the Cue below which the indicator has the color that is specified by the Low Range Style field.</source>
-          <target state="translated">Specifies the value in the Cue below which the indicator has the Colour that is specified by the Low Range Style field.</target>
+          <target state="translated">Specifies the value in the Cue below which the indicator has the colour that is specified by the Low Range Style field.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup Administrator - Control Threshold 1 - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1122678929 - Control 1593335407 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the color of the indicator when the value of data in the Cue is greater than or equal to the value that is specified by the Threshold 1 field but less than or equal to the value that is specified by the Threshold 2 field.</source>
-          <target state="translated">Specifies the Colour of the indicator when the value of data in the Cue is greater than or equal to the value that is specified by the Threshold 1 field but less than or equal to the value that is specified by the Threshold 2 field.</target>
+          <target state="translated">Specifies the colour of the indicator when the value of data in the Cue is greater than or equal to the value that is specified by the Threshold 1 field but less than or equal to the value that is specified by the Threshold 2 field.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup Administrator - Control Middle Range Style - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1122678929 - Control 957678679 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the value in the Cue above which the indicator has the color that is specified by the High Range Style field.</source>
-          <target state="translated">Specifies the value in the Cue above which the indicator has the Colour that is specified by the High Range Style field.</target>
+          <target state="translated">Specifies the value in the Cue above which the indicator has the colour that is specified by the High Range Style field.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup Administrator - Control Threshold 2 - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1122678929 - Control 3850109114 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the color of the indicator when the value in the Cue is greater than the value of the Threshold 2 field.</source>
-          <target state="translated">Specifies the Colour of the indicator when the value in the Cue is greater than the value of the Threshold 2 field.</target>
+          <target state="translated">Specifies the colour of the indicator when the value in the Cue is greater than the value of the Threshold 2 field.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup Administrator - Control High Range Style - Property ToolTip</note>
         </trans-unit>
@@ -5328,37 +5370,37 @@
         </trans-unit>
         <trans-unit id="Page 3449870094 - Control 2051953352 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the color of the indicator when the value of data in the Cue is less than the value that is specified by the Threshold 1 field.</source>
-          <target state="translated">Specifies the Colour of the indicator when the value of data in the Cue is less than the value that is specified by the Threshold 1 field.</target>
+          <target state="translated">Specifies the colour of the indicator when the value of data in the Cue is less than the value that is specified by the Threshold 1 field.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup End User - Control Low Range Style - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3449870094 - Control 2870768530 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the value in the Cue below which the indicator has the color that is specified by the Low Range Style field.</source>
-          <target state="translated">Specifies the value in the Cue below which the indicator has the Colour that is specified by the Low Range Style field.</target>
+          <target state="translated">Specifies the value in the Cue below which the indicator has the colour that is specified by the Low Range Style field.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup End User - Control Threshold 1 - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3449870094 - Control 1593335407 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the color of the indicator when the value of data in the Cue is greater than or equal to the value that is specified by the Threshold 1 field but less than or equal to the value that is specified by the Threshold 2 field.</source>
-          <target state="translated">Specifies the Colour of the indicator when the value of data in the Cue is greater than or equal to the value that is specified by the Threshold 1 field but less than or equal to the value that is specified by the Threshold 2 field.</target>
+          <target state="translated">Specifies the colour of the indicator when the value of data in the Cue is greater than or equal to the value that is specified by the Threshold 1 field but less than or equal to the value that is specified by the Threshold 2 field.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup End User - Control Middle Range Style - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3449870094 - Control 957678679 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the value in the Cue above which the indicator has the color that is specified by the High Range Style field.</source>
-          <target state="translated">Specifies the value in the Cue above which the indicator has the Colour that is specified by the High Range Style field.</target>
+          <target state="translated">Specifies the value in the Cue above which the indicator has the colour that is specified by the High Range Style field.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup End User - Control Threshold 2 - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3449870094 - Control 3850109114 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the color of the indicator when the value in the Cue is greater than the value of the Threshold 2 field.</source>
-          <target state="translated">Specifies the Colour of the indicator when the value in the Cue is greater than the value of the Threshold 2 field.</target>
+          <target state="translated">Specifies the colour of the indicator when the value in the Cue is greater than the value of the Threshold 2 field.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup End User - Control High Range Style - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3449870094 - Control 1380338462 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether the colored indicator settings for the Cue have been modified to differ from the company default settings. You also use this field to revert to the default settings.</source>
-          <target state="translated">Specifies whether the Coloured indicator settings for the Cue have been modified to differ from the company default settings. You also use this field to revert to the default settings.</target>
+          <target state="translated">Specifies whether the coloured indicator settings for the Cue have been modified to differ from the company default settings. You also use this field to revert to the default settings.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup End User - Control Personalized - Property ToolTip</note>
         </trans-unit>

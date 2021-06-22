@@ -17,13 +17,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 1345440638 - NamedType 2756095981" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your %1 has been cancelled.</source>
-          <target state="translated">Your %1 has been Canceled.</target>
+          <target state="translated">Your %1 has been canceled.</target>
           <note from="Developer" annotates="general" priority="2">%1 - document type</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - NamedType CancelationEmailSubjectTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1345440638 - NamedType 3903114897" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Thank you for your business. Your %1 has been cancelled.</source>
-          <target state="translated">Thank you for your business. Your %1 has been Canceled.</target>
+          <target state="translated">Thank you for your business. Your %1 has been canceled.</target>
           <note from="Developer" annotates="general" priority="2">%1 - document type</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - NamedType CancelationEmailBodyTxt</note>
         </trans-unit>
@@ -1497,11 +1497,29 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1278155290 - Control 1931549001 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer Financial Details</source>
+          <target state="translated">Customer Financial Details</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control customerFinancialDetails - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1278155290 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Picture</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control picture - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1278155290 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
           <target state="translated">Default Dimensions</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control defaultDimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1278155290 - Control 754471627 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Aged Accounts Receivable</source>
+          <target state="translated">Aged Accounts Receivable</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control agedAccountsReceivable - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - NamedType 2624287652" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The currency values do not match to a specific Currency.</source>
@@ -2055,6 +2073,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 950291140 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Picture</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control picture - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 950291140 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
           <target state="translated">Default Dimensions</target>
@@ -2360,6 +2384,18 @@
           <target state="translated">Last Modified Date</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1180930185 - Control 2571795694 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unit Of Measure</source>
+          <target state="translated">Unit Of Measure</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control baseUnitOfMeasure - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1180930185 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Picture</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control picture - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
@@ -3405,6 +3441,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control purchaseInvoiceLines - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4099491740 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF Document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control pdfDocument - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Amount</source>
           <target state="translated">Discount Amount</target>
@@ -4293,6 +4335,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control salesCreditMemoLines - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3006414751 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF Document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control pdfDocument - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3006414751 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>discountAmount</source>
           <target state="translated">discountAmount</target>
@@ -4982,6 +5030,12 @@
           <target state="translated">Lines</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control salesInvoiceLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3783002405 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF Document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control pdfDocument - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Amount</source>
@@ -6273,6 +6327,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control salesQuoteLines - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 617149860 - Control 3310713783 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PDF Document</source>
+          <target state="translated">PDF Document</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control pdfDocument - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 617149860 - Control 2286581531 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Discount Amount</source>
           <target state="translated">Discount Amount</target>
@@ -7551,11 +7611,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2680707570 - Control 1463933576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture</source>
+          <target state="translated">Picture</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control picture - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2680707570 - Control 171251140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimensions</source>
           <target state="translated">Default Dimensions</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control defaultDimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2680707570 - Control 3339066033 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Aged Accounts Payable</source>
+          <target state="translated">Aged Accounts Payable</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control agedAccountsPayable - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2680707570 - NamedType 2624287652" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The currency values do not match to a specific Currency.</source>

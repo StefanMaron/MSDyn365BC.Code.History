@@ -85,6 +85,19 @@ table 5820 "Cost Element Buffer"
     {
     }
 
+    procedure Initialize(KeepRoundingResidual: Boolean)
+    var
+        CostElementBuffer: Record "Cost Element Buffer";
+    begin
+        if KeepRoundingResidual then begin
+            CostElementBuffer := Rec;
+            Init();
+            "Rounding Residual" := CostElementBuffer."Rounding Residual";
+            "Rounding Residual (ACY)" := CostElementBuffer."Rounding Residual (ACY)";
+        end else
+            Init();
+    end;
+
     procedure AddActualCost(NewType: Option; NewVarianceType: Option; NewActualCost: Decimal; NewActualCostACY: Decimal)
     begin
         AddActualCostElement("Cost Entry Type".FromInteger(NewType), "Cost Variance Type".FromInteger(NewVarianceType), NewActualCost, NewActualCostACY);
@@ -188,6 +201,8 @@ table 5820 "Cost Element Buffer"
         "Remaining Quantity" += OutbndValueEntry."Valued Quantity";
         "Actual Cost" += CostElementBuf."Actual Cost";
         "Actual Cost (ACY)" += CostElementBuf."Actual Cost (ACY)";
+        "Rounding Residual" := 0;
+        "Rounding Residual (ACY)" := 0;
     end;
 
     procedure UpdateAvgCostBuffer(CostElementBuf: Record "Cost Element Buffer"; LastValidEntryNo: Integer)

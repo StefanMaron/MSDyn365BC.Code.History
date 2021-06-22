@@ -263,8 +263,10 @@ codeunit 136450 "Attachment Storage Type"
         Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::Embedded, 'Wrong storage type');
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure ImportAttachmentFromClientToDB()
     var
         Attachment: Record Attachment;
@@ -289,6 +291,7 @@ codeunit 136450 "Attachment Storage Type"
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure ImportAttachmentFromClientToDisk()
     var
         Attachment: Record Attachment;
@@ -318,6 +321,7 @@ codeunit 136450 "Attachment Storage Type"
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure ImportAttachmentFromClientTemporary()
     var
         Attachment: Record Attachment;
@@ -345,6 +349,7 @@ codeunit 136450 "Attachment Storage Type"
 
         Rollback(NewDirName);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -395,9 +400,11 @@ codeunit 136450 "Attachment Storage Type"
         LibraryUtility.CheckFileNotEmpty(ExportToFile);
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure ExportAttachmentFromDiskToClientFile()
     var
         Attachment: Record Attachment;
@@ -427,6 +434,7 @@ codeunit 136450 "Attachment Storage Type"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure ExportAttachmentFromDBToClientFile()
     var
         Attachment: Record Attachment;
@@ -445,6 +453,7 @@ codeunit 136450 "Attachment Storage Type"
         // Verify attachment
         Assert.IsTrue(FileManagement.ClientFileExists(ExportToFile), 'Attachment file not exported to disk.');
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1487,6 +1496,8 @@ codeunit 136450 "Attachment Storage Type"
         exit(FileName);
     end;
 
+#if not CLEAN17
+    [Obsolete('DeleteClientFile will always throw an error.', '17.3')]
     local procedure CreateClientTxtFile(FileName: Text)
     var
         [RunOnClient]
@@ -1500,6 +1511,7 @@ codeunit 136450 "Attachment Storage Type"
         StreamWriter.WriteLine('Text');
         StreamWriter.Close();
     end;
+#endif
 
     local procedure GetSimpleHTMLContent(): Text
     begin

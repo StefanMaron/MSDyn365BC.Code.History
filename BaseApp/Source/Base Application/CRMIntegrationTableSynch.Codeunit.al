@@ -47,6 +47,7 @@ codeunit 5340 "CRM Integration Table Synch."
         ModifiedByFieldMustBeGUIDErr: Label 'The field %1 in the table %2 must be of type GUID.', Comment = '%1 - a field name, %2 - a table name';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         ClearCacheTxt: Label 'Clear cache.', Locked = true;
+        CopyRecordRefFailedTxt: Label 'Copy record reference failed. Dataverse ID: %1', Locked = true, Comment = '%1 - Dataverse record id';
 
     internal procedure InitConnection() ConnectionName: Text
     var
@@ -234,7 +235,8 @@ codeunit 5340 "CRM Integration Table Synch."
             repeat
                 CRMID := CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value();
                 if not FailedNotSkippedIdDictionary.ContainsKey(CRMID) then
-                    OutlookSynchNAVMgt.CopyRecordReference(CRMRecordRef, TempCRMRecordRef, false);
+                    if not OutlookSynchNAVMgt.TryCopyRecordReference(CRMRecordRef, TempCRMRecordRef, false) then
+                        Session.LogMessage('0000ECC', StrSubstNo(CopyRecordRefFailedTxt, CRMID), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             until CRMRecordRef.Next() = 0;
         CRMRecordRef.Close();
     end;
@@ -497,21 +499,23 @@ codeunit 5340 "CRM Integration Table Synch."
         if FindFailedNotSkippedLocalRecords(FailedNotSkippedIdDictionary, IntegrationTableMapping, TempCRMIntegrationRecord) then
             foreach RecordSystemId in FailedNotSkippedIdDictionary.Keys() do
                 if SourceRecordRef.GetBySystemId(RecordSystemId) then
-                    SynchNAVRecordToCRM(SourceRecordRef, IntegrationTableMapping, IntegrationTableSynch, TempCRMIntegrationRecord, LatestModifiedOn);
+                    SyncNAVRecordToCRM(SourceRecordRef, IntegrationTableMapping, IntegrationTableSynch, TempCRMIntegrationRecord, LatestModifiedOn);
         SourceRecordRef.Close();
 
         if FindModifiedLocalRecords(SourceRecordRef, IntegrationTableMapping) then
             repeat
                 RecordSystemId := SourceRecordRef.Field(SourceRecordRef.SystemIdNo()).Value();
                 if not FailedNotSkippedIdDictionary.ContainsKey(RecordSystemId) then
-                    SynchNAVRecordToCRM(SourceRecordRef, IntegrationTableMapping, IntegrationTableSynch, TempCRMIntegrationRecord, LatestModifiedOn);
+                    SyncNAVRecordToCRM(SourceRecordRef, IntegrationTableMapping, IntegrationTableSynch, TempCRMIntegrationRecord, LatestModifiedOn);
             until SourceRecordRef.Next() = 0;
+
+        OnSynchNAVTableToCRMOnBeforeCheckLatestModifiedOn(SourceRecordRef, IntegrationTableMapping);
 
         if LatestModifiedOn = 0DT then
             LatestModifiedOn := IntegrationTableSynch.GetStartDateTime();
     end;
 
-    local procedure SynchNAVRecordToCRM(var SourceRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch."; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary; var LatestModifiedOn: DateTime)
+    procedure SyncNAVRecordToCRM(var SourceRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch."; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary; var LatestModifiedOn: DateTime)
     var
         DestinationRecordRef: RecordRef;
         SystemIdFieldRef: FieldRef;
@@ -697,6 +701,11 @@ codeunit 5340 "CRM Integration Table Synch."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateTableMappingModifiedOn(var IntegrationTableMapping: Record "Integration Table Mapping"; ModifiedOn: array[2] of DateTime; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchNAVTableToCRMOnBeforeCheckLatestModifiedOn(var SourceRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping")
     begin
     end;
 

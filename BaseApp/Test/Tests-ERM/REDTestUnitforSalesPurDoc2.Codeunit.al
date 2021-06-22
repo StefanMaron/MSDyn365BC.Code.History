@@ -1108,6 +1108,59 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         DeferralHeader.TestField("Start Date", SalesHeader."Posting Date");
     end;
 
+    [Test]
+    procedure SalesLineUpdateDeferralScheduleCustomStartDate()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralHeader: Record "Deferral Header";
+        DeferralTemplate: Record "Deferral Template";
+        DeferralLine: Record "Deferral Line";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 375050] System does not change custom Start Date in deferral schedule when a user updates amounts in document or journal line.
+        Initialize();
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate, DeferralTemplate."Calc. Method"::"Equal per Period",
+          DeferralTemplate."Start Date"::"Posting Date", LibraryRandom.RandIntInRange(3, 10));
+
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
+          LibraryRandom.RandIntInRange(5, 10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
+        SalesLine.Modify(true);
+
+        DeferralHeader.Get(
+          DeferralHeader."Deferral Doc. Type"::Sales, '', '', SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
+
+        DeferralHeader.Validate("Start Date", WorkDate + 1);
+        DeferralHeader.Modify(true);
+
+        FindDeferralLine(DeferralLine, SalesLine);
+
+        DeferralLine.Delete(true);
+        DeferralLine."Posting Date" := WorkDate + 1;
+        DeferralLine.Insert(true);
+
+        SalesLine.Validate(Quantity, SalesLine.Quantity + 1);
+        SalesLine.Modify(true);
+
+        DeferralHeader.Get(
+          DeferralHeader."Deferral Doc. Type"::Sales, '', '', SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
+
+        DeferralHeader.TestField("Start Date", WorkDate + 1);
+
+        Clear(DeferralLine);
+        DeferralLine.Reset();
+        FindDeferralLine(DeferralLine, SalesLine);
+
+        DeferralLine.TestField("Posting Date", WorkDate + 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -1510,6 +1563,16 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         TempGLEntry."G/L Account No." := GLAccountNo;
         TempGLEntry.Amount := Amount;
         TempGLEntry.Insert();
+    end;
+
+    local procedure FindDeferralLine(var DeferralLine: Record "Deferral Line"; SalesLine: Record "Sales Line")
+    begin
+        DeferralLine.SetRange("Deferral Doc. Type", DeferralLine."Deferral Doc. Type"::Sales);
+        DeferralLine.SetRange("Gen. Jnl. Template Name", '');
+        DeferralLine.SetRange("Gen. Jnl. Batch Name", '');
+        DeferralLine.SetRange("Document Type", SalesLine."Document Type");
+        DeferralLine.SetRange("Document No.", SalesLine."Document No.");
+        DeferralLine.FindFirst();
     end;
 
     [ModalPageHandler]

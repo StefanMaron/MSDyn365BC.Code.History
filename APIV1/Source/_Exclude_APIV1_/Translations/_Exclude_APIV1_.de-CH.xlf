@@ -322,7 +322,7 @@
         </trans-unit>
         <trans-unit id="Page 1048301999 - Control 2570064479 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the direct unit cost.</source>
-          <target state="translated">Gibt den Einstandspreis an.</target>
+          <target state="translated">Gibt den EK-Preis an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - Control unitCost - Property ToolTip</note>
         </trans-unit>
@@ -412,7 +412,7 @@
         </trans-unit>
         <trans-unit id="Page 1048301999 - Control 2351225378 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the expected receipt date.</source>
-          <target state="translated">Gibt das erwartete Wareneingangsdatum an.</target>
+          <target state="translated">Gibt das erwartete Eingangsdatum an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - Control expectedReceiptDate - Property ToolTip</note>
         </trans-unit>

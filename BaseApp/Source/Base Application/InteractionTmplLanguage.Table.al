@@ -36,7 +36,7 @@ table 5103 "Interaction Tmpl. Language"
         }
         field(6; "Custom Layout Description"; Text[250])
         {
-            CalcFormula = Lookup ("Custom Report Layout".Description WHERE(Code = FIELD("Custom Layout Code")));
+            CalcFormula = Lookup("Custom Report Layout".Description WHERE(Code = FIELD("Custom Layout Code")));
             Caption = 'Custom Layout Description';
             Editable = false;
             FieldClass = FlowField;
@@ -94,13 +94,21 @@ table 5103 "Interaction Tmpl. Language"
                 exit;
         end;
 
-        if "Custom Layout Code" = '' then
+        if "Custom Layout Code" = '' then begin
+#if CLEAN17
+            if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then begin
+                if Attachment.ImportAttachmentFromClientFile('', false, false) then
+                    NewAttachNo := Attachment."No.";
+            end;
+#else
             if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then begin
                 if Attachment.ImportAttachmentFromClientFile('', false, false) then
                     NewAttachNo := Attachment."No.";
             end else
                 NewAttachNo :=
-                  WordManagement.CreateWordAttachment("Interaction Template Code" + ' ' + Description, "Language Code")
+                WordManagement.CreateWordAttachment("Interaction Template Code" + ' ' + Description, "Language Code")
+#endif
+        end
         else
             NewAttachNo := CreateHTMLCustomLayoutAttachment;
 

@@ -168,6 +168,7 @@ page 9650 "Custom Report Layouts"
                     ExportReportLayout('', true);
                 end;
             }
+#if not CLEAN17
             action(EditLayout)
             {
                 ApplicationArea = Basic, Suite;
@@ -178,12 +179,16 @@ page 9650 "Custom Report Layouts"
                 PromotedIsBig = true;
                 ToolTip = 'Edit the report layout in Word, make changes to the file, and close Word to continue.';
                 Visible = CanEdit;
+                ObsoleteReason = 'The procedure this action calls is being removed as it does not do anything on the web client.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '17.3';
 
                 trigger OnAction()
                 begin
                     EditReportLayout();
                 end;
             }
+#endif
             action(UpdateWordLayout)
             {
                 ApplicationArea = Basic, Suite;
@@ -233,10 +238,12 @@ page 9650 "Custom Report Layouts"
         IsNotBuiltIn := not "Built-In";
     end;
 
+#if not CLEAN17
     trigger OnAfterGetRecord()
     begin
         CanEdit := IsWindowsClient;
     end;
+#endif
 
     trigger OnClosePage()
     var
@@ -249,14 +256,18 @@ page 9650 "Custom Report Layouts"
     var
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
+#if not CLEAN17
         IsWindowsClient := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows;
+#endif
         PageName := CurrPage.Caption;
         CurrPage.Caption := GetPageCaption;
     end;
 
     var
+#if not CLEAN17
         IsWindowsClient: Boolean;
         CanEdit: Boolean;
+#endif
         UpdateSuccesMsg: Label 'The %1 layout has been updated to use the current report design.';
         UpdateNotRequiredMsg: Label 'The %1 layout is up-to-date. No further updates are required.';
         PageName: Text;

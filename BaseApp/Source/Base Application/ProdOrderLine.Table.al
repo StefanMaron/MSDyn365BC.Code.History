@@ -48,8 +48,6 @@
                     "Due Date" := ProdOrder."Due Date";
                     "Location Code" := ProdOrder."Location Code";
                     "Bin Code" := ProdOrder."Bin Code";
-                    if "Bin Code" = '' then
-                        GetDefaultBin;
 
                     GetItem;
                     Item.TestField("Inventory Posting Group");
@@ -77,6 +75,9 @@
                             "Routing Reference No." := -10000
                         else
                             "Routing Reference No." := "Line No.";
+
+                    if "Bin Code" = '' then
+                        GetDefaultBin();
                 end;
                 if "Item No." <> xRec."Item No." then
                     Validate(Quantity);
@@ -1362,13 +1363,27 @@
     procedure ShowRouting()
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        LastProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         ProdOrderRoutingLine.SetRange(Status, Status);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderRoutingLine.SetRange("Routing Reference No.", "Routing Reference No.");
         ProdOrderRoutingLine.SetRange("Routing No.", "Routing No.");
 
+        LastProdOrderRoutingLine.CopyFilters(ProdOrderRoutingLine);
+        if LastProdOrderRoutingLine.FindLast() then;
+
         PAGE.RunModal(PAGE::"Prod. Order Routing", ProdOrderRoutingLine);
+
+        ProdOrderRoutingLine.Reset();
+        ProdOrderRoutingLine.CopyFilters(LastProdOrderRoutingLine);
+        if ProdOrderRoutingLine.FindLast() and
+           (ProdOrderRoutingLine.Type = LastProdOrderRoutingLine.Type) and
+           (ProdOrderRoutingLine."No." = LastProdOrderRoutingLine."No.") and
+           ("Bin Code" <> '')
+        then
+            exit;
+
         CalcProdOrder.FindAndSetProdOrderLineBinCodeFromProdRoutingLines(Status, "Prod. Order No.", "Line No.");
     end;
 

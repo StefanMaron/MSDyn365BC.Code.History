@@ -1205,7 +1205,7 @@
         </trans-unit>
         <trans-unit id="Table 4066499956 - Field 3660300303 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post Code</source>
-          <target state="translated">Post Code</target>
+          <target state="translated">Postcode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Enviroment - Field Post Code - Property Caption</note>
         </trans-unit>
@@ -2585,7 +2585,7 @@
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 3660300303 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the postal code.</source>
-          <target state="translated">Specifies the postal code.</target>
+          <target state="translated">Specifies the postcode.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Post Code - Property ToolTip</note>
         </trans-unit>

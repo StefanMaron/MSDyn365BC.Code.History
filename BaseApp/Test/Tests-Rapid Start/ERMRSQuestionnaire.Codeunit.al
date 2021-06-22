@@ -41,8 +41,10 @@ codeunit 136600 "ERM RS Questionnaire"
         Commit();
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure QuestionnaireSetupExportExcel()
     var
         ConfigQuestionnaire: Record "Config. Questionnaire";
@@ -64,6 +66,7 @@ codeunit 136600 "ERM RS Questionnaire"
 
         FileMgt.DeleteClientFile(FilePath);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1128,6 +1131,8 @@ codeunit 136600 "ERM RS Questionnaire"
         VerifyConfigQuestionAnswer(ConfigPackageData.Value, ConfigQuestion);
     end;
 
+#if not CLEAN17
+    [Obsolete('UploadFileSilent will always throw an error.', '17.3')]
     local procedure OpenExcelWorksheet(ClientFileName: Text)
     var
         FileManagement: Codeunit "File Management";
@@ -1137,5 +1142,6 @@ codeunit 136600 "ERM RS Questionnaire"
         LibraryReportValidation.SetFullFileName(ServerFileName);
         LibraryReportValidation.OpenFile;
     end;
+#endif
 }
 

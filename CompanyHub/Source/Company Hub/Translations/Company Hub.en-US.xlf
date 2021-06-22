@@ -2585,7 +2585,7 @@
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 3660300303 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the postal code.</source>
-          <target state="translated">Specifies the ZIP Code.</target>
+          <target state="translated">Specifies the ZIP code.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Post Code - Property ToolTip</note>
         </trans-unit>

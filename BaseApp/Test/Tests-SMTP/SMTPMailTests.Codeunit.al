@@ -24,6 +24,8 @@ codeunit 139017 "SMTP Mail Test"
         MediaSubType: Text;
         RecipientList: List of [Text];
         Body: Text;
+        CannotSendEmailErr: Label 'You cannot send the email.\Verify that the email settings are correct.', Locked = true;
+
 
     [Test]
     [Scope('OnPrem')]
@@ -115,7 +117,6 @@ codeunit 139017 "SMTP Mail Test"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('NoConfirmHandler')]
     procedure AddMultipleRecepients()
     var
         TempEmailItem: Record "Email Item" temporary;
@@ -148,14 +149,16 @@ codeunit 139017 "SMTP Mail Test"
         // [WHEN] Wait for GetEmailRecepientsOnBeforeSentViaSMTP subscriber catches OnBeforeSentViaSMTP event.
         BindSubscription(SMTPMailTest);
 
-        MailManagement.SendMailOrDownload(TempEmailItem, true);
+        asserterror MailManagement.SendMailOrDownload(TempEmailItem, true);
+        Assert.AreEqual(GetLastErrorText, CannotSendEmailErr, 'Error was expected.');
         UnBindSubscription(SMTPMailTest);
 
         TempEmailItem."Message Type" := TempEmailItem."Message Type"::"Custom Message";
         SMTPMailTest.SetMediaSubtype('plain');
         BindSubscription(SMTPMailTest);
 
-        MailManagement.SendMailOrDownload(TempEmailItem, true);
+        asserterror MailManagement.SendMailOrDownload(TempEmailItem, true);
+        Assert.AreEqual(GetLastErrorText, CannotSendEmailErr, 'Error was expected.');
         UnBindSubscription(SMTPMailTest);
         // [THEN] Email."To" / Email.Cc / Email.Bcc fields of DotNet object MimeMessage contain lists of all corresponding recipients.
     end;
@@ -1203,13 +1206,6 @@ codeunit 139017 "SMTP Mail Test"
     local procedure FormatToSemiColon(String: Text): Text
     begin
         exit(String.Replace(',', ';'));
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure NoConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := false;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"SMTP Mail Internals", 'OnAfterCreateMessage', '', false, false)]

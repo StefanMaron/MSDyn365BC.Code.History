@@ -77,36 +77,4 @@ codeunit 132567 "Catch DotNet Exception"
         exit(Convert.ToBase64String(File.ReadAllBytes(FileName)));
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure ReadDataNoCachce()
-    var
-        FileMgt: Codeunit "File Management";
-        ClientFileName: Text;
-        ServerFileName: Text;
-    begin
-        // Setup
-        ClientFileName := CreateClientFile(ServerFileName);
-        ConfigureMasterDataSetup(ClientFileName);
-
-        // Pre-Exercise
-        Commit();
-
-        // Exercise
-        asserterror CODEUNIT.Run(CODEUNIT::"Read Master Data from Cache");
-
-        // Verify
-        Assert.ExpectedError(FileMgt.GetFileName(ClientFileName));
-        Assert.ExpectedError(' is denied.');
-    end;
-
-    local procedure CreateClientFile(var ServerFileName: Text) ClientFileName: Text
-    var
-        FileMgt: Codeunit "File Management";
-    begin
-        ServerFileName := CreateServerFile;
-        ClientFileName := FileMgt.ClientTempFileName('txt');
-        FileMgt.AppendAllTextToClientFile(ServerFileName, ClientFileName);
-    end;
 }
-

@@ -143,7 +143,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3720205249 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Invoices Due Next Week</source>
-          <target state="translated">Fatture acquisto con scadenza prossima settimana</target>
+          <target state="translated">Fatture di acquisto con scadenza la prossima settimana</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Purch. Invoices Due Next Week - Property Caption</note>
         </trans-unit>
@@ -227,13 +227,13 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 4238549263 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Purch. Invoice Amount</source>
-          <target state="translated">Importo fatture acquisto scadute</target>
+          <target state="translated">Importo fatture di acquisto scadute</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Overdue Purch. Invoice Amount - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2949566721 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Invoice Amount</source>
-          <target state="translated">Importo fatture vendita scadute</target>
+          <target state="translated">Importo fatture di vendita scadute</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Overdue Sales Invoice Amount - Property Caption</note>
         </trans-unit>
@@ -269,7 +269,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3112382527 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Invoices Due Next Week</source>
-          <target state="translated">Fatture vendita con scadenza prossima settimana</target>
+          <target state="translated">Fatture vendita con scadenza la prossima settimana</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Sales Invoices Due Next Week - Property Caption</note>
         </trans-unit>
@@ -281,7 +281,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3027363170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc. Doc. Awaiting Verification</source>
-          <target state="translated">Documento in entrata in attesa di verifica</target>
+          <target state="translated">In attesa di verifica documento in entrata</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Inc. Doc. Awaiting Verfication - Property Caption</note>
         </trans-unit>
@@ -377,7 +377,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 950130645 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Inv Due Next Week Style</source>
-          <target state="translated">Stile fatture acquisto con scadenza prossima settimana</target>
+          <target state="translated">Stile fatture acquisto con scadenza la prossima settimana</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Purch. Inv Due Next Week Style - Property Caption</note>
         </trans-unit>
@@ -503,7 +503,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3308548995 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Inv Due Next Week Style</source>
-          <target state="translated">Stile fatture vendita con scadenza prossima settimana</target>
+          <target state="translated">Stile fatture vendita con scadenza la prossima settimana</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Sales Inv Due Next Week Style - Property Caption</note>
         </trans-unit>
@@ -515,7 +515,7 @@
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 2103948034 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc Doc Awaiting Verf Style</source>
-          <target state="translated">Stile documento in entrata in attesa di verifica</target>
+          <target state="translated">Stile in attesa di verifica documento in entrata</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Inc Doc Awaiting Verf Style - Property Caption</note>
         </trans-unit>
@@ -641,13 +641,13 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 4238549263 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Purch. Invoice Amount</source>
-          <target state="translated">Importo fatture acquisto scadute</target>
+          <target state="translated">Importo fatture di acquisto scadute</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Overdue Purch. Invoice Amount - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2949566721 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Invoice Amount</source>
-          <target state="translated">Importo fatture vendita scadute</target>
+          <target state="translated">Importo fatture di vendita scadute</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Overdue Sales Invoice Amount - Property Caption</note>
         </trans-unit>
@@ -749,7 +749,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3720205249 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Invoices Due Next Week</source>
-          <target state="translated">Fatture acquisto con scadenza prossima settimana</target>
+          <target state="translated">Fatture di acquisto con scadenza la prossima settimana</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Purch. Invoices Due Next Week - Property Caption</note>
         </trans-unit>
@@ -839,13 +839,13 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1812513725 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Inv. - Pending Doc.Exch.</source>
-          <target state="translated">Fatture vendita - Servizio di scambio documenti in sospeso</target>
+          <target state="translated">Fatture vendita - Scambio documenti in sospeso</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales Inv. - Pending Doc.Exch. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 1428064786 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales CrM. - Pending Doc.Exch.</source>
-          <target state="translated">Note credito vendita - Servizio di scambio documenti in sospeso</target>
+          <target state="translated">Note credito vendita - Scambio documenti in sospeso</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales CrM. - Pending Doc.Exch. - Property Caption</note>
         </trans-unit>
@@ -857,7 +857,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3112382527 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Invoices Due Next Week</source>
-          <target state="translated">Fatture vendita con scadenza prossima settimana</target>
+          <target state="translated">Fatture vendita con scadenza la prossima settimana</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales Invoices Due Next Week - Property Caption</note>
         </trans-unit>
@@ -953,7 +953,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 950130645 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purch. Inv Due Next Week Style</source>
-          <target state="translated">Stile fatture acquisto con scadenza prossima settimana</target>
+          <target state="translated">Stile fatture acquisto con scadenza la prossima settimana</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Purch. Inv Due Next Week Style - Property Caption</note>
         </trans-unit>
@@ -1061,13 +1061,13 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2337339062 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Inv-Pend DocExch Style</source>
-          <target state="translated">Stile fatture vendita - servizio di scambio documenti in sospeso</target>
+          <target state="translated">Stile scambio documenti in sospeso fatture vendita</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales Inv-Pend DocExch Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3389869017 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales CrM-Pend DocExch Style</source>
-          <target state="translated">Stile note credito vendita - servizio di scambio documenti in sospeso</target>
+          <target state="translated">Stile scambio documenti in sospeso note credito vendita</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales CrM-Pend DocExch Style - Property Caption</note>
         </trans-unit>
@@ -1079,7 +1079,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3308548995 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Inv Due Next Week Style</source>
-          <target state="translated">Stile fatture vendita con scadenza prossima settimana</target>
+          <target state="translated">Stile fatture vendita con scadenza la prossima settimana</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Sales Inv Due Next Week Style - Property Caption</note>
         </trans-unit>
@@ -1091,7 +1091,7 @@
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 2103948034 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc Doc Awaiting Verf Style</source>
-          <target state="translated">Stile documento in entrata in attesa di verifica</target>
+          <target state="translated">Stile in attesa di verifica documento in entrata</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Inc Doc Awaiting Verf Style - Property Caption</note>
         </trans-unit>
@@ -1775,7 +1775,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 1154576810 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Purch. Invoice Amount</source>
-          <target state="translated">Importo fatture acquisto scadute</target>
+          <target state="translated">Importo fatture di acquisto scadute</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Overdue Purch. Invoice Amount Decimal - Property Caption</note>
         </trans-unit>
@@ -1793,7 +1793,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 3097378552 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Invoice Amount</source>
-          <target state="translated">Importo fatture vendita scadute</target>
+          <target state="translated">Importo fatture di vendita scadute</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Overdue Sales Invoice Amount Decimal - Property Caption</note>
         </trans-unit>
@@ -1847,7 +1847,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 3027363170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc. Doc. Awaiting Verification</source>
-          <target state="translated">Documento in entrata in attesa di verifica</target>
+          <target state="translated">In attesa di verifica documento in entrata</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Control Inc. Doc. Awaiting Verfication - Property Caption</note>
         </trans-unit>
@@ -2183,7 +2183,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 1154576810 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Purch. Invoice Amount</source>
-          <target state="translated">Importo fatture acquisto scadute</target>
+          <target state="translated">Importo fatture di acquisto scadute</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Overdue Purch. Invoice Amount Decimal - Property Caption</note>
         </trans-unit>
@@ -2201,7 +2201,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 3097378552 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Overdue Sales Invoice Amount</source>
-          <target state="translated">Importo fatture vendita scadute</target>
+          <target state="translated">Importo fatture di vendita scadute</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Overdue Sales Invoice Amount Decimal - Property Caption</note>
         </trans-unit>
@@ -2255,7 +2255,7 @@
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 3027363170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Inc. Doc. Awaiting Verification</source>
-          <target state="translated">Documento in entrata in attesa di verifica</target>
+          <target state="translated">In attesa di verifica documento in entrata</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Control Inc. Doc. Awaiting Verfication - Property Caption</note>
         </trans-unit>

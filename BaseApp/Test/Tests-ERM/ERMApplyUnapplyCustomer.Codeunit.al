@@ -778,10 +778,14 @@ codeunit 134006 "ERM Apply Unapply Customer"
         SelectGenJournalBatch(GenJournalBatch, false);
         CreateGeneralJournalLines(
           GenJournalLine, GenJournalBatch, 1, SalesHeader."Sell-to Customer No.", GenJournalLine."Document Type"::Payment, 0);  // Taken 1 and 0 to create only one General Journal line with zero amount.
-        UpdateGenJournalLine(GenJournalLine, '', PostedDocumentNo, -Amount);
+        UpdateGenJournalLine(GenJournalLine, '', '', -Amount);
 
         // Exericse.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::Payment,
+          PostedDocumentNo, GenJournalLine."Document No.");
 
         // Verify: Verify Remaining Amount on Customer Ledger Entry.
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, SalesHeader."Document Type", PostedDocumentNo);

@@ -649,7 +649,7 @@ page 21 "Customer Card"
                 group(Control108)
                 {
                     Caption = 'Payments';
-                    field("Balance Due"; CalcOverdueBalance)
+                    field("Balance Due"; OverdueBalance)
                     {
                         ApplicationArea = Basic, Suite;
                         CaptionClass = Format(StrSubstNo(OverduePaymentsMsg, Format(WorkDate)));
@@ -660,7 +660,7 @@ page 21 "Customer Card"
                             DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
                             CustLedgEntry: Record "Cust. Ledger Entry";
                         begin
-                            DtldCustLedgEntry.SetFilter("Customer No.", "No.");
+                            DtldCustLedgEntry.SetRange("Customer No.", "No.");
                             CopyFilter("Global Dimension 1 Filter", DtldCustLedgEntry."Initial Entry Global Dim. 1");
                             CopyFilter("Global Dimension 2 Filter", DtldCustLedgEntry."Initial Entry Global Dim. 2");
                             CopyFilter("Currency Filter", DtldCustLedgEntry."Currency Code");
@@ -2295,8 +2295,10 @@ page 21 "Customer Card"
         NoPostedCrMemos := 0;
         NoOutstandingInvoices := 0;
         NoOutstandingCrMemos := 0;
+        OverdueBalance := 0;
 
         Args.Add(CustomerCardCalculations.GetCustomerNoLabel(), "No.");
+        Args.Add(CustomerCardCalculations.GetFiltersLabel(), GetView());
         Args.Add(CustomerCardCalculations.GetWorkDateLabel(), Format(WorkDate()));
 
         CurrPage.EnqueueBackgroundTask(BackgroundTaskId, Codeunit::"Customer Card Calculations", Args);
@@ -2371,6 +2373,9 @@ page 21 "Customer Card"
             if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetNoOutstandingCrMemosLabel(), DictionaryValue) then
                 Evaluate(NoOutstandingCrMemos, DictionaryValue);
 
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetOverdueBalanceLabel(), DictionaryValue) then
+                Evaluate(OverdueBalance, DictionaryValue);
+
             AttentionToPaidDay := DaysPastDueDate > 0;
             TotalMoneyOwed := "Balance (LCY)" + ExpectedMoneyOwed;
 
@@ -2415,6 +2420,7 @@ page 21 "Customer Card"
         CustInvDiscAmountLCY: Decimal;
         CustPaymentsLCY: Decimal;
         CustSalesLCY: Decimal;
+        OverdueBalance: Decimal;
         OverduePaymentsMsg: Label 'Overdue Payments as of %1', Comment = 'Overdue Payments as of 27-02-2012';
         DaysPastDueDate: Decimal;
         PostedInvoicesMsg: Label 'Posted Invoices (%1)', Comment = 'Invoices (5)';

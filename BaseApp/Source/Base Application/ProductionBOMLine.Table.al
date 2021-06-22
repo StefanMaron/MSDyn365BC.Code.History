@@ -1,4 +1,4 @@
-table 99000772 "Production BOM Line"
+﻿table 99000772 "Production BOM Line"
 {
     Caption = 'Production BOM Line';
 
@@ -122,7 +122,14 @@ table 99000772 "Production BOM Line"
             TableRelation = "Routing Link";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateRoutingLinkCode(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Routing Link Code" <> '' then begin
                     TestField(Type, Type::Item);
                     TestField("No.");
@@ -406,6 +413,11 @@ table 99000772 "Production BOM Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateNo(var ProductionBOMLine: Record "Production BOM Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateRoutingLinkCode(var ProductionBOMLine: Record "Production BOM Line"; xProductionBOMLine: Record "Production BOM Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

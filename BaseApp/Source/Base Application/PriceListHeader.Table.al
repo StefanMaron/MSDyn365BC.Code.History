@@ -469,14 +469,19 @@ table 7000 "Price List Header"
         PriceListLine: Record "Price List Line";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
+        if Status = Status::Active then
+            VerifySource();
+
         Updated := true;
         PriceListLine.SetRange("Price List Code", Code);
         if PriceListLine.IsEmpty() then
             exit;
 
-        if Status = Status::Active then
+        if Status = Status::Active then begin
+            VerifyLines();
             if not ResolveDuplicatePrices() then
                 exit(false);
+        end;
 
         if ConfirmManagement.GetResponse(StrSubstNo(StatusUpdateQst, Status), true) then
             PriceListLine.ModifyAll(Status, Status)
@@ -497,6 +502,37 @@ table 7000 "Price List Header"
             if not PriceListManagement.ResolveDuplicatePrices(Rec, DuplicatePriceLine) then
                 exit(false);
         exit(true);
+    end;
+
+    local procedure VerifySource()
+    begin
+        if "Source Type" = "Price Source Type"::"Job Task" then
+            TestField("Parent Source No.")
+        else
+            TestField("Parent Source No.", '');
+
+        if "Source Type" in
+            ["Price Source Type"::All,
+            "Price Source Type"::"All Customers",
+            "Price Source Type"::"All Vendors",
+            "Price Source Type"::"All Jobs"]
+        then
+            TestField("Source No.", '')
+        else
+            TestField("Source No.");
+    end;
+
+    local procedure VerifyLines()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.SetRange("Price List Code", Code);
+        if PriceListLine.FindSet() then
+            repeat
+                PriceListLine.VerifySource();
+                if PriceListLine."Asset Type" <> PriceListLine."Asset Type"::" " then
+                    PriceListLine.TestField("Asset No.");
+            until PriceListLine.Next() = 0;
     end;
 
     [IntegrationEvent(true, false)]

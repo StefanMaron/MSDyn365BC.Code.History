@@ -2885,7 +2885,7 @@ Cstr(Fields!EMailCaption.Value)
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=SUM(Fields!Amount_PurchCrMemoLine.Value)</Value>
+                                                    <Value>=Last(Fields!TotalAmount.Value)</Value>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>

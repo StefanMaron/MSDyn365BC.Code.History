@@ -749,6 +749,7 @@
 
     local procedure UpdateSalesHeader(var SalesHeader: Record "Sales Header"; Job: Record Job)
     var
+        FormatAddress: Codeunit "Format Address";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -763,6 +764,7 @@
         SalesHeader."Bill-to Address 2" := Job."Bill-to Address 2";
         SalesHeader."Bill-to City" := Job."Bill-to City";
         SalesHeader."Bill-to Post Code" := Job."Bill-to Post Code";
+        SalesHeader."Bill-to Country/Region Code" := Job."Bill-to Country/Region Code";
 
         SalesHeader."Sell-to Contact No." := Job."Bill-to Contact No.";
         SalesHeader."Sell-to Contact" := Job."Bill-to Contact";
@@ -771,6 +773,7 @@
         SalesHeader."Sell-to Address 2" := Job."Bill-to Address 2";
         SalesHeader."Sell-to City" := Job."Bill-to City";
         SalesHeader."Sell-to Post Code" := Job."Bill-to Post Code";
+        SalesHeader."Sell-to Country/Region Code" := Job."Bill-to Country/Region Code";
 
         if SalesHeader."Ship-to Code" = '' then begin
             SalesHeader."Ship-to Contact" := Job."Bill-to Contact";
@@ -779,8 +782,15 @@
             SalesHeader."Ship-to Address 2" := Job."Bill-to Address 2";
             SalesHeader."Ship-to City" := Job."Bill-to City";
             SalesHeader."Ship-to Post Code" := Job."Bill-to Post Code";
+            SalesHeader."Ship-to Country/Region Code" := Job."Bill-to Country/Region Code";
+            if FormatAddress.UseCounty(SalesHeader."Bill-to Country/Region Code") then
+                SalesHeader."Ship-to County" := Job."Bill-to County";
         end;
 
+        if FormatAddress.UseCounty(SalesHeader."Bill-to Country/Region Code") then begin
+            SalesHeader."Bill-to County" := Job."Bill-to County";
+            SalesHeader."Sell-to County" := Job."Bill-to County";
+        end;
     end;
 
     local procedure TestSalesHeader(var SalesHeader: Record "Sales Header"; var Job: Record Job; JobPlanningLine: Record "Job Planning Line")

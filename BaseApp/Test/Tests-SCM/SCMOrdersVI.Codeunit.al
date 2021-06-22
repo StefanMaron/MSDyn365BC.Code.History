@@ -2418,6 +2418,246 @@ codeunit 137163 "SCM Orders VI"
         SalesLine.TestField("Drop Shipment");
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceDiscountOnPostingWhseShipmentWithNewPostingDateForSalesOrder()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        CurrencyCode: Code[10];
+        InvDiscountPercent: Decimal;
+    begin
+        // [FEATURE] [Invoice Discount] [Sales] [Order] [Warehouse Shipment]
+        // [SCENARIO 383047] Keep invoice discount when posting warehouse shipment with a new posting date for a sales order.
+        Initialize(false);
+        ExecuteUIHandlers();
+        InvDiscountPercent := LibraryRandom.RandIntInRange(30, 70);
+
+        // [GIVEN] Currency Code "ACY" with two different exchange rates on dates "D1" and "D2".
+        CurrencyCode :=
+          LibraryERM.CreateCurrencyWithExchangeRate(
+            WorkDate, LibraryRandom.RandDecInRange(51, 100, 2), LibraryRandom.RandDecInRange(51, 100, 2));
+        LibraryERM.CreateExchangeRate(
+          CurrencyCode, WorkDate() + 30, LibraryRandom.RandDec(50, 2), LibraryRandom.RandDec(50, 2));
+
+        // [GIVEN] Location "L" with required shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create an item and update inventory on the location "L".
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournalLine(Item."No.", LibraryRandom.RandIntInRange(20, 40), Location.Code, 0);
+
+        // [GIVEN] Create sales order with Posting Date = "D1".
+        // [GIVEN] Set invoice discount = 30%, Currency Code = "ACY".
+        CreateSalesDocumentWithCurrencyCodeAndInvoiceDiscount(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CurrencyCode, Location.Code, Item."No.", InvDiscountPercent);
+
+        // [GIVEN] Release the sales order and create warehouse shipment.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Set posting date = "D2" on the warehouse shipment.
+        WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
+        WarehouseShipmentHeader.FindFirst();
+        WarehouseShipmentHeader.Validate("Posting Date", WorkDate() + 30);
+        WarehouseShipmentHeader.Modify(true);
+
+        // [WHEN] Post the warehouse shipment.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] The invoice discount on the sales line = 30%.
+        SalesLine.Find();
+        Assert.AreNearlyEqual(
+          SalesLine."Line Amount" * (1 - InvDiscountPercent / 100), SalesLine."Inv. Discount Amount",
+          LibraryERM.GetCurrencyAmountRoundingPrecision(CurrencyCode), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceDiscountOnPostingWhseReceiptWithNewPostingDateForPurchaseOrder()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        CurrencyCode: Code[10];
+        InvDiscountPercent: Decimal;
+    begin
+        // [FEATURE] [Invoice Discount] [Purchase] [Order] [Warehouse Receipt]
+        // [SCENARIO 383047] Keep invoice discount when posting warehouse receipt with a new posting date for a purchase order.
+        Initialize(false);
+        ExecuteUIHandlers();
+        InvDiscountPercent := LibraryRandom.RandIntInRange(30, 70);
+
+        // [GIVEN] Currency Code "ACY" with two different exchange rates on dates "D1" and "D2".
+        CurrencyCode :=
+          LibraryERM.CreateCurrencyWithExchangeRate(
+            WorkDate, LibraryRandom.RandDecInRange(51, 100, 2), LibraryRandom.RandDecInRange(51, 100, 2));
+        LibraryERM.CreateExchangeRate(
+          CurrencyCode, WorkDate() + 30, LibraryRandom.RandDec(50, 2), LibraryRandom.RandDec(50, 2));
+
+        // [GIVEN] Location "L" with required receipt.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create an item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create purchase order with Posting Date = "D1".
+        // [GIVEN] Set invoice discount = 30%, Currency Code = "ACY".
+        CreatePurchDocumentWithCurrencyCodeAndInvoiceDiscount(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, CurrencyCode, Location.Code, Item."No.", InvDiscountPercent);
+
+        // [GIVEN] Release the purchase order and create warehouse receipt.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Set posting date = "D2" on the warehouse receipt.
+        WarehouseReceiptHeader.SetRange("Location Code", Location.Code);
+        WarehouseReceiptHeader.FindFirst();
+        WarehouseReceiptHeader.Validate("Posting Date", WorkDate() + 30);
+        WarehouseReceiptHeader.Modify(true);
+
+        // [WHEN] Post the warehouse receipt.
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // [THEN] The invoice discount on the purchase line = 30%.
+        PurchaseLine.Find();
+        Assert.AreNearlyEqual(
+          PurchaseLine."Line Amount" * (1 - InvDiscountPercent / 100), PurchaseLine."Inv. Discount Amount",
+          LibraryERM.GetCurrencyAmountRoundingPrecision(CurrencyCode), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceDiscountOnPostingWhseShipmentWithNewPostingDateForPurchReturnOrder()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        CurrencyCode: Code[10];
+        InvDiscountPercent: Decimal;
+    begin
+        // [FEATURE] [Invoice Discount] [Purchase] [Return Order] [Warehouse Shipment]
+        // [SCENARIO 383047] Keep invoice discount when posting warehouse shipment with a new posting date for a purchase return order.
+        Initialize(false);
+        ExecuteUIHandlers();
+        InvDiscountPercent := LibraryRandom.RandIntInRange(30, 70);
+
+        // [GIVEN] Currency Code "ACY" with two different exchange rates on dates "D1" and "D2".
+        CurrencyCode :=
+          LibraryERM.CreateCurrencyWithExchangeRate(
+            WorkDate, LibraryRandom.RandDecInRange(51, 100, 2), LibraryRandom.RandDecInRange(51, 100, 2));
+        LibraryERM.CreateExchangeRate(
+          CurrencyCode, WorkDate() + 30, LibraryRandom.RandDec(50, 2), LibraryRandom.RandDec(50, 2));
+
+        // [GIVEN] Location "L" with required shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create an item and update inventory on the location "L".
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournalLine(Item."No.", LibraryRandom.RandIntInRange(20, 40), Location.Code, 0);
+
+        // [GIVEN] Create purchase return order with Posting Date = "D1".
+        // [GIVEN] Set invoice discount = 30%, Currency Code = "ACY".
+        CreatePurchDocumentWithCurrencyCodeAndInvoiceDiscount(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", CurrencyCode, Location.Code,
+          Item."No.", InvDiscountPercent);
+
+        // [GIVEN] Release the purchase return order and create warehouse shipment.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseShipmentFromPurchaseReturnOrder(PurchaseHeader);
+
+        // [GIVEN] Set posting date = "D2" on the warehouse shipment.
+        WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
+        WarehouseShipmentHeader.FindFirst();
+        WarehouseShipmentHeader.Validate("Posting Date", WorkDate() + 30);
+        WarehouseShipmentHeader.Modify(true);
+
+        // [WHEN] Post the warehouse shipment.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] The invoice discount on the purchase line = 30%.
+        PurchaseLine.Find();
+        Assert.AreNearlyEqual(
+          PurchaseLine."Line Amount" * (1 - InvDiscountPercent / 100), PurchaseLine."Inv. Discount Amount",
+          LibraryERM.GetCurrencyAmountRoundingPrecision(CurrencyCode), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure InvoiceDiscountOnPostingWhseReceiptWithNewPostingDateForSalesReturnOrder()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        CurrencyCode: Code[10];
+        InvDiscountPercent: Decimal;
+    begin
+        // [FEATURE] [Invoice Discount] [Sales] [Return Order] [Warehouse Receipt]
+        // [SCENARIO 383047] Keep invoice discount when posting warehouse receipt with a new posting date for a sales return order.
+        Initialize(false);
+        ExecuteUIHandlers();
+        InvDiscountPercent := LibraryRandom.RandIntInRange(30, 70);
+
+        // [GIVEN] Currency Code "ACY" with two different exchange rates on dates "D1" and "D2".
+        CurrencyCode :=
+          LibraryERM.CreateCurrencyWithExchangeRate(
+            WorkDate, LibraryRandom.RandDecInRange(51, 100, 2), LibraryRandom.RandDecInRange(51, 100, 2));
+        LibraryERM.CreateExchangeRate(
+          CurrencyCode, WorkDate() + 30, LibraryRandom.RandDec(50, 2), LibraryRandom.RandDec(50, 2));
+
+        // [GIVEN] Location "L" with required receipt.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create an item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create sales return order with Posting Date = "D1".
+        // [GIVEN] Set invoice discount = 30%, Currency Code = "ACY".
+        CreateSalesDocumentWithCurrencyCodeAndInvoiceDiscount(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CurrencyCode, Location.Code,
+          Item."No.", InvDiscountPercent);
+
+        // [GIVEN] Release the sales return order and create warehouse receipt.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseReceiptFromSalesReturnOrder(SalesHeader);
+
+        // [GIVEN] Set posting date = "D2" on the warehouse receipt.
+        WarehouseReceiptHeader.SetRange("Location Code", Location.Code);
+        WarehouseReceiptHeader.FindFirst();
+        WarehouseReceiptHeader.Validate("Posting Date", WorkDate() + 30);
+        WarehouseReceiptHeader.Modify(true);
+
+        // [WHEN] Post the warehouse receipt.
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // [THEN] The invoice discount on the sales return line = 30%.
+        SalesLine.Find();
+        Assert.AreNearlyEqual(
+          SalesLine."Line Amount" * (1 - InvDiscountPercent / 100), SalesLine."Inv. Discount Amount",
+          LibraryERM.GetCurrencyAmountRoundingPrecision(CurrencyCode), '');
+    end;
+
     local procedure Initialize(Enable: Boolean)
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");
@@ -2762,6 +3002,19 @@ codeunit 137163 "SCM Orders VI"
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order", Type, VendorNo, ItemNo, Quantity);
     end;
 
+    local procedure CreatePurchDocumentWithCurrencyCodeAndInvoiceDiscount(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; CurrencyCode: Code[10]; LocationCode: Code[10]; ItemNo: Code[20]; InvDiscountPercent: Decimal)
+    var
+        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
+        PurchaseHeader.Validate("Location Code", LocationCode);
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Modify(true);
+
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
+        PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(PurchaseLine."Line Amount" * (1 - InvDiscountPercent / 100), PurchaseHeader);
+    end;
+
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
@@ -2990,6 +3243,21 @@ codeunit 137163 "SCM Orders VI"
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Type, CustomerNo, ItemNo, Quantity, LocationCode);
+    end;
+
+    local procedure CreateSalesDocumentWithCurrencyCodeAndInvoiceDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CurrencyCode: Code[10]; LocationCode: Code[10]; ItemNo: Code[20]; InvDiscountPercent: Decimal)
+    var
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Modify(true);
+
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10), LocationCode);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(SalesLine."Line Amount" * (1 - InvDiscountPercent / 100), SalesHeader);
     end;
 
     local procedure CreateSalesOrderDiscardManualReservation(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
@@ -4018,6 +4286,11 @@ codeunit 137163 "SCM Orders VI"
         end;
 
         Assert.AreEqual(ExpdTotalDisAmt, TotalAMount, DiscountErr);
+    end;
+
+    local procedure ExecuteUIHandlers()
+    begin
+        if Confirm('') then;
     end;
 
     [MessageHandler]

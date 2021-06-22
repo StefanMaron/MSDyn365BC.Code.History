@@ -1295,7 +1295,8 @@
     begin
         Reset;
         SetRange("Item No.", OldNo);
-        ModifyAll("Item No.", NewNo, true);
+        if not Rec.IsEmpty() then
+            ModifyAll("Item No.", NewNo, true);
     end;
 
     procedure CheckWarehouse(Location: Record Location; Receive: Boolean)

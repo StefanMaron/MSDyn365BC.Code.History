@@ -593,21 +593,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType CreditMemoServiceNameTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3169652001 - NamedType 2695440829" size-unit="char" translate="yes" xml:space="preserve">
-          <source>customerId</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType CustomerIdFieldTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3169652001 - NamedType 985208195" size-unit="char" translate="yes" xml:space="preserve">
-          <source>customerName</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType CustomerNameFieldTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3169652001 - NamedType 4283275991" size-unit="char" translate="yes" xml:space="preserve">
-          <source>customerNumber</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Credit Memos E2E - NamedType CustomerNumberFieldTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3169652001 - NamedType 3488157165" size-unit="char" translate="yes" xml:space="preserve">
           <source>discountAmount</source>
           <note from="Developer" annotates="general" priority="2"></note>

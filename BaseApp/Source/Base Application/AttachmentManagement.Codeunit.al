@@ -48,10 +48,15 @@ codeunit 5052 AttachmentManagement
         if IsHandled then
             exit;
 
+#if not CLEAN17
         ProcessDeliverySorter(DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterWord, TempDeliverySorterOther);
 
+        // Procedure merge only works on the windows client which has been retired.
         if TempDeliverySorterWord.FindFirst then
             WordManagement.Merge(TempDeliverySorterWord);
+#else
+        ProcessDeliverySorter(DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterOther);
+#endif
 
         if TempDeliverySorterHtml.FindFirst then
             DeliverHTMLEmail(TempDeliverySorterHtml, InteractLogEntry);
@@ -74,10 +79,15 @@ codeunit 5052 AttachmentManagement
         WordManagement: Codeunit WordManagement;
         ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
     begin
+#if not CLEAN17
         ProcessDeliverySorter(DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterWord, TempDeliverySorterOther);
 
+        // Procedure merge only works on the windows client which has been retired.
         if TempDeliverySorterWord.FindFirst then
             WordManagement.Merge(TempDeliverySorterWord);
+#else
+        ProcessDeliverySorter(DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterOther);
+#endif
 
         InitializeExchange(ExchangeWebServicesServer);
         if TempDeliverySorterHtml.FindFirst then
@@ -225,7 +235,7 @@ codeunit 5052 AttachmentManagement
         if FileName = '' then
             exit(false);
 
-        Attachment.Delete();
+        if Attachment.Delete() then;
         Attachment.Init();
         Attachment.ImportAttachmentFromServerFile(FileName, true, true);
         Attachment."No." := 0;
@@ -534,7 +544,11 @@ codeunit 5052 AttachmentManagement
         Commit();
     end;
 
+#if not CLEAN17
     local procedure ProcessDeliverySorter(var DeliverySorter: Record "Delivery Sorter"; var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var TempDeliverySorterWord: Record "Delivery Sorter" temporary; var TempDeliverySorterOther: Record "Delivery Sorter" temporary)
+#else
+    local procedure ProcessDeliverySorter(var DeliverySorter: Record "Delivery Sorter"; var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var TempDeliverySorterOther: Record "Delivery Sorter" temporary)
+#endif
     var
         Attachment: Record Attachment;
         WordManagement: Codeunit WordManagement;
@@ -569,6 +583,7 @@ codeunit 5052 AttachmentManagement
                         end;
                     WordManagement.IsWordDocumentExtension(Attachment."File Extension") and not
                   (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop]):
+#if not CLEAN17
                         if WordManagement.CanRunWordApp then begin
                             TempDeliverySorterWord := DeliverySorter;
                             OnProcessDeliverySorterWord(DeliverySorter, TempDeliverySorterWord, Attachment, I);
@@ -578,6 +593,13 @@ codeunit 5052 AttachmentManagement
                             OnProcessDeliverySorterOther(DeliverySorter, TempDeliverySorterOther, Attachment, I);
                             TempDeliverySorterOther.Insert();
                         end;
+#else
+                        begin
+                            TempDeliverySorterOther := DeliverySorter;
+                            OnProcessDeliverySorterOther(DeliverySorter, TempDeliverySorterOther, Attachment, I);
+                            TempDeliverySorterOther.Insert();
+                        end;
+#endif
                     else begin
                             TempDeliverySorterOther := DeliverySorter;
                             OnProcessDeliverySorterOther(DeliverySorter, TempDeliverySorterOther, Attachment, I);

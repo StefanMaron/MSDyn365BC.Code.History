@@ -131,7 +131,7 @@
         </trans-unit>
         <trans-unit id="Table 945518375 - Field 1402567763 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Logo Last Update DateTime</source>
-          <target state="translated">Táknmynd síðast uppfærð DateTime</target>
+          <target state="translated">Síðasta uppfærsla lógós DateTime</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Standard Template - Field Logo Last Update DateTime - Property Caption</note>
         </trans-unit>
@@ -209,13 +209,13 @@
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 2228795340 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the URL from which the logo will be refreshed regularly.</source>
-          <target state="translated">Tilgreinir vefslóðina sem verður notuð til að uppfæra táknmyndina reglulega.</target>
+          <target state="translated">Tilgreinir vefslóðina sem verður notuð til að uppfæra lógóið reglulega.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control LogoURL - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 945518375 - Control 1516166834 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the frequency with which the logo is updated.</source>
-          <target state="translated">Tilgreinir tíðni þess að táknmyndin er uppfærð.</target>
+          <target state="translated">Tilgreinir uppfærslutíðni lógós.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Template - Control Logo Update Frequency - Property ToolTip</note>
         </trans-unit>
@@ -353,7 +353,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 3023250626" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This function is not supported for the %1 table.</source>
-          <target state="translated">Þessi aðgerð er ekki studd fyrir %1 töfluna.</target>
+          <target state="translated">Þessi aðgerð er ekki studd fyrir töfluna %1.</target>
           <note from="Developer" annotates="general" priority="2">%1 Caption of the table</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType NotSupportedTypeErr</note>
         </trans-unit>

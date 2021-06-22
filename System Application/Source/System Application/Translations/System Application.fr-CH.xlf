@@ -299,7 +299,7 @@
         </trans-unit>
         <trans-unit id="Page 799089619 - Control 2515772770 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the extension which has added this setup.</source>
-          <target state="translated">Spécifie l'extension qui a ajouté cette configuration.</target>
+          <target state="translated">Spécifie l’extension qui a ajouté cette configuration.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Assisted Setup - Control Extension Name - Property ToolTip</note>
         </trans-unit>
@@ -609,6 +609,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field MediaSet - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 31410331 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Index</source>
+          <target state="translated">Index de clé</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 4003695205 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Signature Algorithm</source>
+          <target state="translated">Algorithme de signature</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Signature Algorithm - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 2020331656 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value Type</source>
+          <target state="translated">Type valeur clé</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3456148789 - Field 5357697 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Key Value</source>
+          <target state="translated">Valeur clé</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Field Key Value Blob - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2488342448 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cue Setup</source>
           <target state="translated">Paramètres pile</target>
@@ -818,7 +842,7 @@
         </trans-unit>
         <trans-unit id="Table 1106505126 - Field 2691914712 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Last Sync Date Time</source>
-          <target state="translated">Date et heure de la dernière synchronisation</target>
+          <target state="translated">Date-heure dernière synchronisation</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Fields Sync Status - Field Last Sync Date Time - Property Caption</note>
         </trans-unit>
@@ -1980,6 +2004,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Content Id - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2046056834 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Longueur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Message Attachment - Field Length - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 474016873 - Field 2931190102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Message Id</source>
           <target state="translated">ID message électronique</target>
@@ -2846,7 +2876,7 @@
         </trans-unit>
         <trans-unit id="Page 2776087363 - Control 2966611030 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not connect to camera</source>
-          <target state="translated">Impossible de se connecter à l'appareil photo</target>
+          <target state="translated">Impossible de se connecter à l’appareil photo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property Caption</note>
         </trans-unit>
@@ -3038,7 +3068,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1128445799 - NamedType 4090787537" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 is already installed.</source>
-          <target state="translated">L'extension %1 est déjà installée.</target>
+          <target state="translated">L’extension %1 est déjà installée.</target>
           <note from="Developer" annotates="general" priority="2">%1=name of app</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType AlreadyInstalledMsg</note>
         </trans-unit>
@@ -3050,7 +3080,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1128445799 - NamedType 2392733864" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 is not installed.</source>
-          <target state="translated">L'extension %1 n'est pas installée.</target>
+          <target state="translated">L’extension %1 n’est pas installée.</target>
           <note from="Developer" annotates="general" priority="2">%1=name of app</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType AlreadyUninstalledMsg</note>
         </trans-unit>
@@ -3337,7 +3367,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3666029466 - NamedType 4090787537" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 is already installed.</source>
-          <target state="translated">L'extension %1 est déjà installée.</target>
+          <target state="translated">L’extension %1 est déjà installée.</target>
           <note from="Developer" annotates="general" priority="2">%1=name of app</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType AlreadyInstalledMsg</note>
         </trans-unit>
@@ -3606,8 +3636,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordMismatchErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3991262771 - NamedType 1260724060" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, and one number. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
-          <target state="translated">Le mot de passe que vous avez entré ne répond pas à la configuration minimale requise. Il doit comporter au moins %1 caractères et contenir au moins une lettre majuscule, une lettre minuscule et un chiffre. Il ne doit pas conenir une séquence de 3 caractères croissants, décroissants ou répétitifs, voire plus.</target>
+          <source>The password that you entered does not meet the minimum requirements. It must be at least %1 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character. It must not have a sequence of 3 or more ascending, descending or repeating characters.</source>
+          <target state="translated">Le mot de passe que vous avez saisi ne répond pas aux exigences minimales. Il doit comporter au moins %1 caractères et contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial. Il ne doit pas comporter une séquence de 3 caractères croissants, décroissants ou répétitifs ou plus.</target>
           <note from="Developer" annotates="general" priority="2">%1: The minimum number of characters required in the password</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Dialog Impl. - NamedType PasswordTooSimpleErr</note>
         </trans-unit>
@@ -3682,6 +3712,12 @@
           <target state="translated">Limite de calcul maximale dépassée pour la récurrence. Remplacez la date de début par celle d'aujourd'hui.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recurrence Schedule Impl. - NamedType RecurrenceMaximumCalculateLimitTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3808397429 - NamedType 525889370" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The regular expression timeout should be at least 1000 ms</source>
+          <target state="translated">Le délai d’expiration de l’expression régulière doit être au moins égal à 1000 ms</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Regex Impl. - NamedType TimeoutTooLowErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1036847876 - NamedType 1933092856" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Couldn't initialize the App Key Vault Secret Provider.\\Common reasons include:\- The extension doesn't specify a key vault in its app.json file.\- The extension wasn't published with a PublisherAzureActiveDirectoryTenantId and the server requires it\- The server's Azure Key Vault settings are incorrect\- The server lacks permission to the private key of Azure Key Vault client certificate\\Please check the Event Log or Application Insights for more details.</source>
@@ -3769,7 +3805,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 215834149 - NamedType 2396470215" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Go ahead and delete?</source>
-          <target state="translated">Voulez vous supprimer ?</target>
+          <target state="translated">Voulez-vous supprimer ?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Account Impl. - NamedType ConfirmDeleteQst</note>
         </trans-unit>
@@ -3880,6 +3916,12 @@
           <target state="translated">Le compte de messagerie fourni n’existe pas.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InvalidEmailAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3795645336 - NamedType 3880130517" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have the permissions required to send emails. Ask your administrator to grant you the Read, Insert, Modify and Delete permissions for the Sent Email and Email Outbox tables.</source>
+          <target state="translated">Vous n’avez pas les autorisations nécessaires pour envoyer des e-mails. Demandez à votre administrateur de vous accorder des autorisations de lecture, d’insertion, de modification et de suppression pour les tables E-mail envoyé et Boîte d’envoi d’e-mails.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Impl - NamedType InsufficientPermisionsErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 728726451 - NamedType 2815685970" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot edit the email because it has been queued to be sent.</source>
@@ -7465,6 +7507,7 @@
         </trans-unit>
         <trans-unit id="Page 1750020835 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Languages</source>
+          <target state="translated">Langues</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Languages - Property Caption</note>
         </trans-unit>
@@ -8808,7 +8851,7 @@
         </trans-unit>
         <trans-unit id="Page 761349018 - NamedType 2367821945" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Go ahead and delete?</source>
-          <target state="translated">Continuer et supprimer ?</target>
+          <target state="translated">Voulez-vous supprimer ?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - NamedType DeleteQst</note>
         </trans-unit>

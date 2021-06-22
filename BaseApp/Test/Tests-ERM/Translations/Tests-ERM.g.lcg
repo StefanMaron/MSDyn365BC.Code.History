@@ -977,6 +977,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Purchase/Payables - NamedType DimensionUsedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3642890093 - NamedType 4272839647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot apply and post an entry to an entry with an earlier posting date.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Purchase/Payables - NamedType EarlierPostingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3642890093 - NamedType 3592335203" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[All entries in one application must be in the same currency.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Purchase/Payables - NamedType DifferentCurrenciesErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1195557970 - NamedType 3345205943" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -1038,6 +1056,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Sales/Receivables - NamedType DialogTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1195557970 - NamedType 4272839647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot apply and post an entry to an entry with an earlier posting date.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Sales/Receivables - NamedType EarlierPostingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1195557970 - NamedType 3592335203" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[All entries in one application must be in the same currency.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Sales/Receivables - NamedType DifferentCurrenciesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1263311647 - NamedType 365914509" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3855,15 +3891,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Invoice Discount And VAT - NamedType ChangedInvDiscountAmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 150808602 - NamedType 2420549545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?]D;]A;(LookupHint=Codeunit ERM Invoice Discount And VAT - NamedType CompletionStatsGenJnlQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 150808602 - NamedType 151154373" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -10004,13 +10031,49 @@
       <Cmt Name="Dev"><![CDATA[%1 - the price list code.]D;]A;(LookupHint=Codeunit Price List Header UT - NamedType CannotDeleteActivePriceListErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2122422003 - NamedType 4020569621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applies-to Parent No. must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType ParentSourceNoMustBeFilledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2122422003 - NamedType 1940579729" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applies-to Parent No. must be equal to '']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType ParentSourceNoMustBeBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2122422003 - NamedType 2362617955" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Product No. must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType ProductNoMustBeFilledErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 4182574153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Source No. must be filled]]></Val>
+      <Val><![CDATA[Applies-to No. must have a value]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType SourceNoMustBeFilledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2122422003 - NamedType 690388717" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applies-to No. must be equal to '']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType SourceNoMustBeBlankErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 2751571763" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -77,46 +77,6 @@ codeunit 132568 "Collect DotNext Exception"
         exit(Convert.ToBase64String(File.ReadAllBytes(FileName)));
     end;
 
-    [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
-    [Scope('OnPrem')]
-    procedure ReadDataNoCachce()
-    var
-        TempBlob: Codeunit "Temp Blob";
-        ReadMasterDataFromCache2: Codeunit "Read Master Data from Cache 2";
-        InputStream: InStream;
-        Content: Text;
-        ClientFileName: Text;
-        ServerFileName: Text;
-    begin
-        // Setup
-        ClientFileName := CreateClientFile(ServerFileName);
-        ConfigureMasterDataSetup(ClientFileName);
-
-        // Pre-Exercise
-        Commit();
-
-        // Exercise
-        ReadMasterDataFromCache2.Run;
-        ReadMasterDataFromCache2.GetTempBlob(TempBlob);
-
-        // Pre-Verify
-        TempBlob.CreateInStream(InputStream);
-        InputStream.ReadText(Content);
-
-        // Verify
-        Assert.AreNotEqual('', Content, '');
-    end;
-
-    local procedure CreateClientFile(var ServerFileName: Text) ClientFileName: Text
-    var
-        FileMgt: Codeunit "File Management";
-    begin
-        ServerFileName := CreateServerFile;
-        ClientFileName := FileMgt.ClientTempFileName('txt');
-        FileMgt.AppendAllTextToClientFile(ServerFileName, ClientFileName);
-    end;
-
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)

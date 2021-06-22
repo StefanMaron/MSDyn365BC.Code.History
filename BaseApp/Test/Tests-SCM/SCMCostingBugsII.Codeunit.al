@@ -1792,6 +1792,76 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemApplicationEntry.TestField("Cost Application", false);
     end;
 
+    [Test]
+    procedure EliminateRoundingErrOnAdjustAvgCostForTransferChain()
+    var
+        InventorySetup: Record "Inventory Setup";
+        LocationBlue: Record Location;
+        LocationRed: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: array[2] of Record "Purch. Rcpt. Line";
+        ItemLedgerEntry: array[2] of Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [FEATURE] [Adjust Cost - Item Entries] [Transfer]
+        // [SCENARIO 384317] Eliminate rounding residual amount on adjusting average cost for chain of transfers.
+        Initialize();
+
+        // [GIVEN] Calculate average cost per Item.
+        LibraryInventory.SetAverageCostSetup(
+          InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Month);
+
+        // [GIVEN] Locations "Blue", "Red".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationRed);
+
+        // [GIVEN] Item with Average costing method.
+        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, 0, 0, 0, '');
+
+        // [GIVEN] Post a purchase order at location "Blue". Quantity = 15 pcs, unit cost = 2.21 LCY.
+        // [GIVEN] Post a purchase order at location "Blue". Quantity = 2 pcs, unit cost = 2.21 LCY.
+        CreateAndPostPurchaseOrder(PurchRcptLine[1], Item."No.", LocationBlue.Code, 15, 2.21);
+        CreateAndPostPurchaseOrder(PurchRcptLine[2], Item."No.", LocationBlue.Code, 2, 2.21);
+
+        // [GIVEN] Transfer 15 + 2 pcs to location "Red".
+        LibraryPatterns.POSTReclassificationJournalLine(Item, WorkDate, LocationBlue.Code, LocationRed.Code, '', '', '', 15);
+        LibraryPatterns.POSTReclassificationJournalLine(Item, WorkDate, LocationBlue.Code, LocationRed.Code, '', '', '', 2);
+
+        // [GIVEN] Transfer 15 + 2 pcs back to location "Blue".
+        LibraryPatterns.POSTReclassificationJournalLine(Item, WorkDate, LocationRed.Code, LocationBlue.Code, '', '', '', 15);
+        FindLastItemLedgerEntry(ItemLedgerEntry[1], Item."No.", LocationBlue.Code, true);
+        LibraryPatterns.POSTReclassificationJournalLine(Item, WorkDate, LocationRed.Code, LocationBlue.Code, '', '', '', 2);
+        FindLastItemLedgerEntry(ItemLedgerEntry[2], Item."No.", LocationBlue.Code, true);
+
+        // [GIVEN] Zero out inventory at location "Blue".
+        CreateAndPostItemJournalLineWithAppliesToEntry(Item."No.", LocationBlue.Code, -15, ItemLedgerEntry[1]."Entry No.");
+        CreateAndPostItemJournalLineWithAppliesToEntry(Item."No.", LocationBlue.Code, -2, ItemLedgerEntry[2]."Entry No.");
+
+        // [GIVEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Create purchase invoice for item charge.
+        // [GIVEN] Assign 0.21 LCY to the receipt of 15 pcs.
+        // [GIVEN] Assign 0.01 LCY to the receipt of 2 pcs.
+        // [GIVEN] Post the invoice.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+        CreatePurchaseLineForItemCharge(PurchaseLine, PurchaseHeader, PurchRcptLine[1], 0.21);
+        CreatePurchaseLineForItemCharge(PurchaseLine, PurchaseHeader, PurchRcptLine[2], 0.01);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] The remaining quantity in stock = 0.
+        // [THEN] The remaining cost amount = 0.
+        ValueEntry.SetRange("Item No.", Item."No.");
+        ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)");
+        ValueEntry.TestField("Item Ledger Entry Quantity", 0);
+        ValueEntry.TestField("Cost Amount (Actual)", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1809,6 +1879,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         isInitialized := true;
         Commit();
 
@@ -1834,6 +1905,36 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryManufacturing.PostConsumptionJournal;
     end;
 
+    local procedure CreatePurchaseLineForItemCharge(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; DirectUnitCost: Decimal)
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
+          PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."No.");
+    end;
+
+    local procedure CreateAndPostPurchaseOrder(var PurchRcptLine: Record "Purch. Rcpt. Line"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; DirectUnitCost: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, Qty, LocationCode, WorkDate);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.FindFirst();
+    end;
+
     local procedure CreateAndPostOutputJournalLine(ItemNo: Code[20]; ProdOrderNo: Code[20]; Quantity: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -1848,6 +1949,16 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', Qty);
         ItemJournalLine.Validate("Posting Date", PostingDate);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateAndPostItemJournalLineWithAppliesToEntry(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; AppliesToEntry: Integer)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', Qty);
+        ItemJournalLine.Validate("Applies-to Entry", AppliesToEntry);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -2123,6 +2234,14 @@ codeunit 137621 "SCM Costing Bugs II"
             SetRange(Positive, IsPositive);
             FindFirst;
         end;
+    end;
+
+    local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; LocationCode: Code[10]; IsPositive: Boolean)
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Location Code", LocationCode);
+        ItemLedgerEntry.SetRange(Positive, IsPositive);
+        ItemLedgerEntry.FindLast();
     end;
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")

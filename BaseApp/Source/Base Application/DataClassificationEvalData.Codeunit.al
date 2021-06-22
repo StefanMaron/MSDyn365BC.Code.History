@@ -525,6 +525,7 @@
         SetTableFieldsToNormal(DATABASE::"IC Document Dimension");
         SetTableFieldsToNormal(DATABASE::"Sales Prepayment %");
         SetTableFieldsToNormal(DATABASE::"Purchase Prepayment %");
+        SetTableFieldsToNormal(Database::"Gen. Jnl. Dim. Filter");
     end;
 
     local procedure ClassifyTablesToNormalPart3()

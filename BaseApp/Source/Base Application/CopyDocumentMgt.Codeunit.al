@@ -116,7 +116,7 @@
         SkipCopyFromDescription := NewSkipCopyFromDescription;
     end;
 
-    procedure GetSalesDocumentType(FromDocType: Enum "Sales Document Type From"): Enum "Sales Document Type"
+    procedure GetSalesDocumentType(FromDocType: Enum "Sales Document Type From") ToDocType: Enum "Sales Document Type"
     begin
         case FromDocType of
             FromDocType::Quote:
@@ -139,6 +139,8 @@
                 exit("Sales Document Type"::"Blanket Order");
             FromDocType::"Arch. Return Order":
                 exit("Sales Document Type"::"Return Order");
+            else
+                OnGetSalesDocumentTypeCaseElse(FromDocType, ToDocType);
         end;
     end;
 
@@ -1441,7 +1443,7 @@
             if not IsHandled then
                 if ToSalesLine.Reserve = ToSalesLine.Reserve::Always then
                     ToSalesLine.AutoReserve();
-            OnAfterInsertToSalesLine(ToSalesLine, FromSalesLine, RecalculateLines, DocLineNo, FromSalesDocType);
+            OnAfterInsertToSalesLine(ToSalesLine, FromSalesLine, RecalculateLines, DocLineNo, FromSalesDocType, FromSalesHeader);
         end else
             LinesNotCopied := LinesNotCopied + 1;
 
@@ -4949,6 +4951,8 @@
         CalcVAT(
           Amount, SalesLine."VAT %", FromPricesInclVAT, ToPricesInclVAT, Currency."Amount Rounding Precision");
         SalesLine."Inv. Discount Amount" := Amount;
+
+        OnAfterUpdateRevSalesLineAmount(SalesLine, OrgQtyBase, FromPricesInclVAT, ToPricesInclVAT);
     end;
 
     procedure CalculateRevSalesLineAmount(var SalesLine: Record "Sales Line"; OrgQtyBase: Decimal; FromPricesInclVAT: Boolean; ToPricesInclVAT: Boolean)
@@ -6045,7 +6049,14 @@
     end;
 
     local procedure CheckFromSalesHeader(SalesHeaderFrom: Record "Sales Header"; SalesHeaderTo: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckFromSalesHeader(SalesHeaderFrom, SalesHeaderTo, ISHandled);
+        if IsHandled then
+            exit;
+
         with SalesHeaderTo do begin
             SalesHeaderFrom.TestField("Sell-to Customer No.", "Sell-to Customer No.");
             SalesHeaderFrom.TestField("Bill-to Customer No.", "Bill-to Customer No.");
@@ -7864,6 +7875,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateRevSalesLineAmount(var SalesLine: Record "Sales Line"; OrgQtyBase: Decimal; FromPricesInclVAT: Boolean; ToPricesInclVAT: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLine(var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line")
     begin
     end;
@@ -7994,7 +8010,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertToSalesLine(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; RecalculateLines: Boolean; DocLineNo: Integer; FromSalesDocType: Enum "Sales Document Type From")
+    local procedure OnAfterInsertToSalesLine(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; RecalculateLines: Boolean; DocLineNo: Integer; FromSalesDocType: Enum "Sales Document Type From"; FromSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8085,6 +8101,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcReversibleQtyBaseSalesDoc(FromSalesLine: Record "Sales Line"; var ItemLedgEntry: record "Item Ledger Entry"; var ReversibleQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckFromSalesHeader(SalesHeaderFrom: Record "Sales Header"; SalesHeaderTo: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8575,6 +8596,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchLineOnAfterSetDimensions(var ToPurchaseLine: Record "Purchase Line"; FromPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSalesDocumentTypeCaseElse(FromDocType: Enum "Sales Document Type From"; var ToDocType: Enum "Sales Document Type")
     begin
     end;
 

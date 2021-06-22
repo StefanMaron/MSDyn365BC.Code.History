@@ -356,7 +356,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Exercise
         AddinManifestManagement.SetTestMode(true);
-        NewManifest := FileManagement.GetFileContent(AddinManifestManagement.SaveManifestToServer(OfficeAddin));
+        NewManifest := FileManagement.GetFileContents(AddinManifestManagement.SaveManifestToServer(OfficeAddin));
 
         // Validate
         Assert.AreNotEqual(OldManifest, NewManifest, 'Manifest did not change as a result of generating a new manifest');

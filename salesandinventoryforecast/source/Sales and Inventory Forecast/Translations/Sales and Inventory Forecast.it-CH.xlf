@@ -599,7 +599,7 @@
         </trans-unit>
         <trans-unit id="Page 3997127860 - Control 95864743 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the type of period that you want to see the forecast by.</source>
-          <target state="translated">Specifica il tipo del periodo per cui si desidera visualizzare la previsione.</target>
+          <target state="translated">Specifica il tipo di periodo per cui si desidera vedere la previsione.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Period Type - Property ToolTip</note>
         </trans-unit>

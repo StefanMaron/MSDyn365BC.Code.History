@@ -1,0 +1,1838 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="de-DE" original="VAT Group Management">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 1626420089 - Field 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Member ID</source>
+          <target state="translated">Gruppenmitglieds-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Approved Member - Field ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1626420089 - Field 3687402140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Member Name</source>
+          <target state="translated">Gruppenmitgliedsname</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Approved Member - Field Group Member Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1626420089 - Field 3990529670 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contact Person Name</source>
+          <target state="translated">Name der Kontaktperson</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Approved Member - Field Contact Person Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1626420089 - Field 4012802731 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contact Person Email</source>
+          <target state="translated">E-Mail-Adresse der Kontaktperson</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Approved Member - Field Contact Person Email - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1626420089 - Field 3133801257 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company</source>
+          <target state="translated">Unternehmen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Approved Member - Field Company - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3497260583 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Member Calculation</source>
+          <target state="translated">MwSt.-Gruppenmitgliedsberechnung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Calculation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3497260583 - Field 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ID</source>
+          <target state="translated">ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Calculation - Field ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3497260583 - Field 3359429197 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Submission</source>
+          <target state="translated">MwSt.-Gruppenübermittlung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Calculation - Field VAT Group Submission No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3497260583 - Field 3199380963 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Submission ID</source>
+          <target state="translated">MwSt.-Gruppenübermittlungs-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Calculation - Field VAT Group Submission ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3497260583 - Field 1402827214 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Return No.</source>
+          <target state="translated">MwSt.-Rückgabenr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Calculation - Field VAT Report No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3497260583 - Field 3687402140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Member Name</source>
+          <target state="translated">Gruppenmitgliedsname</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Calculation - Field Group Member Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3497260583 - Field 2989159974 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Box No.</source>
+          <target state="translated">Feldnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Calculation - Field Box No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3497260583 - Field 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Betrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Calculation - Field Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3497260583 - Field 4035800860 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Submitted On</source>
+          <target state="translated">Übermittelt am</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Calculation - Field Submitted On - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3398621917 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Submission Header</source>
+          <target state="translated">Kopfzeile der MwSt.-Gruppenübermittlung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Header - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3398621917 - Field 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ID</source>
+          <target state="translated">ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Header - Field ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3398621917 - Field 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">Nr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Header - Field No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3398621917 - Field 233654603 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Return No.</source>
+          <target state="translated">MwSt.-Gruppenrückgabenr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Header - Field VAT Group Return No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3398621917 - Field 3067641958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Member ID</source>
+          <target state="translated">Gruppenmitglieds-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Header - Field Group Member ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3398621917 - Field 3687402140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Member Name</source>
+          <target state="translated">Gruppenmitgliedsname</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Header - Field Group Member Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3398621917 - Field 474480784 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Date</source>
+          <target state="translated">Startdatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Header - Field Start Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3398621917 - Field 2649176925 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>End Date</source>
+          <target state="translated">Enddatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Header - Field End Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3398621917 - Field 4035800860 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Submitted On</source>
+          <target state="translated">Übermittelt am</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Header - Field Submitted On - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3398621917 - Field 3133801257 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company</source>
+          <target state="translated">Unternehmen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Header - Field Company - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3252717750 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Submission Line</source>
+          <target state="translated">MwSt.-Gruppenübermittlungszeile</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3252717750 - Field 3199380963 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Submission ID</source>
+          <target state="translated">MwSt.-Gruppenübermittlungs-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Field VAT Group Submission ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3252717750 - Field 3359429197 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Submission No.</source>
+          <target state="translated">MwSt.-Gruppenübermittlungsnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Field VAT Group Submission No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3252717750 - Field 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ID</source>
+          <target state="translated">ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Field ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3252717750 - Field 3320823955 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line No.</source>
+          <target state="translated">Zeilennr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Field Line No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3252717750 - Field 2782707039 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Row No.</source>
+          <target state="translated">Zeliennr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Field Row No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3252717750 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beschreibung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3252717750 - Field 2989159974 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Box No.</source>
+          <target state="translated">Feldnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Field Box No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3252717750 - Field 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Betrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Field Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3917783520 - NamedType 4114662404" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT Report Setup could not be found.</source>
+          <target state="translated">Die MwSt.-Berichtseinrichtung wurde nicht gefunden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType NoVATSetupErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3917783520 - NamedType 3701627753" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Bearer token could not be retrieved from cache. Please refresh the VAT Group bearer token by logging in the %1 page</source>
+          <target state="translated">Das Trägertoken wurde nicht aus dem Cache abgerufen. Aktualisieren Sie das Trägertoken der MwSt.-Gruppe, indem Sie sich auf der Seite %1 anmelden.</target>
+          <note from="Developer" annotates="general" priority="2">%1 the caption of a page.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType BearerTokenFromCacheErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3917783520 - NamedType 885561812" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authorization has failed with an unexpected error.</source>
+          <target state="translated">Unerwarteter Fehler bei der Autorisierung.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType OAuthFailedNoErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3917783520 - NamedType 3477129491" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authorization has failed with the error %1</source>
+          <target state="translated">Fehler bei der Autorisierung %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 is the error description.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType OAuthFailedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3917783520 - NamedType 3078278031" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bad Request: the server could not understand the request due to invalid syntax.</source>
+          <target state="translated">Ungültige Anforderung: Der Server konnte die Anforderung aufgrund einer ungültigen Syntax nicht verstehen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType InvalidSyntaxErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3917783520 - NamedType 414826979" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unauthorized: authentication credentials are not valid.</source>
+          <target state="translated">Nicht autorisiert: Authentifizierungsanmeldeinformationen sind ungültig.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType UnauthorizedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3917783520 - NamedType 3818399266" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Forbidden: missing permissions to access the requested resource.</source>
+          <target state="translated">Unzulässig: fehlende Berechtigungen für den Zugriff auf die angeforderte Ressource.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType ForbiddenErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3917783520 - NamedType 3351274" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not Found: cannot locate the requested resource.</source>
+          <target state="translated">Nicht gefunden: Die angeforderte Ressource wurde nicht gefunden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType NotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3917783520 - NamedType 3424589561" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Internal Server Error: the server cannot process the request.</source>
+          <target state="translated">Interner Serverfehler: Der Server kann die Anforderung nicht verarbeiten.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType InternalServerErrorErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3917783520 - NamedType 1628434534" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service Unavailable: the server is not available, try again later.</source>
+          <target state="translated">Dienst nicht verfügbar: Der Server ist nicht verfügbar, versuchen Sie es später erneut.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType ServiceUnavailableErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3917783520 - NamedType 2853925629" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Something went wrong, try again later.</source>
+          <target state="translated">Ein Problem ist aufgetreten. Versuchen Sie es später noch einmal.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType GeneralHttpErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1491000021 - NamedType 1689235809" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Management allows independent companies to enter into a VAT Group with the purpose of eliminating VAT claims amongst each other.</source>
+          <target state="translated">Mit der MwSt.-Gruppenverwaltung können unabhängige Unternehmen an einer MwSt.-Gruppe teilnehmen, um die MwSt.-Ansprüche untereinander auszugleichen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - NamedType AssistedSetupDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1491000021 - NamedType 1420859235" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up VAT Group Management</source>
+          <target state="translated">MwSt.-Gruppenverwaltung einrichten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - NamedType AssistedSetupTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1491000021 - NamedType 3527398778" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT report setup was not found. You can create one on the VAT Report Setup page.</source>
+          <target state="translated">Die MwSt.-Berichtseinrichtung wurde nicht gefunden. Sie können auf der Seite „MwSt.-Berichtseinrichtung“ eine erstellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - NamedType NoVATReportSetupErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4281638274 - NamedType 3214936391" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must run the Suggest Lines action before you include returns for the VAT group.</source>
+          <target state="translated">Sie müssen die Aktion „Zeilen vorschlagen“ ausführen, bevor Sie Rückgaben für die MwSt.-Gruppe einschließen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Retrieve From Sub. - NamedType SuggestLinesBeforeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 808841163 - NamedType 3295597712" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT Due Box No. is missing in VAT Report Setup.</source>
+          <target state="translated">MwSt. fällig Dialogfeld-Nr. fehlt in MwSt.-Berichtseinrichtung.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Settlement - NamedType NoDueBoxNoErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 808841163 - NamedType 2277448005" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT Settlement Account is missing in VAT Report Setup.</source>
+          <target state="translated">Das MwSt.-Abrechnungskonto fehlt in der MwSt.-Berichtseinrichtung.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Settlement - NamedType NoVATSettlementAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 808841163 - NamedType 3974812249" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Group Settlement Account is missing in VAT Report Setup.</source>
+          <target state="translated">Das Gruppenausgleichskonto fehlt in der MwSt.-Berichtseinrichtung.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Settlement - NamedType NoGroupSettlementAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 808841163 - NamedType 3742322622" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Group Settlement General Journal Template is missing in VAT Report Setup.</source>
+          <target state="translated">Die Fibu Buch.-Blattvorlage fehlt in der MwSt.-Berichtseinrichtung.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Settlement - NamedType NoGroupSettlementGenJnlTemplateErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 808841163 - NamedType 1083842266" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The General Ledger Account %1 does not exist.</source>
+          <target state="translated">Das Sachkonto %1 ist nicht vorhanden.</target>
+          <note from="Developer" annotates="general" priority="2">%1 is a general ledger account no.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Settlement - NamedType NoGLAccountErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 808841163 - NamedType 34301946" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Settlement for %1. %2 - %3</source>
+          <target state="translated">MwSt.-Abrechnung für %1. %2 - %3</target>
+          <note from="Developer" annotates="general" priority="2">%1 is the name of a VAT group member. %2 and %3 are dates</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Settlement - NamedType VATSettlementTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 808841163 - NamedType 3076853851" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Due from %1. %2 - %3</source>
+          <target state="translated">MwSt. fällig von %1. %2 - %3</target>
+          <note from="Developer" annotates="general" priority="2">%1 is the name of a VAT group member. %2 and %3 are dates</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Settlement - NamedType VATGroupSettlementTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3637038916 - NamedType 2074369582" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot update VAT report status</source>
+          <target state="translated">MwSt.-Berichtsstatus kann nicht aktualisiert werden</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Submission Status - NamedType BatchJsonResponseErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3303680355 - NamedType 3527398778" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT report setup was not found. You can create one on the VAT Report Setup page.</source>
+          <target state="translated">Die MwSt.-Berichtseinrichtung wurde nicht gefunden. Sie können auf der Seite „MwSt.-Berichtseinrichtung“ eine erstellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Submit To Represent. - NamedType NoVATReportSetupErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3303680355 - NamedType 3792991482" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must be configured as a VAT Group member in order to submit VAT returns to the group representative.</source>
+          <target state="translated">Sie müssen als MwSt.-Gruppenmitglied konfiguriert sein, um MwSt.-Rückgaben an den Gruppenvertreter zu senden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Submit To Represent. - NamedType SubmitMembersOnlyErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2949480547 - Control 2686962215 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the record identifier.</source>
+          <target state="translated">Gibt den Datensatzbezeichner an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission Lines - Control id - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2949480547 - Control 3898161535 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the identifier for the VAT return from the group member that submitted it.</source>
+          <target state="translated">Gibt den Bezeichner für die MwSt.-Rückgabe des Gruppenmitglieds an, das sie übermittelt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission Lines - Control vatGroupSubmissionNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2949480547 - Control 1294919425 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the line on the VAT return from the group member that submitted it.</source>
+          <target state="translated">Gibt die Zeilennummer der MwSt.-Rückgabe des Gruppenmitglieds an, das sie übermittelt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission Lines - Control lineNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2949480547 - Control 3784695125 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the row number of the VAT return from the group member that submitted it.</source>
+          <target state="translated">Gibt die Zeilennummer der MwSt.-Rückgabe des Gruppenmitglieds an, das sie übermittelt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission Lines - Control rowNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2949480547 - Control 4232699882 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a description for the VAT group submission line.</source>
+          <target state="translated">Gibt eine Beschreibung für die MwSt.-Gruppenübermittlungszeile an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission Lines - Control description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2949480547 - Control 3173496544 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the box number of the VAT return.</source>
+          <target state="translated">Gibt die Feldnummer der zugeordneten MwSt.-Rückgabe an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission Lines - Control boxNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2949480547 - Control 1121446808 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the VAT amount for the specified box number.</source>
+          <target state="translated">Gibt den MwSt.-Betrag für die angegebene Feldnummer an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission Lines - Control amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1457983745 - Control 2686962215 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the record identifier.</source>
+          <target state="translated">Gibt den Datensatzbezeichner an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submissions - Control id - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3244774383 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Approved Members</source>
+          <target state="translated">Genehmigte Mitglieder der MwSt.-Gruppe</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Approved Member List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3244774383 - Control 3641927271 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the identifier of the group member.</source>
+          <target state="translated">Gibt den Bezeichner des Gruppenmitglieds an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Approved Member List - Control ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3244774383 - Control 3687402140 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the group member.</source>
+          <target state="translated">Gibt den Namen des Gruppenmitglieds an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Approved Member List - Control Group Member Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3244774383 - Control 3133801257 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the company from which the group member will send VAT returns in Business Central.</source>
+          <target state="translated">Gibt das Unternehmen an, aus dem das Gruppenmitglied MwSt.-Rückgaben in Business Central senden soll.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Approved Member List - Control Company - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3244774383 - Control 3990529670 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the contact person in the group member company.</source>
+          <target state="translated">Gibt den Namen der Kontaktperson im Unternehmen des Gruppenmitglieds an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Approved Member List - Control Contact Person Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3244774383 - Control 4012802731 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the email of the contact person in the group member company.</source>
+          <target state="translated">Gibt die E-Mail-Adresse der Kontaktperson im Unternehmen des Gruppenmitglieds an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Approved Member List - Control Contact Person Email - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1700225543 - Control 1873299968 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the box number of the VAT return.</source>
+          <target state="translated">Gibt die Feldnummer der zugeordneten MwSt.-Rückgabe an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Member Calculation - Control BoxNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1700225543 - Control 3687402140 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the group member that submitted the VAT report.</source>
+          <target state="translated">Gibt den Namen des Gruppenmitglieds an, das den MwSt.-Bericht übermittelt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Member Calculation - Control Group Member Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1700225543 - Control 3359429197 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the identifier for the VAT return from the group member that submitted it.</source>
+          <target state="translated">Gibt den Bezeichner für die MwSt.-Rückgabe des Gruppenmitglieds an, das sie übermittelt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Member Calculation - Control VAT Group Submission No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1700225543 - Control 4081666332 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the timestamp during which the VAT report was submitted.</source>
+          <target state="translated">Gibt den Zeitstempel für den Zeitraum an, in dem der MwSt.-Bericht übermittelt wurde.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Member Calculation - Control SubmittedOn - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1700225543 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the VAT amount for the specified box number.</source>
+          <target state="translated">Gibt den MwSt.-Betrag für die angegebene Feldnummer an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Member Calculation - Control Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1700225543 - Control 245426702 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the total amount for the specified box number aggregated from all the group member returns.</source>
+          <target state="translated">Gibt den Gesamtbetrag für die angegebene Feldnummer an, der aus allen Gruppenmitgliedsrückgaben aggregiert wurde.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Member Calculation - Control Total - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1700225543 - Control 245426702 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Total</source>
+          <target state="translated">Gesamt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Member Calculation - Control Total - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Management</source>
+          <target state="translated">MwSt.-Gruppenverwaltung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3626173821 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Setup Banner</source>
+          <target state="translated">Einrichtungsbanner</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control SetupBanner - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2991574887 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Complete Banner</source>
+          <target state="translated">Banner abschließen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control CompleteBanner - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3800514526 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Welcome</source>
+          <target state="translated">Herzlich willkommen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control Welcome - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3800514526 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT Group Management extension makes it easy to be part of a VAT group.</source>
+          <target state="translated">Die Erweiterung „MwSt.-Gruppenverwaltung“ erleichtert die Teilnahme an einer MwSt.-Gruppe.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control Welcome - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2882169296 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This guide will help you define member and representative companies in the VAT group. Group members submit VAT returns to the group representative, who then submits the aggregated return for all member companies to the tax authorities.</source>
+          <target state="translated">Diese Anleitung hilft Ihnen bei der Definition von Mitglieds- und repräsentativen Unternehmen in der MwSt.-Gruppe. Gruppenmitglieder senden MwSt.-Rückgaben an den Gruppenvertreter, der dann die aggregierte Rückgabe für alle Mitgliedsunternehmen an die Steuerbehörde übermittelt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control WelcomeLabel - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 926340698 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Let's get started</source>
+          <target state="translated">Los geht's</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control LetsGo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 926340698 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose Next to configure your company's role in the VAT group.</source>
+          <target state="translated">Klicken Sie auf „Weiter“, um die Rolle Ihres Unternehmens in der MwSt.-Gruppe zu konfigurieren.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control LetsGo - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2552321247 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose your company's role in the VAT group</source>
+          <target state="translated">Die Rolle Ihres Unternehmens in der MwSt.-Gruppe auswählen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control ChooseType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2552321247 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The configuration settings depend on your role in the VAT group.</source>
+          <target state="translated">Die Konfigurationseinstellungen hängen von Ihrer Rolle in der MwSt.-Gruppe ab.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control ChooseType - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3582926020 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Role</source>
+          <target state="translated">MwSt.-Gruppenrolle</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATGroupRole - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3582926020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether you are a member of the group, or the group's representative.</source>
+          <target state="translated">Gibt an, ob Sie ein Mitglied der Gruppe oder der Vertreter der Gruppe sind.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATGroupRole - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1485942955 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No VAT group role specified</source>
+          <target state="translated">Keine MwSt.-Gruppenrolle angegeben</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control NoVATGroupRole - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1485942955 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To continue, you must specify your role in the VAT group.</source>
+          <target state="translated">Sie müssen Ihre Rolle in der MwSt.-Gruppe angeben, um fortzufahren.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control NoVATGroupRole - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 697164535 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group representative</source>
+          <target state="translated">Gruppenvertreter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control RepresentativeDescription - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 697164535 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose this option to act as the group representative and submit vat returns on behalf of the group. Group members will submit their VAT returns to you instead of the tax authority.</source>
+          <target state="translated">Wählen Sie diese Option aus, um als Gruppenvertreter zu fungieren und MwSt.-Rückgaben im Namen der Gruppe einzureichen. Die Gruppenmitglieder senden ihre MwSt.-Rückgaben an Sie anstelle der Steuerbehörde.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control RepresentativeDescription - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2722143938 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group member</source>
+          <target state="translated">Gruppenmitglied</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control MemberDescription - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2722143938 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose this option to act as a group member and submit VAT your returns to the group representative instead of the tax authority.</source>
+          <target state="translated">Wählen Sie diese Option aus, um als Gruppenmitglied zu fungieren und die MwSt.-Rückgaben an den Gruppenvertreter anstelle der Steuerbehörde abzusenden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control MemberDescription - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 595469094 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>My company is the group representative</source>
+          <target state="translated">Mein Unternehmen ist der Gruppenvertreter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control RepresentativeSetupInfo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 595469094 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>As the group representative you must define a list of approved group members who submit their VAT returns to you. You can manage group members on the VAT Report Setup page.</source>
+          <target state="translated">Als Gruppenvertreter müssen Sie eine Liste der genehmigten Gruppenmitglieder definieren, die ihre MwSt.-Rückgaben an Sie senden. Sie können Gruppenmitglieder auf der Seite „MwSt.-Berichtseinrichtung“ verwalten.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control RepresentativeSetupInfo - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2797239947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To add members, choose the number in the Approved Members field.</source>
+          <target state="translated">Zum Hinzufügen von Mitgliedern wählen Sie die Nummer im Feld „Genehmigte Mitglieder“ aus.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control RepresentativeSetupInfoMembers - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2301097644 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Approved Members</source>
+          <target state="translated">Genehmigte Mitglieder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control ApprovedMembers - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2301097644 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of approved members that are allowed to submit their VAT returns. Clicking on this number will open the Approved Members page.</source>
+          <target state="translated">Gibt die Anzahl der zugelassenen Mitglieder an, die ihre MwSt.-Rückgaben einreichen dürfen. Beim Klicken auf diese Nummer wird die Seite „Genehmigte Mitglieder“ geöffnet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control ApprovedMembers - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2093064149 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Settlement Account</source>
+          <target state="translated">Gruppenausgleichskonto</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control GroupSettlementAccount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2093064149 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the settlement account for the VAT group member amounts.</source>
+          <target state="translated">Gibt das Ausgleichskonto für die MwSt.-Gruppenmitgliedsbeträge an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control GroupSettlementAccount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2986765785 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Settlement Account</source>
+          <target state="translated">MwSt.-Abrechnungskonto</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATSettlementAccount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2986765785 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the normal VAT settlement account.</source>
+          <target state="translated">Gibt das normale MwSt.-Abrechnungskonto an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATSettlementAccount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 996182877 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Due Box No.</source>
+          <target state="translated">MwSt. fällig Dialogfeld-Nr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATDueBoxNo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 996182877 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the box that represents the total due VAT amount from a VAT Group Submission.</source>
+          <target state="translated">Gibt das Feld an, das den gesamten fälligen MwSt.-Betrag aus einer MwSt.-Gruppenübermittlung darstellt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATDueBoxNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 851437658 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Settlement Document Nos.</source>
+          <target state="translated">Gruppenausgleichsbeleg Nr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control GroupSettlementGenJnlTempl - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 851437658 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number series used for the document to post the Group VAT to the settlement account.</source>
+          <target state="translated">Gibt die Nummernserie an, die für den Beleg verwendet wird, um die Gruppen-MwSt. auf das Ausgleichskonto zu buchen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control GroupSettlementGenJnlTempl - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 357596043 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>My company is a member of the VAT group</source>
+          <target state="translated">Mein Unternehmen ist Mitglied der MwSt.-Gruppe</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control MemberSetupInfo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 357596043 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>As a group member, you must connect to the representative company for your VAT group.</source>
+          <target state="translated">Als Gruppenmitglied müssen Sie eine Verbindung mit dem Vertreterunternehmen für Ihre MwSt.-Gruppe herstellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control MemberSetupInfo - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3880925993 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enter connection settings for the group representative company's Business Central. Connection settings can differ, depending on how Business Central is deployed. The representative can provide this information.</source>
+          <target state="translated">Geben Sie die Verbindungseinstellungen für Business Central des Gruppenvertreterunternehmens ein. Die Verbindungseinstellungen können je nach der Bereitstellung von Business Central unterschiedlich sein. Diese Informationen werden vom Vertreter bereitgestellt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control MemberSetupInfoLabel - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2346114009 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Member Id</source>
+          <target state="translated">Gruppenmitglieds-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control MemberGuid - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2346114009 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the group member identifier.</source>
+          <target state="translated">Gibt den Bezeichner des Gruppenmitglieds an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control MemberGuid - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2491774705 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Representative Product Version</source>
+          <target state="translated">Gruppen Vertreter-Produktversion</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control GroupRepresentativeBCVersion - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2491774705 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the product version that the group representative uses.</source>
+          <target state="translated">Gibt die Produktversion an, die der Gruppenvertreter verwendet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control GroupRepresentativeBCVersion - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3187090157 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API URL</source>
+          <target state="translated">API-URL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control APIURL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3187090157 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the API URL of the representative company's Business Central or Dynamics NAV.</source>
+          <target state="translated">Gibt die API-URL von Business Central oder Dynamics NAV des Vertreterunternehmens an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control APIURL - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 785940005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Representative Company</source>
+          <target state="translated">Gruppenvertreter Unternehmen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control GroupRepresentativeCompany - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 785940005 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the company in the representative's Business Central or Dynamics NAV that will receive your VAT returns.</source>
+          <target state="translated">Gibt den Namen des Unternehmens im Business Central oder Dynamics NAV des Vertreters an, das Ihre MwSt.-Rückgaben erhält.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control GroupRepresentativeCompany - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 952030296 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication Type</source>
+          <target state="translated">Authentifizierungstyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATGroupAuthenticationType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 952030296 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the authentication types that you can use when connecting to a VAT group representative using Business Central.</source>
+          <target state="translated">Gibt die Authentifizierungstypen an, die Sie beim Herstellen einer Verbindung mit einem MwSt.-Gruppenvertreter mithilfe von Business Central verwenden können.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATGroupAuthenticationType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1343840248 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication Type</source>
+          <target state="translated">Authentifizierungstyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATGroupAuthenticationTypeSaas - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1343840248 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the authentication types that you can use when connecting to a VAT group representative using Business Central.</source>
+          <target state="translated">Gibt die Authentifizierungstypen an, die Sie beim Herstellen einer Verbindung mit einem MwSt.-Gruppenvertreter mithilfe von Business Central verwenden können.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATGroupAuthenticationTypeSaas - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3180907943 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Representative Uses Business Central Online</source>
+          <target state="translated">Gruppenvertreter verwendet Business Central Online</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control GroupRepresentativeOnSaaS - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3180907943 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the group representative is using Business Central online.</source>
+          <target state="translated">Gibt an, ob der Gruppenvertreter Business Central Online verwendet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control GroupRepresentativeOnSaaS - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1537974217 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Web service access key authentication</source>
+          <target state="translated">Authentifizierung mit Webdienst-Zugriffsschlüssel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control WSAKSetupInfo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1537974217 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please fill in the User Name and Web Service Access Key of the user in the group representative.</source>
+          <target state="translated">Geben Sie den Benutzernamen und den Webdienstzugriffsschlüssel des Benutzers im Gruppenvertreter ein.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control WSAKSetupInfo - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2994142618 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Name</source>
+          <target state="translated">Benutzername</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control Username - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2994142618 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the user name in the representative company's Business Central that you will use when you connect</source>
+          <target state="translated">Gibt den Benutzernamen in Business Central des Vertreterunternehmens an, den Sie beim Herstellen einer Verbindung verwenden werden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control Username - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3742023362 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Web Service Access Key</source>
+          <target state="translated">Webdienst-Zugriffsschlüssel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control WebServiceAccessKey - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3742023362 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the web service access key of a user in the representative company's Business Central that you will use when you connect.</source>
+          <target state="translated">Gibt den Webdienstzugriffsschlüssel eines Benutzers in Business Central des Vertreterunternehmens an, den Sie beim Herstellen der Verbindung verwenden werden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control WebServiceAccessKey - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 4203936973 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth2 details</source>
+          <target state="translated">OAuth2-Details</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control OAuth2Info - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 4203936973 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Provide information about the App Registration in Azure Active Directory that will be used to connect with OAuth2.</source>
+          <target state="translated">Geben Sie Informationen zur App-Registrierung in Azure Active Directory an, die zum Herstellen einer Verbindung mit OAuth2 verwendet wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control OAuth2Info - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2788077256 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client ID</source>
+          <target state="translated">Client-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control ClientId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2788077256 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the client ID from the App Registration in Azure Active Directory.</source>
+          <target state="translated">Gibt die Client-ID aus der App-Registrierung in Azure Active Directory an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control ClientId - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 4069789961 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client Secret</source>
+          <target state="translated">Geheimer Clientschlüssel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control ClientSecret - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 4069789961 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the client secret from the App Registration in Azure Active Directory.</source>
+          <target state="translated">Gibt den geheimen Clientschlüssel aus der App-Registrierung in Azure Active Directory an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control ClientSecret - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1139402143 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth 2.0 Authority Endpoint</source>
+          <target state="translated">OAuth 2.0-Autoritätsendpunkt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control OAuthAuthorityUrl - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1139402143 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the OAuth 2.0 authority endpoint of the App Registration in Azure Active Directory.</source>
+          <target state="translated">Gibt den OAuth 2.0-Autoritätsendpunkt der App-Registrierung in Azure Active Directory an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control OAuthAuthorityUrl - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1423931915 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth 2.0 Resource URL</source>
+          <target state="translated">OAuth 2.0-Ressourcen-URL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control ResourceURL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1423931915 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the OAuth 2.0 resource URL of the API you will get access to in Azure Active Directory. For instance https://api.businesscentral.dynamics.com/</source>
+          <target state="translated">Gibt die OAuth 2.0-Ressourcen-URL der API an, auf die Sie in Azure Active Directory zugreifen können. Zum Beispiel https://api.businesscentral.dynamics.com/</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control ResourceURL - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1464062987 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth 2.0 Redirect URL</source>
+          <target state="translated">OAuth 2.0-Umleitungs-URL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control RedirectURL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1464062987 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the OAuth 2.0 redirect URL of the App Registration in Azure Active Directory.</source>
+          <target state="translated">Gibt die OAuth 2.0-Umleitungs-URL der App-Registrierung in Azure Active Directory an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control RedirectURL - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1362072938 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Click Next to authenticate, get access to the group representative's API and continue.</source>
+          <target state="translated">Klicken Sie auf „Weiter“, um sich zu authentifizieren, Zugriff auf die API des Gruppenvertreters zu erhalten und fortzufahren.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control OAuth2Finish - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2974213324 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Connect using OAuth2</source>
+          <target state="translated">Verbindung mit OAuth2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control OAuth2InfoSaaSToSaaS - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2974213324 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Click Next to authenticate, get access to the group representative's API and continue.</source>
+          <target state="translated">Klicken Sie auf „Weiter“, um sich zu authentifizieren, Zugriff auf die API des Gruppenvertreters zu erhalten und fortzufahren.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control OAuth2InfoSaaSToSaaS - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2169452637 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select a VAT report configuration</source>
+          <target state="translated">MwSt.-Berichtskonfiguration auswählen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATReportConfigurationInfo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 2169452637 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose the VAT Report Configuration that is currently being used to send reports to the authorities. At the end of the setup we will create a new configuration based on the one chosen here which will be used to send VAT reports to the group representative.</source>
+          <target state="translated">Wählen Sie die MwSt.-Berichtskonfiguration aus, die derzeit zum Senden von Berichten an die Behörden verwendet wird. Am Ende der Einrichtung wird eine neue Konfiguration erstellt, basierend auf der hier gewählten, die verwendet werden soll, um MwSt.-Berichte an den Gruppenvertreter zu senden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATReportConfigurationInfo - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 529781750 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Report Configurations</source>
+          <target state="translated">MwSt.-Berichtskonfigurationen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control VATReportConfigurationPart - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3189484627 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All done</source>
+          <target state="translated">Fertig</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control AllDone - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3189484627 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Click Finish to save the setup and exit the setup guide.</source>
+          <target state="translated">Klicken Sie auf „Fertig stellen“, um die Einrichtung zu speichern und die Anleitung zu schließen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control AllDone - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 3750769219 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To test the connection to the VAT group representative, choose Test Connection.</source>
+          <target state="translated">Klicken Sie auf „Verbindung testen", um die Verbindung mit dem MwSt.-Gruppenvertreter zu prüfen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control AllDoneTestConnection - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 545533337 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Automatically refresh VAT report statuses</source>
+          <target state="translated">MwSt.-Berichtsstatus automatisch aktualisieren</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control EnableJobQueue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 545533337 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>If enabled this will automatically try to refresh the statuses of submitted VAT returns from the group representative if the submitted report was used in a VAT group report in that period.</source>
+          <target state="translated">Wenn die Option aktiviert ist, wird automatisch versucht, den Status der eingereichten MwSt.-Rückgaben vom Gruppenvertreter zu aktualisieren, wenn der übermittelte Bericht in einem MwSt.-Gruppenbericht in dieser Periode verwendet wurde.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control EnableJobQueue - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1938190553 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enable Automatic Refresh</source>
+          <target state="translated">Automatische Aktualisierung aktivieren</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control Enable JobQueue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Control 1938190553 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you want to automatically update the status of the VAT reports with a background task.</source>
+          <target state="translated">Gibt an, ob der Status der MwSt.-Berichte durch eine Hintergrundaufgabe automatisch aktualisiert werden soll.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Control Enable JobQueue - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Action 4263468516 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Test Connection</source>
+          <target state="translated">Testverbindung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Action TestConnection - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Action 4263468516 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initiates a test connection to the group master company in order to check if the authentication is correctly set up.</source>
+          <target state="translated">Initiiert eine Testverbindung mit dem Gruppenmaster-Unternehmen, um zu überprüfen, ob die Authentifizierung korrekt eingerichtet ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Action TestConnection - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Action 2438272767 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">Zurück</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Action ActionBack - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Action 2438272767 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Go to previous page</source>
+          <target state="translated">Zur vorherigen Seite</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Action ActionBack - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Action 914282563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Weiter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Action ActionNext - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Action 914282563 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Go to next page</source>
+          <target state="translated">Zur nächsten Seite</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Action ActionNext - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Action 3259912055 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finish</source>
+          <target state="translated">Abschließen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Action ActionFinish - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - Action 3259912055 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finish the wizard</source>
+          <target state="translated">Assistenten abschließen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - Action ActionFinish - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - NamedType 1147111024" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The setup for the VAT Group is not finished.\\Are you sure you want to exit?</source>
+          <target state="translated">Die Einrichtung der MwSt.-Gruppe ist nicht abgeschlossen.\\Möchten Sie den Vorgang wirklich beenden?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - NamedType NotSetUpQst</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - NamedType 3527398778" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT report setup was not found. You can create one on the VAT Report Setup page.</source>
+          <target state="translated">Die MwSt.-Berichtseinrichtung wurde nicht gefunden. Sie können auf der Seite „MwSt.-Berichtseinrichtung“ eine erstellen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - NamedType NoVATReportSetupErr</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - NamedType 1148646153" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not save changes to the %1 table.</source>
+          <target state="translated">Änderungen an der Tabelle %1 wurden nicht gespeichert.</target>
+          <note from="Developer" annotates="general" priority="2">%1 is the name of a table.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - NamedType CouldNotModifyVATReportSetupMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 27651019 - NamedType 1886430882" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The connection is working properly. You can now close the Setup Guide.</source>
+          <target state="translated">Die Verbindung funktioniert einwandfrei. Sie können jetzt die Einrichtungsanleitung schließen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Setup Guide - NamedType ConnectionWorkingMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3464953971 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Submission Lines</source>
+          <target state="translated">MwSt.-Gruppenübermittlungszeilen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Sub. Lines Subform - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3464953971 - Control 2782707039 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the row number of the VAT return from the group member that submitted it.</source>
+          <target state="translated">Gibt die Zeilennummer der MwSt.-Rückgabe des Gruppenmitglieds an, das sie übermittelt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Sub. Lines Subform - Control Row No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3464953971 - Control 2989159974 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the box number of the VAT return.</source>
+          <target state="translated">Gibt die Feldnummer der zugeordneten MwSt.-Rückgabe an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Sub. Lines Subform - Control Box No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3464953971 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a description for the VAT group submission line.</source>
+          <target state="translated">Gibt eine Beschreibung für die MwSt.-Gruppenübermittlungszeile an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Sub. Lines Subform - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3464953971 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the VAT amount for the specified box number.</source>
+          <target state="translated">Gibt den MwSt.-Betrag für die angegebene Feldnummer an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Sub. Lines Subform - Control Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2910311616 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Submission</source>
+          <target state="translated">MwSt.-Gruppenübermittlung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2910311616 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the identifier for the VAT return from the group member that submitted it.</source>
+          <target state="translated">Gibt den Bezeichner für die MwSt.-Rückgabe des Gruppenmitglieds an, das sie übermittelt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission - Control No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2910311616 - Control 3178072769 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the group member that submitted the VAT report.</source>
+          <target state="translated">Gibt den Namen des Gruppenmitglieds an, das den MwSt.-Bericht übermittelt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission - Control Member Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2910311616 - Control 3133801257 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the company from which the VAT report was submitted.</source>
+          <target state="translated">Gibt das Unternehmen an, aus dem der MwSt.-Bericht übermittelt wurde.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission - Control Company - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2910311616 - Control 4035800860 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the timestamp during which the VAT report was submitted.</source>
+          <target state="translated">Gibt den Zeitstempel für den Zeitraum an, in dem der MwSt.-Bericht übermittelt wurde.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission - Control Submitted On - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2910311616 - Control 474480784 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the start date of the report period for the VAT report submission.</source>
+          <target state="translated">Gibt das Startdatum der Berichtsperiode für die MwSt.-Berichtsübermittlung an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission - Control Start Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2910311616 - Control 2649176925 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the end date of the report period for the VAT report submission.</source>
+          <target state="translated">Gibt das Enddatum der Berichtsperiode für die MwSt.-Berichtsübermittlung an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission - Control End Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2910311616 - Control 3932791859 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Report Lines</source>
+          <target state="translated">Berichtszeilen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission - Control VATGroupSubmissionLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1590669234 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Submissions</source>
+          <target state="translated">Übermittlungen der MwSt.-Gruppe</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1590669234 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the identifier for the VAT return from the group member that submitted it.</source>
+          <target state="translated">Gibt den Bezeichner für die MwSt.-Rückgabe des Gruppenmitglieds an, das sie übermittelt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission List - Control No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1590669234 - Control 3178072769 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the group member that submitted the VAT report.</source>
+          <target state="translated">Gibt den Namen des Gruppenmitglieds an, das den MwSt.-Bericht übermittelt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission List - Control Member Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1590669234 - Control 474480784 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the start date of the report period for the VAT report submission.</source>
+          <target state="translated">Gibt das Startdatum der Berichtsperiode für die MwSt.-Berichtsübermittlung an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission List - Control Start Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1590669234 - Control 2649176925 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the end date of the report period for the VAT report submission.</source>
+          <target state="translated">Gibt das Enddatum der Berichtsperiode für die MwSt.-Berichtsübermittlung an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission List - Control End Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1590669234 - Control 3133801257 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the company from which the VAT report was submitted.</source>
+          <target state="translated">Gibt das Unternehmen an, aus dem der MwSt.-Bericht übermittelt wurde.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission List - Control Company - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1590669234 - Control 4035800860 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the timestamp during which the VAT report was submitted.</source>
+          <target state="translated">Gibt den Zeitstempel für den Zeitraum an, in dem der MwSt.-Bericht übermittelt wurde.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission List - Control Submitted On - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1590669234 - Control 2782722823 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ID of the group member that submitted the VAT report.</source>
+          <target state="translated">Gibt die ID des Gruppenmitglieds an, das den MwSt.-Bericht übermittelt hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission List - Control Member ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Reports Configuration</source>
+          <target state="translated">MwSt.-Berichtskonfiguration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Control 1318640161 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the version of the VAT report.</source>
+          <target state="translated">Gibt die Version des MwSt.-Berichts an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Control VAT Report Version - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Control 1555720505 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether an ID is suggested automatically.</source>
+          <target state="translated">Gibt an, ob eine ID automatisch vorgeschlagen wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Control Suggest Lines Codeunit ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Control 554825520 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether a caption is suggested automatically.</source>
+          <target state="translated">Gibt an, ob eine Beschriftung automatisch vorgeschlagen wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Control Suggest Lines Codeunit Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Control 2792361305 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the codeunit ID.</source>
+          <target state="translated">Gibt die Codeunit-ID an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Control Content Codeunit ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Control 2605127120 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the codeunit caption code.</source>
+          <target state="translated">Gibt die Codeunit-Beschriftung an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Control Content Codeunit Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Control 1578133954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ID associated with the submission codeunit.</source>
+          <target state="translated">Gibt die ID an, die mit der Übermittlungs-Codeunit verknüpft ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Control Submission Codeunit ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Control 1235910239 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the caption associated with the submission codeunit.</source>
+          <target state="translated">Gibt die Beschriftung an, die mit der Übermittlungs-Codeunit verknüpft ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Control Submission Codeunit Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Control 39760095 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the codeunit ID of the response handler.</source>
+          <target state="translated">Gibt die Codeunit-ID des Antworthandlers an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Control Response Handler Codeunit ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Control 4045529433 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the caption that related to the line.</source>
+          <target state="translated">Gibt den Namen der Beschriftung an, mit dem die Position in Verbindung steht.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Control Resp. Handler Codeunit Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Control 1943315772 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the codeunit ID for the VAT Report line.</source>
+          <target state="translated">Gibt die Codeunit-ID für den MwSt.-Bericht an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Control Validate Codeunit ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 231648147 - Control 1173241261 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the caption for the codeunit VAT Report.</source>
+          <target state="translated">Gibt die Beschriftung für den Codeunit-MwSt.-Bericht an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Reports Configuration Part - Control Validate Codeunit Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 130569615 - Control 1676047464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Member Submissions</source>
+          <target state="translated">Gruppenmitglied-Übermittlungen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3071660306</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 130569615 - Control 1676047464 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of VAT returns submitted by group members in this period.</source>
+          <target state="translated">Gibt die Anzahl der MwSt.-Rückgaben an, die von Gruppenmitgliedern in dieser Periode übermittelt wurden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3071660306</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 130569615 - NamedType 3282014969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 of %2 submitted</source>
+          <target state="translated">%1 von %2 übermittelt</target>
+          <note from="Developer" annotates="general" priority="2">%1 = number, %2 = number ex. 2 of 4 submitted</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3071660306</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - Control 966004738 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Included</source>
+          <target state="translated">MwSt.-Gruppe enthalten</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - Control 966004738 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether this is a VAT group return.</source>
+          <target state="translated">Gibt an, ob es sich um eine MwSt.-Gruppenrückgabe handelt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - Control 190253636 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the status of the VAT return on the group representative side. If this VAT return was used in a VAT group return by the group representative, the status is shown here.</source>
+          <target state="translated">Gibt den Status der MwSt.-Rückgabe auf der Seite „Gruppenvertreter“ an. Wenn diese MwSt.-Rückgabe bei einer MwSt.-Gruppenrückgabe vom Gruppenvertreter verwendet wurde, wird dieser Status hier angezeigt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - Control 1696402780 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Settlement Posted</source>
+          <target state="translated">MwSt.-Gruppenabrechnung gebucht</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - Control 1696402780 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the VAT settlement has been posted for the group members.</source>
+          <target state="translated">Gibt an, ob die MwSt.-Abrechnung für die Gruppenmitglieder gebucht wurde.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - Action 3475387180 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include VAT Group</source>
+          <target state="translated">MwSt.-Gruppe einbeziehen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - Action 3475387180 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Includes the amounts of submitted VAT returns from members in this period.</source>
+          <target state="translated">Enthält die Beträge der eingereichten MwSt.-Rückgaben von Mitgliedern in dieser Periode.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - Action 2421935703 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Update Status</source>
+          <target state="translated">Aktualisierungsstatus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - Action 2421935703 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Give the VAT return the same status as the return for the VAT group in the group representative company.</source>
+          <target state="translated">Geben Sie der MwSt.-Erklärung den gleichen Status wie die Mehrwertsteuergruppe im Gruppenvertreterunternehmen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - Action 2405978915 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Post VAT Group Settlement</source>
+          <target state="translated">MwSt.-Gruppenausgleich buchen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - Action 2405978915 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Post the VAT amount that is due to the VAT settlement account for each group member, and balance the amounts in the account for VAT group settlements.</source>
+          <target state="translated">Buchen Sie den MwSt.-Betrag, der dem MwSt.-Abrechnungskonto für jedes Gruppenmitglied zusteht, und ziehen Sie die Beträge im Konto für MwSt.-Gruppenausgleiche aus.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - NamedType 596730981" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The amounts submitted by group members have changed. Please review the new values.</source>
+          <target state="translated">Die von den Gruppenmitgliedern eingereichten Beträge wurden geändert. Überprüfen Sie die neuen Werte.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - NamedType 1023320891" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There are newer VAT Group submissions from members for this period. Click Reopen to incorporate the new values.</source>
+          <target state="translated">Es gibt neuere MwSt.-Gruppenübermittlungen von Mitgliedern für diese Periode. Klicken Sie auf „Erneut öffnen“, um die neuen Werte einzufügen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - NamedType 1742762397" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more VAT group members have not submitted their VAT return for this period. Wait until all members have submitted before you continue.\\You can see the current submissions on the VAT Group Submission page.</source>
+          <target state="translated">Mindestens ein Mitglied der MwSt.-Gruppe hat seine MwSt.-Rückgabe für diese Periode nicht übermittelt. Warten Sie, bis alle Mitglieder die Rückgaben übermittelt haben, bevor Sie fortfahren.\\Sie können die aktuellen Übermittlungen auf der Seite „MwSt.-Gruppenübermittlung“ anzeigen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - NamedType 27148185" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to post the VAT settlement for the group members?</source>
+          <target state="translated">Möchten Sie die MwSt.-Abrechnung für die Gruppenmitglieder buchen?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - NamedType 4155488872" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not post the VAT group settlement because the following error occurred. %1</source>
+          <target state="translated">Der MwSt.-Gruppenausgleich konnte nicht buchen, da der folgende Fehler aufgetreten ist. %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 is the error itself</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1476524600 - NamedType 3531816988" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT group settlement was posted successfully.</source>
+          <target state="translated">Der MwSt.-Gruppenausgleich wurde erfolgreich gebucht.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 962565375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1203664658 - Control 966004738 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether or not this is a VAT group return.</source>
+          <target state="translated">Gibt an, ob es sich um eine MwSt.-Gruppenrückgabe handelt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4060593033</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1203664658 - Control 190253636 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the status of the VAT return on the group representative side. If this VAT return was used in any VAT Group return on the representative side, that status is mirrored here.</source>
+          <target state="translated">Gibt den Status der MwSt.-Rückgabe auf der Seite „Gruppenvertreter“ an. Wenn diese MwSt.-Rückgabe bei einer MwSt.-Gruppenrückgabe auf der Vertreterseite verwendet wurde, wird dieser Status hier gespiegelt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4060593033</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 3739812496 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Management</source>
+          <target state="translated">MwSt.-Gruppenverwaltung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 3582926020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies what kind of role the current user has in the VAT group.</source>
+          <target state="translated">Gibt an, welche Art von Rolle der aktuelle Benutzer in der MwSt.-Gruppe hat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 952030296 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies which authentication type will be used to send data to the group representative.</source>
+          <target state="translated">Gibt an, welcher Authentifizierungstyp zum Senden von Daten an den Gruppenvertreter verwendet wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 1343840248 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication Type</source>
+          <target state="translated">Authentifizierungstyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 1343840248 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies which authentication type will be used to send data to the group representative.</source>
+          <target state="translated">Gibt an, welcher Authentifizierungstyp zum Senden von Daten an den Gruppenvertreter verwendet wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 857185741 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the current ID of the group member.</source>
+          <target state="translated">Gibt die aktuelle ID des Gruppenmitglieds an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 2491774705 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the product version that the group representative uses.</source>
+          <target state="translated">Gibt die Produktversion an, die der Gruppenvertreter verwendet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 3187090157 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the API URL of the group representative tenant.</source>
+          <target state="translated">Gibt die API-URL des Gruppenvertreterunternehmens an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 785940005 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the company name of the group representative tenant to which the VAT returns will be sent.</source>
+          <target state="translated">Gibt den Unternehmensnamen des Gruppenvertretertenants an, an den die MwSt.-Rückgaben gesendet werden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 3549826426 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Name</source>
+          <target state="translated">Benutzername</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 3549826426 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the web service access key of the user in the group representative company.</source>
+          <target state="translated">Gibt den Webdienstzugriffsschlüssel des Benutzers im Gruppenvertreterunternehmen an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 3629137570 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Web Service Access Key</source>
+          <target state="translated">Webdienst-Zugriffsschlüssel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 3629137570 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the web service access key of the user in the group representative company.</source>
+          <target state="translated">Gibt den Webdienstzugriffsschlüssel des Benutzers im Gruppenvertreterunternehmen an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 1289700669 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the group representative is using Business Central Online.</source>
+          <target state="translated">Gibt an, ob der Gruppenvertreter Business Central Online verwendet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 2788077256 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client ID</source>
+          <target state="translated">Client-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 2788077256 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the client ID of the Azure AD application used to access the API.</source>
+          <target state="translated">Gibt die Client-ID der Azure AD-Anwendung an, die für den Zugriff auf die API verwendet wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 4069789961 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client Secret</source>
+          <target state="translated">Geheimer Clientschlüssel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 4069789961 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the client secret of the Azure AD application used to access the API.</source>
+          <target state="translated">Gibt den geheimen Clientschlüssel der Azure AD-Anwendung an, die zum Zugriff auf die API verwendet wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 2715030446 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the authority URL of the OAuth authority used to grant access tokens.</source>
+          <target state="translated">Gibt die Autoritäts-URL der OAuth-Autorität an, die zum Gewähren von Zugriffstoken verwendet wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 1423931915 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the resource URL of the Azure AD application to which access will be granted.</source>
+          <target state="translated">Gibt die Ressourcen-URL der Azure AD-Anwendung an, auf die Zugriff gewährt wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 1464062987 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the OAuth2 redirect URL of the Azure AD application used to access the API.</source>
+          <target state="translated">Gibt die OAuth2.-Umleitungs-URL der Azure AD-Anwendung an, die für den Zugriff auf die API verwendet wird.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 2301097644 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of approved members that are allowed to submit their VAT returns. Clicking on this number will open the Approved Members page.</source>
+          <target state="translated">Gibt die Anzahl der zugelassenen Mitglieder an, die ihre MwSt.-Rückgaben einreichen dürfen. Beim Klicken auf diese Nummer wird die Seite „Genehmigte Mitglieder“ geöffnet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 2093064149 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the settlement account for the VAT group member amounts.</source>
+          <target state="translated">Gibt das Ausgleichskonto für die MwSt.-Gruppenmitgliedsbeträge an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 2986765785 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the normal VAT settlement account.</source>
+          <target state="translated">Gibt das normale MwSt.-Abrechnungskonto an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 996182877 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the box on the form from the tax authority that should contain the total VAT amount due for a VAT group submission.</source>
+          <target state="translated">Gibt die Nummer des Feldes auf dem Formular der Steuerbehörde an, das den gesamten MwSt.-Betrag enthalten soll, der für eine MwSt.-Gruppenübermittlung fällig ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Control 851437658 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number series used for the document to post VAT for the VAT group to the settlement account.</source>
+          <target state="translated">Gibt die Nummernserie an, die für den Beleg verwendet wird, um die MwSt. für die MwSt.-Gruppe auf das Ausgleichskonto zu buchen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Action 22890876 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Renew OAuth2 Token</source>
+          <target state="translated">OAuth2-Token erneuern</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4146260181 - Action 22890876 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initiates a new OAuth2 authetication flow which will result in getting a new token. This should be used if the the previous token has expired or can no longer be used.</source>
+          <target state="translated">Initiiert einen neuen OAuth2-Authentifizierungsflow, der zum Abrufen eines neuen Tokens führt. Dies sollte verwendet werden, wenn das vorherige Token abgelaufen ist oder nicht mehr verwendet werden kann.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 3583765724 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Role</source>
+          <target state="translated">MwSt.-Gruppenrolle</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 148869180 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Approved Members</source>
+          <target state="translated">Genehmigte Mitglieder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 3067641958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Member ID</source>
+          <target state="translated">Gruppenmitglieds-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 741335537 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Representative API URL</source>
+          <target state="translated">API-URL des Gruppenvertreters</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 2906998308 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication Type</source>
+          <target state="translated">Authentifizierungstyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 2519885595 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Name Key</source>
+          <target state="translated">Schlüssel für Benutzername</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 587592091 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Web Service Access Key Key</source>
+          <target state="translated">Webdienst-Zugriffsschlüssel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 438063357 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Representative Company</source>
+          <target state="translated">Gruppenvertreter Unternehmen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 640746029 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client ID Key</source>
+          <target state="translated">Client-ID-Schlüssel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 4106039276 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Client Secret Key</source>
+          <target state="translated">Geheimer Clientschlüssel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 866753070 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth 2.0 Authority URL</source>
+          <target state="translated">OAuth 2.0-Autoritäts-URL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 2731867443 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth 2.0 Resource URL</source>
+          <target state="translated">OAuth 2.0-Ressourcen-URL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 618784563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth 2.0 Redirect URL</source>
+          <target state="translated">OAuth 2.0-Umleitungs-URL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 1080141791 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Representative Uses Business Central Online</source>
+          <target state="translated">Gruppenvertreter verwendet Business Central Online</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 4253409181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Settlement Account</source>
+          <target state="translated">Gruppenausgleichskonto</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 1823533857 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Settlement Account</source>
+          <target state="translated">MwSt.-Abrechnungskonto</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 1193264119 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Due Box No.</source>
+          <target state="translated">MwSt. fällig Dialogfeld-Nr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 4200388312 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Settlement General Journal Template</source>
+          <target state="translated">Fibu Buch.-Blattvorlage „Gruppenausgleich“</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4146260181 - Field 2703061601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Representative Product Version</source>
+          <target state="translated">Gruppen Vertreter-Produktversion</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 456029390</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 539298427 - Control 3054127057 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the representative VAT amount for the specified box number.</source>
+          <target state="translated">Gibt den MwSt.-Vertreterbetrag für die angegebene Feldnummer an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4176980254</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 539298427 - Control 2195804493 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Amount</source>
+          <target state="translated">Gruppenbetrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4176980254</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 539298427 - Control 2195804493 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the group VAT amount for the specified box number without the representative amount.</source>
+          <target state="translated">Gibt den MwSt.-Gruppenbetrag für die angegebene Feldnummer ohne den Vertreterbetrag an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4176980254</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 539298427 - Change 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Total Amount</source>
+          <target state="translated">Gesamtbetrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4176980254</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 191829437 - Field 966004738 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Return</source>
+          <target state="translated">MwSt.-Gruppenrückgabe</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 4272790790</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 191829437 - Field 190253636 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Return Status</source>
+          <target state="translated">MwSt.-Gruppenrückgabestatus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 4272790790</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 191829437 - Field 1696402780 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Settlement Posted</source>
+          <target state="translated">MwSt.-Gruppenausgleich gebucht</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 4272790790</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 84290559 - Field 3054127057 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Representative Amount</source>
+          <target state="translated">Vertreterbetrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2925949834</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 84290559 - Field 2195804493 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Amount</source>
+          <target state="translated">Gruppenbetrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2925949834</note>
+        </trans-unit>
+        <trans-unit id="Enum 3476321473 - EnumValue 3742023362 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Web Service Access Key</source>
+          <target state="translated">Webdienst-Zugriffsschlüssel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Authentication Type OnPrem - EnumValue WebServiceAccessKey - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3476321473 - EnumValue 1970998423 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth2</source>
+          <target state="translated">OAuth2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Authentication Type OnPrem - EnumValue OAuth2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3476321473 - EnumValue 3367207849 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Windows Authentication</source>
+          <target state="translated">Windows-Authentifizierung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Authentication Type OnPrem - EnumValue WindowsAuthentication - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1905748320 - EnumValue 3742023362 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Web Service Access Key</source>
+          <target state="translated">Webdienst-Zugriffsschlüssel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Authentication Type Saas - EnumValue WebServiceAccessKey - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1905748320 - EnumValue 1970998423 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OAuth2</source>
+          <target state="translated">OAuth2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Authentication Type Saas - EnumValue OAuth2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2703061601 - EnumValue 1849206139 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Business Central</source>
+          <target state="translated">Business Central</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group BC Version - EnumValue BC - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2703061601 - EnumValue 4146093678 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dynamics NAV 2018</source>
+          <target state="translated">Dynamics NAV 2018</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group BC Version - EnumValue NAV2018 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2703061601 - EnumValue 488822999 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dynamics NAV 2016-2017</source>
+          <target state="translated">Dynamics NAV 2016-2017</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group BC Version - EnumValue NAV2017 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3583765724 - EnumValue 1371923692 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Role - EnumValue   - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3583765724 - EnumValue 490050973 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Representative</source>
+          <target state="translated">Bevollmächtigter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Role - EnumValue Representative - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3583765724 - EnumValue 69905980 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Member</source>
+          <target state="translated">Mitglied</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Role - EnumValue Member - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>
