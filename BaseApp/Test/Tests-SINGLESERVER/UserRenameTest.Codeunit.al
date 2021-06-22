@@ -54,26 +54,16 @@ codeunit 132904 UserRenameTest
 
     local procedure InitializeTestUsers()
     var
-        IdentityManagement: Codeunit "Identity Management";
-        PrincipalContext: DotNet "System.DirectoryServices.AccountManagement.PrincipalContext";
-        ContextType: DotNet "System.DirectoryServices.AccountManagement.ContextType";
-        GroupPrincipal: DotNet "System.DirectoryServices.AccountManagement.GroupPrincipal";
-        IdentityType: DotNet "System.DirectoryServices.AccountManagement.IdentityType";
-        Principal: DotNet "System.DirectoryServices.AccountManagement.Principal";
+        Index: Integer;
         Counter: Integer;
         TypeName: Text;
     begin
         Counter := ArrayLen(UserName);
-        PrincipalContext := PrincipalContext.PrincipalContext(ContextType.Domain);
-        GroupPrincipal := GroupPrincipal.FindByIdentity(PrincipalContext, IdentityType.SamAccountName, 'Domain Users');
-        foreach Principal in GroupPrincipal.GetMembers(false) do begin
-            TypeName := Principal.GetType.ToString;
-            if TypeName = 'System.DirectoryServices.AccountManagement.UserPrincipal' then begin
-                UserName[Counter] := UpperCase(IdentityManagement.UserName(Sid(Principal.UserPrincipalName)));
-                Counter -= 1;
-            end;
-            if Counter = 0 then
-                exit;
+        TypeName := 'USR1';
+
+        for Index := 1 to Counter do begin
+            UserName[Index] := TypeName;
+            TypeName := IncStr(TypeName);
         end;
     end;
 
@@ -82,21 +72,21 @@ codeunit 132904 UserRenameTest
         UserCardPage: TestPage "User Card";
     begin
         UserCardPage.OpenNew;
-        UserCardPage."User Name".Value := NewUserName;
+        UserCardPage."User Name".SetValue(NewUserName);
         UserCardPage.Close;
     end;
 
     local procedure RenameUser(ChangeBy: Integer)
     begin
         // SETUP
-        AddUserHelper(GetShortName(UserName[1]));
-        CreateUserRelatedRecords(GetShortName(UserName[1]));
+        AddUserHelper(UserName[1]);
+        CreateUserRelatedRecords(UserName[1]);
 
         // EXECUTE
-        RenameUserHelper(ChangeBy, GetShortName(UserName[1]), GetShortName(UserName[2]));
+        RenameUserHelper(ChangeBy, UserName[1], UserName[2]);
 
         // VERIFY
-        VerifyUserRelatedRecords(GetShortName(UserName[1]), GetShortName(UserName[2]));
+        VerifyUserRelatedRecords(UserName[1], UserName[2]);
 
         TearDown;
     end;
@@ -145,11 +135,6 @@ codeunit 132904 UserRenameTest
             until Field.Next = 0;
     end;
 
-    local procedure GetShortName(UserName: Text): Text
-    begin
-        exit(CopyStr(UserName, StrPos(UserName, '\') + 1));
-    end;
-
     local procedure RenameUserHelper(ChangeBy: Integer; OldName: Text; NewName: Text)
     begin
         case ChangeBy of
@@ -162,21 +147,27 @@ codeunit 132904 UserRenameTest
 
     local procedure RenameUserHelper_Card(OldUserName: Text; NewUserName: Text)
     var
+        User: Record User;
         UserCardPage: TestPage "User Card";
     begin
         UserCardPage.OpenEdit;
-        UserCardPage.FILTER.SetFilter("User Name", OldUserName);
-        UserCardPage."User Name".Value := NewUserName;
+        User.SetRange("User Name", OldUserName);
+        User.FindFirst();
+        UserCardPage.GoToRecord(User);
+        UserCardPage."User Name".SetValue(NewUserName);
         UserCardPage.Close;
     end;
 
     local procedure RenameUserHelper_List(OldUserName: Text; NewUserName: Text)
     var
+        User: Record User;
         UsersPage: TestPage Users;
     begin
         UsersPage.OpenEdit;
-        UsersPage.FILTER.SetFilter("User Name", OldUserName);
-        UsersPage."User Name".Value := NewUserName;
+        User.SetRange("User Name", OldUserName);
+        User.FindFirst();
+        UsersPage.GoToRecord(User);
+        UsersPage."User Name".SetValue(NewUserName);
         UsersPage.Close;
     end;
 

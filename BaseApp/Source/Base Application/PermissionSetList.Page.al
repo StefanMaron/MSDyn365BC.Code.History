@@ -56,5 +56,17 @@ page 9851 "Permission Set List"
     begin
         FillRecordBuffer;
     end;
+
+    procedure GetSelectionFilter(var AggregatePermissionSet: Record "Aggregate Permission Set")
+    begin
+        CurrPage.SetSelectionFilter(Rec);
+        if FindSet() then
+            repeat
+                if AggregatePermissionSet.Get(Scope, "App ID", "Role ID") then
+                    AggregatePermissionSet.Mark(true);
+            until Next() = 0;
+        Reset();
+        AggregatePermissionSet.MarkedOnly(true);
+    end;
 }
 

@@ -89,6 +89,11 @@ page 9094 "Vendor Statistics FactBox"
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the sum of payments paid to the vendor.';
             }
+            field("Refunds (LCY)"; "Refunds (LCY)")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the sum of refunds paid to the vendor.';
+            }
             field(LastPaymentDate; GetLastPaymentDate)
             {
                 AccessByPermission = TableData "Vendor Ledger Entry" = R;

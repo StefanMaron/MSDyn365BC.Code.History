@@ -3124,7 +3124,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalCostTotal11.Value)</Value>
+                                  <Value>=Last(Fields!TotalCostTotal11.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3166,7 +3166,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalPriceTotal11.Value)</Value>
+                                  <Value>=Last(Fields!TotalPriceTotal11.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3208,7 +3208,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalLineDiscAmt11.Value)</Value>
+                                  <Value>=Last(Fields!TotalLineDiscAmt11.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3250,7 +3250,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalLineAmt11.Value)</Value>
+                                  <Value>=Last(Fields!TotalLineAmt11.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3588,7 +3588,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalCostTotal21.Value)</Value>
+                                  <Value>=Last(Fields!TotalCostTotal21.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3626,7 +3626,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalPriceTotal21.Value)</Value>
+                                  <Value>=Last(Fields!TotalPriceTotal21.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3664,7 +3664,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalLineDiscAmt21.Value)</Value>
+                                  <Value>=Last(Fields!TotalLineDiscAmt21.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3702,7 +3702,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalLineDiscAmt2.Value)</Value>
+                                  <Value>=Last(Fields!TotalLineDiscAmt2.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -5127,7 +5127,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalCostTotal1.Value)</Value>
+                                  <Value>=Last(Fields!JobTotalCost1.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -5165,7 +5165,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalPriceTotal1.Value)</Value>
+                                  <Value>=Last(Fields!JobTotalPrice1.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -5203,7 +5203,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalLineDiscAmt1.Value)</Value>
+                                  <Value>=Last(Fields!JobTotalLineDiscAmount1.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -5241,7 +5241,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalLineAmt1.Value)</Value>
+                                  <Value>=Last(Fields!JobTotalLineAmount1.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -5538,7 +5538,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalCostTotal2.Value)</Value>
+                                  <Value>=Last(Fields!JobTotalCost2.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -5576,7 +5576,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalPriceTotal2.Value)</Value>
+                                  <Value>=Last(Fields!JobTotalPrice2.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -5614,7 +5614,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalLineDiscAmt2.Value)</Value>
+                                  <Value>=Last(Fields!JobTotalLineDiscAmount2.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -5652,7 +5652,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalLineDiscAmt2.Value)</Value>
+                                  <Value>=Last(Fields!JobTotalLineAmount2.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -6129,6 +6129,54 @@ End Function</Code>
       <Fields>
         <Field Name="No_Job">
           <DataField>No_Job</DataField>
+        </Field>
+        <Field Name="JobTotalCost1">
+          <DataField>JobTotalCost1</DataField>
+        </Field>
+        <Field Name="JobTotalCost1Format">
+          <DataField>JobTotalCost1Format</DataField>
+        </Field>
+        <Field Name="JobTotalCost2">
+          <DataField>JobTotalCost2</DataField>
+        </Field>
+        <Field Name="JobTotalCost2Format">
+          <DataField>JobTotalCost2Format</DataField>
+        </Field>
+        <Field Name="JobTotalPrice1">
+          <DataField>JobTotalPrice1</DataField>
+        </Field>
+        <Field Name="JobTotalPrice1Format">
+          <DataField>JobTotalPrice1Format</DataField>
+        </Field>
+        <Field Name="JobTotalPrice2">
+          <DataField>JobTotalPrice2</DataField>
+        </Field>
+        <Field Name="JobTotalPrice2Format">
+          <DataField>JobTotalPrice2Format</DataField>
+        </Field>
+        <Field Name="JobTotalLineDiscAmount1">
+          <DataField>JobTotalLineDiscAmount1</DataField>
+        </Field>
+        <Field Name="JobTotalLineDiscAmount1Format">
+          <DataField>JobTotalLineDiscAmount1Format</DataField>
+        </Field>
+        <Field Name="JobTotalLineDiscAmount2">
+          <DataField>JobTotalLineDiscAmount2</DataField>
+        </Field>
+        <Field Name="JobTotalLineDiscAmount2Format">
+          <DataField>JobTotalLineDiscAmount2Format</DataField>
+        </Field>
+        <Field Name="JobTotalLineAmount1">
+          <DataField>JobTotalLineAmount1</DataField>
+        </Field>
+        <Field Name="JobTotalLineAmount1Format">
+          <DataField>JobTotalLineAmount1Format</DataField>
+        </Field>
+        <Field Name="JobTotalLineAmount2">
+          <DataField>JobTotalLineAmount2</DataField>
+        </Field>
+        <Field Name="JobTotalLineAmount2Format">
+          <DataField>JobTotalLineAmount2Format</DataField>
         </Field>
         <Field Name="CompanyName">
           <DataField>CompanyName</DataField>

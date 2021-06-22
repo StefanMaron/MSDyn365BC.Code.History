@@ -21,6 +21,16 @@ page 771 "Purchase Performance"
             {
                 ApplicationArea = Basic, Suite;
 
+                trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
+                begin
+                    SetDrillDownIndexes(point);
+                    AnalysisReportChartMgt.DrillDown(Rec, AnalysisReportChartSetup);
+                end;
+
+                trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
+                begin
+                end;
+
                 trigger AddInReady()
                 begin
                     UpdateChart(Period::" ");

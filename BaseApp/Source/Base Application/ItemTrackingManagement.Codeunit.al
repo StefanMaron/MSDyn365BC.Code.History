@@ -615,6 +615,8 @@ codeunit 6500 "Item Tracking Management"
 
         InsertProspectReservEntryFromItemEntryRelationAndSourceData(
           ItemEntryRelation, ToSalesInvLine."Document Type", ToSalesInvLine."Document No.", ToSalesInvLine."Line No.");
+
+        OnAfterCopyHandledItemTrkgToInvLine(FromSalesLine, ToSalesInvLine);
     end;
 
     procedure CopyHandledItemTrkgToInvLine(FromPurchLine: Record "Purchase Line"; ToPurchLine: Record "Purchase Line")
@@ -778,7 +780,7 @@ codeunit 6500 "Item Tracking Management"
         exit(ItemLedgerEntry.FindFirst);
     end;
 
-    procedure SplitWhseJnlLine(TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseJnlLine2: Record "Warehouse Journal Line" temporary; var TempWhseSplitSpecification: Record "Tracking Specification" temporary; ToTransfer: Boolean)
+    procedure SplitWhseJnlLine(TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseJnlLine2: Record "Warehouse Journal Line" temporary; var TempWhseSplitTrackingSpec: Record "Tracking Specification" temporary; ToTransfer: Boolean)
     var
         NonDistrQtyBase: Decimal;
         NonDistrCubage: Decimal;
@@ -791,6 +793,9 @@ codeunit 6500 "Item Tracking Management"
         TempWhseJnlLine2.DeleteAll;
 
         CheckWhseItemTrkgSetup(TempWhseJnlLine."Item No.", WhseSNRequired, WhseLNRequired, false);
+
+        OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(TempWhseJnlLine, TempWhseSplitTrackingSpec, WhseSNRequired, WhseLNRequired);
+
         if not (WhseSNRequired or WhseLNRequired) then begin
             TempWhseJnlLine2 := TempWhseJnlLine;
             TempWhseJnlLine2.Insert;
@@ -799,7 +804,7 @@ codeunit 6500 "Item Tracking Management"
         end;
 
         LineNo := TempWhseJnlLine."Line No.";
-        with TempWhseSplitSpecification do begin
+        with TempWhseSplitTrackingSpec do begin
             Reset;
             case TempWhseJnlLine."Source Type" of
                 DATABASE::"Item Journal Line",
@@ -864,13 +869,13 @@ codeunit 6500 "Item Tracking Management"
                         TempWhseJnlLine2.Weight := NonDistrWeight;
                     end;
                     OnBeforeTempWhseJnlLine2Insert(
-                      TempWhseJnlLine2, TempWhseJnlLine, TempWhseSplitSpecification, ToTransfer, WhseSNRequired, WhseLNRequired);
+                      TempWhseJnlLine2, TempWhseJnlLine, TempWhseSplitTrackingSpec, ToTransfer, WhseSNRequired, WhseLNRequired);
                     TempWhseJnlLine2.Insert;
                 until Next = 0
             else begin
                 TempWhseJnlLine2 := TempWhseJnlLine;
                 OnBeforeTempWhseJnlLine2Insert(
-                  TempWhseJnlLine2, TempWhseJnlLine, TempWhseSplitSpecification, ToTransfer, false, false);
+                  TempWhseJnlLine2, TempWhseJnlLine, TempWhseSplitTrackingSpec, ToTransfer, false, false);
                 TempWhseJnlLine2.Insert;
             end;
         end;
@@ -1946,7 +1951,6 @@ codeunit 6500 "Item Tracking Management"
         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.");
 
         ItemLedgEntry.SetRange("Item No.", ItemNo);
-        ItemLedgEntry.SetRange(Open, true);
         ItemLedgEntry.SetRange("Variant Code", Variant);
         if LotNo <> '' then
             ItemLedgEntry.SetRange("Lot No.", LotNo)
@@ -1955,10 +1959,6 @@ codeunit 6500 "Item Tracking Management"
                 ItemLedgEntry.SetRange("Serial No.", SerialNo);
         ItemLedgEntry.SetRange(Positive, true);
 
-        if ItemLedgEntry.FindLast then
-            exit(true);
-
-        ItemLedgEntry.SetRange(Open);
         exit(ItemLedgEntry.FindLast);
     end;
 
@@ -2366,6 +2366,25 @@ codeunit 6500 "Item Tracking Management"
                     ToPurchLine.Modify;
                 end;
             end;
+    end;
+
+    procedure CopyItemLedgEntryTrkgToTransferLine(var ItemLedgEntryBuf: Record "Item Ledger Entry"; ToTransferLine: Record "Transfer Line")
+    var
+        QtyBase: Decimal;
+        SignFactor: Integer;
+        EntriesExist: Boolean;
+    begin
+        if ToTransferLine.Quantity = 0 then
+            exit;
+
+        SignFactor := -1;
+
+        with ItemLedgEntryBuf do
+            if FindSet then
+                repeat
+                    QtyBase := "Remaining Quantity" * SignFactor;
+                    InsertReservEntryForTransferLine(ItemLedgEntryBuf, ToTransferLine, QtyBase, EntriesExist);
+                until Next = 0;
     end;
 
     procedure SynchronizeWhseActivItemTrkg(WhseActivLine: Record "Warehouse Activity Line")
@@ -2903,6 +2922,29 @@ codeunit 6500 "Item Tracking Management"
         end;
     end;
 
+    local procedure InsertReservEntryForTransferLine(ItemLedgEntryBuf: Record "Item Ledger Entry"; TransferLine: Record "Transfer Line"; QtyBase: Decimal; var EntriesExist: Boolean)
+    var
+        ReservEntry: Record "Reservation Entry";
+        ToReservEntry: Record "Reservation Entry";
+    begin
+        if not ItemLedgEntryBuf.TrackingExists or (QtyBase = 0) then
+            exit;
+
+        with ReservEntry do begin
+            InitReservEntry(ReservEntry, ItemLedgEntryBuf, QtyBase, TransferLine."Shipment Date", EntriesExist);
+            SetSource(DATABASE::"Transfer Line", 0, TransferLine."Document No.", TransferLine."Line No.", '', 0);
+            "Reservation Status" := "Reservation Status"::Surplus;
+            Description := TransferLine.Description;
+            UpdateItemTracking;
+            Insert;
+        end;
+
+        // push item tracking to the inbound transfer
+        ToReservEntry := ReservEntry;
+        ToReservEntry."Source Subtype" := 1;
+        SynchronizeItemTrackingByPtrs(ReservEntry, ToReservEntry);
+    end;
+
     local procedure InsertReservEntryFromTrackingSpec(TrackingSpecification: Record "Tracking Specification"; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer; QtyBase: Decimal)
     var
         ReservEntry: Record "Reservation Entry";
@@ -3071,6 +3113,11 @@ codeunit 6500 "Item Tracking Management"
         end;
 
         ItemTrackingCode := CachedItemTrackingCode;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyHandledItemTrkgToInvLine(FromSalesLine: Record "Sales Line"; var ToSalesLine: Record "Sales Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -3275,6 +3322,11 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRetrieveSubcontrItemTrackingOnBeforeCheckLastOperation(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsLastOperation: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseSplitTrackingSpec: Record "Tracking Specification" temporary; var WhseSNRequired: Boolean; var WhseLNRequired: Boolean)
     begin
     end;
 }

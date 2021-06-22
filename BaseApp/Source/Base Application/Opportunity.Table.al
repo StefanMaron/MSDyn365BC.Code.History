@@ -912,7 +912,7 @@ table 5092 Opportunity
         end;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure FinishWizard()
     var
         ActivateFirstStage: Boolean;

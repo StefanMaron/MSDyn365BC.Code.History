@@ -546,6 +546,7 @@ table 6661 "Return Receipt Line"
             SalesHeader.Get(TempSalesLine."Document Type", TempSalesLine."Document No.");
 
         if SalesLine."Return Receipt No." <> "Document No." then begin
+            OnInsertInvLineFromRetRcptLineOnBeforeInitSalesLine(Rec, SalesLine);
             SalesLine.Init;
             SalesLine."Line No." := NextLineNo;
             SalesLine."Document Type" := TempSalesLine."Document Type";
@@ -621,7 +622,10 @@ table 6661 "Return Receipt Line"
             OnAfterCopyFieldsFromReturnReceiptLine(Rec, SalesLine);
 
             if not ExtTextLine then begin
-                SalesLine.Validate(Quantity, Quantity - "Quantity Invoiced");
+                IsHandled := false;
+                OnInsertInvLineFromRetRcptLineOnBeforeValidateSalesLineQuantity(Rec, SalesLine, IsHandled);
+                if not IsHandled then
+                    SalesLine.Validate(Quantity, Quantity - "Quantity Invoiced");
                 SalesLine.Validate("Unit Price", SalesOrderLine."Unit Price");
                 SalesLine."Allow Line Disc." := SalesOrderLine."Allow Line Disc.";
                 SalesLine."Allow Invoice Disc." := SalesOrderLine."Allow Invoice Disc.";
@@ -644,9 +648,11 @@ table 6661 "Return Receipt Line"
             SalesLine."Shortcut Dimension 2 Code" := SalesOrderLine."Shortcut Dimension 2 Code";
             SalesLine."Dimension Set ID" := SalesOrderLine."Dimension Set ID";
 
-            OnBeforeInsertInvLineFromRetRcptLine(SalesLine, SalesOrderLine, Rec);
-            SalesLine.Insert;
-            OnAftertInsertInvLineFromRetRcptLine(SalesLine, SalesOrderLine);
+            IsHandled := false;
+            OnBeforeInsertInvLineFromRetRcptLine(SalesLine, SalesOrderLine, Rec, IsHandled);
+            if not IsHandled then
+                SalesLine.Insert;
+            OnAftertInsertInvLineFromRetRcptLine(SalesLine, SalesOrderLine, Rec);
 
             ItemTrackingMgt.CopyHandledItemTrkgToInvLine(SalesOrderLine, SalesLine);
 
@@ -771,17 +777,27 @@ table 6661 "Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAftertInsertInvLineFromRetRcptLine(var SalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line")
+    local procedure OnAftertInsertInvLineFromRetRcptLine(var SalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line"; var ReturnReceiptLine: Record "Return Receipt Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertInvLineFromRetRcptLine(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; var ReturnReceiptLine: Record "Return Receipt Line")
+    local procedure OnBeforeInsertInvLineFromRetRcptLine(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertInvLineFromRetRcptLineBeforeInsertTextLine(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line"; var NextLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetRcptLineOnBeforeInitSalesLine(var ReturnReceiptLine: Record "Return Receipt Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetRcptLineOnBeforeValidateSalesLineQuantity(var ReturnReceiptLine: Record "Return Receipt Line"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

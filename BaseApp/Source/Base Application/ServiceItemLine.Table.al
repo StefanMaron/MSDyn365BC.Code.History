@@ -911,7 +911,7 @@ table 5901 "Service Item Line"
             Caption = 'Vendor No.';
             TableRelation = Vendor;
         }
-        field(30; "Vendor Item No."; Text[20])
+        field(30; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
         }
@@ -1910,10 +1910,26 @@ table 5901 "Service Item Line"
         end;
     end;
 
-    local procedure CheckServLineExist(): Boolean
+    local procedure CheckServItemCustomer(ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item");
+    VAR
+        IsHandled: Boolean;
+    BEGIN
+        IsHandled := FALSE;
+        OnBeforeCheckServItemCustomer(ServiceHeader, ServiceItem, IsHandled);
+        if IsHandled then
+            Exit;
+
+        if ServiceHeader."Customer No." <> ServiceItem."Customer No." then
+            Error(
+              Text012,
+              ServiceItem.TableCaption, "Service Item No.", ServiceHeader.FieldCaption("Customer No."), ServiceHeader."Customer No.");
+    END;
+
+    procedure CheckServLineExist(): Boolean
     begin
         if "Line No." = 0 then
             exit(false);
+
         ServLine.Reset;
         ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.", Type);
         ServLine.SetRange("Document Type", "Document Type");
@@ -1922,10 +1938,11 @@ table 5901 "Service Item Line"
         exit(ServLine.Find('-'));
     end;
 
-    local procedure CheckIfServHourExist(ContractNo: Code[20]): Boolean
+    procedure CheckIfServHourExist(ContractNo: Code[20]): Boolean
     begin
         if ContractNo = '' then
             exit(false);
+
         ServHour2.Reset;
         ServHour2.SetRange("Service Contract Type", ServHour."Service Contract Type"::Contract);
         ServHour2.SetRange("Service Contract No.", ContractNo);
@@ -2401,6 +2418,11 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnModify(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckServItemCustomer(ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item"; IsHandled: Boolean)
     begin
     end;
 

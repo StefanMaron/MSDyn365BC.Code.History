@@ -16,6 +16,8 @@ report 496 "Batch Post Purchase Orders"
                 BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                 PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
             begin
+                OnBeforePurchaseBatchPostMgt("Purchase Header", ReceiveReq, InvReq);
+
                 PurchaseBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
                 PurchaseBatchPostMgt.RunBatch(
                   "Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, ReceiveReq, InvReq);
@@ -148,6 +150,11 @@ report 496 "Batch Post Purchase Orders"
         if NewCalcInvDisc then
             PurchasesPayablesSetup.TestField("Calc. Inv. Discount", false);
         CalcInvDisc := NewCalcInvDisc;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseBatchPostMgt(var PurchaseHeader: Record "Purchase Header"; var ReceiveReq: Boolean; var InvReq: Boolean)
+    begin
     end;
 }
 

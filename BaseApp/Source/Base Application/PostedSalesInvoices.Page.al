@@ -57,19 +57,26 @@
                 field(Amount; Amount)
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDown = false;
                     ToolTip = 'Specifies the total, in the currency of the invoice, of the amounts on all the invoice lines. The amount does not include VAT.';
+
+                    trigger OnDrillDown()
+                    begin
+                        DoDrillDown;
+                    end;
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDown = false;
                     ToolTip = 'Specifies the total of the amounts, including VAT, on all the lines on the document.';
+
+                    trigger OnDrillDown()
+                    begin
+                        DoDrillDown;
+                    end;
                 }
                 field("Remaining Amount"; "Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDown = false;
                     ToolTip = 'Specifies the amount that remains to be paid for the posted sales invoice.';
                 }
                 field("Sell-to Post Code"; "Sell-to Post Code")
@@ -223,7 +230,6 @@
                 field(Closed; Closed)
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDown = false;
                     ToolTip = 'Specifies if the posted sales invoice is paid. The check box will also be selected if a credit memo for the remaining amount has been applied.';
                 }
                 field(Cancelled; Cancelled)
@@ -645,6 +651,15 @@
         SalesInvoiceHeader.CopyFilters(Rec);
         SalesInvoiceHeader.SetFilter("Document Exchange Status", '<>%1', "Document Exchange Status"::"Not Sent");
         DocExchStatusVisible := not SalesInvoiceHeader.IsEmpty;
+    end;
+
+    local procedure DoDrillDown()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.Copy(Rec);
+        SalesInvoiceHeader.SetRange("No.");
+        PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
     end;
 
     var

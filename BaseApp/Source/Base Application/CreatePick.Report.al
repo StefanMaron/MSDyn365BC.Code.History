@@ -11,36 +11,36 @@ report 5754 "Create Pick"
 
             trigger OnAfterGetRecord()
             begin
-                PickWkshLine.SetFilter("Qty. to Handle (Base)", '>%1', 0);
-                PickWkshLineFilter.CopyFilters(PickWkshLine);
+                PickWhseWkshLine.SetFilter("Qty. to Handle (Base)", '>%1', 0);
+                PickWhseWkshLineFilter.CopyFilters(PickWhseWkshLine);
 
-                if PickWkshLine.Find('-') then begin
-                    if PickWkshLine."Location Code" = '' then
+                if PickWhseWkshLine.Find('-') then begin
+                    if PickWhseWkshLine."Location Code" = '' then
                         Location.Init
                     else
-                        Location.Get(PickWkshLine."Location Code");
+                        Location.Get(PickWhseWkshLine."Location Code");
                     repeat
-                        PickWkshLine.CheckBin(PickWkshLine."Location Code", PickWkshLine."To Bin Code", true);
+                        PickWhseWkshLine.CheckBin(PickWhseWkshLine."Location Code", PickWhseWkshLine."To Bin Code", true);
                         TempNo := TempNo + 1;
 
                         if PerWhseDoc then begin
-                            PickWkshLine.SetRange("Whse. Document Type", PickWkshLine."Whse. Document Type");
-                            PickWkshLine.SetRange("Whse. Document No.", PickWkshLine."Whse. Document No.");
+                            PickWhseWkshLine.SetRange("Whse. Document Type", PickWhseWkshLine."Whse. Document Type");
+                            PickWhseWkshLine.SetRange("Whse. Document No.", PickWhseWkshLine."Whse. Document No.");
                         end;
                         if PerDestination then begin
-                            PickWkshLine.SetRange("Destination Type", PickWkshLine."Destination Type");
-                            PickWkshLine.SetRange("Destination No.", PickWkshLine."Destination No.");
+                            PickWhseWkshLine.SetRange("Destination Type", PickWhseWkshLine."Destination Type");
+                            PickWhseWkshLine.SetRange("Destination No.", PickWhseWkshLine."Destination No.");
                             SetPickFilters;
-                            PickWkshLineFilter.CopyFilter("Destination Type", PickWkshLine."Destination Type");
-                            PickWkshLineFilter.CopyFilter("Destination No.", PickWkshLine."Destination No.");
+                            PickWhseWkshLineFilter.CopyFilter("Destination Type", PickWhseWkshLine."Destination Type");
+                            PickWhseWkshLineFilter.CopyFilter("Destination No.", PickWhseWkshLine."Destination No.");
                         end else begin
-                            PickWkshLineFilter.CopyFilter("Destination Type", PickWkshLine."Destination Type");
-                            PickWkshLineFilter.CopyFilter("Destination No.", PickWkshLine."Destination No.");
+                            PickWhseWkshLineFilter.CopyFilter("Destination Type", PickWhseWkshLine."Destination Type");
+                            PickWhseWkshLineFilter.CopyFilter("Destination No.", PickWhseWkshLine."Destination No.");
                             SetPickFilters;
                         end;
-                        PickWkshLineFilter.CopyFilter("Whse. Document Type", PickWkshLine."Whse. Document Type");
-                        PickWkshLineFilter.CopyFilter("Whse. Document No.", PickWkshLine."Whse. Document No.");
-                    until not PickWkshLine.Find('-');
+                        PickWhseWkshLineFilter.CopyFilter("Whse. Document Type", PickWhseWkshLine."Whse. Document Type");
+                        PickWhseWkshLineFilter.CopyFilter("Whse. Document No.", PickWhseWkshLine."Whse. Document No.");
+                    until not PickWhseWkshLine.Find('-');
                     CheckPickActivity;
                 end else
                     Error(Text000);
@@ -206,8 +206,8 @@ report 5754 "Create Pick"
         Text001: Label 'Pick activity no. %1 has been created.';
         Text002: Label 'Pick activities no. %1 to %2 have been created.';
         Location: Record Location;
-        PickWkshLine: Record "Whse. Worksheet Line";
-        PickWkshLineFilter: Record "Whse. Worksheet Line";
+        PickWhseWkshLine: Record "Whse. Worksheet Line";
+        PickWhseWkshLineFilter: Record "Whse. Worksheet Line";
         Cust: Record Customer;
         CreatePick: Codeunit "Create Pick";
         LocationCode: Code[10];
@@ -233,7 +233,9 @@ report 5754 "Create Pick"
 
     local procedure CreateTempLine()
     var
+        DummySalesHeader: Record "Sales Header";
         PickWhseActivHeader: Record "Warehouse Activity Header";
+        PickWhseActivHeaderToPrint: Record "Warehouse Activity Header";
         TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         PickQty: Decimal;
@@ -241,83 +243,92 @@ report 5754 "Create Pick"
         TempMaxNoOfSourceDoc: Integer;
         OldFirstSetPickNo: Code[20];
         TotalQtyPickedBase: Decimal;
+        PickListReportID: Integer;
+        IsHandled: Boolean;
     begin
-        PickWkshLine.LockTable;
+        PickWhseWkshLine.LockTable;
         repeat
             if Location."Bin Mandatory" and
                (not Location."Always Create Pick Line")
             then
-                if PickWkshLine.CalcAvailableQtyBase < PickWkshLine."Qty. to Handle" then
+                if PickWhseWkshLine.CalcAvailableQtyBase < PickWhseWkshLine."Qty. to Handle (Base)" then
                     Error(
                       Text003,
-                      PickWkshLine.TableCaption, PickWkshLine.FieldCaption("Worksheet Template Name"),
-                      PickWkshLine."Worksheet Template Name", PickWkshLine.FieldCaption(Name),
-                      PickWkshLine.Name, PickWkshLine.FieldCaption("Location Code"),
-                      PickWkshLine."Location Code", PickWkshLine.FieldCaption("Line No."),
-                      PickWkshLine."Line No.");
+                      PickWhseWkshLine.TableCaption, PickWhseWkshLine.FieldCaption("Worksheet Template Name"),
+                      PickWhseWkshLine."Worksheet Template Name", PickWhseWkshLine.FieldCaption(Name),
+                      PickWhseWkshLine.Name, PickWhseWkshLine.FieldCaption("Location Code"),
+                      PickWhseWkshLine."Location Code", PickWhseWkshLine.FieldCaption("Line No."),
+                      PickWhseWkshLine."Line No.");
 
-            PickWkshLine.TestField("Qty. per Unit of Measure");
-            CreatePick.SetWhseWkshLine(PickWkshLine, TempNo);
-            case PickWkshLine."Whse. Document Type" of
-                PickWkshLine."Whse. Document Type"::Shipment:
+            PickWhseWkshLine.TestField("Qty. per Unit of Measure");
+            CreatePick.SetWhseWkshLine(PickWhseWkshLine, TempNo);
+            case PickWhseWkshLine."Whse. Document Type" of
+                PickWhseWkshLine."Whse. Document Type"::Shipment:
                     CreatePick.SetTempWhseItemTrkgLine(
-                      PickWkshLine."Whse. Document No.", DATABASE::"Warehouse Shipment Line", '', 0,
-                      PickWkshLine."Whse. Document Line No.", PickWkshLine."Location Code");
-                PickWkshLine."Whse. Document Type"::Assembly:
+                      PickWhseWkshLine."Whse. Document No.", DATABASE::"Warehouse Shipment Line", '', 0,
+                      PickWhseWkshLine."Whse. Document Line No.", PickWhseWkshLine."Location Code");
+                PickWhseWkshLine."Whse. Document Type"::Assembly:
                     CreatePick.SetTempWhseItemTrkgLine(
-                      PickWkshLine."Whse. Document No.", DATABASE::"Assembly Line", '', 0,
-                      PickWkshLine."Whse. Document Line No.", PickWkshLine."Location Code");
-                PickWkshLine."Whse. Document Type"::"Internal Pick":
+                      PickWhseWkshLine."Whse. Document No.", DATABASE::"Assembly Line", '', 0,
+                      PickWhseWkshLine."Whse. Document Line No.", PickWhseWkshLine."Location Code");
+                PickWhseWkshLine."Whse. Document Type"::"Internal Pick":
                     CreatePick.SetTempWhseItemTrkgLine(
-                      PickWkshLine."Whse. Document No.", DATABASE::"Whse. Internal Pick Line", '', 0,
-                      PickWkshLine."Whse. Document Line No.", PickWkshLine."Location Code");
-                PickWkshLine."Whse. Document Type"::Production:
+                      PickWhseWkshLine."Whse. Document No.", DATABASE::"Whse. Internal Pick Line", '', 0,
+                      PickWhseWkshLine."Whse. Document Line No.", PickWhseWkshLine."Location Code");
+                PickWhseWkshLine."Whse. Document Type"::Production:
                     CreatePick.SetTempWhseItemTrkgLine(
-                      PickWkshLine."Source No.", PickWkshLine."Source Type", '', PickWkshLine."Source Line No.",
-                      PickWkshLine."Source Subline No.", PickWkshLine."Location Code");
+                      PickWhseWkshLine."Source No.", PickWhseWkshLine."Source Type", '', PickWhseWkshLine."Source Line No.",
+                      PickWhseWkshLine."Source Subline No.", PickWhseWkshLine."Location Code");
                 else // Movement Worksheet Line
                     CreatePick.SetTempWhseItemTrkgLine(
-                      PickWkshLine.Name, DATABASE::"Prod. Order Component", PickWkshLine."Worksheet Template Name",
-                      0, PickWkshLine."Line No.", PickWkshLine."Location Code");
+                      PickWhseWkshLine.Name, DATABASE::"Prod. Order Component", PickWhseWkshLine."Worksheet Template Name",
+                      0, PickWhseWkshLine."Line No.", PickWhseWkshLine."Location Code");
             end;
 
-            PickQty := PickWkshLine."Qty. to Handle";
-            PickQtyBase := PickWkshLine."Qty. to Handle (Base)";
-            OnAfterSetQuantityToPick(PickWkshLine, PickQty, PickQtyBase);
+            PickQty := PickWhseWkshLine."Qty. to Handle";
+            PickQtyBase := PickWhseWkshLine."Qty. to Handle (Base)";
+            OnAfterSetQuantityToPick(PickWhseWkshLine, PickQty, PickQtyBase);
             if (PickQty > 0) and
-               (PickWkshLine."Destination Type" = PickWkshLine."Destination Type"::Customer)
+               (PickWhseWkshLine."Destination Type" = PickWhseWkshLine."Destination Type"::Customer)
             then begin
-                PickWkshLine.TestField("Destination No.");
-                Cust.Get(PickWkshLine."Destination No.");
-                Cust.CheckBlockedCustOnDocs(Cust, PickWkshLine."Source Document", false, false);
+                PickWhseWkshLine.TestField("Destination No.");
+                Cust.Get(PickWhseWkshLine."Destination No.");
+                case PickWhseWkshLine."Source Document" of
+                    PickWhseWkshLine."Source Document"::"Sales Order":
+                        Cust.CheckBlockedCustOnDocs(Cust, DummySalesHeader."Document Type"::Order, false, false);
+                    PickWhseWkshLine."Source Document"::"Sales Return Order":
+                        Cust.CheckBlockedCustOnDocs(Cust, DummySalesHeader."Document Type"::"Return Order", false, false);
+                end;
             end;
 
             CreatePick.SetCalledFromWksh(true);
 
-            with PickWkshLine do
+            with PickWhseWkshLine do
                 CreatePick.CreateTempLine("Location Code", "Item No.", "Variant Code",
                   "Unit of Measure Code", '', "To Bin Code", "Qty. per Unit of Measure", PickQty, PickQtyBase);
 
             TotalQtyPickedBase := CreatePick.GetActualQtyPickedBase;
 
             // Update/delete lines
-            PickWkshLine."Qty. to Handle (Base)" := PickWkshLine.CalcBaseQty(PickWkshLine."Qty. to Handle");
-            if PickWkshLine."Qty. (Base)" =
-               PickWkshLine."Qty. Handled (Base)" + TotalQtyPickedBase
+            PickWhseWkshLine."Qty. to Handle (Base)" := PickWhseWkshLine.CalcBaseQty(PickWhseWkshLine."Qty. to Handle");
+            if PickWhseWkshLine."Qty. (Base)" =
+               PickWhseWkshLine."Qty. Handled (Base)" + TotalQtyPickedBase
             then
-                PickWkshLine.Delete(true)
+                PickWhseWkshLine.Delete(true)
             else begin
-                PickWkshLine."Qty. Handled" := PickWkshLine."Qty. Handled" + PickWkshLine.CalcQty(TotalQtyPickedBase);
-                PickWkshLine."Qty. Handled (Base)" := PickWkshLine.CalcBaseQty(PickWkshLine."Qty. Handled");
-                PickWkshLine."Qty. Outstanding" := PickWkshLine.Quantity - PickWkshLine."Qty. Handled";
-                PickWkshLine."Qty. Outstanding (Base)" := PickWkshLine.CalcBaseQty(PickWkshLine."Qty. Outstanding");
-                PickWkshLine."Qty. to Handle" := 0;
-                PickWkshLine."Qty. to Handle (Base)" := 0;
-                PickWkshLine.Modify;
+                PickWhseWkshLine."Qty. Handled" := PickWhseWkshLine."Qty. Handled" + PickWhseWkshLine.CalcQty(TotalQtyPickedBase);
+                PickWhseWkshLine."Qty. Handled (Base)" := PickWhseWkshLine.CalcBaseQty(PickWhseWkshLine."Qty. Handled");
+                PickWhseWkshLine."Qty. Outstanding" := PickWhseWkshLine.Quantity - PickWhseWkshLine."Qty. Handled";
+                PickWhseWkshLine."Qty. Outstanding (Base)" := PickWhseWkshLine.CalcBaseQty(PickWhseWkshLine."Qty. Outstanding");
+                PickWhseWkshLine."Qty. to Handle" := 0;
+                PickWhseWkshLine."Qty. to Handle (Base)" := 0;
+                OnBeforePickWhseWkshLineModify(PickWhseWkshLine);
+                PickWhseWkshLine.Modify;
             end;
-        until PickWkshLine.Next = 0;
+        until PickWhseWkshLine.Next = 0;
 
         OldFirstSetPickNo := FirstSetPickNo;
+        OnBeforeCreatePickWhseDocument(PickWhseWkshLine);
         CreatePick.CreateWhseDocument(FirstSetPickNo, LastPickNo, false);
         if FirstSetPickNo = OldFirstSetPickNo then
             exit;
@@ -337,16 +348,20 @@ report 5754 "Create Pick"
                 PickWhseActivHeader.SortWhseDoc;
             Commit;
             if PrintPick then begin
-                REPORT.Run(REPORT::"Picking List", false, false, PickWhseActivHeader);
+                IsHandled := false;
+                PickListReportID := REPORT::"Picking List";
+                OnBeforePrintPickList(PickWhseActivHeader, PickListReportID, IsHandled);
+                if not IsHandled then
+                    REPORT.Run(PickListReportID, false, false, PickWhseActivHeader);
                 TempMaxNoOfSourceDoc -= 1;
             end;
         until ((PickWhseActivHeader.Next = 0) or (TempMaxNoOfSourceDoc = 0));
     end;
 
-    procedure SetWkshPickLine(var PickWkshLine2: Record "Whse. Worksheet Line")
+    procedure SetWkshPickLine(var PickWhseWkshLine2: Record "Whse. Worksheet Line")
     begin
-        PickWkshLine.CopyFilters(PickWkshLine2);
-        LocationCode := PickWkshLine2."Location Code";
+        PickWhseWkshLine.CopyFilters(PickWhseWkshLine2);
+        LocationCode := PickWhseWkshLine2."Location Code";
     end;
 
     procedure GetResultMessage() ReturnValue: Boolean
@@ -393,52 +408,56 @@ report 5754 "Create Pick"
 
     local procedure SetPickFilters()
     begin
+        OnBeforeSetPickFilters(PickWhseWkshLine);
+
         if PerItem then begin
-            PickWkshLine.SetRange("Item No.", PickWkshLine."Item No.");
+            PickWhseWkshLine.SetRange("Item No.", PickWhseWkshLine."Item No.");
             if PerBin then
                 SetPerBinFilters
             else begin
                 if not Location."Bin Mandatory" then
-                    PickWkshLineFilter.CopyFilter("Shelf No.", PickWkshLine."Shelf No.");
+                    PickWhseWkshLineFilter.CopyFilter("Shelf No.", PickWhseWkshLine."Shelf No.");
                 SetPerDateFilters;
             end;
-            PickWkshLineFilter.CopyFilter("Item No.", PickWkshLine."Item No.");
+            PickWhseWkshLineFilter.CopyFilter("Item No.", PickWhseWkshLine."Item No.");
         end else begin
-            PickWkshLineFilter.CopyFilter("Item No.", PickWkshLine."Item No.");
+            PickWhseWkshLineFilter.CopyFilter("Item No.", PickWhseWkshLine."Item No.");
             if PerBin then
                 SetPerBinFilters
             else begin
                 if not Location."Bin Mandatory" then
-                    PickWkshLineFilter.CopyFilter("Shelf No.", PickWkshLine."Shelf No.");
+                    PickWhseWkshLineFilter.CopyFilter("Shelf No.", PickWhseWkshLine."Shelf No.");
                 SetPerDateFilters;
             end;
         end;
+
+        OnAfterSetPickFilters(PickWhseWkshLine, PickWhseWkshLineFilter);
     end;
 
     local procedure SetPerBinFilters()
     begin
         if not Location."Bin Mandatory" then
-            PickWkshLine.SetRange("Shelf No.", PickWkshLine."Shelf No.");
+            PickWhseWkshLine.SetRange("Shelf No.", PickWhseWkshLine."Shelf No.");
         if PerDate then begin
-            PickWkshLine.SetRange("Due Date", PickWkshLine."Due Date");
+            PickWhseWkshLine.SetRange("Due Date", PickWhseWkshLine."Due Date");
             CreateTempLine;
-            PickWkshLineFilter.CopyFilter("Due Date", PickWkshLine."Due Date");
+            PickWhseWkshLineFilter.CopyFilter("Due Date", PickWhseWkshLine."Due Date");
         end else begin
-            PickWkshLineFilter.CopyFilter("Due Date", PickWkshLine."Due Date");
+            PickWhseWkshLineFilter.CopyFilter("Due Date", PickWhseWkshLine."Due Date");
             CreateTempLine;
         end;
         if not Location."Bin Mandatory" then
-            PickWkshLineFilter.CopyFilter("Shelf No.", PickWkshLine."Shelf No.");
+            PickWhseWkshLineFilter.CopyFilter("Shelf No.", PickWhseWkshLine."Shelf No.");
     end;
 
     local procedure SetPerDateFilters()
     begin
         if PerDate then begin
-            PickWkshLine.SetRange("Due Date", PickWkshLine."Due Date");
+            PickWhseWkshLine.SetRange("Due Date", PickWhseWkshLine."Due Date");
             CreateTempLine;
-            PickWkshLineFilter.CopyFilter("Due Date", PickWkshLine."Due Date");
+            PickWhseWkshLineFilter.CopyFilter("Due Date", PickWhseWkshLine."Due Date");
         end else begin
-            PickWkshLineFilter.CopyFilter("Due Date", PickWkshLine."Due Date");
+            PickWhseWkshLineFilter.CopyFilter("Due Date", PickWhseWkshLine."Due Date");
             CreateTempLine;
         end;
     end;
@@ -454,7 +473,32 @@ report 5754 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPickFilters(var PickWhseWkshLine: Record "Whse. Worksheet Line"; var PickWhseWkshLineFilter: Record "Whse. Worksheet Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPickActivity(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePickWhseDocument(var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePickWhseWkshLineModify(var PickWhseWkshLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintPickList(var PickWhseActivHeader: Record "Warehouse Activity Header"; var PickListReportID: Integer; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPickFilters(var PickWhseWkshLine: Record "Whse. Worksheet Line");
     begin
     end;
 }

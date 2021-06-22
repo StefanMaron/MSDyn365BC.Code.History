@@ -184,8 +184,6 @@ report 106 "Customer Detailed Aging"
 
                 trigger OnPreDataItem()
                 begin
-                    CustomersWithLedgerEntriesList := CustomersWithLedgerEntriesList.List;
-
                     if OnlyOpen then
                         NumCustLedgEntriesperCust.SetFilter(OpenValue, 'TRUE');
 
@@ -287,7 +285,7 @@ report 106 "Customer Detailed Aging"
         TempCurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
         TempCurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
         NumCustLedgEntriesperCust: Query "Num CustLedgEntries per Cust";
-        CustomersWithLedgerEntriesList: DotNet GenericList1;
+        CustomersWithLedgerEntriesList: List of [Code[20]];
         EndDate: Date;
         CustFilter: Text;
         OverDueMonths: Integer;

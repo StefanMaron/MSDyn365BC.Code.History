@@ -264,24 +264,6 @@ codeunit 134325 "ERM Purchase Quote"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PurchaseQuoteInitializedWithOrderDate()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [SCENARIO 382251] New purchase quote has default Order Date = WORKDATE.
-        Initialize;
-
-        // [WHEN] Create Purchase Quote with one line.
-        CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
-
-        // [THEN] The header and the line of the quote have "Order Date" = WORKDATE.
-        PurchaseHeader.TestField("Order Date", WorkDate);
-        PurchaseLine.TestField("Order Date", WorkDate);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure PurchaseQuoteContactNotEditableBeforeVendorSelected()
     var
         PurchaseQuote: TestPage "Purchase Quote";

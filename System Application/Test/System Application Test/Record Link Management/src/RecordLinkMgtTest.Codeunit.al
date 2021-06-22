@@ -7,10 +7,13 @@ codeunit 132508 "Record Link Mgt. Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
+    SingleInstance = true;
 
     var
         RecordLinkManagement: Codeunit "Record Link Management";
         Assert: Codeunit "Library Assert";
+        EventRaised: Boolean;
 
     trigger OnRun()
     begin
@@ -57,8 +60,11 @@ codeunit 132508 "Record Link Mgt. Test"
         FromRecordLinkRecordTest: Record 132508;
         ToRecordLinkRecordTest: Record 132508;
         NewRecordLink: Record 2000000068;
+        RecordLinkMgtTest: Codeunit "Record Link Mgt. Test";
         RecLinkCount: Integer;
     begin
+        BindSubscription(RecordLinkMgtTest);
+
         // [GIVEN] A new record is created to set record links on
         FromRecordLinkRecordTest.DeleteAll();
         FromRecordLinkRecordTest.Init();
@@ -87,7 +93,9 @@ codeunit 132508 "Record Link Mgt. Test"
 
         // [WHEN] The record link is copied to the other instance
         RecLinkCount := NewRecordLink.Count();
+        EventRaised := false;
         RecordLinkManagement.CopyLinks(FromRecordLinkRecordTest, ToRecordLinkRecordTest);
+        Assert.IsTrue(EventRaised, 'OnAfterCopyLinks event was not raised');
 
         // [THEN] A new record link has been created
         Assert.AreEqual(RecLinkCount + 1, NewRecordLink.Count(), 'No new record links created');
@@ -100,6 +108,8 @@ codeunit 132508 "Record Link Mgt. Test"
 
         // [THEN] The record link on the other instance has Notify set to False
         Assert.IsFalse(NewRecordLink.Notify, 'Notify should have been unset.');
+
+        UnbindSubscription(RecordLinkMgtTest);
     end;
 
     [Test]
@@ -110,6 +120,7 @@ codeunit 132508 "Record Link Mgt. Test"
         EmptyRecordId: RecordID;
     begin
         // [GIVEN] Some text is written to the record Link
+        RecordLink.DeleteAll();
         RecordLink.Init();
         RecordLinkManagement.WriteNote(RecordLink, 'My note for the link');
 
@@ -138,6 +149,12 @@ codeunit 132508 "Record Link Mgt. Test"
     procedure HandleMessage(Message: Text[1024])
     begin
         Assert.AreEqual('1 orphaned links were removed.', Message, 'Wrong message');
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Record Link Management", 'OnAfterCopyLinks', '', false, false)]
+    procedure OnAfterCopyLinks(FromRecord: Variant; ToRecord: Variant)
+    begin
+        EventRaised := true;
     end;
 }
 

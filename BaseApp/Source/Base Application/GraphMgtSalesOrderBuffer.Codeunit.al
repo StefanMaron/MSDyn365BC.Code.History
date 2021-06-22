@@ -28,6 +28,9 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if IsBackgroundPosting(Rec) then
+            exit;
+
         InsertOrModifyFromSalesHeader(Rec);
     end;
 
@@ -203,6 +206,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         RecordExists := SalesOrderEntityBuffer.Get(SalesHeader."No.");
 
         SalesOrderEntityBuffer.TransferFields(SalesHeader, true);
+        SalesOrderEntityBuffer.Id := SalesHeader.SystemId;
         SetStatusOptionFromSalesHeader(SalesHeader, SalesOrderEntityBuffer);
         AssignTotalsFromSalesHeader(SalesHeader, SalesOrderEntityBuffer);
         SalesOrderEntityBuffer.UpdateReferencedRecordIds;
@@ -520,6 +524,14 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
               SalesInvoiceLineAggregate."Line Amount Excluding Tax" - SalesInvoiceLineAggregate.Amount
         else
             SalesInvoiceLineAggregate."Inv. Discount Amount Excl. VAT" := SalesInvoiceLineAggregate."Inv. Discount Amount";
+    end;
+
+    local procedure IsBackgroundPosting(var SalesHeader: Record "Sales Header"): Boolean
+    begin
+        if SalesHeader.IsTemporary then
+            exit(false);
+
+        exit(SalesHeader."Job Queue Status" in [SalesHeader."Job Queue Status"::"Scheduled for Posting", SalesHeader."Job Queue Status"::Posting]);
     end;
 }
 

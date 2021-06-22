@@ -866,14 +866,18 @@ table 901 "Assembly Line"
     var
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
-        exit(UOMMgt.CalcBaseQty(Qty, "Qty. per Unit of Measure"));
+        exit(
+          UOMMgt.CalcBaseQty(
+            "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure"));
     end;
 
     local procedure CalcQtyFromBase(QtyBase: Decimal): Decimal
     var
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
-        exit(UOMMgt.CalcQtyFromBase(QtyBase, "Qty. per Unit of Measure"));
+        exit(
+          UOMMgt.CalcQtyFromBase(
+            "No.", "Variant Code", "Unit of Measure Code", QtyBase, "Qty. per Unit of Measure"));
     end;
 
     procedure IsInbound(): Boolean

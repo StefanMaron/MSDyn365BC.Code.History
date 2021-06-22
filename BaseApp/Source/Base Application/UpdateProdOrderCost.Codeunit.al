@@ -362,9 +362,9 @@ codeunit 99000757 "Update Prod. Order Cost"
 
         ProdOrderLine.Validate(
           "Unit Cost",
-          (ProdOrderLine."Expected Operation Cost Amt." +
-           ProdOrderLine."Expected Component Cost Amt.") /
-          ProdOrderLine.Quantity);
+          (ProdOrderLine."Expected Operation Cost Amt." + ProdOrderLine."Expected Component Cost Amt.") / ProdOrderLine.Quantity);
+
+        OnUpdateUnitCostOnProdOrderOnAfterValidateUnitCost(ProdOrderLine);
 
         ProdOrderLine.Modify;
         if UpdateReservation then begin
@@ -381,6 +381,11 @@ codeunit 99000757 "Update Prod. Order Cost"
                     ModifyFor(ReservEntry, UnitCost);
                 until ReservEntry.Next = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnitCostOnProdOrderOnAfterValidateUnitCost(var ProdOrderLine: Record "Prod. Order Line")
+    begin
     end;
 }
 

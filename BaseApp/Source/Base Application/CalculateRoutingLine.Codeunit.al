@@ -126,6 +126,10 @@ codeunit 99000774 "Calculate Routing Line"
         ProdOrderCapNeed.Insert;
 
         NextCapNeedLineNo := NextCapNeedLineNo + 1;
+
+        OnAfterCreateCapNeeded(
+            ProdOrderRoutingLine, NeedDate, NeedQty, RemainNeedQty, CalendarEntry, StartingTime, EndingTime, TimeType,
+            NextCapNeedLineNo, ConCurrCap, LotSize, FirstInBatch, Direction);
     end;
 
     local procedure CreateLoadBack(TimeType: Option "Setup Time","Run Time","Wait Time","Move Time","Queue Time"; Write: Boolean)
@@ -1786,6 +1790,12 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcExpectedCost(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var MaxLotSize: Decimal; var TotalQtyPerOperation: Decimal; var ActualOperOutput: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCapNeeded(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; NeedDate: Date; NeedQty: Decimal; RemainNeedQty: Decimal; CalendarEntry: Record "Calendar Entry"; StartingTime: Time; EndingTime: Time; TimeType: Integer; NextCapNeedLineNo: Integer; ConCurrCap: Decimal; LotSize: Decimal; FirstInBatch: Boolean; Direction: Integer);
+
     begin
     end;
 

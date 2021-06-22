@@ -64,6 +64,20 @@ page 5147 "Make Phone Call"
                     Importance = Additional;
                     ToolTip = 'Specifies whether the interaction recorded for this segment line was initiated by your company or by one of your contacts. The Us option indicates that your company was the initiator; the Them option indicates that a contact was the initiator.';
                 }
+                field(Date; Date)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Date';
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the date when the contact was called.';
+                }
+                field("Time of Interaction"; "Time of Interaction")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Time of Interaction';
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the time when the call to the contact started.';
+                }                                
             }
             group("Phone Call Result")
             {

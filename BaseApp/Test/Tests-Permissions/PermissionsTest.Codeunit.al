@@ -789,6 +789,122 @@ codeunit 139400 "Permissions Test"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ExportSystemAndTenantPermissions()
+    var
+        PermissionSet: Record "Permission Set";
+        TenantPermissionSet: Record "Tenant Permission Set";
+        Permission: Record Permission;
+        TenantPermission: Record "Tenant Permission";
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        XMLBuffer: Record "XML Buffer";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        FileManagement: Codeunit "File Management";
+        ExportFile: File;
+        FileOutStream: OutStream;
+        FileName: Text;
+        ZeroGuid: Guid;
+    begin
+        // [FEATURE] [Export] [XMLPORT] [Permission Set] [Tenant Permission Set]
+        // [SCENARIO 292106] Stan can export system permisions and tenant permissions via XML PORT 9173 in a single run
+
+        // [GIVEN] System permission set "PS1" with two permissions "PS1_1" and "PS1_2"
+        LibraryPermissions.CreatePermissionSet(PermissionSet, 'PS1');
+        LibraryPermissions.AddPermission(PermissionSet."Role ID", Permission."Object Type"::"Table Data", Database::"Sales Header");
+        LibraryPermissions.AddPermission(PermissionSet."Role ID", Permission."Object Type"::"Table Data", Database::"Purchase Header");
+        // [GIVEN] Tenant permission set "PS1" with "PS1_1_1" permissions (tenant "Role Id" = system "Role Id" )
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'PS1', ZeroGuid);
+        LibraryPermissions.AddTenantPermission(ZeroGuid, TenantPermissionSet."Role ID", TenantPermission."Object Type"::"Table Data", Database::"Sales Header");
+        // [GIVEN] Tenant permission set "PS2" with permission "PS2_1"
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'PS2', ZeroGuid);
+        LibraryPermissions.AddTenantPermission(ZeroGuid, TenantPermission."Role ID", TenantPermission."Object Type"::"Table Data", Database::"Service Header");
+
+        // [WHEN] Export system and tenant permission sets "PS1"
+        AggregatePermissionSet.SetFilter("Role ID", 'PS1');
+        FileName := FileManagement.ServerTempFileName('txt');
+        ExportFile.Create(FileName);
+        ExportFile.CreateOutStream(FileOutStream);
+        Xmlport.Export(Xmlport::"Export Permission Sets", FileOutStream, AggregatePermissionSet);
+        ExportFile.Close;
+        XMLBuffer.Load(FileName);
+
+        // [THEN] Permission sets "PS1" are exported, both system and tenant. "PS2" is not exported.
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.DeleteAll();
+        XMLBuffer.FindNodesByXPath(TempXMLBuffer, 'PermissionSets/PermissionSet');
+        Assert.RecordCount(TempXMLBuffer, 2);
+        Assert.AreEqual('System', TempXMLBuffer.GetAttributeValue('Scope'), 'Scope attribute for system permission set was not exported.');
+        TempXMLBuffer.Next();
+        Assert.AreEqual('Tenant', TempXMLBuffer.GetAttributeValue('Scope'), 'Scope attribute for tenant permission set was not exported.');
+
+        // [THEN] System permissions "PS1_1" and "PS1_2" and tenant "PS1_1_1" are exported
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.DeleteAll();
+        XMLBuffer.FindNodesByXPath(TempXMLBuffer, 'PermissionSets/PermissionSet/Permission');
+        Assert.RecordCount(TempXMLBuffer, 2);
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.DeleteAll();
+        XMLBuffer.FindNodesByXPath(TempXMLBuffer, 'PermissionSets/PermissionSet/TenantPermission');
+        Assert.RecordCount(TempXMLBuffer, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ImportSystemAndTenantPermissions()
+    var
+        PermissionSet: Record "Permission Set";
+        TenantPermissionSet: Record "Tenant Permission Set";
+        Permission: Record Permission;
+        TenantPermission: Record "Tenant Permission";
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        XMLBuffer: Record "XML Buffer";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        FileManagement: Codeunit "File Management";
+        ExportFile: File;
+        ImportFile: File;
+        FileOutStream: OutStream;
+        FileInStream: InStream;
+        FileName: Text;
+        ZeroGuid: Guid;
+    begin
+        // [FEATURE] [Import] [XMLPORT] [Permission Set] [Tenant Permission Set]
+        // [SCENARIO 292106] Stan can import system permisions and tenant permissions via XML PORT 9174 in a single run
+
+        // [GIVEN] System permission set "PS1" with two permissions "PS11_1" and "PS11_2"
+        LibraryPermissions.CreatePermissionSet(PermissionSet, 'PS11');
+        LibraryPermissions.AddPermission(PermissionSet."Role ID", Permission."Object Type"::"Table Data", Database::"Sales Header");
+        LibraryPermissions.AddPermission(PermissionSet."Role ID", Permission."Object Type"::"Table Data", Database::"Purchase Header");
+        // [GIVEN] Tenant permission set "PS1" with "PS11_1_1" permissions (tenant "Role Id" = system "Role Id" )
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, 'PS11', ZeroGuid);
+        LibraryPermissions.AddTenantPermission(ZeroGuid, TenantPermissionSet."Role ID", TenantPermission."Object Type"::"Table Data", Database::"Sales Header");
+        TenantPermission.Get(ZeroGuid, TenantPermissionSet."Role ID", TenantPermission."Object Type"::"Table Data", Database::"Sales Header");
+        TenantPermission."Insert Permission" := TenantPermission."Insert Permission"::Yes;
+        TenantPermission.Modify();
+        // [GIVEN] Permissions are exported and deleted
+        AggregatePermissionSet.SetFilter("Role ID", 'PS11');
+        FileName := FileManagement.ServerTempFileName('txt');
+        ExportFile.Create(FileName);
+        ExportFile.CreateOutStream(FileOutStream);
+        Xmlport.Export(Xmlport::"Export Permission Sets", FileOutStream, AggregatePermissionSet);
+        ExportFile.Close;
+        PermissionSet.Get('PS11');
+        PermissionSet.Delete(true);
+        TenantPermissionSet.Get(ZeroGuid, 'PS11');
+        TenantPermissionSet.Delete(true);
+        // [WHEN] Import permissions
+        ImportFile.Open(FileName);
+        ImportFile.CreateInStream(FileInStream);
+        XMLPORT.Import(XMLPORT::"Import Tenant Permission Sets", FileInStream);
+        // [THEN] System "PS1" with "PS11_1" and "PS11_2" are in the "Permission Set" and "Permission"
+        PermissionSet.Get('PS11');
+        Permission.Get('PS11', Permission."Object Type"::"Table Data", Database::"Sales Header");
+        Permission.Get('PS11', Permission."Object Type"::"Table Data", Database::"Purchase Header");
+        // [THEN] Tenant "PS11" with "PS11_1_1" is in the "Tenant Permission Set" and "Tenant Permission"
+        TenantPermissionSet.Get(ZeroGuid, 'PS11');
+        TenantPermission.Get(ZeroGuid, 'PS11', Permission."Object Type"::"Table Data", Database::"Sales Header");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ImportPermissionSets_01()
     var
         ImportFile: File;
@@ -926,6 +1042,42 @@ codeunit 139400 "Permissions Test"
         Assert.RecordCount(PermissionSet, RecordCount[1] + 1);
         Assert.RecordCount(TenantPermissionSet, RecordCount[2] + 1);
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AggregatePermissionSetRoleIdSelectionFilterUT()
+    var
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        PermissionSet: Record "Permission Set";
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        RoleId: array[5] of Code[10];
+        RoleIdFilter: Text;
+        SelectedRoleIdFilter: Text;
+        i: Integer;
+        NullGuid: Guid;
+    begin
+        // [SCENARIO 292106] Return selection filter from the Aggregate Permission Set, used for multiple permission set filtering
+        // [GIVEN] 5 "Permission Set"
+        for i := 1 to 5 do begin
+            RoleId[i] := LibraryUtility.GenerateGUID();
+            LibraryPermissions.CreatePermissionSet(PermissionSet, RoleId[i]);
+        end;
+        // [GIVEN] Filter for "Permisson Set"
+        RoleIdFilter := RoleId[1] + '..' + RoleId[3] + '|' + RoleId[5];
+        PermissionSet.SetFilter("Role ID", RoleIdFilter);
+        // [GIVEN] "Aggregate Permission Set" marked according to "Permission Set"
+        PermissionSet.FindSet();
+        repeat
+            if AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, NullGuid, PermissionSet."Role ID") then
+                AggregatePermissionSet.Mark(true);
+        until PermissionSet.Next() = 0;
+        AggregatePermissionSet.MarkedOnly(true);
+        // [WHEN] Get "Role Id" selection filter for "Aggregate Permission Set"
+        SelectedRoleIdFilter := SelectionFilterManagement.GetSelectionFilterForAggregatePermissionSetRoleId(AggregatePermissionSet);
+        // [THEN] Function returns the same filter as was originally applied
+        Assert.AreEqual(RoleIdFilter, SelectedRoleIdFilter, 'Role Id selection filter is wrong.');
+    end;
+
 
     local procedure AddTenantPermissionSetToUserGroup(TenantPermissionSet: Record "Tenant Permission Set"; UserGroupCode: Code[20])
     var

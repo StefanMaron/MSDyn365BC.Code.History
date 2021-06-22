@@ -2,7 +2,7 @@ page 6407 "Gen. Journal Line Entity"
 {
     Caption = 'workflowGenJournalLines', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = List;
     SourceTable = "Gen. Journal Line";
 
@@ -842,7 +842,7 @@ page 6407 "Gen. Journal Line Entity"
                     ApplicationArea = All;
                     Caption = 'Check Transmitted', Locked = true;
                 }
-                field(id; Id)
+                field(id; GlobalSystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -884,5 +884,27 @@ page 6407 "Gen. Journal Line Entity"
     actions
     {
     }
+
+    var
+        GlobalSystemId: Guid;
+
+    trigger OnAfterGetRecord()
+    begin
+        GlobalSystemId := SystemId;
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        if (not IsNullGuid(GlobalSystemId)) then begin
+            SystemId := GlobalSystemId;
+            Insert(true, true);
+        end
+        else begin
+            Insert(true);
+            GlobalSystemId := SystemId;
+        end;
+
+        exit(false);
+    end;
 }
 

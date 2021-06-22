@@ -17,12 +17,6 @@ codeunit 5816 "Undo Return Receipt Line"
         if IsHandled then
             exit;
 
-        if not SkipTypeCheck then begin
-            SetRange(Type, Type::Item);
-            if not Find('-') then
-                Error(Text005);
-        end;
-
         if not HideDialog then
             if not Confirm(Text000) then
                 exit;
@@ -69,7 +63,11 @@ codeunit 5816 "Undo Return Receipt Line"
         with ReturnRcptLine do begin
             Clear(ItemJnlPostLine);
             SetRange(Correction, false);
+            SetFilter(Quantity, '<>0');
+            if IsEmpty then
+                Error(AlreadyReversedErr);
 
+            FindFirst();
             repeat
                 if not HideDialog then
                     Window.Open(Text003);
@@ -88,17 +86,20 @@ codeunit 5816 "Undo Return Receipt Line"
                 if not HideDialog then
                     Window.Open(Text001);
 
-                PostedWhseRcptLineFound :=
-                  WhseUndoQty.FindPostedWhseRcptLine(
-                    PostedWhseRcptLine,
-                    DATABASE::"Return Receipt Line",
-                    "Document No.",
-                    DATABASE::"Sales Line",
-                    SalesLine."Document Type"::"Return Order",
-                    "Return Order No.",
-                    "Return Order Line No.");
+                if Type = Type::Item then begin
+                    PostedWhseRcptLineFound :=
+                    WhseUndoQty.FindPostedWhseRcptLine(
+                        PostedWhseRcptLine,
+                        DATABASE::"Return Receipt Line",
+                        "Document No.",
+                        DATABASE::"Sales Line",
+                        SalesLine."Document Type"::"Return Order",
+                        "Return Order No.",
+                        "Return Order Line No.");
 
-                ItemShptEntryNo := PostItemJnlLine(ReturnRcptLine, DocLineNo);
+                    ItemShptEntryNo := PostItemJnlLine(ReturnRcptLine, DocLineNo);
+                end else
+                    DocLineNo := GetCorrectionLineNo(ReturnRcptLine);
 
                 InsertNewReceiptLine(ReturnRcptLine, ItemShptEntryNo, DocLineNo);
                 OnAfterInsertNewReceiptLine(ReturnRcptLine, PostedWhseRcptLine, PostedWhseRcptLineFound, DocLineNo);
@@ -155,36 +156,24 @@ codeunit 5816 "Undo Return Receipt Line"
             exit;
 
         with ReturnRcptLine do begin
-            TestField(Type, Type::Item);
             if Correction then
                 Error(AlreadyReversedErr);
             if "Return Qty. Rcd. Not Invd." <> Quantity then
                 Error(Text004);
-
-            UndoPostingMgt.TestReturnRcptLine(ReturnRcptLine);
-            UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Return Receipt Line",
-              "Document No.", "Line No.", "Quantity (Base)", "Item Rcpt. Entry No.");
-            UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+            if Type = Type::Item then begin
+                UndoPostingMgt.TestReturnRcptLine(ReturnRcptLine);
+                UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Return Receipt Line",
+                "Document No.", "Line No.", "Quantity (Base)", "Item Rcpt. Entry No.");
+                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+            end;
         end;
     end;
 
-    local procedure PostItemJnlLine(ReturnRcptLine: Record "Return Receipt Line"; var DocLineNo: Integer): Integer
+    local procedure GetCorrectionLineNo(ReturnRcptLine: Record "Return Receipt Line"): Integer;
     var
-        ItemJnlLine: Record "Item Journal Line";
-        SalesLine: Record "Sales Line";
-        SourceCodeSetup: Record "Source Code Setup";
-        ReturnRcptHeader: Record "Return Receipt Header";
         ReturnRcptLine2: Record "Return Receipt Line";
-        TempApplyToEntryList: Record "Item Ledger Entry" temporary;
         LineSpacing: Integer;
-        ItemLedgEntryNo: Integer;
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforePostItemJnlLine(ReturnRcptLine, DocLineNo, ItemLedgEntryNo, IsHandled);
-        if IsHandled then
-            exit(ItemLedgEntryNo);
-
         with ReturnRcptLine do begin
             ReturnRcptLine2.SetRange("Document No.", "Document No.");
             ReturnRcptLine2."Document No." := "Document No.";
@@ -197,7 +186,29 @@ codeunit 5816 "Undo Return Receipt Line"
                     Error(Text002);
             end else
                 LineSpacing := 10000;
-            DocLineNo := "Line No." + LineSpacing;
+
+            exit("Line No." + LineSpacing);
+        end;
+    end;
+
+    local procedure PostItemJnlLine(ReturnRcptLine: Record "Return Receipt Line"; var DocLineNo: Integer): Integer
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        SalesLine: Record "Sales Line";
+        SourceCodeSetup: Record "Source Code Setup";
+        ReturnRcptHeader: Record "Return Receipt Header";
+        TempApplyToEntryList: Record "Item Ledger Entry" temporary;
+        LineSpacing: Integer;
+        ItemLedgEntryNo: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostItemJnlLine(ReturnRcptLine, DocLineNo, ItemLedgEntryNo, IsHandled);
+        if IsHandled then
+            exit(ItemLedgEntryNo);
+
+        with ReturnRcptLine do begin
+            DocLineNo := GetCorrectionLineNo(ReturnRcptLine);
 
             SourceCodeSetup.Get;
             ReturnRcptHeader.Get("Document No.");

@@ -721,6 +721,7 @@ table 115 "Sales Cr.Memo Line"
                     if Abs(TempItemLedgEntry."Shipped Qty. Not Returned") > Abs(TempItemLedgEntry.Quantity) then
                         TempItemLedgEntry."Shipped Qty. Not Returned" := TempItemLedgEntry.Quantity;
                 end;
+                OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(TempItemLedgEntry, ValueEntry, SetQuantity);
                 if TempItemLedgEntry.Insert then;
             until ValueEntry.Next = 0;
     end;
@@ -801,6 +802,11 @@ table 115 "Sales Cr.Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromSalesLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; ValueEntry: Record "Value Entry"; SetQuantity: Boolean)
     begin
     end;
 }

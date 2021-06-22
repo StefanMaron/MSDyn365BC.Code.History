@@ -526,6 +526,8 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"VAT Rate Change Conversion");
         SetTableFieldsToNormal(DATABASE::"VAT Clause");
         SetTableFieldsToNormal(DATABASE::"VAT Clause Translation");
+        SetTableFieldsToNormal(DATABASE::"VAT Clause by Doc. Type");
+        SetTableFieldsToNormal(DATABASE::"VAT Clause by Doc. Type Trans.");
         SetTableFieldsToNormal(DATABASE::"G/L Account Category");
         SetTableFieldsToNormal(DATABASE::"Error Message");
         SetTableFieldsToNormal(DATABASE::"Standard Address");

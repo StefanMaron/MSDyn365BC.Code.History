@@ -801,6 +801,42 @@ codeunit 132590 "Type Helper Unit Tests"
         Assert.AreNearlyEqual(0.301, TypeHelper.CalculateLog(2), 0.0001, '10 raised to 0.3010 is nearly 2.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DateTimeToTimeZone()
+    var
+        TimeZone: Record "Time Zone";
+        TypeHelper: Codeunit "Type Helper";
+        TimeZoneOffset: Duration;
+        UserOffset: Duration;
+        InputDateTime: DateTime;
+    begin
+        // [SCENARIO 323341] Convert DateTime to Time Zone
+        InputDateTime := CreateDateTime(LibraryRandom.RandDate(10), Time);
+
+        TypeHelper.GetUserClientTypeOffset(UserOffset);
+        TimeZone.SetFilter("Display Name", '*:00*');
+        TimeZone.FindSet;
+        TimeZone.Next(LibraryRandom.RandInt(TimeZone.Count));
+        TypeHelper.GetTimezoneOffset(TimeZoneOffset, TimeZone.ID);
+
+        Assert.AreEqual(
+          InputDateTime + TimeZoneOffset - UserOffset,
+          TypeHelper.ConvertDateTimeFromUTCToTimeZone(InputDateTime, TimeZone.ID), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DateTimeToBlankTimeZone()
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InputDateTime: DateTime;
+    begin
+        // [SCENARIO 323341] Convert DateTime when Time Zone is not specified does not change DateTime
+        InputDateTime := CreateDateTime(LibraryRandom.RandDate(10), Time);
+        Assert.AreEqual(InputDateTime, TypeHelper.ConvertDateTimeFromUTCToTimeZone(InputDateTime, ''), '');
+    end;
+
     local procedure CreateTime(Hour: Integer; Minute: Integer; Second: Integer; Milisecond: Integer): Time
     var
         NewTime: Time;

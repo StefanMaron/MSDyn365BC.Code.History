@@ -35,6 +35,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         NonExistingDimValueExistsErr: Label 'Errors for package with non-existing dimension value is not generated.';
         AutoincrementMsg: Label 'AutoIncrement field.';
         DimensionNotAppliedErr: Label 'Default dimension was not applied.';
+        ConfigPackageMgt: Codeunit "Config. Package Management";
         IsInitialized: Boolean;
         DimValueDoesNotExistsInDimSetErr: Label 'Dimension value %1 %2 does not exist in Dimension Set ID %3.', Comment = '%1 = Dimension Code, %2 = Dimension Value Code';
         DimValueDoesNotExistsErr: Label 'Dimension Value %1 %2 does not exist.', Comment = '%1 = Dimension Code, %2 = Dimension Value Code';
@@ -124,7 +125,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Initialize;
         CreateAndExportBasicPackage(ConfigPackage, ConfigPackageTable, Customer, FileName);
 
-        SetDefaultDimFilterByCustomer(DefaultDimension, Customer."No.");
+        SetDefaultDimFilter(DefaultDimension, DATABASE::Customer, Customer."No.");
         repeat
             Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(DefaultDimension."Dimension Value Code"),
               IncorrectDefaultDimensionsErr);
@@ -151,7 +152,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ImportPackageFromExcel(FileName);
 
         // [THEN] Package 'A', where data contains Defaul Dimensions for Customer
-        SetDefaultDimFilterByCustomer(DefaultDimension, Customer."No.");
+        SetDefaultDimFilter(DefaultDimension, DATABASE::Customer, Customer."No.");
         SetPackageDataFieldFilterByDefaultDimValueCode(ConfigPackageData, ConfigPackage.Code);
         repeat
             ConfigPackageData.SetRange(Value, DefaultDimension."Dimension Value Code");
@@ -319,7 +320,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageCode := ExportImportAndApplyPackageWithNewDimension(Customer, false);
 
         // [THEN] Dimension, DimensionValue, and Default Dimension for Customer are created.
-        SetDefaultDimFilterByCustomer(DefaultDimension, Customer."No.");
+        SetDefaultDimFilter(DefaultDimension, DATABASE::Customer, Customer."No.");
         DimensionValue.SetRange("Dimension Code", DefaultDimension."Dimension Code");
         Assert.RecordCount(DimensionValue, 1);
         Assert.IsTrue(Dimension.Get(DefaultDimension."Dimension Code"), NewDimensionNotCreatedErr);
@@ -630,6 +631,38 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmAddDimTablesHandlerYes,ImportPreviewModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyDefaultDimManualPaymentImportFromExcel()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        CashFlowManualExpense: Record "Cash Flow Manual Expense";
+        ConfigPackageData: Record "Config. Package Data";
+        DefaultDimension: Record "Default Dimension";
+        FileName: Text;
+    begin
+        // [FEATURE] [Excel]
+        // [SCENARIO 322992] It should be possible to import a package with table containing Primary Key field of Field No = 2
+
+        Initialize;
+        // [GIVEN] Manual Payment with Default Dimension "DefDim"
+        CreateManualPaymentWithDefaultDimension(CashFlowManualExpense, DefaultDimension);
+        // [GIVEN] Export the package "A", where Table is 'CashFlowManualExpense', "Dimensions as Columns" is 'Yes'
+        CreateAndExportBasicPackageWithManualPayment(ConfigPackage, ConfigPackageTable, CashFlowManualExpense, FileName);
+
+        // [WHEN] Import from Excel
+        ImportPackageFromExcel(FileName);
+
+        // [THEN] Package "A", where data contains Default Dimension "DefDim" for CashFlowManualExpense
+        SetDefaultDimFilter(DefaultDimension, DATABASE::"Cash Flow Manual Expense", CashFlowManualExpense.Code);
+        SetPackageDataFieldFilterByDefaultDimValueCode(ConfigPackageData, ConfigPackage.Code);
+
+        ConfigPackageData.SetRange(Value, DefaultDimension."Dimension Value Code");
+        Assert.IsTrue(ConfigPackageData.FindSet, IncorrectDefaultDimensionsImportErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -675,7 +708,6 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     local procedure SetPackageFilterByCustomer(var Customer: Record Customer; ConfigPackageCode: Code[20])
     var
         ConfigPackageFilter: Record "Config. Package Filter";
-        ConfigPackageMgt: Codeunit "Config. Package Management";
     begin
         LibrarySales.CreateCustomer(Customer);
         CreateDefaultDimForCustomer(Customer."No.");
@@ -714,10 +746,10 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         exit(LibraryDimension.CreateDimSet(0, Dimension.Code, DimensionValue.Code));
     end;
 
-    local procedure SetDefaultDimFilterByCustomer(var DefaultDimension: Record "Default Dimension"; CustomerNo: Code[20])
+    local procedure SetDefaultDimFilter(var DefaultDimension: Record "Default Dimension"; TableID: Integer; MasterNo: Code[20])
     begin
-        DefaultDimension.SetRange("Table ID", DATABASE::Customer);
-        DefaultDimension.SetRange("No.", CustomerNo);
+        DefaultDimension.SetRange("Table ID", TableID);
+        DefaultDimension.SetRange("No.", MasterNo);
         DefaultDimension.FindSet;
     end;
 
@@ -760,6 +792,18 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ExportPackageToExcel(ConfigPackageTable, FileName);
     end;
 
+    local procedure CreateAndExportBasicPackageWithManualPayment(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; var CashFlowManualExpense: Record "Cash Flow Manual Expense"; var FileName: Text)
+    var
+        ConfigPackageFilter: Record "Config. Package Filter";
+    begin
+        CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::"Cash Flow Manual Expense");
+        ConfigPackageMgt.InsertPackageFilter(
+          ConfigPackageFilter, ConfigPackage.Code, DATABASE::"Cash Flow Manual Expense", 0,
+          CashFlowManualExpense.FieldNo(Code), CashFlowManualExpense.Code);
+        SetDimensionAsColumns(ConfigPackageTable);
+        ExportPackageToExcel(ConfigPackageTable, FileName);
+    end;
+
     local procedure CreatePackageExcludingDimSetIDField(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; var SalesHeader: Record "Sales Header")
     var
         Customer: Record Customer;
@@ -793,6 +837,19 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, TableID);
         SetPackageFilterForTable(ConfigPackage.Code, TableID, SalesHeader.FieldNo("No."), SalesHeader."No.");
         ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
+    end;
+
+    local procedure CreateManualPaymentWithDefaultDimension(var CashFlowManualExpense: Record "Cash Flow Manual Expense"; var DefaultDimension: Record "Default Dimension")
+    var
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
+    begin
+        LibraryCashFlowHelper.CreateManualPayment(CashFlowManualExpense);
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::"Cash Flow Manual Expense",
+          CashFlowManualExpense.Code, Dimension.Code, DimensionValue.Code);
     end;
 
     local procedure PrepareAndImportPackageForDimSet(var DimensionSetEntry: Record "Dimension Set Entry"; var ConfigPackageCode: Code[20]; var OldDimValue: Code[20]; var LastDimensionSetID: Integer; var DimensionSetID: Integer; TableID: Integer; DeleteDimension: Boolean)

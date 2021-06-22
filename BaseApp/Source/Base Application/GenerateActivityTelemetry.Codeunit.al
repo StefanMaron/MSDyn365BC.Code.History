@@ -7,7 +7,7 @@ codeunit 1354 "Generate Activity Telemetry"
     end;
 
     var
-        AlCompanyActivityCategoryTxt: Label 'AL Company Activity', Comment = 'Locked';
+        AlCompanyActivityCategoryTxt: Label 'AL Company Activity', Locked = true;
         TraceTagTelemetryMsg: Label '%1: %2', Comment = '%1 = Record Name; %2 = Record Count';
         TableInformation: Record "Table Information";
 

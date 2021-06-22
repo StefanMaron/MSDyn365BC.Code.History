@@ -20,20 +20,20 @@ codeunit 700 "Page Management"
 
     procedure PageRunAtField(RecRelatedVariant: Variant; FieldNumber: Integer; Modal: Boolean): Boolean
     var
-        RecordRef: RecordRef;
+        RecRef: RecordRef;
         RecordRefVariant: Variant;
         PageID: Integer;
     begin
         if not GuiAllowed then
             exit(false);
 
-        if not DataTypeManagement.GetRecordRef(RecRelatedVariant, RecordRef) then
+        if not DataTypeManagement.GetRecordRef(RecRelatedVariant, RecRef) then
             exit(false);
 
-        PageID := GetPageID(RecordRef);
+        PageID := GetPageID(RecRef);
 
         if PageID <> 0 then begin
-            RecordRefVariant := RecordRef;
+            RecordRefVariant := RecRef;
             if Modal then
                 PAGE.RunModal(PageID, RecordRefVariant, FieldNumber)
             else
@@ -46,24 +46,24 @@ codeunit 700 "Page Management"
 
     procedure GetPageID(RecRelatedVariant: Variant): Integer
     var
-        RecordRef: RecordRef;
+        RecRef: RecordRef;
         EmptyRecRef: RecordRef;
         PageID: Integer;
     begin
-        if not DataTypeManagement.GetRecordRef(RecRelatedVariant, RecordRef) then
+        if not DataTypeManagement.GetRecordRef(RecRelatedVariant, RecRef) then
             exit;
 
-        EmptyRecRef.Open(RecordRef.Number);
-        PageID := GetConditionalCardPageID(RecordRef);
+        EmptyRecRef.Open(RecRef.Number);
+        PageID := GetConditionalCardPageID(RecRef);
         // Choose default card only if record exists
-        if RecordRef.RecordId <> EmptyRecRef.RecordId then
+        if RecRef.RecordId <> EmptyRecRef.RecordId then
             if PageID = 0 then
-                PageID := GetDefaultCardPageID(RecordRef.Number);
+                PageID := GetDefaultCardPageID(RecRef.Number);
 
         if PageID = 0 then
-            PageID := GetDefaultLookupPageID(RecordRef.Number);
+            PageID := GetDefaultLookupPageID(RecRef.Number);
 
-        OnAfterGetPageID(RecordRef, PageID);
+        OnAfterGetPageID(RecRef, PageID);
 
         exit(PageID);
     end;
@@ -105,16 +105,16 @@ codeunit 700 "Page Management"
     procedure GetDefaultLookupPageIDByVar(RecRelatedVariant: Variant): Integer
     var
         TableMetadata: Record "Table Metadata";
-        RecordRef: RecordRef;
+        RecRef: RecordRef;
         PageID: Integer;
         TableID: Integer;
     begin
-        if not DataTypeManagement.GetRecordRef(RecRelatedVariant, RecordRef) then
+        if not DataTypeManagement.GetRecordRef(RecRelatedVariant, RecRef) then
             exit;
 
-        TableID := RecordRef.Number;
+        TableID := RecRef.Number;
         PageID := 0;
-        OnBeforeGetDefaultLookupPageID(TableID, PageID);
+        OnBeforeGetDefaultLookupPageIDByVar(TableID, PageID, RecRef);
         if PageID <> 0 then
             exit(PageID);
 
@@ -122,43 +122,43 @@ codeunit 700 "Page Management"
         exit(TableMetadata.LookupPageID);
     end;
 
-    procedure GetConditionalCardPageID(RecordRef: RecordRef): Integer
+    procedure GetConditionalCardPageID(RecRef: RecordRef): Integer
     var
         CardPageID: Integer;
     begin
-        case RecordRef.Number of
+        case RecRef.Number of
             DATABASE::"Gen. Journal Template":
                 exit(PAGE::"General Journal Templates");
             DATABASE::"Company Information":
                 exit(PAGE::"Company Information");
             DATABASE::"Sales Header":
-                exit(GetSalesHeaderPageID(RecordRef));
+                exit(GetSalesHeaderPageID(RecRef));
             DATABASE::"Purchase Header":
-                exit(GetPurchaseHeaderPageID(RecordRef));
+                exit(GetPurchaseHeaderPageID(RecRef));
             DATABASE::"Service Header":
-                exit(GetServiceHeaderPageID(RecordRef));
+                exit(GetServiceHeaderPageID(RecRef));
             DATABASE::"Gen. Journal Batch":
-                exit(GetGenJournalBatchPageID(RecordRef));
+                exit(GetGenJournalBatchPageID(RecRef));
             DATABASE::"Gen. Journal Line":
-                exit(GetGenJournalLinePageID(RecordRef));
+                exit(GetGenJournalLinePageID(RecRef));
             DATABASE::"User Setup":
                 exit(PAGE::"User Setup");
             DATABASE::"General Ledger Setup":
                 exit(PAGE::"General Ledger Setup");
             DATABASE::"Sales Header Archive":
-                exit(GetSalesHeaderArchivePageID(RecordRef));
+                exit(GetSalesHeaderArchivePageID(RecRef));
             DATABASE::"Purchase Header Archive":
-                exit(GetPurchaseHeaderArchivePageID(RecordRef));
+                exit(GetPurchaseHeaderArchivePageID(RecRef));
             DATABASE::"Res. Journal Line":
                 exit(PAGE::"Resource Journal");
             DATABASE::"Job Journal Line":
                 exit(PAGE::"Job Journal");
             DATABASE::"Item Analysis View":
-                exit(GetAnalysisViewPageID(RecordRef));
+                exit(GetAnalysisViewPageID(RecRef));
             DATABASE::"Purchases & Payables Setup":
                 exit(PAGE::"Purchases & Payables Setup");
             DATABASE::"Approval Entry":
-                exit(GetApprovalEntryPageID(RecordRef));
+                exit(GetApprovalEntryPageID(RecRef));
             DATABASE::"Doc. Exch. Service Setup":
                 exit(PAGE::"Doc. Exch. Service Setup");
             DATABASE::"Incoming Documents Setup":
@@ -168,31 +168,31 @@ codeunit 700 "Page Management"
             DATABASE::"Cash Flow Setup":
                 exit(PAGE::"Cash Flow Setup");
             DATABASE::"Production Order":
-                exit(GetProductionOrderPageID(RecordRef));
+                exit(GetProductionOrderPageID(RecRef));
             else begin
-                    OnConditionalCardPageIDNotFound(RecordRef, CardPageID);
+                    OnConditionalCardPageIDNotFound(RecRef, CardPageID);
                     exit(CardPageID);
                 end;
         end;
         exit(0);
     end;
 
-    procedure GetConditionalListPageID(RecordRef: RecordRef): Integer
+    procedure GetConditionalListPageID(RecRef: RecordRef): Integer
     begin
-        case RecordRef.Number of
+        case RecRef.Number of
             DATABASE::"Sales Header":
-                exit(GetSalesHeaderListPageID(RecordRef));
+                exit(GetSalesHeaderListPageID(RecRef));
             DATABASE::"Purchase Header":
-                exit(GetPurchaseHeaderListPageID(RecordRef));
+                exit(GetPurchaseHeaderListPageID(RecRef));
         end;
         exit(0);
     end;
 
-    local procedure GetSalesHeaderPageID(RecordRef: RecordRef): Integer
+    local procedure GetSalesHeaderPageID(RecRef: RecordRef): Integer
     var
         SalesHeader: Record "Sales Header";
     begin
-        RecordRef.SetTable(SalesHeader);
+        RecRef.SetTable(SalesHeader);
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Quote:
                 exit(PAGE::"Sales Quote");
@@ -209,11 +209,11 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetPurchaseHeaderPageID(RecordRef: RecordRef): Integer
+    local procedure GetPurchaseHeaderPageID(RecRef: RecordRef): Integer
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        RecordRef.SetTable(PurchaseHeader);
+        RecRef.SetTable(PurchaseHeader);
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Quote:
                 exit(PAGE::"Purchase Quote");
@@ -230,11 +230,11 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetServiceHeaderPageID(RecordRef: RecordRef): Integer
+    local procedure GetServiceHeaderPageID(RecRef: RecordRef): Integer
     var
         ServiceHeader: Record "Service Header";
     begin
-        RecordRef.SetTable(ServiceHeader);
+        RecRef.SetTable(ServiceHeader);
         case ServiceHeader."Document Type" of
             ServiceHeader."Document Type"::Quote:
                 exit(PAGE::"Service Quote");
@@ -247,32 +247,32 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetGenJournalBatchPageID(RecordRef: RecordRef): Integer
+    local procedure GetGenJournalBatchPageID(RecRef: RecordRef): Integer
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        RecordRef.SetTable(GenJournalBatch);
+        RecRef.SetTable(GenJournalBatch);
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         if not GenJournalLine.FindFirst then begin
             GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
             GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
-            RecordRef.GetTable(GenJournalLine);
+            RecRef.GetTable(GenJournalLine);
             exit(PAGE::"General Journal");
         end;
 
-        RecordRef.GetTable(GenJournalLine);
-        exit(GetGenJournalLinePageID(RecordRef));
+        RecRef.GetTable(GenJournalLine);
+        exit(GetGenJournalLinePageID(RecRef));
     end;
 
-    local procedure GetGenJournalLinePageID(RecordRef: RecordRef): Integer
+    local procedure GetGenJournalLinePageID(RecRef: RecordRef): Integer
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        RecordRef.SetTable(GenJournalLine);
+        RecRef.SetTable(GenJournalLine);
         GenJournalTemplate.Get(GenJournalLine."Journal Template Name");
         if GenJournalTemplate.Recurring then
             exit(PAGE::"Recurring General Journal");
@@ -296,11 +296,11 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetSalesHeaderArchivePageID(RecordRef: RecordRef): Integer
+    local procedure GetSalesHeaderArchivePageID(RecRef: RecordRef): Integer
     var
         SalesHeaderArchive: Record "Sales Header Archive";
     begin
-        RecordRef.SetTable(SalesHeaderArchive);
+        RecRef.SetTable(SalesHeaderArchive);
         case SalesHeaderArchive."Document Type" of
             SalesHeaderArchive."Document Type"::Quote:
                 exit(PAGE::"Sales Quote Archive");
@@ -313,11 +313,11 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetPurchaseHeaderArchivePageID(RecordRef: RecordRef): Integer
+    local procedure GetPurchaseHeaderArchivePageID(RecRef: RecordRef): Integer
     var
         PurchaseHeaderArchive: Record "Purchase Header Archive";
     begin
-        RecordRef.SetTable(PurchaseHeaderArchive);
+        RecRef.SetTable(PurchaseHeaderArchive);
         case PurchaseHeaderArchive."Document Type" of
             PurchaseHeaderArchive."Document Type"::Quote:
                 exit(PAGE::"Purchase Quote Archive");
@@ -330,11 +330,11 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetAnalysisViewPageID(RecordRef: RecordRef): Integer
+    local procedure GetAnalysisViewPageID(RecRef: RecordRef): Integer
     var
         ItemAnalysisView: Record "Item Analysis View";
     begin
-        RecordRef.SetTable(ItemAnalysisView);
+        RecRef.SetTable(ItemAnalysisView);
         case ItemAnalysisView."Analysis Area" of
             ItemAnalysisView."Analysis Area"::Sales:
                 exit(PAGE::"Sales Analysis View Card");
@@ -345,11 +345,11 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetApprovalEntryPageID(RecordRef: RecordRef): Integer
+    local procedure GetApprovalEntryPageID(RecRef: RecordRef): Integer
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        RecordRef.SetTable(ApprovalEntry);
+        RecRef.SetTable(ApprovalEntry);
         case ApprovalEntry.Status of
             ApprovalEntry.Status::Open:
                 exit(PAGE::"Requests to Approve");
@@ -358,11 +358,11 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetProductionOrderPageID(RecordRef: RecordRef): Integer
+    local procedure GetProductionOrderPageID(RecRef: RecordRef): Integer
     var
         ProductionOrder: Record "Production Order";
     begin
-        RecordRef.SetTable(ProductionOrder);
+        RecRef.SetTable(ProductionOrder);
         case ProductionOrder.Status of
             ProductionOrder.Status::Simulated:
                 exit(PAGE::"Simulated Production Order");
@@ -377,11 +377,11 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetSalesHeaderListPageID(RecordRef: RecordRef): Integer
+    local procedure GetSalesHeaderListPageID(RecRef: RecordRef): Integer
     var
         SalesHeader: Record "Sales Header";
     begin
-        RecordRef.SetTable(SalesHeader);
+        RecRef.SetTable(SalesHeader);
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Quote:
                 exit(PAGE::"Sales Quotes");
@@ -398,11 +398,11 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetPurchaseHeaderListPageID(RecordRef: RecordRef): Integer
+    local procedure GetPurchaseHeaderListPageID(RecRef: RecordRef): Integer
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        RecordRef.SetTable(PurchaseHeader);
+        RecRef.SetTable(PurchaseHeader);
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Quote:
                 exit(PAGE::"Purchase Quotes");
@@ -418,6 +418,7 @@ codeunit 700 "Page Management"
                 exit(PAGE::"Purchase Return Order List");
         end;
     end;
+
     procedure GetWebUrl(var RecRef: RecordRef; PageID: Integer): Text
     begin
         if not RecRef.HasFilter then
@@ -453,6 +454,11 @@ codeunit 700 "Page Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultLookupPageID(TableID: Integer; var PageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultLookupPageIDByVar(TableID: Integer; var PageID: Integer; RecRef: RecordRef)
     begin
     end;
 

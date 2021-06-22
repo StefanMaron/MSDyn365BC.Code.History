@@ -1,6 +1,6 @@
 page 315 "VAT Entries"
 {
-    ApplicationArea = VAT;
+    ApplicationArea = Basic, Suite;
     Caption = 'VAT Entries';
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -18,7 +18,7 @@ page 315 "VAT Entries"
                 ShowCaption = false;
                 field("Entry No."; "Entry No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
                 field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
@@ -35,123 +35,123 @@ page 315 "VAT Entries"
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("Posting Date"; "Posting Date")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT entry''s posting date.';
                 }
                 field("Document Date"; "Document Date")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
                 field("Document No."; "Document No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number on the VAT entry.';
                 }
                 field("Document Type"; "Document Type")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document type that the VAT entry belongs to.';
                 }
                 field(Type; Type)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the VAT entry.';
                 }
                 field(Base; Base)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that the VAT amount (the amount shown in the Amount field) is calculated from.';
                 }
                 field(Amount; Amount)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT entry in LCY.';
                 }
                 field("Unrealized Amount"; "Unrealized Amount")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unrealized VAT amount for this line if you use unrealized VAT.';
                     Visible = IsUnrealizedVATEnabled;
                 }
                 field("Unrealized Base"; "Unrealized Base")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unrealized base amount if you use unrealized VAT.';
                     Visible = IsUnrealizedVATEnabled;
                 }
                 field("Remaining Unrealized Amount"; "Remaining Unrealized Amount")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that remains unrealized in the VAT entry.';
                     Visible = IsUnrealizedVATEnabled;
                 }
                 field("Remaining Unrealized Base"; "Remaining Unrealized Base")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of base that remains unrealized in the VAT entry.';
                     Visible = IsUnrealizedVATEnabled;
                 }
                 field("VAT Difference"; "VAT Difference")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the difference between the calculated VAT amount and a VAT amount that you have entered manually.';
                     Visible = false;
                 }
                 field("Additional-Currency Base"; "Additional-Currency Base")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that the VAT amount is calculated from if you post in an additional reporting currency.';
                     Visible = false;
                 }
                 field("Additional-Currency Amount"; "Additional-Currency Amount")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT entry. The amount is in the additional reporting currency.';
                     Visible = false;
                 }
                 field("Add.-Curr. VAT Difference"; "Add.-Curr. VAT Difference")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies, in the additional reporting currency, the VAT difference that arises when you make a correction to a VAT amount on a sales or purchase document.';
                     Visible = false;
                 }
                 field("VAT Calculation Type"; "VAT Calculation Type")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how VAT will be calculated for purchases or sales of items with this particular combination of VAT business posting group and VAT product posting group.';
                 }
                 field("Bill-to/Pay-to No."; "Bill-to/Pay-to No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bill-to customer or pay-to vendor that the entry is linked to.';
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number of the customer or vendor that the entry is linked to.';
                     Visible = false;
                 }
                 field("Ship-to/Order Address Code"; "Ship-to/Order Address Code")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the address code of the ship-to customer or order-from vendor that the entry is linked to.';
                     Visible = false;
                 }
                 field("Country/Region Code"; "Country/Region Code")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
@@ -161,40 +161,40 @@ page 315 "VAT Entries"
                 }
                 field(Closed; Closed)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the VAT entry has been closed by the Calc. and Post VAT Settlement batch job.';
                 }
                 field("Closed by Entry No."; "Closed by Entry No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the VAT entry that has closed the entry, if the VAT entry was closed with the Calc. and Post VAT Settlement batch job.';
                 }
                 field("Internal Ref. No."; "Internal Ref. No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the internal reference number for the line.';
                 }
                 field(Reversed; Reversed)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the entry has been part of a reverse transaction.';
                     Visible = false;
                 }
                 field("Reversed by Entry No."; "Reversed by Entry No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the correcting entry. If the field Specifies a number, the entry cannot be reversed again.';
                     Visible = false;
                 }
                 field("Reversed Entry No."; "Reversed Entry No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
                     Visible = false;
                 }
                 field("EU Service"; "EU Service")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this VAT entry is to be reported as a service in the periodic VAT reports.';
                     Visible = false;
                 }
@@ -204,7 +204,7 @@ page 315 "VAT Entries"
         {
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 ShowFilter = false;
             }
             systempart(Control1900383207; Links)
@@ -226,7 +226,7 @@ page 315 "VAT Entries"
         {
             action("&Navigate")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = '&Navigate';
                 Image = Navigate;
                 Promoted = true;
@@ -245,7 +245,7 @@ page 315 "VAT Entries"
                 Image = Documents;
                 action(IncomingDocCard)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'View Incoming Document';
                     Enabled = HasIncomingDocument;
                     Image = ViewOrder;
@@ -261,7 +261,7 @@ page 315 "VAT Entries"
                 action(SelectIncomingDoc)
                 {
                     AccessByPermission = TableData "Incoming Document" = R;
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Select Incoming Document';
                     Enabled = NOT HasIncomingDocument;
                     Image = SelectLineToApply;
@@ -276,7 +276,7 @@ page 315 "VAT Entries"
                 }
                 action(IncomingDocAttachFile)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Create Incoming Document from File';
                     Ellipsis = true;
                     Enabled = NOT HasIncomingDocument;

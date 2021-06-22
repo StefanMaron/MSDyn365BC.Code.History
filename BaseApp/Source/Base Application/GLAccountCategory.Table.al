@@ -230,9 +230,16 @@ table 570 "G/L Account Category"
     local procedure UpdateDescendants(ParentGLAccountCategory: Record "G/L Account Category")
     var
         GLAccountCategory: Record "G/L Account Category";
+        IsHandled: Boolean;
     begin
         if ParentGLAccountCategory."Entry No." = 0 then
             exit;
+
+        IsHandled := false;
+        OnBeforeUpdateDescendants(ParentGLAccountCategory, IsHandled);
+        if IsHandled then
+            exit;
+
         GLAccountCategory.SetRange("Parent Entry No.", ParentGLAccountCategory."Entry No.");
         if GLAccountCategory.FindSet then
             repeat
@@ -344,11 +351,14 @@ table 570 "G/L Account Category"
     begin
         CalcFields("Has Children");
         if "Has Children" then begin
-            GLAccountCategory.SetRange("Parent Entry No.", "Entry No.");
-            if GLAccountCategory.FindSet then
-                repeat
-                    Balance += GLAccountCategory.GetBalance;
-                until GLAccountCategory.Next = 0;
+            OnGetBalanceOnBeforeProcessChildren(Rec, Balance, IsHandled);
+            if not IsHandled then begin
+                GLAccountCategory.SetRange("Parent Entry No.", "Entry No.");
+                if GLAccountCategory.FindSet then
+                    repeat
+                        Balance += GLAccountCategory.GetBalance;
+                    until GLAccountCategory.Next = 0;
+            end;
         end;
         TotalingStr := GetTotaling;
         if TotalingStr = '' then
@@ -386,7 +396,16 @@ table 570 "G/L Account Category"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDescendants(var GLAccountCategory: Record "G/L Account Category"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnGetBalanceOnAfterGetTotaling(var GLAccountCategory: Record "G/L Account Category"; TotalingStr: Text; var Balance: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    local procedure OnGetBalanceOnBeforeProcessChildren(var GLAccountCategory: Record "G/L Account Category"; var Balance: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

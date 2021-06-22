@@ -267,5 +267,10 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-318837-RenameCortanaIntelligenceUsage-20190820');
     end;
+
+    procedure GetLoadNamedForwardLinksUpgradeTag(): Code[250];
+    begin
+        exit('MS-328639-LoadNamedForwardLinks-20191003');
+    end;
 }
 

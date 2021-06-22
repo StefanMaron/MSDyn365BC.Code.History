@@ -74,42 +74,80 @@ codeunit 9001 "Permission Pages Mgt."
         AggregatePermissionSet: Record "Aggregate Permission Set";
         Permission: Record Permission;
         TenantPermission: Record "Tenant Permission";
-        PermissionManager: Codeunit "Permission Manager";
-        Permissions: Page Permissions;
-        TenantPermissions: Page "Tenant Permissions";
     begin
         case AggregatePermissionSetScope of
             AggregatePermissionSet.Scope::System:
                 begin
                     Permission.SetRange("Role ID", PermissionSetId);
-                    Permissions.SetRecord(Permission);
-                    Permissions.SetTableView(Permission);
-                    Permissions.Editable := false;
-                    if RunAsModal then
-                        Permissions.RunModal
-                    else
-                        Permissions.Run;
+                    ShowSystemPermissions(Permission, RunAsModal);
                 end;
             AggregatePermissionSet.Scope::Tenant:
                 begin
                     TenantPermission.SetRange("App ID", AppId);
                     TenantPermission.SetRange("Role ID", PermissionSetId);
-                    TenantPermissions.SetRecord(TenantPermission);
-                    TenantPermissions.SetTableView(TenantPermission);
-
-                    if IsPermissionsInGivenScopeAndAppIdEditable(AggregatePermissionSetScope, AppId) and
-                       PermissionManager.CanManageUsersOnTenant(UserSecurityId)
-                    then
-                        TenantPermissions.SetControlsAsEditable
-                    else
-                        TenantPermissions.SetControlsAsReadOnly;
-
-                    if RunAsModal then
-                        TenantPermissions.RunModal
-                    else
-                        TenantPermissions.Run;
+                    ShowTenantPermissions(AggregatePermissionSetScope, AppId, TenantPermission, RunAsModal);
                 end;
         end;
+    end;
+
+    procedure ShowPermissions(var AggregatePermissionSet: Record "Aggregate Permission Set"; RunAsModal: Boolean)
+    var
+        Permission: Record Permission;
+        TenantPermission: Record "Tenant Permission";
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+    begin
+        if not AggregatePermissionSet.FindFirst() then
+            exit;
+        if AggregatePermissionSet.Count = 1 then begin
+            ShowPermissions(AggregatePermissionSet.Scope, AggregatePermissionSet."App ID", AggregatePermissionSet."Role ID", RunAsModal);
+            exit;
+        end;
+        case AggregatePermissionSet.Scope of
+            AggregatePermissionSet.Scope::System:
+                begin
+                    Permission.SetFilter("Role ID", SelectionFilterManagement.GetSelectionFilterForAggregatePermissionSetRoleId(AggregatePermissionSet));
+                    ShowSystemPermissions(Permission, RunAsModal);
+                end;
+            AggregatePermissionSet.Scope::Tenant:
+                begin
+                    TenantPermission.SetFilter("Role ID", SelectionFilterManagement.GetSelectionFilterForAggregatePermissionSetRoleId(AggregatePermissionSet));
+                    ShowTenantPermissions(AggregatePermissionSet.Scope, AggregatePermissionSet."App ID", TenantPermission, RunAsModal);
+                end;
+        end;
+    end;
+
+    local procedure ShowSystemPermissions(var Permission: Record Permission; RunAsModal: Boolean)
+    var
+        Permissions: Page Permissions;
+    begin
+        Permissions.SetRecord(Permission);
+        Permissions.SetTableView(Permission);
+        Permissions.Editable := false;
+        if RunAsModal then
+            Permissions.RunModal
+        else
+            Permissions.Run;
+    end;
+
+    local procedure ShowTenantPermissions(AggregatePermissionSetScope: Option; AppId: Guid; var TenantPermission: Record "Tenant Permission"; RunAsModal: Boolean)
+    var
+        PermissionManager: Codeunit "Permission Manager";
+        TenantPermissions: Page "Tenant Permissions";
+    begin
+        TenantPermissions.SetRecord(TenantPermission);
+        TenantPermissions.SetTableView(TenantPermission);
+
+        if IsPermissionsInGivenScopeAndAppIdEditable(AggregatePermissionSetScope, AppId) and
+           PermissionManager.CanManageUsersOnTenant(UserSecurityId)
+        then
+            TenantPermissions.SetControlsAsEditable
+        else
+            TenantPermissions.SetControlsAsReadOnly;
+
+        if RunAsModal then
+            TenantPermissions.RunModal
+        else
+            TenantPermissions.Run;
     end;
 
     procedure IsPermissionSetEditable(AggregatePermissionSet: Record "Aggregate Permission Set"): Boolean

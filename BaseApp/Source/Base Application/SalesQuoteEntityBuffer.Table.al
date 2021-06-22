@@ -46,7 +46,7 @@ table 5505 "Sales Quote Entity Buffer"
         {
             Caption = 'Bill-to Name';
             DataClassification = CustomerContent;
-            TableRelation = Customer;
+            TableRelation = Customer.Name;
             ValidateTableRelation = false;
         }
         field(7; "Bill-to Address"; Text[100])

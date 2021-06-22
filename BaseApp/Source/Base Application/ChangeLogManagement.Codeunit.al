@@ -144,7 +144,9 @@ codeunit 423 "Change Log Management"
            9004, // Plan
            9005, // UserPlan
            DATABASE::"Plan Permission Set",
-           DATABASE::"User Group Plan"];
+           DATABASE::"User Group Plan",
+           DATABASE::"Tenant Permission Set",
+           DATABASE::"Tenant Permission"];
 
         OnAfterIsAlwaysLoggedTable(TableID, AlwaysLogTable);
     end;

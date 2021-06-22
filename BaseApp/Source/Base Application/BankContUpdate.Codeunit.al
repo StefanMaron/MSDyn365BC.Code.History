@@ -69,7 +69,13 @@ codeunit 5058 "BankCont-Update"
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertNewContact(BankAcc, LocalCall, IsHandled);
+        if IsHandled then
+            exit;
+
         if not LocalCall then begin
             RMSetup.Get;
             RMSetup.TestField("Bus. Rel. Code for Bank Accs.");
@@ -118,6 +124,11 @@ codeunit 5058 "BankCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFieldsFromBankAccToCont(var Contact: Record Contact; BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertNewContact(var BankAccount: Record "Bank Account"; LocalCall: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

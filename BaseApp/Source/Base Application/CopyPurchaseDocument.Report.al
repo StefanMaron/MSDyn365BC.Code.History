@@ -170,6 +170,8 @@ report 492 "Copy Purchase Document"
 
     trigger OnPreReport()
     begin
+        OnBeforePreReport();
+
         PurchSetup.Get;
         CopyDocMgt.SetProperties(
           IncludeHeader, RecalculateLines, false, false, false, PurchSetup."Exact Cost Reversing Mandatory", false);
@@ -290,6 +292,8 @@ report 492 "Copy Purchase Document"
 
     local procedure LookupDocNo()
     begin
+        OnBeforeLookupDocNo(PurchHeader);
+
         case DocType of
             DocType::Quote,
           DocType::"Blanket Order",
@@ -438,6 +442,11 @@ report 492 "Copy Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupDocNo(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupPurchDoc(var FromPurchaseHeader: Record "Purchase Header"; PurchaseHeader: Record "Purchase Header")
     begin
     end;
@@ -454,6 +463,11 @@ report 492 "Copy Purchase Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupPostedCrMemo(var FromPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreReport()
     begin
     end;
 

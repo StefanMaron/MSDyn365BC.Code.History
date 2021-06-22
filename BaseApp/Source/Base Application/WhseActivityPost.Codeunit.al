@@ -24,10 +24,6 @@ codeunit 7324 "Whse.-Activity-Post"
         WhseActivHeader: Record "Warehouse Activity Header";
         WhseActivLine: Record "Warehouse Activity Line";
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
-        PostedInvtPutAwayHdr: Record "Posted Invt. Put-away Header";
-        PostedInvtPutAwayLine: Record "Posted Invt. Put-away Line";
-        PostedInvtPickHdr: Record "Posted Invt. Pick Header";
-        PostedInvtPickLine: Record "Posted Invt. Pick Line";
         WhseSetup: Record "Warehouse Setup";
         WhseRequest: Record "Warehouse Request";
         PurchHeader: Record "Purchase Header";
@@ -35,9 +31,6 @@ codeunit 7324 "Whse.-Activity-Post"
         SalesHeader: Record "Sales Header";
         TransHeader: Record "Transfer Header";
         TransLine: Record "Transfer Line";
-        ProdOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderComp: Record "Prod. Order Component";
         SourceCodeSetup: Record "Source Code Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
@@ -58,8 +51,6 @@ codeunit 7324 "Whse.-Activity-Post"
 
     local procedure "Code"()
     var
-        WhseProdRelease: Codeunit "Whse.-Production Release";
-        WhseOutputRelease: Codeunit "Whse.-Output Prod. Release";
         TransferOrderPostPrint: Codeunit "TransferOrder-Post + Print";
         ItemTrackingRequired: Boolean;
         Selection: Option " ",Shipment,Receipt;
@@ -124,38 +115,10 @@ codeunit 7324 "Whse.-Activity-Post"
             LineCount := 0;
             WhseActivLine.LockTable;
             if WhseActivLine.Find('-') then begin
-                if Type = Type::"Invt. Put-away" then begin
-                    PostedInvtPutAwayHdr.LockTable;
-                    PostedInvtPutAwayLine.LockTable;
-                end else begin
-                    PostedInvtPickHdr.LockTable;
-                    PostedInvtPickLine.LockTable;
-                end;
+                LockPostedTables(WhseActivHeader);
 
-                if "Source Document" = "Source Document"::"Prod. Consumption" then begin
-                    PostConsumption;
-                    WhseProdRelease.Release(ProdOrder);
-                end else
-                    if (Type = Type::"Invt. Put-away") and
-                       ("Source Document" = "Source Document"::"Prod. Output")
-                    then begin
-                        PostOutput;
-                        WhseOutputRelease.Release(ProdOrder);
-                    end else
-                        PostSourceDoc;
+                PostWhseActivityLine(WhseActivHeader, WhseActivLine);
 
-                CreatePostedActivHeader(WhseActivHeader);
-                repeat
-                    LineCount := LineCount + 1;
-                    if not HideDialog then begin
-                        Window.Update(3, LineCount);
-                        Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
-                    end;
-
-                    if Location."Bin Mandatory" then
-                        PostWhseJnlLine(WhseActivLine);
-                    CreatePostedActivLine(WhseActivLine);
-                until WhseActivLine.Next = 0;
                 OnCodeOnAfterCreatePostedWhseActivDocument(WhseActivHeader);
             end;
 
@@ -225,6 +188,7 @@ codeunit 7324 "Whse.-Activity-Post"
             if TempWhseActivLine.Find('-') then begin
                 TempWhseActivLine."Qty. to Handle" += "Qty. to Handle";
                 TempWhseActivLine."Qty. to Handle (Base)" += "Qty. to Handle (Base)";
+                OnBeforeTempWhseActivLineModify(TempWhseActivLine, WhseActivLine);
                 TempWhseActivLine.Modify;
             end else begin
                 TempWhseActivLine.Init;
@@ -525,6 +489,48 @@ codeunit 7324 "Whse.-Activity-Post"
             end;
     end;
 
+    local procedure PostWhseActivityLine(WhseActivHeader: Record "Warehouse Activity Header"; var WhseActivLine: Record "Warehouse Activity Line")
+    var
+        ProdOrder: Record "Production Order";
+        PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header";
+        PostedInvtPickHeader: Record "Posted Invt. Pick Header";
+        WhseProdRelease: Codeunit "Whse.-Production Release";
+        WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostWhseActivLine(WhseActivHeader, WhseActivLine, PostedSourceNo, PostedSourceType, PostedSourceSubType, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseActivHeader do begin
+            if "Source Document" = "Source Document"::"Prod. Consumption" then begin
+                PostConsumption(ProdOrder);
+                WhseProdRelease.Release(ProdOrder);
+            end else
+                if (Type = Type::"Invt. Put-away") and ("Source Document" = "Source Document"::"Prod. Output") then begin
+                    PostOutput(ProdOrder);
+                    WhseOutputProdRelease.Release(ProdOrder);
+                end else
+                    PostSourceDoc;
+
+            CreatePostedActivHeader(WhseActivHeader, PostedInvtPutAwayHeader, PostedInvtPickHeader);
+
+            repeat
+                LineCount := LineCount + 1;
+                if not HideDialog then begin
+                    Window.Update(3, LineCount);
+                    Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+                end;
+
+                if Location."Bin Mandatory" then
+                    PostWhseJnlLine(WhseActivLine);
+
+                CreatePostedActivLine(WhseActivLine, PostedInvtPutAwayHeader, PostedInvtPickHeader);
+            until WhseActivLine.Next = 0;
+        end;
+    end;
+
     local procedure PostWhseJnlLine(WhseActivLine: Record "Warehouse Activity Line")
     var
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
@@ -628,27 +634,27 @@ codeunit 7324 "Whse.-Activity-Post"
         OnAfterCreateWhseJnlLine(WhseJnlLine, WhseActivLine);
     end;
 
-    local procedure CreatePostedActivHeader(WhseActivHeader: Record "Warehouse Activity Header")
+    local procedure CreatePostedActivHeader(WhseActivHeader: Record "Warehouse Activity Header"; var PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header"; var PostedInvtPickHeader: Record "Posted Invt. Pick Header")
     var
         WhseComment: Record "Warehouse Comment Line";
         WhseComment2: Record "Warehouse Comment Line";
     begin
         if WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away" then begin
-            PostedInvtPutAwayHdr.Init;
-            PostedInvtPutAwayHdr.TransferFields(WhseActivHeader);
-            PostedInvtPutAwayHdr."No." := '';
-            PostedInvtPutAwayHdr."Invt. Put-away No." := WhseActivHeader."No.";
-            PostedInvtPutAwayHdr."Source No." := PostedSourceNo;
-            PostedInvtPutAwayHdr."Source Type" := PostedSourceType;
-            PostedInvtPutAwayHdr.Insert(true);
+            PostedInvtPutAwayHeader.Init;
+            PostedInvtPutAwayHeader.TransferFields(WhseActivHeader);
+            PostedInvtPutAwayHeader."No." := '';
+            PostedInvtPutAwayHeader."Invt. Put-away No." := WhseActivHeader."No.";
+            PostedInvtPutAwayHeader."Source No." := PostedSourceNo;
+            PostedInvtPutAwayHeader."Source Type" := PostedSourceType;
+            PostedInvtPutAwayHeader.Insert(true);
         end else begin
-            PostedInvtPickHdr.Init;
-            PostedInvtPickHdr.TransferFields(WhseActivHeader);
-            PostedInvtPickHdr."No." := '';
-            PostedInvtPickHdr."Invt Pick No." := WhseActivHeader."No.";
-            PostedInvtPickHdr."Source No." := PostedSourceNo;
-            PostedInvtPickHdr."Source Type" := PostedSourceType;
-            PostedInvtPickHdr.Insert(true);
+            PostedInvtPickHeader.Init;
+            PostedInvtPickHeader.TransferFields(WhseActivHeader);
+            PostedInvtPickHeader."No." := '';
+            PostedInvtPickHeader."Invt Pick No." := WhseActivHeader."No.";
+            PostedInvtPickHeader."Source No." := PostedSourceNo;
+            PostedInvtPickHeader."Source Type" := PostedSourceType;
+            PostedInvtPickHeader.Insert(true);
         end;
 
         WhseComment.SetRange("Table Name", WhseComment."Table Name"::"Whse. Activity Header");
@@ -661,17 +667,20 @@ codeunit 7324 "Whse.-Activity-Post"
                 WhseComment2 := WhseComment;
                 if WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away" then begin
                     WhseComment2."Table Name" := WhseComment2."Table Name"::"Posted Invt. Put-Away";
-                    WhseComment2."No." := PostedInvtPutAwayHdr."No.";
+                    WhseComment2."No." := PostedInvtPutAwayHeader."No.";
                 end else begin
                     WhseComment2."Table Name" := WhseComment2."Table Name"::"Posted Invt. Pick";
-                    WhseComment2."No." := PostedInvtPickHdr."No.";
+                    WhseComment2."No." := PostedInvtPickHeader."No.";
                 end;
                 WhseComment2.Type := WhseComment2.Type::" ";
                 WhseComment2.Insert;
             until WhseComment.Next = 0;
     end;
 
-    local procedure CreatePostedActivLine(WhseActivLine: Record "Warehouse Activity Line")
+    local procedure CreatePostedActivLine(WhseActivLine: Record "Warehouse Activity Line"; PostedInvtPutAwayHdr: Record "Posted Invt. Put-away Header"; PostedInvtPickHeader: Record "Posted Invt. Pick Header")
+    var
+        PostedInvtPutAwayLine: Record "Posted Invt. Put-away Line";
+        PostedInvtPickLine: Record "Posted Invt. Pick Line";
     begin
         if WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away" then begin
             PostedInvtPutAwayLine.Init;
@@ -683,7 +692,7 @@ codeunit 7324 "Whse.-Activity-Post"
         end else begin
             PostedInvtPickLine.Init;
             PostedInvtPickLine.TransferFields(WhseActivLine);
-            PostedInvtPickLine."No." := PostedInvtPickHdr."No.";
+            PostedInvtPickLine."No." := PostedInvtPickHeader."No.";
             PostedInvtPickLine.Validate(Quantity, WhseActivLine."Qty. to Handle");
             OnBeforePostedInvtPickLineInsert(PostedInvtPickLine, WhseActivLine);
             PostedInvtPickLine.Insert;
@@ -702,7 +711,9 @@ codeunit 7324 "Whse.-Activity-Post"
         PostSourceDocument(WhseActivHeader);
     end;
 
-    local procedure PostConsumption()
+    local procedure PostConsumption(var ProdOrder: Record "Production Order")
+    var
+        ProdOrderComp: Record "Prod. Order Component";
     begin
         with TempWhseActivLine do begin
             Reset;
@@ -710,7 +721,7 @@ codeunit 7324 "Whse.-Activity-Post"
             ProdOrder.Get("Source Subtype", "Source No.");
             repeat
                 ProdOrderComp.Get("Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
-                PostConsumptionLine;
+                PostConsumptionLine(ProdOrder, ProdOrderComp);
             until Next = 0;
 
             PostedSourceType := "Source Type";
@@ -719,9 +730,10 @@ codeunit 7324 "Whse.-Activity-Post"
         end;
     end;
 
-    local procedure PostConsumptionLine()
+    local procedure PostConsumptionLine(ProdOrder: Record "Production Order"; ProdOrderComp: Record "Prod. Order Component")
     var
         ItemJnlLine: Record "Item Journal Line";
+        ProdOrderLine: Record "Prod. Order Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
     begin
@@ -762,7 +774,9 @@ codeunit 7324 "Whse.-Activity-Post"
         end;
     end;
 
-    local procedure PostOutput()
+    local procedure PostOutput(var ProdOrder: Record "Production Order")
+    var
+        ProdOrderLine: Record "Prod. Order Line";
     begin
         with TempWhseActivLine do begin
             Reset;
@@ -770,7 +784,7 @@ codeunit 7324 "Whse.-Activity-Post"
             ProdOrder.Get("Source Subtype", "Source No.");
             repeat
                 ProdOrderLine.Get("Source Subtype", "Source No.", "Source Line No.");
-                PostOutputLine;
+                PostOutputLine(ProdOrder, ProdOrderLine);
             until Next = 0;
             PostedSourceType := "Source Type";
             PostedSourceSubType := "Source Subtype";
@@ -778,7 +792,7 @@ codeunit 7324 "Whse.-Activity-Post"
         end;
     end;
 
-    local procedure PostOutputLine()
+    local procedure PostOutputLine(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line")
     var
         ItemJnlLine: Record "Item Journal Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
@@ -803,7 +817,7 @@ codeunit 7324 "Whse.-Activity-Post"
             ItemJnlLine."Variant Code" := "Variant Code";
             ItemJnlLine.Description := Description;
             if ProdOrderLine."Routing No." <> '' then
-                ItemJnlLine.Validate("Operation No.", CalcLastOperationNo);
+                ItemJnlLine.Validate("Operation No.", CalcLastOperationNo(ProdOrderLine));
             ItemJnlLine.Validate("Output Quantity", "Qty. to Handle");
             ItemJnlLine."Source Code" := SourceCodeSetup."Output Journal";
             ItemJnlLine."Dimension Set ID" := ProdOrderLine."Dimension Set ID";
@@ -816,7 +830,7 @@ codeunit 7324 "Whse.-Activity-Post"
         end;
     end;
 
-    local procedure CalcLastOperationNo(): Code[10]
+    local procedure CalcLastOperationNo(ProdOrderLine: Record "Prod. Order Line"): Code[10]
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         ProdOrderRouteManagement: Codeunit "Prod. Order Route Management";
@@ -850,6 +864,22 @@ codeunit 7324 "Whse.-Activity-Post"
     begin
         if Item."No." <> ItemNo then
             Item.Get(ItemNo);
+    end;
+
+    local procedure LockPostedTables(WarehouseActivityHeader: Record "Warehouse Activity Header")
+    var
+        PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header";
+        PostedInvtPutAwayLine: Record "Posted Invt. Put-away Line";
+        PostedInvtPickHeader: Record "Posted Invt. Pick Header";
+        PostedInvtPickLine: Record "Posted Invt. Pick Line";
+    begin
+        if WarehouseActivityHeader.Type = WarehouseActivityHeader.Type::"Invt. Put-away" then begin
+            PostedInvtPutAwayHeader.LockTable;
+            PostedInvtPutAwayLine.LockTable;
+        end else begin
+            PostedInvtPickHeader.LockTable;
+            PostedInvtPickLine.LockTable;
+        end;
     end;
 
     procedure ShowHideDialog(HideDialog2: Boolean)
@@ -970,6 +1000,11 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostWhseActivLine(WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; var PostedSourceNo: Code[20]; var PostedSourceType: Integer; var PostedSourceSubType: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
@@ -981,6 +1016,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempWhseActivLineInsert(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempWhseActivLineModify(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 

@@ -572,6 +572,30 @@ End Function
         <Field Name="JobTaskNo_PurchLine_Lbl">
           <DataField>JobTaskNo_PurchLine_Lbl</DataField>
         </Field>
+        <Field Name="PlannedReceiptDateLbl">
+          <DataField>PlannedReceiptDateLbl</DataField>
+        </Field>
+        <Field Name="PlannedReceiptDate">
+          <DataField>PlannedReceiptDate</DataField>
+        </Field>
+        <Field Name="ExpectedReceiptDateLbl">
+          <DataField>ExpectedReceiptDateLbl</DataField>
+        </Field>
+        <Field Name="ExpectedReceiptDate">
+          <DataField>ExpectedReceiptDate</DataField>
+        </Field>
+        <Field Name="PromisedReceiptDateLbl">
+          <DataField>PromisedReceiptDateLbl</DataField>
+        </Field>
+        <Field Name="PromisedReceiptDate">
+          <DataField>PromisedReceiptDate</DataField>
+        </Field>
+        <Field Name="RequestedReceiptDateLbl">
+          <DataField>RequestedReceiptDateLbl</DataField>
+        </Field>
+        <Field Name="RequestedReceiptDate">
+          <DataField>RequestedReceiptDate</DataField>
+        </Field>
         <Field Name="VATAmountText">
           <DataField>VATAmountText</DataField>
         </Field>

@@ -404,7 +404,7 @@ codeunit 5530 "Calc. Item Availability"
                             InvtEventBuf.SetRange(
                               "Availability Date", ProdForecastEntry."Forecast Date", ForecastPeriodEndDate);
                             if Module then
-                                InvtEventBuf.SetRange(Type, InvtEventBuf.Type::Component)
+                                InvtEventBuf.SetFilter(Type, '%1|%2', InvtEventBuf.Type::Component, InvtEventBuf.Type::"Assembly Component")
                             else
                                 InvtEventBuf.SetFilter(Type, '%1|%2', InvtEventBuf.Type::Sale, InvtEventBuf.Type::Service);
                             if InvtEventBuf.Find('-') then

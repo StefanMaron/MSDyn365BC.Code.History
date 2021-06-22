@@ -146,7 +146,6 @@ table 175 "Standard Vendor Purchase Code"
                         PurchLine.Validate(Quantity, StdPurchLine.Quantity);
                         if StdPurchLine."Unit of Measure Code" <> '' then
                             PurchLine.Validate("Unit of Measure Code", StdPurchLine."Unit of Measure Code");
-                        PurchLine.Description := StdPurchLine.Description;
                         if (StdPurchLine.Type = StdPurchLine.Type::"G/L Account") or
                            (StdPurchLine.Type = StdPurchLine.Type::"Charge (Item)")
                         then

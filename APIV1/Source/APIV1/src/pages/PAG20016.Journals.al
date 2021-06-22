@@ -6,7 +6,7 @@ page 20016 "APIV1 - Journals"
     DelayedInsert = true;
     EntityName = 'journal';
     EntitySetName = 'journals';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 232;
     Extensible = false;
@@ -17,7 +17,7 @@ page 20016 "APIV1 - Journals"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -57,7 +57,7 @@ page 20016 "APIV1 - Journals"
                 Caption = 'JournalLines', Locked = true;
                 EntityName = 'journalLine';
                 EntitySetName = 'journalLines';
-                SubPageLink = "Journal Batch Id" = FIELD(Id);
+                SubPageLink = "Journal Batch Id" = FIELD(SystemId);
             }
         }
     }
@@ -79,7 +79,7 @@ page 20016 "APIV1 - Journals"
     var
         GraphMgtJournal: Codeunit "Graph Mgt - Journal";
         ThereIsNothingToPostErr: Label 'There is nothing to post.';
-        CannotFindBatchErr: Label 'The General Journal Batch with ID %1 cannot be found.', Comment = '%1 - the ID of the general journal batch';
+        CannotFindBatchErr: Label 'The General Journal Batch with ID %1 cannot be found.', Comment = '%1 - the System ID of the general journal batch';
 
     [ServiceEnabled]
     [Scope('Cloud')]
@@ -89,7 +89,7 @@ page 20016 "APIV1 - Journals"
     begin
         GetBatch(GenJournalBatch);
         PostBatch(GenJournalBatch);
-        SetActionResponse(ActionContext, Id);
+        SetActionResponse(ActionContext, SystemId);
     end;
 
     local procedure PostBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -106,9 +106,8 @@ page 20016 "APIV1 - Journals"
 
     local procedure GetBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        GenJournalBatch.SETRANGE(Id, Id);
-        IF NOT GenJournalBatch.FINDFIRST() THEN
-            ERROR(STRSUBSTNO(CannotFindBatchErr, Id));
+        if not GenJournalBatch.GetBySystemId(SystemId) then
+            Error(StrSubstNo(CannotFindBatchErr, SystemId));
     end;
 
     local procedure SetActionResponse(var ActionContext: WebServiceActionContext; GenJournalBatchId: Guid)
@@ -117,7 +116,7 @@ page 20016 "APIV1 - Journals"
 
         ActionContext.SetObjectType(ObjectType::Page);
         ActionContext.SetObjectId(Page::"APIV1 - Journals");
-        ActionContext.AddEntityKey(FieldNo(Id), GenJournalBatchId);
+        ActionContext.AddEntityKey(FieldNo(SystemId), GenJournalBatchId);
         ActionContext.SetResultCode(WebServiceActionResultCode::Deleted);
     end;
 }

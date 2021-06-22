@@ -7,8 +7,8 @@ codeunit 1353 "Generate Master Data Telemetry"
     end;
 
     var
-        AlCompanyMasterdataCategoryTxt: Label 'AL Company Masterdata', Comment = 'Locked';
-        MasterdataTelemetryMessageTxt: Label 'CompanyGUID: %1, IsEvaluationCompany: %2, IsDemoCompany: %3, Customers: %4, Vendors: %5, Items: %6, G/L Accounts: %7, Contacts: %8', Comment = 'Locked';
+        AlCompanyMasterdataCategoryTxt: Label 'AL Company Masterdata', Locked = true;
+        MasterdataTelemetryMessageTxt: Label 'CompanyGUID: %1, IsEvaluationCompany: %2, IsDemoCompany: %3, Customers: %4, Vendors: %5, Items: %6, G/L Accounts: %7, Contacts: %8', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, 1353, 'OnMasterDataTelemetry', '', true, true)]
     local procedure SendTelemetryOnMasterDataTelemetry()

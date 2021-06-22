@@ -223,7 +223,13 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcActualMaterialCosts(InvtAdjmtEntryOrder, IsHandled);
+        if IsHandled then
+            exit;
+
         with ItemLedgEntry do begin
             SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
             SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
@@ -269,7 +275,13 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
         ShareOfTotalCapCost: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcActualCapacityCosts(InvtAdjmtEntryOrder, IsHandled);
+        if IsHandled then
+            exit;
+
         ShareOfTotalCapCost := CalcShareOfCapCost(InvtAdjmtEntryOrder);
 
         with CapLedgEntry do begin
@@ -398,6 +410,16 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     local procedure HasNewCost(NewCost: Decimal; NewCostACY: Decimal): Boolean
     begin
         exit((NewCost <> 0) or (NewCostACY <> 0));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcActualCapacityCosts(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcActualMaterialCosts(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean)
+    begin
     end;
 }
 

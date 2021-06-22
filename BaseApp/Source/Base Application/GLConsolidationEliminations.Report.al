@@ -89,6 +89,7 @@ report 16 "G/L Consolidation Eliminations"
             {
                 DataItemLink = "Account No." = FIELD("No.");
                 DataItemTableView = SORTING("Journal Template Name");
+                UseTemporary = true;
                 column(GLAcc2No; GLAcc2."No.")
                 {
                 }
@@ -141,6 +142,10 @@ report 16 "G/L Consolidation Eliminations"
                         GenJnlLine.SetFilter("Account No.", "G/L Account".Totaling);
                         GenJnlLine.CalcSums(Amount);
                         EliminationAmount := GenJnlLine.Amount;
+
+                        GenJnlLine.SetFilter("Bal. Account No.", "G/L Account".Totaling);
+                        GenJnlLine.CalcSums(Amount);
+                        EliminationAmount -= GenJnlLine.Amount;
                     end;
                     TotalAmountLCY := TotalAmountLCY + EliminationAmount;
                 end;
@@ -209,6 +214,7 @@ report 16 "G/L Consolidation Eliminations"
             begin
                 FirstLine := true;
                 EliminationAmount := 0;
+                CollectGenJournalLines("Gen. Journal Line", "G/L Account");
             end;
         }
     }
@@ -358,5 +364,42 @@ report 16 "G/L Consolidation Eliminations"
         EliminationsCaptionLbl: Label 'Eliminations';
         TotalInclEliminationsCaptionLbl: Label 'Total Incl. Eliminations';
         TotalEliminationsCaptionLbl: Label 'Total Eliminations';
+
+    local procedure CollectGenJournalLines(var TempGenJournalLine: Record "Gen. Journal Line" temporary; GLAccount: Record "G/L Account")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        LineNo: Integer;
+    begin
+        TempGenJournalLine.Reset;
+        TempGenJournalLine.DeleteAll;
+
+        GenJournalLine.Reset;
+        GenJournalLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.SetRange("Account No.", GLAccount."No.");
+        if GenJournalLine.FindSet then
+            repeat
+                LineNo += 10000;
+                TempGenJournalLine := GenJournalLine;
+                TempGenJournalLine."Line No." := LineNo;
+                TempGenJournalLine.Insert;
+            until GenJournalLine.Next = 0;
+
+        GenJournalLine.SetRange("Account Type");
+        GenJournalLine.SetRange("Account No.");
+        GenJournalLine.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.SetRange("Bal. Account No.", GLAccount."No.");
+        if GenJournalLine.FindSet then
+            repeat
+                LineNo += 10000;
+                TempGenJournalLine := GenJournalLine;
+                TempGenJournalLine."Line No." := LineNo;
+                TempGenJournalLine."Account No." := TempGenJournalLine."Bal. Account No.";
+                TempGenJournalLine.Description := GLAccount.Name;
+                TempGenJournalLine.Amount *= -1;
+                TempGenJournalLine.Insert;
+            until GenJournalLine.Next = 0;
+    end;
 }
 

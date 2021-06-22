@@ -578,6 +578,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType CannotSetTargetURLTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1098255835 - NamedType 101907022" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Demo Sandbox Account - </source>
+          <target>Demo účet Sandboxu - </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Create Demo Data - NamedType DemoAccountPrefixTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1098255835 - NamedType 2786456873" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>donotreply@dynamics.com</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Create Demo Data - NamedType DemoAccountIDTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2501375762 - NamedType 274485546" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>PAYPAL.COM</source>
           <note from="Developer" annotates="general" priority="2"></note>

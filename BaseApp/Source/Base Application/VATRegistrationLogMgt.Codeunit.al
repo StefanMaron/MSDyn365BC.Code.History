@@ -324,7 +324,7 @@ codeunit 249 "VAT Registration Log Mgt."
         DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
 
         if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, Customer.FieldName(Name)) then
-            FieldRef.Value(CopyStr(VATRegistrationLog."Verified Name", 1, FieldRef.Length));
+            FieldRef.Validate(CopyStr(VATRegistrationLog."Verified Name", 1, FieldRef.Length));
 
         if VATRegistrationLog."Verified Postcode" <> '' then
             if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, Customer.FieldName("Post Code")) then

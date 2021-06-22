@@ -39,7 +39,7 @@ table 1800 "Data Migrator Registration"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure OnRegisterDataMigrator()
     begin
         // Event which makes all data migrators register themselves in this table.

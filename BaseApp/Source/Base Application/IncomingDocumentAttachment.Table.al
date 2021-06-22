@@ -1,3 +1,4 @@
+
 table 133 "Incoming Document Attachment"
 {
     Caption = 'Incoming Document Attachment';
@@ -371,7 +372,7 @@ table 133 "Incoming Document Attachment"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure OnAttachBinaryFile()
     begin
     end;
@@ -541,7 +542,6 @@ table 133 "Incoming Document Attachment"
         DataTypeManagement: Codeunit "Data Type Management";
         DocumentNoFieldRef: FieldRef;
         PostingDateFieldRef: FieldRef;
-        LineNoFieldRef: FieldRef;
         PostingDate: Date;
     begin
         case MainRecordRef.Number of
@@ -564,15 +564,6 @@ table 133 "Incoming Document Attachment"
             DATABASE::"Gen. Journal Line":
                 begin
                     MainRecordRef.SetTable(GenJournalLine);
-                    if not MainRecordRef.Get(MainRecordRef.RecordId) then
-                        if DataTypeManagement.FindFieldByName(
-                             MainRecordRef, LineNoFieldRef, IncomingDocumentAttachment.FieldName("Line No."))
-                        then begin
-                            LineNoFieldRef.Validate(GetGenJnlLineNextLineNo(GenJournalLine));
-                            MainRecordRef.Insert(true);
-                            Commit;
-                            MainRecordRef.SetTable(GenJournalLine);
-                        end;
                     IncomingDocumentAttachment.SetRange("Document Table No. Filter", MainRecordRef.Number);
                     IncomingDocumentAttachment.SetRange("Journal Template Name Filter", GenJournalLine."Journal Template Name");
                     IncomingDocumentAttachment.SetRange("Journal Batch Name Filter", GenJournalLine."Journal Batch Name");
@@ -589,22 +580,6 @@ table 133 "Incoming Document Attachment"
                     IncomingDocumentAttachment.SetRange("Posting Date", PostingDate);
                 end;
         end;
-    end;
-
-    local procedure GetGenJnlLineNextLineNo(GenJournalLine: Record "Gen. Journal Line"): Integer
-    var
-        LastGenJournalLine: Record "Gen. Journal Line";
-    begin
-        LastGenJournalLine.SetFilter("Journal Template Name", GenJournalLine."Journal Template Name");
-        LastGenJournalLine.SetFilter("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        if LastGenJournalLine.FindLast then
-            exit(LastGenJournalLine."Line No." + LineIncrement);
-        exit(LineIncrement);
-    end;
-
-    local procedure LineIncrement(): Integer
-    begin
-        exit(10000);
     end;
 
     procedure AddFieldToFieldBuffer(var TempFieldBuffer: Record "Field Buffer" temporary; FieldID: Integer)

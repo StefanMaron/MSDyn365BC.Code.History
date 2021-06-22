@@ -496,7 +496,7 @@ codeunit 150025 "APIV1 - Dimension Lines E2E"
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SETRANGE("Line No.", LineNo);
         GenJournalLine.FINDFIRST();
-        EXIT(GenJournalLine.Id);
+        EXIT(GenJournalLine.SystemId);
     end;
 
     local procedure CreateJournalLine(JournalName: Code[10]): Guid
@@ -509,7 +509,7 @@ codeunit 150025 "APIV1 - Dimension Lines E2E"
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SETRANGE("Line No.", LineNo);
         GenJournalLine.FINDFIRST();
-        EXIT(GenJournalLine.Id);
+        EXIT(GenJournalLine.SystemId);
     end;
 
     local procedure CreateDimensionLinesURLWithFilter(ParentIDFilter: Guid): Text

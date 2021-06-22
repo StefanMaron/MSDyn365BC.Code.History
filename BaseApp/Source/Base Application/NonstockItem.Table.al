@@ -50,7 +50,7 @@ table 5718 "Nonstock Item"
                         Error(Text002, "Vendor No.", "Vendor Item No.");
             end;
         }
-        field(4; "Vendor Item No."; Code[20])
+        field(4; "Vendor Item No."; Code[50])
         {
             Caption = 'Vendor Item No.';
 
@@ -267,30 +267,30 @@ table 5718 "Nonstock Item"
             NonStockItemSetup."No. Format"::"Entry No.":
                 ItemNo := "Entry No.";
             NonStockItemSetup."No. Format"::"Vendor Item No.":
-                ItemNo := "Vendor Item No.";
+                ItemNo := CopyStr("Vendor Item No.", 1, MaxStrLen("Item No."));
             NonStockItemSetup."No. Format"::"Mfr. + Vendor Item No.":
                 if NonStockItemSetup."No. Format Separator" = '' then begin
                     if MfrLength + VenLength <= 20 then
-                        ItemNo := InsStr("Manufacturer Code", "Vendor Item No.", 6)
+                        ItemNo := CopyStr(InsStr("Manufacturer Code", "Vendor Item No.", 6), 1, MaxStrLen("Item No."))
                     else
                         ItemNo := InsStr("Manufacturer Code", "Entry No.", 6);
                 end else begin
                     TempItemNo :=
                       InsStr("Manufacturer Code", NonStockItemSetup."No. Format Separator", 6);
                     if MfrLength + VenLength < 20 then
-                        ItemNo := InsStr(TempItemNo, "Vendor Item No.", 7)
+                        ItemNo := CopyStr(InsStr(TempItemNo, "Vendor Item No.", 7), 1, MaxStrLen("Item No."))
                     else
                         ItemNo := InsStr(TempItemNo, "Entry No.", 7);
                 end;
             NonStockItemSetup."No. Format"::"Vendor Item No. + Mfr.":
                 if NonStockItemSetup."No. Format Separator" = '' then begin
                     if VenLength + MfrLength <= 20 then
-                        ItemNo := InsStr("Vendor Item No.", "Manufacturer Code", 11)
+                        ItemNo := CopyStr(InsStr("Vendor Item No.", "Manufacturer Code", 11), 1, MaxStrLen("Item No."))
                     else
                         ItemNo := InsStr("Entry No.", "Manufacturer Code", 11);
                 end else begin
                     TempItemNo :=
-                      InsStr("Vendor Item No.", NonStockItemSetup."No. Format Separator", 10);
+                      CopyStr(InsStr("Vendor Item No.", NonStockItemSetup."No. Format Separator", 10), 1, MaxStrLen("Item No."));
                     if VenLength + MfrLength < 20 then
                         ItemNo := InsStr(TempItemNo, "Manufacturer Code", 11);
                 end;
@@ -323,7 +323,7 @@ table 5718 "Nonstock Item"
         end;
     end;
 
-    local procedure CheckVendorItemNo(VendorNo: Code[20]; VendorItemNo: Code[20]): Boolean
+    local procedure CheckVendorItemNo(VendorNo: Code[20]; VendorItemNo: Code[50]): Boolean
     begin
         NonStockItem.Reset;
         NonStockItem.SetCurrentKey("Vendor No.", "Vendor Item No.");

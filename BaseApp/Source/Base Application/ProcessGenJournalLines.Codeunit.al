@@ -86,6 +86,8 @@ codeunit 1247 "Process Gen. Journal  Lines"
             end else
                 "Document No." := GenJournalLine."Document No.";
         end;
+
+        OnAfterCreateGeneralJournalLineTemplate(GenJournalLineTemplate, GenJournalLine);
     end;
 
     procedure UpdateGenJournalLines(var GenJournalLineTemplate: Record "Gen. Journal Line")
@@ -109,7 +111,11 @@ codeunit 1247 "Process Gen. Journal  Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    [Scope('OnPrem')]
+    local procedure OnAfterCreateGeneralJournalLineTemplate(var GenJournalLineTemplate: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     procedure OnBeforeUpdateGenJnlLines(var GenJournalLineTemplate: Record "Gen. Journal Line")
     begin
     end;

@@ -46,6 +46,8 @@ table 5878 "Phys. Invt. Record Line"
                 Init;
                 "Item No." := TempPhysInvtRecordLine."Item No.";
 
+                OnValidateItemNoOnAfterInitFromTempRecord(Rec, TempPhysInvtRecordLine);
+
                 if "Item No." <> xRec."Item No." then
                     "Variant Code" := '';
 
@@ -351,6 +353,7 @@ table 5878 "Phys. Invt. Record Line"
             OnShowUsedTrackLinesSetWhseEntryFilters(WhseEntry, Rec);
             if WhseEntry.Find('-') then
                 repeat
+                    OnBeforeInsertTrackingBufferLocationIsBinMandatory(WhseEntry, Rec);
                     InsertTrackingBuffer(
                       TempPhysInvtTracking, WhseEntry."Serial No.", WhseEntry."Lot No.", WhseEntry."Qty. (Base)");
                     OnShowUsedTrackLinesOnAfterInsertFromWhseEntry(TempPhysInvtTracking, WhseEntry);
@@ -412,6 +415,11 @@ table 5878 "Phys. Invt. Record Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTrackingBufferLocationIsBinMandatory(var WarehouseEntry: Record "Warehouse Entry"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry(var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -433,6 +441,11 @@ table 5878 "Phys. Invt. Record Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowUsedTrackLinesSetWhseEntryFilters(var WarehouseEntry: Record "Warehouse Entry"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterInitFromTempRecord(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; TempPhysInvtRecordLine: Record "Phys. Invt. Record Line" temporary)
     begin
     end;
 }

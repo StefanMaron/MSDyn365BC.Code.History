@@ -5,7 +5,7 @@ page 20030 "APIV1 - Units of Measure"
     DelayedInsert = true;
     EntityName = 'unitOfMeasure';
     EntitySetName = 'unitsOfMeasure';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 204;
     Extensible = false;
@@ -16,7 +16,7 @@ page 20030 "APIV1 - Units of Measure"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;

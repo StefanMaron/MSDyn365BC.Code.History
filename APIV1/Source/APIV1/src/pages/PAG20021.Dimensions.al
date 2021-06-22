@@ -9,7 +9,7 @@ page 20021 "APIV1 - Dimensions"
     EntitySetName = 'dimensions';
     InsertAllowed = false;
     ModifyAllowed = false;
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 348;
     Extensible = false;
@@ -20,7 +20,7 @@ page 20021 "APIV1 - Dimensions"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;

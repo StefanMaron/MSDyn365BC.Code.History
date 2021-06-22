@@ -134,7 +134,7 @@ table 5902 "Service Line"
                         begin
                             CopyFromItem;
                             if ServItem.Get("Service Item No.") then
-                                CopyFromServItem;
+                                CopyFromServItem(ServItem);
                         end;
                     Type::Resource:
                         CopyFromResource;
@@ -3335,11 +3335,17 @@ table 5902 "Service Line"
         OnAfterAssignItemValues(Rec, Item, xRec, CurrFieldNo, ServHeader);
     end;
 
-    local procedure CopyFromServItem()
+    procedure CopyFromServItem(ServItem: Record "Service Item")
     var
         ServItem2: Record "Service Item";
         ServItemComponent: Record "Service Item Component";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyFromServItem(Rec, ServItem, ServItemComponent, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServItem."Item No." = "No." then begin
             ServItemLine.Reset;
             if not HideReplacementDialog then begin
@@ -5118,6 +5124,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromServItem(var ServiceLine: Record "Service Line"; ServiceItem: Record "Service Item"; ServItemComponent: Record "Service Item Component"; var IsHandled: Boolean)
     begin
     end;
 

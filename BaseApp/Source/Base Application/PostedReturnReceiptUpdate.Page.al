@@ -89,13 +89,15 @@ page 1353 "Posted Return Receipt - Update"
     var
         xReturnReceiptHeader: Record "Return Receipt Header";
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
-        exit(
-          ("Bill-to County" <> xReturnReceiptHeader."Bill-to County") or
-          ("Bill-to Country/Region Code" <> xReturnReceiptHeader."Bill-to Country/Region Code") or
-          ("Shipping Agent Code" <> xReturnReceiptHeader."Shipping Agent Code") or
-          ("Package Tracking No." <> xReturnReceiptHeader."Package Tracking No."));
+        IsChanged :=
+            ("Bill-to County" <> xReturnReceiptHeader."Bill-to County") or
+            ("Bill-to Country/Region Code" <> xReturnReceiptHeader."Bill-to Country/Region Code") or
+            ("Shipping Agent Code" <> xReturnReceiptHeader."Shipping Agent Code") or
+            ("Package Tracking No." <> xReturnReceiptHeader."Package Tracking No.");
+
+        OnAfterRecordChanged(Rec, xRec, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -103,6 +105,11 @@ page 1353 "Posted Return Receipt - Update"
     begin
         Rec := ReturnReceiptHeader;
         Insert;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecordChanged(var ReturnReceiptHeader: Record "Return Receipt Header"; xReturnReceiptHeader: Record "Return Receipt Header"; var IsChanged: Boolean);
+    begin
     end;
 }
 

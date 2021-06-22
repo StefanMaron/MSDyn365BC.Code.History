@@ -54,7 +54,7 @@ page 747 "VAT Clauses"
                 PromotedCategory = Process;
                 RunObject = Page "VAT Posting Setup";
                 RunPageLink = "VAT Clause Code" = FIELD(Code);
-                ToolTip = 'View or edit combinations of Tax business posting groups and Tax product posting groups.';
+                ToolTip = 'View or edit combinations of VAT business posting groups and VAT product posting groups.';
             }
             action("T&ranslation")
             {
@@ -65,7 +65,18 @@ page 747 "VAT Clauses"
                 PromotedCategory = Process;
                 RunObject = Page "VAT Clause Translations";
                 RunPageLink = "VAT Clause Code" = FIELD(Code);
-                ToolTip = 'View or edit translations for each Tax clause description in different languages.';
+                ToolTip = 'View or edit translations for each VAT clause description in different languages.';
+            }
+            action("DescriptionByDocumentType")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Description by document type';
+                Image = Invoice;
+                Promoted = true;
+                PromotedCategory = Process;
+                RunObject = Page "VAT Clauses by Doc. Type";
+                RunPageLink = "VAT Clause Code" = FIELD(Code);
+                ToolTip = 'View or edit VAT clause descriptions by document type.';
             }
         }
     }

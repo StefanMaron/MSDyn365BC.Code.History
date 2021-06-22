@@ -55,12 +55,32 @@ codeunit 5402 "Unit of Measure Management"
         exit(RoundQty(Qty * QtyPerUOM));
     end;
 
+    procedure CalcBaseQty(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal) QtyRounded: Decimal
+    begin
+        if QtyPerUOM = 0 then
+            Error(Text001);
+
+        QtyRounded := RoundQty(QtyBase * QtyPerUOM);
+
+        OnAfterCalcBaseQtyPerUnitOfMeasure(ItemNo, VariantCode, UOMCode, QtyPerUOM, QtyBase, QtyRounded);
+    end;
+
     procedure CalcQtyFromBase(QtyBase: Decimal; QtyPerUOM: Decimal): Decimal
     begin
         if QtyPerUOM = 0 then
             Error(Text001);
 
         exit(RoundQty(QtyBase / QtyPerUOM));
+    end;
+
+    procedure CalcQtyFromBase(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal) QtyRounded: Decimal
+    begin
+        if QtyPerUOM = 0 then
+            Error(Text001);
+
+        QtyRounded := RoundQty(QtyBase / QtyPerUOM);
+
+        OnAfterCalcQtyFromBasePerUnitOfMeasure(ItemNo, VariantCode, UOMCode, QtyPerUOM, QtyBase, QtyRounded);
     end;
 
     procedure RoundQty(Qty: Decimal): Decimal
@@ -106,6 +126,16 @@ codeunit 5402 "Unit of Measure Management"
         if RoundingPrecision = 0 then
             RoundingPrecision := 0.00001;
         exit(RoundingPrecision);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcBaseQtyPerUnitOfMeasure(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal; var QtyRounded: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQtyFromBasePerUnitOfMeasure(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal; var QtyRounded: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

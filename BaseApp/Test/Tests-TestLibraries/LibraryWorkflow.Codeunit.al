@@ -81,6 +81,17 @@ codeunit 131101 "Library - Workflow"
         NotificationSetup.Insert(true);
     end;
 
+    procedure SetNotifySenderInResponse(WorkflowCode: Code[20]; StepID: Integer)
+    var
+        WorkflowStep: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+    begin
+        WorkflowStep.Get(WorkflowCode, StepID);
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        WorkflowStepArgument.Validate("Notify Sender", true);
+        WorkflowStepArgument.Modify();
+    end;
+
     procedure SetUpSMTPEmailSetup()
     var
         SMTPMailSetup: Record "SMTP Mail Setup";

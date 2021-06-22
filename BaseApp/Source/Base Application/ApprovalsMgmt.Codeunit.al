@@ -442,15 +442,9 @@ codeunit 1535 "Approvals Mgmt."
                 ApprovalEntryToUpdate := ApprovalEntry;
                 ApprovalEntryToUpdate.Validate(Status, ApprovalEntry.Status::Rejected);
                 ApprovalEntryToUpdate.Modify(true);
-                if (OldStatus in [ApprovalEntry.Status::Open, ApprovalEntry.Status::Approved]) and
-                   (ApprovalEntryToUpdate."Approver ID" <> UserId)
-                then
+                if OldStatus in [ApprovalEntry.Status::Open, ApprovalEntry.Status::Approved] then
                     CreateApprovalEntryNotification(ApprovalEntryToUpdate, WorkflowStepInstance);
             until ApprovalEntry.Next = 0;
-            if ApprovalEntry."Approver ID" <> ApprovalEntry."Sender ID" then begin
-                ApprovalEntry."Approver ID" := ApprovalEntry."Sender ID";
-                CreateApprovalEntryNotification(ApprovalEntry, WorkflowStepInstance);
-            end;
         end;
     end;
 
@@ -923,21 +917,19 @@ codeunit 1535 "Approvals Mgmt."
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
         NotificationEntry: Record "Notification Entry";
-        UserSetup: Record "User Setup";
     begin
         if not WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
             exit;
 
-        if WorkflowStepArgument."Notification User ID" = '' then begin
-            if not UserSetup.Get(ApprovalEntry."Approver ID") then
-                exit;
-            WorkflowStepArgument.Validate("Notification User ID", ApprovalEntry."Approver ID");
-        end;
-
         ApprovalEntry.Reset;
-        NotificationEntry.CreateNewEntry(
-          NotificationEntry.Type::Approval, WorkflowStepArgument."Notification User ID",
-          ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", ApprovalEntry."Sender ID");
+        if (ApprovalEntry."Approver ID" <> UserId) or (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
+            NotificationEntry.CreateNewEntry(
+                NotificationEntry.Type::Approval, ApprovalEntry."Approver ID",
+                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", UserId);
+        if WorkflowStepArgument."Notify Sender" and (ApprovalEntry."Sender ID" <> UserId) then
+            NotificationEntry.CreateNew(
+                NotificationEntry.Type::Approval, ApprovalEntry."Sender ID",
+                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link");
     end;
 
     local procedure SetApproverType(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntry: Record "Approval Entry")

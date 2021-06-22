@@ -17,7 +17,6 @@ report 6661 "Delete Invd Purch. Ret. Orders"
             trigger OnAfterGetRecord()
             var
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
-                ArchiveManagement: Codeunit ArchiveManagement;
                 PostPurchDelete: Codeunit "PostPurch-Delete";
             begin
                 Window.Update(1, "No.");
@@ -33,6 +32,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                 if PurchLine.Find('-') then begin
                     PurchLine.SetRange("Quantity Invoiced");
                     PurchLine.SetFilter("Outstanding Quantity", '<>0');
+                    OnAfterSetPurchLineFilters(PurchLine);
                     if not PurchLine.Find('-') then begin
                         PurchLine.SetRange("Outstanding Quantity");
                         PurchLine.SetFilter("Return Qty. Shipped Not Invd.", '<>0');
@@ -124,8 +124,14 @@ report 6661 "Delete Invd Purch. Ret. Orders"
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
         WhseRequest: Record "Warehouse Request";
         ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        ArchiveManagement: Codeunit ArchiveManagement;
         Window: Dialog;
         AllLinesDeleted: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchLineDelete(var PurchLine: Record "Purchase Line")

@@ -50,6 +50,7 @@ page 179 "Reverse Entries"
                 field("Posting Date"; "Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
+                    ClosingDates = true;
                     Editable = false;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }

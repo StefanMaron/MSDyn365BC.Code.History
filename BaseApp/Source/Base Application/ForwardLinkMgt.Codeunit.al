@@ -14,6 +14,8 @@ codeunit 1431 "Forward Link Mgt."
         BlockedItemMsg: Label 'Block Items from Sales or Purchasing';
         WorkingWithDimsTok: Label 'WORKING WITH DIMENSIONS', Locked = true;
         WorkingWithDimensionsMsg: Label 'Working with dimensions.';
+        SalesLineDropShipmentTok: Label 'DROP SHIPMENT', Locked = true;
+        SalesLineDropShipmentMsg: Label 'Making drop shipments';
 
     local procedure AddLink(NewName: Code[30]; NewDescription: Text[250]; NewLink: Text[250])
     var
@@ -48,6 +50,11 @@ codeunit 1431 "Forward Link Mgt."
         exit(WorkingWithDimsTok);
     end;
 
+    procedure GetHelpCodeForSalesLineDropShipmentErr(): Code[30]
+    begin
+        exit(SalesLineDropShipmentTok);
+    end;
+
     [EventSubscriber(ObjectType::Table, 1431, 'OnLoad', '', false, false)]
     local procedure OnLoadHelpArticleCodes()
     begin
@@ -59,6 +66,8 @@ codeunit 1431 "Forward Link Mgt."
           GetHelpCodeForBlockedItem, BlockedItemMsg, 'https://go.microsoft.com/fwlink/?linkid=2094578');
         AddLink(
           GetHelpCodeForWorkingWithDimensions, WorkingWithDimensionsMsg, 'https://go.microsoft.com/fwlink/?linkid=2079638');
+        AddLink(
+          GetHelpCodeForSalesLineDropShipmentErr, SalesLineDropShipmentMsg, 'https://go.microsoft.com/fwlink/?linkid=2104945');
     end;
 }
 

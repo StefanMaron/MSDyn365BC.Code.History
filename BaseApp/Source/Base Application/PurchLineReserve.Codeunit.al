@@ -499,7 +499,7 @@ codeunit 99000834 "Purch. Line-Reserve"
           DATABASE::"Purchase Line", PurchHeader."Document Type", PurchHeader."No.");
     end;
 
-    local procedure DeleteInvoiceSpecFromLine(PurchLine: Record "Purchase Line")
+    procedure DeleteInvoiceSpecFromLine(PurchLine: Record "Purchase Line")
     begin
         ItemTrackingMgt.DeleteInvoiceSpecFromLine(
           DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");

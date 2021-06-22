@@ -991,6 +991,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control invoiceDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3424186788 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>postingDate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control postingDate - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3424186788 - Control 2763176388 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>dueDate</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1476,7 +1481,7 @@
         <trans-unit id="Page 43150540 - NamedType 3903509543" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The General Journal Batch with ID %1 cannot be found.</source>
           <target>The General Journal Batch with ID %1 cannot be found.</target>
-          <note from="Developer" annotates="general" priority="2">%1 - the ID of the general journal batch</note>
+          <note from="Developer" annotates="general" priority="2">%1 - the System ID of the general journal batch</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Journals - NamedType CannotFindBatchErr</note>
         </trans-unit>
         <trans-unit id="Page 2993549997 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
@@ -1839,16 +1844,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Dimension Lines - NamedType RecordDoesntExistErr</note>
         </trans-unit>
-        <trans-unit id="Page 2069541849 - NamedType 4150146900" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The record was deleted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Dimension Lines - NamedType RecordWasDeletedErr</note>
-        </trans-unit>
-        <trans-unit id="Page 2069541849 - NamedType 1374935575" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Dimension Lines do not exist for the Entity with that Id.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Dimension Lines - NamedType WrongEntityErr</note>
-        </trans-unit>
         <trans-unit id="Page 2069541849 - NamedType 1040139754" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>The dimension field values do not match to a specific Dimension.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2063,6 +2058,11 @@
           <source>orderDate</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control orderDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2686554897 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>postingDate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control postingDate - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2686554897 - Control 38468747 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>customerId</source>
@@ -2685,6 +2685,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Control documentDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1019532645 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>postingDate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Control postingDate - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1019532645 - Control 2763176388 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>dueDate</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2966,6 +2971,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control creditMemoDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1278005506 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>postingDate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control postingDate - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1278005506 - Control 2763176388 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>dueDate</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3024,7 +3034,7 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Credit Memo.</source>
-          <target>Specifies the billing address of the Sales Credit Memo.</target>
+          <target>Specifies the billing address of the Sales CR/Adj Note.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control billingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -3090,7 +3100,7 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 4101803605 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total tax amount for the sales credit memo.</source>
-          <target>Specifies the total tax amount for the sales credit memo.</target>
+          <target>Specifies the total taxax amount for the sales CR/Adj note.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control totalTaxAmount - Property ToolTip</note>
         </trans-unit>
@@ -3106,7 +3116,7 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 998393528 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the Sales Credit Memo (cancelled, paid, on hold, created).</source>
-          <target>Specifies the status of the Sales Credit Memo (cancelled, paid, on hold, created).</target>
+          <target>Specifies the status of the Sales CR/Adj Note (cancelled, paid, on hold, created).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control status - Property ToolTip</note>
         </trans-unit>
@@ -3474,6 +3484,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Time Registr. Entries - NamedType CannotModifyDateErr</note>
         </trans-unit>
+        <trans-unit id="Page 2305153529 - NamedType 1415552295" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Value for employee ID cannot be modified.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Time Registr. Entries - NamedType CannotChangeEmployeeIdErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2305153529 - NamedType 2901946605" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Value for employee number cannot be modified.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Time Registr. Entries - NamedType CannotChangeEmployeeNumberErr</note>
+        </trans-unit>
         <trans-unit id="Page 1789293813 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>purchaseInvoices</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3493,6 +3513,11 @@
           <source>invoiceDate</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoices - Control invoiceDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1789293813 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>postingDate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoices - Control postingDate - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1789293813 - Control 2763176388 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>dueDate</source>
@@ -3868,16 +3893,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - NamedType CannotChangeLineNoErr</note>
         </trans-unit>
-        <trans-unit id="Page 3908586298 - NamedType 3157948212" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The item was deleted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - NamedType ItemWasDeletedErr</note>
-        </trans-unit>
-        <trans-unit id="Page 3908586298 - NamedType 4031061085" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The id is already in use.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - NamedType IdIsAlreadyUsedErr</note>
-        </trans-unit>
         <trans-unit id="Page 3908586298 - NamedType 3559327969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
           <target>Both itemId and accountId are specified. Specify only one of them.</target>
@@ -4084,16 +4099,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - NamedType CannotChangeLineNoErr</note>
         </trans-unit>
-        <trans-unit id="Page 1254803123 - NamedType 3157948212" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The item was deleted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - NamedType ItemWasDeletedErr</note>
-        </trans-unit>
-        <trans-unit id="Page 1254803123 - NamedType 4031061085" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The id is already in use.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - NamedType IdIsAlreadyUsedErr</note>
-        </trans-unit>
         <trans-unit id="Page 1254803123 - NamedType 3559327969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
           <target>Both itemId and accountId are specified. Specify only one of them.</target>
@@ -4271,16 +4276,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - NamedType CannotChangeLineNoErr</note>
         </trans-unit>
-        <trans-unit id="Page 287431775 - NamedType 3157948212" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The item was deleted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - NamedType ItemWasDeletedErr</note>
-        </trans-unit>
-        <trans-unit id="Page 287431775 - NamedType 4031061085" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The id is already in use.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - NamedType IdIsAlreadyUsedErr</note>
-        </trans-unit>
         <trans-unit id="Page 287431775 - NamedType 3559327969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
           <target>Both itemId and accountId are specified. Specify only one of them.</target>
@@ -4346,7 +4341,7 @@
         </trans-unit>
         <trans-unit id="Page 2572387921 - Control 4232699882 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the description of the sales credit memo line.</source>
-          <target>Specifies the description of the sales credit memo line.</target>
+          <target>Specifies the description of the sales CR/Adj note line.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control description - Property ToolTip</note>
         </trans-unit>
@@ -4466,18 +4461,6 @@
           <source>The value for sequence cannot be modified. Delete and insert the line again.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - NamedType CannotChangeLineNoErr</note>
-        </trans-unit>
-        <trans-unit id="Page 2572387921 - NamedType 3157948212" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The item was deleted.</source>
-          <target>The item was deleted.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - NamedType ItemWasDeletedErr</note>
-        </trans-unit>
-        <trans-unit id="Page 2572387921 - NamedType 4031061085" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The id is already in use.</source>
-          <target>The id is already in use.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - NamedType IdIsAlreadyUsedErr</note>
         </trans-unit>
         <trans-unit id="Page 2572387921 - NamedType 3559327969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
@@ -4655,16 +4638,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - NamedType CannotChangeLineNoErr</note>
         </trans-unit>
-        <trans-unit id="Page 1048301999 - NamedType 3157948212" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The item was deleted.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - NamedType ItemWasDeletedErr</note>
-        </trans-unit>
-        <trans-unit id="Page 1048301999 - NamedType 4031061085" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The id is already in use.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - NamedType IdIsAlreadyUsedErr</note>
-        </trans-unit>
         <trans-unit id="Page 1048301999 - NamedType 3559327969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
           <target>Both itemId and accountId are specified. Specify only one of them.</target>
@@ -4721,6 +4694,11 @@
           <source>LineNumber</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - JournalLines - Control lineNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2402706850 - Control 1486462331 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>AccountType</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - JournalLines - Control accountType - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2402706850 - Control 1406037800 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>AccountId</source>
@@ -4828,6 +4806,26 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Jobs - Control displayName - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1197922690 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>bankAccounts</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Bank Accounts - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1197922690 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Bank Accounts - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1197922690 - Control 2757394829 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>number</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Bank Accounts - Control number - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1197922690 - Control 460507951 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>displayName</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Bank Accounts - Control displayName - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Query 2195829034 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>customerSales</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4844,7 +4842,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Query APIV1 - Customer Sales - QueryFilter dateFilter - Property Caption</note>
         </trans-unit>
         <trans-unit id="Query 2195829034 - QueryColumn 38468747 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Id</source>
+          <source>SystemId</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Query APIV1 - Customer Sales - QueryColumn customerId - Property Caption</note>
         </trans-unit>
@@ -4874,7 +4872,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Query APIV1 - Vendor Purchases - QueryFilter dateFilter - Property Caption</note>
         </trans-unit>
         <trans-unit id="Query 1984868130 - QueryColumn 149332515 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>Id</source>
+          <source>SystemId</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Query APIV1 - Vendor Purchases - QueryColumn vendorId - Property Caption</note>
         </trans-unit>

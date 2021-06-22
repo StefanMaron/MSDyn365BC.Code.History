@@ -333,7 +333,15 @@
     end;
 
     local procedure IsShowRec(SalesShptLine2: Record "Sales Shipment Line"): Boolean
+    var
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsShowRec(Rec, SalesShptLine2, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         with SalesShptLine2 do begin
             QtyNotReturned := 0;
             if RevQtyFilter and (Type = Type::" ") then
@@ -393,6 +401,11 @@
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsShowRec(var SalesShipmentLine: Record "Sales Shipment Line"; var SalesShipmentLine2: Record "Sales Shipment Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

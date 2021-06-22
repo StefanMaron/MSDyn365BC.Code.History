@@ -69,6 +69,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         COGSRowNo: Integer;
         GrossProfitRowNo: Integer;
         ExpensesRowNo: Integer;
+        IsHandled: Boolean;
     begin
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
         GeneralLedgerSetup.TestField("Acc. Sched. for Income Stmt.");
@@ -82,6 +83,11 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         AddBlankLine(AccScheduleLine, RowNo);
         AddAccSchedLineGroup(AccScheduleLine, RowNo, GLAccountCategory."Account Category"::"Cost of Goods Sold");
         COGSRowNo := RowNo;
+
+        OnCreateIncomeStatementOnAfterCreateCOGSGroup(AccScheduleLine, IsHandled);
+        if IsHandled then
+            exit;
+
         AddBlankLine(AccScheduleLine, RowNo);
         AddAccShedLine(
           AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::Formula, GrossProfitTxt,
@@ -323,7 +329,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
               AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::"Posting Accounts",
               ParentGLAccountCategory.Description, CopyStr(TotalingFilter, 1, 250),
               Indentation = 0, false, not ParentGLAccountCategory.PositiveNormalBalance, Indentation);
-            OnAfterAddAccSchedLine(AccScheduleLine, ParentGLAccountCategory);
+            OnAfterAddAccSchedLine(AccScheduleLine, ParentGLAccountCategory, RowNo);
             AccScheduleLine.Show := AccScheduleLine.Show::"If Any Column Not Zero";
             AccScheduleLine.Modify;
         end;
@@ -392,12 +398,17 @@ codeunit 571 "Categ. Generate Acc. Schedules"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAddAccSchedLine(var AccScheduleLine: Record "Acc. Schedule Line"; ParentGLAccountCategory: Record "G/L Account Category")
+    local procedure OnAfterAddAccSchedLine(var AccScheduleLine: Record "Acc. Schedule Line"; ParentGLAccountCategory: Record "G/L Account Category"; var RowNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddParentAccSchedLine(var AccScheduleLine: Record "Acc. Schedule Line"; ParentGLAccountCategory: Record "G/L Account Category")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateIncomeStatementOnAfterCreateCOGSGroup(var AccScheduleLine: Record "Acc. Schedule Line"; var IsHandled: Boolean)
     begin
     end;
 }

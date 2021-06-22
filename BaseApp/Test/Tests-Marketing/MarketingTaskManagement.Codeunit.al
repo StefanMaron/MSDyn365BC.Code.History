@@ -1125,6 +1125,85 @@ codeunit 136203 "Marketing Task Management"
         Assert.RecordIsNotEmpty(InteractionLogEntry);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteSalespersonWithOpenTask()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+    begin
+        // [FEATURE] [Salesperson] [UT]
+        // [SCENARIO 323540] Salesperson/Purchaser cannot be deleted if it has open tasks.
+        Initialize;
+
+        // [GIVEN] Created Salesperson and Task assigned to them
+        CreateSalespersonWithTask(SalespersonPurchaser, Task);
+
+        // [WHEN] Attempt to delete Salesperson
+        asserterror SalespersonPurchaser.Delete(true);
+
+        // [THEN] Error "You cannot delete Salesperson/Purchaser.." is thrown
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(
+          StrSubstNo('You cannot delete the salesperson/purchaser with code %1 because it has open tasks.', SalespersonPurchaser.Code));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteSalespersonWithClosedTask()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+    begin
+        // [FEATURE] [Salesperson] [UT]
+        // [SCENARIO 323540] Salesperson/Purchaser is deleted if it has closed tasks.
+        Initialize;
+
+        // [GIVEN] Created Salesperson and Task assigned to them, then close it
+        CreateSalespersonWithTask(SalespersonPurchaser, Task);
+        CloseSalepersonsTask(SalespersonPurchaser.Code);
+
+        // [WHEN] Attempt to delete Salesperson
+        SalespersonPurchaser.Delete(true);
+
+        // [THEN] Salesperson is deleted successfuly
+        VerifySalespersonDeleted(SalespersonPurchaser.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerMakePhoneCallChangeDateTime,ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure PageMakePhoneCallCanChangeDateTimeOfInteraction()
+    var
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        ContactList: TestPage "Contact List";
+    begin
+        // [SCENARIO 326506] Date and Time of Interaction should be visible and editable on Make Phone Call page
+        Initialize();
+
+        // [GIVEN] Contact "X" with filled "Phone No."
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact.Validate("Phone No.", Format(LibraryRandom.RandInt(100)));
+        Contact.Modify(FALSE);
+
+        // [GIVEN] Make Phone Call page opened by Make Phone Call action on Contact List positioned on Contact "X"        
+        ContactList.OpenView();
+        ContactList.GoToRecord(Contact);
+
+        // [WHEN] Make Phone Call page is opened
+        ContactList.MakePhoneCall.Invoke();
+
+        // [THEN] Date and "Time of Interaction" fields are editable and filled with "D1" and "TI1" values
+        // checked on ModalFormHandlerMakePhoneCallChangeDateTime handler
+        // [THEN] Date = "D1", Time of Interaction" = "TI1" in created Interaction Log Entry
+        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
+        InteractionLogEntry.FindFirst();
+        InteractionLogEntry.TestField("Time of Interaction", LibraryVariableStorage.DequeueTime());
+        InteractionLogEntry.TestField(Date, LibraryVariableStorage.DequeueDate());
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1157,6 +1236,25 @@ codeunit 136203 "Marketing Task Management"
             TestField("Ending Date", EndingDate);
             TestField("Ending Time", 0T);
         end;
+    end;
+
+    local procedure CreateSalespersonWithTask(var SalespersonPurchaser: Record "Salesperson/Purchaser"; var Task: Record "To-do")
+    begin
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        LibraryMarketing.CreateTask(Task);
+        Task.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Task.Modify(true);
+    end;
+
+    local procedure CloseSalepersonsTask(CompletedBy: Code[20])
+    var
+        Task: Record "To-do";
+    begin
+        Task.SetRange("Salesperson Code", CompletedBy);
+        Task.FindFirst;
+        Task.Validate("Completed By", CompletedBy);
+        Task.Validate(Closed, true);
+        Task.Modify(true);
     end;
 
     local procedure ReassignTask(Type: Option; AllDayEvent: Boolean)
@@ -1429,6 +1527,14 @@ codeunit 136203 "Marketing Task Management"
         until SegmentLine.Next = 0;
     end;
 
+    local procedure VerifySalespersonDeleted(SalespersonPurchaserCode: Code[20])
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+    begin
+        SalespersonPurchaser.SetRange(Code, SalespersonPurchaserCode);
+        Assert.RecordIsEmpty(SalespersonPurchaser);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmMessageHandler(Question: Text[1024]; var Reply: Boolean)
@@ -1597,6 +1703,19 @@ codeunit 136203 "Marketing Task Management"
         CreateInteraction."Interaction Template Code".SetValue(InteractionTemplate.Code);
         CreateInteraction.Description.SetValue(InteractionTemplate.Code);
         CreateInteraction.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalFormHandlerMakePhoneCallChangeDateTime(var MakePhoneCall: TestPage "Make Phone Call")
+    begin
+        // Modifying the "Time of Interaction" and Date we check mentioned fields on the page are editable
+        MakePhoneCall.Date.AssertEquals(Today);
+        MakePhoneCall."Time of Interaction".SetValue(Time);
+        MakePhoneCall.Date.SetValue(Today - 1);
+        LibraryVariableStorage.Enqueue(MakePhoneCall."Time of Interaction".AsTime);
+        LibraryVariableStorage.Enqueue(Today - 1);
+        MakePhoneCall.OK().Invoke();
     end;
 }
 

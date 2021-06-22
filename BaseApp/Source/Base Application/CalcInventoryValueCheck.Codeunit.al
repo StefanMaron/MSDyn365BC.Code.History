@@ -61,7 +61,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
                     if FindOpenOutboundEntry(Item2) then
                         if not TestMode then
                             Error(Text018, "No.");
-                    if not Adjusted(Item2) then
+                    if not CheckAdjusted(Item2) then
                         AddError(
                           StrSubstNo(Text007, "No."), DATABASE::Item, "No.", 0);
                 until Next = 0;
@@ -78,16 +78,23 @@ codeunit 5899 "Calc. Inventory Value-Check"
             until TempErrorBuf.Next = 0;
     end;
 
-    local procedure Adjusted(Item: Record Item): Boolean
+    local procedure CheckAdjusted(Item: Record Item): Boolean
     var
-        AvgCostAdjmt: Record "Avg. Cost Adjmt. Entry Point";
+        AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
+        IsAdjusted: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckAdjusted(Item, IsAdjusted, IsHandled);
+        if IsHandled then
+            exit(IsAdjusted);
+
         if Item."Costing Method" = Item."Costing Method"::Average then begin
-            AvgCostAdjmt.SetCurrentKey("Item No.", "Cost Is Adjusted");
-            AvgCostAdjmt.SetFilter("Item No.", Item."No.");
-            AvgCostAdjmt.SetRange("Cost Is Adjusted", false);
-            AvgCostAdjmt.SetRange("Valuation Date", 0D, PostingDate);
-            exit(AvgCostAdjmt.IsEmpty);
+            AvgCostAdjmtEntryPoint.SetCurrentKey("Item No.", "Cost Is Adjusted");
+            AvgCostAdjmtEntryPoint.SetFilter("Item No.", Item."No.");
+            AvgCostAdjmtEntryPoint.SetRange("Cost Is Adjusted", false);
+            AvgCostAdjmtEntryPoint.SetRange("Valuation Date", 0D, PostingDate);
+            exit(AvgCostAdjmtEntryPoint.IsEmpty);
         end;
         exit(true);
     end;
@@ -183,6 +190,11 @@ codeunit 5899 "Calc. Inventory Value-Check"
             TempErrorBuf.Insert;
         end else
             Error(Text);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAdjusted(Item: Record Item; var IsAdjusted: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

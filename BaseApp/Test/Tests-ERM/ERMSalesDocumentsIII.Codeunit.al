@@ -25,6 +25,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.', Comment = '.';
@@ -4134,6 +4135,72 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] No message appears
     end;
 
+    [Test]
+    [HandlerFunctions('ItemSubstitutionEntriesHandler')]
+    [Scope('OnPrem')]
+    procedure ItemSubstituionDoesntInsertExtTextWhenAutoExtTextIsFalse()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
+    begin
+        // [FEATURE] [Extended Text] [Item Substitution] [UT] [UI]
+        // [SCENARIO 328989] No extended text is added when item is substituted by item with "Automatic Ext. Texts" set to False.
+        Initialize;
+        LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId);
+
+        // [GIVEN] Item "I1" and it's substitution Item "I2" with Extended text and "Automatic Ext. Texts" set to False.
+        LibraryInventory.CreateItem(Item);
+        CreateItemSubstitutionWithExtendedText(Item."No.", false);
+
+        // [GIVEN] Sales Header with Sales Line with "I1".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [WHEN] Show Item Sub is called and suggested Item substitution is accepted.
+        SalesLine.ShowItemSub;
+
+        // [THEN] No extended text is added.
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::" ");
+        Assert.RecordIsEmpty(SalesLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemSubstitutionEntriesHandler')]
+    [Scope('OnPrem')]
+    procedure ItemSubstituionDoesntInsertExtTextWhenAutoExtTextIsTrue()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
+    begin
+        // [FEATURE] [Extended Text] [Item Substitution] [UT] [UI]
+        // [SCENARIO 328989] Extended text is added when item is substituted by item with "Automatic Ext. Texts" set to True.
+        Initialize;
+        LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId);
+
+        // [GIVEN] Item "I1" and it's substitution Item "I2" with Extended text and "Automatic Ext. Texts" set to True.
+        LibraryInventory.CreateItem(Item);
+        CreateItemSubstitutionWithExtendedText(Item."No.", true);
+
+        // [GIVEN] Sales Header with Sales Line with "I1".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [WHEN] Show Item Sub is called and suggested Item substitution is accepted.
+        SalesLine.ShowItemSub;
+
+        // [THEN] Extended text is added.
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::" ");
+        Assert.RecordIsNotEmpty(SalesLine);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -4255,6 +4322,18 @@ codeunit 134387 "ERM Sales Documents III"
         Item.Validate("Automatic Ext. Texts", AutoExtText);
         Item.Modify(true);
         exit(ExtendedTextHeader."No.");
+    end;
+
+    local procedure CreateItemSubstitutionWithExtendedText(ItemNo: Code[20]; AutoExtText: Boolean)
+    var
+        ItemSubstitution: Record "Item Substitution";
+    begin
+        ItemSubstitution.Init;
+        ItemSubstitution.Validate(Type, ItemSubstitution.Type::Item);
+        ItemSubstitution.Validate("No.", ItemNo);
+        ItemSubstitution.Validate("Substitute Type", ItemSubstitution."Substitute Type"::Item);
+        ItemSubstitution.Validate("Substitute No.", CreateItemAndExtendedText(AutoExtText));
+        ItemSubstitution.Insert;
     end;
 
     local procedure CreateItemTrackingCode(): Code[10]
@@ -5300,6 +5379,13 @@ codeunit 134387 "ERM Sales Documents III"
     procedure MessageCaptureHandler(Message: Text[1024])
     begin
         LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemSubstitutionEntriesHandler(var ItemSubstitutionEntries: TestPage "Item Substitution Entries")
+    begin
+        ItemSubstitutionEntries.OK.Invoke;
     end;
 
     [ModalPageHandler]

@@ -562,6 +562,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         Job: Record Job;
         JobTask: Record "Job Task";
         Item: Record Item;
+        Customer: Record Customer;
         JobJnlPostLine: Codeunit "Job Jnl.-Post Line";
         CurrencyFactor: Decimal;
         UnitPriceLCY: Decimal;
@@ -627,11 +628,15 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                     JobJnlLine.Validate("Unit Cost (LCY)", "Unit Cost (LCY)")
             end else
                 JobJnlLine.Validate("Unit Cost (LCY)", "Unit Cost (LCY)");
+
+            Currency.Initialize("Currency Code");
+            Customer.Get("Customer No.");
+            if Customer."Prices Including VAT" then
+                Validate("Unit Price", Round("Unit Price" / (1 + ("VAT %" / 100)), Currency."Unit-Amount Rounding Precision"));
+
             if "Currency Code" = Job."Currency Code" then
                 JobJnlLine.Validate("Unit Price", "Unit Price");
             if "Currency Code" <> '' then begin
-                Currency.Get("Currency Code");
-                Currency.TestField("Amount Rounding Precision");
                 CurrencyFactor := CurrExchRate.ExchangeRate("Posting Date", "Currency Code");
                 UnitPriceLCY :=
                   Round(CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", "Unit Price", CurrencyFactor),
@@ -639,6 +644,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                 JobJnlLine.Validate("Unit Price (LCY)", UnitPriceLCY);
             end else
                 JobJnlLine.Validate("Unit Price (LCY)", "Unit Price");
+
             JobJnlLine.Validate("Line Discount %", "Line Discount %");
             JobJnlLine."Job Planning Line No." := "Job Planning Line No.";
             JobJnlLine."Remaining Qty." := "Job Remaining Qty.";

@@ -65,8 +65,6 @@ codeunit 7307 "Whse.-Activity-Register"
         OldWhseActivLine: Record "Warehouse Activity Line";
         TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary;
         TempWhseActivityLineGrouped: Record "Warehouse Activity Line" temporary;
-        QtyDiff: Decimal;
-        QtyBaseDiff: Decimal;
         SkipDelete: Boolean;
     begin
         OnBeforeCode(WhseActivLine);
@@ -90,50 +88,20 @@ codeunit 7307 "Whse.-Activity-Register"
             // Register lines
             SourceCodeSetup.Get;
             LineCount := 0;
+            CreateRegActivHeader(WhseActivHeader);
+
+            TempWhseActivLineToReserve.DeleteAll;
+            TempWhseActivityLineGrouped.DeleteAll;
+
             WhseActivLine.LockTable;
-            if WhseActivLine.Find('-') then begin
-                CreateRegActivHeader(WhseActivHeader);
 
-                TempWhseActivLineToReserve.DeleteAll;
-                TempWhseActivityLineGrouped.DeleteAll;
+            // breakbulk first to provide quantity for pick lines in smaller UoM
+            WhseActivLine.SetFilter("Breakbulk No.", '<>0');
+            RegisterWhseActivityLines(WhseActivLine, TempWhseActivLineToReserve, TempWhseActivityLineGrouped);
 
-                repeat
-                    LineCount := LineCount + 1;
-                    UpdateWindow(3, '');
-                    UpdateWindow(4, '');
-                    if Location."Bin Mandatory" then
-                        RegisterWhseJnlLine(WhseActivLine);
-                    CreateRegActivLine(WhseActivLine);
-                    OnAfterCreateRegActivLine(WhseActivLine, RegisteredWhseActivLine, RegisteredInvtMovementLine);
-
-                    CopyWhseActivityLineToReservBuf(TempWhseActivLineToReserve, WhseActivLine);
-                    GroupWhseActivLinesByWhseDocAndSource(TempWhseActivityLineGrouped, WhseActivLine);
-
-                    if Type <> Type::Movement then
-                        RegisterWhseItemTrkgLine(WhseActivLine);
-                    OnAfterFindWhseActivLine(WhseActivLine);
-                    if WhseActivLine."Qty. Outstanding" = WhseActivLine."Qty. to Handle" then begin
-                        SkipDelete := false;
-                        OnBeforeWhseActivLineDelete(WhseActivLine, SkipDelete);
-                        if not SkipDelete then
-                            WhseActivLine.Delete;
-                    end else begin
-                        QtyDiff := WhseActivLine."Qty. Outstanding" - WhseActivLine."Qty. to Handle";
-                        QtyBaseDiff := WhseActivLine."Qty. Outstanding (Base)" - WhseActivLine."Qty. to Handle (Base)";
-                        WhseActivLine.Validate("Qty. Outstanding", QtyDiff);
-                        if WhseActivLine."Qty. Outstanding (Base)" > QtyBaseDiff then // round off error- qty same, not base qty
-                            WhseActivLine."Qty. Outstanding (Base)" := QtyBaseDiff;
-                        WhseActivLine.Validate("Qty. to Handle", QtyDiff);
-                        if WhseActivLine."Qty. to Handle (Base)" > QtyBaseDiff then // round off error- qty same, not base qty
-                            WhseActivLine."Qty. to Handle (Base)" := QtyBaseDiff;
-                        if HideDialog then
-                            WhseActivLine.Validate("Qty. to Handle", 0);
-                        WhseActivLine.Validate("Qty. Handled", WhseActivLine.Quantity - WhseActivLine."Qty. Outstanding");
-                        OnBeforeWhseActivLineModify(WhseActivLine);
-                        WhseActivLine.Modify;
-                    end;
-                until WhseActivLine.Next = 0;
-            end;
+            WhseActivLine.SetRange("Breakbulk No.", 0);
+            RegisterWhseActivityLines(WhseActivLine, TempWhseActivLineToReserve, TempWhseActivityLineGrouped);
+            WhseActivLine.SetRange("Breakbulk No.");
 
             TempWhseActivityLineGrouped.Reset;
             if TempWhseActivityLineGrouped.FindSet then
@@ -201,6 +169,55 @@ codeunit 7307 "Whse.-Activity-Register"
         end;
 
         OnAfterRegisterWhseActivity(WhseActivHeader);
+    end;
+
+    local procedure RegisterWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var TempWhseActivityLineGrouped: Record "Warehouse Activity Line" temporary)
+    var
+        QtyDiff: Decimal;
+        QtyBaseDiff: Decimal;
+        SkipDelete: Boolean;
+    begin
+        with WarehouseActivityLine do begin
+            if not FindSet then
+                exit;
+
+            repeat
+                LineCount := LineCount + 1;
+                UpdateWindow(3, '');
+                UpdateWindow(4, '');
+                if Location."Bin Mandatory" then
+                    RegisterWhseJnlLine(WarehouseActivityLine);
+                CreateRegActivLine(WarehouseActivityLine);
+                OnAfterCreateRegActivLine(WarehouseActivityLine, RegisteredWhseActivLine, RegisteredInvtMovementLine);
+
+                CopyWhseActivityLineToReservBuf(TempWhseActivLineToReserve, WarehouseActivityLine);
+                GroupWhseActivLinesByWhseDocAndSource(TempWhseActivityLineGrouped, WarehouseActivityLine);
+
+                if "Activity Type" <> "Activity Type"::Movement then
+                    RegisterWhseItemTrkgLine(WarehouseActivityLine);
+                OnAfterFindWhseActivLine(WarehouseActivityLine);
+                if "Qty. Outstanding" = "Qty. to Handle" then begin
+                    SkipDelete := false;
+                    OnBeforeWhseActivLineDelete(WarehouseActivityLine, SkipDelete);
+                    if not SkipDelete then
+                        Delete;
+                end else begin
+                    QtyDiff := "Qty. Outstanding" - "Qty. to Handle";
+                    QtyBaseDiff := "Qty. Outstanding (Base)" - "Qty. to Handle (Base)";
+                    Validate("Qty. Outstanding", QtyDiff);
+                    if "Qty. Outstanding (Base)" > QtyBaseDiff then // round off error- qty same, not base qty
+                        "Qty. Outstanding (Base)" := QtyBaseDiff;
+                    Validate("Qty. to Handle", QtyDiff);
+                    if "Qty. to Handle (Base)" > QtyBaseDiff then // round off error- qty same, not base qty
+                        "Qty. to Handle (Base)" := QtyBaseDiff;
+                    if HideDialog then
+                        Validate("Qty. to Handle", 0);
+                    Validate("Qty. Handled", Quantity - "Qty. Outstanding");
+                    OnBeforeWhseActivLineModify(WarehouseActivityLine);
+                    Modify;
+                end;
+            until Next = 0;
+        end;
     end;
 
     local procedure RegisterWhseJnlLine(WhseActivLine: Record "Warehouse Activity Line")
@@ -369,12 +386,17 @@ codeunit 7307 "Whse.-Activity-Register"
     procedure UpdateWhseSourceDocLine(WhseActivLine: Record "Warehouse Activity Line")
     var
         WhseDocType2: Option;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateWhseSourceDocLine(WhseActivLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseActivLine do begin
             if "Original Breakbulk" then
                 exit;
 
-            OnBeforeUpdateWhseSourceDocLine(WhseActivLine);
             if ("Whse. Document Type" = "Whse. Document Type"::Shipment) and "Assemble to Order" then
                 WhseDocType2 := "Whse. Document Type"::Assembly
             else
@@ -411,7 +433,13 @@ codeunit 7307 "Whse.-Activity-Register"
     var
         WhsePutAwayRqst: Record "Whse. Put-away Request";
         WhsePickRqst: Record "Whse. Pick Request";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateWhseDocHeader(WhseActivLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseActivLine do
             case "Whse. Document Type" of
                 "Whse. Document Type"::Shipment:
@@ -1078,13 +1106,20 @@ codeunit 7307 "Whse.-Activity-Register"
         WhseActivLine2: Record "Warehouse Activity Line";
         QtyBase: Decimal;
         WhseDocType2: Option;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSourceLineQtyBase(WhseActivLine, QtyBase, IsHandled);
+        if IsHandled then
+            exit(QtyBase);
+
         if (WhseActivLine."Whse. Document Type" = WhseActivLine."Whse. Document Type"::Shipment) and
            WhseActivLine."Assemble to Order"
         then
             WhseDocType2 := WhseActivLine."Whse. Document Type"::Assembly
         else
             WhseDocType2 := WhseActivLine."Whse. Document Type";
+
         case WhseDocType2 of
             WhseActivLine."Whse. Document Type"::Receipt:
                 if WhsePostedRcptLine.Get(
@@ -1142,6 +1177,7 @@ codeunit 7307 "Whse.-Activity-Register"
                         exit(AssemblyLine."Quantity (Base)");
                 WhseActivLine."Source Document"::" ":
                     begin
+                        QtyBase := 0;
                         WhseActivLine2.SetCurrentKey("No.", "Line No.", "Activity Type");
                         WhseActivLine2.SetRange("Activity Type", WhseActivLine."Activity Type");
                         WhseActivLine2.SetRange("No.", WhseActivLine."No.");
@@ -1613,7 +1649,14 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     local procedure UpdateSourceDocForInvtMovement(WhseActivityLine: Record "Warehouse Activity Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateSourceDocForInvtMovement(WhseActivityLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if (WhseActivityLine."Action Type" = WhseActivityLine."Action Type"::Take) or
            (WhseActivityLine."Source Document" = WhseActivityLine."Source Document"::" ")
         then
@@ -1988,6 +2031,11 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSourceLineQtyBase(var WarehouseActivityLine: Record "Warehouse Activity Line"; var QtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseActivLineModify(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -2003,7 +2051,17 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateWhseSourceDocLine(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnBeforeUpdateSourceDocForInvtMovement(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWhseDocHeader(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWhseSourceDocLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 

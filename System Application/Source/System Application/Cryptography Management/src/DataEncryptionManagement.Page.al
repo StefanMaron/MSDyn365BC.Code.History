@@ -3,6 +3,10 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
+/// <summary>
+/// Exposes functionality that allows super users for on-premises versions to enable or disable encryption, import, export or change the encryption key.
+/// </summary>
+
 page 9905 "Data Encryption Management"
 {
     Extensible = false;
@@ -161,4 +165,3 @@ page 9905 "Data Encryption Management"
         ChangeKeyActionEnabled := EncryptionKeyExistsState;
     end;
 }
-

@@ -1,6 +1,6 @@
 page 470 "VAT Business Posting Groups"
 {
-    ApplicationArea = VAT;
+    ApplicationArea = Basic, Suite;
     Caption = 'VAT Business Posting Groups';
     PageType = List;
     SourceTable = "VAT Business Posting Group";
@@ -46,7 +46,7 @@ page 470 "VAT Business Posting Groups"
         {
             action("&Setup")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = '&Setup';
                 Image = Setup;
                 Promoted = true;

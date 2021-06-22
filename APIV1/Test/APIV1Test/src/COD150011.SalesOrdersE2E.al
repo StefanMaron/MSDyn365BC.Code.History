@@ -79,6 +79,7 @@ codeunit 150011 "APIV1 - Sales Orders E2E"
         LibrarySales: Codeunit "Library - Sales";
         CustomerNo: Text;
         OrderDate: Date;
+        PostingDate: Date;
         ResponseText: Text;
         OrderNumber: Text;
         TargetURL: Text;
@@ -93,9 +94,10 @@ codeunit 150011 "APIV1 - Sales Orders E2E"
         LibrarySales.CreateCustomerWithAddress(ShipToCustomer);
         CustomerNo := SellToCustomer."No.";
         OrderDate := Today();
+        PostingDate := Today();
 
         // [GIVEN] a JSON text with an order that contains the customer and an adress as complex type
-        OrderWithComplexJSON := CreateOrderJSONWithAddress(SellToCustomer, BillToCustomer, ShipToCustomer, OrderDate);
+        OrderWithComplexJSON := CreateOrderJSONWithAddress(SellToCustomer, BillToCustomer, ShipToCustomer, OrderDate, PostingDate);
         Commit();
 
         // [WHEN] we POST the JSON to the web service
@@ -112,6 +114,7 @@ codeunit 150011 "APIV1 - Sales Orders E2E"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
         SalesHeader.SetRange("Document Date", OrderDate);
+        SalesHeader.SetRange("Posting Date", PostingDate);
         Assert.IsTrue(SalesHeader.FindFirst(), 'The order should exist');
         Assert.AreEqual('', SalesHeader."Currency Code", 'The order should have the LCY currency code set by default');
 
@@ -347,6 +350,7 @@ codeunit 150011 "APIV1 - Sales Orders E2E"
         SalesOrder: TestPage 42;
         CustomerNo: Text;
         OrderDate: Date;
+        PostingDate: Date;
         ResponseText: Text;
         TargetURL: Text;
         OrderWithComplexJSON: Text;
@@ -359,22 +363,24 @@ codeunit 150011 "APIV1 - Sales Orders E2E"
         LibrarySales.CreateCustomer(Customer);
         CustomerNo := Customer."No.";
         OrderDate := Today();
+        PostingDate := Today();
 
         // [GIVEN] a json describing our new order
-        OrderWithComplexJSON := CreateOrderJSONWithAddress(Customer, Customer, Customer, OrderDate);
+        OrderWithComplexJSON := CreateOrderJSONWithAddress(Customer, Customer, Customer, OrderDate, PostingDate);
         Commit();
 
         // [WHEN] we POST the JSON to the web service and create another order through the test page
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"APIV1 - Sales Orders", OrderServiceNameTxt);
         LibraryGraphMgt.PostToWebService(TargetURL, OrderWithComplexJSON, ResponseText);
 
-        CreateOrderThroughTestPage(SalesOrder, Customer, OrderDate);
+        CreateOrderThroughTestPage(SalesOrder, Customer, OrderDate, OrderDate);
 
         // [THEN] the order should exist in the table and match the order created from the page
         ApiSalesHeader.Reset();
         ApiSalesHeader.SetRange("Document Type", ApiSalesHeader."Document Type"::Order);
         ApiSalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
         ApiSalesHeader.SetRange("Document Date", OrderDate);
+        ApiSalesHeader.SetRange("Posting Date", PostingDate);
         Assert.IsTrue(ApiSalesHeader.FindFirst(), 'The order should exist');
 
         // Ignore these fields when comparing Page and API Orders
@@ -723,7 +729,7 @@ codeunit 150011 "APIV1 - Sales Orders E2E"
         Assert.AreEqual(SalesInvoiceEntityAggregate.Status::Open, SalesInvoiceEntityAggregate.Status, InvoiceStatusErr);
     end;
 
-    local procedure CreateOrderJSONWithAddress(SellToCustomer: Record "Customer"; BillToCustomer: Record "Customer"; ShipToCustomer: Record "Customer"; OrderDate: Date): Text
+    local procedure CreateOrderJSONWithAddress(SellToCustomer: Record "Customer"; BillToCustomer: Record "Customer"; ShipToCustomer: Record "Customer"; OrderDate: Date; PostingDate: Date): Text
     var
         LibraryGraphMgt: Codeunit "Library - Graph Mgt";
         OrderJSON: Text;
@@ -733,6 +739,7 @@ codeunit 150011 "APIV1 - Sales Orders E2E"
     begin
         OrderJSON := LibraryGraphMgt.AddPropertytoJSON('', 'customerNumber', SellToCustomer."No.");
         OrderJSON := LibraryGraphMgt.AddPropertytoJSON(OrderJSON, 'orderDate', OrderDate);
+        OrderJSON := LibraryGraphMgt.AddPropertytoJSON(OrderJSON, 'postingDate', PostingDate);
         OrderJSON := LibraryGraphMgt.AddPropertytoJSON(OrderJSON, 'billToCustomerNumber', BillToCustomer."No.");
 
         OrderWithComplexJSON := OrderJSON;
@@ -743,11 +750,12 @@ codeunit 150011 "APIV1 - Sales Orders E2E"
         exit(OrderWithComplexJSON);
     end;
 
-    local procedure CreateOrderThroughTestPage(var SalesOrder: TestPage 42; Customer: Record "Customer"; DocumentDate: Date)
+    local procedure CreateOrderThroughTestPage(var SalesOrder: TestPage 42; Customer: Record "Customer"; DocumentDate: Date; PostingDate: Date)
     begin
         SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(Customer."No.");
         SalesOrder."Document Date".SetValue(DocumentDate);
+        SalesOrder."Posting Date".SetValue(PostingDate);
     end;
 
     local procedure GetFirstSalesOrderLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")

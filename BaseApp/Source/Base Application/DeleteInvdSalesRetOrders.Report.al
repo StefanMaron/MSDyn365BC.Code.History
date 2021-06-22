@@ -18,7 +18,6 @@ report 6651 "Delete Invd Sales Ret. Orders"
             var
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                 PostSalesDelete: Codeunit "PostSales-Delete";
-                ArchiveManagement: Codeunit ArchiveManagement;
             begin
                 Window.Update(1, "No.");
 
@@ -33,6 +32,7 @@ report 6651 "Delete Invd Sales Ret. Orders"
                 if SalesOrderLine.Find('-') then begin
                     SalesOrderLine.SetRange("Quantity Invoiced");
                     SalesOrderLine.SetFilter("Outstanding Quantity", '<>0');
+                    OnAfterSetSalesLineFilters(SalesOrderLine);
                     if not SalesOrderLine.Find('-') then begin
                         SalesOrderLine.SetRange("Outstanding Quantity");
                         SalesOrderLine.SetFilter("Return Qty. Rcd. Not Invd.", '<>0');
@@ -125,8 +125,14 @@ report 6651 "Delete Invd Sales Ret. Orders"
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
         WhseRequest: Record "Warehouse Request";
         ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        ArchiveManagement: Codeunit ArchiveManagement;
         Window: Dialog;
         AllLinesDeleted: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteSalesOrderHeader(var SalesHeader: Record "Sales Header")

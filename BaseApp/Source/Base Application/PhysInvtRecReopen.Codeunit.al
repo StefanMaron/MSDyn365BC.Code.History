@@ -7,6 +7,8 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
         PhysInvtRecordHeader.Copy(Rec);
         Code;
         Rec := PhysInvtRecordHeader;
+
+        OnAfterOnRun(Rec);
     end;
 
     var
@@ -46,6 +48,7 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
                         PhysInvtOrderLine."Qty. Recorded (Base)" -= PhysInvtRecordLine."Quantity (Base)";
                         PhysInvtOrderLine."No. Finished Rec.-Lines" -= 1;
                         PhysInvtOrderLine."On Recording Lines" := PhysInvtOrderLine."No. Finished Rec.-Lines" <> 0;
+                        OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine, PhysInvtRecordLine);
                         PhysInvtOrderLine.Modify;
 
                         PhysInvtRecordLine."Order Line No." := 0;
@@ -57,6 +60,16 @@ codeunit 5878 "Phys. Invt. Rec.-Reopen"
             Status := Status::Open;
             Modify;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnRun(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    begin
     end;
 }
 

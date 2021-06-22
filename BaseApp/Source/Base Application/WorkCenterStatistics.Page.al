@@ -19,11 +19,10 @@ page 99000756 "Work Center Statistics"
                     group("This Period")
                     {
                         Caption = 'This Period';
-                        field("WorkCtrDateName[1]"; WorkCtrDateName[1])
+                        field("WorkCtrDateName[1]"; '')
                         {
                             ApplicationArea = Manufacturing;
-                            Caption = 'Expected';
-                            ToolTip = 'Specifies the overall expected number for the period.';
+                            Caption = 'EXPECTED';
                         }
                         field("WorkCtrCapacity[1]"; WorkCtrCapacity[1])
                         {
@@ -53,6 +52,11 @@ page 99000756 "Work Center Statistics"
                             DecimalPlaces = 0 : 5;
                             ToolTip = 'Specifies the total costs of this work center that are planned for the period in question.';
                         }
+                        field("WorkCtrActualThisPeriod"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = 'ACTUAL';
+                        }
                         field("WorkCtrActNeed[1]"; WorkCtrActNeed[1])
                         {
                             ApplicationArea = Manufacturing;
@@ -78,6 +82,11 @@ page 99000756 "Work Center Statistics"
                     group("This Year")
                     {
                         Caption = 'This Year';
+                        field("WorkCtrExpectedThisYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrCapacity[2]"; WorkCtrCapacity[2])
                         {
                             ApplicationArea = Manufacturing;
@@ -103,6 +112,11 @@ page 99000756 "Work Center Statistics"
                             DecimalPlaces = 0 : 5;
                             ShowCaption = false;
                         }
+                        field("WorkCtrActualThisYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrActNeed[2]"; WorkCtrActNeed[2])
                         {
                             ApplicationArea = Manufacturing;
@@ -125,6 +139,11 @@ page 99000756 "Work Center Statistics"
                     group("Last Year")
                     {
                         Caption = 'Last Year';
+                        field("WorkCtrExpectedLastYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrCapacity[3]"; WorkCtrCapacity[3])
                         {
                             ApplicationArea = Manufacturing;
@@ -150,6 +169,11 @@ page 99000756 "Work Center Statistics"
                             DecimalPlaces = 0 : 5;
                             ShowCaption = false;
                         }
+                        field("WorkCtrActualLastYear"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrActNeed[3]"; WorkCtrActNeed[3])
                         {
                             ApplicationArea = Manufacturing;
@@ -172,6 +196,11 @@ page 99000756 "Work Center Statistics"
                     group(Total)
                     {
                         Caption = 'Total';
+                        field("WorkCtrExpectedTotal"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
+                        }
                         field("WorkCtrCapacity[4]"; WorkCtrCapacity[4])
                         {
                             ApplicationArea = Manufacturing;
@@ -196,6 +225,11 @@ page 99000756 "Work Center Statistics"
                             ApplicationArea = Manufacturing;
                             DecimalPlaces = 0 : 5;
                             ShowCaption = false;
+                        }
+                        field("WorkCtrActualTotal"; '')
+                        {
+                            ApplicationArea = Manufacturing;
+                            Caption = '';
                         }
                         field("WorkCtrActNeed[4]"; WorkCtrActNeed[4])
                         {

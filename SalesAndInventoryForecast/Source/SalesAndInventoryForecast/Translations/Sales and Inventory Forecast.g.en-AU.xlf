@@ -221,7 +221,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2836764293 - NamedType 2569145044" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to initialize the forecast method. Please, contact your system administrator.</source>
-          <target>Failed to initialize the forecast method. Please, contact your system administrator.</target>
+          <target>Failed to initialise the forecast method. Please, contact your system administrator.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType FailedTimeSeriesInitializationErr</note>
         </trans-unit>

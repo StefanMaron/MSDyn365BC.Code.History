@@ -29,6 +29,10 @@ codeunit 137929 "SCM Orders UI"
         ConfirmChangeMsg: Label 'Do you want to change';
         ResetItemChargeAssignMsg: Label 'The amount of the item charge assignment will be reset to 0.';
         WhseRequiredErr: Label 'Warehouse %1 is required for this line. The entered information may be disregarded by warehouse activities.';
+        ItemTrackingMode: Option SetLotAndQty,OpenItemTrackingSummary,OpenItemTrackingSummaryTwice;
+        CannotValidateSelectedQtyErr: Label 'You cannot select more than %1 units.';
+        DialogCodeErr: Label 'Dialog';
+        WrongSelectedQuantityMsg: Label 'Wrong Selected Quantity';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler,ReservationPageHandler,ItemTrackingListPageHandler,ConfirmHandler')]
@@ -336,27 +340,28 @@ codeunit 137929 "SCM Orders UI"
         WarehouseShipment: TestPage "Warehouse Shipment";
     begin
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Shipment]
-        // [SCENARIO 317618] When Stan pushes Autofill Qty. to Ship on <blank> Warehouse Shipment page then other Whse Shipments are not affected
-        // [SCENARIO 317618] when Warehouse Shipment is opened from Whse Shipment Lines Page and Whse Employee has <blank> location
+        // [SCENARIO 317618] When Stan pushes Autofill Qty. to Ship on Warehouse Shipment page then other Whse Shipments are not affected
+        // [SCENARIO 317618] when Warehouse Shipment is opened from Whse Shipment Lines Page and Whse Employee has location
         Initialize;
 
         // [GIVEN] Warehouse Shipment Line "L1" with Qty. Outstanding = 10 and Qty to Ship = <zero>
         MockWhseShipmentLineWithQtyToShip(WarehouseShipmentLine, LibraryRandom.RandInt(10), 0);
 
-        // [GIVEN] Warehouse Employee with <blank> Location
-        WarehouseEmployee.DeleteAll;
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, '', false);
-
         // [GIVEN] Released Sales Order for other Location with Require Shipment enabled and created Warehouse Shipment
         LibraryWarehouse.CreateLocation(Location);
         Location.Validate("Require Shipment", true);
         Location.Modify(true);
+
+        // [GIVEN] Warehouse Employee with Location
+        WarehouseEmployee.DeleteAll;
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
         CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
         // [GIVEN] Stan opened Whse. Shipment Lines page, selected Line "L2" and pushed "Show Whse. Document" on page ribbon
-        // [GIVEN] Warehouse Shipment page opened showing <blank> Card
+        // [GIVEN] Warehouse Shipment page opened showing Card
         WarehouseShipment.Trap;
         WhseShipmentLines.OpenEdit;
         WhseShipmentLines.FILTER.SetFilter(
@@ -385,22 +390,23 @@ codeunit 137929 "SCM Orders UI"
         QtyToShip: Decimal;
     begin
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Shipment]
-        // [SCENARIO 317618] When Stan pushes Delete Qty. to Ship on <blank> Warehouse Shipment page then other Whse Shipments are not affected
-        // [SCENARIO 317618] when Warehouse Shipment is opened from Whse Shipment Lines Page and Whse Employee has <blank> location
+        // [SCENARIO 317618] When Stan pushes Delete Qty. to Ship on Warehouse Shipment page then other Whse Shipments are not affected
+        // [SCENARIO 317618] when Warehouse Shipment is opened from Whse Shipment Lines Page and Whse Employee has location
         Initialize;
         QtyToShip := LibraryRandom.RandInt(10);
 
         // [GIVEN] Warehouse Shipment Line "L1" with Qty. Outstanding = Qty. to Ship = 10
         MockWhseShipmentLineWithQtyToShip(WarehouseShipmentLine, QtyToShip, QtyToShip);
 
-        // [GIVEN] Warehouse Employee with <blank> Location
-        WarehouseEmployee.DeleteAll;
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, '', false);
-
         // [GIVEN] Released Sales Order for other Location with Require Shipment enabled and created Warehouse Shipment
         LibraryWarehouse.CreateLocation(Location);
         Location.Validate("Require Shipment", true);
         Location.Modify(true);
+
+        // [GIVEN] Warehouse Employee with Location
+        WarehouseEmployee.DeleteAll;
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
         CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
@@ -434,27 +440,28 @@ codeunit 137929 "SCM Orders UI"
         WarehouseReceipt: TestPage "Warehouse Receipt";
     begin
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Receipt]
-        // [SCENARIO 317618] When Stan pushes Autofill Qty. to Receive on <blank> Warehouse Receipt page then other Whse Receipts are not affected
-        // [SCENARIO 317618] when Warehouse Receipt is opened from Whse Receipt Lines Page and Whse Employee has <blank> location
+        // [SCENARIO 317618] When Stan pushes Autofill Qty. to Receive on Warehouse Receipt page then other Whse Receipts are not affected
+        // [SCENARIO 317618] when Warehouse Receipt is opened from Whse Receipt Lines Page and Whse Employee has location
         Initialize;
 
         // [GIVEN] Warehouse Receipt Line "L1" with Qty. Outstanding = 10 and Qty to Receive = <zero>
         MockWhseReceiptLineWithQtyToReceive(WarehouseReceiptLine, LibraryRandom.RandInt(10), 0);
 
-        // [GIVEN] Warehouse Employee with <blank> Location
-        WarehouseEmployee.DeleteAll;
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, '', false);
-
         // [GIVEN] Released Sales Order for other Location with Require Receive enabled and created Warehouse Receipt
         LibraryWarehouse.CreateLocation(Location);
         Location.Validate("Require Receive", true);
         Location.Modify(true);
+
+        // [GIVEN] Warehouse Employee with Location
+        WarehouseEmployee.DeleteAll;
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
         CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
 
         // [GIVEN] Stan opened Whse. Receipt Lines page, selected Line "L2" and pushed "Show Whse. Document" on page ribbon
-        // [GIVEN] Warehouse Receipt page opened showing <blank> Card
+        // [GIVEN] Warehouse Receipt page opened showing Card
         WarehouseReceipt.Trap;
         WhseReceiptLines.OpenEdit;
         WhseReceiptLines.FILTER.SetFilter(
@@ -484,28 +491,29 @@ codeunit 137929 "SCM Orders UI"
         QtyToReceive: Decimal;
     begin
         // [FEATURE] [UI] [Autofill Qty. to Handle] [Warehouse] [Receipt]
-        // [SCENARIO 317618] When Stan pushes Delete Qty. to Receive on <blank> Warehouse Receipt page then other Whse Receipts are not affected
-        // [SCENARIO 317618] when Warehouse Receipt is opened from Whse Receipt Lines Page and Whse Employee has <blank> location
+        // [SCENARIO 317618] When Stan pushes Delete Qty. to Receive on Warehouse Receipt page then other Whse Receipts are not affected
+        // [SCENARIO 317618] when Warehouse Receipt is opened from Whse Receipt Lines Page and Whse Employee has location
         Initialize;
         QtyToReceive := LibraryRandom.RandInt(10);
 
         // [GIVEN] Warehouse Receipt Line "L1" with Qty. Outstanding = Qty to Receive = 10
         MockWhseReceiptLineWithQtyToReceive(WarehouseReceiptLine, QtyToReceive, QtyToReceive);
 
-        // [GIVEN] Warehouse Employee with <blank> Location
-        WarehouseEmployee.DeleteAll;
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, '', false);
-
         // [GIVEN] Released Sales Order for other Location with Require Receive enabled and created Warehouse Receipt
         LibraryWarehouse.CreateLocation(Location);
         Location.Validate("Require Receive", true);
         Location.Modify(true);
+
+        // [GIVEN] Warehouse Employee with Location
+        WarehouseEmployee.DeleteAll;
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
         CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
 
         // [GIVEN] Stan opened Whse. Receipt Lines page, selected Line "L2" and pushed "Show Whse. Document" on page ribbon
-        // [GIVEN] Warehouse Receipt page opened showing <blank> Card
+        // [GIVEN] Warehouse Receipt page opened showing Card
         WarehouseReceipt.Trap;
         WhseReceiptLines.OpenEdit;
         WhseReceiptLines.FILTER.SetFilter(
@@ -746,47 +754,221 @@ codeunit 137929 "SCM Orders UI"
     [Scope('OnPrem')]
     procedure BomStructureItemFilterWhenCalledFromItemList();
     VAR
-      ProductionBOMHeader: Record "Production BOM Header";
-      ProductionBOMLine: Record "Production BOM Line";
-      Item: array[2] of Record Item;
-      ItemList: TestPage "Item List";
-      BOMStructure: TestPage "BOM Structure";
-      Index: Integer;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        Item: array[2] of Record Item;
+        ItemList: TestPage "Item List";
+        BOMStructure: TestPage "BOM Structure";
+        Index: Integer;
     BEGIN
-      // [FEATURE] [Item] [BOM Structure]
-      // [SCENARIO 319980] When BOM Structure is opened from filtered Item List, these filters do not impact BOM Structure.
-      Initialize;
+        // [FEATURE] [Item] [BOM Structure]
+        // [SCENARIO 319980] When BOM Structure is opened from filtered Item List, these filters do not impact BOM Structure.
+        Initialize;
 
-      // [GIVEN] Items "I1" had Description "X", Item "I2" had Description "Y", both had Production BOMs
-      for Index := 1 to ArrayLen(Item) do begin
-        LibraryInventory.CreateItem(Item[Index]);
-        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[Index]."Base Unit of Measure");
-        LibraryManufacturing.CreateProductionBOMLine(
-          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, LibraryInventory.CreateItemNo,
-          LibraryRandom.RandInt(10));
-        Item[Index].Validate("Production BOM No.", ProductionBOMHeader."No.");
-        Item[Index].Validate(Description, LibraryUtility.GenerateGUID);
-        Item[Index].Modify(true);
-      end;
+        // [GIVEN] Items "I1" had Description "X", Item "I2" had Description "Y", both had Production BOMs
+        for Index := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[Index]);
+            LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[Index]."Base Unit of Measure");
+            LibraryManufacturing.CreateProductionBOMLine(
+              ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, LibraryInventory.CreateItemNo,
+              LibraryRandom.RandInt(10));
+            Item[Index].Validate("Production BOM No.", ProductionBOMHeader."No.");
+            Item[Index].Validate(Description, LibraryUtility.GenerateGUID);
+            Item[Index].Modify(true);
+        end;
 
-      // [GIVEN] Stan opened page Item List filtered by Description "X"
-      ItemList.OpenEdit;
-      ItemList.FILTER.SetFilter(Description, Item[1].Description);
-      ItemList.First;
+        // [GIVEN] Stan opened page Item List filtered by Description "X"
+        ItemList.OpenEdit;
+        ItemList.FILTER.SetFilter(Description, Item[1].Description);
+        ItemList.First;
 
-      // [GIVEN] Stan opened page BOM Structure for Item "I1"
-      BOMStructure.Trap;
-      ItemList.Structure.Invoke;
+        // [GIVEN] Stan opened page BOM Structure for Item "I1"
+        BOMStructure.Trap;
+        ItemList.Structure.Invoke;
 
-      // [WHEN] Stan changes Item Filter to "I3" on page BOM Structure
-      BOMStructure.ItemFilter.SetValue(Item[2]."No.");
+        // [WHEN] Stan changes Item Filter to "I3" on page BOM Structure
+        BOMStructure.ItemFilter.SetValue(Item[2]."No.");
 
-      // [THEN] BOM for Item "I3" is shown
-      BOMStructure.First;
-      BOMStructure."No.".AssertEquals(Item[2]."No.");
-      BOMStructure.Description.AssertEquals(Item[2].Description);
+        // [THEN] BOM for Item "I3" is shown
+        BOMStructure.First;
+        BOMStructure."No.".AssertEquals(Item[2]."No.");
+        BOMStructure.Description.AssertEquals(Item[2].Description);
     END;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandlerWithMultipleUIAction,ItemTrackingSummaryModalPageHandlerWithUpdateSelectedQuantity')]
+    [Scope('OnPrem')]
+    procedure SelectEntriesSelectedQtyWhenSelectAfterSomeQtyRequested()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Bin: Record Bin;
+        LotNo: Code[50];
+        Index: Integer;
+        BaseQty: Integer;
+        NumberOfBins: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Bin] [Select Entries]
+        // [SCENARIO 322926] When Stan selected quantity on Item Tracking Summary page, closed and reopened Item Tracking
+        // [SCENARIO 322926] and reopened Item Tracking Summary, then residual quantity is suggested to select in Selected Quantity tab
+        LotNo := LibraryUtility.GenerateGUID;
+        BaseQty := LibraryRandom.RandInt(10);
+        NumberOfBins := 2;
+        Initialize;
+
+        // [GIVEN] Item with Lot Tracking Enabled
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Location with Bins B1 and B2
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', NumberOfBins, false);
+
+        // [GIVEN] Positive Adjustment for 99 PCS of the Item stored in Bin B1 with Lot
+        // [GIVEN] Positive Adjustment for 200 PCS of the Item stored in Bin B2 with the same Lot
+        for Index := 1 to NumberOfBins do begin
+            LibraryWarehouse.FindBin(Bin, Location.Code, '', Index);
+            LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin.Code, 3 * BaseQty * Index);
+            LibraryVariableStorage.Enqueue(ItemTrackingMode::SetLotAndQty);
+            LibraryVariableStorage.Enqueue(LotNo);
+            LibraryVariableStorage.Enqueue(ItemJournalLine.Quantity);
+            ItemJournalLine.OpenItemTrackingLines(false);
+            LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        end;
+
+        // [GIVEN] Negative Adjustment Item Journal Line for 299 PCS and Bin B1
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin.Code, -BaseQty * 9);
+
+        // [GIVEN] Stan opened page Item Tracking Lines
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::OpenItemTrackingSummary);
+        LibraryVariableStorage.Enqueue(BaseQty);
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        // [GIVEN] Stan pushed Select Entries on the page ribbon (Item Tracking Summary page opened showing Selected Quantity 99)
+        // done in ItemTrackingLinesModalPageHandlerWithMultipleAction
+        Assert.AreEqual(BaseQty * 3, LibraryVariableStorage.DequeueInteger, WrongSelectedQuantityMsg);
+
+        // [GIVEN] Stan specified Selected Quantity = 33 on page Item Tracking Summary and pushed OK
+        // done in ItemTrackingSummaryModalPageHandlerWithUpdateSelectedQuantity
+
+        // [GIVEN] Stan reopened page Item Tracking Lines
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::OpenItemTrackingSummary);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(BaseQty * 2));
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        // [WHEN] Stan pushes Select Entries on the page again
+        // done in ItemTrackingLinesModalPageHandlerWithMultipleAction
+
+        // [THEN] Item Tracking Summary page opens showing Selected Quantity 66
+        Assert.AreEqual(BaseQty * 2, LibraryVariableStorage.DequeueInteger, WrongSelectedQuantityMsg);
+        LibraryVariableStorage.AssertEmpty;
+
+        // Tear Down
+        ItemJournalLine.Delete;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandlerWithMultipleUIAction,ItemTrackingSummaryModalPageHandlerWithUpdateSelectedQuantity')]
+    [Scope('OnPrem')]
+    procedure SelectEntriesSelectedQtyWhenSelectTwiceSequently()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Bin: Record Bin;
+        LotNo: Code[50];
+        Index: Integer;
+        BaseQty: Integer;
+        NumberOfBins: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Bin] [Select Entries]
+        // [SCENARIO 322926] When Stan selected quantity on Item Tracking Summary page and reopened page
+        // [SCENARIO 322926] then residual quantity is suggested for selection in the Selected Quantity field
+        LotNo := LibraryUtility.GenerateGUID;
+        BaseQty := LibraryRandom.RandInt(10);
+        NumberOfBins := 2;
+        Initialize;
+
+        // [GIVEN] Item with Lot Tracking Enabled
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Location with Bins B1 and B2
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', NumberOfBins, false);
+
+        // [GIVEN] Positive Adjustment for 99 PCS of the Item stored in Bin B1 with Lot
+        // [GIVEN] Positive Adjustment for 200 PCS of the Item stored in Bin B2 with the same Lot
+        for Index := 1 to NumberOfBins do begin
+            LibraryWarehouse.FindBin(Bin, Location.Code, '', Index);
+            LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin.Code, 3 * BaseQty * Index);
+            LibraryVariableStorage.Enqueue(ItemTrackingMode::SetLotAndQty);
+            LibraryVariableStorage.Enqueue(LotNo);
+            LibraryVariableStorage.Enqueue(ItemJournalLine."Quantity (Base)");
+            ItemJournalLine.OpenItemTrackingLines(false);
+            LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        end;
+
+        // [GIVEN] Negative Adjustment Item Journal Line for 299 PCS and Bin B1
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin.Code, -BaseQty * 9);
+
+        // [GIVEN] Stan opened page Item Tracking Lines
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::OpenItemTrackingSummaryTwice);
+        LibraryVariableStorage.Enqueue(BaseQty);
+        LibraryVariableStorage.Enqueue(BaseQty * 2);
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        // [GIVEN] Stan pushed Select Entries on the page ribbon (Item Tracking Summary page opened showing Selected Quantity 99)
+        // done in ItemTrackingLinesModalPageHandlerWithMultipleAction
+
+        // [GIVEN] Stan specified Selected Quantity = 33 on page Item Tracking Summary and pushed OK
+        // done in ItemTrackingSummaryModalPageHandlerWithUpdateSelectedQuantity
+
+        // [WHEN] Stan pushes Select Entries on the page again
+        // done in ItemTrackingLinesModalPageHandlerWithMultipleAction
+
+        // [THEN] Item Tracking Summary page opens showing Selected Quantity 66
+        Assert.AreEqual(BaseQty * 2, LibraryVariableStorage.DequeueInteger, WrongSelectedQuantityMsg);
+        LibraryVariableStorage.AssertEmpty;
+
+        // Tear Down
+        ItemJournalLine.Delete;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorWhenSelectedQtyMoreThanBinContentWithoutPendingQtys()
+    var
+        EntrySummary: Record "Entry Summary";
+    begin
+        // [FEATURE] [UT] [Bin] [Select Entries]
+        // [SCENARIO 322926] Cannot Validate Selected Quantity more than Bin Content excluding current pending qtys in Entry Summary
+        Initialize;
+
+        // [GIVEN] Entry Summary had Bin Content 100 and Bin Active and Total Available Quantity 200
+        // [GIVEN] Entry Summary had Current Pending Quantity 50 and Current Requested Quantity 30
+        with EntrySummary do begin
+            Init;
+            Validate("Bin Active", true);
+            Validate("Bin Content", 2 * LibraryRandom.RandInt(10));
+            Validate("Current Pending Quantity", "Bin Content" / 2);
+            Validate("Current Requested Quantity", "Bin Content" / 4);
+            Validate("Total Available Quantity", "Bin Content" * 2);
+
+            // [WHEN] Validate Selected Quantity = 101
+            asserterror Validate("Selected Quantity", "Bin Content" + 1);
+
+            // [THEN] Error 'You cannot select more than 20 units.'
+            Assert.ExpectedError(
+              StrSubstNo(CannotValidateSelectedQtyErr, "Bin Content" - "Current Pending Quantity" - "Current Requested Quantity"));
+            Assert.ExpectedErrorCode(DialogCodeErr);
+        end;
+    end;
 
     local procedure Initialize()
     begin
@@ -992,6 +1174,46 @@ codeunit 137929 "SCM Orders UI"
     begin
         LibraryVariableStorage.Enqueue(ConfirmMessage);
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesModalPageHandlerWithMultipleUIAction(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        Qty: array[2] of Integer;
+    begin
+        case LibraryVariableStorage.DequeueInteger of
+            ItemTrackingMode::SetLotAndQty:
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueInteger);
+                end;
+            ItemTrackingMode::OpenItemTrackingSummary:
+                ItemTrackingLines."Select Entries".Invoke;
+            ItemTrackingMode::OpenItemTrackingSummaryTwice:
+                begin
+                    Qty[1] := LibraryVariableStorage.DequeueInteger;
+                    Qty[2] := LibraryVariableStorage.DequeueInteger;
+                    LibraryVariableStorage.Enqueue(Qty[1]);
+                    ItemTrackingLines."Select Entries".Invoke;
+                    LibraryVariableStorage.DequeueInteger;
+                    LibraryVariableStorage.Enqueue(Qty[2]);
+                    ItemTrackingLines."Select Entries".Invoke;
+                end;
+        end;
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingSummaryModalPageHandlerWithUpdateSelectedQuantity(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    var
+        SelectedQty: Integer;
+    begin
+        SelectedQty := LibraryVariableStorage.DequeueInteger;
+        LibraryVariableStorage.Enqueue(ItemTrackingSummary."Selected Quantity".AsInteger);
+        ItemTrackingSummary."Selected Quantity".SetValue(SelectedQty);
+        ItemTrackingSummary.OK.Invoke;
     end;
 
     [ModalPageHandler]

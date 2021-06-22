@@ -389,6 +389,8 @@ report 702 "Inventory Posting - Test"
                     QtyToPostBase: Decimal;
                     TempErrorText: Text[250];
                 begin
+                    OnBeforeItemJournalLineOnAfterGetRecord("Item Journal Line", ErrorCounter, ErrorText);
+
                     NoOfEntries["Entry Type" + 1] := 1;
 
                     CostAmount := "Unit Cost" * Quantity;
@@ -905,7 +907,7 @@ report 702 "Inventory Posting - Test"
             end;
     end;
 
-    local procedure AddError(Text: Text[250])
+    procedure AddError(Text: Text[250])
     begin
         ErrorCounter := ErrorCounter + 1;
         ErrorText[ErrorCounter] := Text;
@@ -918,6 +920,11 @@ report 702 "Inventory Posting - Test"
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemJournalLineOnAfterGetRecord(ItemJournalLine: Record "Item Journal Line"; var ErrorCounter: Integer; var ErrorText: array[30] of Text[250])
+    begin
     end;
 }
 

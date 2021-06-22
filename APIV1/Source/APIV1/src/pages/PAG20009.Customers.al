@@ -6,7 +6,7 @@ page 20009 "APIV1 - Customers"
     DelayedInsert = true;
     EntityName = 'customer';
     EntitySetName = 'customers';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = 18;
     Extensible = false;
@@ -17,7 +17,7 @@ page 20009 "APIV1 - Customers"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
@@ -120,7 +120,7 @@ page 20009 "APIV1 - Customers"
                             RegisterFieldSet(FIELDNO("VAT Bus. Posting Group"));
                     end;
                 }
-                field(taxAreaDisplayName; TaxAreaDisplayName)
+                field(taxAreaDisplayName; TaxAreaDisplayNameGlobal)
                 {
                     ApplicationArea = All;
                     Caption = 'taxAreaDisplayName', Locked = true;
@@ -147,8 +147,7 @@ page 20009 "APIV1 - Customers"
                         IF "Currency Id" = BlankGUID THEN
                             "Currency Code" := ''
                         ELSE BEGIN
-                            Currency.SETRANGE(Id, "Currency Id");
-                            IF NOT Currency.FINDFIRST() THEN
+                            IF NOT Currency.GetBySystemId("Currency Id") THEN
                                 ERROR(CurrencyIdDoesNotMatchACurrencyErr);
 
                             "Currency Code" := Currency.Code;
@@ -181,7 +180,7 @@ page 20009 "APIV1 - Customers"
                             IF NOT Currency.GET("Currency Code") THEN
                                 ERROR(CurrencyCodeDoesNotMatchACurrencyErr);
 
-                            "Currency Id" := Currency.Id;
+                            "Currency Id" := Currency.SystemId;
                         END;
 
                         RegisterFieldSet(FIELDNO("Currency Id"));
@@ -198,8 +197,7 @@ page 20009 "APIV1 - Customers"
                         IF "Payment Terms Id" = BlankGUID THEN
                             "Payment Terms Code" := ''
                         ELSE BEGIN
-                            PaymentTerms.SETRANGE(Id, "Payment Terms Id");
-                            IF NOT PaymentTerms.FINDFIRST() THEN
+                            IF NOT PaymentTerms.GetBySystemId("Payment Terms Id") THEN
                                 ERROR(PaymentTermsIdDoesNotMatchAPaymentTermsErr);
 
                             "Payment Terms Code" := PaymentTerms.Code;
@@ -219,8 +217,7 @@ page 20009 "APIV1 - Customers"
                         IF "Shipment Method Id" = BlankGUID THEN
                             "Shipment Method Code" := ''
                         ELSE BEGIN
-                            ShipmentMethod.SETRANGE(Id, "Shipment Method Id");
-                            IF NOT ShipmentMethod.FINDFIRST() THEN
+                            IF NOT ShipmentMethod.GetBySystemId("Shipment Method Id") THEN
                                 ERROR(ShipmentMethodIdDoesNotMatchAShipmentMethodErr);
 
                             "Shipment Method Code" := ShipmentMethod.Code;
@@ -240,8 +237,7 @@ page 20009 "APIV1 - Customers"
                         IF "Payment Method Id" = BlankGUID THEN
                             "Payment Method Code" := ''
                         ELSE BEGIN
-                            PaymentMethod.SETRANGE(Id, "Payment Method Id");
-                            IF NOT PaymentMethod.FINDFIRST() THEN
+                            IF NOT PaymentMethod.GetBySystemId("Payment Method Id") THEN
                                 ERROR(PaymentMethodIdDoesNotMatchAPaymentMethodErr);
 
                             "Payment Method Code" := PaymentMethod.Code;
@@ -267,7 +263,7 @@ page 20009 "APIV1 - Customers"
                     Caption = 'Customer Financial Details', Locked = true;
                     EntityName = 'customerFinancialDetail';
                     EntitySetName = 'customerFinancialDetails';
-                    SubPageLink = Id = FIELD(Id);
+                    SubPageLink = SystemId = FIELD(SystemId);
                 }
                 field(lastModifiedDateTime; "Last Modified Date Time")
                 {
@@ -280,7 +276,7 @@ page 20009 "APIV1 - Customers"
                     Caption = 'picture';
                     EntityName = 'picture';
                     EntitySetName = 'picture';
-                    SubPageLink = Id = FIELD(Id);
+                    SubPageLink = Id = FIELD(SystemId);
                 }
                 part(defaultDimensions; 5509)
                 {
@@ -288,7 +284,7 @@ page 20009 "APIV1 - Customers"
                     Caption = 'Default Dimensions', Locked = true;
                     EntityName = 'defaultDimensions';
                     EntitySetName = 'defaultDimensions';
-                    SubPageLink = ParentId = FIELD(Id);
+                    SubPageLink = ParentId = FIELD(SystemId);
                 }
             }
         }
@@ -331,13 +327,8 @@ page 20009 "APIV1 - Customers"
     trigger OnModifyRecord(): Boolean
     var
         Customer: Record Customer;
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        IF xRec.Id <> Id THEN
-            GraphMgtGeneralTools.ErrorIdImmutable();
-
-        Customer.SETRANGE(Id, Id);
-        Customer.FINDFIRST();
+        Customer.GetBySystemId(SystemId);
 
         ProcessPostalAddress();
 
@@ -367,7 +358,7 @@ page 20009 "APIV1 - Customers"
         LCYCurrencyCode: Code[10];
         CurrencyCodeTxt: Text;
         PostalAddressJSON: Text;
-        TaxAreaDisplayName: Text;
+        TaxAreaDisplayNameGlobal: Text;
         CurrencyValuesDontMatchErr: Label 'The currency values do not match to a specific Currency.', Locked = true;
         CurrencyIdDoesNotMatchACurrencyErr: Label 'The "currencyId" does not match to a Currency.', Locked = true;
         CurrencyCodeDoesNotMatchACurrencyErr: Label 'The "currencyCode" does not match to a Currency.', Locked = true;
@@ -386,13 +377,13 @@ page 20009 "APIV1 - Customers"
     begin
         PostalAddressJSON := GraphMgtCustomer.PostalAddressToJSON(Rec);
         CurrencyCodeTxt := GraphMgtGeneralTools.TranslateNAVCurrencyCodeToCurrencyCode(LCYCurrencyCode, "Currency Code");
-        TaxAreaDisplayName := TaxAreaBuffer.GetTaxAreaDisplayName("Tax Area ID");
+        TaxAreaDisplayNameGlobal := TaxAreaBuffer.GetTaxAreaDisplayName("Tax Area ID");
     end;
 
     local procedure ClearCalculatedFields()
     begin
-        CLEAR(Id);
-        CLEAR(TaxAreaDisplayName);
+        CLEAR(SystemId);
+        CLEAR(TaxAreaDisplayNameGlobal);
         CLEAR(PostalAddressJSON);
         CLEAR(PostalAddressSet);
         TempFieldSet.DELETEALL();

@@ -499,7 +499,7 @@ table 5940 "Service Item"
             Caption = 'Vendor No.';
             TableRelation = Vendor;
         }
-        field(34; "Vendor Item No."; Code[20])
+        field(34; "Vendor Item No."; Code[50])
         {
             Caption = 'Vendor Item No.';
         }

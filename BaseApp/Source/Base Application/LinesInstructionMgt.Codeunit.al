@@ -17,6 +17,7 @@ codeunit 1320 "Lines Instruction Mgt."
         SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
         SalesLine.SetFilter("No.", '<>%1', '');
         SalesLine.SetRange(Quantity, 0);
+        OnAfterSetSalesLineFilters(SalesLine, SalesHeader);
 
         if not SalesLine.IsEmpty then
             Error(LinesMissingQuantityErr);
@@ -31,9 +32,20 @@ codeunit 1320 "Lines Instruction Mgt."
         PurchaseLine.SetFilter(Type, '<>%1', PurchaseLine.Type::" ");
         PurchaseLine.SetFilter("No.", '<>%1', '');
         PurchaseLine.SetRange(Quantity, 0);
+        OnAfterSetPurchaseLineFilters(PurchaseLine, PurchaseHeader);
 
         if not PurchaseLine.IsEmpty then
             Error(LinesMissingQuantityErr);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPurchaseLineFilters(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
     end;
 }
 

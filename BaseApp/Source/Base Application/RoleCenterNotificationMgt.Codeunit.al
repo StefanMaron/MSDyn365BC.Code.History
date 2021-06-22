@@ -39,11 +39,11 @@ codeunit 1430 "Role Center Notification Mgt."
         DontShowThisAgainMsg: Label 'Don''t show this again.';
         SandboxNotificationDescTok: Label 'Show a notification informing the user that they are working in a sandbox environment (preview).';
         ChangeToPremiumExpNotificationMsg: Label 'This Role Center contains functionality that may not be visible because of your experience setting or assigned plan. For more information, see Changing Which Features are Displayed';
-        ChangeToPremiumExpURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=873395', Comment = 'Locked';
+        ChangeToPremiumExpURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=873395', Locked = true;
         ChangeToPremiumExpNotificationDescTok: Label 'Show a notification suggesting the user to change to Premium experience.';
         ChangeToPremiumExpNotificationNameTok: Label 'Suggest to change the Experience setting.';
         NoAccessToCompanyErr: Label 'Cannot start trial company %1 because you do not have access to the company.', Comment = '%1 = Company name';
-        ContactAPartnerURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2038439', Comment = 'Locked';
+        ContactAPartnerURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2038439', Locked = true;
 
     local procedure CreateAndSendEvaluationNotification()
     var

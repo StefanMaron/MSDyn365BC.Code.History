@@ -171,6 +171,10 @@ codeunit 737 "VAT Report Mgt."
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := VATReportSetup."Auto Receive Period CU ID";
         JobQueueMgt.CreateJobQueueEntry(JobQueueEntry);
+        JobQueueEntry."Run on Saturdays" := false;
+        JobQueueEntry."Run on Sundays" := false;
+        JobQueueEntry."Maximum No. of Attempts to Run" := 1;
+        JobQueueEntry.Modify();
 
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
         SendTraceTag(
@@ -189,45 +193,6 @@ codeunit 737 "VAT Report Mgt."
                 "Update Period Job Frequency"::Weekly:
                     exit(60 * 24 * 7);
             end;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, 448, 'OnAfterHandleRequest', '', false, false)]
-    local procedure OnAfterHandleVATReturnPeriodJobRequest(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean)
-    begin
-        if not WasSuccess then
-            CheckAndRestartVATReturnPeriodJob(JobQueueEntry);
-    end;
-
-    local procedure CheckAndRestartVATReturnPeriodJob(JobQueueEntry: Record "Job Queue Entry")
-    var
-        VATReportSetup: Record "VAT Report Setup";
-        JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
-    begin
-        if not VATReportSetup.ReadPermission then
-            exit;
-
-        if not VATReportSetup.Get then
-            exit;
-
-        if VATReportSetup."Auto Receive Period CU ID" = 0 then
-            exit;
-
-        with JobQueueEntry do begin
-            if not Find then
-                exit;
-
-            if ("Object Type to Run" <> "Object Type to Run"::Codeunit) or
-               ("Object ID to Run" <> VATReportSetup."Auto Receive Period CU ID") or
-               (Status <> Status::Error)
-            then
-                exit;
-
-            "User Session Started" := 0DT;
-            "User Service Instance ID" := 0;
-            "User Session ID" := 0;
-            "Earliest Start Date/Time" := JobQueueDispatcher.CalcNextRunTimeForRecurringJob(JobQueueEntry, CurrentDateTime);
-            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-        end;
     end;
 
     [EventSubscriber(ObjectType::Page, 737, 'OnOpenPageEvent', '', false, false)]

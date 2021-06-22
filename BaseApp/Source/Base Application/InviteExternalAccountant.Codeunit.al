@@ -30,8 +30,6 @@ codeunit 9033 "Invite External Accountant"
         InviteExternalAccountantTelemetryCreateNewUserSuccessTxt: Label 'Invite External Accountant wizard successfully created a new user.', Locked = true;
         InviteExternalAccountantTelemetryCreateNewUserFailedTxt: Label 'Invite External Accountant wizard was unable to create a new user.', Locked = true;
         ResponseCodeTxt: Label 'responseCode', Locked = true;
-        EmailAddressIsConsumerAccountTxt: Label 'The email address looks like a personal email address.  Enter your accountant''s work email address to continue.';
-        EmailAddressIsInvalidTxt: Label 'The email address is invalid.  Enter your accountant''s work email address to continue.';
         InsufficientDataReturnedFromInvitationsApiTxt: Label 'Insufficient information was returned when inviting the user. Please contact your administrator.';
         WidsClaimNameTok: Label 'WIDS', Locked = true;
         ExternalAccountantLicenseAvailabilityErr: Label 'Failed to determine if an External Accountant license is available. Please try again later.';
@@ -187,37 +185,6 @@ codeunit 9033 "Invite External Accountant"
     end;
 
     [Scope('OnPrem')]
-    procedure InvokeEmailAddressIsAADAccount(EmailAddress: Text; var ErrorMessage: Text): Boolean
-    var
-        JSONManagement: Codeunit "JSON Management";
-        JsonObject: DotNet JObject;
-        ResponseContent: Text;
-        Url: Text;
-        Body: Text;
-        ResponseCodeValue: Text;
-    begin
-        Url := UrlHelper.GetSignupPrefix + 'api/signupservice/usersignup?api-version=1';
-        Body := '{"emailaddress": "' + EmailAddress + '","skuid": "StoreForBusinessIW","skipVerificationEmail": true}';
-
-        InvokeRequestWithSignupAccessToken(Url, 'POST', Body, ResponseContent);
-        JSONManagement.InitializeObject(ResponseContent);
-        JSONManagement.GetJSONObject(JsonObject);
-        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, ResponseCodeTxt, ResponseCodeValue);
-        case ResponseCodeValue of
-            'Success':
-                exit(true);
-            'UserExists':
-                exit(true);
-            'ConsumerDomainNotAllowed':
-                ErrorMessage := EmailAddressIsConsumerAccountTxt;
-            else
-                ErrorMessage := EmailAddressIsInvalidTxt;
-        end;
-
-        exit(false);
-    end;
-
-    [Scope('OnPrem')]
     procedure InvokeIsUserAdministrator(): Boolean
     var
         ClaimValue: Text;
@@ -292,11 +259,6 @@ codeunit 9033 "Invite External Accountant"
     local procedure InvokeRequestWithGraphAccessToken(Url: Text; Verb: Text; Body: Text; var ResponseContent: Text): Boolean
     begin
         exit(InvokeRequest(Url, Verb, Body, UrlHelper.GetGraphUrl, ResponseContent));
-    end;
-
-    local procedure InvokeRequestWithSignupAccessToken(Url: Text; Verb: Text; Body: Text; var ResponseContent: Text): Boolean
-    begin
-        exit(InvokeRequest(Url, Verb, Body, UrlHelper.GetSignupPrefix, ResponseContent));
     end;
 
     local procedure InvokeRequest(Url: Text; Verb: Text; Body: Text; AuthResourceUrl: Text; var ResponseContent: Text): Boolean

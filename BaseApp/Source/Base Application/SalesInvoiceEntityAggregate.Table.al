@@ -45,7 +45,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         {
             Caption = 'Bill-to Name';
             DataClassification = CustomerContent;
-            TableRelation = Customer;
+            TableRelation = Customer.Name;
             ValidateTableRelation = false;
         }
         field(7; "Bill-to Address"; Text[100])
@@ -218,7 +218,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         {
             Caption = 'Sell-to Customer Name';
             DataClassification = CustomerContent;
-            TableRelation = Customer;
+            TableRelation = Customer.Name;
             ValidateTableRelation = false;
         }
         field(81; "Sell-to Address"; Text[100])

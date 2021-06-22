@@ -235,6 +235,8 @@ codeunit 134912 "ERM User Personalization"
     begin
         // Check that a Profile can be copied into a new profile.
         Initialize;
+
+        OldAllProfile.SetRange(Enabled, true);
         OldAllProfile.FindFirst();
         // Setup : Generate a random code for the new profile in which existing profile will get copied.
         ProfileID :=

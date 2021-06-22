@@ -10,9 +10,9 @@ query 20000 "APIV1 - Customer Sales"
     {
         dataitem(QueryElement1; Customer)
         {
-            column(customerId; Id)
+            column(customerId; SystemId)
             {
-                Caption = 'Id', Locked = true;
+                Caption = 'SystemId', Locked = true;
             }
             column(customerNumber; "No.")
             {

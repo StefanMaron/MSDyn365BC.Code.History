@@ -252,7 +252,7 @@ table 348 Dimension
         if DimChecked = '' then
             exit;
 
-        OnBeforeCheckIfDimUsed(DimChecked, DimTypeChecked, UsedAsCustomDim, CustomDimErr);
+        OnBeforeCheckIfDimUsed(DimChecked, DimTypeChecked, UsedAsCustomDim, CustomDimErr, AnalysisViewChecked, AnalysisAreaChecked);
 
         CheckAllDim := DimTypeChecked in [DimTypeChecked::" "];
         CheckGlobalDim := DimTypeChecked in [DimTypeChecked::Global1, DimTypeChecked::Global2];
@@ -555,7 +555,7 @@ table 348 Dimension
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckIfDimUsed(DimChecked: Code[20]; DimTypeChecked: Option " ",Global1,Global2,Shortcut3,Shortcut4,Shortcut5,Shortcut6,Shortcut7,Shortcut8,Budget1,Budget2,Budget3,Budget4,Analysis1,Analysis2,Analysis3,Analysis4,ItemBudget1,ItemBudget2,ItemBudget3,ItemAnalysis1,ItemAnalysis2,ItemAnalysis3; var UsedAsCustomDim: Boolean; var CustomDimErr: Text)
+    local procedure OnBeforeCheckIfDimUsed(DimChecked: Code[20]; DimTypeChecked: Option " ",Global1,Global2,Shortcut3,Shortcut4,Shortcut5,Shortcut6,Shortcut7,Shortcut8,Budget1,Budget2,Budget3,Budget4,Analysis1,Analysis2,Analysis3,Analysis4,ItemBudget1,ItemBudget2,ItemBudget3,ItemAnalysis1,ItemAnalysis2,ItemAnalysis3; var UsedAsCustomDim: Boolean; var CustomDimErr: Text; AnalysisViewChecked: Code[10]; AnalysisAreaChecked: Integer)
     begin
     end;
 }

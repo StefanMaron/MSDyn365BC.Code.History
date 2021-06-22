@@ -920,12 +920,12 @@ table 302 "Finance Charge Memo Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetNoSeriesCode(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; SalesSetup: Record "Sales & Receivables Setup"; NoSeriesCode: Code[20])
+    local procedure OnAfterGetNoSeriesCode(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; SalesSetup: Record "Sales & Receivables Setup"; var NoSeriesCode: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetIssuingNoSeriesCode(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; IssuingNos: Code[20])
+    local procedure OnAfterGetIssuingNoSeriesCode(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IssuingNos: Code[20])
     begin
     end;
 
@@ -940,7 +940,7 @@ table 302 "Finance Charge Memo Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetNoSeriesCode(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; SalesSetup: Record "Sales & Receivables Setup"; NoSeriesCode: Code[20]; IsHandled: Boolean)
+    local procedure OnBeforeGetNoSeriesCode(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; SalesSetup: Record "Sales & Receivables Setup"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

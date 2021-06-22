@@ -238,8 +238,21 @@ table 38 "Purchase Header"
         field(5; "Pay-to Name"; Text[100])
         {
             Caption = 'Pay-to Name';
-            TableRelation = Vendor;
+            TableRelation = Vendor.Name;
             ValidateTableRelation = false;
+
+            trigger OnLookup()
+            var
+                Vendor: Record Vendor;
+            begin
+                if "Pay-to Vendor No." <> '' then
+                    Vendor.Get("Pay-to Vendor No.");
+
+                if Vendor.LookupVendor(Vendor) then begin
+                    "Pay-to Name" := Vendor.Name;
+                    Validate("Pay-to Vendor No.", Vendor."No.");
+                end;
+            end;
 
             trigger OnValidate()
             var
@@ -324,17 +337,7 @@ table 38 "Purchase Header"
             var
                 ShipToAddr: Record "Ship-to Address";
             begin
-                if ("Document Type" = "Document Type"::Order) and
-                   (xRec."Ship-to Code" <> "Ship-to Code")
-                then begin
-                    PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
-                    PurchLine.SetRange("Document No.", "No.");
-                    PurchLine.SetFilter("Sales Order Line No.", '<>0');
-                    if not PurchLine.IsEmpty then
-                        Error(
-                          YouCannotChangeFieldErr,
-                          FieldCaption("Ship-to Code"));
-                end;
+                CheckShipToCodeChange(Rec);
 
                 if "Ship-to Code" <> '' then begin
                     ShipToAddr.Get("Sell-to Customer No.", "Ship-to Code");
@@ -480,7 +483,10 @@ table 38 "Purchase Header"
                 if ("Payment Terms Code" <> '') and ("Document Date" <> 0D) then begin
                     PaymentTerms.Get("Payment Terms Code");
                     if IsCreditDocType and not PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" then begin
-                        Validate("Due Date", "Document Date");
+                        IsHandled := false;
+                        OnValidatePaymentTermsCodeOnBeforeValidateDueDate(Rec, xRec, CurrFieldNo, IsHandled);
+                        if not IsHandled then
+                            Validate("Due Date", "Document Date");
                         Validate("Pmt. Discount Date", 0D);
                         Validate("Payment Discount %", 0);
                     end else begin
@@ -496,7 +502,10 @@ table 38 "Purchase Header"
                             Validate("Payment Discount %", PaymentTerms."Discount %")
                     end;
                 end else begin
-                    Validate("Due Date", "Document Date");
+                    IsHandled := false;
+                    OnValidatePaymentTermsCodeOnBeforeValidateDueDateWhenBlank(Rec, xRec, CurrFieldNo, IsHandled);
+                    if not IsHandled then
+                        Validate("Due Date", "Document Date");
                     if not UpdateDocumentDate then begin
                         Validate("Pmt. Discount Date", 0D);
                         Validate("Payment Discount %", 0);
@@ -935,6 +944,16 @@ table 38 "Purchase Header"
         field(67; "Vendor Shipment No."; Code[35])
         {
             Caption = 'Vendor Shipment No.';
+
+            trigger OnValidate()
+            var
+                WhsePurchRelease: Codeunit "Whse.-Purch. Release";
+            begin
+                if (xRec."Vendor Shipment No." <> "Vendor Shipment No.") and (Status = Status::Released) and
+                   ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"])
+                then
+                    WhsePurchRelease.UpdateExternalDocNoForReleasedOrder(Rec);
+            end;
         }
         field(68; "Vendor Invoice No."; Code[35])
         {
@@ -1052,14 +1071,27 @@ table 38 "Purchase Header"
         field(79; "Buy-from Vendor Name"; Text[100])
         {
             Caption = 'Buy-from Vendor Name';
-            TableRelation = Vendor;
+            TableRelation = Vendor.Name;
             ValidateTableRelation = false;
+
+            trigger OnLookup()
+            var
+                Vendor: Record Vendor;
+            begin
+                if "Buy-from Vendor No." <> '' then
+                    Vendor.Get("Buy-from Vendor No.");
+
+                if Vendor.LookupVendor(Vendor) then begin
+                    "Buy-from Vendor Name" := Vendor.Name;
+                    Validate("Buy-from Vendor No.", Vendor."No.");
+                end;
+            end;
 
             trigger OnValidate()
             var
                 Vendor: Record Vendor;
             begin
-                if ShouldLookForVendorByName("Pay-to Vendor No.") then
+                if ShouldLookForVendorByName("Buy-from Vendor No.") then
                     Validate("Buy-from Vendor No.", Vendor.GetVendorNo("Buy-from Vendor Name"));
             end;
         }
@@ -1504,24 +1536,10 @@ table 38 "Purchase Header"
                         "VAT Base Discount %" := xRec."VAT Base Discount %";
                 end;
 
-                if ("VAT Base Discount %" = xRec."VAT Base Discount %") and
-                   (CurrFieldNo <> 0)
-                then
+                if ("VAT Base Discount %" = xRec."VAT Base Discount %") and (CurrFieldNo <> 0) then
                     exit;
 
-                PurchLine.SetRange("Document Type", "Document Type");
-                PurchLine.SetRange("Document No.", "No.");
-                PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
-                PurchLine.SetFilter(Quantity, '<>0');
-                PurchLine.LockTable;
-                if PurchLine.FindSet then begin
-                    Modify;
-                    repeat
-                        PurchLine.UpdateAmounts;
-                        PurchLine.Modify;
-                    until PurchLine.Next = 0;
-                end;
-                PurchLine.Reset;
+                UpdatePurchAmountLines;
             end;
         }
         field(120; Status; Option)
@@ -2458,11 +2476,6 @@ table 38 "Purchase Header"
                     end;
             end;
 
-        if "Document Type" in
-           ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Return Order", "Document Type"::Quote]
-        then
-            "Order Date" := WorkDate;
-
         if "Document Type" = "Document Type"::Invoice then
             "Expected Receipt Date" := WorkDate;
 
@@ -2474,6 +2487,7 @@ table 38 "Purchase Header"
         if PurchSetup."Default Posting Date" = PurchSetup."Default Posting Date"::"No Date" then
             "Posting Date" := 0D;
 
+        "Order Date" := WorkDate;
         "Document Date" := WorkDate;
 
         ValidateEmptySellToCustomerAndLocation;
@@ -2520,7 +2534,14 @@ table 38 "Purchase Header"
     end;
 
     procedure AssistEdit(OldPurchHeader: Record "Purchase Header"): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(Rec, OldPurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         GetPurchSetup;
         TestNoSeries;
         if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldPurchHeader."No. Series", "No. Series") then begin
@@ -3037,6 +3058,25 @@ table 38 "Purchase Header"
         OnAfterUpdatePurchLines(Rec);
     end;
 
+    local procedure UpdatePurchAmountLines()
+    var
+        PurchLine: Record "Purchase Line";
+    begin
+        PurchLine.Reset;
+        PurchLine.SetRange("Document Type", "Document Type");
+        PurchLine.SetRange("Document No.", "No.");
+        PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
+        PurchLine.SetFilter(Quantity, '<>0');
+        PurchLine.LockTable;
+        if PurchLine.FindSet then begin
+            Modify;
+            repeat
+                PurchLine.UpdateAmounts;
+                PurchLine.Modify;
+            until PurchLine.Next = 0;
+        end;
+    end;
+
     procedure UpdatePurchLinesByFieldNo(ChangedFieldNo: Integer; AskQuestion: Boolean)
     var
         "Field": Record "Field";
@@ -3080,6 +3120,7 @@ table 38 "Purchase Header"
         if PurchLine.FindSet then
             repeat
                 xPurchLine := PurchLine;
+                OnUpdatePurchLinesByFieldNoOnBeforeValidateFields(PurchLine, xPurchLine);
                 case ChangedFieldNo of
                     FieldNo("Expected Receipt Date"):
                         if PurchLine."No." <> '' then
@@ -3309,6 +3350,26 @@ table 38 "Purchase Header"
                 PurchLine.TestField("Return Shipment No.", '');
     end;
 
+    local procedure CheckShipToCodeChange(PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckShipToCodeChange(PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        with PurchHeader do begin
+            if ("Document Type" = "Document Type"::Order) and (xRec."Ship-to Code" <> "Ship-to Code") then begin
+                PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+                PurchLine.SetRange("Document No.", "No.");
+                PurchLine.SetFilter("Sales Order Line No.", '<>0');
+                if not PurchLine.IsEmpty then
+                    Error(YouCannotChangeFieldErr, FieldCaption("Ship-to Code"));
+            end;
+        end;
+    end;
+
     local procedure UpdateBuyFromCont(VendorNo: Code[20])
     var
         ContBusRel: Record "Contact Business Relation";
@@ -3499,6 +3560,8 @@ table 38 "Purchase Header"
 
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       PurchLine."Dimension Set ID", PurchLine."Shortcut Dimension 1 Code", PurchLine."Shortcut Dimension 2 Code");
+
+                    OnUpdateAllLineDimOnBeforePurchLineModify(PurchLine);
                     PurchLine.Modify;
                 end;
             until PurchLine.Next = 0;
@@ -3573,7 +3636,7 @@ table 38 "Purchase Header"
         end
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure GetPstdDocLinesToRevere()
     var
         PurchPostedDocLines: Page "Posted Purchase Document Lines";
@@ -3871,6 +3934,7 @@ table 38 "Purchase Header"
                 TempPurchaseLine.SetRange("Job No.", PurchaseLine."Job No.");
                 TempPurchaseLine.SetRange("Responsibility Center", PurchaseLine."Responsibility Center");
                 TempPurchaseLine.SetRange("Work Center No.", PurchaseLine."Work Center No.");
+                OnCollectParamsInBufferForCreateDimSetOnAfterSetTempPurchLineFilters(TempPurchaseLine, PurchaseLine);
                 if TempPurchaseLine.IsEmpty then
                     InsertTempPurchaseLineInBuffer(TempPurchaseLine, PurchaseLine, TempPurchaseLine."No.", false)
             end;
@@ -3887,6 +3951,7 @@ table 38 "Purchase Header"
         TempPurchaseLine."Gen. Bus. Posting Group" := PurchaseLine."Gen. Bus. Posting Group";
         TempPurchaseLine."Gen. Prod. Posting Group" := PurchaseLine."Gen. Prod. Posting Group";
         TempPurchaseLine.Mark := DefaultDimenstionsNotExist;
+        OnInsertTempPurchLineInBufferOnBeforeTempPurchLineInsert(TempPurchaseLine, PurchaseLine);
         TempPurchaseLine.Insert;
     end;
 
@@ -3930,7 +3995,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure OnCheckPurchasePostRestrictions()
     begin
     end;
@@ -4789,7 +4854,14 @@ table 38 "Purchase Header"
     end;
 
     local procedure ValidateEmptySellToCustomerAndLocation()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateEmptySellToCustomerAndLocation(Rec, Vend, IsHandled);
+        if IsHandled then
+            exit;
+
         Validate("Sell-to Customer No.", '');
         UpdateLocationCode(Vend."Location Code");
     end;
@@ -4838,6 +4910,8 @@ table 38 "Purchase Header"
             if Location.Get("Location Code") then;
             "Inbound Whse. Handling Time" := Location."Inbound Whse. Handling Time";
         end;
+
+        OnAfterUpdateInboundWhseHandlingTime(Rec, CurrFieldNo);
     end;
 
     [IntegrationEvent(false, false)]
@@ -4981,6 +5055,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateInboundWhseHandlingTime(var PurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterAppliesToDocNoOnLookup(var PurchaseHeader: Record "Purchase Header"; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
@@ -5006,8 +5085,17 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Scope('OnPrem')]
     procedure OnValidatePurchaseHeaderPayToVendorNo(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var PurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckShipToCodeChange(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5077,12 +5165,27 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEmptySellToCustomerAndLocation(var PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectParamsInBufferForCreateDimSetOnAfterSetTempPurchLineFilters(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnBeforeUpdateLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTempPurchLineInBufferOnBeforeTempPurchLineInsert(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -5147,12 +5250,32 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforePurchLineModify(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchLinesByFieldNoOnBeforeValidateFields(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeCalcDueDate(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; CalledByFieldNo: Integer; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeCalcPmtDiscDate(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; CalledByFieldNo: Integer; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePaymentTermsCodeOnBeforeValidateDueDate(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePaymentTermsCodeOnBeforeValidateDueDateWhenBlank(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

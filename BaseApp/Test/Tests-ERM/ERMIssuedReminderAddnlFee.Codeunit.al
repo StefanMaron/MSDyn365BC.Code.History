@@ -401,6 +401,46 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         VerifyAdditionalFeeOnReminderReport(Amount, IssuedReminderNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateReminderForMultipleCustomerLedgerEntriesWithCalculateInterestEnabledAndFinanceChargeInterestRate()
+    var
+        Customer: Record Customer;
+        FinanceChargeInterestRate: Record "Finance Charge Interest Rate";
+        FinanceChargeTerms: Record "Finance Charge Terms";
+        ReminderHeader: Record "Reminder Header";
+        ReminderLevel: Record "Reminder Level";
+        DocumentDate: Date;
+    begin
+        // [SCENARIO 328296] Stan can create Reminder for multiple invoices when Reminder Level's Calculate Interest is True and Reminder terms have Finance Charge Interest Rate.
+        Initialize;
+
+        // [GIVEN] Two Sales invoices for Customer with Reminder Terms and Finance charge terms.
+        SetupAndPostSalesInvoice(Customer, DocumentDate, '', '');
+        CreateAndPostSalesInvoice(Customer."No.", '');
+
+        // [GIVEN] Reminder Level with Calculate Interest set to True.
+        GetReminderLevel(ReminderLevel, Customer."Reminder Terms Code");
+        ReminderLevel.Validate("Calculate Interest", true);
+        ReminderLevel.Modify;
+
+        // [GIVEN] Reminder terms with Finance Charge Interest Rate.
+        LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
+        FinanceChargeTerms.Validate("Interest Period (Days)", LibraryRandom.RandInt(10));
+        FinanceChargeTerms.Validate("Interest Rate", LibraryRandom.RandInt(10));
+        FinanceChargeTerms.Validate("Add. Line Fee in Interest", true);
+        FinanceChargeTerms.Modify(true);
+        CreateFinanceChargeInterestRates(FinanceChargeInterestRate, FinanceChargeTerms.Code, DocumentDate - LibraryRandom.RandInt(3));
+        Customer.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
+        Customer.Modify(true);
+
+        // [WHEN] Create Reminder using REP188 "Create Reminders".
+        CreateReminder(Customer."No.", DocumentDate, false);
+
+        // [THEN] Reminder is created.
+        FindReminderHeader(ReminderHeader, Customer."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -488,6 +528,18 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         Customer.Validate("Currency Code", CurrencyCode);
         Customer.Validate("Reminder Terms Code", CreateReminderTerms);
         Customer.Modify(true);
+    end;
+
+    local procedure CreateFinanceChargeInterestRates(var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; FinanceChargeTermsCode: Code[10]; StartDate: Date)
+    begin
+        with FinanceChargeInterestRate do begin
+            Init;
+            Validate("Fin. Charge Terms Code", FinanceChargeTermsCode);
+            Validate("Start Date", StartDate);
+            Validate("Interest Rate", LibraryRandom.RandInt(10));
+            Validate("Interest Period (Days)", LibraryRandom.RandInt(100));
+            Insert(true);
+        end;
     end;
 
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")

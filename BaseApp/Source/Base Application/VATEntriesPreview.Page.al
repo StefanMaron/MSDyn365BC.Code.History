@@ -27,12 +27,12 @@ page 123 "VAT Entries Preview"
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("Posting Date"; "Posting Date")
@@ -107,7 +107,7 @@ page 123 "VAT Entries Preview"
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number of the customer or vendor that the entry is linked to.';
                     Visible = false;
                 }

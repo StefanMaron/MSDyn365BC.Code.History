@@ -111,7 +111,8 @@ page 9343 "Registered Whse. Put-aways"
                     XmlParameters: Text;
                 begin
                     XmlParameters := DeleteRegisteredWhseDocs.RunRequestPage(ReportParametersTxt);
-                    REPORT.Execute(REPORT::"Delete Registered Whse. Docs.", XmlParameters);
+                    if XmlParameters <> '' then
+                        REPORT.Execute(REPORT::"Delete Registered Whse. Docs.", XmlParameters);
                 end;
             }
         }

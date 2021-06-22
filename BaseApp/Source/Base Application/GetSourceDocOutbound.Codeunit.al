@@ -41,9 +41,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         WhseSourceFilterSelection.SetTableView(WhseGetSourceFilterRec);
         WhseSourceFilterSelection.RunModal;
 
-        WhseShptHeader.Find;
-        WhseShptHeader."Document Status" := WhseShptHeader.GetDocumentStatus(0);
-        WhseShptHeader.Modify;
+        UpdateShipmentHeaderStatus(WhseShptHeader);
 
         OnAfterGetOutboundDocs(WhseShptHeader);
     end;
@@ -81,10 +79,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         GetSourceDocuments.SetTableView(WhseRqst);
         GetSourceDocuments.RunModal;
 
-        WhseShptHeader.Find;
-        WhseShptHeader."Document Status" :=
-          WhseShptHeader.GetDocumentStatus(0);
-        WhseShptHeader.Modify;
+        UpdateShipmentHeaderStatus(WhseShptHeader);
 
         OnAfterGetSingleOutboundDoc(WhseShptHeader);
     end;
@@ -425,6 +420,15 @@ codeunit 5752 "Get Source Doc. Outbound"
         end;
 
         OnAfterFindWarehouseRequestForServiceOrder(WhseRqst, ServiceHeader);
+    end;
+
+    local procedure UpdateShipmentHeaderStatus(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    begin
+        with WarehouseShipmentHeader do begin
+            Find;
+            "Document Status" := GetDocumentStatus(0);
+            Modify;
+        end;
     end;
 
     local procedure ShowResult(WhseShipmentCreated: Boolean)

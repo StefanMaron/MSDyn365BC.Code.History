@@ -38,7 +38,7 @@ table 5495 "Sales Order Entity Buffer"
         {
             Caption = 'Bill-to Name';
             DataClassification = CustomerContent;
-            TableRelation = Customer;
+            TableRelation = Customer.Name;
             ValidateTableRelation = false;
         }
         field(7; "Bill-to Address"; Text[100])
@@ -101,6 +101,11 @@ table 5495 "Sales Order Entity Buffer"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            DataClassification = CustomerContent;
+        }
+        field(20; "Posting Date"; Date)
+        {
+            Caption = 'Posting Date';
             DataClassification = CustomerContent;
         }
         field(23; "Payment Terms Code"; Code[10])

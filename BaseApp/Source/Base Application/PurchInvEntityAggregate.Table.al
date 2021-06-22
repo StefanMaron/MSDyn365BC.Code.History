@@ -44,7 +44,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
         {
             Caption = 'Pay-to Name';
             DataClassification = CustomerContent;
-            TableRelation = Vendor;
+            TableRelation = Vendor.Name;
             ValidateTableRelation = false;
         }
         field(7; "Pay-to Address"; Text[100])
@@ -112,6 +112,11 @@ table 5477 "Purch. Inv. Entity Aggregate"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            DataClassification = CustomerContent;
+        }
+        field(20; "Posting Date"; Date)
+        {
+            Caption = 'Posting Date';
             DataClassification = CustomerContent;
         }
         field(23; "Payment Terms Code"; Code[10])

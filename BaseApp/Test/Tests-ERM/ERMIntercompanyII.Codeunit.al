@@ -4539,6 +4539,47 @@ codeunit 134152 "ERM Intercompany II"
         SalesLine.TestField("Amount Including VAT", Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision, '<'));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPriceIsNotOverriddenWhenSalesLineCreatedFromInbox()
+    var
+        SalesPrice: Record "Sales Price";
+        Customer: Record Customer;
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        ICInboxSalesLine: Record "IC Inbox Sales Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemNo: Code[20];
+        UnitPrice: Decimal;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Sales] [Order] [Sales Price]
+        // [SCENARIO 322680] Sales price on a sales order line created from intercompany inbox is not overridden by sales price settings in the receiving company.
+        Initialize;
+        UnitPrice := LibraryRandom.RandDec(100, 2);
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Item "I", customer "C".
+        // [GIVEN] The price on item "I" for customer "C" is set to 100 LCY.
+        ItemNo := LibraryInventory.CreateItemNo;
+        Customer.Get(CreateICCustomer(CreateICPartner));
+        LibrarySales.CreateSalesPrice(
+          SalesPrice, ItemNo, SalesPrice."Sales Type"::Customer, Customer."No.", 0D, '', '', '', 0, UnitPrice * 2);
+
+        // [GIVEN] Intercompany inbox contains a sales document for customer "C" and item "I".
+        // [GIVEN] The unit price on the IC sales line is 50 LCY.
+        MockICInboxSalesHeaderWithShipToCountryRegionAndCounty(ICInboxSalesHeader, Customer);
+        MockICInboxSalesLine(ICInboxSalesLine, ICInboxSalesHeader, ItemNo, UnitPrice, Qty, Qty * UnitPrice);
+
+        // [WHEN] Create a new sales order from the intercompany inbox.
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate);
+        FindSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [THEN] The unit price on the new sales order line is 50 LCY.
+        FindSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField("Unit Price", UnitPrice);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

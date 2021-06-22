@@ -1,4 +1,4 @@
-﻿page 9802 "Permission Sets"
+page 9802 "Permission Sets"
 {
     AdditionalSearchTerms = 'access rights privilege';
     ApplicationArea = Basic, Suite;
@@ -102,9 +102,11 @@
 
                     trigger OnAction()
                     var
+                        AggregatePermissionSet: Record "Aggregate Permission Set";
                         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
                     begin
-                        PermissionPagesMgt.ShowPermissions(Scope, "App ID", "Role ID", false);
+                        GetSelectionFilter(AggregatePermissionSet);
+                        PermissionPagesMgt.ShowPermissions(AggregatePermissionSet, false)
                     end;
                 }
                 action("Permission Set by User")
@@ -208,7 +210,7 @@
 
                     trigger OnAction()
                     begin
-                        XMLPORT.Run(XMLPORT::"Import Tenant Permission Sets", false, true);
+                        XMLPORT.Run(XMLPORT::"Import Tenant Permission Sets", true, true);
                         FillRecordBuffer;
                     end;
                 }
@@ -254,6 +256,37 @@
                             end;
 
                         XMLPORT.Run(XMLPORT::"Export Permission Sets", false, false, AggregatePermissionSet);
+                    end;
+                }
+                action(RemoveObsoletePermissions)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Remove Obsolete Permissions';
+                    Enabled = CanManageUsersOnTenant;
+                    Image = Delete;
+                    ToolTip = 'Remove all permissions related to the tables which are obsolete.';
+
+                    trigger OnAction()
+                    var
+                        TableMetadata: Record "Table Metadata";
+                        AllObj: Record AllObj;
+                        Permission: Record Permission;
+                        TenantPermission: Record "Tenant Permission";
+                        PermissionsCount: Integer;
+                    begin
+                        TableMetadata.SetRange(ObsoleteState, TableMetadata.ObsoleteState::Removed);
+                        if TableMetadata.FindSet() then begin
+                            Permission.SetRange("Object Type", Permission."Object Type"::"Table Data");
+                            TenantPermission.SetRange("Object Type", Permission."Object Type"::"Table Data");
+                            repeat
+                                Permission.SetRange("Object ID", TableMetadata.ID);
+                                TenantPermission.SetRange("Object ID", TableMetadata.ID);
+                                PermissionsCount += Permission.Count + TenantPermission.Count;
+                                Permission.DeleteAll();
+                                TenantPermission.DeleteAll();
+                            until TableMetadata.Next() = 0;
+                        end;
+                        Message(StrSubstNo(ObsoletePermissionsMsg, PermissionsCount));
                     end;
                 }
             }
@@ -358,6 +391,18 @@
             SetRange("Role ID", IntelligentCloudTok);
     end;
 
+    local procedure GetSelectionFilter(var AggregatePermissionSet: Record "Aggregate Permission Set")
+    begin
+        CurrPage.SetSelectionFilter(Rec);
+        if FindSet() then
+            repeat
+                if AggregatePermissionSet.Get(Scope, "App ID", "Role ID") then
+                    AggregatePermissionSet.Mark(true);
+            until Next() = 0;
+        Reset();
+        AggregatePermissionSet.MarkedOnly(true);
+    end;
+
     var
         PermissionManager: Codeunit "Permission Manager";
         CanManageUsersOnTenant: Boolean;
@@ -366,5 +411,7 @@
         CannotDeletePermissionSetErr: Label 'You can only delete user-created or copied permission sets.';
         ExportExtensionSchemaQst: Label 'Do you want to export permission sets in a schema that is supported by the extension package?';
         IntelligentCloudTok: Label 'INTELLIGENT CLOUD', Locked = true;
+        ObsoletePermissionsMsg: Label 'The %1 obsolete permissions were removed.', Comment = '%1 = number of deleted records.';
+        IsOnPrem: Boolean;
 }
 

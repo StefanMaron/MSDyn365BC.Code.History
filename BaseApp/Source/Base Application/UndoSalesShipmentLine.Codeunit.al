@@ -18,13 +18,6 @@ codeunit 5815 "Undo Sales Shipment Line"
         if IsHandled then
             exit;
 
-        if not SkipTypeCheck then begin
-            SetRange(Type, Type::Item);
-            SetFilter(Quantity, '<>0');
-            if not Find('-') then
-                Error(Text006);
-        end;
-
         if not HideDialog then
             if not Confirm(Text000) then
                 exit;
@@ -84,8 +77,11 @@ codeunit 5815 "Undo Sales Shipment Line"
         with SalesShptLine do begin
             Clear(ItemJnlPostLine);
             SetCurrentKey("Item Shpt. Entry No.");
+            SetFilter(Quantity, '<>0');
             SetRange(Correction, false);
-
+            if IsEmpty then
+                Error(AlreadyReversedErr);
+            FindFirst();
             repeat
                 if not HideDialog then
                     Window.Open(Text003);
@@ -112,18 +108,21 @@ codeunit 5815 "Undo Sales Shipment Line"
                 if not HideDialog then
                     Window.Open(Text001);
 
-                PostedWhseShptLineFound :=
-                  WhseUndoQty.FindPostedWhseShptLine(
-                    PostedWhseShptLine,
-                    DATABASE::"Sales Shipment Line",
-                    "Document No.",
-                    DATABASE::"Sales Line",
-                    SalesLine."Document Type"::Order,
-                    "Order No.",
-                    "Order Line No.");
+                if Type = Type::Item then begin
+                    PostedWhseShptLineFound :=
+                    WhseUndoQty.FindPostedWhseShptLine(
+                        PostedWhseShptLine,
+                        DATABASE::"Sales Shipment Line",
+                        "Document No.",
+                        DATABASE::"Sales Line",
+                        SalesLine."Document Type"::Order,
+                        "Order No.",
+                        "Order Line No.");
 
-                Clear(ItemJnlPostLine);
-                ItemShptEntryNo := PostItemJnlLine(SalesShptLine, DocLineNo);
+                    Clear(ItemJnlPostLine);
+                    ItemShptEntryNo := PostItemJnlLine(SalesShptLine, DocLineNo);
+                end else
+                    DocLineNo := GetCorrectionLineNo(SalesShptLine);
 
                 InsertNewShipmentLine(SalesShptLine, ItemShptEntryNo, DocLineNo);
                 OnAfterInsertNewShipmentLine(SalesShptLine, PostedWhseShptLine, PostedWhseShptLineFound, DocLineNo);
@@ -186,43 +185,32 @@ codeunit 5815 "Undo Sales Shipment Line"
 
         with SalesShptLine do begin
             if not SkipTestFields then begin
-                TestField(Type, Type::Item);
                 if Correction then
                     Error(AlreadyReversedErr);
                 if "Qty. Shipped Not Invoiced" <> Quantity then
                     Error(Text005);
-                TestField("Drop Shipment", false);
             end;
-            if not SkipUndoPosting then begin
-                UndoPostingMgt.TestSalesShptLine(SalesShptLine);
-                UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Sales Shipment Line",
-                  "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
-                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+            if Type = Type::Item then begin
+                if not SkipTestFields then
+                    TestField("Drop Shipment", false);
+
+                if not SkipUndoPosting then begin
+                    UndoPostingMgt.TestSalesShptLine(SalesShptLine);
+                    UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Sales Shipment Line",
+                    "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
+                    UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+                end;
+                if not SkipUndoInitPostATO then
+                    UndoInitPostATO(SalesShptLine);
             end;
-            if not SkipUndoInitPostATO then
-                UndoInitPostATO(SalesShptLine);
         end;
     end;
 
-    local procedure PostItemJnlLine(SalesShptLine: Record "Sales Shipment Line"; var DocLineNo: Integer): Integer
+    local procedure GetCorrectionLineNo(SalesShptLine: Record "Sales Shipment Line"): Integer;
     var
-        ItemJnlLine: Record "Item Journal Line";
-        SalesLine: Record "Sales Line";
-        SalesShptHeader: Record "Sales Shipment Header";
         SalesShptLine2: Record "Sales Shipment Line";
-        SourceCodeSetup: Record "Source Code Setup";
-        TempApplyToEntryList: Record "Item Ledger Entry" temporary;
-        ItemLedgEntryNotInvoiced: Record "Item Ledger Entry";
         LineSpacing: Integer;
-        ItemLedgEntryNo: Integer;
-        RemQtyBase: Decimal;
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforePostItemJnlLine(SalesShptLine, DocLineNo, ItemLedgEntryNo, IsHandled);
-        if IsHandled then
-            exit(ItemLedgEntryNo);
-
         with SalesShptLine do begin
             SalesShptLine2.SetRange("Document No.", "Document No.");
             SalesShptLine2."Document No." := "Document No.";
@@ -235,7 +223,30 @@ codeunit 5815 "Undo Sales Shipment Line"
                     Error(Text002);
             end else
                 LineSpacing := 10000;
-            DocLineNo := "Line No." + LineSpacing;
+
+            exit("Line No." + LineSpacing);
+        end;
+    end;
+
+    local procedure PostItemJnlLine(SalesShptLine: Record "Sales Shipment Line"; var DocLineNo: Integer): Integer
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        SalesLine: Record "Sales Line";
+        SalesShptHeader: Record "Sales Shipment Header";
+        SourceCodeSetup: Record "Source Code Setup";
+        TempApplyToEntryList: Record "Item Ledger Entry" temporary;
+        ItemLedgEntryNotInvoiced: Record "Item Ledger Entry";
+        ItemLedgEntryNo: Integer;
+        RemQtyBase: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostItemJnlLine(SalesShptLine, DocLineNo, ItemLedgEntryNo, IsHandled);
+        if IsHandled then
+            exit(ItemLedgEntryNo);
+
+        with SalesShptLine do begin
+            DocLineNo := GetCorrectionLineNo(SalesShptLine);
 
             SourceCodeSetup.Get;
             SalesShptHeader.Get("Document No.");

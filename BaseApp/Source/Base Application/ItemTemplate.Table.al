@@ -320,7 +320,7 @@ table 1301 "Item Template"
             Item.Find;
         end;
 
-        OnAfterUpdateItemFromTemplate(Rec, Item);
+        OnAfterUpdateItemFromTemplate(Rec, Item, ConfigTemplateHeader);
     end;
 
     procedure InsertItemFromTemplate(ConfigTemplateHeader: Record "Config. Template Header"; var Item: Record Item)
@@ -347,7 +347,7 @@ table 1301 "Item Template"
         DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Item."No.", DATABASE::Item);
         Item.Find;
 
-        OnAfterInsertItemFromTemplate(Rec, Item);
+        OnAfterInsertItemFromTemplate(Rec, Item, ConfigTemplateHeader);
     end;
 
     procedure UpdateItemsFromTemplate(var Item: Record Item)
@@ -397,12 +397,12 @@ table 1301 "Item Template"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertItemFromTemplate(var ItemTemplate: Record "Item Template"; var Item: Record Item)
+    local procedure OnAfterInsertItemFromTemplate(var ItemTemplate: Record "Item Template"; var Item: Record Item; ConfigTemplateHeader: Record "Config. Template Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateItemFromTemplate(var ItemTemplate: Record "Item Template"; var Item: Record Item)
+    local procedure OnAfterUpdateItemFromTemplate(var ItemTemplate: Record "Item Template"; var Item: Record Item; ConfigTemplateHeader: Record "Config. Template Header")
     begin
     end;
 

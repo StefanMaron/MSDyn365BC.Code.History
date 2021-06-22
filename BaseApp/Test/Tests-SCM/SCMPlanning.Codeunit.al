@@ -30,35 +30,8 @@ codeunit 137020 "SCM Planning"
         PlanningEndDate: DateFormula;
         StringsMustBeIdenticalErr: Label 'Strings must be identical.';
         RoutingType: Option Serial,Parallel;
-
-    [Normal]
-    local procedure Initialize()
-    var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-    begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning");
-        LibraryVariableStorage.Clear;
-
-        LibraryApplicationArea.EnableEssentialSetup;
-
-        // Initialize setup.
-        if IsInitialized then
-            exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Planning");
-
-        // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        GlobalSetup;
-
-        Evaluate(DaysInMonthFormula, Format('<+%1D>', CalcDate('<1M>') - Today));
-        Evaluate(PlanningStartDate, '<+2D>');
-        Evaluate(PlanningEndDate, '<+11M>');
-
-        IsInitialized := true;
-        Commit;
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning");
-    end;
+        ReorderQtyMustHaveValueInItemErr: Label 'Reorder Quantity must have a value in Item: No.=%1. It cannot be zero or empty.';
+        TestFieldCodeErr: Label 'TestField';
 
     local procedure GlobalSetup()
     begin
@@ -4822,6 +4795,75 @@ codeunit 137020 "SCM Planning"
         Assert.RecordIsEmpty(RequisitionLine);
     end;
 
+    [Test]
+    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandlerWithStopAndShowFirstError')]
+    [Scope('OnPrem')]
+    procedure FixedReorderPlanningWhenReorderQtyBlankAndStopAndShowFirstError()
+    var
+        Item: Record Item;
+    begin
+        // [SCENARIO 324730] When Planning with Fixed Reorder Qty. and Reorder Quantity is zero in Item without SKU
+        // [SCENARIO 324730] Then error message refers to Item No. when Stop and Show First Error is enabled.
+        Initialize;
+
+        // [GIVEN] Item 1000 had Reordering Policy = Fixed Reorder Qty. and Reorder Quantity = <zero>; Reorder Point = 20
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
+        Item.Validate("Reorder Quantity", 0);
+        Item.Validate("Reorder Point", LibraryRandom.RandInt(10));
+        Item.Modify(true);
+        Commit;
+
+        // [WHEN] Calculate Regenerative Plan for this year with Stop and Show First Error enabled
+        asserterror CalcRegenPlanWithStopAndShowFirstError(Item, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
+
+        // [THEN] Error 'Reorder Quantity must have a value in Item: No.=1000. It cannot be zero or empty.'
+        Assert.ExpectedError(StrSubstNo(ReorderQtyMustHaveValueInItemErr, Item."No."));
+        Assert.ExpectedErrorCode(TestFieldCodeErr);
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning");
+        LibraryVariableStorage.Clear;
+
+        LibraryApplicationArea.EnableEssentialSetup;
+
+        // Initialize setup.
+        if IsInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Planning");
+
+        // Setup Demonstration data.
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        GlobalSetup;
+
+        Evaluate(DaysInMonthFormula, Format('<+%1D>', CalcDate('<1M>') - Today));
+        Evaluate(PlanningStartDate, '<+2D>');
+        Evaluate(PlanningEndDate, '<+11M>');
+
+        IsInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning");
+    end;
+
+    local procedure CalcRegenPlanWithStopAndShowFirstError(Item: Record Item; FromDate: Date; ToDate: Date)
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        CalculatePlanPlanWksh: Report "Calculate Plan - Plan. Wksh.";
+    begin
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        CalculatePlanPlanWksh.InitializeRequest(FromDate, ToDate, true);
+        CalculatePlanPlanWksh.SetTemplAndWorksheet(RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, true);
+        Item.SetRange("No.", Item."No.");
+        CalculatePlanPlanWksh.SetTableView(Item);
+        CalculatePlanPlanWksh.UseRequestPage(true);
+        CalculatePlanPlanWksh.Run;
+    end;
+
     local procedure PlanningCaption(WorksheetBatchName: Code[10]; RequisitionWkshName: Record "Requisition Wksh. Name"; RequisitionLine: Record "Requisition Line"): Text
     begin
         exit(
@@ -4900,6 +4942,14 @@ codeunit 137020 "SCM Planning"
         LibraryVariableStorage.Dequeue(DequeueVariable);
         LocalMessage := DequeueVariable;
         Assert.IsTrue(StrPos(Msg, LocalMessage) > 0, Msg);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CalculatePlanPlanWkshRequestPageHandlerWithStopAndShowFirstError(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
+    begin
+        CalculatePlanPlanWksh.NoPlanningResiliency.SetValue(true);
+        CalculatePlanPlanWksh.OK.Invoke;
     end;
 }
 

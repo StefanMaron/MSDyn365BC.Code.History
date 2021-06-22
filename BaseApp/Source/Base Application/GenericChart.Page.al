@@ -22,10 +22,25 @@ page 1390 "Generic Chart"
             {
                 ApplicationArea = Basic, Suite;
 
+                trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
+                begin
+                    SetDrillDownIndexes(point);
+                    ChartManagement.DataPointClicked(Rec, SelectedChartDefinition);
+                end;
+
+                trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
+                begin
+                end;
+
                 trigger AddInReady()
                 begin
                     IsChartAddInReady := true;
                     ChartManagement.AddinReady(SelectedChartDefinition, Rec);
+                    InitializeSelectedChart;
+                end;
+
+                trigger Refresh()
+                begin
                     InitializeSelectedChart;
                 end;
             }

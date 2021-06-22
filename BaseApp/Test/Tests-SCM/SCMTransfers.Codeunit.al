@@ -1715,6 +1715,117 @@ codeunit 137038 "SCM Transfers"
         // [THEN] Transfer Order was posted.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingDirectTransferDoesNotApplyPosIntermdEntryToExistingILE()
+    var
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        QtyOnStock: Decimal;
+        QtyTransferred: Decimal;
+    begin
+        // [FEATURE] [Direct Transfer] [Item Application]
+        // [SCENARIO 321891] Intermediate item entry with blank location is not applied to existing negative item entries while posting direct transfer.
+        Initialize;
+        QtyOnStock := LibraryRandom.RandIntInRange(100, 200);
+        QtyTransferred := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Locations "A" and "B".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationFrom);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationTo);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post positive inventory adjustment to location "A".
+        // [GIVEN] Post negative inventory adjustment from blank location.
+        CreateAndPostItemJnlWithCostLocationVariant(
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", QtyOnStock, 0, LocationFrom.Code, '');
+        CreateAndPostItemJnlWithCostLocationVariant(
+          ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", QtyOnStock, 0, '', '');
+
+        // [GIVEN] Direct transfer order from "A" to "B".
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify(true);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", QtyTransferred);
+
+        // [WHEN] Post the direct transfer.
+        LibraryInventory.PostDirectTransferOrder(TransferHeader);
+
+        // [THEN] The transfer order is posted successfully.
+        Item.SetRange("Location Filter", LocationTo.Code);
+        Item.CalcFields("Net Change");
+        Item.TestField("Net Change", QtyTransferred);
+
+        // [THEN] The negative adjustment entry remains unapplied.
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
+        ItemLedgerEntry.SetRange("Location Code", '');
+        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.TestField("Remaining Quantity", -QtyOnStock);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchaseReceiptsModalPageHandler,PostedPurchaseReceiptLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure TransferOrderGetReceiptLinesUnitOfMeasureCodeAndVariant()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemVariant: Record "Item Variant";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: array[3] of Record Location;
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseReceiptNo: Code[20];
+    begin
+        // [FEATURE] [Get Receipt Lines] [Unit of Measure Code] [Item Variant]
+        // [SCENARIO 328925] "Get Receipt Lines" function copies correct Unit Of Measure Code from the Receipt to Transfer Order Line
+        // [SCENARIO 328925] "Get Receipt Lines" function copies correct Variant Code from the Receipt to Transfer Order Line
+        Initialize;
+
+        // [GIVEN] Item "ITEM1" with Unit of Measure Code "UOM1" and Item Variant "ITEM1V1"
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandDec(10, 2));
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] New locations "LOC1", "LOC2"
+        LibraryWarehouse.CreateTransferLocations(Location[1], Location[2], Location[3]);
+
+        // [GIVEN] Post purchase order receipt "PR1" on location "LOC1" with line for "ITEM1","UOM1","ITEM1V1"
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
+          Item."No.", LibraryRandom.RandIntInRange(5, 10), Location[1].Code, 0D);
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        PurchaseLine.Validate("Variant Code", ItemVariant.Code);
+        PurchaseLine.Modify(true);
+        PurchaseReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        PurchRcptLine.SetRange("Document No.", PurchaseReceiptNo);
+        PurchRcptLine.FindFirst;
+
+        // [GIVEN] Create transfer order from location "LOC1" to "LOC2"
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, Location[1].Code, Location[2].Code, Location[3].Code);
+
+        // [WHEN] Run function "Get Receipt Lines" with Receipt "PR1" line with item "ITEM1" selected
+        LibraryVariableStorage.Enqueue(PurchaseReceiptNo); // Purchase Receipt to select
+        LibraryVariableStorage.Enqueue(PurchRcptLine."No."); // Purchase Receipt Line to select
+        TransferHeader.GetReceiptLines;
+
+        // [THEN] Transfer line created with item "ITEM1", Unit Of Measure Code = "UOM1", Variant Code = "ITEM1V1"
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.SetRange("Item No.", PurchRcptLine."No.");
+        TransferLine.FindFirst;
+        TransferLine.TestField("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        TransferLine.TestField("Unit of Measure", PurchRcptLine."Unit of Measure");
+        TransferLine.TestField("Variant Code", ItemVariant.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1730,6 +1841,7 @@ codeunit 137038 "SCM Transfers"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateInventoryPostingSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 

@@ -275,11 +275,17 @@ report 5601 "Fixed Asset - List"
         DeprBook.Get(DeprBookCode);
         FAFilter := "Fixed Asset".GetFilters;
         DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
+        GlobalDim1CodeCaption := '';
+        GlobalDim2CodeCaption := '';
         GeneralLedgerSetup.Get;
-        Dimension.Get(GeneralLedgerSetup."Global Dimension 1 Code");
-        GlobalDim1CodeCaption := Dimension."Code Caption";
-        Dimension.Get(GeneralLedgerSetup."Global Dimension 2 Code");
-        GlobalDim2CodeCaption := Dimension."Code Caption";
+        if GeneralLedgerSetup."Global Dimension 1 Code" <> '' then begin
+            Dimension.Get(GeneralLedgerSetup."Global Dimension 1 Code");
+            GlobalDim1CodeCaption := Dimension."Code Caption";
+        end;
+        if GeneralLedgerSetup."Global Dimension 2 Code" <> '' then begin
+            Dimension.Get(GeneralLedgerSetup."Global Dimension 2 Code");
+            GlobalDim2CodeCaption := Dimension."Code Caption";
+        end;
     end;
 
     var

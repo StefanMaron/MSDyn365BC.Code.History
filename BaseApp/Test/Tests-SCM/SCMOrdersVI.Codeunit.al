@@ -37,7 +37,6 @@ codeunit 137163 "SCM Orders VI"
         UndoReceiptMsg: Label 'Do you really want to undo the selected Receipt lines?';
         UndoReturnShipmentMsg: Label 'Do you really want to undo the selected Return Shipment lines?';
         RecordMustBeDeletedTxt: Label 'Order must be deleted.';
-        CannotUndoItemChargeLineReturnShipmentErr: Label 'Undo Return Shipment can be performed only for lines of type Item. Please select a line of the Item type and repeat the procedure.';
         CannotUndoReservedQuantityErr: Label 'Reserved Quantity must be equal to ''0''  in Item Ledger Entry';
         BlockedItemErrorMsg: Label 'Blocked must be equal to ''No''  in Item: No.=%1. Current value is ''Yes''', Comment = '%1 = Item No';
         ExpectedReceiptDateErr: Label 'The change leads to a date conflict with existing reservations.';
@@ -47,7 +46,6 @@ codeunit 137163 "SCM Orders VI"
         ReturnOrderPostedMsg: Label 'All the documents were posted.';
         CannotUndoAppliedQuantityErr: Label 'Remaining Quantity must be equal to ''%1''  in Item Ledger Entry', Comment = '%1 = Value';
         RecordCountErr: Label 'No of record must be same.';
-        UndoReceiptCanBePerformedOnlyOnItemMsg: Label 'Undo Receipt can be performed only for lines of type Item. Please select a line of the Item type and repeat the procedure.';
         ExpectedCostPostingToGLQst: Label 'If you change the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.';
         ExpectedCostPostingToGLMsg: Label 'Expected Cost Posting to G/L has been changed to Yes. You should now run Post Inventory Cost to G/L.';
         ConfirmTextForChangeOfSellToCustomerOrBuyFromVendorQst: Label 'Do you want to change';
@@ -206,28 +204,6 @@ codeunit 137163 "SCM Orders VI"
 
         // Verify: Purchase Order is Deleted.
         Assert.IsFalse(PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No."), RecordMustBeDeletedTxt);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CannotUndoReturnShipmentForItemCharge()
-    var
-        PurchaseLine: Record "Purchase Line";
-        PurchaseHeader: Record "Purchase Header";
-        PostedDocumentNo: Code[20];
-    begin
-        // Setup: Create and Post Purchase Return Order with Item Charge.
-        Initialize;
-        PostedDocumentNo :=
-          CreateAndPostPurchaseDocument(
-            PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", PurchaseLine.Type::"Charge (Item)",
-            LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemChargeNo, LibraryRandom.RandDec(50, 2), false);
-
-        // Exercise: Undo Return Shipment Line.
-        asserterror UndoReturnShipmentLine(PostedDocumentNo);
-
-        // Verify: Error Message while Undo Return Shipment Line for Charge Item.
-        Assert.ExpectedError(CannotUndoItemChargeLineReturnShipmentErr);
     end;
 
     [Test]
@@ -827,52 +803,6 @@ codeunit 137163 "SCM Orders VI"
     begin
         Initialize;
         PostPurchaseOrderWithSpecialOrder(true);  // Post Special Order Partially.
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CannotUndoPostedPurchaseReceiptForItemCharge()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PostedDocumentNo: Code[20];
-    begin
-        // Setup: Create and Post Purchase Order for Item Charge.
-        Initialize;
-        PostedDocumentNo :=
-          CreateAndPostPurchaseDocument(
-            PurchaseHeader, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::"Charge (Item)", LibraryPurchase.CreateVendorNo,
-            LibraryInventory.CreateItemChargeNo, LibraryRandom.RandDec(10, 2), false);
-
-        // Exercise.
-        asserterror UndoPurchaseReceiptLine(PostedDocumentNo);
-
-        // Verify.
-        Assert.ExpectedError(StrSubstNo(UndoReceiptCanBePerformedOnlyOnItemMsg));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CannotUndoPostedPurchaseReceiptForGLAccount()
-    var
-        GLAccount: Record "G/L Account";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PostedDocumentNo: Code[20];
-    begin
-        // Setup: Create and Post Purchase Order for G/L Account.
-        Initialize;
-        LibraryERM.FindGLAccount(GLAccount);
-        PostedDocumentNo :=
-          CreateAndPostPurchaseDocument(
-            PurchaseHeader, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::"G/L Account", LibraryPurchase.CreateVendorNo,
-            GLAccount."No.", LibraryRandom.RandDec(10, 2), false);
-
-        // Exercise.
-        asserterror UndoPurchaseReceiptLine(PostedDocumentNo);
-
-        // Verify.
-        Assert.ExpectedError(StrSubstNo(UndoReceiptCanBePerformedOnlyOnItemMsg));
     end;
 
     [Test]

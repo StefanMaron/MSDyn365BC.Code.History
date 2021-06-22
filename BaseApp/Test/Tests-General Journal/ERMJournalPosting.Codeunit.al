@@ -105,56 +105,6 @@ codeunit 134420 "ERM Journal Posting"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PostGenJournalLineWithApiEnabled()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        APIMockEvents: Codeunit "API Mock Events";
-    begin
-        // [FEATURE] [Integration Managemnt] [Api]
-        // [SCENARIO 292025] Integration records are created on posting when Api is enabled in NST config
-        Initialize;
-
-        APIMockEvents.SetIsAPIEnabled(true);
-        BindSubscription(APIMockEvents);
-
-        LibraryJournals.CreateGenJournalLineWithBatch(
-          GenJournalLine, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(100, 200, 2));
-
-        CleanIntegrationTable;
-
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        Assert.TableIsNotEmpty(DATABASE::"Integration Record");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostGenJournalLineWithApiDisabled()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        APIMockEvents: Codeunit "API Mock Events";
-    begin
-        // [FEATURE] [Integration Managemnt] [Api]
-        // [SCENARIO 292025] Integration records are not created on posting when Api is disabled in NST config
-        Initialize;
-
-        APIMockEvents.SetIsAPIEnabled(false);
-        BindSubscription(APIMockEvents);
-
-        LibraryJournals.CreateGenJournalLineWithBatch(
-          GenJournalLine, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(100, 200, 2));
-
-        CleanIntegrationTable;
-
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        Assert.TableIsEmpty(DATABASE::"Integration Record");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure GenJnlPostBatchResetsAutoCalcFields()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -345,13 +295,6 @@ codeunit 134420 "ERM Journal Posting"
             "Journal Line No." := GenJournalLine."Line No.";
             Insert;
         end;
-    end;
-
-    local procedure CleanIntegrationTable()
-    var
-        IntegrationRecord: Record "Integration Record";
-    begin
-        IntegrationRecord.DeleteAll;
     end;
 
     local procedure FindGLAccount(var GLAccount: Record "G/L Account"; OmitDesc: Boolean)

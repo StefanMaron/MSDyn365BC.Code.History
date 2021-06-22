@@ -141,6 +141,7 @@ page 710 "Activity Log"
 
     trigger OnOpenPage()
     begin
+        if FindFirst() then;
         SetAutoCalcFields("Detailed Info");
     end;
 

@@ -392,7 +392,7 @@ page 160 "Sales Statistics"
         exit('2,0,' + FieldCaption);
     end;
 
-    local procedure UpdateVATOnSalesLines()
+    procedure UpdateVATOnSalesLines()
     var
         SalesLine: Record "Sales Line";
     begin

@@ -911,7 +911,7 @@ table 5330 "CRM Connection Setup"
         CRMConnectionSetup."Is User Mapping Required" := false;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure RefreshDataFromCRM()
     var
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
@@ -1028,7 +1028,7 @@ table 5330 "CRM Connection Setup"
         MyNotifications: Record "My Notifications";
         SystemInitialization: Codeunit "System Initialization";
     begin
-        if not SystemInitialization.IsInProgress then
+        if (not SystemInitialization.IsInProgress) and (GetExecutionContext() = ExecutionContext::Normal) then
             Error(ErrorMessage);
 
         MyNotifications.InsertDefault(GetCRMNotificationId, ActivityDescription, ErrorMessage, true);

@@ -14,6 +14,11 @@ codeunit 5775 "Whse. Management"
         SourceDocument: Option ,"S. Order","S. Invoice","S. Credit Memo","S. Return Order","P. Order","P. Invoice","P. Credit Memo","P. Return Order","Inb. Transfer","Outb. Transfer","Prod. Consumption","Item Jnl.","Phys. Invt. Jnl.","Reclass. Jnl.","Consumption Jnl.","Output Jnl.","BOM Jnl.","Serv. Order","Job Jnl.","Assembly Consumption","Assembly Order";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
+        if IsHandled then
+            exit(SourceDocument);
+
         case SourceType of
             DATABASE::"Sales Line":
                 case SourceSubtype of
@@ -75,7 +80,14 @@ codeunit 5775 "Whse. Management"
     end;
 
     procedure GetSourceType(WhseWkshLine: Record "Whse. Worksheet Line") SourceType: Integer
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSourceType(WhseWkshLine, SourceType, IsHandled);
+        if IsHandled then
+            exit(SourceType);
+
         with WhseWkshLine do
             case "Whse. Document Type" of
                 "Whse. Document Type"::Receipt:
@@ -199,6 +211,20 @@ codeunit 5775 "Whse. Management"
         end;
     end;
 
+    procedure SetSourceFilterForWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
+    begin
+        with WarehouseShipmentLine do begin
+            if SetKey then
+                SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
+            SetRange("Source Type", SourceType);
+            if SourceSubType >= 0 then
+                SetRange("Source Subtype", SourceSubType);
+            SetRange("Source No.", SourceNo);
+            if SourceLineNo >= 0 then
+                SetRange("Source Line No.", SourceLineNo);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSrcDocLineQtyOutstanding(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var QtyOutstanding: Decimal; var QtyBaseOutstanding: Decimal)
     begin
@@ -206,6 +232,16 @@ codeunit 5775 "Whse. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSourceDocument(SourceType: Integer; SourceSubtype: Integer; var SourceDocument: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSourceDocument(SourceType: Integer; SourceSubtype: Integer; var SourceDocument: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSourceType(WhseWorksheetLine: Record "Whse. Worksheet Line"; var SourceType: Integer; var IsHandled: Boolean)
     begin
     end;
 }
