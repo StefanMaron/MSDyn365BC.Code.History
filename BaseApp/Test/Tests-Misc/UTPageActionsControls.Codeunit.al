@@ -3234,6 +3234,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [THEN] Verify that the Customer action is enabled
         Assert.IsFalse(SalesInvoiceList.CustomerAction.Enabled, 'Customer action is enabled');
+        LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
     [Test]

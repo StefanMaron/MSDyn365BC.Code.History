@@ -233,6 +233,78 @@
                     ToolTip = 'Specifies the job number that the archived document was linked to.';
                     Visible = false;
                 }
+                field("Job Task No."; "Job Task No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the number of the related job task.';
+                    Visible = false;
+                }
+                field("Job Planning Line No."; "Job Planning Line No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the job planning line number to which the usage should be linked when the Job Journal is posted. You can only link to Job Planning Lines that have the Apply Usage Link option enabled.';
+                    Visible = false;
+                }
+                field("Job Line Type"; "Job Line Type")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the type of planning line that was created when the job ledger entry is posted from the purchase line. If the field is empty, no planning lines were created for this entry.';
+                    Visible = false;
+                }
+                field("Job Unit Price"; "Job Unit Price")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the sales price per unit that applies to the item or general ledger expense that will be posted.';
+                    Visible = false;
+                }
+                field("Job Line Amount"; "Job Line Amount")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the line amount of the job ledger entry that is related to the purchase line.';
+                    Visible = false;
+                }
+                field("Job Line Discount Amount"; "Job Line Discount Amount")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the line discount amount of the job ledger entry that is related to the purchase line.';
+                    Visible = false;
+                }
+                field("Job Line Discount %"; "Job Line Discount %")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the line discount percentage of the job ledger entry that is related to the purchase line.';
+                    Visible = false;
+                }
+                field("Job Total Price"; "Job Total Price")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the gross amount of the line that the purchase line applies to.';
+                    Visible = false;
+                }
+                field("Job Unit Price (LCY)"; "Job Unit Price (LCY)")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the sales price per unit that applies to the item or general ledger expense that will be posted.';
+                    Visible = false;
+                }
+                field("Job Total Price (LCY)"; "Job Total Price (LCY)")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the gross amount of the line, in the local currency.';
+                    Visible = false;
+                }
+                field("Job Line Amount (LCY)"; "Job Line Amount (LCY)")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the line amount of the job ledger entry that is related to the purchase line.';
+                    Visible = false;
+                }
+                field("Job Line Disc. Amount (LCY)"; "Job Line Disc. Amount (LCY)")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the line discount amount of the job ledger entry that is related to the purchase line.';
+                    Visible = false;
+                }
                 field("Planning Flexibility"; "Planning Flexibility")
                 {
                     ApplicationArea = Manufacturing;

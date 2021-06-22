@@ -126,33 +126,10 @@ page 401 "Purch. Credit Memo Statistics"
     begin
         ClearAll;
 
-        if "Currency Code" = '' then
-            Currency.InitRoundingPrecision
-        else
-            Currency.Get("Currency Code");
+        Currency.Initialize("Currency Code");
 
-        PurchCrMemoLine.SetRange("Document No.", "No.");
+        CalculateTotals();
 
-        if PurchCrMemoLine.Find('-') then
-            repeat
-                VendAmount := VendAmount + PurchCrMemoLine.Amount;
-                AmountInclVAT := AmountInclVAT + PurchCrMemoLine."Amount Including VAT";
-                if "Prices Including VAT" then
-                    InvDiscAmount := InvDiscAmount + PurchCrMemoLine."Inv. Discount Amount" / (1 + PurchCrMemoLine."VAT %" / 100)
-                else
-                    InvDiscAmount := InvDiscAmount + PurchCrMemoLine."Inv. Discount Amount";
-                LineQty := LineQty + PurchCrMemoLine.Quantity;
-                TotalNetWeight := TotalNetWeight + (PurchCrMemoLine.Quantity * PurchCrMemoLine."Net Weight");
-                TotalGrossWeight := TotalGrossWeight + (PurchCrMemoLine.Quantity * PurchCrMemoLine."Gross Weight");
-                TotalVolume := TotalVolume + (PurchCrMemoLine.Quantity * PurchCrMemoLine."Unit Volume");
-                if PurchCrMemoLine."Units per Parcel" > 0 then
-                    TotalParcels := TotalParcels + Round(PurchCrMemoLine.Quantity / PurchCrMemoLine."Units per Parcel", 1, '>');
-                if PurchCrMemoLine."VAT %" <> VATPercentage then
-                    if VATPercentage = 0 then
-                        VATPercentage := PurchCrMemoLine."VAT %"
-                    else
-                        VATPercentage := -1;
-            until PurchCrMemoLine.Next = 0;
         VATAmount := AmountInclVAT - VendAmount;
         InvDiscAmount := Round(InvDiscAmount, Currency."Amount Rounding Precision");
 
@@ -204,5 +181,53 @@ page 401 "Purch. Credit Memo Statistics"
         VATAmount: Decimal;
         VATPercentage: Decimal;
         VATAmountText: Text[30];
+
+    local procedure CalculateTotals()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(
+            Rec, VendAmount, AmountInclVAT, InvDiscAmount,
+            LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchCrMemoLine.SetRange("Document No.", "No.");
+        if PurchCrMemoLine.Find('-') then
+            repeat
+                VendAmount += PurchCrMemoLine.Amount;
+                AmountInclVAT += PurchCrMemoLine."Amount Including VAT";
+                if "Prices Including VAT" then
+                    InvDiscAmount += PurchCrMemoLine."Inv. Discount Amount" / (1 + PurchCrMemoLine."VAT %" / 100)
+                else
+                    InvDiscAmount += PurchCrMemoLine."Inv. Discount Amount";
+                LineQty += PurchCrMemoLine.Quantity;
+                TotalNetWeight += PurchCrMemoLine.Quantity * PurchCrMemoLine."Net Weight";
+                TotalGrossWeight += PurchCrMemoLine.Quantity * PurchCrMemoLine."Gross Weight";
+                TotalVolume += PurchCrMemoLine.Quantity * PurchCrMemoLine."Unit Volume";
+                if PurchCrMemoLine."Units per Parcel" > 0 then
+                    TotalParcels += Round(PurchCrMemoLine.Quantity / PurchCrMemoLine."Units per Parcel", 1, '>');
+                if PurchCrMemoLine."VAT %" <> VATPercentage then
+                    if VATPercentage = 0 then
+                        VATPercentage := PurchCrMemoLine."VAT %"
+                    else
+                        VATPercentage := -1;
+
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    PurchCrMemoLine, VendAmount, AmountInclVAT, InvDiscAmount,
+                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+            until PurchCrMemoLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
 }
 

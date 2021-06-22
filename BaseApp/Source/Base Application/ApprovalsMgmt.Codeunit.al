@@ -922,11 +922,11 @@ codeunit 1535 "Approvals Mgmt."
             exit;
 
         ApprovalEntry.Reset;
-        if (ApprovalEntry."Approver ID" <> UserId) or (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
+        if (ApprovalEntry."Approver ID" <> UserId) and (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
             NotificationEntry.CreateNewEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Approver ID",
                 ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", UserId);
-        if WorkflowStepArgument."Notify Sender" and (ApprovalEntry."Sender ID" <> UserId) then
+        if WorkflowStepArgument."Notify Sender" and not (ApprovalEntry."Sender ID" in [UserId, ApprovalEntry."Approver ID"]) then
             NotificationEntry.CreateNew(
                 NotificationEntry.Type::Approval, ApprovalEntry."Sender ID",
                 ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link");

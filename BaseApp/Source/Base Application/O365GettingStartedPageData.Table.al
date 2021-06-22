@@ -51,7 +51,7 @@ table 1308 "O365 Getting Started Page Data"
     }
 
     var
-        AllDisplayTargetsTxt: Label 'DEFAULT', Comment = '{LOCKED}';
+        AllDisplayTargetsTxt: Label 'DEFAULT', Locked = true;
         ClientTypeManagement: Codeunit "Client Type Management";
 
     procedure GetPageBodyText(var O365GettingStartedPageData: Record "O365 Getting Started Page Data"; CurrentPageID: Integer; WizardID: Integer): Boolean

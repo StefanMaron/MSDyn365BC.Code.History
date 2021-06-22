@@ -62,6 +62,7 @@ page 99000902 "Item Availability Line List"
         AssemblyLine: Record "Assembly Line";
         AvailType: Option "Gross Requirement","Planned Order Receipt","Scheduled Order Receipt","Planned Order Release",All;
         Sign: Integer;
+        QtyByUnitOfMeasure: Decimal;
 
     procedure Init(NewType: Option "Gross Requirement","Planned Order Receipt","Scheduled Order Receipt","Planned Order Release",All; var NewItem: Record Item)
     begin
@@ -227,7 +228,7 @@ page 99000902 "Item Availability Line List"
                 "Table No." := DATABASE::"Item Ledger Entry";
                 QuerySource := Item.FieldNo(Inventory);
                 Name := ItemLedgerEntry.TableCaption;
-                Quantity := Item.Inventory;
+                Quantity := AdjustWithQtyByUnitOfMeasure(Item.Inventory);
                 Insert;
             end;
             AvailType := AvailType::"Gross Requirement";
@@ -255,6 +256,7 @@ page 99000902 "Item Availability Line List"
                     ItemLedgerEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     ItemLedgerEntry.SetFilter("Global Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
                     ItemLedgerEntry.SetFilter("Global Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
+                    ItemLedgerEntry.SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
                     OnItemLedgerEntrySetFilter(ItemLedgerEntry);
                     PAGE.RunModal(0, ItemLedgerEntry);
                 end;
@@ -353,6 +355,7 @@ page 99000902 "Item Availability Line List"
                     Item.CopyFilter("Location Filter", ProdOrderLine."Location Code");
                     Item.CopyFilter("Global Dimension 1 Filter", ProdOrderLine."Shortcut Dimension 1 Code");
                     Item.CopyFilter("Global Dimension 2 Filter", ProdOrderLine."Shortcut Dimension 2 Code");
+                    Item.CopyFilter("Unit of Measure Filter", ProdOrderLine."Unit of Measure Code");
                     PAGE.RunModal(0, ProdOrderLine);
                 end;
             DATABASE::"Assembly Header":
@@ -380,8 +383,20 @@ page 99000902 "Item Availability Line List"
         "Table No." := Table;
         QuerySource := Field;
         Name := CopyStr(TableName, 1, MaxStrLen(Name));
-        Quantity := Qty * Sign;
+        Quantity := AdjustWithQtyByUnitOfMeasure(Qty * Sign);
         Insert;
+    end;
+
+    local procedure AdjustWithQtyByUnitOfMeasure(Quantity: Decimal): Decimal
+    begin
+        if QtyByUnitOfMeasure <> 0 then
+            exit(Quantity / QtyByUnitOfMeasure);
+        exit(Quantity);
+    end;
+
+    procedure SetQtyByUnitOfMeasure(NewQtyByUnitOfMeasure: Decimal);
+    begin
+        QtyByUnitOfMeasure := NewQtyByUnitOfMeasure;
     end;
 
     [IntegrationEvent(false, false)]

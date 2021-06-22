@@ -74,7 +74,14 @@ codeunit 5530 "Calc. Item Availability"
         ItemLedgEntry: Record "Item Ledger Entry";
         FilterItemLedgEntry: Record "Item Ledger Entry";
         IncludeLocation: Boolean;
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTryGetQtyOnInventory(InvtEventBuf, Item, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not ItemLedgEntry.ReadPermission then
             exit(false);
 
@@ -1083,6 +1090,11 @@ codeunit 5530 "Calc. Item Availability"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDocument(RecordID: RecordID; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTryGetQtyOnInventory(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

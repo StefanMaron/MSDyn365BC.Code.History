@@ -113,6 +113,8 @@ report 704 "Inventory - Transaction Detail"
                     trigger OnAfterGetRecord()
                     begin
                         ItemOnHand := ItemOnHand + Quantity;
+                        Clear(IncreasesQty);
+                        Clear(DecreasesQty);
                         if Quantity > 0 then
                             IncreasesQty := Quantity
                         else

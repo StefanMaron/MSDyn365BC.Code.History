@@ -95,6 +95,25 @@ codeunit 5513 "Graph Mgt - Time Registration"
     end;
 
     [Scope('OnPrem')]
+    procedure AddTimeSheetDetailWithDimensionSetAndJob(var TimeSheetDetail: Record "Time Sheet Detail"; TimeSheetLine: Record "Time Sheet Line"; Date: Date; Quantity: Decimal; DimensionSetID: Integer; JobID: Guid)
+    var
+        Job: Record Job;
+    begin
+        Clear(TimeSheetDetail);
+        TimeSheetDetail.CopyFromTimeSheetLine(TimeSheetLine);
+        TimeSheetDetail.Date := Date;
+        TimeSheetDetail.Quantity := Quantity;
+        TimeSheetDetail."Dimension Set ID" := DimensionSetID;
+
+        if Job.GetBySystemId(JobID) then begin
+            TimeSheetDetail."Job Id" := Job.Id;
+            TimeSheetDetail."Job No." := Job."No.";
+        end;
+
+        TimeSheetDetail.Insert(true);
+    end;
+
+    [Scope('OnPrem')]
     procedure UpdateIntegrationRecords(OnlyTimeSheetDetailsWithoutId: Boolean)
     var
         DummyTimeSheetDetail: Record "Time Sheet Detail";

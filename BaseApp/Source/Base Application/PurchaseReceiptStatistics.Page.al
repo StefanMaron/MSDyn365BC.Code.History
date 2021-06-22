@@ -60,8 +60,27 @@ page 399 "Purchase Receipt Statistics"
     begin
         ClearAll;
 
-        PurchRcptLine.SetRange("Document No.", "No.");
+        CalculateTotals();
+    end;
 
+    var
+        LineQty: Decimal;
+        TotalNetWeight: Decimal;
+        TotalGrossWeight: Decimal;
+        TotalVolume: Decimal;
+        TotalParcels: Decimal;
+
+    local procedure CalculateTotals()
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(Rec, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchRcptLine.SetRange("Document No.", "No.");
         if PurchRcptLine.Find('-') then
             repeat
                 LineQty := LineQty + PurchRcptLine.Quantity;
@@ -70,15 +89,19 @@ page 399 "Purchase Receipt Statistics"
                 TotalVolume := TotalVolume + (PurchRcptLine.Quantity * PurchRcptLine."Unit Volume");
                 if PurchRcptLine."Units per Parcel" > 0 then
                     TotalParcels := TotalParcels + Round(PurchRcptLine.Quantity / PurchRcptLine."Units per Parcel", 1, '>');
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    PurchRcptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
             until PurchRcptLine.Next = 0;
     end;
 
-    var
-        PurchRcptLine: Record "Purch. Rcpt. Line";
-        LineQty: Decimal;
-        TotalNetWeight: Decimal;
-        TotalGrossWeight: Decimal;
-        TotalVolume: Decimal;
-        TotalParcels: Decimal;
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(PurchRcptHeader: Record "Purch. Rcpt. Header"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchRcptLine: Record "Purch. Rcpt. Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
 }
 

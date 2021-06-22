@@ -106,7 +106,8 @@ codeunit 1850 "Sales Forecast Handler"
         exit(true);
     end;
 
-    [Scope('Internal')]
+    [NonDebuggable]
+    [Scope('OnPrem')]
     procedure InitializeTimeseries(var TimeSeriesManagement: Codeunit "Time Series Management"; MSSalesForecastSetup: Record "MS - Sales Forecast Setup"): Boolean
     var
         AzureAIUsage: Record "Azure AI Usage";

@@ -414,6 +414,8 @@ codeunit 841 "Cash Flow Management"
 
         while GLAccountCategory.Next <> 0 do
             CashAccountFilter += '|' + GLAccountCategory.GetTotaling;
+
+        CashAccountFilter := CashAccountFilter.TrimStart('|').TrimEnd('|');
     end;
 
     procedure SetupCashFlow(LiquidFundsGLAccountFilter: Code[250])

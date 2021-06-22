@@ -68,75 +68,113 @@ page 99000817 "Prod. Order Routing"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(false);
+                    end;
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Time';
                     ToolTip = 'Specifies the starting time of the routing line (operation).';
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        StartingTimeOnAfterValidate;
+                        Validate("Starting Time", StartingTime);
+                        CurrPage.Update(true);
                     end;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; StartingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Date';
                     ToolTip = 'Specifies the starting date of the routing line (operation).';
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        StartingDateOnAfterValidate;
+                        Validate("Starting Date", StartingDate);
+                        CurrPage.Update(true);
                     end;
                 }
                 field("Ending Date-Time"; "Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(false);
+                    end;
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; EndingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Time';
                     ToolTip = 'Specifies the ending time of the routing line (operation).';
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        EndingTimeOnAfterValidate;
+                        Validate("Ending Time", EndingTime);
+                        CurrPage.Update(true);
                     end;
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; EndingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Date';
                     ToolTip = 'Specifies the ending date of the routing line (operation).';
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        EndingDateOnAfterValidate;
+                        Validate("Ending Date", EndingDate);
+                        CurrPage.Update(true);
                     end;
                 }
                 field("Setup Time"; "Setup Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the setup time of the operation.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(false);
+                    end;
                 }
                 field("Run Time"; "Run Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the run time of the operation.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(false);
+                    end;
                 }
                 field("Wait Time"; "Wait Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the wait time after processing.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(false);
+                    end;
                 }
                 field("Move Time"; "Move Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the move time.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(false);
+                    end;
                 }
                 field("Fixed Scrap Quantity"; "Fixed Scrap Quantity")
                 {
@@ -374,6 +412,7 @@ page 99000817 "Prod. Order Routing"
     trigger OnAfterGetRecord()
     begin
         NextOperationNoEditable := not IsSerial;
+        GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -398,6 +437,10 @@ page 99000817 "Prod. Order Routing"
         [InDataSet]
         ProdOrderNoVisible: Boolean;
         NextOperationNoEditable: Boolean;
+        StartingTime: Time;
+        EndingTime: Time;
+        StartingDate: Date;
+        EndingDate: Date;
 
     local procedure ExpCapacityNeed(): Decimal
     var
@@ -408,26 +451,6 @@ page 99000817 "Prod. Order Routing"
             exit(1);
         WorkCenter.Get("Work Center No.");
         exit(CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"));
-    end;
-
-    local procedure StartingTimeOnAfterValidate()
-    begin
-        CurrPage.Update;
-    end;
-
-    local procedure StartingDateOnAfterValidate()
-    begin
-        CurrPage.Update;
-    end;
-
-    local procedure EndingTimeOnAfterValidate()
-    begin
-        CurrPage.Update;
-    end;
-
-    local procedure EndingDateOnAfterValidate()
-    begin
-        CurrPage.Update;
     end;
 
     procedure Initialize(NewCaption: Text)

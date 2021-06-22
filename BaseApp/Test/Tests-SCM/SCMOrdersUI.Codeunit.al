@@ -970,6 +970,144 @@ codeunit 137929 "SCM Orders UI"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('BinContentsListModalPageHandlerWithEnqueueItem')]
+    [Scope('OnPrem')]
+    procedure BinContentListWhenInternalMovementLineWithoutItem()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        BinContent: Record "Bin Content";
+        InternalMovementHeader: Record "Internal Movement Header";
+        InternalMovement: TestPage "Internal Movement";
+        LocationCode: Code[10];
+        BinCode: Code[20];
+        Index: Integer;
+    begin
+        // [FEATURE] [Bin Content] [Internal Movement]
+        // [SCENARIO 330767] When Stan looks up From-Bin Code in Internal Movement Line, then he can see all Items and Variants on Bin Content List page
+        // [GIVEN] Location with Bin
+        CreateLocationWithBin(LocationCode, BinCode);
+
+        // [GIVEN] Item "I1" with two Variants had Bin Content for each Variant in the Bin
+        LibraryInventory.CreateItem(Item);
+        for Index := 1 to 2 do begin
+            LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+            LibraryWarehouse.CreateBinContent(BinContent, LocationCode, '', BinCode, Item."No.", ItemVariant.Code, Item."Base Unit of Measure");
+        end;
+
+        // [GIVEN] Item "I2" had Bin Content in the Bin
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateBinContent(BinContent, LocationCode, '', BinCode, Item."No.", '', Item."Base Unit of Measure");
+
+        // [GIVEN] Internal Movement for the Location
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, LocationCode, '');
+        InternalMovement.OpenEdit;
+        InternalMovement.FILTER.SetFilter("No.", InternalMovementHeader."No.");
+
+        // [WHEN] Stan looks up From-Bin Code in Internal Movement Line
+        InternalMovement.InternalMovementLines."From Bin Code".Lookup;
+
+        // [THEN] Page Bin Content List opens showing 3 entries: two for Item "I1" and one for Item "I2"
+        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual(Item."No.", LibraryVariableStorage.DequeueText, '');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('BinContentsListModalPageHandlerWithEnqueueItem')]
+    [Scope('OnPrem')]
+    procedure BinContentListWhenInternalMovementLineWithItem()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        BinContent: Record "Bin Content";
+        InternalMovementHeader: Record "Internal Movement Header";
+        InternalMovementLine: Record "Internal Movement Line";
+        InternalMovement: TestPage "Internal Movement";
+        LocationCode: Code[10];
+        BinCode: Code[20];
+        Index: Integer;
+    begin
+        // [FEATURE] [Bin Content] [Internal Movement]
+        // [SCENARIO 330767] When Stan looks up From-Bin Code in Internal Movement Line with Item, then he can see all Variants for this Item on Bin Content List page
+        // [GIVEN] Location with Bin
+        CreateLocationWithBin(LocationCode, BinCode);
+
+        // [GIVEN] Item "I1" with two Variants had Bin Content for each Variant in the Bin
+        LibraryInventory.CreateItem(Item);
+        for Index := 1 to 2 do begin
+            LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+            LibraryWarehouse.CreateBinContent(BinContent, LocationCode, '', BinCode, Item."No.", ItemVariant.Code, Item."Base Unit of Measure");
+        end;
+
+        // [GIVEN] Item "I2" had Bin Content in the Bin
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateBinContent(BinContent, LocationCode, '', BinCode, Item."No.", '', Item."Base Unit of Measure");
+
+        // [GIVEN] Internal Movement for the Location with Item "I1" in Internal Movement Line
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, LocationCode, '');
+        LibraryWarehouse.CreateInternalMovementLine(InternalMovementHeader, InternalMovementLine, ItemVariant."Item No.", '', '', 0);
+        InternalMovement.OpenEdit;
+        InternalMovement.FILTER.SetFilter("No.", InternalMovementHeader."No.");
+
+        // [WHEN] Stan looks up From-Bin Code in the Internal Movement Line
+        InternalMovement.InternalMovementLines."From Bin Code".Lookup;
+
+        // [THEN] Page Bin Content List opens showing two entries for Item "I1"
+        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText, '');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('BinContentsListModalPageHandlerWithEnqueueItem')]
+    [Scope('OnPrem')]
+    procedure BinContentListWhenInternalMovementLineWithItemVariant()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        BinContent: Record "Bin Content";
+        InternalMovementHeader: Record "Internal Movement Header";
+        InternalMovementLine: Record "Internal Movement Line";
+        InternalMovement: TestPage "Internal Movement";
+        LocationCode: Code[10];
+        BinCode: Code[20];
+        Index: Integer;
+    begin
+        // [FEATURE] [Bin Content] [Internal Movement]
+        // [SCENARIO 330767] When Stan looks up From-Bin Code in Internal Movement Line with Item and Variant, then he can see only this Variant for this Item on Bin Content List page
+        // [GIVEN] Location with Bin
+        CreateLocationWithBin(LocationCode, BinCode);
+
+        // [GIVEN] Item "I1" with two Variants had Bin Content for each Variant in the Bin
+        LibraryInventory.CreateItem(Item);
+        for Index := 1 to 2 do begin
+            LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+            LibraryWarehouse.CreateBinContent(BinContent, LocationCode, '', BinCode, Item."No.", ItemVariant.Code, Item."Base Unit of Measure");
+        end;
+
+        // [GIVEN] Item "I2" had Bin Content in the Bin
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateBinContent(BinContent, LocationCode, '', BinCode, Item."No.", '', Item."Base Unit of Measure");
+
+        // [GIVEN] Internal Movement for the Location with Item "I1" and Variant selected in Internal Movement Line
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, LocationCode, '');
+        LibraryWarehouse.CreateInternalMovementLine(InternalMovementHeader, InternalMovementLine, ItemVariant."Item No.", '', '', 0);
+        InternalMovementLine.Validate("Variant Code", ItemVariant.Code);
+        InternalMovementLine.Modify(true);
+        InternalMovement.OpenEdit;
+        InternalMovement.FILTER.SetFilter("No.", InternalMovementHeader."No.");
+
+        // [WHEN] Stan looks up From-Bin Code in the Line
+        InternalMovement.InternalMovementLines."From Bin Code".Lookup;
+
+        // [THEN] Page Bin Content List opens showing just one entry for Item "I1"
+        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText, '');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders UI");
@@ -985,6 +1123,20 @@ codeunit 137929 "SCM Orders UI"
         isInitialized := true;
         Commit;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Orders UI");
+    end;
+
+    local procedure CreateLocationWithBin(var LocationCode: Code[10]; var BinCode: Code[20])
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Bin: Record Bin;
+    begin
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        WarehouseEmployee.DeleteAll;
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        LocationCode := Location.Code;
+        BinCode := Bin.Code;
     end;
 
     local procedure MockWhseShipmentLineWithQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; QtyOutstd: Decimal; QtyToShip: Decimal)
@@ -1264,6 +1416,16 @@ codeunit 137929 "SCM Orders UI"
     procedure MessageHandlerWithEqueue(Message: Text[1024])
     begin
         LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure BinContentsListModalPageHandlerWithEnqueueItem(var BinContentsList: TestPage "Bin Contents List")
+    begin
+        BinContentsList.First;
+        repeat
+            LibraryVariableStorage.Enqueue(Format(BinContentsList."Item No."));
+        until not BinContentsList.Next;
     end;
 }
 

@@ -794,7 +794,7 @@ table 6651 "Return Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(var ReturnShipmentLine: Record "Return Shipment Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnInsertInvLineFromRetShptLineOnBeforeValidatePurchaseLine(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

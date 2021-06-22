@@ -175,6 +175,7 @@ codeunit 5912 "ServLedgEntries-Post"
                 ServLedgEntry.SetRange(Type, ApplyToServLedgEntry.Type);
                 ServLedgEntry.SetRange("Moved from Prepaid Acc.", ApplyToServLedgEntry."Moved from Prepaid Acc.");
                 ServLedgEntry.SetRange("Entry No.", ApplyToServLedgEntry."Entry No.");
+                OnInsertServLedgerEntrySaleOnBeforeCloseEntries(ServLedgEntry, ApplyToServLedgEntry, ServLine, ServHeader);
                 ServLedgEntry.ModifyAll(Open, false);
                 if ServHeader."Document Type" = ServHeader."Document Type"::Invoice then begin
                     ServLedgEntry.ModifyAll("Document Type", ServLedgEntry."Document Type"::Invoice);
@@ -1080,6 +1081,11 @@ codeunit 5912 "ServLedgEntries-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyServicedInfoFromServiceLedgerEntryOnAfterCopyServicedInfo(var ServiceLedgerEntry: Record "Service Ledger Entry"; SourceServiceLedgerEntry: Record "Service Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertServLedgerEntrySaleOnBeforeCloseEntries(var ServiceLedgerEntry: Record "Service Ledger Entry"; var ApplyToServLedgEntry: Record "Service Ledger Entry"; var ServiceLine: Record "Service Line"; var ServHeader: Record "Service Header");
     begin
     end;
 }

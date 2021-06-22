@@ -155,7 +155,7 @@ table 5510 "Employee Time Reg Buffer"
 
         GraphMgtTimeRegistration.GetTimeSheetLineWithEmptyDate(TimeSheetLine, TimeSheetHeaderNo, Date);
 
-        GraphMgtTimeRegistration.AddTimeSheetDetail(TimeSheetDetail, TimeSheetLine, Date, Quantity);
+        GraphMgtTimeRegistration.AddTimeSheetDetailWithDimensionSetAndJob(TimeSheetDetail, TimeSheetLine, Date, Quantity, "Dimension Set ID", "Job Id");
 
         TransferFields(TimeSheetDetail, true);
 
@@ -171,11 +171,32 @@ table 5510 "Employee Time Reg Buffer"
     procedure PropagateModify()
     var
         TimeSheetDetail: Record "Time Sheet Detail";
+        RecordModified: Boolean;
     begin
         if Quantity <> xRec.Quantity then begin
             TimeSheetDetail.SetRange(Id, Id);
             TimeSheetDetail.FindFirst;
             TimeSheetDetail.Validate(Quantity, Quantity);
+            RecordModified := true;
+        end;
+        if "Dimension Set ID" <> xRec."Dimension Set ID" then begin
+            if not RecordModified then begin
+                TimeSheetDetail.SetRange(Id, Id);
+                TimeSheetDetail.FindFirst();
+                RecordModified := true;
+            end;
+            TimeSheetDetail.Validate("Dimension Set ID", "Dimension Set ID");
+        end;
+        if "Job Id" <> xRec."Job Id" then begin
+            if not RecordModified then begin
+                TimeSheetDetail.SetRange(Id, Id);
+                TimeSheetDetail.FindFirst();
+                RecordModified := true;
+            end;
+            TimeSheetDetail.Validate("Job Id", "Job Id");
+            TimeSheetDetail.Validate("Job No.", "Job No.");
+        end;
+        if RecordModified then begin
             TimeSheetDetail.Modify(true);
             TransferFields(TimeSheetDetail);
         end;

@@ -210,6 +210,14 @@ page 20041 "APIV1 - Time Registr. Entries"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
+        if "Employee Id" = BlankGUID then begin
+            if not HasFilter() then
+                Error(EmployeeIdOrNumberShouldBeSpecifiedErr);
+            Validate("Employee Id", GetFilter("Employee Id"));
+            Employee.GetBySystemId("Employee Id");
+            "Employee No" := Employee."No.";
+        end;
+
         UpdateDimensions(false);
         PropagateInsert();
         SetCalculatedFields();
@@ -247,6 +255,7 @@ page 20041 "APIV1 - Time Registr. Entries"
         CannotModifyDateErr: Label 'The date cannot be modified.', Locked = true;
         CannotChangeEmployeeIdErr: Label 'Value for employee ID cannot be modified.', Locked = true;
         CannotChangeEmployeeNumberErr: Label 'Value for employee number cannot be modified.', Locked = true;
+        EmployeeIdOrNumberShouldBeSpecifiedErr: Label 'You must specify a Employee ID or Employee number to get the time registration entries.', Locked = true;
 
     local procedure SetCalculatedFields()
     var

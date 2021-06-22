@@ -89,7 +89,14 @@ codeunit 368 "Format Document"
     end;
 
     procedure SetLogoPosition(LogoPosition: Option "No Logo",Left,Center,Right; var CompanyInfo1: Record "Company Information"; var CompanyInfo2: Record "Company Information"; var CompanyInfo3: Record "Company Information")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetLogoPosition(LogoPosition, CompanyInfo1, CompanyInfo2, CompanyInfo3, IsHandled);
+        if IsHandled then
+            exit;
+
         case LogoPosition of
             LogoPosition::"No Logo":
                 ;
@@ -252,6 +259,11 @@ codeunit 368 "Format Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSalesPurchaseLine(Quantity: Decimal; UnitPrice: Decimal; VATPercentage: Decimal; LineAmount: Decimal; CurrencyCode: Code[10]; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetLogoPosition(var LogoPosition: Option "No Logo",Left,Center,Right; var CompanyInfo1: Record "Company Information"; var CompanyInfo2: Record "Company Information"; var CompanyInfo3: Record "Company Information"; var IsHandled: Boolean);
     begin
     end;
 }

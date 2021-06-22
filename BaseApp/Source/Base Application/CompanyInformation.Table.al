@@ -573,62 +573,13 @@ table 79 "Company Information"
     local procedure ConvertLetter(var IBANCode: Code[100]; Letter: Code[1]; LetterPlace: Integer): Boolean
     var
         Letter2: Code[2];
+        LetterCharInt: Integer;
     begin
-        if (Letter >= 'A') and (Letter <= 'Z') then begin
-            case Letter of
-                'A':
-                    Letter2 := '10';
-                'B':
-                    Letter2 := '11';
-                'C':
-                    Letter2 := '12';
-                'D':
-                    Letter2 := '13';
-                'E':
-                    Letter2 := '14';
-                'F':
-                    Letter2 := '15';
-                'G':
-                    Letter2 := '16';
-                'H':
-                    Letter2 := '17';
-                'I':
-                    Letter2 := '18';
-                'J':
-                    Letter2 := '19';
-                'K':
-                    Letter2 := '20';
-                'L':
-                    Letter2 := '21';
-                'M':
-                    Letter2 := '22';
-                'N':
-                    Letter2 := '23';
-                'O':
-                    Letter2 := '24';
-                'P':
-                    Letter2 := '25';
-                'Q':
-                    Letter2 := '26';
-                'R':
-                    Letter2 := '27';
-                'S':
-                    Letter2 := '28';
-                'T':
-                    Letter2 := '29';
-                'U':
-                    Letter2 := '30';
-                'V':
-                    Letter2 := '31';
-                'W':
-                    Letter2 := '32';
-                'X':
-                    Letter2 := '33';
-                'Y':
-                    Letter2 := '34';
-                'Z':
-                    Letter2 := '35';
-            end;
+        // CFR assumes letter to number conversion where A = 10, B = 11, ... , Y = 34, Z = 35
+        // We must ignore country alphabet feature like Estonian
+        LetterCharInt := Letter[1];
+        if LetterCharInt in [65 .. 90] then begin
+            Letter2 := Format(LetterCharInt - 55, 9);
             if LetterPlace = 1 then
                 IBANCode := Letter2 + CopyStr(IBANCode, 2)
             else begin

@@ -217,17 +217,13 @@ table 1070 "MS - PayPal Standard Account"
     local procedure DeleteWebhookSubscription(AccountId: Text[250]);
     var
         WebhookSubscription: Record 2000000199;
-        WebhookManagement: Codeunit 5377;
-        WebhooksAdapterUri: Text[250];
         SubscriptionId: Text[150];
     begin
         SubscriptionId := CopyStr(LowerCase(AccountId), 1, MaxStrLen(SubscriptionId));
         WebhookSubscription.SETRANGE("Subscription ID", SubscriptionId);
         WebhookSubscription.SetFilter("Created By", MSPayPalWebhooksMgt.GetCreatedByFilterForWebhooks());
-
-        WebhooksAdapterUri := LOWERCASE(WebhookManagement.GetNotificationUrl());
-        IF WebhookManagement.FindWebhookSubscriptionMatchingEndPointUri(WebhookSubscription, WebhooksAdapterUri, 0, 0) THEN BEGIN
-            WebhookSubscription.DELETE(TRUE);
+        IF NOT WebhookSubscription.IsEmpty() THEN BEGIN
+            WebhookSubscription.DeleteAll(true);
             SendTraceTag('00008H8', PayPalTelemetryCategoryTok, Verbosity::Normal, WebhookSubscriptionDeletedTxt, DataClassification::SystemMetadata);
         END;
 

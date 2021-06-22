@@ -144,6 +144,18 @@
                     ToolTip = 'Specifies the job number that the archived document was linked to.';
                     Visible = false;
                 }
+                field("Job Task No."; "Job Task No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the number of the related job task.';
+                    Visible = false;
+                }
+                field("Job Contract Entry No."; "Job Contract Entry No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the entry number of the job planning line that the sales line is linked to.';
+                    Visible = false;
+                }
                 field("Blanket Order No."; "Blanket Order No.")
                 {
                     ApplicationArea = Suite;

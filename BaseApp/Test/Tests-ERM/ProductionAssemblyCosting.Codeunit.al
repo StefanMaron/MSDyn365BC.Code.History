@@ -689,7 +689,7 @@ codeunit 137617 "Production & Assembly Costing"
               ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", 1);
             LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
-            FindProdOrderLine(ProdOrderLine, ProductionOrder);
+            FindProdOrderLine(ProdOrderLine, ProductionOrder, ProdItem."No.");
             CreateProdOrderComponentWithItem(ProdOrderComponent, ProdOrderLine, ProdItem."No.", 1);
             CreateProdOrderComponentWithItem(ProdOrderComponent, ProdOrderLine, CompItem."No.", 1);
             LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
@@ -729,6 +729,64 @@ codeunit 137617 "Production & Assembly Costing"
 
         // [THEN] The remaining quantity and amount of item "C" in the inventory is zero.
         VerifyZeroActualCostRemains(CompItem."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure AverageCostCalculationOfMakeToOrderProdOrder()
+    var
+        CompItem: Record Item;
+        IntermdItem: Record Item;
+        FinalItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        CompUnitCost: Decimal;
+    begin
+        // [FEATURE] [Production Order] [Make-to-Order] [Average Cost]
+        // [SCENARIO 333128] Average cost calculation of multilevel production order.
+        Initialize;
+        CompUnitCost := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Component item "C", intermediate production item "I", final production item "P".
+        // [GIVEN] Items "C", "I", "P" are set up for Average costing method and have various unit costs.
+        CreateItem(CompItem, CompUnitCost, CompItem."Costing Method"::Average);
+        CreateItem(IntermdItem, LibraryRandom.RandDecInRange(101, 200, 2), IntermdItem."Costing Method"::Average);
+        CreateItem(FinalItem, LibraryRandom.RandDecInRange(201, 300, 2), FinalItem."Costing Method"::Average);
+
+        // [GIVEN] Set up production BOMs for items "I" and "P" so that 1 pcs "P" consists of 1 pc "I", which in its turn consists of 1 pc "C".
+        CreateProductionBOM(IntermdItem, CompItem);
+        CreateProductionBOM(FinalItem, IntermdItem);
+
+        // [GIVEN] Post inventory for item "C". Unit cost = "X".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, CompItem."No.", '', '', 1);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create multilevel production order for final item "P".
+        LibraryManufacturing.CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, FinalItem."No.", 1);
+
+        // [GIVEN] Post consumption of "C" and output of "C".
+        FindProdOrderLine(ProdOrderLine, ProductionOrder, IntermdItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Post consumption of "C" and output of "P".
+        FindProdOrderLine(ProdOrderLine, ProductionOrder, FinalItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Finish the production order.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [WHEN] Run cost adjustment for items "C", "I", "P".
+        LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2|%3', CompItem."No.", IntermdItem."No.", FinalItem."No."), '');
+
+        // [THEN] Output of "I" has unit cost equal to "X".
+        VerifyItemEntriesCost(IntermdItem."No.", ItemLedgerEntry."Entry Type"::Output, CompUnitCost);
+
+        // [THEN] Output of "P" has unit cost equal to "X".
+        VerifyItemEntriesCost(FinalItem."No.", ItemLedgerEntry."Entry Type"::Output, CompUnitCost);
     end;
 
     local procedure Initialize()
@@ -809,10 +867,26 @@ codeunit 137617 "Production & Assembly Costing"
         ProdOrderComponent.Modify(true);
     end;
 
-    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
+    local procedure CreateProductionBOM(var ProdItem: Record Item; CompItem: Record Item)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Order");
+        ProdItem.Modify(true);
+    end;
+
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order"; ItemNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", ItemNo);
         ProdOrderLine.FindFirst;
     end;
 

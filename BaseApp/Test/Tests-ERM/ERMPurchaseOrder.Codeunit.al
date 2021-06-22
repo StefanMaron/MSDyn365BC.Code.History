@@ -5347,6 +5347,20 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseOrder2."No.".AssertEquals(NextDocNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetFullDocTypeName()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO] Get full document type and name
+        // [GIVEN] Purchase Header of type "Order"
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Purchase Order' is returned
+        Assert.AreEqual('Purchase Order', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
 
     local procedure Initialize()
     var

@@ -10,30 +10,36 @@ codeunit 1351 "Telemetry Subscribers"
     var
         ProfileChangedTelemetryMsg: Label 'Profile changed from %1 to %2.', Comment = '%1=Previous profile id, %2=New profile id';
         ProfileChangedTelemetryCategoryTxt: Label 'AL User Profile';
-        NoSeriesCategoryTxt: Label 'AL NoSeries', Comment = '{LOCKED}';
-        NoSeriesEditedTelemetryTxt: Label 'The number series was changed by the user.', Comment = '{LOCKED}';
-        PermissionSetCategoryTxt: Label 'AL PermissionSet', Comment = '{LOCKED}';
-        PermissionSetLinkAddedTelemetryTxt: Label 'A Permission Set Link was added between Source Permission Set %1 and Permission Set %2. Total count of Permission Set Links are %3.', Comment = '{LOCKED}';
-        PermissionSetAddedTelemetryTxt: Label 'Permission Set %1 was added. Total count of user defined Permission Sets is %2.', Comment = '{LOCKED}';
-        PermissionSetAssignedToUserTelemetryTxt: Label 'Permission Set %1 was added to a user.', Comment = '{LOCKED}';
-        PermissionSetAssignedToUserGroupTelemetryTxt: Label 'Permission Set %1 was added to a user group %2.', Comment = '{LOCKED}';
+        NoSeriesCategoryTxt: Label 'AL NoSeries', Locked = true;
+        NoSeriesEditedTelemetryTxt: Label 'The number series was changed by the user.', Locked = true;
+        PermissionSetCategoryTxt: Label 'AL PermissionSet', Locked = true;
+        PermissionSetLinkAddedTelemetryTxt: Label 'A Permission Set Link was added between Source Permission Set %1 and Permission Set %2. Total count of Permission Set Links are %3.', Locked = true;
+        PermissionSetAddedTelemetryTxt: Label 'Permission Set %1 was added. Total count of user defined Permission Sets is %2.', Locked = true;
+        PermissionSetAssignedToUserTelemetryTxt: Label 'Permission Set %1 was added to a user.', Locked = true;
+        PermissionSetAssignedToUserGroupTelemetryTxt: Label 'Permission Set %1 was added to a user group %2.', Locked = true;
         EffectivePermsCalculatedTxt: Label 'Effective permissions were calculated for company %1, object type %2, object ID %3.', Comment = '{LOCKED} %1 = company name, %2 = object type, %3 = object Id';
         TenantPermissionsChangedFromEffectivePermissionsPageTxt: Label 'Tenant permission set %1 was changed.', Comment = '{LOCKED} %1 = permission set id';
         NumberOfDocumentLinesMsg: Label 'Type of Document: %1, Number of Document Lines: %2', Locked = true;
         RecordCountCategoryTxt: Label 'AL Record Count', Locked = true;
-        JobQueueEntriesCategoryTxt: Label 'AL JobQueueEntries', Comment = '{LOCKED}';
-        JobQueueEntryStartedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Started', Comment = '{LOCKED}';
-        JobQueueEntryStartedTransientTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, ParameterString = %4, Status = Started', Comment = '{LOCKED}';
-        JobQueueEntryFinishedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Finished, Result = %4', Comment = '{LOCKED}';
-        JobQueueEntryFinishedTransientTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, ParameterString = %4, Status = Finished, Result = %5', Comment = '{LOCKED}';
-        JobQueueEntryEnqueuedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Recurring = %4, Status = %5', Comment = '{LOCKED}';
-        JobQueueEntryInsertedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Recurring = %4', Comment = '{LOCKED}';
-        UndoSalesShipmentCategoryTxt: Label 'AL UndoSalesShipmentNoOfLines', Comment = '{LOCKED}';
-        UndoSalesShipmentNoOfLinesTxt: Label 'UndoNoOfLines = %1', Comment = '{LOCKED}';
+        JobQueueEntriesCategoryTxt: Label 'AL JobQueueEntries', Locked = true;
+        JobQueueEntryStartedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Started', Locked = true;
+        JobQueueEntryStartedTransientTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, ParameterString = %4, Status = Started', Locked = true;
+        JobQueueEntryFinishedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Finished, Result = %4', Locked = true;
+        JobQueueEntryFinishedTransientTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, ParameterString = %4, Status = Finished, Result = %5', Locked = true;
+        JobQueueEntryEnqueuedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Recurring = %4, Status = %5', Locked = true;
+        JobQueueEntryInsertedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Recurring = %4', Locked = true;
+        UndoSalesShipmentCategoryTxt: Label 'AL UndoSalesShipmentNoOfLines', Locked = true;
+        UndoSalesShipmentNoOfLinesTxt: Label 'UndoNoOfLines = %1', Locked = true;
         EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
         UserSettingUpEmailLoggingTxt: Label 'User is attempting to set up email logging via %1 page.', Locked = true;
         UserCompletedSettingUpEmailLoggingTxt: Label 'User completed the setting up of email logging via %1 page.', Locked = true;
         UserCreatingInteractionLogEntryBasedOnEmailTxt: Label 'User created an interaction log entry from an email message.', Locked = true;
+        BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
+        BankAccountRecPostedWithBankAccCurrencyCodeMsg: Label 'Bank Account Reconciliation posted with CurrencyCode set to: %1', Locked = true;
+        BankAccountRecImportedBankStatementLinesCountMsg: Label 'Number of imported lines in bank statement: %1', Locked = true;
+        BankAccountRecAutoMatchMsg: Label 'Total number of lines in the bank statement: %1; Total number of automatches: %2', Locked = true;
+        BankAccountRecTextToAccountCountLbl: Label 'Number of lines where Text-To-Applied was used: %1', Locked = true;
+        BankAccountRecTransferToGJMsg: Label 'Lines of Bank Statement to transfer to GJ: %1', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, 40, 'OnAfterCompanyOpen', '', true, true)]
     local procedure ScheduleMasterdataTelemetryAfterCompanyOpen()
@@ -352,5 +358,57 @@ codeunit 1351 "Telemetry Subscribers"
         SendTraceTag(
           '000089Z', EmailLoggingTelemetryCategoryTxt, VERBOSITY::Normal,
           UserCreatingInteractionLogEntryBasedOnEmailTxt, DATACLASSIFICATION::SystemMetadata)
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Bank Acc. Reconciliation Post", 'OnAfterFinalizePost', '', true, true)]
+    local procedure LogTelemetryOnBankAccRecPostOnAfterFinalizePost(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        with BankAccount do begin
+            Get(BankAccReconciliation."Bank Account No.");
+            SendTraceTag('0000AHX', BankAccountRecCategoryLbl, VERBOSITY::Normal, StrSubstNo(BankAccountRecPostedWithBankAccCurrencyCodeMsg, BankAccount."Currency Code"), DATACLASSIFICATION::SystemMetadata);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, codeunit::"Process Bank Acc. Rec Lines", 'OnAfterImportBankStatement', '', true, true)]
+    local procedure LogTelemetryOnBankAccRecOnAfterImportBankStatement(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DataExch: Record "Data Exch.")
+    begin
+        SendTraceTag('0000AHY', BankAccountRecCategoryLbl, VERBOSITY::Normal, StrSubstNo(BankAccountRecImportedBankStatementLinesCountMsg, DataExch.Count), DATACLASSIFICATION::SystemMetadata);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, codeunit::"Match Bank Rec. Lines", 'OnAfterMatchBankRecLinesMatchSingle', '', true, true)]
+    local procedure LogTelemetryOnAfterMatchBankRecLinesMatchSingle(CountMatchCandidates: Integer; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer")
+    begin
+        SendTraceTag('0000AHZ', BankAccountRecCategoryLbl, VERBOSITY::Normal,
+          StrSubstNo(BankAccountRecAutoMatchMsg, CountMatchCandidates, TempBankStatementMatchingBuffer.Count),
+          DATACLASSIFICATION::SystemMetadata);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Payment Reconciliation Journal", 'OnBeforeInvokePost', '', true, true)]
+    local procedure LogTelemetryOnPaymentRecJournalOnBeforeInvokePost(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        BankAccReconciliationLine.SetRange("Match Confidence", BankAccReconciliationLine."Match Confidence"::"High - Text-to-Account Mapping");
+
+        SendTraceTag('0000AI8', BankAccountRecCategoryLbl, VERBOSITY::Normal,
+          StrSubstNo(BankAccountRecTextToAccountCountLbl, BankAccReconciliationLine.Count), DATACLASSIFICATION::SystemMetadata);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Bank Acc. Reconciliation", 'OnAfterActionEvent', 'Transfer to General Journal', true, true)]
+    local procedure LogTelemetryOnBankAccReconciliationAfterTransfToGJ(var Rec: Record "Bank Acc. Reconciliation")
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        BankAccReconciliationLine.SetRange("Statement Type", Rec."Statement Type");
+        BankAccReconciliationLine.SetRange("Bank Account No.", Rec."Bank Account No.");
+        BankAccReconciliationLine.SetRange("Statement No.", Rec."Statement No.");
+        BankAccReconciliationLine.SetFilter(Difference, '<>%1', 0);
+        SendTraceTag('0000AHW', BankAccountRecCategoryLbl, VERBOSITY::Normal,
+            StrSubstNo(BankAccountRecTransferToGJMsg, BankAccReconciliationLine.Count), DATACLASSIFICATION::SystemMetadata);
     end;
 }

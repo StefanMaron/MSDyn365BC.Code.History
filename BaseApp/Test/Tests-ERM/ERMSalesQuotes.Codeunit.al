@@ -42,6 +42,7 @@ codeunit 134379 "ERM Sales Quotes"
         InvalidTemplateSelectedErr: Label 'Invalid template selected';
         CopyCustTemplateErr: Label 'Customer template copied incorrectly.';
         DifferentCustomerTemplateMsg: Label 'Sales quote %1 with original customer template %2 was assigned to the customer created from template %3.', Comment = '%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code';
+        NoOriginalCustomerTemplateMsg: Label 'Sales quote %1 without an original customer template was assigned to the customer created from template %2.', Comment = '%1=Document No.,%2=Customer Template Code';
 
     [Test]
     [Scope('OnPrem')]
@@ -1520,6 +1521,52 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerConditional,CustomerTemplateListModalPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateCustomerForContactQuoteWithoutCustomerTemplate()
+    var
+        Contact: Record Contact;
+        CustomerTemplate: Record "Customer Template";
+        SalesHeader: Record "Sales Header";
+        ErrorMessage: Record "Error Message";
+        ErrorMessages: TestPage "Error Messages";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 331392] Assigning Sales Quote without Customer Template for Contact to Customer created from a Customer Template raises a warning
+        Initialize;
+
+        // [GIVEN] Company Contact "COMP"
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Sales quote "SQ1" created from contact COMP without Customer Template
+        LibraryVariableStorage.Enqueue(false);
+        CreateQuoteFromContact(SalesHeader, Contact."No.");
+        DocumentNo := SalesHeader."No.";
+
+        // [GIVEN] Sales quote "SQ2" created from contact COMP with Customer Template "CT01"
+        SalesHeader."No." := '';
+        CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(CustomerTemplate.Code); // for CustomerTemplateListModalPageHandler
+        CreateQuoteFromContact(SalesHeader, Contact."No.");
+
+        // [WHEN] Customer created from quote "SQ2"
+        ErrorMessages.Trap;
+        LibraryVariableStorage.Enqueue(true);
+        SalesHeader.CheckCustomerCreated(false);
+        SalesHeader.Find;
+
+        // [THEN] Confirmation message is shown: "Quotes with Customer Templates different from CT01 were assigned to customer C00010. Do you want to review..."
+        // [THEN] Error Messages page is shown with warning message "Sales quote SQ1 without an original customer template was assigned to the customer created from template CT01."
+        Assert.ExpectedMessage(
+          StrSubstNo(NoOriginalCustomerTemplateMsg, DocumentNo, CustomerTemplate.Code),
+          ErrorMessages.Description.Value);
+        ErrorMessages."Message Type".AssertEquals(ErrorMessage."Message Type"::Warning);
+        Assert.IsFalse(ErrorMessages.Next, 'Unexpected error message');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1760,6 +1807,13 @@ codeunit 134379 "ERM Sales Quotes"
     procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerConditional(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean;
     end;
 
     [ModalPageHandler]

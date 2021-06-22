@@ -102,14 +102,15 @@ page 9176 "My Settings"
                     ApplicationArea = All;
                     Caption = 'Region';
                     ToolTip = 'Specifies the regional settings, such as date and numeric format, on all devices. You must sign out and then sign in again for the change to take effect.';
-                    Visible = NOT NotRunningOnSaaS;
+                    Visible = RunningOnSaaS;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Use field Locale instead';
 
                     trigger OnAssistEdit()
                     var
                         Language: Codeunit Language;
                     begin
-                        if EnvironmentInfo.IsSaaS then
-                            Language.LookupWindowsLanguageId(LocaleID);
+                        Language.LookupWindowsLanguageId(LocaleID);
                     end;
                 }
                 field(Language2; GetLanguage)
@@ -119,7 +120,9 @@ page 9176 "My Settings"
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the display language, on all devices. You must sign out and then sign in again for the change to take effect.';
-                    Visible = NOT NotRunningOnSaaS;
+                    Visible = RunningOnSaaS;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Use field Language instead';
 
                     trigger OnAssistEdit()
                     var
@@ -131,20 +134,22 @@ page 9176 "My Settings"
                 group("Region & Language")
                 {
                     Caption = 'Region & Language';
-                    Visible = NotRunningOnSaaS;
+                    Visible = not RunningOnSaaS;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Group will be removed. NB: Only group, not fields in group!';
+
                     field(Locale; GetLocale)
                     {
                         ApplicationArea = All;
                         Caption = 'Region';
                         ToolTip = 'Specifies the regional settings, such as date and numeric format, on all devices. You must sign out and then sign in again for the change to take effect.';
-                        Visible = NotRunningOnSaaS;
+                        Visible = not RunningOnSaaS;
 
                         trigger OnAssistEdit()
                         var
                             Language: Codeunit Language;
                         begin
-                            if not EnvironmentInfo.IsSaaS then
-                                Language.LookupWindowsLanguageId(LocaleID);
+                            Language.LookupWindowsLanguageId(LocaleID);
                         end;
                     }
                     field(Language; GetLanguage)
@@ -154,31 +159,28 @@ page 9176 "My Settings"
                         Editable = false;
                         Importance = Promoted;
                         ToolTip = 'Specifies the display language, on all devices. You must sign out and then sign in again for the change to take effect.';
-                        Visible = NotRunningOnSaaS;
+                        Visible = not RunningOnSaaS;
 
                         trigger OnAssistEdit()
                         var
                             Language: Codeunit Language;
                         begin
-                            if not EnvironmentInfo.IsSaaS then
-                                Language.LookupApplicationLanguageId(LanguageID);
+                            Language.LookupApplicationLanguageId(LanguageID);
                         end;
                     }
-                    field(TimeZone; GetTimeZone)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Time Zone';
-                        ToolTip = 'Specifies the time zone that you work in. You must sign out and then sign in again for the change to take effect.';
-                        Visible = NotRunningOnSaaS;
+                }
+                field(TimeZone; GetTimeZone)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Time Zone';
+                    ToolTip = 'Specifies the time zone that you work in. You must sign out and then sign in again for the change to take effect.';
 
-                        trigger OnAssistEdit()
-                        var
-                            ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
-                        begin
-                            if not EnvironmentInfo.IsSaaS then
-                                ConfPersonalizationMgt.LookupTimeZone(TimeZoneID);
-                        end;
-                    }
+                    trigger OnAssistEdit()
+                    var
+                        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+                    begin
+                        ConfPersonalizationMgt.LookupTimeZone(TimeZoneID);
+                    end;
                 }
                 field(RoleCenterOverviewEnabled; RoleCenterOverviewEnabled)
                 {
@@ -222,8 +224,10 @@ page 9176 "My Settings"
     }
 
     trigger OnInit()
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
-        NotRunningOnSaaS := not EnvironmentInfo.IsSaaS;
+        RunningOnSaaS := EnvironmentInfo.IsSaaS;
         IsNotOnMobile := ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone;
         ShowRoleCenterOverviewEnabledField := false;
     end;
@@ -323,7 +327,6 @@ page 9176 "My Settings"
     end;
 
     var
-        EnvironmentInfo: Codeunit "Environment Information";
         ClientTypeManagement: Codeunit "Client Type Management";
         LanguageID: Integer;
         LocaleID: Integer;
@@ -331,7 +334,7 @@ page 9176 "My Settings"
         VarCompany: Text;
         NewWorkdate: Date;
         ProfileID: Code[30];
-        NotRunningOnSaaS: Boolean;
+        RunningOnSaaS: Boolean;
         MyNotificationsLbl: Label 'Change when I receive notifications.';
         IsNotOnMobile: Boolean;
         CompanyDisplayName: Text[250];

@@ -150,12 +150,12 @@ codeunit 130401 "CAL Test Management"
     local procedure GetTestCodeunitsForSelectedObjects(CALTestSuiteName: Code[10])
     var
         AllObj: Record AllObj;
-        CALTestObjectsToSelect: Page "CAL Test Objects To Select";
+        ALTestObjectsToSelect: Page "AL Test Objects To Select";
     begin
-        CALTestObjectsToSelect.LookupMode := true;
-        CALTestObjectsToSelect.SetTableView(AllObj);
-        if CALTestObjectsToSelect.RunModal = ACTION::LookupOK then begin
-            CALTestObjectsToSelect.SetSelectionFilter(AllObj);
+        ALTestObjectsToSelect.LookupMode := true;
+        ALTestObjectsToSelect.SetTableView(AllObj);
+        if ALTestObjectsToSelect.RunModal = ACTION::LookupOK then begin
+            ALTestObjectsToSelect.SetSelectionFilter(AllObj);
             GetTestCodeunitsForObjects(AllObj, CALTestSuiteName);
         end;
     end;

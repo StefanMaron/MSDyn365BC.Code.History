@@ -3269,6 +3269,382 @@ codeunit 137079 "SCM Production Order III"
         ProductionOrder.TestField("Bin Code", Bin.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingEndingDateOnCalendarEntry()
+    var
+        CalendarEntry: Record "Calendar Entry";
+        StartingTime: Time;
+        EndingTime: Time;
+        CurrDate: Date;
+    begin
+        // [FEATURE] [Calendar Entry] [UT]
+        // [SCENARIO 331428] GetStartingEndingDateAndTime function in Calendar Entry table initializes StartingTime,EndingTime and Date variables used as expressions on date and time controls on Calendar Entry page.
+        Initialize;
+
+        CalendarEntry.Init;
+        CalendarEntry."No." := LibraryUtility.GenerateGUID;
+        CalendarEntry."Starting Date-Time" := CreateDateTime(WorkDate, Time);
+        CalendarEntry."Ending Date-Time" := CreateDateTime(WorkDate + 30, Time);
+
+        CalendarEntry.GetStartingEndingDateAndTime(StartingTime, EndingTime, CurrDate);
+
+        Assert.AreEqual(DT2Time(CalendarEntry."Starting Date-Time"), StartingTime, '');
+        Assert.AreEqual(DT2Time(CalendarEntry."Ending Date-Time"), EndingTime, '');
+        Assert.AreEqual(DT2Date(CalendarEntry."Ending Date-Time"), CurrDate, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingEndingDatesOnProductionOrderLists()
+    var
+        PlannedProdOrder: Record "Production Order";
+        FirmPlannedProdOrder: Record "Production Order";
+        ReleasedProdOrder: Record "Production Order";
+        FinishedProdOrder: Record "Production Order";
+        SimulatedProdOrder: Record "Production Order";
+        PlannedProductionOrders: TestPage "Planned Production Orders";
+        FirmPlannedProdOrders: TestPage "Firm Planned Prod. Orders";
+        ReleasedProductionOrders: TestPage "Released Production Orders";
+        FinishedProductionOrders: TestPage "Finished Production Orders";
+        SimulatedProductionOrders: TestPage "Simulated Production Orders";
+        ProductionOrderList: TestPage "Production Order List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 331428] "Starting Date" and "Ending Date" controls on production order lists are expressions calculated from "Starting Date-Time" and "Ending Date-Time" fields in accordance with the current time zone.
+        Initialize;
+
+        MockProductionOrder(PlannedProdOrder, PlannedProdOrder.Status::Planned);
+        MockProductionOrder(FirmPlannedProdOrder, FirmPlannedProdOrder.Status::"Firm Planned");
+        MockProductionOrder(ReleasedProdOrder, ReleasedProdOrder.Status::Released);
+        MockProductionOrder(FinishedProdOrder, FinishedProdOrder.Status::Finished);
+        MockProductionOrder(SimulatedProdOrder, SimulatedProdOrder.Status::Simulated);
+
+        PlannedProductionOrders.OpenView;
+        PlannedProductionOrders.FILTER.SetFilter("No.", PlannedProdOrder."No.");
+        PlannedProductionOrders."Starting Date".AssertEquals(DT2Date(PlannedProdOrder."Starting Date-Time"));
+        PlannedProductionOrders."Ending Date".AssertEquals(DT2Date(PlannedProdOrder."Ending Date-Time"));
+        PlannedProductionOrders.Close;
+
+        FirmPlannedProdOrders.OpenView;
+        FirmPlannedProdOrders.FILTER.SetFilter("No.", FirmPlannedProdOrder."No.");
+        FirmPlannedProdOrders."Starting Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Starting Date-Time"));
+        FirmPlannedProdOrders."Ending Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Ending Date-Time"));
+        FirmPlannedProdOrders.Close;
+
+        ReleasedProductionOrders.OpenView;
+        ReleasedProductionOrders.FILTER.SetFilter("No.", ReleasedProdOrder."No.");
+        ReleasedProductionOrders."Starting Date".AssertEquals(DT2Date(ReleasedProdOrder."Starting Date-Time"));
+        ReleasedProductionOrders."Ending Date".AssertEquals(DT2Date(ReleasedProdOrder."Ending Date-Time"));
+        ReleasedProductionOrders.Close;
+
+        FinishedProductionOrders.OpenView;
+        FinishedProductionOrders.FILTER.SetFilter("No.", FinishedProdOrder."No.");
+        FinishedProductionOrders."Starting Date".AssertEquals(DT2Date(FinishedProdOrder."Starting Date-Time"));
+        FinishedProductionOrders."Ending Date".AssertEquals(DT2Date(FinishedProdOrder."Ending Date-Time"));
+        FinishedProductionOrders.Close;
+
+        SimulatedProductionOrders.OpenView;
+        SimulatedProductionOrders.FILTER.SetFilter("No.", SimulatedProdOrder."No.");
+        SimulatedProductionOrders."Starting Date".AssertEquals(DT2Date(SimulatedProdOrder."Starting Date-Time"));
+        SimulatedProductionOrders."Ending Date".AssertEquals(DT2Date(SimulatedProdOrder."Ending Date-Time"));
+        SimulatedProductionOrders.Close;
+
+        ProductionOrderList.OpenView;
+        ProductionOrderList.FILTER.SetFilter("No.", PlannedProdOrder."No.");
+        ProductionOrderList."Starting Date".AssertEquals(DT2Date(PlannedProdOrder."Starting Date-Time"));
+        ProductionOrderList."Ending Date".AssertEquals(DT2Date(PlannedProdOrder."Ending Date-Time"));
+        ProductionOrderList.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingEndingDatesOnPlannedProductionOrderCard()
+    var
+        PlannedProdOrder: Record "Production Order";
+        PlannedProductionOrderCard: TestPage "Planned Production Order";
+        NewDate: Date;
+        NewTime: Time;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Planned Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding field i
+        Initialize;
+
+        MockProductionOrder(PlannedProdOrder, PlannedProdOrder.Status::Planned);
+
+        PlannedProductionOrderCard.OpenEdit;
+        PlannedProductionOrderCard.FILTER.SetFilter("No.", PlannedProdOrder."No.");
+        PlannedProductionOrderCard."Starting Time".AssertEquals(DT2Time(PlannedProdOrder."Starting Date-Time"));
+        PlannedProductionOrderCard."Starting Date".AssertEquals(DT2Date(PlannedProdOrder."Starting Date-Time"));
+        PlannedProductionOrderCard."Ending Time".AssertEquals(DT2Time(PlannedProdOrder."Ending Date-Time"));
+        PlannedProductionOrderCard."Ending Date".AssertEquals(DT2Date(PlannedProdOrder."Ending Date-Time"));
+
+        NewDate := LibraryRandom.RandDate(30);
+        PlannedProductionOrderCard."Starting Date".SetValue(NewDate);
+        PlannedProdOrder.Find;
+        PlannedProdOrder.TestField("Starting Date", NewDate);
+
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        PlannedProductionOrderCard."Starting Time".SetValue(NewTime);
+        PlannedProdOrder.Find;
+        PlannedProdOrder.TestField("Starting Time", NewTime);
+
+        NewDate := LibraryRandom.RandDate(30);
+        PlannedProductionOrderCard."Ending Date".SetValue(NewDate);
+        PlannedProdOrder.Find;
+        PlannedProdOrder.TestField("Ending Date", NewDate);
+
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        PlannedProductionOrderCard."Ending Time".SetValue(NewTime);
+        PlannedProdOrder.Find;
+        PlannedProdOrder.TestField("Ending Time", NewTime);
+
+        NewDate := LibraryRandom.RandDate(30);
+        PlannedProductionOrderCard."Due Date".SetValue(NewDate);
+        PlannedProductionOrderCard."Ending Date".AssertEquals(NewDate - 1);
+
+        PlannedProductionOrderCard.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingEndingDatesOnFirmPlannedProductionOrderCard()
+    var
+        FirmPlannedProdOrder: Record "Production Order";
+        FirmPlannedProdOrderCard: TestPage "Firm Planned Prod. Order";
+        NewDate: Date;
+        NewTime: Time;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Firm Planned Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding fi
+        Initialize;
+
+        MockProductionOrder(FirmPlannedProdOrder, FirmPlannedProdOrder.Status::"Firm Planned");
+
+        FirmPlannedProdOrderCard.OpenEdit;
+        FirmPlannedProdOrderCard.FILTER.SetFilter("No.", FirmPlannedProdOrder."No.");
+        FirmPlannedProdOrderCard."Starting Time".AssertEquals(DT2Time(FirmPlannedProdOrder."Starting Date-Time"));
+        FirmPlannedProdOrderCard."Starting Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Starting Date-Time"));
+        FirmPlannedProdOrderCard."Ending Time".AssertEquals(DT2Time(FirmPlannedProdOrder."Ending Date-Time"));
+        FirmPlannedProdOrderCard."Ending Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Ending Date-Time"));
+
+        NewDate := LibraryRandom.RandDate(30);
+        FirmPlannedProdOrderCard."Starting Date".SetValue(NewDate);
+        FirmPlannedProdOrder.Find;
+        FirmPlannedProdOrder.TestField("Starting Date", NewDate);
+
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        FirmPlannedProdOrderCard."Starting Time".SetValue(NewTime);
+        FirmPlannedProdOrder.Find;
+        FirmPlannedProdOrder.TestField("Starting Time", NewTime);
+
+        NewDate := LibraryRandom.RandDate(30);
+        FirmPlannedProdOrderCard."Ending Date".SetValue(NewDate);
+        FirmPlannedProdOrder.Find;
+        FirmPlannedProdOrder.TestField("Ending Date", NewDate);
+
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        FirmPlannedProdOrderCard."Ending Time".SetValue(NewTime);
+        FirmPlannedProdOrder.Find;
+        FirmPlannedProdOrder.TestField("Ending Time", NewTime);
+
+        NewDate := LibraryRandom.RandDate(30);
+        FirmPlannedProdOrderCard."Due Date".SetValue(NewDate);
+        FirmPlannedProdOrderCard."Ending Date".AssertEquals(NewDate - 1);
+
+        FirmPlannedProdOrderCard.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingEndingDatesOnReleasedProductionOrderCard()
+    var
+        ReleasedProdOrder: Record "Production Order";
+        ReleasedProductionOrderCard: TestPage "Released Production Order";
+        NewDate: Date;
+        NewTime: Time;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Released Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding field
+        Initialize;
+
+        MockProductionOrder(ReleasedProdOrder, ReleasedProdOrder.Status::Released);
+
+        ReleasedProductionOrderCard.OpenEdit;
+        ReleasedProductionOrderCard.FILTER.SetFilter("No.", ReleasedProdOrder."No.");
+        ReleasedProductionOrderCard."Starting Time".AssertEquals(DT2Time(ReleasedProdOrder."Starting Date-Time"));
+        ReleasedProductionOrderCard."Starting Date".AssertEquals(DT2Date(ReleasedProdOrder."Starting Date-Time"));
+        ReleasedProductionOrderCard."Ending Time".AssertEquals(DT2Time(ReleasedProdOrder."Ending Date-Time"));
+        ReleasedProductionOrderCard."Ending Date".AssertEquals(DT2Date(ReleasedProdOrder."Ending Date-Time"));
+
+        NewDate := LibraryRandom.RandDate(30);
+        ReleasedProductionOrderCard."Starting Date".SetValue(NewDate);
+        ReleasedProdOrder.Find;
+        ReleasedProdOrder.TestField("Starting Date", NewDate);
+
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        ReleasedProductionOrderCard."Starting Time".SetValue(NewTime);
+        ReleasedProdOrder.Find;
+        ReleasedProdOrder.TestField("Starting Time", NewTime);
+
+        NewDate := LibraryRandom.RandDate(30);
+        ReleasedProductionOrderCard."Ending Date".SetValue(NewDate);
+        ReleasedProdOrder.Find;
+        ReleasedProdOrder.TestField("Ending Date", NewDate);
+
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        ReleasedProductionOrderCard."Ending Time".SetValue(NewTime);
+        ReleasedProdOrder.Find;
+        ReleasedProdOrder.TestField("Ending Time", NewTime);
+
+        NewDate := LibraryRandom.RandDate(30);
+        ReleasedProductionOrderCard."Due Date".SetValue(NewDate);
+        ReleasedProductionOrderCard."Ending Date".AssertEquals(NewDate - 1);
+
+        ReleasedProductionOrderCard.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingEndingDatesOnFinishedProductionOrderCard()
+    var
+        FinishedProdOrder: Record "Production Order";
+        FinishedProductionOrderCard: TestPage "Finished Production Order";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Finished Production Order page are expressions calculated from datetime fields. Finished production orders are not editable.
+        Initialize;
+
+        MockProductionOrder(FinishedProdOrder, FinishedProdOrder.Status::Finished);
+
+        FinishedProductionOrderCard.OpenView;
+        FinishedProductionOrderCard.FILTER.SetFilter("No.", FinishedProdOrder."No.");
+        FinishedProductionOrderCard."Starting Time".AssertEquals(DT2Time(FinishedProdOrder."Starting Date-Time"));
+        FinishedProductionOrderCard."Starting Date".AssertEquals(DT2Date(FinishedProdOrder."Starting Date-Time"));
+        FinishedProductionOrderCard."Ending Time".AssertEquals(DT2Time(FinishedProdOrder."Ending Date-Time"));
+        FinishedProductionOrderCard."Ending Date".AssertEquals(DT2Date(FinishedProdOrder."Ending Date-Time"));
+        FinishedProductionOrderCard.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingEndingDatesOnSimulatedProductionOrderCard()
+    var
+        SimulatedProdOrder: Record "Production Order";
+        SimulatedProductionOrderCard: TestPage "Simulated Production Order";
+        NewDate: Date;
+        NewTime: Time;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 331428] "Starting Time", "Starting Date", "Ending Time" and "Ending Date" controls on Simulated Production Order page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding field
+        Initialize;
+
+        MockProductionOrder(SimulatedProdOrder, SimulatedProdOrder.Status::Simulated);
+
+        SimulatedProductionOrderCard.OpenEdit;
+        SimulatedProductionOrderCard.FILTER.SetFilter("No.", SimulatedProdOrder."No.");
+        SimulatedProductionOrderCard."Starting Time".AssertEquals(DT2Time(SimulatedProdOrder."Starting Date-Time"));
+        SimulatedProductionOrderCard."Starting Date".AssertEquals(DT2Date(SimulatedProdOrder."Starting Date-Time"));
+        SimulatedProductionOrderCard."Ending Time".AssertEquals(DT2Time(SimulatedProdOrder."Ending Date-Time"));
+        SimulatedProductionOrderCard."Ending Date".AssertEquals(DT2Date(SimulatedProdOrder."Ending Date-Time"));
+
+        NewDate := LibraryRandom.RandDate(30);
+        SimulatedProductionOrderCard."Starting Date".SetValue(NewDate);
+        SimulatedProdOrder.Find;
+        SimulatedProdOrder.TestField("Starting Date", NewDate);
+
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        SimulatedProductionOrderCard."Starting Time".SetValue(NewTime);
+        SimulatedProdOrder.Find;
+        SimulatedProdOrder.TestField("Starting Time", NewTime);
+
+        NewDate := LibraryRandom.RandDate(30);
+        SimulatedProductionOrderCard."Ending Date".SetValue(NewDate);
+        SimulatedProdOrder.Find;
+        SimulatedProdOrder.TestField("Ending Date", NewDate);
+
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        SimulatedProductionOrderCard."Ending Time".SetValue(NewTime);
+        SimulatedProdOrder.Find;
+        SimulatedProdOrder.TestField("Ending Time", NewTime);
+
+        NewDate := LibraryRandom.RandDate(30);
+        SimulatedProductionOrderCard."Due Date".SetValue(NewDate);
+        SimulatedProductionOrderCard."Ending Date".AssertEquals(NewDate - 1);
+
+        SimulatedProductionOrderCard.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingEndingDatesOnProdOrderCapacityNeed()
+    var
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ProdOrderCapacityNeedPage: TestPage "Prod. Order Capacity Need";
+        NewDate: Date;
+        NewTime: Time;
+    begin
+        // [FEATURE] [Capacity Need] [UI]
+        // [SCENARIO 331428] "Starting Time", "Ending Time" and "Date" controls on Capacity Need page are expressions calculated from datetime fields. Updating any of these controls will validate the corresponding field in the table.
+        Initialize;
+
+        ProdOrderCapacityNeed.Init;
+        ProdOrderCapacityNeed."Prod. Order No." := LibraryUtility.GenerateGUID;
+        ProdOrderCapacityNeed."Starting Date-Time" := CreateDateTime(WorkDate, Time);
+        ProdOrderCapacityNeed."Ending Date-Time" := CreateDateTime(WorkDate + 30, Time);
+        ProdOrderCapacityNeed.Insert;
+
+        ProdOrderCapacityNeedPage.OpenEdit;
+        ProdOrderCapacityNeedPage.FILTER.SetFilter("Prod. Order No.", ProdOrderCapacityNeed."Prod. Order No.");
+        ProdOrderCapacityNeedPage."Starting Time".AssertEquals(DT2Time(ProdOrderCapacityNeed."Starting Date-Time"));
+        ProdOrderCapacityNeedPage."Ending Time".AssertEquals(DT2Time(ProdOrderCapacityNeed."Ending Date-Time"));
+        ProdOrderCapacityNeedPage.Date.AssertEquals(DT2Date(ProdOrderCapacityNeed."Ending Date-Time"));
+
+        NewDate := LibraryRandom.RandDate(30);
+        ProdOrderCapacityNeedPage.Date.SetValue(NewDate);
+        ProdOrderCapacityNeed.Find;
+        ProdOrderCapacityNeed.TestField(Date, NewDate);
+
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        ProdOrderCapacityNeedPage."Starting Time".SetValue(NewTime);
+        ProdOrderCapacityNeed.Find;
+        ProdOrderCapacityNeed.TestField("Starting Time", NewTime);
+
+        NewTime := DT2Time(RoundDateTime(CreateDateTime(NewDate, Time)));
+        ProdOrderCapacityNeedPage."Ending Time".SetValue(NewTime);
+        ProdOrderCapacityNeed.Find;
+        ProdOrderCapacityNeed.TestField("Ending Time", NewTime);
+
+        ProdOrderCapacityNeedPage.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingEndingDatesOnProdOrderRouting()
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        StartingTime: Time;
+        EndingTime: Time;
+        StartingDate: Date;
+        EndingDate: Date;
+    begin
+        // [FEATURE] [Production Order Routing Line] [UT]
+        // [SCENARIO 331428] GetStartingEndingDateAndTime function in Prod. Order Routing Line table initializes StartingTime, EndingTime, StartingDate, EndingDate variables used as expressions on time and date controls on Prod. Order Routing page.
+        Initialize;
+
+        ProdOrderRoutingLine.Init;
+        ProdOrderRoutingLine."Prod. Order No." := LibraryUtility.GenerateGUID;
+        ProdOrderRoutingLine."Starting Date-Time" := CreateDateTime(WorkDate, Time);
+        ProdOrderRoutingLine."Ending Date-Time" := CreateDateTime(WorkDate + 30, Time);
+
+        ProdOrderRoutingLine.GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
+
+        Assert.AreEqual(DT2Time(ProdOrderRoutingLine."Starting Date-Time"), StartingTime, '');
+        Assert.AreEqual(DT2Time(ProdOrderRoutingLine."Ending Date-Time"), EndingTime, '');
+        Assert.AreEqual(DT2Date(ProdOrderRoutingLine."Starting Date-Time"), StartingDate, '');
+        Assert.AreEqual(DT2Date(ProdOrderRoutingLine."Ending Date-Time"), EndingDate, '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -4542,6 +4918,18 @@ codeunit 137079 "SCM Production Order III"
             "Order No." := ProdOrderComponent."Prod. Order No.";
             "Prod. Order Comp. Line No." := ProdOrderComponent."Line No.";
             Quantity := LibraryRandom.RandInt(10);
+            Insert;
+        end;
+    end;
+
+    local procedure MockProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Option)
+    begin
+        with ProductionOrder do begin
+            Init;
+            Status := ProdOrderStatus;
+            "No." := LibraryUtility.GenerateGUID;
+            "Starting Date-Time" := CreateDateTime(WorkDate, Time);
+            "Ending Date-Time" := CreateDateTime(WorkDate + 30, Time);
             Insert;
         end;
     end;

@@ -33,6 +33,11 @@ table 414 "IC Outbox Transaction"
         {
             Caption = 'Document No.';
             Editable = false;
+
+            trigger OnLookup()
+            begin
+                OnBeforeLookupDocumentNo(Rec);
+            end;
         }
         field(7; "Posting Date"; Date)
         {
@@ -209,6 +214,11 @@ table 414 "IC Outbox Transaction"
                  StrSubstNo(Text001, ICOutboxTransaction2."Transaction No.", "Transaction No."), true)
             then
                 Error('');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupDocumentNo(ICOutboxTransaction: Record "IC Outbox Transaction");
+    begin
     end;
 
     [IntegrationEvent(false, false)]

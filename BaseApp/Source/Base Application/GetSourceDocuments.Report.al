@@ -143,6 +143,8 @@ report 5753 "Get Source Documents"
                             case RequestType of
                                 RequestType::Receive:
                                     if WhseActivityCreate.CheckIfPurchLine2ReceiptLine("Purchase Line") then begin
+                                        OnPurchaseLineOnAfterGetRecordOnBeforeCreateRcptHeader(
+                                          "Purchase Line", "Warehouse Request", WhseReceiptHeader, WhseHeaderCreated, OneHeaderCreated);
                                         if not OneHeaderCreated and not WhseHeaderCreated then begin
                                             CreateReceiptHeader;
                                             OnPurchaseLineOnAfterCreateRcptHeader(WhseReceiptHeader, WhseHeaderCreated, "Purchase Header");
@@ -153,6 +155,8 @@ report 5753 "Get Source Documents"
                                     end;
                                 RequestType::Ship:
                                     if WhseActivityCreate.CheckIfFromPurchLine2ShptLine("Purchase Line") then begin
+                                        OnPurchaseLineOnAfterGetRecordOnBeforeCreateShptHeader(
+                                          "Purchase Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated);
                                         if not OneHeaderCreated and not WhseHeaderCreated then begin
                                             CreateShptHeader;
                                             OnPurchaseLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Purchase Header");
@@ -662,6 +666,8 @@ report 5753 "Get Source Documents"
 
     local procedure CheckFillQtyToHandle()
     begin
+        OnBeforeCheckFillQtyToHandle(DoNotFillQtytoHandle, RequestType);
+
         if DoNotFillQtytoHandle and (RequestType = RequestType::Receive) then begin
             WhseReceiptLine.Reset;
             WhseReceiptLine.SetRange("No.", WhseReceiptHeader."No.");
@@ -731,6 +737,11 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterWarehouseRequestOnPreDataItem(var WarehouseRequest: Record "Warehouse Request")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckFillQtyToHandle(var DoNotFillQtytoHandle: Boolean; var RequestType: Option);
     begin
     end;
 
@@ -811,6 +822,16 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnSalesLineOnAfterGetRecordOnBeforeCreateShptHeader(SalesLine: Record "Sales Line"; var WarehouseRequest: Record "Warehouse Request"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var OneHeaderCreated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchaseLineOnAfterGetRecordOnBeforeCreateRcptHeader(PurchaseLine: Record "Purchase Line"; var WarehouseRequest: Record "Warehouse Request"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WhseHeaderCreated: Boolean; var OneHeaderCreated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchaseLineOnAfterGetRecordOnBeforeCreateShptHeader(PurchaseLine: Record "Purchase Line"; var WarehouseRequest: Record "Warehouse Request"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var OneHeaderCreated: Boolean)
     begin
     end;
 

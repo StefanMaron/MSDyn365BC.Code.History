@@ -2448,6 +2448,46 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SplitLineInWhsePickWithMultipleLines()
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ActivityNo: Code[20];
+    begin
+        // [FEATURE] [Split Line]
+        // [SCENARIO 330820] Split Line functionality renumbers Lines in Whse Activity
+        // [SCENARIO 330820] when it is not possible to insert new Line No between the existing ones
+        Initialize;
+        ActivityNo := LibraryUtility.GenerateGUID;
+
+        // [GIVEN] Warehouse Pick had the following Lines:
+        // [GIVEN] Line No 20000 with 5 PCS
+        // [GIVEN] Line No 29998 with 6 PCS
+        // [GIVEN] Line No 29999 with 7 PCS and Qty. to Handle 4 PCS
+        // [GIVEN] Line No 30000 with 8 PCS
+        MockWhseActivityLineWithQty(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, ActivityNo, 20000, 5, 5, 0);
+        MockWhseActivityLineWithQty(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, ActivityNo, 29998, 6, 6, 0);
+        MockWhseActivityLineWithQty(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, ActivityNo, 30000, 8, 8, 0);
+        MockWhseActivityLineWithQty(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, ActivityNo, 29999, 7, 7, 4);
+
+        // [WHEN] Split Line with No = 29999
+        WarehouseActivityLine.SplitLine(WarehouseActivityLine);
+
+        // [THEN] Line with 5 PCS has Line No = 10000
+        // [THEN] Line with 6 PCS has Line No = 20000
+        // [THEN] Line with 4 PCS has Line No = 30000
+        // [THEN] Line with 3 PCS has Line No = 35000
+        // [THEN] Line with 8 PCS and Line No = 40000
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type");
+        WarehouseActivityLine.SetRange("No.", ActivityNo);
+        VerifyLineNoInFilteredWhseActivityLine(WarehouseActivityLine, 5, 10000);
+        VerifyLineNoInFilteredWhseActivityLine(WarehouseActivityLine, 6, 20000);
+        VerifyLineNoInFilteredWhseActivityLine(WarehouseActivityLine, 4, 30000);
+        VerifyLineNoInFilteredWhseActivityLine(WarehouseActivityLine, 3, 35000);
+        VerifyLineNoInFilteredWhseActivityLine(WarehouseActivityLine, 8, 40000);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3772,6 +3812,18 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         end;
     end;
 
+    local procedure MockWhseActivityLineWithQty(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Integer; ActivityNo: Code[20]; LineNo: Integer; Qty: Decimal; QtyOutstanding: Decimal; QtyToHandle: Decimal)
+    begin
+        WarehouseActivityLine.Init;
+        WarehouseActivityLine."Activity Type" := ActivityType;
+        WarehouseActivityLine."No." := ActivityNo;
+        WarehouseActivityLine."Line No." := LineNo;
+        WarehouseActivityLine.Quantity := Qty;
+        WarehouseActivityLine."Qty. Outstanding" := QtyOutstanding;
+        WarehouseActivityLine."Qty. to Handle" := QtyToHandle;
+        WarehouseActivityLine.Insert;
+    end;
+
     local procedure DeletePutAwayLines(SourceNo: Code[20]; LotNo: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -4944,6 +4996,13 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     begin
         VerifyWarehousePickLine(SourceDocument, SourceNo, WarehouseActivityLine."Action Type"::Take, ItemNo, Quantity, VariantCode, BinCode);
         VerifyWarehousePickLine(SourceDocument, SourceNo, WarehouseActivityLine."Action Type"::Place, ItemNo, Quantity, VariantCode, BinCode2);
+    end;
+
+    local procedure VerifyLineNoInFilteredWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; Qty: Decimal; ExpectedLineNo: Integer)
+    begin
+        WarehouseActivityLine.SetRange(Quantity, Qty);
+        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.TestField("Line No.", ExpectedLineNo);
     end;
 
     local procedure VerifyItemLedgerEntriesWithMultipleLotNo(EntryType: Option; ItemNo: Code[20]; LotNo: array[4] of Code[10]; Quantity: Decimal)

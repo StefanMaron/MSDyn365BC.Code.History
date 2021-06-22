@@ -18,6 +18,7 @@ codeunit 431 "IC Outbox Export"
         CompanyInfo: Record "Company Information";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         FileMgt: Codeunit "File Management";
+        ClientTypeManagement: Codeunit "Client Type Management";
         FolderPathMissingErr: Label 'Folder Path must have a value in IC Partner: Code=%1. It cannot be zero or empty.', Comment = '%1=Intercompany Code';
         EmailAddressMissingErr: Label 'Email Address must have a value in IC Partner: Code=%1. It cannot be zero or empty.', Comment = '%1=Intercompany Code';
 
@@ -66,7 +67,6 @@ codeunit 431 "IC Outbox Export"
         EmailItem: Record "Email Item";
         MailHandler: Codeunit Mail;
         DocumentMailing: Codeunit "Document-Mailing";
-        EnvironmentInfo: Codeunit "Environment Information";
         ICOutboxExportXML: XMLport "IC Outbox Imp/Exp";
         EmailDialog: Page "Email Dialog";
         OFile: File;
@@ -85,9 +85,7 @@ codeunit 431 "IC Outbox Export"
             repeat
                 ICOutboxTrans.SetRange("IC Partner Code", ICPartner.Code);
                 if ICOutboxTrans.Find('-') then begin
-                    if (ICPartner."Inbox Type" = ICPartner."Inbox Type"::"File Location") and
-                       not EnvironmentInfo.IsSaaS
-                    then begin
+                    if (ICPartner."Inbox Type" = ICPartner."Inbox Type"::"File Location") and not IsWebClient() then begin
                         ICPartner.TestField(Blocked, false);
                         if ICPartner."Inbox Details" = '' then
                             Error(FolderPathMissingErr, ICPartner.Code);
@@ -108,7 +106,7 @@ codeunit 431 "IC Outbox Export"
 
                     ExportOutboxTransaction(ICOutboxTrans, FileName);
 
-                    if EnvironmentInfo.IsSaaS then begin
+                    if IsWebClient() then begin
                         OutFileName := StrSubstNo('%1_%2.xml', ICPartner.Code, ICOutboxTrans."Transaction No.");
                         Download(FileName, '', '', '', OutFileName)
                     end else
@@ -126,7 +124,7 @@ codeunit 431 "IC Outbox Export"
                                 CcName := CopyStr(CcName, 1, StrPos(CcName, ';') - 1);
                         end;
 
-                        if EnvironmentInfo.IsSaaS then begin
+                        if IsWebClient() then begin
                             CreateEmailItem(
                               EmailItem,
                               ICPartner."Inbox Details",
@@ -288,6 +286,11 @@ codeunit 431 "IC Outbox Export"
         OFile.Close;
         Clear(OStr);
         Clear(ICOutboxImpExpXML);
+    end;
+
+    local procedure IsWebClient(): Boolean
+    begin
+        exit(ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop]);
     end;
 
     [IntegrationEvent(false, false)]

@@ -62,7 +62,7 @@ codeunit 7310 "Whse.-Shipment Release"
 
             OnAfterReleaseWarehouseShipment(WhseShptHeader);
 
-            CreateWhsePickRqst(WhseShptHeader);
+            CreateWhsePickRequest(WhseShptHeader);
 
             WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
             WhsePickRqst.SetRange("Document No.", "No.");
@@ -114,23 +114,25 @@ codeunit 7310 "Whse.-Shipment Release"
         OnAfterReopen(WhseShptHeader);
     end;
 
-    local procedure CreateWhsePickRqst(var WhseShptHeader: Record "Warehouse Shipment Header")
+    local procedure CreateWhsePickRequest(var WhseShptHeader: Record "Warehouse Shipment Header")
     var
-        WhsePickRqst: Record "Whse. Pick Request";
+        WhsePickRequest: Record "Whse. Pick Request";
         Location: Record Location;
     begin
         with WhseShptHeader do
             if Location.RequirePicking("Location Code") then begin
-                WhsePickRqst."Document Type" := WhsePickRqst."Document Type"::Shipment;
-                WhsePickRqst."Document No." := "No.";
-                WhsePickRqst.Status := Status;
-                WhsePickRqst."Location Code" := "Location Code";
-                WhsePickRqst."Zone Code" := "Zone Code";
-                WhsePickRqst."Bin Code" := "Bin Code";
+                WhsePickRequest."Document Type" := WhsePickRequest."Document Type"::Shipment;
+                WhsePickRequest."Document No." := "No.";
+                WhsePickRequest.Status := Status;
+                WhsePickRequest."Location Code" := "Location Code";
+                WhsePickRequest."Zone Code" := "Zone Code";
+                WhsePickRequest."Bin Code" := "Bin Code";
                 CalcFields("Completely Picked");
-                WhsePickRqst."Completely Picked" := "Completely Picked";
-                if not WhsePickRqst.Insert then
-                    WhsePickRqst.Modify;
+                WhsePickRequest."Completely Picked" := "Completely Picked";
+                OnBeforeWhsePickRequestInsert(WhsePickRequest, WhseShptHeader);
+                if not WhsePickRequest.Insert then
+                    WhsePickRequest.Modify;
+                OnAfterWhsePickRequestInsert(WhsePickRequest);
             end;
     end;
 
@@ -160,12 +162,22 @@ codeunit 7310 "Whse.-Shipment Release"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterWhsePickRequestInsert(var WhsePickRequest: Record "Whse. Pick Request")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRelease(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReopen(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWhsePickRequestInsert(var WhsePickRequest: Record "Whse. Pick Request"; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 }

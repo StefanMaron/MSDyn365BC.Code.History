@@ -1684,6 +1684,8 @@ codeunit 6500 "Item Tracking Management"
                 ItemTrackingLines.RegisterItemTrackingLines(TempSourceSpec, AvailabilityDate, TempTrkgSpec3);
             end;
         end;
+
+        OnAfterSynchronizeItemTracking2(FromReservEntry, ReservEntry2);
     end;
 
     procedure SetRegistering(Registering2: Boolean)
@@ -3115,6 +3117,52 @@ codeunit 6500 "Item Tracking Management"
         ItemTrackingCode := CachedItemTrackingCode;
     end;
 
+    [Scope('OnPrem')]
+    procedure CopyExpirationDateForLot(var TrackingSpecification: Record "Tracking Specification")
+    var
+        CurrTrackingSpec: Record "Tracking Specification";
+    begin
+        with TrackingSpecification do begin
+            if "Lot No." = '' then
+                exit;
+
+            CurrTrackingSpec.Copy(TrackingSpecification);
+
+            SetFilter("Entry No.", '<>%1', "Entry No.");
+            SetRange("Item No.", "Item No.");
+            SetRange("Variant Code", "Variant Code");
+            SetRange("Lot No.", "Lot No.");
+            SetRange("Buffer Status", 0);
+            if FindFirst then
+                CurrTrackingSpec."Expiration Date" := "Expiration Date";
+
+            Copy(CurrTrackingSpec);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure UpdateExpirationDateForLot(var TrackingSpecification: Record "Tracking Specification")
+    var
+        CurrTrackingSpec: Record "Tracking Specification";
+    begin
+        with TrackingSpecification do begin
+            if "Lot No." = '' then
+                exit;
+
+            CurrTrackingSpec.Copy(TrackingSpecification);
+
+            SetFilter("Entry No.", '<>%1', "Entry No.");
+            SetRange("Item No.", "Item No.");
+            SetRange("Variant Code", "Variant Code");
+            SetRange("Lot No.", "Lot No.");
+            SetFilter("Expiration Date", '<>%1', "Expiration Date");
+            SetRange("Buffer Status", 0);
+            ModifyAll("Expiration Date", CurrTrackingSpec."Expiration Date");
+
+            Copy(CurrTrackingSpec);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyHandledItemTrkgToInvLine(FromSalesLine: Record "Sales Line"; var ToSalesLine: Record "Sales Line")
     begin
@@ -3292,6 +3340,11 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRetrieveItemTrackingFromReservEntryFilter(var ReservEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSynchronizeItemTracking2(FromReservEntry: Record "Reservation Entry"; ReservEntry2: Record "Reservation Entry")
     begin
     end;
 

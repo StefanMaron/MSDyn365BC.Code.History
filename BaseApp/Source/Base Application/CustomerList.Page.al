@@ -28,6 +28,12 @@
                     ApplicationArea = All;
                     ToolTip = 'Specifies the customer''s name. This name will appear on all sales documents for the customer.';
                 }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
+                }
                 field("Responsibility Center"; "Responsibility Center")
                 {
                     ApplicationArea = Basic, Suite;

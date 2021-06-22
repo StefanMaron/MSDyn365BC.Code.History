@@ -1442,6 +1442,20 @@
                             ItemAvailFormsMgt.ShowItemAvailFromItem(Rec, ItemAvailFormsMgt.ByBOM);
                         end;
                     }
+                    action("Unit of Measure")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Unit of Measure';
+                        Image = UnitOfMeasure;
+                        RunObject = Page "Item Availability by UOM";
+                        RunPageLink = "No." = FIELD ("No."),
+                                      "Global Dimension 1 Filter" = FIELD ("Global Dimension 1 Filter"),
+                                      "Global Dimension 2 Filter" = FIELD ("Global Dimension 2 Filter"),
+                                      "Location Filter" = FIELD ("Location Filter"),
+                                      "Drop Shipment Filter" = FIELD ("Drop Shipment Filter"),
+                                      "Variant Filter" = FIELD("Variant Filter");
+                        ToolTip = 'View the item''s availability by a unit of measure.';
+                    }
                 }
             }
             group(ActionGroupCRM)

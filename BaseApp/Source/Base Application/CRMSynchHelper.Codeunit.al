@@ -48,8 +48,14 @@ codeunit 5342 "CRM Synch. Helper"
         TempCRMUomschedule.DeleteAll;
         Clear(TempCRMUomschedule);
     end;
-
+    
+    [Obsolete('Use GetDefaultPriceListName instead')]
     procedure GetDefaultNAVPriceListName(): Text[50]
+    begin
+        exit(StrSubstNo(DefaultNAVPriceListNameTxt, PRODUCTNAME.Short));
+    end;
+
+    procedure GetDefaultPriceListName(): Text[100]
     begin
         exit(StrSubstNo(DefaultNAVPriceListNameTxt, PRODUCTNAME.Short));
     end;
@@ -60,10 +66,10 @@ codeunit 5342 "CRM Synch. Helper"
     begin
         with CRMPricelevel do begin
             Reset;
-            SetRange(Name, GetDefaultNAVPriceListName);
+            SetRange(Name, GetDefaultPriceListName);
             if not FindFirst then begin
                 Init;
-                Name := GetDefaultNAVPriceListName;
+                Name := GetDefaultPriceListName;
                 FindNAVLocalCurrencyInCRM(CRMTransactioncurrency);
                 TransactionCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
                 TransactionCurrencyIdName := CRMTransactioncurrency.CurrencyName;

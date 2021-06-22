@@ -317,6 +317,21 @@ codeunit 136115 "Service Quote"
         ServiceHeaderOrder.TestField("Location Code", Location.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetFullDocTypeName()
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        // [SCENARIO] Get full document type and name
+        // [GIVEN] Service Header of type "Quote"
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Quote;
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Service Quote' is returned
+        Assert.AreEqual('Service Quote', ServiceHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

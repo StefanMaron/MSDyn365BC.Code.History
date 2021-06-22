@@ -548,11 +548,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType WebhookSubscriptionNotFoundTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - NamedType 3855445020" size-unit="char" translate="no" xml:space="preserve">
-          <source>The payment is ignored because it is not recognized as a PayPal payment.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - NamedType NonPayPalPaymentTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2501375762 - NamedType 4153910288" size-unit="char" translate="no" xml:space="preserve">
           <source>The payment is ignored because no payment remains.</source>
           <note from="Developer" annotates="general" priority="2"></note>

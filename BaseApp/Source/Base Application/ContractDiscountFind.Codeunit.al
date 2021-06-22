@@ -3,7 +3,14 @@ codeunit 5941 "ContractDiscount-Find"
     TableNo = "Contract/Service Discount";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+		OnBeforeFindContractDiscount(Rec, IsHandled);
+		if IsHandled then
+		  exit;
+
         ContractServDiscount.Copy(Rec);
 
         with ContractServDiscount do begin
@@ -21,5 +28,10 @@ codeunit 5941 "ContractDiscount-Find"
 
     var
         ContractServDiscount: Record "Contract/Service Discount";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindContractDiscount(var ContractServiceDiscount: Record "Contract/Service Discount"; var IsHandled: Boolean);
+    begin
+    end;
 }
 

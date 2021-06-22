@@ -336,6 +336,8 @@ page 515 "Item Avail. by Location Lines"
         PeriodEnd := Item.GetRangeMax("Date Filter");
         AmountType := NewAmountType;
         CurrPage.Update(false);
+
+        OnAfterSet(Item, AmountType);
     end;
 
     procedure Get(var ItemOut: Record Item)
@@ -351,6 +353,8 @@ page 515 "Item Avail. by Location Lines"
             Item.SetRange("Date Filter", 0D, PeriodEnd);
         LocationCode := Code;
         Item.SetRange("Location Filter", Code);
+
+        OnAfterSetItemFilter(Item, PeriodStart, PeriodEnd);
     end;
 
     local procedure ShowItemAvailLineList(What: Integer)
@@ -366,6 +370,16 @@ page 515 "Item Avail. by Location Lines"
           Item, AmountType = AmountType::"Balance at Date",
           GrossRequirement, PlannedOrderRcpt, ScheduledRcpt,
           PlannedOrderReleases, ProjAvailableBalance, ExpectedInventory, QtyAvailable);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSet(var Item: Record Item; AmountType: Option);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItemFilter(var Item: Record Item; var PeriodStart: Date; var PeriodEnd: Date);
+    begin
     end;
 }
 

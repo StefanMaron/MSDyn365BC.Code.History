@@ -142,7 +142,7 @@ page 9193 "Thirty Day Trial Dialog"
         TrialWizardCompleted: Boolean;
         TermsAndConditionsAccepted: Boolean;
         LinkLbl: Label 'View Terms & Conditions';
-        UrlTxt: Label 'http://go.microsoft.com/fwlink/?LinkId=828977', Comment = '{locked}';
+        UrlTxt: Label 'http://go.microsoft.com/fwlink/?LinkId=828977', Locked = true;
         Content1Lbl: Label 'Use the setups that we provide, and import or create items, customers, and vendors to do things like post invoices or use graphs and reports to analyze your finances.';
         Content2Lbl: Label 'If you decide to subscribe, you can continue using the data and setup that you create during the trial.';
         Content3Lbl: Label 'Choose Next to learn more about how to get started.';

@@ -5,9 +5,10 @@ report 1143 "Import Cost Budget from Excel"
 
     dataset
     {
-        dataitem("Cost Budget Buffer"; "Cost Budget Buffer")
+        dataitem(TempCostBudgetBuffer; "Cost Budget Buffer")
         {
             DataItemTableView = SORTING("Cost Type No.", "Cost Center Code", "Cost Object Code", Date);
+            UseTemporary = true;
 
             trigger OnAfterGetRecord()
             begin
@@ -135,7 +136,7 @@ report 1143 "Import Cost Budget from Excel"
     trigger OnPostReport()
     begin
         ExcelBuffer.DeleteAll;
-        "Cost Budget Buffer".DeleteAll;
+        TempCostBudgetBuffer.DeleteAll;
     end;
 
     trigger OnPreReport()
@@ -152,7 +153,6 @@ report 1143 "Import Cost Budget from Excel"
         end;
 
         ExcelBuffer.LockTable;
-        "Cost Budget Buffer".LockTable;
         CostBudgetEntry.SetRange("Budget Name", ToCostBudgetName);
         if not CostBudgetName.Get(ToCostBudgetName) then
             Clear(CostBudgetName);
@@ -205,8 +205,7 @@ report 1143 "Import Cost Budget from Excel"
     local procedure AnalyzeData()
     var
         TempExcelBuffer: Record "Excel Buffer" temporary;
-        CostBudgetBuffer: Record "Cost Budget Buffer";
-        CostBudgetBuffer2: Record "Cost Budget Buffer";
+        TempCostBudgetBuffer2: Record "Cost Budget Buffer" temporary;
         CostCenter: Record "Cost Center";
         CostObject: Record "Cost Object";
         HeaderRowNo: Integer;
@@ -219,8 +218,8 @@ report 1143 "Import Cost Budget from Excel"
         Window.Update(1, 0);
         TotalRecNo := ExcelBuffer.Count;
         RecNo := 0;
-        CostBudgetBuffer2.Init;
-        CostBudgetBuffer.DeleteAll;
+        TempCostBudgetBuffer2.Init;
+        TempCostBudgetBuffer.DeleteAll;
 
         if ExcelBuffer.Find('-') then begin
             repeat
@@ -264,7 +263,7 @@ report 1143 "Import Cost Budget from Excel"
                         begin
                             if ExcelBuffer."Row No." <> OldRowNo then begin
                                 OldRowNo := ExcelBuffer."Row No.";
-                                Clear(CostBudgetBuffer2);
+                                Clear(TempCostBudgetBuffer2);
                             end;
                             TempExcelBuffer.SetRange("Column No.", ExcelBuffer."Column No.");
                             if TempExcelBuffer.Find('-') then
@@ -275,40 +274,40 @@ report 1143 "Import Cost Budget from Excel"
                                               "No.",
                                               CopyStr(
                                                 ExcelBuffer."Cell Value as Text",
-                                                1, MaxStrLen(CostBudgetBuffer2."Cost Type No.")));
+                                                1, MaxStrLen(TempCostBudgetBuffer2."Cost Type No.")));
                                             if TempCostType.FindFirst then
-                                                CostBudgetBuffer2."Cost Type No." :=
+                                                TempCostBudgetBuffer2."Cost Type No." :=
                                                   CopyStr(
                                                     ExcelBuffer."Cell Value as Text",
-                                                    1, MaxStrLen(CostBudgetBuffer2."Cost Type No."))
+                                                    1, MaxStrLen(TempCostBudgetBuffer2."Cost Type No."))
                                             else
-                                                CostBudgetBuffer2."Cost Type No." := '';
+                                                TempCostBudgetBuffer2."Cost Type No." := '';
                                         end;
                                     Text017:
                                         begin
                                             if CostCenter.Get(CopyStr(
-                                                   ExcelBuffer."Cell Value as Text", 1, MaxStrLen(CostBudgetBuffer2."Cost Center Code")))
+                                                   ExcelBuffer."Cell Value as Text", 1, MaxStrLen(TempCostBudgetBuffer2."Cost Center Code")))
                                             then
-                                                CostBudgetBuffer2."Cost Center Code" := CostCenter.Code
+                                                TempCostBudgetBuffer2."Cost Center Code" := CostCenter.Code
                                             else
-                                                Error(Text019, CostBudgetBuffer2.FieldCaption("Cost Center Code"), CostCenter.TableCaption);
+                                                Error(Text019, TempCostBudgetBuffer2.FieldCaption("Cost Center Code"), CostCenter.TableCaption);
                                         end;
                                     Text018:
                                         begin
                                             if CostObject.Get(CopyStr(
-                                                   ExcelBuffer."Cell Value as Text", 1, MaxStrLen(CostBudgetBuffer2."Cost Object Code")))
+                                                   ExcelBuffer."Cell Value as Text", 1, MaxStrLen(TempCostBudgetBuffer2."Cost Object Code")))
                                             then
-                                                CostBudgetBuffer2."Cost Object Code" := CostObject.Code
+                                                TempCostBudgetBuffer2."Cost Object Code" := CostObject.Code
                                             else
-                                                Error(Text019, CostBudgetBuffer2.FieldCaption("Cost Object Code"), CostObject.TableCaption);
+                                                Error(Text019, TempCostBudgetBuffer2.FieldCaption("Cost Object Code"), CostObject.TableCaption);
                                         end;
                                     Text014:
-                                        if CostBudgetBuffer2."Cost Type No." <> '' then begin
-                                            CostBudgetBuffer := CostBudgetBuffer2;
-                                            Evaluate(CostBudgetBuffer.Date, TempExcelBuffer."Cell Value as Text");
-                                            Evaluate(CostBudgetBuffer.Amount, ExcelBuffer."Cell Value as Text");
-                                            if not CostBudgetBuffer.Find('=') then
-                                                CostBudgetBuffer.Insert
+                                        if TempCostBudgetBuffer2."Cost Type No." <> '' then begin
+                                            TempCostBudgetBuffer := TempCostBudgetBuffer2;
+                                            Evaluate(TempCostBudgetBuffer.Date, TempExcelBuffer."Cell Value as Text");
+                                            Evaluate(TempCostBudgetBuffer.Amount, ExcelBuffer."Cell Value as Text");
+                                            if not TempCostBudgetBuffer.Find('=') then
+                                                TempCostBudgetBuffer.Insert
                                             else
                                                 Error(Text023);
                                         end;

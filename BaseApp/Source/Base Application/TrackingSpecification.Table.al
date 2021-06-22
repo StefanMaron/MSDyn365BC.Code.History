@@ -162,12 +162,17 @@ table 336 "Tracking Specification"
             Caption = 'Expiration Date';
 
             trigger OnValidate()
+            var
+                ItemTrackingMgt: Codeunit "Item Tracking Management";
             begin
                 WMSManagement.CheckItemTrackingChange(Rec, xRec);
                 if "Buffer Status2" = "Buffer Status2"::"ExpDate blocked" then begin
                     "Expiration Date" := xRec."Expiration Date";
                     Message(Text004);
                 end;
+
+                if "Expiration Date" <> xRec."Expiration Date" then
+                    ItemTrackingMgt.UpdateExpirationDateForLot(Rec);
             end;
         }
         field(50; "Qty. to Handle (Base)"; Decimal)
@@ -793,6 +798,7 @@ table 336 "Tracking Specification"
             exit;
 
         "Expiration Date" := 0D;
+        ItemTrackingMgt.CopyExpirationDateForLot(Rec);
 
         GetItemTrackingCode("Item No.", ItemTrackingCode);
         if not ItemTrackingCode."Use Expiration Dates" then

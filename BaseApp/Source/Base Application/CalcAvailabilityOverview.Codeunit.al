@@ -1110,6 +1110,8 @@ codeunit 5830 "Calc. Availability Overview"
 
             RunningTotal := InventoryRunningTotal + SupplyRunningTotal + DemandRunningTotal;
         end;
+
+        OnAfterCalcRunningTotals(Item, RunningTotal, InventoryRunningTotal, SupplyRunningTotal, DemandRunningTotal);
     end;
 
     local procedure UpdateRunningTotals(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -1215,6 +1217,11 @@ codeunit 5830 "Calc. Availability Overview"
             WindowUpdateDateTime := CurrentDateTime;
             Window.Update(1, Round(i / NoOfRecords * 10000, 1));
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcRunningTotals(var Item: Record Item; var RunningTotal : Decimal; var InventoryRunningTotal : Decimal; var SupplyRunningTotal : Decimal; var DemandRunningTotal : Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

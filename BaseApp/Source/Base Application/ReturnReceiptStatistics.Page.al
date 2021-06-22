@@ -60,25 +60,47 @@ page 6665 "Return Receipt Statistics"
     begin
         ClearAll;
 
-        ReturnRcptLine.SetRange("Document No.", "No.");
-
-        if ReturnRcptLine.Find('-') then
-            repeat
-                LineQty := LineQty + ReturnRcptLine.Quantity;
-                TotalNetWeight := TotalNetWeight + (ReturnRcptLine.Quantity * ReturnRcptLine."Net Weight");
-                TotalGrossWeight := TotalGrossWeight + (ReturnRcptLine.Quantity * ReturnRcptLine."Gross Weight");
-                TotalVolume := TotalVolume + (ReturnRcptLine.Quantity * ReturnRcptLine."Unit Volume");
-                if ReturnRcptLine."Units per Parcel" > 0 then
-                    TotalParcels := TotalParcels + Round(ReturnRcptLine.Quantity / ReturnRcptLine."Units per Parcel", 1, '>');
-            until ReturnRcptLine.Next = 0;
     end;
 
     var
-        ReturnRcptLine: Record "Return Receipt Line";
         LineQty: Decimal;
         TotalNetWeight: Decimal;
         TotalGrossWeight: Decimal;
         TotalVolume: Decimal;
         TotalParcels: Decimal;
+
+    local procedure CalculateTotals()
+    var
+        ReturnRcptLine: Record "Return Receipt Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(Rec, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReturnRcptLine.SetRange("Document No.", "No.");
+        if ReturnRcptLine.Find('-') then
+            repeat
+                LineQty += ReturnRcptLine.Quantity;
+                TotalNetWeight += ReturnRcptLine.Quantity * ReturnRcptLine."Net Weight";
+                TotalGrossWeight += ReturnRcptLine.Quantity * ReturnRcptLine."Gross Weight";
+                TotalVolume += ReturnRcptLine.Quantity * ReturnRcptLine."Unit Volume";
+                if ReturnRcptLine."Units per Parcel" > 0 then
+                    TotalParcels += Round(ReturnRcptLine.Quantity / ReturnRcptLine."Units per Parcel", 1, '>');
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    ReturnRcptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+            until ReturnRcptLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(ReturnReceiptHeader: Record "Return Receipt Header"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var ReturnReceiptLine: Record "Return Receipt Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
 }
 

@@ -5020,7 +5020,7 @@
   </Item>
   <Item ItemId=";Codeunit 3063528946 - NamedType 4204627623" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Customers on the selected documents use different document sending profiles. Choose one of the following options: ]]></Val>
+      <Val><![CDATA[Customers on the selected documents might use different document sending profiles. Choose one of the following options: ]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -5029,7 +5029,7 @@
   </Item>
   <Item ItemId=";Codeunit 3063528946 - NamedType 277796719" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Vendors on the selected documents use different document sending profiles. Choose one of the following options: ]]></Val>
+      <Val><![CDATA[Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

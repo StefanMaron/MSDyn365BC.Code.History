@@ -18,7 +18,7 @@ codeunit 3043 DotNet_X509Certificate2
         DotNet_X509KeyStorageFlags.GetX509KeyStorageFlags(DotNetX509KeyStorageFlags);
         DotNetX509Certificate2 := DotNetX509Certificate2.X509Certificate2(DotNetArray, Password, DotNetX509KeyStorageFlags);
 
-        if IsNull(DotNetX509Certificate2) then
+        if IsDotNetNull() then
             Error(LoadCertificateErr);
     end;
 
@@ -58,6 +58,23 @@ codeunit 3043 DotNet_X509Certificate2
     procedure HasPrivateKey(): Boolean
     begin
         exit(DotNetX509Certificate2.HasPrivateKey);
+    end;
+
+    procedure IsDotNetNull(): Boolean
+    begin
+        exit(IsNull(DotNetX509Certificate2));
+    end;
+
+    [Scope('OnPrem')]
+    procedure PublicKey(var AsymmetricAlgorithm: Codeunit DotNet_AsymmetricAlgorithm)
+    begin
+        AsymmetricAlgorithm.SetAsymmetricAlgorithm(DotNetX509Certificate2.PublicKey."Key");
+    end;
+
+    [Scope('OnPrem')]
+    procedure PrivateKey(var AsymmetricAlgorithm: Codeunit DotNet_AsymmetricAlgorithm)
+    begin
+        AsymmetricAlgorithm.SetAsymmetricAlgorithm(DotNetX509Certificate2.PrivateKey);
     end;
 
     [Scope('OnPrem')]

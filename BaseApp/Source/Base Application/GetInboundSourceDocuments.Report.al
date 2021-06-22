@@ -18,6 +18,11 @@ report 7306 "Get Inbound Source Documents"
                     DataItemLink = "No." = FIELD("No.");
                     DataItemTableView = SORTING("No.", "Line No.");
 
+                    trigger OnPreDataItem()
+                    begin
+                        OnPostedWhseReceiptLineOnPreDataItem("Posted Whse. Receipt Line");
+                    end;
+
                     trigger OnAfterGetRecord()
                     begin
                         CalcFields("Put-away Qty.", "Put-away Qty. (Base)");
@@ -117,6 +122,11 @@ report 7306 "Get Inbound Source Documents"
         WhseWkshTemplateName := WhseWkshTemplateName2;
         WhseWkshName := WhseWkshName2;
         LocationCode := LocationCode2;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostedWhseReceiptLineOnPreDataItem(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line");
+    begin
     end;
 }
 

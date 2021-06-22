@@ -993,8 +993,12 @@ table 5077 "Segment Line"
     var
         Opp: Record Opportunity;
         RelationshipPerformanceMgt: Codeunit "Relationship Performance Mgt.";
+        IsHandled: Boolean;
     begin
-        OnBeforeStartWizard(Rec);
+        IsHandled := false;
+        OnBeforeStartWizard(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         if Campaign.Get("Campaign No.") then
             "Campaign Description" := Campaign.Description;
@@ -1463,7 +1467,7 @@ table 5077 "Segment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeStartWizard(var SegmentLine: Record "Segment Line")
+    local procedure OnBeforeStartWizard(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
     begin
     end;
 

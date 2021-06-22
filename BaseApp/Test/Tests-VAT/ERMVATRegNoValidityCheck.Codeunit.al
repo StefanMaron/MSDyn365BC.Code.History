@@ -33,6 +33,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         DisclaimerTxt: Label 'You are accessing a third-party website and service. Review the disclaimer before you continue.';
         VATRegNoVIESSettingIsNotEnabledErr: Label 'VAT Reg. No. Validation Setup is not enabled.';
         CannotInsertMultipleSettingsErr: Label 'You cannot insert multiple settings.';
+        UnexpectedResponseErr: Label 'The VAT registration number could not be verified because the VIES VAT Registration No. service may be currently unavailable for the selected EU state, %1.';
 
     [Test]
     [Scope('OnPrem')]
@@ -416,9 +417,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         EmptyVATResponseDoc: DotNet XmlDocument;
         VATRegistrationLogCount: Integer;
     begin
-        // When you invoke "Verify Registration No." on VAT Registration Log line, and you get a tampered response XML file with
-        // huge values in name and address, which exceed 250 (MAXSTRLEN("Verified Name")) characters, only the first 250 characters
-        // will be stored. No more than one record will be added in the VAT Registration Log table.
+        // [SCENARIO 330015] VAT Registrion No. verification throws when it receives Xml Document with unexpected content or blank document.
         Initialize;
         CreateCustomer(Customer);
 
@@ -426,7 +425,11 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         VATRegistrationLog.Ascending(false);
         VATRegistrationLog.FindFirst;
         EmptyVATResponseDoc := EmptyVATResponseDoc.XmlDocument;
-        VATRegistrationLogMgt.LogVerification(VATRegistrationLog, EmptyVATResponseDoc, NamespaceTxt);
+        Commit;
+
+        asserterror VATRegistrationLogMgt.LogVerification(VATRegistrationLog, EmptyVATResponseDoc, NamespaceTxt);
+        Assert.ExpectedError(StrSubstNo(UnexpectedResponseErr, VATRegistrationLog."Country/Region Code"));
+
         // document empty - no line was logged
         Assert.RecordCount(VATRegistrationLog, VATRegistrationLogCount);
 
@@ -1220,6 +1223,33 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         Assert.AreEqual(Contact.Name, Contact."Company Name", '');
     end;
 
+    [Test]
+    [HandlerFunctions('VATRegLogHandler')]
+    [Scope('OnPrem')]
+    procedure TestLaunchingVatRegistrationLogSelectLastValidatedVATRegistrationNo()
+    var
+        Customer: Record Customer;
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 330051] When you click assist edit on "VAT Registration No." field on Customer Card page VAT Registration Log page is launched, and last validated "VAT Registration No." line is selected.
+        Initialize;
+
+        // [GIVEN] Customer with VAT Registration No. = "A".
+        CreateCustomer(Customer);
+
+        // [GIVEN] On Customer Card Customer's VAT Registration No. is set to "B".
+        CustomerCard.OpenEdit;
+        CustomerCard.FILTER.SetFilter("No.", Customer."No.");
+        CustomerCard."VAT Registration No.".SetValue(LibraryRandom.RandIntInRange(10000000, 99999999));
+
+        // [WHEN] VAT Registration Log page is opened from Customer Card's field "VAT Registration No." Assist Edit.
+        LibraryVariableStorage.Enqueue(CustomerCard."VAT Registration No.".Value);
+        CustomerCard."VAT Registration No.".DrillDown;
+
+        // [THEN] On opened page selected line has VAT Registration No. = "B".
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1472,6 +1502,14 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         Assert.AreEqual(VATRegistrationNo2, VATRegistrationLog."VAT Registration No.".Value, WrongLogEntryOnPageErr);
         VATRegistrationLog.Next;
         Assert.AreEqual(VATRegistrationNo1, VATRegistrationLog."VAT Registration No.".Value, WrongLogEntryOnPageErr);
+        VATRegistrationLog.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VATRegLogHandler(var VATRegistrationLog: TestPage "VAT Registration Log")
+    begin
+        VATRegistrationLog."VAT Registration No.".AssertEquals(LibraryVariableStorage.DequeueText);
         VATRegistrationLog.OK.Invoke;
     end;
 

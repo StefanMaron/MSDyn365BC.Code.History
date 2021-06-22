@@ -314,6 +314,10 @@ page 5077 "Create Interaction"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Co&mments';
                 Image = ViewComments;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
                 ToolTip = 'View or add comments for the record.';
 
                 trigger OnAction()

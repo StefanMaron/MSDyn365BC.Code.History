@@ -6,6 +6,7 @@ codeunit 2001 "Azure ML Connector"
     end;
 
     var
+        [NonDebuggable]
         [WithEvents]
         AzureMLRequest: DotNet AzureMLRequest;
         [WithEvents]
@@ -22,6 +23,7 @@ codeunit 2001 "Azure ML Connector"
         ParametersName: Text;
         InvalidURIErr: Label 'Provided API URL (%1) is not a valid AzureML URL.', Comment = '%1 = custom URL';
 
+    [NonDebuggable]
     [TryFunction]
     procedure Initialize(ApiKey: Text; ApiUri: Text; TimeOutSeconds: Integer)
     begin

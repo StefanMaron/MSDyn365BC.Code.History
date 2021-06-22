@@ -4026,7 +4026,7 @@
         </trans-unit>
         <trans-unit id="Page 367479046 - Action 788258546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cancel</source>
-          <target>Abbrechen</target>
+          <target>Stornieren</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Action Cancel - Property Caption</note>
         </trans-unit>

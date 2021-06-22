@@ -2012,6 +2012,163 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Assert.AreEqual(PurchaseLine[1]."Direct Unit Cost" * (1 + VATPercent / 100), PurchaseLine[1]."Amount Including VAT", '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesVATAmountLinesWithInvoiceRounding_PartialInvoicing()
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        InvoiceRoundingGLAccount: Record "G/L Account";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        TempSalesLine: Record "Sales Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        SalesPost: Codeunit "Sales-Post";
+        InvRoundingAmt: Decimal;
+        LineAmount: array[2] of Decimal;
+        VATPct: array[2] of Decimal;
+    begin
+        // [FEATURE] [Sales] [Invoice Rounding]
+        // [SCENARIO 330283] Sales Order with partial invoicing and manually added line with invoice rounding account shows correct statistics.
+        Initialize;
+
+        InvRoundingAmt := 0.01;
+        LineAmount[1] := 221;
+        LineAmount[2] := 0.45;
+        VATPct[1] := 25;
+        VATPct[2] := 10;
+
+        LibrarySales.SetInvoiceRounding(true);
+        UpdateInvoiceRoundingInGLSetup(InvRoundingAmt);
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT", VATPct[1]);
+
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup[2] := VATPostingSetup[1];
+        VATPostingSetup[2]."VAT Identifier" := LibraryUtility.GenerateGUID;
+        VATPostingSetup[2]."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATPostingSetup[2]."VAT %" := VATPct[2];
+        VATPostingSetup[2].Insert;
+
+        InvoiceRoundingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        InvoiceRoundingGLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup[2]."VAT Prod. Posting Group");
+        InvoiceRoundingGLAccount.Modify(true);
+
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup[1]."VAT Bus. Posting Group"));
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        CustomerPostingGroup.Validate("Invoice Rounding Account", InvoiceRoundingGLAccount."No.");
+        CustomerPostingGroup.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        LibrarySales.CreateSalesLine(
+          SalesLine[1], SalesHeader, SalesLine[1].Type::Item,
+          LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup[1]."VAT Prod. Posting Group"), 2);
+        SalesLine[1].Validate("Unit Price", LineAmount[1]);
+        SalesLine[1].Validate("Qty. to Ship", 1);
+        SalesLine[1].Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::"G/L Account", InvoiceRoundingGLAccount."No.", 1);
+        SalesLine[2].Validate("Unit Price", LineAmount[2]);
+        SalesLine[2].Modify(true);
+
+        SalesPost.GetSalesLines(SalesHeader, TempSalesLine, 0);
+        SalesLine[1].CalcVATAmountLines(1, SalesHeader, TempSalesLine, TempVATAmountLine);
+
+        VerifyVATAmountLinePerGroup(
+          TempVATAmountLine,
+          VATPostingSetup[1]."VAT Identifier",
+          LineAmount[1],
+          Round(LineAmount[1] * VATPct[1] / 100));
+        VerifyVATAmountLinePerGroup(
+          TempVATAmountLine,
+          VATPostingSetup[2]."VAT Identifier",
+          LineAmount[2],
+          Round(LineAmount[2] * VATPct[2] / 100));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseVATAmountLinesWithInvoiceRounding_PartialInvoicing()
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        InvoiceRoundingGLAccount: Record "G/L Account";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        TempPurchaseLine: Record "Purchase Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        PurchPost: Codeunit "Purch.-Post";
+        InvRoundingAmt: Decimal;
+        LineAmount: array[2] of Decimal;
+        VATPct: array[2] of Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice Rounding]
+        // [SCENARIO 330283] Purchase Order with partial invoicing and manually added line with invoice rounding account shows correct statistics.
+        Initialize;
+
+        InvRoundingAmt := 0.01;
+        LineAmount[1] := 221;
+        LineAmount[2] := 0.45;
+        VATPct[1] := 25;
+        VATPct[2] := 10;
+
+        LibrarySales.SetInvoiceRounding(true);
+        UpdateInvoiceRoundingInGLSetup(InvRoundingAmt);
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT", VATPct[1]);
+
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup[2] := VATPostingSetup[1];
+        VATPostingSetup[2]."VAT Identifier" := LibraryUtility.GenerateGUID;
+        VATPostingSetup[2]."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATPostingSetup[2]."VAT %" := VATPct[2];
+        VATPostingSetup[2].Insert;
+
+        InvoiceRoundingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        InvoiceRoundingGLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup[2]."VAT Prod. Posting Group");
+        InvoiceRoundingGLAccount.Modify(true);
+
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup[1]."VAT Bus. Posting Group"));
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        VendorPostingGroup.Validate("Invoice Rounding Account", InvoiceRoundingGLAccount."No.");
+        VendorPostingGroup.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine[1], PurchaseHeader, PurchaseLine[1].Type::Item,
+          LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup[1]."VAT Prod. Posting Group"), 4);
+        PurchaseLine[1].Validate("Direct Unit Cost", LineAmount[1]);
+        PurchaseLine[1].Validate("Qty. to Receive", 2);
+        PurchaseLine[1].Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::"G/L Account", InvoiceRoundingGLAccount."No.", 1);
+        PurchaseLine[2].Validate("Direct Unit Cost", LineAmount[2]);
+        PurchaseLine[2].Modify(true);
+
+        PurchPost.GetPurchLines(PurchaseHeader, TempPurchaseLine, 0);
+        PurchaseLine[1].CalcVATAmountLines(1, PurchaseHeader, TempPurchaseLine, TempVATAmountLine);
+
+        VerifyVATAmountLinePerGroup(
+          TempVATAmountLine,
+          VATPostingSetup[1]."VAT Identifier",
+          LineAmount[1] * 2,
+          Round(LineAmount[1] * 2 * VATPct[1] / 100));
+        VerifyVATAmountLinePerGroup(
+          TempVATAmountLine,
+          VATPostingSetup[2]."VAT Identifier",
+          LineAmount[2],
+          Round(LineAmount[2] * VATPct[2] / 100));
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2853,6 +3010,15 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     local procedure VerifyVATAmountLine(var VATAmountLine: Record "VAT Amount Line"; Positive: Boolean; VATBase: Decimal; VATAmount: Decimal)
     begin
         VATAmountLine.SetRange(Positive, Positive);
+        VATAmountLine.FindFirst;
+        VATAmountLine.TestField("Line Amount", VATBase);
+        VATAmountLine.TestField("VAT Base", VATBase);
+        VATAmountLine.TestField("VAT Amount", VATAmount);
+    end;
+
+    local procedure VerifyVATAmountLinePerGroup(var VATAmountLine: Record "VAT Amount Line"; VATIdentifier: Code[20]; VATBase: Decimal; VATAmount: Decimal)
+    begin
+        VATAmountLine.SetRange("VAT Identifier", VATIdentifier);
         VATAmountLine.FindFirst;
         VATAmountLine.TestField("Line Amount", VATBase);
         VATAmountLine.TestField("VAT Base", VATBase);

@@ -1430,9 +1430,8 @@ codeunit 134097 "ERM Check Posting Groups"
         VATPostingSetup.Validate("Adjust for Payment Discount",true);
         VATPostingSetup.Modify(true);
 
-        // [GIVEN] Created a Gen Journal Line Invoice for G/L Account with "Payment Discount %"
+        // [GIVEN] Created a Gen Journal Line Invoice for G/L Account
         CreateGenJnlLineWithAccountVATPostingSetup(GenJournalLine,VATPostingSetup,GenJournalLine."Document Type"::Invoice);
-        GenJournalLine.Validate("Payment Discount %",LibraryRandom.RandInt(10));
 
         // [GIVEN] Set an empty "Gen. Prod. Posting Group" for the Gen Journal Line
         GenJournalLine."Gen. Prod. Posting Group" := '';
@@ -1473,9 +1472,8 @@ codeunit 134097 "ERM Check Posting Groups"
         VATPostingSetup.Validate("Adjust for Payment Discount",true);
         VATPostingSetup.Modify(true);
 
-        // [GIVEN] Created a Gen Journal Line Invoice for G/L Account with "Payment Discount %"
+        // [GIVEN] Created a Gen Journal Line Invoice for G/L Account
         CreateGenJnlLineWithBalAccountVATPostingSetup(GenJournalLine,VATPostingSetup,GenJournalLine."Document Type"::Invoice);
-        GenJournalLine.Validate("Payment Discount %",LibraryRandom.RandInt(10));
 
         // [GIVEN] Set an empty "Bal. Gen. Prod. Posting Group" for the Gen Journal Line
         GenJournalLine."Bal. Gen. Prod. Posting Group" := '';
@@ -1516,9 +1514,8 @@ codeunit 134097 "ERM Check Posting Groups"
         VATPostingSetup.Validate("Adjust for Payment Discount",true);
         VATPostingSetup.Modify(true);
 
-        // [GIVEN] Created a Gen Journal Line Credit Memo for G/L Account with "Payment Discount %"
+        // [GIVEN] Created a Gen Journal Line Credit Memo for G/L Account
         CreateGenJnlLineWithAccountVATPostingSetup(GenJournalLine,VATPostingSetup,GenJournalLine."Document Type"::"Credit Memo");
-        GenJournalLine.Validate("Payment Discount %",LibraryRandom.RandInt(10));
 
         // [GIVEN] Set an empty "Gen. Prod. Posting Group" for the Gen Journal Line
         GenJournalLine."Gen. Prod. Posting Group" := '';
@@ -1559,9 +1556,8 @@ codeunit 134097 "ERM Check Posting Groups"
         VATPostingSetup.Validate("Adjust for Payment Discount",true);
         VATPostingSetup.Modify(true);
 
-        // [GIVEN] Created a Gen Journal Line Credit Memo for G/L Account with "Payment Discount %"
+        // [GIVEN] Created a Gen Journal Line Credit Memo for G/L Account
         CreateGenJnlLineWithBalAccountVATPostingSetup(GenJournalLine,VATPostingSetup,GenJournalLine."Document Type"::"Credit Memo");
-        GenJournalLine.Validate("Payment Discount %",LibraryRandom.RandInt(10));
 
         // [GIVEN] Set an empty "Bal. Gen. Prod. Posting Group" for the Gen Journal Line
         GenJournalLine."Bal. Gen. Prod. Posting Group" := '';

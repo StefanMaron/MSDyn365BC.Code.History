@@ -377,6 +377,7 @@ codeunit 134231 "ERM Bank Account"
           BankAccountBalance.BankAccBalanceLines.NetChange.Visible, 'BankAccBalanceLines.NetChange  must be visible');
         Assert.IsTrue(
           BankAccountBalance.BankAccBalanceLines."BankAcc.""Net Change (LCY)""".Visible, 'BankAccBalanceLines.NetChangeLCY must be visible');
+        LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
     local procedure Initialize()

@@ -2103,6 +2103,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CouldNotModifySetupRecordTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1499095144 - NamedType 167498497" size-unit="char" translate="no" xml:space="preserve">
+          <source>Too short time since last activation try.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType TooEarlyTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2754547862 - NamedType 1988577321" size-unit="char" translate="no" xml:space="preserve">
           <source>Satisfaction Survey control add-in was not registered.</source>
           <note from="Developer" annotates="general" priority="2"></note>

@@ -322,6 +322,14 @@ table 99000757 "Calendar Entry"
         "Ending Date-Time" := CreateDateTime(Date, "Ending Time");
     end;
 
+    [Scope('OnPrem')]
+    procedure GetStartingEndingDateAndTime(var StartingTime: Time; var EndingTime: Time; var CurrDate: Date)
+    begin
+        StartingTime := DT2Time("Starting Date-Time");
+        EndingTime := DT2Time("Ending Date-Time");
+        CurrDate := DT2Date("Ending Date-Time");
+    end;
+
     procedure SetCapacityFilters(CapType: Option; CapNo: Code[20])
     begin
         Reset;

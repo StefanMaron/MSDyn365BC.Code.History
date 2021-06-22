@@ -348,7 +348,7 @@ report 5055 "Contact - Cover Sheet"
     end;
 
     var
-        MarkTxt: Label 'x', Comment = '{locked}';
+        MarkTxt: Label 'x', Locked = true;
         CompanyInfo: Record "Company Information";
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;

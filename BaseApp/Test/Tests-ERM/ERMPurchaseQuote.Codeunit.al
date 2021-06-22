@@ -422,6 +422,21 @@ codeunit 134325 "ERM Purchase Quote"
         PurchaseOrder."Buy-from Vendor No.".AssertEquals(PurchaseHeader."Buy-from Vendor No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetFullDocTypeName()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO] Get full document type and name
+        // [GIVEN] Purchase Header of type "Quote"
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Quote;
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Purchase Quote' is returned
+        Assert.AreEqual('Purchase Quote', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";

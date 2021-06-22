@@ -1267,6 +1267,21 @@ codeunit 134330 "ERM Purchase Credit Memo"
         PurchaseCreditMemo2."No.".AssertEquals(NextDocNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetFullDocTypeName()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO] Get full document type and name
+        // [GIVEN] Purchase Header of type "Credit Memo"
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Credit Memo";
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Purchase Create Memo' is returned
+        Assert.AreEqual('Purchase Credit Memo', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

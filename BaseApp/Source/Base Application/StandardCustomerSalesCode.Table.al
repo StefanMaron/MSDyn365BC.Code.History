@@ -107,6 +107,14 @@ table 172 "Standard Customer Sales Code"
     {
     }
 
+    trigger OnRename()
+    begin
+        Error(RenameErr);
+    end;
+
+    var
+        RenameErr: Label 'You cannot rename the line.';
+
     procedure CreateSalesInvoice(OrderDate: Date; PostingDate: Date)
     var
         SalesHeader: Record "Sales Header";
@@ -239,7 +247,7 @@ table 172 "Standard Customer Sales Code"
             DimensionSetIDArr, SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
     end;
 
-    local procedure InsertExtendedText(SalesLine: Record "Sales Line")
+    procedure InsertExtendedText(SalesLine: Record "Sales Line")
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
@@ -247,7 +255,7 @@ table 172 "Standard Customer Sales Code"
             TransferExtendedText.InsertSalesExtText(SalesLine);
     end;
 
-    local procedure GetNextLineNo(SalesLine: Record "Sales Line"): Integer
+    procedure GetNextLineNo(SalesLine: Record "Sales Line"): Integer
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
         SalesLine.SetRange("Document No.", SalesLine."Document No.");

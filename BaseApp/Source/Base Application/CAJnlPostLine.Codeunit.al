@@ -33,6 +33,8 @@ codeunit 1102 "CA Jnl.-Post Line"
         CostJnlLine.Copy(CostJnlLine2);
         Code;
         CostJnlLine2 := CostJnlLine;
+
+        OnAfterRunWithCheck(CostJnlLine2);
     end;
 
     local procedure "Code"()
@@ -128,6 +130,7 @@ codeunit 1102 "CA Jnl.-Post Line"
             CostRegister."To G/L Entry No." := CostJnlLine."G/L Entry No.";
             CostRegister."To Cost Entry No." := NextCostEntryNo;
             CostRegister."No. of Entries" := CostRegister."To Cost Entry No." - CostRegister."From Cost Entry No." + 1;
+            OnCreateCostRegisterOnBeforeModify(CostRegister, CostJnlLine, SourceCodeSetup);
             CostRegister.Modify;
         end;
     end;
@@ -280,7 +283,22 @@ codeunit 1102 "CA Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterRunWithCheck(var CostJournalLine: Record "Cost Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCostEntryInsert(var CostEntry: Record "Cost Entry"; CostJournalLine: Record "Cost Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCostRegisterOnBeforeInsert(var CostRegister: Record "Cost Register"; CostJournalLine: Record "Cost Journal Line"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCostRegisterOnBeforeModify(var CostRegister: Record "Cost Register"; CostJournalLine: Record "Cost Journal Line"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
 }

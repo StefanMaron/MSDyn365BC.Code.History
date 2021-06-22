@@ -2171,6 +2171,21 @@ codeunit 134328 "ERM Purchase Invoice"
         Assert.ExpectedMessage(PurchaseVatAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
         LibraryVariableStorage.AssertEmpty;
     end;
+    
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetFullDocTypeName()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO] Get full document type and name
+        // [GIVEN] Purchase Header of type "Invoice"
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Purchase Invoice' is returned
+        Assert.AreEqual('Purchase Invoice', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
 
     [Test]
     [HandlerFunctions('VendorLookupHandler')]

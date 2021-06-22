@@ -1214,7 +1214,7 @@
         </trans-unit>
         <trans-unit id="Table 3865875552 - Field 3349558288 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Include</source>
-          <target>Einschließen</target>
+          <target>Einschliessen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Tenant Web Service Columns - Field Include - Property Caption</note>
         </trans-unit>
@@ -2771,7 +2771,7 @@
         </trans-unit>
         <trans-unit id="Page 1122678929 - Control 1593335407 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the color of the indicator when the value of data in the Cue is greater than or equal to the value that is specified by the Threshold 1 field but less than or equal to the value that is specified by the Threshold 2 field.</source>
-          <target>Gibt die Farbe des Indikators an, wenn der Wert der Daten im Stapel größer oder gleich dem Wert im Feld „Schwellenwert 1“, aber kleiner oder gleich dem Wert im Feld „Schwellenwert 2“ ist.</target>
+          <target>Gibt die Farbe des Indikators an, wenn der Wert der Daten im Stapel grösser oder gleich dem Wert im Feld „Schwellenwert 1“, aber kleiner oder gleich dem Wert im Feld „Schwellenwert 2“ ist.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup Administrator - Control Middle Range Style - Property ToolTip</note>
         </trans-unit>
@@ -2783,7 +2783,7 @@
         </trans-unit>
         <trans-unit id="Page 1122678929 - Control 3850109114 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the color of the indicator when the value in the Cue is greater than the value of the Threshold 2 field.</source>
-          <target>Gibt die Farbe des Indikators an, wenn der Wert im Stapel größer als der Wert im Feld „Schwellenwert 2“ ist.</target>
+          <target>Gibt die Farbe des Indikators an, wenn der Wert im Stapel grösser als der Wert im Feld „Schwellenwert 2“ ist.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup Administrator - Control High Range Style - Property ToolTip</note>
         </trans-unit>
@@ -2813,7 +2813,7 @@
         </trans-unit>
         <trans-unit id="Page 3449870094 - Control 1593335407 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the color of the indicator when the value of data in the Cue is greater than or equal to the value that is specified by the Threshold 1 field but less than or equal to the value that is specified by the Threshold 2 field.</source>
-          <target>Gibt die Farbe des Indikators an, wenn der Wert der Daten im Stapel größer oder gleich dem Wert im Feld „Schwellenwert 1“, aber kleiner oder gleich dem Wert im Feld „Schwellenwert 2“ ist.</target>
+          <target>Gibt die Farbe des Indikators an, wenn der Wert der Daten im Stapel grösser oder gleich dem Wert im Feld „Schwellenwert 1“, aber kleiner oder gleich dem Wert im Feld „Schwellenwert 2“ ist.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup End User - Control Middle Range Style - Property ToolTip</note>
         </trans-unit>
@@ -2825,7 +2825,7 @@
         </trans-unit>
         <trans-unit id="Page 3449870094 - Control 3850109114 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the color of the indicator when the value in the Cue is greater than the value of the Threshold 2 field.</source>
-          <target>Gibt die Farbe des Indikators an, wenn der Wert im Stapel größer als der Wert im Feld „Schwellenwert 2“ ist.</target>
+          <target>Gibt die Farbe des Indikators an, wenn der Wert im Stapel grösser als der Wert im Feld „Schwellenwert 2“ ist.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Cue Setup End User - Control High Range Style - Property ToolTip</note>
         </trans-unit>
@@ -4026,7 +4026,7 @@
         </trans-unit>
         <trans-unit id="Page 367479046 - Action 788258546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cancel</source>
-          <target>Abbrechen</target>
+          <target>Stornieren</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Upload And Deploy Extension - Action Cancel - Property Caption</note>
         </trans-unit>

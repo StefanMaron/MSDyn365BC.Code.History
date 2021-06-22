@@ -133,13 +133,20 @@ table 474 "Job Queue Log Entry"
         Window: Dialog;
 
     procedure DeleteEntries(DaysOld: Integer)
+    var
+        SkipConfirm: Boolean;
     begin
-        if not Confirm(ConfirmDeletingEntriesQst) then
-            exit;
+        SkipConfirm := false;
+        OnBeforeDeleteEntries(Rec, SkipConfirm);
+        if not SkipConfirm then
+            if not Confirm(ConfirmDeletingEntriesQst) then
+                exit;
+
         Window.Open(DeletingMsg);
         SetFilter(Status, '<>%1', Status::"In Process");
         if DaysOld > 0 then
             SetFilter("End Date/Time", '<=%1', CreateDateTime(Today - DaysOld, Time));
+        OnDeleteEntriesOnBeforeDeleteAll(Rec);
         DeleteAll;
         Window.Close;
         SetRange("End Date/Time");
@@ -198,7 +205,17 @@ table 474 "Job Queue Log Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteEntries(var JobQueueLogEntry: Record "Job Queue Log Entry"; var SkipConfirm: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeMarkAsError(var JobQueueLogEntry: Record "Job Queue Log Entry"; var JobQueueEntry: Record "Job Queue Entry"; var ErrorMessage: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteEntriesOnBeforeDeleteAll(var JobQueueLogEntry: Record "Job Queue Log Entry");
     begin
     end;
 

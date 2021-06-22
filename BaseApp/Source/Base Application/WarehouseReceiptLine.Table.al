@@ -378,8 +378,11 @@ table 7317 "Warehouse Receipt Line"
     var
         WhseRcptHeader: Record "Warehouse Receipt Header";
         OrderStatus: Option;
+        SkipConfirm: Boolean;
     begin
-        if (Quantity <> "Qty. Outstanding") and ("Qty. Outstanding" <> 0) then
+        OnBeforeConfirmDelete(Rec, SkipConfirm);
+
+        if (Quantity <> "Qty. Outstanding") and ("Qty. Outstanding" <> 0) and not SkipConfirm then
             if not Confirm(Text004, false, TableCaption, "Line No.") then
                 Error(Text003);
 
@@ -431,6 +434,7 @@ table 7317 "Warehouse Receipt Line"
             if Find('-') then
                 repeat
                     Validate("Qty. to Receive", "Qty. Outstanding");
+                    OnAutoFillQtyToReceiveOnBeforeModify(WhseReceiptLine);
                     Modify;
                 until Next = 0;
         end;
@@ -630,6 +634,16 @@ table 7317 "Warehouse Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenItemTrackingLines(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SecondSourceQtyArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAutoFillQtyToReceiveOnBeforeModify(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmDelete(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var SkipConfirm: Boolean);
     begin
     end;
 

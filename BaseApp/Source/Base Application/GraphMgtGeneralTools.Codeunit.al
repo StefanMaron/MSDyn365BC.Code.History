@@ -13,8 +13,8 @@ codeunit 5465 "Graph Mgt - General Tools"
         CannotChangeIDErr: Label 'Value of Id is immutable.', Locked = true;
         CannotChangeLastDateTimeModifiedErr: Label 'Value of LastDateTimeModified is immutable.', Locked = true;
         MissingFieldValueErr: Label '%1 must be specified.', Locked = true;
-        AggregateErrorTxt: Label 'AL APIAggregate', Comment = '{LOCKED}';
-        AggregateIsMissingMainRecordTxt: Label 'Aggregate does not have main record.', Comment = '{LOCKED}';
+        AggregateErrorTxt: Label 'AL APIAggregate', Locked = true;
+        AggregateIsMissingMainRecordTxt: Label 'Aggregate does not have main record.', Locked = true;
 
     [Scope('OnPrem')]
     procedure GetMandatoryStringPropertyFromJObject(var JsonObject: DotNet JObject; PropertyName: Text; var PropertyValue: Text)

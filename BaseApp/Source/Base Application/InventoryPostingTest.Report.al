@@ -616,6 +616,8 @@ report 702 "Inventory Posting - Test"
                     if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                         AddError(DimMgt.GetDimCombErr);
 
+                    OnAfterCheckDimension("Item Journal Line", ItemJnlTemplate, QtyError);
+
                     TableID[1] := DATABASE::Item;
                     No[1] := "Item No.";
                     TableID[2] := DATABASE::"Salesperson/Purchaser";
@@ -920,6 +922,11 @@ report 702 "Inventory Posting - Test"
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckDimension(ItemJournalLine: Record "Item Journal Line"; ItemJnlTemplate: Record "Item Journal Template"; QtyError: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

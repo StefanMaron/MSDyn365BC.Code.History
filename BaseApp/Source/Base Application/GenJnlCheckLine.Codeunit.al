@@ -427,7 +427,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckSalesDocNoIsNotUsed(GenJournalLine."Document Type", GenJournalLine."Document No.", IsHandled);
+        OnBeforeCheckSalesDocNoIsNotUsed(GenJournalLine."Document Type", GenJournalLine."Document No.", IsHandled, GenJournalLine);
         if IsHandled then
             exit;
 
@@ -605,7 +605,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         with GenJnlLine do begin
-            if ("Payment Discount %" = 0) or "System-Created Entry" or
+            if "System-Created Entry" or
                not ("Gen. Posting Type" in ["Gen. Posting Type"::Purchase, "Gen. Posting Type"::Sale]) or
                not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"])
             then
@@ -623,7 +623,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         with GenJnlLine do begin
-            if ("Payment Discount %" = 0) or "System-Created Entry" or
+            if "System-Created Entry" or
                not ("Bal. Gen. Posting Type" in ["Bal. Gen. Posting Type"::Purchase, "Bal. Gen. Posting Type"::Sale]) or
                not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"])
             then
@@ -692,7 +692,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckSalesDocNoIsNotUsed(DocType: Option; DocNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeCheckSalesDocNoIsNotUsed(DocType: Option; DocNo: Code[20]; var IsHandled: Boolean; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

@@ -21,6 +21,8 @@ report 5180 "Delete Sales Order Versions"
                     Delete(true);
                     DeletedDocuments += 1;
                 end;
+
+                OnAfterGetRecordSalesHeaderArchive("Sales Header Archive", DeletedDocuments);
             end;
         }
     }
@@ -54,5 +56,10 @@ report 5180 "Delete Sales Order Versions"
     var
         Text000: Label '%1 archived versions deleted.', Comment = '%1=Count of deleted documents';
         DeletedDocuments: Integer;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordSalesHeaderArchive(var SalesHeaderArchive: Record "Sales Header Archive"; var DeletedDocuments: Integer)
+    begin
+    end;
 }
 

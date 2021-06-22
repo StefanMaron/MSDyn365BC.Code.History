@@ -197,10 +197,13 @@ report 1095 "Update Job Item Cost"
                 JobLedgEntry."Additional-Currency Total Cost" := -JobLedgerEntryCostValueACY;
 
             // Update Unit Costs
-            JobLedgEntry."Unit Cost (LCY)" :=
-              JobLedgEntry."Total Cost (LCY)" / JobLedgEntry.Quantity;
-            JobLedgEntry."Unit Cost" :=
-              JobLedgEntry."Total Cost" / JobLedgEntry.Quantity;
+            if JobLedgEntry.Quantity = 0 then begin
+                JobLedgEntry."Unit Cost (LCY)" := JobLedgEntry."Total Cost (LCY)";
+                JobLedgEntry."Unit Cost" := JobLedgEntry."Total Cost";
+            end else begin
+                JobLedgEntry."Unit Cost (LCY)" := JobLedgEntry."Total Cost (LCY)" / JobLedgEntry.Quantity;
+                JobLedgEntry."Unit Cost" := JobLedgEntry."Total Cost" / JobLedgEntry.Quantity;
+            end;
 
             JobLedgEntry.Adjusted := true;
             JobLedgEntry."DateTime Adjusted" := CurrentDateTime;

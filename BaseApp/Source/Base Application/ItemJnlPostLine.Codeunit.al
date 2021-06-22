@@ -338,6 +338,8 @@ codeunit 22 "Item Jnl.-Post Line"
 
             RemQtyToPost := ItemJnlLine.Quantity;
 
+            OnPostConsumptionOnBeforeFindSetProdOrderComp(ProdOrderComp, ItemJnlLine);
+
             if FindSet then begin
                 if ItemJnlLine.TrackingExists and not BlockRetrieveIT then
                     UseItemTrackingApplication :=
@@ -427,6 +429,8 @@ codeunit 22 "Item Jnl.-Post Line"
                 InsertConsumpEntry(ProdOrderComp, ItemJnlLine."Prod. Order Comp. Line No.", RemQtyToPost, false);
         end;
         ProdOrderCompModified := false;
+
+        OnAfterPostConsumption(ProdOrderComp, ItemJnlLine);
     end;
 
     local procedure PostOutput()
@@ -447,6 +451,7 @@ codeunit 22 "Item Jnl.-Post Line"
         ReTrack: Boolean;
         PostWhseJnlLine: Boolean;
         SkipPost: Boolean;
+        ShouldFlushOperation: Boolean;
     begin
         with ItemJnlLine do begin
             if "Stop Time" <> 0 then begin
@@ -519,7 +524,9 @@ codeunit 22 "Item Jnl.-Post Line"
                 else
                     InsertCapLedgEntry(CapLedgEntry, ValuedQty, ValuedQty);
 
-                if "Output Quantity" >= 0 then
+                ShouldFlushOperation := "Output Quantity" >= 0;
+                OnBeforeCallFlushOperation(ItemJnlLine, ShouldFlushOperation);
+                if ShouldFlushOperation then
                     FlushOperation(ProdOrder, ProdOrderLine);
             end;
 
@@ -583,6 +590,8 @@ codeunit 22 "Item Jnl.-Post Line"
                 end;
                 PostItem;
                 UpdateProdOrderLine(ProdOrderLine, ReTrack);
+                OnPostOutputOnAfterUpdateProdOrderLine(ItemJnlLine, WhseJnlLine, GlobalItemLedgEntry);
+
                 if PostWhseJnlLine then
                     if Location."Bin Mandatory" and (not CalledFromInvtPutawayPick) then
                         WhseJnlRegisterLine.RegisterWhseJnlLine(WhseJnlLine);
@@ -1117,7 +1126,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
     local procedure FlushOperation(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line")
     var
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         ProdOrderComp: Record "Prod. Order Component";
         OldItemJnlLine: Record "Item Journal Line";
         OldTempSplitItemJnlLine: Record "Item Journal Line" temporary;
@@ -1126,6 +1135,8 @@ codeunit 22 "Item Jnl.-Post Line"
         OldLotRequired: Boolean;
         xCalledFromInvtPutawayPick: Boolean;
     begin
+        OnBeforeFlushOperation(ProdOrder, ProdOrderLine, ItemJnlLine);
+
         if ItemJnlLine."Operation No." = '' then
             exit;
 
@@ -1144,27 +1155,21 @@ codeunit 22 "Item Jnl.-Post Line"
         xCalledFromInvtPutawayPick := CalledFromInvtPutawayPick;
         CalledFromInvtPutawayPick := false;
 
-        ProdOrderRtngLine.Get(
-          ProdOrderRtngLine.Status::Released,
-          OldItemJnlLine."Order No.",
-          OldItemJnlLine."Routing Reference No.",
-          OldItemJnlLine."Routing No.",
-          OldItemJnlLine."Operation No.");
-        if ProdOrderRtngLine."Routing Link Code" <> '' then
+        ProdOrderRoutingLine.Get(
+          ProdOrderRoutingLine.Status::Released, OldItemJnlLine."Order No.",
+          OldItemJnlLine."Routing Reference No.", OldItemJnlLine."Routing No.", OldItemJnlLine."Operation No.");
+        if ProdOrderRoutingLine."Routing Link Code" <> '' then
             with ProdOrderComp do begin
                 SetCurrentKey(Status, "Prod. Order No.", "Routing Link Code", "Flushing Method");
                 SetRange("Flushing Method", "Flushing Method"::Forward, "Flushing Method"::"Pick + Backward");
-                SetRange("Routing Link Code", ProdOrderRtngLine."Routing Link Code");
+                SetRange("Routing Link Code", ProdOrderRoutingLine."Routing Link Code");
                 SetRange(Status, Status::Released);
                 SetRange("Prod. Order No.", OldItemJnlLine."Order No.");
                 SetRange("Prod. Order Line No.", OldItemJnlLine."Order Line No.");
                 if FindSet then begin
                     BlockRetrieveIT := true;
                     repeat
-                        PostFlushedConsump(
-                          ProdOrder, ProdOrderLine, ProdOrderComp,
-                          OldItemJnlLine."Output Quantity (Base)" + OldItemJnlLine."Scrap Quantity (Base)",
-                          OldItemJnlLine."Posting Date", OldItemJnlLine."Document No.");
+                        PostFlushedConsump(ProdOrder, ProdOrderLine, ProdOrderComp, ProdOrderRoutingLine, OldItemJnlLine);
                     until Next = 0;
                     BlockRetrieveIT := false;
                 end;
@@ -1182,18 +1187,29 @@ codeunit 22 "Item Jnl.-Post Line"
         LotRequired := OldLotRequired;
         ItemTrackingCode := OldItemTrackingCode;
         CalledFromInvtPutawayPick := xCalledFromInvtPutawayPick;
+
+        OnAfterFlushOperation(ProdOrder, ProdOrderLine, ItemJnlLine);
     end;
 
-    local procedure PostFlushedConsump(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; ActOutputQtyBase: Decimal; PostingDate: Date; DocumentNo: Code[20])
+    local procedure PostFlushedConsump(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; OldItemJnlLine: Record "Item Journal Line")
     var
         CompItem: Record Item;
         OldTempTrackingSpecification: Record "Tracking Specification" temporary;
+        OutputQtyBase: Decimal;
         QtyToPost: Decimal;
         CalcBasedOn: Option "Actual Output","Expected Output";
         PostItemJnlLine: Boolean;
         DimsAreTaken: Boolean;
         TrackingSpecExists: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostFlushedConsump(ProdOrder, ProdOrderLine, ProdOrderComp, ProdOrderRoutingLine, OldItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        OutputQtyBase := OldItemJnlLine."Output Quantity (Base)" + OldItemJnlLine."Scrap Quantity (Base)";
+
         CompItem.Get(ProdOrderComp."Item No.");
         CompItem.TestField("Rounding Precision");
 
@@ -1201,15 +1217,15 @@ codeunit 22 "Item Jnl.-Post Line"
            [ProdOrderComp."Flushing Method"::Backward, ProdOrderComp."Flushing Method"::"Pick + Backward"]
         then begin
             QtyToPost :=
-              CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, ProdOrderComp, ActOutputQtyBase) / ProdOrderComp."Qty. per Unit of Measure";
-            if (ProdOrderLine."Remaining Qty. (Base)" = ActOutputQtyBase) and
+              CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, ProdOrderComp, OutputQtyBase) / ProdOrderComp."Qty. per Unit of Measure";
+            if (ProdOrderLine."Remaining Qty. (Base)" = OutputQtyBase) and
                (Abs(QtyToPost - ProdOrderComp."Remaining Quantity") < CompItem."Rounding Precision")
             then
                 QtyToPost := ProdOrderComp."Remaining Quantity";
         end else
             QtyToPost := ProdOrderComp.GetNeededQty(CalcBasedOn::"Expected Output", true);
         QtyToPost := Round(QtyToPost, CompItem."Rounding Precision", '>');
-        OnPostFlushedConsumpOnAfterCalcQtyToPost(ProdOrder, ProdOrderLine, ProdOrderComp, ActOutputQtyBase, QtyToPost);
+        OnPostFlushedConsumpOnAfterCalcQtyToPost(ProdOrder, ProdOrderLine, ProdOrderComp, OutputQtyBase, QtyToPost);
         if QtyToPost = 0 then
             exit;
 
@@ -1217,8 +1233,8 @@ codeunit 22 "Item Jnl.-Post Line"
             Init;
             "Line No." := 0;
             "Entry Type" := "Entry Type"::Consumption;
-            Validate("Posting Date", PostingDate);
-            "Document No." := DocumentNo;
+            Validate("Posting Date", OldItemJnlLine."Posting Date");
+            "Document No." := OldItemJnlLine."Document No.";
             "Source No." := ProdOrderLine."Item No.";
             "Order Type" := "Order Type"::Production;
             "Order No." := ProdOrderLine."Prod. Order No.";
@@ -1286,6 +1302,8 @@ codeunit 22 "Item Jnl.-Post Line"
                     TempTrackingSpecification.Insert;
                 until OldTempTrackingSpecification.Next = 0;
         end;
+
+        OnAfterPostFlushedConsump(ProdOrderComp, ProdOrderRoutingLine, OldItemJnlLine);
     end;
 
     local procedure UpdateUnitCost(ValueEntry: Record "Value Entry")
@@ -1296,7 +1314,7 @@ codeunit 22 "Item Jnl.-Post Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateUnitCost(ValueEntry, IsHandled);
+        OnBeforeUpdateUnitCost(ValueEntry, IsHandled, ItemJnlLine);
         if IsHandled then
             exit;
 
@@ -5279,6 +5297,21 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFlushOperation(var ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ItemJnlLine: Record "Item Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostFlushedConsump(var ProdOrderComp: Record "Prod. Order Component"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; OldItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostConsumption(var ProdOrderComp: Record "Prod. Order Component"; var ItemJnlLine: Record "Item Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPhysInvtLedgEntry(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -5409,6 +5442,11 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFlushOperation(var ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ItemJnlLine: Record "Item Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostFlushedConsumpItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -5449,6 +5487,11 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallFlushOperation(var ItemJnlLine: Record "Item Journal Line"; var ShouldFlushOperation: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSerialNo(ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -5460,6 +5503,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIsCyclicalLoop(ItemLedgEntry: Record "Item Ledger Entry"; OldItemLedgEntry: Record "Item Ledger Entry"; var PrevAppliedItemLedgEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostFlushedConsump(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean);
     begin
     end;
 
@@ -5549,7 +5597,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateUnitCost(ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateUnitCost(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -5624,7 +5672,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyItemLedgEntryOnBeforeOldItemLedgEntryModify(ItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    local procedure OnApplyItemLedgEntryOnBeforeOldItemLedgEntryModify(var ItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -5704,6 +5752,11 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostConsumptionOnBeforeFindSetProdOrderComp(var ProdOrderComponent: Record "Prod. Order Component"; var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostOutputOnAfterInsertCapLedgEntry(ItemJournalLine: Record "Item Journal Line"; var SkipPost: Boolean)
     begin
     end;
@@ -5715,6 +5768,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOutputOnAfterUpdateAmounts(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostOutputOnAfterUpdateProdOrderLine(var ItemJournalLine: Record "Item Journal Line"; var WhseJnlLine: Record "Warehouse Journal Line"; var GlobalItemLedgEntry: Record "Item Ledger Entry");
     begin
     end;
 

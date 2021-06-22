@@ -919,6 +919,7 @@ table 99000829 "Planning Component"
         Item.CopyFilter("Global Dimension 1 Filter", "Shortcut Dimension 1 Code");
         Item.CopyFilter("Global Dimension 2 Filter", "Shortcut Dimension 2 Code");
         SetFilter("Quantity (Base)", '<>0');
+        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
     end;
 
     procedure FindLinesWithItemToPlan(var Item: Record Item): Boolean
@@ -1005,9 +1006,13 @@ table 99000829 "Planning Component"
     var
         WMSManagement: Codeunit "WMS Management";
         BinCode: Code[20];
+        IsHandled: Boolean;
     begin
-        if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
-            WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", BinCode);
+        IsHandled := FALSE;
+        OnBeforeGetWMSDefaultBin(Rec, BinCode, IsHandled);
+        if not IsHandled then
+            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
+                WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", BinCode);
         exit(BinCode);
     end;
 
@@ -1038,6 +1043,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var PlanningComponent: Record "Planning Component"; var xPlanningComponent: Record "Planning Component"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetWMSDefaultBin(var PlanningComponent: Record "Planning Component"; var BinCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

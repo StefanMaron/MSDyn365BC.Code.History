@@ -3815,7 +3815,7 @@ codeunit 136101 "Service Orders"
         ServiceHour.DeleteAll;
 
         // [GIVEN] Service hours defined for WORKDAY
-        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate,1) - 1);
+        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
         // [GIVEN] Service Order's "Starting Time" is on the same day before starting hours
         StartingTime := 000000T + LibraryRandom.RandInt(ServiceHour."Starting Time" - 000000T);
 
@@ -3823,7 +3823,7 @@ codeunit 136101 "Service Orders"
         ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate, StartingTime, WorkDate, ServiceHour."Ending Time", '', false);
 
         // [THEN] Only service hours are counted
-        Assert.AreEqual(Round((ServiceHour."Ending Time" - ServiceHour."Starting Time") / 3600000,0.01), ActualResponseHours,'');
+        Assert.AreEqual(Round((ServiceHour."Ending Time" - ServiceHour."Starting Time") / 3600000, 0.01), ActualResponseHours, '');
     end;
 
     [Test]
@@ -3841,7 +3841,7 @@ codeunit 136101 "Service Orders"
         ServiceHour.DeleteAll;
 
         // [GIVEN] Service hours defined for WORKDAY
-        LibraryService.CreateDefaultServiceHour(ServiceHour,Date2DWY(WorkDate,1) - 1);
+        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
         // [GIVEN] Service Order's "Starting Time" is on the same day during starting hours
         StartingTime := 000000T + LibraryRandom.RandIntInRange(ServiceHour."Starting Time" - 000000T, ServiceHour."Ending Time" - 000000T);
 
@@ -3849,7 +3849,7 @@ codeunit 136101 "Service Orders"
         ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate, StartingTime, WorkDate, ServiceHour."Ending Time", '', false);
 
         // [THEN] Only service hours are counted
-        Assert.AreEqual(Round((ServiceHour."Ending Time" - StartingTime) / 3600000,0.01), ActualResponseHours, '');
+        Assert.AreEqual(Round((ServiceHour."Ending Time" - StartingTime) / 3600000, 0.01), ActualResponseHours, '');
     end;
 
     [Test]
@@ -3867,16 +3867,16 @@ codeunit 136101 "Service Orders"
         ServiceHour.DeleteAll;
 
         // [GIVEN] Service hours defined for WORKDAY
-        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate,1) - 1);
+        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
 
         // [GIVEN] Service Order's "Starting Time" and "Finishing Time" are before service hours
         StartingTime := 000000T + LibraryRandom.RandInt(ServiceHour."Starting Time" - 000000T);
 
         // [WHEN] Calculating Actual Response Hours, finishing time doesn't matter
-        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate, StartingTime, CalcDate('<+1D>',WorkDate), StartingTime, '', false);
+        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate, StartingTime, CalcDate('<+1D>', WorkDate), StartingTime, '', false);
 
         // [THEN] Only service hours are counted
-        Assert.AreEqual(Round((ServiceHour."Ending Time" - ServiceHour."Starting Time") / 3600000,0.01), ActualResponseHours, '');
+        Assert.AreEqual(Round((ServiceHour."Ending Time" - ServiceHour."Starting Time") / 3600000, 0.01), ActualResponseHours, '');
     end;
 
     [Test]
@@ -3894,23 +3894,23 @@ codeunit 136101 "Service Orders"
         ServiceHour.DeleteAll;
 
         // [GIVEN] Service hours defined for WORKDAY
-        LibraryService.CreateDefaultServiceHour(ServiceHour,Date2DWY(WorkDate,1) - 1);
+        LibraryService.CreateDefaultServiceHour(ServiceHour, Date2DWY(WorkDate, 1) - 1);
         // [GIVEN] Service Order's "Starting Time" is on the same day during starting hours
         StartingTime := 000000T + LibraryRandom.RandIntInRange(ServiceHour."Starting Time" - 000000T, ServiceHour."Ending Time" - 000000T);
 
         // [WHEN] Calculating Actual Response Hours, finishing time doesn't matter
-        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate, StartingTime, CalcDate('<+1D>',WorkDate), StartingTime, '', false);
+        ActualResponseHours := ServOrderManagement.CalcServTime(WorkDate, StartingTime, CalcDate('<+1D>', WorkDate), StartingTime, '', false);
 
         // [THEN] Only service hours are counted
-        Assert.AreEqual(Round((ServiceHour."Ending Time" - StartingTime) / 3600000,0.01), ActualResponseHours,'');
+        Assert.AreEqual(Round((ServiceHour."Ending Time" - StartingTime) / 3600000, 0.01), ActualResponseHours, '');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ShipToRegionCodeDoesNotAffectVat()
     var
-        CountryRegion: array [2] of Record "Country/Region";
-        Customer: array [2] of Record Customer;
+        CountryRegion: array[2] of Record "Country/Region";
+        Customer: array[2] of Record Customer;
         GLSetup: Record "General Ledger Setup";
         ServiceHeader: Record "Service Header";
     begin
@@ -3934,6 +3934,35 @@ codeunit 136101 "Service Orders"
 
         // [THEN] "VAT Country/Region Code" on a Service Header is still from the first Customer
         Assert.AreEqual(Customer[1]."Country/Region Code", ServiceHeader."VAT Country/Region Code", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetFullDocTypeName()
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        // [SCENARIO] Get full document type and name
+        // [GIVEN] Service Header of type "Order"
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Service Order' is returned
+        Assert.AreEqual('Service Order', ServiceHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+
+        // [GIVEN] Service Header of type "Invoice"
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Invoice;
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Service Invoice' is returned
+        Assert.AreEqual('Service Invoice', ServiceHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+
+        // [GIVEN] Service Header of type "Credit Memo"
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::"Credit Memo";
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Service Credit Memo' is returned
+        Assert.AreEqual('Service Credit Memo', ServiceHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
     end;
 
     local procedure Initialize()
@@ -3967,7 +3996,7 @@ codeunit 136101 "Service Orders"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Orders");
     end;
 
-    local procedure CreateCustomerWithCountryRegion(var CountryRegion: Record "Country/Region";var Customer: Record Customer)
+    local procedure CreateCustomerWithCountryRegion(var CountryRegion: Record "Country/Region"; var Customer: Record Customer)
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         LibrarySales.CreateCustomer(Customer);

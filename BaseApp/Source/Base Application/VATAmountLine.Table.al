@@ -193,7 +193,7 @@ table 290 "VAT Amount Line"
         if not (("VAT Base" <> 0) or ("Amount Including VAT" <> 0)) then
             exit(false);
 
-        Positive := "Line Amount" >= 0;
+        Validate(Positive, "Line Amount" >= 0);
         VATAmountLine := Rec;
         if Find then begin
             "Line Amount" += VATAmountLine."Line Amount";

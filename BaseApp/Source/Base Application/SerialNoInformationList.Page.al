@@ -2,6 +2,7 @@ page 6509 "Serial No. Information List"
 {
     Caption = 'Serial No. Information List';
     CardPageID = "Serial No. Information Card";
+    ApplicationArea = ItemTracking;
     Editable = false;
     PageType = List;
     SourceTable = "Serial No. Information";

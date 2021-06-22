@@ -3299,8 +3299,9 @@ codeunit 134393 "ERM Sales Subform"
         SalesOrder.SalesLines.New;
         SalesOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
 
-        // [THEN] Fields Quantity, Location Code, Unit Price, Line Discount % and Line Amount are non editable
-        Assert.IsFalse(
+        // [THEN] Fields Location Code, Unit Price, Line Discount % and Line Amount are non editable
+        // TFS ID: 330349 Quantity is still editable to work with current Quick Entry functionality
+        Assert.IsTrue(
           SalesOrder.SalesLines.Quantity.Editable,
           StrSubstNo(NotEditableErr, SalesLine.FieldName(Quantity)));
         Assert.IsFalse(

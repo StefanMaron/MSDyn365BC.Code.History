@@ -1061,6 +1061,21 @@ codeunit 134329 "ERM Purchase Return Order"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetFullDocTypeName()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO] Get full document type and name
+        // [GIVEN] Purchase Header of type "Return Order"
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Return Order";
+
+        // [WHEN] GetFullDocTypeTxt is called
+        // [THEN] 'Purchase Return Order' is returned
+        Assert.AreEqual('Purchase Return Order', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

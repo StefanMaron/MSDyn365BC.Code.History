@@ -101,6 +101,7 @@ report 7305 "Whse.-Source - Create Document"
 
                 CheckBin("Location Code", "From Bin Code", false);
                 CheckBin("Location Code", "To Bin Code", true);
+                CheckAvailabilityWithTracking("Whse. Mov.-Worksheet Line");
                 UpdateWkshMovementLineBuffer("Whse. Mov.-Worksheet Line");
             end;
 
@@ -595,6 +596,7 @@ report 7305 "Whse.-Source - Create Document"
         DoNotFillQtytoHandle: Boolean;
         Text004: Label 'You can create a Movement only for the available quantity in %1 %2 = %3,%4 = %5,%6 = %7,%8 = %9.';
         BreakbulkFilter: Boolean;
+        TotalPendingMovQtyExceedsBinAvailErr: Label 'Item tracking defined for line %1, lot number %2, serial number %3 cannot be applied.', Comment = '%1=Line No.,%2=Lot No.,%3=Serial No.';
 
     procedure SetPostedWhseReceiptLine(var PostedWhseReceiptLine2: Record "Posted Whse. Receipt Line"; AssignedID2: Code[50])
     begin
@@ -810,6 +812,34 @@ report 7305 "Whse.-Source - Create Document"
         end;
 
         OnAfterSetQuantity(PostedWhseRcptLine, WhseItemTrackingLine);
+    end;
+
+    local procedure CheckAvailabilityWithTracking(WhseWorksheetLine: Record "Whse. Worksheet Line")
+    var
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
+        TrackedQtyInBin: Decimal;
+    begin
+        with WhseItemTrackingLine do begin
+            SetSourceFilter(DATABASE::"Whse. Worksheet Line", 0, WhseWorksheetLine.Name, -1, false);
+            SetRange("Source Batch Name",WhseWorksheetLine."Worksheet Template Name");
+            SetRange("Location Code", WhseWorksheetLine."Location Code");
+            SetRange("Item No.", WhseWorksheetLine."Item No.");
+            SetRange("Variant Code", WhseWorksheetLine."Variant Code");
+            if IsEmpty then
+                exit;
+
+            FindSet;
+            repeat
+                TrackedQtyInBin := WarehouseAvailabilityMgt.CalcQtyOnBin(
+                    WhseWorksheetLine."Location Code", WhseWorksheetLine."From Bin Code", WhseWorksheetLine."Item No.",
+                    WhseWorksheetLine."Variant Code", "Lot No.", "Serial No.");
+                if TrackedQtyInBin < "Quantity (Base)" + WarehouseAvailabilityMgt.CalcQtyAssignedToMove(
+                     WhseWorksheetLine, WhseItemTrackingLine)
+                then
+                    Error(TotalPendingMovQtyExceedsBinAvailErr, WhseWorksheetLine."Line No.", "Lot No.", "Serial No.");
+            until Next = 0;
+        end;
     end;
 
     procedure UpdateWhseItemTrkgLines(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; SourceType: Integer; var TempWhseItemTrkgLine: Record "Whse. Item Tracking Line")

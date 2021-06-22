@@ -52,6 +52,16 @@ page 20002 "APIV1 - Aut. Extensions"
                     ApplicationArea = All;
                     Caption = 'versionMinor', Locked = true;
                 }
+                field(versionBuild; "Version Build")
+                {
+                    ApplicationArea = All;
+                    Caption = 'versionBuild', Locked = true;
+                }
+                field(versionRevision; "Version Revision")
+                {
+                    ApplicationArea = All;
+                    Caption = 'versionRevision', Locked = true;
+                }
                 field(scope; Scope)
                 {
                     ApplicationArea = All;

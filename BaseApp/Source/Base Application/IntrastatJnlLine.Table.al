@@ -140,7 +140,6 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Statistical Value';
             DecimalPlaces = 0 : 0;
-            Editable = false;
         }
         field(19; "Document No."; Code[20])
         {

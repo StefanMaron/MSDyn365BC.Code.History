@@ -123,6 +123,7 @@ codeunit 99000774 "Calculate Routing Line"
 
         ProdOrderCapNeed.UpdateDatetime;
 
+        OnBeforeProdOrderCapNeedInsert(ProdOrderCapNeed, ProdOrderRoutingLine, ProdOrder);
         ProdOrderCapNeed.Insert;
 
         NextCapNeedLineNo := NextCapNeedLineNo + 1;
@@ -650,6 +651,8 @@ codeunit 99000774 "Calculate Routing Line"
             UpdateDatetime;
             Modify;
         end;
+
+        OnAfterCalcRoutingLineBack(ProdOrderRoutingLine, ProdOrderLine);
     end;
 
     local procedure GetSendAheadEndingTime(ProdOrderRoutingLine2: Record "Prod. Order Routing Line"; var SendAheadLotSize: Decimal): Boolean
@@ -963,6 +966,8 @@ codeunit 99000774 "Calculate Routing Line"
             UpdateDatetime;
             Modify;
         end;
+
+        OnAfterCalcRoutingLineForward(ProdOrderRoutingLine, ProdOrderLine);
     end;
 
     local procedure CalculateRoutingLineFixed()
@@ -1109,7 +1114,7 @@ codeunit 99000774 "Calculate Routing Line"
                 CalcRoutingLineForward(CalcStartEndDate);
         end;
 
-        OnAfterCalculateRoutingLine(ProdOrderRoutingLine);
+        OnAfterCalculateRoutingLine(ProdOrderRoutingLine, Direction);
 
         ProdOrderRoutingLine2 := ProdOrderRoutingLine;
     end;
@@ -1779,7 +1784,7 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalculateRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    local procedure OnAfterCalculateRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Direction: Option)
     begin
     end;
 
@@ -1794,8 +1799,22 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateCapNeeded(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; NeedDate: Date; NeedQty: Decimal; RemainNeedQty: Decimal; CalendarEntry: Record "Calendar Entry"; StartingTime: Time; EndingTime: Time; TimeType: Integer; NextCapNeedLineNo: Integer; ConCurrCap: Decimal; LotSize: Decimal; FirstInBatch: Boolean; Direction: Integer);
+    local procedure OnAfterCalcRoutingLineBack(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcRoutingLineForward(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCapNeeded(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; NeedDate: Date; NeedQty: Decimal; RemainNeedQty: Decimal; CalendarEntry: Record "Calendar Entry"; StartingTime: Time; EndingTime: Time; TimeType: Integer; NextCapNeedLineNo: Integer; ConCurrCap: Decimal; LotSize: Decimal; FirstInBatch: Boolean; Direction: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProdOrderCapNeedInsert(var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrder: Record "Production Order");
     begin
     end;
 

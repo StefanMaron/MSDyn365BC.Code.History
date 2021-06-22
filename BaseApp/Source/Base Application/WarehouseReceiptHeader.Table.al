@@ -392,14 +392,15 @@ table 7316 "Warehouse Receipt Header"
         CrossDockOpp: Record "Whse. Cross-Dock Opportunity";
         WhseRcptLine: Record "Warehouse Receipt Line";
         Confirmed: Boolean;
+        SkipConfirm: Boolean;
     begin
         WhseRcptLine.SetRange("No.", "No.");
         if UseTableTrigger then begin
             if WhseRcptLine.Find('-') then begin
                 repeat
-                    OnBeforeDeleteWhseRcptRelatedLines(WhseRcptLine);
+                    OnBeforeDeleteWhseRcptRelatedLines(WhseRcptLine, SkipConfirm);
                     if (WhseRcptLine.Quantity <> WhseRcptLine."Qty. Outstanding") and
-                       (WhseRcptLine."Qty. Outstanding" <> 0)
+                       (WhseRcptLine."Qty. Outstanding" <> 0) and not SkipConfirm
                     then
                         if not Confirm(Text008, false) then
                             Error(Text009)
@@ -558,7 +559,7 @@ table 7316 "Warehouse Receipt Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteWhseRcptRelatedLines(var WhseRcptLine: Record "Warehouse Receipt Line")
+    local procedure OnBeforeDeleteWhseRcptRelatedLines(var WhseRcptLine: Record "Warehouse Receipt Line"; var SkipConfirm: Boolean)
     begin
     end;
 

@@ -521,7 +521,13 @@ table 7302 "Bin Content"
     end;
 
     procedure CalcQtyAvailToTake(ExcludeQtyBase: Decimal): Decimal
+    var
+        QtyAvailToTake: Decimal;
+        IsHandled: Boolean;
     begin
+
+        OnBeforeCalcQtyAvailToTake(Rec, ExcludeQtyBase, QtyAvailToTake, IsHandled);
+
         SetFilterOnUnitOfMeasure;
         CalcFields("Quantity (Base)", "Negative Adjmt. Qty. (Base)", "Pick Quantity (Base)", "ATO Components Pick Qty (Base)");
         exit(
@@ -1136,6 +1142,11 @@ table 7302 "Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetWhseLocation(LocationCode: Code[10]; ZoneCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyAvailToTake(var BinContent: Record "Bin Content"; ExcludeQtyBase: Decimal; var QtyAvailToTake: Decimal; var IsHandled: Boolean)
     begin
     end;
 

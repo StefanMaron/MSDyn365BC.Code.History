@@ -554,6 +554,8 @@ codeunit 7110 "Analysis Report Management"
                         end;
             end;
         end;
+
+        OnAfterCalcItemStatistics(ItemStatisticsBuf, AnalysisLine, AnalysisColumn, DrillDown, ColValue);
         exit(ColValue);
     end;
 
@@ -1725,6 +1727,11 @@ codeunit 7110 "Analysis Report Management"
 
         AnalysisFieldValue.SetRange("Row Ref. No.");
         AnalysisFieldValue.SetRange("Column No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcItemStatistics(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; DrillDown: Boolean; var ColValue: Decimal);
+    begin
     end;
 }
 

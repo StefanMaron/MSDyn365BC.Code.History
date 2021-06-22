@@ -132,6 +132,7 @@ page 345 Reconciliation
         Rec := OldGLAccountNetChange;
     end;
 
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
     begin
     end;

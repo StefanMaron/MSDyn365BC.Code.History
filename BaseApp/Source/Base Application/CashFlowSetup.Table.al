@@ -474,6 +474,7 @@ table 843 "Cash Flow Setup"
         IsolatedStorageManagement.Set("Service Pass API Key ID", APIKeyValue, DATASCOPE::Company);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetMLCredentials(var APIURL: Text[250]; var APIKey: Text[200]; var LimitValue: Decimal; var UsingStandardCredentials: Boolean): Boolean
     var
@@ -497,6 +498,7 @@ table 843 "Cash Flow Setup"
             exit(RetrieveSaaSMLCredentials(APIURL, APIKey, LimitValue));
     end;
 
+    [NonDebuggable]
     local procedure RetrieveSaaSMLCredentials(var APIURL: Text[250]; var APIKey: Text[200]; var LimitValue: Decimal): Boolean
     var
         TimeSeriesManagement: Codeunit "Time Series Management";

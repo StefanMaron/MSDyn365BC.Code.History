@@ -1702,7 +1702,7 @@
         </trans-unit>
         <trans-unit id="Page 3223246169 - Action 4111934588 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cancel</source>
-          <target>Abbrechen</target>
+          <target>Stornieren</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Update - Action ActionCancel - Property Caption</note>
         </trans-unit>
@@ -1768,7 +1768,7 @@
         </trans-unit>
         <trans-unit id="Page 3155514618 - Action 788258546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cancel</source>
-          <target>Abbrechen</target>
+          <target>Stornieren</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Hybrid Companies Management - Action Cancel - Property Caption</note>
         </trans-unit>
@@ -1834,7 +1834,7 @@
         </trans-unit>
         <trans-unit id="Page 2884714899 - Action 788258546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cancel</source>
-          <target>Abbrechen</target>
+          <target>Stornieren</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Migration User Mapping - Action Cancel - Property Caption</note>
         </trans-unit>
