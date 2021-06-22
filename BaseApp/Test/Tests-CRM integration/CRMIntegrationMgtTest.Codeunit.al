@@ -1453,7 +1453,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,CRMConnSetupWizardPageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CheckOrEnableCRMConnectionNotEnabled()
     begin
@@ -1892,11 +1892,10 @@ codeunit 139162 "CRM Integration Mgt Test"
           'Inactivity time out period different from default.');
     end;
 
-    [ConfirmHandler]
+    [MessageHandler]
     [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    procedure MessageHandler(Message: Text)
     begin
-        Reply := true;
     end;
 
     [ConfirmHandler]
@@ -1947,12 +1946,6 @@ codeunit 139162 "CRM Integration Mgt Test"
     procedure MultipleSyncStartedNotificationHandler(var SyncCompleteNotification: Notification): Boolean
     begin
         Assert.AreEqual(MultipleSyncStartedMsg, SyncCompleteNotification.Message, 'Unexpected notification.');
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure CRMConnSetupWizardPageHandler(var CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard")
-    begin
     end;
 
     [RecallNotificationHandler]

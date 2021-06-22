@@ -843,6 +843,47 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetStatistics.Close;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFACardFAPostingGroupValidation()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        Description: Text[100];
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 358751] System assigns "Default FA Posting Group" from "FA Sub Class" to newly created Fixed Asset when "FA Class Code" is already set in fixed asset.
+
+        // [GIVEN] FA Posting group
+        FixedAsset.DeleteAll();
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+
+        // [GIVEN] FA Class
+        LibraryFixedAsset.CreateFAClass(FAClass);
+
+        // [GIVEN] FA Subclass with "FA Class", and "Default FA Posting Group" set
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
+        Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
+
+        // [GIVEN] Fixed Asset Card was open
+        FixedAssetCard.OpenNew();
+        FixedAssetCard.Description.SetValue(Description);
+
+        // [GIVEN] FA Class was set on Fixed Asset
+        FixedAssetCard."FA Class Code".SetValue(FAClass.Code);
+
+        // [WHEN] FA Subclass was set
+        FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
+        FixedAssetCard.Close();
+
+        // [THEN] Fixed Asset "FA Posting Group" was assigned from FA Subclass "Default FA Posting Group"
+        FixedAsset.FindFirst();
+        FixedAsset.TestField("FA Posting Group", FAPostingGroup.Code);
+    end;
+
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")
     var
         DepreciationBook: Record "Depreciation Book";

@@ -1,4 +1,4 @@
-table 5900 "Service Header"
+﻿table 5900 "Service Header"
 {
     Caption = 'Service Header';
     DataCaptionFields = "No.", Name, Description;
@@ -325,32 +325,11 @@ table 5900 "Service Header"
                             "Tax Area Code" := Cust."Tax Area Code";
                         end;
                         ShipToAddr.Get("Customer No.", "Ship-to Code");
-                        SetShipToAddress(
-                          ShipToAddr.Name, ShipToAddr."Name 2", ShipToAddr.Address, ShipToAddr."Address 2",
-                          ShipToAddr.City, ShipToAddr."Post Code", ShipToAddr.County, ShipToAddr."Country/Region Code");
-                        "Ship-to Contact" := ShipToAddr.Contact;
-                        "Ship-to Phone" := ShipToAddr."Phone No.";
-                        if ShipToAddr."Location Code" <> '' then
-                            "Location Code" := ShipToAddr."Location Code";
-                        "Ship-to Fax No." := ShipToAddr."Fax No.";
-                        "Ship-to E-Mail" := ShipToAddr."E-Mail";
-                        if ShipToAddr."Tax Area Code" <> '' then
-                            "Tax Area Code" := ShipToAddr."Tax Area Code";
-                        "Tax Liable" := ShipToAddr."Tax Liable";
+                        SetShipToCustomerAddressFieldsFromShipToAddr(ShipToAddr);
                     end else
                         if "Customer No." <> '' then begin
                             GetCust("Customer No.");
-                            SetShipToAddress(
-                              Cust.Name, Cust."Name 2", Cust.Address, Cust."Address 2",
-                              Cust.City, Cust."Post Code", Cust.County, Cust."Country/Region Code");
-                            "Ship-to Contact" := Cust.Contact;
-                            "Ship-to Phone" := Cust."Phone No.";
-                            "Tax Area Code" := Cust."Tax Area Code";
-                            "Tax Liable" := Cust."Tax Liable";
-                            if Cust."Location Code" <> '' then
-                                "Location Code" := Cust."Location Code";
-                            "Ship-to Fax No." := Cust."Fax No.";
-                            "Ship-to E-Mail" := Cust."E-Mail";
+                            CopyShipToCustomerAddressFieldsFromCust(Cust);
                         end;
 
                 if (xRec."Customer No." = "Customer No.") and
@@ -2781,6 +2760,7 @@ table 5900 "Service Header"
         TempServLine: Record "Service Line" temporary;
         ServDocReg: Record "Service Document Register";
         TempServDocReg: Record "Service Document Register" temporary;
+        ServiceCommentLine: Record "Service Comment Line";
         TempServiceCommentLine: Record "Service Comment Line" temporary;
         ConfirmManagement: Codeunit "Confirm Management";
         ExtendedTextAdded: Boolean;
@@ -2835,6 +2815,7 @@ table 5900 "Service Header"
                             until ServDocReg.Next() = 0;
                     end;
                     StoreServiceCommentLineToTemp(TempServiceCommentLine);
+                    ServiceCommentLine.DeleteComments(ServiceCommentLine."Table Name"::"Service Header", "Document Type", "No.");
                     ServLine.DeleteAll(true);
 
                     if "Document Type" = "Document Type"::Invoice then begin
@@ -3753,6 +3734,56 @@ table 5900 "Service Header"
         end;
     end;
 
+    procedure SetShipToCustomerAddressFieldsFromShipToAddr(ShipToAddr: Record "Ship-to Address")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(Rec, ShipToAddr, IsHandled);
+        if IsHandled then
+            exit;
+
+        SetShipToAddress(
+          ShipToAddr.Name, ShipToAddr."Name 2", ShipToAddr.Address, ShipToAddr."Address 2",
+          ShipToAddr.City, ShipToAddr."Post Code", ShipToAddr.County, ShipToAddr."Country/Region Code");
+        "Ship-to Contact" := ShipToAddr.Contact;
+        "Ship-to Phone" := ShipToAddr."Phone No.";
+        if ShipToAddr."Location Code" <> '' then
+            "Location Code" := ShipToAddr."Location Code";
+        "Ship-to Fax No." := ShipToAddr."Fax No.";
+        "Ship-to E-Mail" := ShipToAddr."E-Mail";
+        if ShipToAddr."Tax Area Code" <> '' then
+            "Tax Area Code" := ShipToAddr."Tax Area Code";
+        "Tax Liable" := ShipToAddr."Tax Liable";
+
+        OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(Rec, ShipToAddr);
+    end;
+
+
+    local procedure CopyShipToCustomerAddressFieldsFromCust(var SellToCustomer: Record Customer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, IsHandled);
+        if IsHandled then
+            exit;
+
+        SetShipToAddress(
+          Cust.Name, Cust."Name 2", Cust.Address, Cust."Address 2",
+          Cust.City, Cust."Post Code", Cust.County, Cust."Country/Region Code");
+        "Ship-to Contact" := Cust.Contact;
+        "Ship-to Phone" := Cust."Phone No.";
+        "Tax Area Code" := Cust."Tax Area Code";
+        "Tax Liable" := Cust."Tax Liable";
+        if Cust."Location Code" <> '' then
+            "Location Code" := Cust."Location Code";
+        "Ship-to Fax No." := Cust."Fax No.";
+        "Ship-to E-Mail" := Cust."E-Mail";
+
+        OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer);
+    end;
+
     procedure InventoryPickConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -4107,6 +4138,8 @@ table 5900 "Service Header"
 
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
     begin
+        OnBeforeSetSalespersonCode();
+
         if SalesPersonCodeToCheck <> '' then
             if Salesperson.Get(SalesPersonCodeToCheck) then
                 if Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then
@@ -4163,6 +4196,16 @@ table 5900 "Service Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyShipToCustomerAddressFieldsFromCustomer(var ServiceHeader: Record "Service Header"; SellToCustomer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(var ServiceHeader: Record "Service Header"; ShipToAddress: Record "Ship-to Address")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetPostingNoSeriesCode(var ServiceHeader: Record "Service Header"; var PostingNos: Code[20])
     begin
     end;
@@ -4209,6 +4252,16 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmUpdateContractNo(var ServiceHeader: Record "Service Header"; var Confirmed: Boolean; var HideValidationDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyShipToCustomerAddressFieldsFromCustomer(var ServiceHeader: Record "Service Header"; Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(var ServiceHeader: Record "Service Header"; ShipToAddress: Record "Ship-to Address"; var IsHandled: Boolean)
     begin
     end;
 
@@ -4284,6 +4337,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmRecalculatePrice(ServiceHeader: Record "Service Header"; var HideValidationDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSalespersonCode()
     begin
     end;
 }

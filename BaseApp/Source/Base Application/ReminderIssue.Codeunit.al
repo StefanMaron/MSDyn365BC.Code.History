@@ -517,11 +517,17 @@ codeunit 393 "Reminder-Issue"
     local procedure CheckIfBlocked(CustomerNo: Code[20])
     var
         Customer: Record Customer;
+        IsHandled: Boolean;
     begin
         Customer.Get(CustomerNo);
 
         if Customer."Privacy Blocked" then
             Error(Text004, Customer.FieldCaption("Privacy Blocked"), Customer."Privacy Blocked", Customer.TableCaption, CustomerNo);
+
+        IsHandled := false;
+        OnBeforeCheckCustomerIsBlocked(Customer, IsHandled);
+        if IsHandled then
+            exit;
 
         if Customer.Blocked = Customer.Blocked::All then
             Error(Text004, Customer.FieldCaption(Blocked), Customer.Blocked, Customer.TableCaption, CustomerNo);
@@ -539,6 +545,11 @@ codeunit 393 "Reminder-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCustLedgEntryLastIssuedReminderLevelOnBeforeModify(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustomerIsBlocked(Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }

@@ -111,12 +111,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Posting Date OnLastML - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 523664430 - NamedType 2058625442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cannot use the model to make predictions. The quality of the model is below the specified quality threshold, which means that its predictions are unlikely to meet your requirements for accuracy. To use the model anyway, enter a lower value in the Model Quality Threshold field.</source>
-          <target state="translated">No se puede usar el modelo para realizar predicciones. La calidad del modelo es inferior al umbral de calidad especificado, lo que significa que es poco probable que sus predicciones cumplan los requisitos de precisión. Para usar el modelo de todos modos, introduzca un valor inferior en el campo Umbral de calidad del modelo.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - NamedType CurrentModelLowerQualityThanDesiredErr</note>
-        </trans-unit>
         <trans-unit id="Table 523664430 - NamedType 358560748" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot use the model because it does not exist. Try training a new model.</source>
           <target state="translated">No se puede usar el modelo porque no existe. Intente formar un nuevo modelo.</target>

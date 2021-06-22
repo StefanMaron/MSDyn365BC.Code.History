@@ -28,7 +28,7 @@ codeunit 230 GenJnlManagement
         GenJnlTemplate.SetRange(Recurring, RecurringJnl);
         if not RecurringJnl then
             GenJnlTemplate.SetRange(Type, PageTemplate);
-        OnTemplateSelectionSetFilter(GenJnlTemplate, PageTemplate, RecurringJnl);
+        OnTemplateSelectionSetFilter(GenJnlTemplate, PageTemplate, RecurringJnl, PageID);
 
         JnlSelected := FindTemplateFromSelection(GenJnlTemplate, PageTemplate, RecurringJnl);
 
@@ -492,7 +492,7 @@ codeunit 230 GenJnlManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTemplateSelectionSetFilter(var GenJnlTemplate: Record "Gen. Journal Template"; var PageTemplate: Option; var RecurringJnl: Boolean)
+    local procedure OnTemplateSelectionSetFilter(var GenJnlTemplate: Record "Gen. Journal Template"; var PageTemplate: Option; var RecurringJnl: Boolean; PageId: Integer)
     begin
     end;
 

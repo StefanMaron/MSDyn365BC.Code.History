@@ -1,4 +1,4 @@
-codeunit 1001 "Job Post-Line"
+﻿codeunit 1001 "Job Post-Line"
 {
     Permissions = TableData "Job Ledger Entry" = rm,
                   TableData "Job Planning Line" = rimd;
@@ -408,6 +408,7 @@ codeunit 1001 "Job Post-Line"
             SetRange("Gen. Prod. Posting Group", TempInvoicePostBuffer."Gen. Prod. Posting Group");
             SetRange("VAT Bus. Posting Group", TempInvoicePostBuffer."VAT Bus. Posting Group");
             SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
+            OnPostPurchaseGLAccountsOnAfterTempPurchaseLineJobSetFilters(TempPurchaseLineJob, TempInvoicePostBuffer);
             if FindSet then begin
                 repeat
                     TempJobJournalLine.Reset();
@@ -545,6 +546,11 @@ codeunit 1001 "Job Post-Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostInvoiceContractLineOnBeforeCheckBillToCustomer(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPurchaseGLAccountsOnAfterTempPurchaseLineJobSetFilters(var TempPurchaseLineJob: Record "Purchase Line" temporary; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
     begin
     end;
 

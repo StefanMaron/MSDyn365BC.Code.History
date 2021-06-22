@@ -1,4 +1,4 @@
-codeunit 7153 "Item Analysis Management"
+﻿codeunit 7153 "Item Analysis Management"
 {
 
     trigger OnRun()
@@ -724,6 +724,7 @@ codeunit 7153 "Item Analysis Management"
                 end;
         end;
 
+        OnAfterCalcActualAmount(ValueType, ItemStatisticsBuffer, CurrentItemAnalysisViewCode, Amount);
         exit(Amount);
     end;
 
@@ -808,6 +809,11 @@ codeunit 7153 "Item Analysis Management"
         end;
 
         exit(Amount);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcActualAmount(ValueType: Option "Sales Amount","Cost Amount",Quantity; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; var Amount: Decimal)
+    begin
     end;
 }
 

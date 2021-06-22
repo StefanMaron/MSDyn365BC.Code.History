@@ -120,6 +120,8 @@ page 351 "Customer Sales Lines"
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
+
+        OnAfterSet(Cust, PeriodType, AmountType);
     end;
 
     local procedure ShowCustEntries()
@@ -170,6 +172,11 @@ page 351 "Customer Sales Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcLine(var Customer: Record Customer; var CustomerSalesBuffer: Record "Customer Sales Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSet(var NewCust: Record Customer; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
     end;
 }

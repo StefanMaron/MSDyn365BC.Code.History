@@ -267,6 +267,7 @@ report 7391 "Whse. Get Bin Content"
             ItemJournalBatch.Get("Journal Template Name", "Journal Batch Name");
             "Source Code" := ItemJournalTempl."Source Code";
             "Posting No. Series" := ItemJournalBatch."Posting No. Series";
+            OnInsertItemJournalLineOnBeforeInsert(ItemJournalLine);
             Insert;
             OnAfterInsertItemJnlLine(ItemJournalLine);
         end;
@@ -461,6 +462,11 @@ report 7391 "Whse. Get Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertWWLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemJournalLineOnBeforeInsert(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }

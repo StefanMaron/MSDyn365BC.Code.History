@@ -293,7 +293,7 @@ table 7321 "Warehouse Shipment Line"
         }
         field(27; "Pick Qty."; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = CONST(Pick),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = CONST(Pick),
                                                                                   "Whse. Document Type" = CONST(Shipment),
                                                                                   "Whse. Document No." = FIELD("No."),
                                                                                   "Whse. Document Line No." = FIELD("Line No."),
@@ -309,7 +309,7 @@ table 7321 "Warehouse Shipment Line"
         }
         field(28; "Pick Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = CONST(Pick),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = CONST(Pick),
                                                                                          "Whse. Document Type" = CONST(Shipment),
                                                                                          "Whse. Document No." = FIELD("No."),
                                                                                          "Whse. Document Line No." = FIELD("Line No."),
@@ -620,6 +620,7 @@ table 7321 "Warehouse Shipment Line"
         WhseQtyOutstandingBase: Decimal;
         QtyOutstandingBase: Decimal;
         QuantityBase: Decimal;
+        IsHandled: Boolean;
     begin
         if "Qty. (Base)" = 0 then
             QuantityBase :=
@@ -669,8 +670,11 @@ table 7321 "Warehouse Shipment Line"
             else
                 OnCheckSourceDocLineQtyOnCaseSourceType(Rec, WhseQtyOutstandingBase, QtyOutstandingBase, QuantityBase);
         end;
-        if QuantityBase > QtyOutstandingBase then
-            FieldError(Quantity, StrSubstNo(Text002, FieldCaption("Qty. Outstanding")));
+        IsHandled := false;
+        OnCheckSourceDocLineQtyOnBeforeFieldError(Rec, WhseQtyOutstandingBase, QtyOutstandingBase, QuantityBase, IsHandled);
+        if not IsHandled then
+            if QuantityBase > QtyOutstandingBase then
+                FieldError(Quantity, StrSubstNo(Text002, FieldCaption("Qty. Outstanding")));
     end;
 
     procedure CalcStatusShptLine(): Integer
@@ -1037,6 +1041,11 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestReleased(var WhseShptHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSourceDocLineQtyOnBeforeFieldError(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WhseQtyOutstandingBase: Decimal; var QtyOutstandingBase: Decimal; QuantityBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 

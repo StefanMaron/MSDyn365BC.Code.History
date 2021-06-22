@@ -10,6 +10,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
     var
         LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryAssembly: Codeunit "Library - Assembly";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
@@ -186,10 +187,47 @@ codeunit 135404 "Sales Document Plan-based E2E"
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure TestCustomerOnSalesQuoteWithAssemblyItemTeamMember()
+    var
+        SalesQuote: TestPage "Sales Quote";
+        PurchaseOrder: TestPage "Purchase Order";
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO] Change customer on sales quote with assembly-to-order items work
+        Initialize;
+
+        // [GIVEN] Sales quote with a sales line with Assemble-to-Order item
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
+        LibrarySales.CreateCustomer(Customer);
+        CreateAssemblyItem(Item);
+        CreateSalesQuote(SalesQuote, Customer, Item);
+        SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuote."No.".Value);
+        SalesQuote.Close();
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+
+        // [WHEN] Change the sell-to customer 
+        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+
+        SalesQuote.OpenEdit();
+        SalesQuote.GoToRecord(SalesHeader);
+        SalesQuote."Sell-to Customer No.".SetValue(CustomerNo);
+
+        // [THEN] No errors are thrown
+        SalesQuote.Close();
+    end;
+
     local procedure Initialize()
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
         RoutingLine: Record "Routing Line";
+        AssemblySetup: Record "Assembly Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -208,6 +246,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
         LibrarySales.DisableWarningOnCloseUnreleasedDoc;
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibraryAssembly.CreateAssemblySetup(AssemblySetup, '', 0, LibraryUtility.GetGlobalNoSeriesCode);
 
         IsInitialized := true;
         Commit();
@@ -232,6 +271,18 @@ codeunit 135404 "Sales Document Plan-based E2E"
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(100, 1));
     end;
 
+    local procedure CreateSalesQuote(var SalesQuote: TestPage "Sales Quote"; Customer: Record Customer; Item: Record Item)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesQuote.OpenNew;
+        SalesQuote."Sell-to Customer No.".SetValue(Customer."No.");
+        SalesQuote.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
+        SalesQuote.SalesLines."No.".SetValue(Item."No.");
+        SalesQuote.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(100));
+        SalesQuote.SalesLines."Qty. to Assemble to Order".SetValue(SalesQuote.SalesLines.Quantity.Value);
+    end;
+
     local procedure CreateItem() ItemNo: Code[20]
     var
         Item: Record Item;
@@ -242,6 +293,14 @@ codeunit 135404 "Sales Document Plan-based E2E"
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
         Commit();
+    end;
+
+    local procedure CreateAssemblyItem(var Item: Record Item)
+    begin
+        LibraryAssembly.SetupAssemblyItem(
+          Item, Item."Costing Method"::Standard, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', false,
+          LibraryRandom.RandInt(5), LibraryRandom.RandInt(5),
+          LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
     end;
 
     local procedure CreateVendor() VendorNo: Code[20]
@@ -310,6 +369,19 @@ codeunit 135404 "Sales Document Plan-based E2E"
     procedure RecallNotificationHandler(var NotificationToRecall: Notification): Boolean
     begin
         exit(true);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

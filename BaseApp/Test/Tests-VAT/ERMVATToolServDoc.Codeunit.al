@@ -19,6 +19,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
 
     [Test]
@@ -655,6 +656,60 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceLine.TestField("Order Date", ServiceHeader."Order Date");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnitPriceUpdateForGLAccLineWhenPricesIncludingVATEnabled()
+    var
+        ServiceLine: Record "Service Line";
+        ExpectedUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Prices Including VAT]
+        // [SCENARIO 361066] A unit price of service line with "Prices Including VAT" and type "G/L Account" updates on "VAT Product Posting Group" change
+        // [SCENARIO 361066] if "Update Unit Price For G/L Acc." is enabled in VAT Rate Change Setup
+
+        Initialize();
+
+        ERMVATToolHelper.CreatePostingGroups(false);
+        ERMVATToolHelper.UpdateUnitPricesInclVATSetup(true, false, false);
+        SetupToolService(VATRateChangeSetup2."Update Service Docs."::"VAT Prod. Posting Group", true, true);
+        CreateServiceInvoiceWithPricesIncludingVAT(ServiceLine, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        ExpectedUnitPrice := CalcChangedUnitPriceGivenDiffVATPostingSetup(ServiceLine);
+        ServiceLine.Find();
+        ServiceLine.TestField("Unit Price", ExpectedUnitPrice);
+
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnitPriceDoesNotUpdateForGLAccLineWhenPricesIncludingVATEnabled()
+    var
+        ServiceLine: Record "Service Line";
+        ExpectedUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Prices Including VAT]
+        // [SCENARIO 361066] A unit price of service line with "Prices Including VAT" and type "G/L Account" does not update on "VAT Product Posting Group" change
+        // [SCENARIO 361066] if "Update Unit Price For G/L Acc." is disabled in VAT Rate Change Setup
+
+        Initialize();
+
+        ERMVATToolHelper.CreatePostingGroups(false);
+        ERMVATToolHelper.UpdateUnitPricesInclVATSetup(false, false, false);
+        SetupToolService(VATRateChangeSetup2."Update Service Docs."::"VAT Prod. Posting Group", true, true);
+        CreateServiceInvoiceWithPricesIncludingVAT(ServiceLine, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
+
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        ExpectedUnitPrice := ServiceLine."Unit Price";
+        ServiceLine.Find();
+        ServiceLine.TestField("Unit Price", ExpectedUnitPrice);
+
+        ERMVATToolHelper.DeleteGroups();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -954,6 +1009,24 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.CreateLinesRefService(TempRecRef, ServiceHeader);
     end;
 
+    local procedure CreateServiceInvoiceWithPricesIncludingVAT(var ServiceLine: Record "Service Line"; Type: Option; No: Code[20])
+    var
+        ServiceHeader: Record "Service Header";
+        VATProdPostingGroup: Code[20];
+        GenProdPostingGroup: Code[20];
+    begin
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        ServiceHeader.Validate("Prices Including VAT", true);
+        ServiceHeader.Modify(true);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
+        ServiceLine.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
+        ServiceLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify(true);
+    end;
+
     local procedure GetLineCount(MultipleLines: Boolean) "Count": Integer
     begin
         if MultipleLines then
@@ -997,6 +1070,20 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.FindFirst;
         exit(ServiceLine."VAT Prod. Posting Group");
+    end;
+
+    local procedure CalcChangedUnitPriceGivenDiffVATPostingSetup(ServiceLine: Record "Service Line"): Decimal
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenProdPostingGroup: Code[20];
+        VATProdPostingGroup: Code[20];
+    begin
+        ERMVATToolHelper.GetGroupsAfter(VATProdPostingGroup, GenProdPostingGroup, DATABASE::"Service Line");
+        VATPostingSetup.Get(ServiceLine."VAT Bus. Posting Group", VATProdPostingGroup);
+        exit(
+          Round(
+            ServiceLine."Unit Price" * (100 + VATPostingSetup."VAT %") / (100 + ServiceLine."VAT %"),
+            LibraryERM.GetUnitAmountRoundingPrecision));
     end;
 
     local procedure ExpectLogEntries(DocumentType: Option): Boolean

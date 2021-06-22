@@ -10,7 +10,7 @@ codeunit 9178 "Application Area Mgmt."
         ValuesNotAllowedErr: Label 'The selected experience is not supported.\\In the Application Area window, you define what is shown in the user interface.';
         InvoicingExpTierErr: Label 'The Invoicing application area must be the only enabled area.';
         HideApplicationAreaError: Boolean;
-        PremiumSubscriptionNeededMsg: Label 'To use the Premium experience, you must first buy the Premium plan.';
+        PremiumSubscriptionNeededMsg: Label 'You cannot upgrade to the Premium experience because you do not have a Premium license assigned to you. Your administrator must assign the license to you in Office 365 and then synchronize the license information in Business Central from the Users page.';
         AppAreaNotSupportedErr: Label 'Application area Basic %1 is not supported.', Comment = '%1 = application area';
 
     local procedure GetApplicationAreaSetupRec(var ApplicationAreaSetup: Record "Application Area Setup"): Boolean

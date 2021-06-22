@@ -298,12 +298,22 @@ codeunit 9651 "Document Report Mgt."
 
     local procedure PrintWordDoc(ReportID: Integer; var TempBlob: Codeunit "Temp Blob"; PrinterName: Text; Collate: Boolean; var pdfStream: OutStream)
     var
+        PrinterTable: Record "Printer";
         FileMgt: Codeunit "File Management";
+        LocalPrinter: Boolean;
     begin
         if ClientTypeMgt.GetCurrentClientType = CLIENTTYPE::Windows then
             PrintWordDocInWord(ReportID, TempBlob, PrinterName, Collate, 1)
         else begin
-            if EnableLegacyPrint then begin
+            // We cannot check the state of the pdfStream (not possible to detect that it's uninitialized from AL)
+            // Get the printer table record and check if the Payload column is empty or not. Empty means a local Windows printer, not empty is an
+            // extension based printer
+            if (PrinterTable.Get(PrinterName)) then begin
+                if (strlen(PrinterTable.Payload) = 0) then
+                    LocalPrinter := True;
+            end;
+
+            if EnableLegacyPrint or LocalPrinter then begin
                 if ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then begin
                     ConvertWordToPdf(TempBlob, ReportID);
                     FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypePdfTxt), true);

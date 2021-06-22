@@ -65,12 +65,15 @@ codeunit 392 "Reminder-Make"
                 until CustLedgEntry.Next = 0;
             CustLedgEntry.CopyFilters(CustLedgEntry2);
             RetVal := true;
+            OnCodeOnBeforeCurrencyLoop(CustLedgEntry, ReminderHeaderReq, ReminderTerms, OverdueEntriesOnly, IncludeEntriesOnHold, HeaderExists, CustLedgEntryLastIssuedReminderLevelFilter);
             if Currency.FindSet then
                 repeat
                     if not MakeReminder(Currency.Code) then
                         RetVal := false;
                 until Currency.Next = 0;
         end;
+
+        OnAfterCode(RetVal);
     end;
 
     procedure Set(Cust2: Record Customer; var CustLedgEntry2: Record "Cust. Ledger Entry"; ReminderHeaderReq2: Record "Reminder Header"; OverdueEntriesOnly2: Boolean; IncludeEntriesOnHold2: Boolean; var CustLedgEntryLinefeeOn: Record "Cust. Ledger Entry")
@@ -94,7 +97,7 @@ codeunit 392 "Reminder-Make"
         CustLedgEntryLineFeeFilters.CopyFilters(CustLedgEntryLinefeeOn);
     end;
 
-    local procedure MakeReminder(CurrencyCode: Code[10]): Boolean
+    local procedure MakeReminder(CurrencyCode: Code[10]) RetVal: Boolean
     var
         ReminderLevel: Record "Reminder Level";
         ReminderLine: Record "Reminder Line";
@@ -108,7 +111,13 @@ codeunit 392 "Reminder-Make"
         ReminderDueDate: Date;
         OpenEntriesNotDueTranslated: Text[100];
         OpenEntriesOnHoldTranslated: Text[100];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMakeReminder(ReminderHeader, CurrencyCode, RetVal, IsHandled);
+        if IsHandled then
+            exit;
+
         with Cust do begin
             FilterCustLedgEntryReminderLevel(CustLedgEntry, ReminderLevel, CurrencyCode);
             if not ReminderLevel.FindLast then
@@ -122,7 +131,7 @@ codeunit 392 "Reminder-Make"
             if not ReminderLevel.FindLast then
                 ReminderLevel.Init();
             if MakeDoc and (CustAmount > 0) and (CustAmountLCY(CurrencyCode, CustAmount) >= ReminderTerms."Minimum Amount (LCY)") then begin
-                if Blocked = Blocked::All then
+                if CheckCustomerIsBlocked(Cust) then
                     exit(false);
                 ReminderLine.LockTable();
                 ReminderHeader.LockTable();
@@ -178,6 +187,7 @@ codeunit 392 "Reminder-Make"
                 until ReminderLevel.Next(-1) = 0;
                 ReminderHeader."Reminder Level" := MaxReminderLevel;
                 ReminderHeader.Validate("Reminder Level");
+                OnMakeReminderOnBeforeReminderHeaderInsertLines(ReminderHeader);
                 ReminderHeader.InsertLines;
                 ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
                 ReminderLine.FindLast;
@@ -518,6 +528,17 @@ codeunit 392 "Reminder-Make"
         end;
     end;
 
+    local procedure CheckCustomerIsBlocked(Customer: Record Customer) Result: Boolean
+    begin
+        Result := Customer.Blocked = Customer.Blocked::All;
+        OnAfterCheckCustomerIsBlocked(Customer, Result);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var RetVal: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterCustLedgEntryReminderLevel(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderLevel: Record "Reminder Level"; ReminderTerms: Record "Reminder Terms"; Customer: Record Customer)
     begin
@@ -544,6 +565,11 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeReminder(var ReminderHeader: Record "Reminder Header"; CurrencyCode: Code[10]; var RetVal: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeReminderHeaderFind(var ReminderHeader: Record "Reminder Header"; ReminderHeaderReq: Record "Reminder Header"; ReminderTerms: Record "Reminder Terms"; Customer: Record Customer)
     begin
     end;
@@ -564,7 +590,22 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeCurrencyLoop(CustLedgEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header"; ReminderTerms: Record "Reminder Terms"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; HeaderExists: Boolean; CustLedgEntryLastIssuedReminderLevelFilter: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnMakeReminderOnBeforeCustLedgEntryFindSet(var CustLedgEntry: Record "Cust. Ledger Entry"; Cust: Record Customer; ReminderHeader: Record "Reminder Header"; MaxReminderLevel: Integer; var OverDueEntriesOnly: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckCustomerIsBlocked(Customer: Record Customer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeReminderOnBeforeReminderHeaderInsertLines(var ReminderHeader: Record "Reminder Header")
     begin
     end;
 }

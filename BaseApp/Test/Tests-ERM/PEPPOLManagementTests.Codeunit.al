@@ -26,7 +26,6 @@ codeunit 139155 "PEPPOL Management Tests"
         SalespersonTxt: Label 'Salesperson';
         InvoiceDiscAmtTxt: Label 'Line Discount Amount';
         NoUnitOfMeasureErr: Label 'The Invoice %1 contains lines on which the Unit of Measure Code field is empty.';
-        NoUnitOfMeasureCRErr: Label 'The Credit Memo %1 contains lines on which the Unit of Measure Code field is empty.';
         NoItemDescriptionErr: Label 'Description field is empty.';
         NoInternationalStandardCodeErr: Label 'You must specify a valid International Standard Code for the Unit of Measure for %1.';
         NegativeUnitPriceErr: Label 'It cannot be negative if you want to send the posted document as an electronic document. \\Do you want to continue?', Comment = '%1 - record ID';
@@ -2380,68 +2379,6 @@ codeunit 139155 "PEPPOL Management Tests"
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
         Assert.ExpectedError(StrSubstNo(NoUnitOfMeasureErr, SalesHeader."No."));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestPeppolValidationSalesInvoiceLineNoUnitOfMeasureOnPostedDocument()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        Item: Record Item;
-        TempRecordExportBuffer: Record "Record Export Buffer" temporary;
-    begin
-        // Setup
-        Initialize;
-
-        CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
-        CreateGenericItem(Item);
-
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
-        SalesLine.Validate("Unit of Measure Code", '');
-        SalesLine.Modify(true);
-
-        // Exercise
-        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        TempRecordExportBuffer.Init();
-        TempRecordExportBuffer.RecordID := SalesInvoiceHeader.RecordId;
-        TempRecordExportBuffer.Insert();
-
-        asserterror CODEUNIT.Run(CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0", TempRecordExportBuffer);
-
-        Assert.ExpectedError(StrSubstNo(NoUnitOfMeasureErr, SalesInvoiceHeader."No."));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestPeppolValidationSalesCRLineNoUnitOfMeasureOnPostedDocument()
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        Item: Record Item;
-        TempRecordExportBuffer: Record "Record Export Buffer" temporary;
-    begin
-        // Setup
-        Initialize;
-
-        CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
-        CreateGenericItem(Item);
-
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
-        SalesLine.Validate("Unit of Measure Code", '');
-        SalesLine.Modify(true);
-
-        // Exercise
-        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        TempRecordExportBuffer.Init();
-        TempRecordExportBuffer.RecordID := SalesCrMemoHeader.RecordId;
-        TempRecordExportBuffer.Insert();
-
-        asserterror CODEUNIT.Run(CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0", TempRecordExportBuffer);
-
-        Assert.ExpectedError(StrSubstNo(NoUnitOfMeasureCRErr, SalesCrMemoHeader."No."));
     end;
 
     [Test]

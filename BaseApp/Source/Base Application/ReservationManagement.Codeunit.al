@@ -28,6 +28,7 @@ codeunit 99000845 "Reservation Management"
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         CreatePick: Codeunit "Create Pick";
         UOMMgt: Codeunit "Unit of Measure Management";
+        LateBindingMgt: Codeunit "Late Binding Management";
         ItemTrackingType: Enum "Item Tracking Type";
         SourceRecRef: RecordRef;
         RefOrderType: Option;
@@ -76,6 +77,12 @@ codeunit 99000845 "Reservation Management"
         CalcReservEntry.CopyTrackingFromSpec(TrackingSpecification);
         ReservEntry := CalcReservEntry;
         HandleItemTracking := true;
+    end;
+
+    procedure SetOrderTrackingSurplusEntries(var TempReservEntry: Record "Reservation Entry" temporary)
+    begin
+        // Late Binding
+        LateBindingMgt.SetOrderTrackingSurplusEntries(TempReservEntry);
     end;
 
     procedure SetReservSource(NewRecordVar: Variant)
@@ -497,7 +504,6 @@ codeunit 99000845 "Reservation Management"
 
     local procedure UpdateItemLedgEntryStats(CalcReservEntry: Record "Reservation Entry"; var TempEntrySummary: Record "Entry Summary" temporary; var CalcSumValue: Decimal; HandleItemTracking2: Boolean)
     var
-        LateBindingMgt: Codeunit "Late Binding Management";
         ReservForm: Page Reservation;
         CurrReservedQtyBase: Decimal;
     begin
@@ -764,7 +770,6 @@ codeunit 99000845 "Reservation Management"
     local procedure AutoReserveItemLedgEntry(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date)
     var
         Location: Record Location;
-        LateBindingMgt: Codeunit "Late Binding Management";
         AllocationsChanged: Boolean;
         QtyThisLine: Decimal;
         QtyThisLineBase: Decimal;

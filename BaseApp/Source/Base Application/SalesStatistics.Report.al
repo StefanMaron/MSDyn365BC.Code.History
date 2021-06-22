@@ -354,8 +354,9 @@ report 112 "Sales Statistics"
                       "Sales (LCY)", "Profit (LCY)", "Inv. Discounts (LCY)", "Pmt. Discounts (LCY)",
                       "Pmt. Disc. Tolerance (LCY)", "Pmt. Tolerance (LCY)");
                     CustSalesLCY[i] := "Sales (LCY)";
-                    CustProfitLCY[i] := "Profit (LCY)" + CostCalcMgt.NonInvtblCostAmt(Customer);
-                    AdjmtCostLCY[i] := "Sales (LCY)" - CustProfitLCY[i] + CostCalcMgt.CalcCustActualCostLCY(Customer);
+                    CustProfitLCY[i] := "Profit (LCY)";
+                    AdjmtCostLCY[i] :=
+                      "Sales (LCY)" - CustProfitLCY[i] + CostCalcMgt.CalcCustActualCostLCY(Customer) + CostCalcMgt.NonInvtblCostAmt(Customer);
                     AdjCustProfitLCY[i] := CustProfitLCY[i] + AdjmtCostLCY[i];
 
                     if CustSalesLCY[i] = 0 then begin

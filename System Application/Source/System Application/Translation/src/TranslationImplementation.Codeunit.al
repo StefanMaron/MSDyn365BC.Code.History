@@ -106,6 +106,7 @@ codeunit 3712 "Translation Implementation"
         GetSystemIdFromVariant(RecVariant, SystemID, TableNo);
         Translation.SetRange("System ID", SystemID);
         Translation.SetRange("Field ID", FieldId);
+        TranslationPage.SetTableId(TableNo);
         TranslationPage.SetCaption(GetRecordIdCaptionFromVariant(RecVariant));
         TranslationPage.SetTableView(Translation);
         TranslationPage.Run();

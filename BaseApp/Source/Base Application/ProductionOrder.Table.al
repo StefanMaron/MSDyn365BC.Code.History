@@ -1142,6 +1142,7 @@ table 5405 "Production Order"
                     ProdOrderLine."Due Date",
                     '',
                     2);
+                OnUpdateEndingDateOnBeforeCalcProdOrderRecalculate(ProdOrderLine);
                 CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
                 "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time");
                 "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
@@ -1299,6 +1300,11 @@ table 5405 "Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSourceNoOnSourceTypeEnumExtension(var ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateEndingDateOnBeforeCalcProdOrderRecalculate(var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 

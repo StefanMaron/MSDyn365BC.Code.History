@@ -406,7 +406,15 @@ codeunit 905 "Assembly Line Management"
     var
         QtyRatio: Decimal;
         QtyToConsume: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateExistingLine(
+            AsmHeader, OldAsmHeader, CurrFieldNo, AssemblyLine, UpdateDueDate, UpdateLocation,
+            UpdateQuantity, UpdateUOM, UpdateQtyToConsume, UpdateDimension, IsHandled);
+        if IsHandled then
+            exit;
+
         with AsmHeader do begin
             if IsStatusCheckSuspended then
                 AssemblyLine.SuspendStatusCheck(true);
@@ -601,6 +609,8 @@ codeunit 905 "Assembly Line Management"
         LeadTimeMgt: Codeunit "Lead-Time Management";
         EarliestEndingDate: Date;
     begin
+        OnBeforeCalcEarliestDueDate(AsmHeader);
+
         with AsmHeader do begin
             EarliestDueDate := 0D;
             if EarliestStartingDate > 0D then begin
@@ -695,6 +705,16 @@ codeunit 905 "Assembly Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAssemblyLines(var AsmHeader: Record "Assembly Header"; OldAsmHeader: Record "Assembly Header"; FieldNum: Integer; ReplaceLinesFromBOM: Boolean; CurrFieldNo: Integer; CurrentFieldNum: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateExistingLine(var AsmHeader: Record "Assembly Header"; OldAsmHeader: Record "Assembly Header"; CurrFieldNo: Integer; var AssemblyLine: Record "Assembly Line"; UpdateDueDate: Boolean; UpdateLocation: Boolean; UpdateQuantity: Boolean; UpdateUOM: Boolean; UpdateQtyToConsume: Boolean; UpdateDimension: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcEarliestDueDate(var AsmHeader: Record "Assembly Header")
     begin
     end;
 }

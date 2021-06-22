@@ -540,16 +540,8 @@
                 Commit();
             until WhseActivHeader.Next = 0;
 
-            if PrintDoc then begin
-                case WhseDoc of
-                    WhseDoc::"Internal Pick", WhseDoc::Production, WhseDoc::Assembly:
-                        REPORT.Run(REPORT::"Picking List", false, false, WhseActivHeader);
-                    WhseDoc::"Whse. Mov.-Worksheet":
-                        REPORT.Run(REPORT::"Movement List", false, false, WhseActivHeader);
-                    WhseDoc::"Posted Receipt", WhseDoc::"Put-away Worksheet", WhseDoc::"Internal Put-away":
-                        REPORT.Run(REPORT::"Put-away List", false, false, WhseActivHeader);
-                end
-            end
+            if PrintDoc then
+                PrintWarehouseDocument(WhseActivHeader);
         end else
             Error(Text003);
 
@@ -1078,6 +1070,20 @@
                 exit(ProdOrderHeader."Location Code");
             WhseDoc::Assembly:
                 exit(AssemblyHeader."Location Code");
+        end;
+    end;
+
+    local procedure PrintWarehouseDocument(var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    var
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
+    begin
+        case WhseDoc of
+            WhseDoc::"Internal Pick", WhseDoc::Production, WhseDoc::Assembly:
+                WarehouseDocumentPrint.PrintPickHeader(WarehouseActivityHeader);
+            WhseDoc::"Whse. Mov.-Worksheet":
+                WarehouseDocumentPrint.PrintMovementHeader(WarehouseActivityHeader);
+            WhseDoc::"Posted Receipt", WhseDoc::"Put-away Worksheet", WhseDoc::"Internal Put-away":
+                WarehouseDocumentPrint.PrintPutAwayHeader(WarehouseActivityHeader);
         end;
     end;
 

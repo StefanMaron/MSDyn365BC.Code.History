@@ -74,6 +74,7 @@ codeunit 134327 "ERM Purchase Order"
         BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
         YouMustDeleteExistingLinesErr: Label 'You must delete the existing purchase lines before you can change %1.';
         RecreatePurchaseLinesQst: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\\Do you want to continue?';
+        DisposedErr: Label '%1 is disposed.';
 
     [Test]
     [Scope('OnPrem')]
@@ -5719,6 +5720,8 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.CreatePurchCommentLine(PurchCommentLine, "Purchase Document Type"::Order, PurchaseHeader."No.", PurchaseLine."Line No.");
 
         PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+        // [SCENARIO 360476] No duplicate Comment Lines inserted
+        Commit();
 
         PurchCommentLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchCommentLine.SetRange("No.", PurchaseHeader."No.");
@@ -5760,6 +5763,64 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseHeader.TestField("Currency Code", '');
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShipmentMethodCodeOnPoWorksForVendorWithPayToNo()
+    var
+        Vendor: array[2] of Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 360277] Shipment Method Code of Purchase Order fills in even if Vendor has Pay-To Vendor No. of another Vendor
+        Initialize();
+
+        // [GIVEN] Vendor "V2" with Shipment Method Code "SMC2"
+        CreateVendorWithShipmentMethodCode(Vendor[2]);
+
+        // [GIVEN] Vendor "V1" with Shipment Method Code "SMC1" and Pay-to Vendor = V2
+        CreateVendorWithShipmentMethodCode(Vendor[1]);
+        Vendor[1].Validate("Pay-to Vendor No.", Vendor[2]."No.");
+        Vendor[1].Modify();
+
+        // [WHEN] Create Purchase Order with "Vendor No." = "V1"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor[1]."No.");
+
+        // [THEN] Shipment Method Code = "SMC1"
+        PurchaseHeader.TestField("Shipment Method Code", Vendor[1]."Shipment Method Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingPurchaseOrderReceiveWithDisposedAssetError()
+    var
+        FADeprBook: Record "FA Depreciation Book";
+        FixedAsset: Record "Fixed Asset";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DepreciationCalc: Codeunit "Depreciation Calculation";
+    begin
+        // [FEATURE] [Fixed Asset]
+        // [SCENARIO 359820] It's not possible to Post Receive Purchase Order with disposed Fixed Asset.
+        Initialize();
+
+        // [GIVEN] Disposed Fixed Asset, Fixed Asset No. = FA01, Depreciation Book Code = DEPRBOOK.
+        MockDisposedFA(FADeprBook);
+
+        // [GIVEN] Purchase Order with Purchase Line with disposed Fixed Asset.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", FADeprBook."FA No.", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Depreciation Book Code", FADeprBook."Depreciation Book Code");
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Receive Purchase Order.
+        ASSERTERROR LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Error is shown with text "Fixed Asset No. = FA01 in Depreciation Book Code = DEPRBOOK is disposed".
+        Assert.ExpectedErrorCode('Dialog');
+        FixedAsset.Get(FADeprBook."FA No.");
+        Assert.ExpectedError(StrSubstNo(DisposedErr, DepreciationCalc.FAName(FixedAsset, FADeprBook."Depreciation Book Code")));
     end;
 
     local procedure Initialize()
@@ -6820,6 +6881,21 @@ codeunit 134327 "ERM Purchase Order"
         PurchasesPayablesSetup."Create Item from Item No." := true;
         PurchasesPayablesSetup.Modify();
     end;
+
+    local procedure MockDisposedFA(var FADepreciationBook : Record "FA Depreciation Book");
+    var
+        DepreciationBook: Record "Depreciation Book";
+        FixedAsset: Record "Fixed Asset";
+    begin
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        DepreciationBook.Validate("G/L Integration - Acq. Cost", true);
+        DepreciationBook.Modify(true);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
+        FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
+        FADepreciationBook.Validate("Disposal Date", WorkDate());
+        FADepreciationBook.Modify(true);
+    END;
 
     local procedure MockGLAccountWithNoAndDescription(NewNo: Code[20]; NewName: Text[100])
     var

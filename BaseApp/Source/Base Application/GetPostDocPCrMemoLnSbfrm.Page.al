@@ -344,14 +344,16 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
         exit("Line No." = TempPurchCrMemoLine."Line No.");
     end;
 
-    local procedure IsShowRec(PurchCrMemoLine2: Record "Purch. Cr. Memo Line"): Boolean
+    local procedure IsShowRec(PurchCrMemoLine2: Record "Purch. Cr. Memo Line") Result: Boolean
     begin
         with PurchCrMemoLine2 do begin
             if "Document No." <> PurchCrMemoHeader."No." then
                 PurchCrMemoHeader.Get("Document No.");
             if PurchCrMemoHeader."Prepayment Credit Memo" then
                 exit(false);
-            exit(true);
+
+            Result := true;
+            OnAfterIsShowRec(PurchCrMemoLine2, Result);
         end;
     end;
 
@@ -389,5 +391,11 @@ page 5859 "Get Post.Doc-P.Cr.MemoLn Sbfrm"
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsShowRec(PurchCrMemoLine2: Record "Purch. Cr. Memo Line"; var Result: Boolean)
+    begin
+    end;
+
 }
 

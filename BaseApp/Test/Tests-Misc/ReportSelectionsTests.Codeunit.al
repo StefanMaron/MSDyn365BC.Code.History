@@ -897,7 +897,7 @@ codeunit 134421 "Report Selections Tests"
         FindInteractionLogEntriesByCustomerNo(InteractionLogEntry, CustomerNo, InteractionLogEntry."Document Type"::"Sales Stmnt.");
         Assert.RecordCount(InteractionLogEntry, 1);
     end;
-    
+
     [Test]
     [HandlerFunctions('StandardStatementOKRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1408,6 +1408,50 @@ codeunit 134421 "Report Selections Tests"
         // [THEN] Pdf file generated as preview file
         LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePdf(Customer));
         LibraryTempNVBufferHandler.AssertQueueEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('TestAddressEMailDialogHandler')]
+    [Scope('OnPrem')]
+    procedure TestEmailBodyOnlyWithOrderAddress()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PostedDocNo: Code[20];
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+    begin
+        // [SCENARIO 357821] Sell-to E-mail field value is not populated to the Send Email dialog
+        Initialize();
+
+        // [GIVEN] New Customer with Contact is created. Email field is specified.
+        LibraryMarketing.CreateCompanyContact(Contact);
+        UpdateContactEmail(Contact, LibraryUtility.GenerateRandomEmail());
+        CreateCustomerWithContact(Customer, Contact);
+        Customer.TestField("E-Mail");
+
+        // [GIVEN] New Sales Invoice is created and posted for the created Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLine.Modify(true);
+        SalesHeader.TestField("Sell-to E-Mail");
+
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Report selection for Invoice is not used for email attachment
+        SetupReportSelections(false, true);
+
+        // [WHEN] Invoke Send by Email
+        PostedSalesInvoice.OpenEdit();
+        PostedSalesInvoice.Filter.SetFilter("No.", PostedDocNo);
+        PostedSalesInvoice.Email.Invoke();
+
+        // [THEN] 'To' field on the Send Email dialog have to be filled
+        Assert.AreEqual(SalesHeader."Sell-to E-Mail", LibraryVariableStorage.DequeueText(), WrongEmailAddressErr);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1927,6 +1971,22 @@ codeunit 134421 "Report Selections Tests"
         Contact.Reset();
         Contact.SetFilter("No.", ContactFilter);
         CustomReportSelection.GetSendToEmailFromContacts(Contact);
+    end;
+
+    local procedure UpdateContactEmail(var Contact: Record Contact; Email: Text[45])
+    begin
+        Contact.Validate("E-Mail", Email);
+        Contact.Modify();
+    end;
+
+    local procedure CreateCustomerWithContact(var Customer: Record Customer; Contact: Record Contact)
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryMarketing.CreateBusinessRelationBetweenContactAndCustomer(ContactBusinessRelation, Contact."No.", Customer."No.");
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify();
     end;
 
     [RequestPageHandler]

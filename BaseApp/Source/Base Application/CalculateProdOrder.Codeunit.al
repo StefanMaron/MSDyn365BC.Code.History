@@ -266,6 +266,8 @@ codeunit 99000773 "Calculate Prod. Order"
             GetPlanningParameters.AtSKU(
               ComponentSKU, ProdOrderComp."Item No.", ProdOrderComp."Variant Code", ProdOrderComp."Location Code");
 
+            OnTransferBOMProcessItemOnAfterGetPlanningParameters(ProdOrderLine, ComponentSKU);
+
             ProdOrderComp."Flushing Method" := ComponentSKU."Flushing Method";
             if (SKU."Manufacturing Policy" = SKU."Manufacturing Policy"::"Make-to-Order") and
                (ComponentSKU."Manufacturing Policy" = ComponentSKU."Manufacturing Policy"::"Make-to-Order") and
@@ -306,7 +308,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-        if ProdOrderComp.Find('-') then
+        if ProdOrderComp.Find('-') then begin
             repeat
                 ProdOrderComp.BlockDynamicTracking(Blocked);
                 IsHandled := false;
@@ -317,6 +319,8 @@ codeunit 99000773 "Calculate Prod. Order"
                     ProdOrderComp.AutoReserve;
                 end;
             until ProdOrderComp.Next = 0;
+            OnAfterCalculateComponents(ProdOrderLine);
+        end;
     end;
 
     procedure CalculateRoutingFromActual(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Direction: Option Forward,Backward; CalcStartEndDate: Boolean)
@@ -397,6 +401,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
         ProdOrderRoutingLine.SetFilter("Routing Status", '<>%1', ProdOrderRoutingLine."Routing Status"::Finished);
         if not ProdOrderRoutingLine.FindFirst then begin
+            OnCalculateRoutingOnBeforeSetLeadTime(ProdOrderLine);
             LeadTime :=
               LeadTimeMgt.ManufacturingLeadTime(
                 ProdOrderLine."Item No.",
@@ -598,7 +603,7 @@ codeunit 99000773 "Calculate Prod. Order"
                   ProdOrderLine."Item No.",
                   ProdOrderLine."Variant Code",
                   ProdOrderLine."Location Code");
-
+                OnCalculateOnAfterGetpLanningParameterAtSKUCalcComponents(ProdOrderLine, SKU);
                 if not TransferBOM(
                      ProdOrderLine."Production BOM No.",
                      1,
@@ -611,7 +616,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 then
                     ErrorOccured := true;
             end;
-        Recalculate(ProdOrderLine, Direction, LetDueDateDecrease);
+        Recalculate(ProdOrderLine, Direction, LetDueDateDecrease, CalcRouting, CalcComponents);
 
         OnAfterCalculate(ProdOrderLine, ErrorOccured);
 
@@ -710,6 +715,13 @@ codeunit 99000773 "Calculate Prod. Order"
                 ProdOrderRoutingTool."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
                 ProdOrderRoutingTool.Insert();
             until RoutingTool.Next = 0;
+    end;
+
+    local procedure Recalculate(var ProdOrderLine: Record "Prod. Order Line"; Direction: Option; LetDueDateDecrease: Boolean; CalcRouting: Boolean; CalcComponents: Boolean)
+    begin
+        OnBeforeRecalculate(ProdOrderLine, CalcRouting, CalcComponents);
+        Recalculate(ProdOrderLine, Direction, LetDueDateDecrease);
+        OnAfterRecalculate(ProdOrderLine, CalcRouting, CalcComponents);
     end;
 
     procedure Recalculate(var ProdOrderLine2: Record "Prod. Order Line"; Direction: Option Forward,Backward; LetDueDateDecrease: Boolean)
@@ -922,6 +934,11 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnAfterGetpLanningParameterAtSKUCalcComponents(var ProdOrderLine: Record "Prod. Order Line"; var SKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalculateOnBeforeCheckNextOperation(ProdOrder: Record "Production Order"; ProdOrderLine2: Record "Prod. Order Line"; var ProdOrderRoutingLine3: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
     begin
     end;
@@ -977,12 +994,37 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnTransferBOMProcessItemOnAfterGetPlanningParameters(var ProdOrderLine: Record "Prod. Order Line"; var ComponentSKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTransferBOMProcessItemOnBeforeGetPlanningParameters(var ProdOrderComponent: Record "Prod. Order Component"; ProductionBOMLine: Record "Production BOM Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferRoutingOnbeforeValidateDirectUnitCost(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; RoutingLine: Record "Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingOnBeforeSetLeadTime(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateComponents(ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecalculate(var ProdOrderLine: Record "Prod. Order Line"; CalcRouting: Boolean; CalcComponents: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecalculate(var ProdOrderLine: Record "Prod. Order Line"; CalcRouting: Boolean; CalcComponents: Boolean)
     begin
     end;
 }

@@ -141,6 +141,7 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
         PriceCalculationBuffer."Line Discount %" := RequisitionLine."Line Discount %";
         PriceCalculationBuffer."Allow Line Disc." := IsDiscountAllowed();
         PriceCalculationBuffer."Allow Invoice Disc." := false;
+        OnAfterFillBuffer(PriceCalculationBuffer, RequisitionLine);
     end;
 
     local procedure AddSources()
@@ -164,6 +165,7 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
             AmountType::Discount:
                 RequisitionLine."Line Discount %" := PriceListLine."Line Discount %";
         end;
+        OnAfterSetPrice(RequisitionLine, PriceListLine, AmountType);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
@@ -180,5 +182,15 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
     begin
         if not DiscountIsAllowed then
             RequisitionLine."Line Discount %" := 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillBuffer(var PriceCalculationBuffer: Record "Price Calculation Buffer"; RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPrice(var RequisitionLine: Record "Requisition Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
     end;
 }

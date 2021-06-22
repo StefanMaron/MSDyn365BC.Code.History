@@ -608,6 +608,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action GetTestsByRange - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 1579170981 - Action 1786113712 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Update Test Methods]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action UpdateTests - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 1786113712 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Updates the test methods for the entire test suite.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action UpdateTests - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 1579170981 - Action 2238733680 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Run Tests]]></Val>

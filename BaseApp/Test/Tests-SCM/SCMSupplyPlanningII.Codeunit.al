@@ -1701,6 +1701,55 @@ codeunit 137071 "SCM Supply Planning -II"
           Item, RequisitionLine."Action Message"::New, SalesLine.Quantity, 0, SalesLine."Planned Shipment Date");
     end;
 
+
+    [Test]
+    [HandlerFunctions('OrderPromisingPageHandler,ConfirmHandlerAnyMessage')]
+    procedure MaintainRequisitionLinesWhenCreditMemoChanges()
+    var
+        Item: Record Item;
+        SalesOrderHeader: Record "Sales Header";
+        SalesCreditMemoPage: TestPage "Sales Credit Memo";
+        SalesOrderLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        CustomerNo1: Code[20];
+        CustomerNo2: Code[20];
+    begin
+        // Scenario: Create Sales Order, use Capable-to-Promise to create requisition lines. 
+        // Then, create a Credit Memo with the same "Document No."" and a "Sell-to Customer No.".
+        // Then change the "Sell-to Customer No" and verify that the req lines are not removed.
+
+        // Setup: Create Sales Order with location
+        Initialize;
+        LibraryInventory.CreateItem(Item);
+        CreateSalesOrder(SalesOrderHeader, SalesOrderLine, Item."No.", LibraryRandom.RandDec(10, 2));
+        SalesOrderLine.Validate("Location Code", LocationBlue.Code);
+        SalesOrderLine.Modify(true);
+
+        // Exercise: Open Order Promising Lines Page and Invoke Capable to Promise to create Requisition Worksheet Line.
+        OpenOrderPromisingPage(SalesOrderHeader."No.");
+
+        // Verify: Order Promising Line.
+        RequisitionLine.SetRange("No.", Item."No.");
+        Assert.IsTrue(RequisitionLine.FindFirst, 'There should be at least one requisition line');
+
+        // Exercise: Create a Sales Credit memo with the same "No." as the Order
+        CustomerNo1 := LibrarySales.CreateCustomerNo();
+        SalesCreditMemoPage.OpenNew();
+        SalesCreditMemoPage."No.".SetValue(SalesOrderHeader."No.");
+        SalesCreditMemoPage."Sell-to Customer Name".SetValue(CustomerNo1);
+        SalesCreditMemoPage.SalesLines.New();
+        SalesCreditMemoPage.SalesLines."No.".SetValue(Item."No.");
+
+        // Exercise: Change the Sell-to Customer Name
+        CustomerNo2 := LibrarySales.CreateCustomerNo();
+        SalesCreditMemoPage."Sell-to Customer Name".SetValue(CustomerNo2);
+
+        // Verify: The Requisition lines are still there
+        RequisitionLine.SetRange("No.", Item."No.");
+        Assert.IsTrue(RequisitionLine.FindFirst, 'There should be at least one requisition line');
+    end;
+
+
     [Test]
     [Scope('OnPrem')]
     procedure CalcPlanReqWkshWithNewProdOrderComponentForFirmPlannedProdOrderLFLItem()
@@ -1876,7 +1925,7 @@ codeunit 137071 "SCM Supply Planning -II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerOnDeleteSalesHeader,ItemTrackingPageHandler')]
+    [HandlerFunctions('ConfirmHandlerAnyMessage,ItemTrackingPageHandler')]
     [Scope('OnPrem')]
     procedure ItemLotNosOnShippedTransferOrderAfterSalesOrderDeleted()
     var
@@ -1913,7 +1962,7 @@ codeunit 137071 "SCM Supply Planning -II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerOnDeleteSalesHeader,ItemTrackingPageHandlerForAssignSN,QuantityToCreatePageHandler')]
+    [HandlerFunctions('ConfirmHandlerAnyMessage,ItemTrackingPageHandlerForAssignSN,QuantityToCreatePageHandler')]
     [Scope('OnPrem')]
     procedure ItemSerialNosOnShippedTransferOrderAfterSalesOrderDeleted()
     var
@@ -2778,11 +2827,16 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure NoSeriesSetup()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NoSeries: Record "No. Series";
     begin
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
+
+        NoSeries.Get(SalesReceivablesSetup."Credit Memo Nos.");
+        NoSeries."Manual Nos." := true;
+        NoSeries.Modify();
     end;
 
     local procedure ItemJournalSetup()
@@ -4559,7 +4613,7 @@ codeunit 137071 "SCM Supply Planning -II"
 
     [ConfirmHandler]
     [Scope('OnPrem')]
-    procedure ConfirmHandlerOnDeleteSalesHeader(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    procedure ConfirmHandlerAnyMessage(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
     end;

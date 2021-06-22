@@ -192,6 +192,7 @@ table 5404 "Item Unit of Measure"
             if Item."Put-away Unit of Measure Code" = xRec.Code then
                 Error(CannotModifyPutAwayUnitOfMeasureErr, xRec.Code, "Item No.");
         end;
+        OnAfterTestItemSetup(Rec, xRec);
     end;
 
     local procedure TestItemUOM()
@@ -345,6 +346,11 @@ table 5404 "Item Unit of Measure"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcWeight(var ItemUnitOfMeasure: Record "Item Unit of Measure")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestItemSetup(var Rec: Record "Item Unit of Measure"; xRec: Record "Item Unit of Measure")
     begin
     end;
 }

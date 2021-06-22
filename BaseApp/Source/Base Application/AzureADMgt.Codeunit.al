@@ -27,6 +27,7 @@ codeunit 6300 "Azure AD Mgt."
         AuthCodeUrl += '&redirect_uri=' + UrlEncode(GetRedirectUrl);
     end;
 
+    [NonDebuggable]
     local procedure AcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceUrl: Text) AccessToken: Text
     var
         AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
@@ -47,6 +48,7 @@ codeunit 6300 "Azure AD Mgt."
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetAccessToken(ResourceUrl: Text; ResourceName: Text; ShowDialog: Boolean) AccessToken: Text
     var
         AzureADAccessDialog: Page "Azure AD Access Dialog";
@@ -73,6 +75,7 @@ codeunit 6300 "Azure AD Mgt."
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetGuestAccessToken(ResourceUrl: Text; GuestTenantId: Text) AccessToken: Text
     begin
         // Gets an access token for a guest user on a different tenant
@@ -83,6 +86,7 @@ codeunit 6300 "Azure AD Mgt."
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetOnBehalfAccessToken(ResourceUrl: Text): Text
     var
         AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
@@ -156,7 +160,6 @@ codeunit 6300 "Azure AD Mgt."
 
         exit(CopyStr(RedirectUrl, 1, 150));
     end;
-
 
     local procedure GetBaseUrl(RedirectUrl: Text): Text
     var
@@ -262,6 +265,7 @@ codeunit 6300 "Azure AD Mgt."
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure CreateExchangeServiceWrapperWithToken(Token: Text; var Service: DotNet ExchangeServiceWrapper)
     var
         AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
@@ -270,6 +274,7 @@ codeunit 6300 "Azure AD Mgt."
     end;
 
     [TryFunction]
+    [NonDebuggable]
     local procedure AcquireGuestToken(ResourceName: Text; GuestTenantId: Text; var AccessToken: Text)
     var
         AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
@@ -283,6 +288,7 @@ codeunit 6300 "Azure AD Mgt."
     end;
 
     [TryFunction]
+    [NonDebuggable]
     local procedure AcquireToken(ResourceName: Text; var AccessToken: Text)
     var
         AzureADAuthFlow: Codeunit "Azure AD Auth Flow";

@@ -1,4 +1,4 @@
-codeunit 99000832 "Sales Line-Reserve"
+﻿codeunit 99000832 "Sales Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Planning Assignment" = rimd;
@@ -311,8 +311,14 @@ codeunit 99000832 "Sales Line-Reserve"
     var
         OldReservEntry: Record "Reservation Entry";
         ReservStatus: Enum "Reservation Status";
+        IsHandled: Boolean;
     begin
         // Used for sales quote and blanket order when transferred to order
+        IsHandled := false;
+        OnBeforeTransferSaleLineToSalesLine(OldSalesLine, NewSalesLine, TransferQty, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FindReservEntry(OldSalesLine, OldReservEntry) then
             exit;
 
@@ -997,6 +1003,11 @@ codeunit 99000832 "Sales Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBindToProdOrder(SalesLine: Record "Sales Line"; ProdOrderLine: Record "Prod. Order Line"; ReservQty: Decimal; ReservQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferSaleLineToSalesLine(var OldSalesLine: Record "Sales Line"; var NewSalesLine: Record "Sales Line"; var TransferQty: Decimal; var IsHandled: Boolean);
     begin
     end;
 

@@ -69,6 +69,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         WhseRqst.FilterGroup(2);
         WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
         WhseRqst.SetRange("Location Code", WhseShptHeader."Location Code");
+        OnGetSingleOutboundDocOnSetFilterGroupFilters(WhseRqst, WhseShptHeader);
         WhseRqst.FilterGroup(0);
         WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
         WhseRqst.SetRange("Completely Handled", false);
@@ -553,6 +554,11 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSingleWhsePickDocOnWhsePickRqstSetFilters(var WhsePickRequest: Record "Whse. Pick Request"; CurrentWhseWkshTemplate: Code[10]; CurrentWhseWkshName: Code[10]; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSingleOutboundDocOnSetFilterGroupFilters(var WhseRqst: Record "Warehouse Request"; WhseShptHeader: Record "Warehouse Shipment Header")
     begin
     end;
 }

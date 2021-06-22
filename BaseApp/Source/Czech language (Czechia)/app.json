@@ -2,7 +2,7 @@
     "id":  "6813edab-d08b-4d30-a119-11f984e06669",
     "name":  "Czech language (Czechia)",
     "publisher":  "Microsoft",
-    "version":  "16.2.13509.13779",
+    "version":  "16.3.14085.14238",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "16.2.0.0"
+    "application":  "16.3.0.0"
 }

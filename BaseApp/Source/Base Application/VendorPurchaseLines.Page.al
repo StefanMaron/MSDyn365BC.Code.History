@@ -1,4 +1,4 @@
-page 352 "Vendor Purchase Lines"
+﻿page 352 "Vendor Purchase Lines"
 {
     Caption = 'Lines';
     Editable = false;
@@ -107,6 +107,8 @@ page 352 "Vendor Purchase Lines"
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
+
+        OnAfterSet(Vend, PeriodType, AmountType)
     end;
 
     local procedure ShowVendEntries()
@@ -156,6 +158,11 @@ page 352 "Vendor Purchase Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcLine(var Vendor: Record Vendor; var VendorPurchaseBuffer: Record "Vendor Purchase Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSet(var NewVendor: Record Vendor; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
     end;
 }

@@ -33,11 +33,11 @@ codeunit 137087 "SCM Order Planning - II"
         DemandTypeGlobal: Option Sales,Production;
         IsInitialized: Boolean;
         ValidationError: Label '%1  must be %2 in %3.';
-        NoErrorText: Label 'No. must be equal to ''%1''  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.';
-        DateErrorText: Label 'Demand Date must be equal to ''%1''  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=';
-        QuantityErrorText: Label 'Demand Quantity (Base) must be equal to ''%1''  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=';
-        LocationErrorText: Label 'Location Code must be equal to ''%1''  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=';
-        UOMErrorText: Label 'Qty. per UOM (Demand) must be equal to ''%1''  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=';
+        NoErrorText: Label 'No. must be equal to ''%1''  in Requisition Line';
+        DateErrorText: Label 'Demand Date must be equal to ''%1''  in Requisition Line';
+        QuantityErrorText: Label 'Demand Quantity (Base) must be equal to ''%1''  in Requisition Line';
+        LocationErrorText: Label 'Location Code must be equal to ''%1''  in Requisition Line';
+        UOMErrorText: Label 'Qty. per UOM (Demand) must be equal to ''%1''  in Requisition Line';
         ErrorText: Label 'Error Message Must be same.';
         ExpectedQuantity: Decimal;
         QuantityError: Label 'Available Quantity must match.';

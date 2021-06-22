@@ -28,7 +28,7 @@ codeunit 139575 "LP Prediction Test"
             Comment = '%1 = Quality of new model, %2 = Quality of existing model.';
         ModelReplacedMsg: Label 'A new model has been created with a quality of %1%.', Comment = '%1 = Quality of the new model';
         ModelTestedMsg: Label 'We have tested the model on your data and determined that its quality is %1. The quality indicates how well the model has been trained, and how accurate its predictions will be. For example, 80% means you can expect correct predictions for 80 out of 100 documents.', Comment = '%1 = Quality of the existing model';
-        CurrentModelLowerQualityThanDesiredErr: Label 'Cannot use the model to make predictions. The quality of the model is below the specified quality threshold, which means that its predictions are unlikely to meet your requirements for accuracy. To use the model anyway, enter a lower value in the Model Quality Threshold field.';
+        CurrentModelLowerQualityThanDesiredErr: Label 'You cannot use the model because its quality of %1 is below the value in the Model Quality Threshold field. That means its predictions are unlikely to meet your accuracy requirements. You can evaluate the model again to confirm its quality. To use the model anyway, enter a value that is less than or equal to %1 in the Model Quality Threshold field.', Comment = '%1 = current model quality (decimal)';
         CurrentTestMethod: Text;
         State: Integer;
         NoLPPForLatePaymentTxt: Label 'No prediction needed. The payment for this sales document is already overdue.';
@@ -92,6 +92,7 @@ codeunit 139575 "LP Prediction Test"
     [SendNotificationHandler]
     procedure EnableNotificationHandler(var Notification: Notification): Boolean
     var
+        LPMachineLearningSetup: Record "LP Machine Learning Setup";
         LPPredictionMgt: Codeunit "LP Prediction Mgt.";
     begin
         case TestCheckInvoiceFromPageWhenNotEnabledState of
@@ -99,6 +100,8 @@ codeunit 139575 "LP Prediction Test"
                 begin
                     Assert.AreEqual(EnableNotificationMsg, Notification.Message(), 'Firstly the notification to enable the notification appears.');
                     TestCheckInvoiceFromPageWhenNotEnabledState += 1;
+                    LPMachineLearningSetup.GetSingleInstance();
+                    LPMachineLearningSetup."Standard Model Quality" := 0.6; // arbitrary standard model quality, to ensure that it is <> 0.
                     LPPredictionMgt.Enable(Notification);
                 end;
             1:
@@ -295,13 +298,14 @@ codeunit 139575 "LP Prediction Test"
 
         // [WHEN] Threshold is made higher than model quality
         LPMachineLearningSetup."Model Quality Threshold" := SomeModelQuality + 0.02;
+        LPMachineLearningSetup."Standard Model Quality" := 0.6; // arbitrary standard model quality
         LPMachineLearningSetup.Modify();
 
         // [WHEN] Enabling the prediction
         asserterror LPMachineLearningSetup.Validate("Make Predictions", true);
 
         // [THEN] Raises error
-        Assert.ExpectedError(CurrentModelLowerQualityThanDesiredErr);
+        Assert.ExpectedError(StrSubstNo(CurrentModelLowerQualityThanDesiredErr, SomeModelQuality));
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
@@ -626,6 +630,7 @@ codeunit 139575 "LP Prediction Test"
     begin
         LPMachineLearningSetup.DeleteAll();
         LPMachineLearningSetup.Init();
+        LPMachineLearningSetup."Standard Model Quality" := 0.6; // arbitrary standard model quality
         LPMachineLearningSetup."Make Predictions" := true;
         LPMachineLearningSetup.Insert();
     end;

@@ -107,6 +107,24 @@ report 357 "Copy Company"
                         Caption = 'The new company will include all data, including transactions, from the selected company.';
                     }
 
+                    group(CopyWarning)
+                    {
+                        Caption = 'IMPORTANT';
+                        label(CopyWarningDescription)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Copying a company can take time, and people working in the company will not be able to use Business Central during the process. We recommend that you perform this action at a time of day that will have the least impact, for example, outside of business hours.';
+                        }
+
+                        field("Confirm Copy Warning"; ConfirmCopyWarning)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'I understand';
+                            ShowCaption = true;
+                            ToolTip = 'Indicates that you understand that copying a company will impact performance. Before you can copy a company you must turn on the I understand toggle.';
+                        }
+                    }
+
                     label(BackupTip)
                     {
                         ApplicationArea = Basic, Suite;
@@ -151,6 +169,16 @@ report 357 "Copy Company"
         begin
             IsSaaS := EnvironmentInformation.IsSaaS();
         end;
+
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        begin
+            if (CloseAction = Action::OK) and (not ConfirmCopyWarning) then begin
+                Message(ConfirmCopyWarningMsg);
+                exit(false);
+            end;
+
+            exit(true);
+        end;
     }
 
     labels
@@ -167,6 +195,8 @@ report 357 "Copy Company"
         CopySuccessMsg: Label 'Company %1 has been copied successfully.', Comment = 'Company CRONUS International Ltd. has been copied successfully.';
         ReadMoreSandboxLbl: Label 'Read more about sandboxes';
         ReadMoreDataBackupLbl: Label 'Read more about data backup';
+        ConfirmCopyWarning: Boolean;
+        ConfirmCopyWarningMsg: Label 'Before you can continue, you must acknowledge that you understand that copying a company will impact performance.';
 
     procedure GetCompanyName(): Text[30]
     begin

@@ -112,9 +112,9 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Posting Date OnLastML - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - NamedType 2058625442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cannot use the model to make predictions. The quality of the model is below the specified quality threshold, which means that its predictions are unlikely to meet your requirements for accuracy. To use the model anyway, enter a lower value in the Model Quality Threshold field.</source>
-          <target state="translated">Kan ikke bruke modellen til å lage prognoser. Kvaliteten på modellen er under den angitte kvalitetsterskelen, noe som betyr at dens prognoser sannsynligvis ikke vil oppfylle dine krav til nøyaktighet. Hvis du vil bruke modellen likevel, angir du en lavere verdi i feltet Terskel for modellkvalitet.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>You cannot use the model because its quality of %1 is below the value in the Model Quality Threshold field. That means its predictions are unlikely to meet your accuracy requirements. You can evaluate the model again to confirm its quality. To use the model anyway, enter a value that is less than or equal to %1 in the Model Quality Threshold field.</source>
+          <target state="translated">Du kan ikke bruke modellen fordi kvaliteten på %1 er under verdien i feltet Terskel for modellkvalitet. Det betyr at prognoser sannsynligvis ikke oppfyller dine nøyaktige krav. Du kan evaluere modellen på nytt for å bekrefte kvaliteten. Hvis du likevel vil bruke modellen, angir du en verdi som er mindre enn eller lik %1 i feltet Terskel for modellkvalitet.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = current model quality (decimal)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - NamedType CurrentModelLowerQualityThanDesiredErr</note>
         </trans-unit>
         <trans-unit id="Table 523664430 - NamedType 358560748" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">

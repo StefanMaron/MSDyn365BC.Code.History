@@ -16,7 +16,6 @@ codeunit 502 OAuth2Impl
         AuthRequestUrlTxt: Label 'The authentication request URL %1 has been succesfully retrieved.', Comment = '%1=Authentication request URL';
         MissingClientIdRedirectUrlStateErr: Label 'The authorization request URL for the OAuth2 Grant flow cannot be constructed because of missing ClientId, RedirectUrl or state', Locked = true;
         AuthorizationCodeErr: Label 'The OAuth2 authentication code retrieved is empty.', Locked = true;
-        CannotreadFromJsonErr: Label 'The Authorization code cannot be read from the JSON file.', Locked = true;
         CannotGetCodePropertyFromJsonErr: Label 'The code property cannot be extracted from the JSON body of the authorization code.', Locked = true;
         CodePropertyDoesNotHaveValueErr: Label 'The code property value from the JSON body cannot be retreieved.', Locked = true;
         CannotWriteJsonToAuthCodeErr: Label 'The authorization code cannot be written to a text value.', Locked = true;
@@ -73,10 +72,8 @@ codeunit 502 OAuth2Impl
         JObject: JsonObject;
         JToken: JsonToken;
     begin
-        if not JObject.ReadFrom(AuthorizationCode) then begin
-            SendTraceTag('0000C1W', Oauth2CategoryLbl, Verbosity::Warning, CannotreadFromJsonErr, DataClassification::SystemMetadata);
+        if not JObject.ReadFrom(AuthorizationCode) then
             exit;
-        end;
         if not JObject.Get('code', JToken) then begin
             SendTraceTag('0000C1X', Oauth2CategoryLbl, Verbosity::Warning, CannotGetCodePropertyFromJsonErr, DataClassification::SystemMetadata);
             exit;
@@ -93,7 +90,7 @@ codeunit 502 OAuth2Impl
         SendTraceTag('0000C20', Oauth2CategoryLbl, Verbosity::Normal, AuthorizationCodeExtractedSuccessfullyFromJsonMsg, DataClassification::SystemMetadata);
     end;
 
-    local procedure GetDefaultRedirectUrl(): Text
+    procedure GetDefaultRedirectUrl(): Text
     var
         UriBuilder: DotNet UriBuilder;
         PathString: DotNet String;

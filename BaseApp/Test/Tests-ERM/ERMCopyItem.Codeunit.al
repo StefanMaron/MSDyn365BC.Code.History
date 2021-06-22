@@ -1069,11 +1069,73 @@ codeunit 134462 "ERM Copy Item"
         PurchaseLine.TestField(Description, Item.Description);
     end;
 
+    [Test]
+    [HandlerFunctions('CopyItemPageHandler')]
+    [Scope('OnPrem')]
+    procedure LastUsedValuesSaved()
+    var
+        Item: Record Item;
+        CopyItemBuffer: Record "Copy Item Buffer";
+        CopyItemParameters: Record "Copy Item Parameters";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 360665] Copy item functionality keeps last used parameters values 
+        Initialize();
+
+        // [GIVEN] Item "I" 
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Run copy item report with Comment = "Yes" and "Units of Measure" = "Yes"
+        CopyItemBuffer.Comments := true;
+        CopyItemBuffer."Units of Measure" := true;
+        EnqueueValuesForCopyItemPageHandler(CopyItemBuffer);
+        CopyItem(Item."No.");
+
+        // [THEN] Copy Item Parameters entry created for current user with Comment = "Yes" and "Units of Measure" = "Yes"
+        CopyItemParameters.Get(UserId());
+        CopyItemParameters.TestField(Comments, true);
+        CopyItemParameters.TestField("Units of Measure", true);
+
+        NotificationLifecycleMgt.RecallAllNotifications;
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyItemCheckCommentsAndUnitOfMeasurePageHandler')]
+    [Scope('OnPrem')]
+    procedure ValuesFromCopyItemParameters()
+    var
+        Item: Record Item;
+        CopyItemBuffer: Record "Copy Item Buffer";
+        CopyItemParameters: Record "Copy Item Parameters";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 360665] Page Copy Item uses parameters from Copy Item Parameters 
+        Initialize();
+
+        // [GIVEN] Item "I" 
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Mock Copy Item Parameters for current user with Comment = "Yes" and "Units of Measure" = "Yes"
+        CopyItemParameters.DeleteAll();
+        CopyItemParameters."User ID" := UserId();
+        CopyItemParameters.Comments := true;
+        CopyItemParameters."Units of Measure" := true;
+        CopyItemParameters.Insert();
+
+        // [WHEN] Run copy item function 
+        CopyItem(Item."No.");
+
+        // [THEN] Copy Item page has Comment = "Yes" and "Units of Measure" = "Yes"
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Comment must be Yes');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Units of Measure must be Yes');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Copy Item");
+        ClearCopyItemParameters();
 
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
@@ -1089,6 +1151,13 @@ codeunit 134462 "ERM Copy Item"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Copy Item");
+    end;
+
+    local procedure ClearCopyItemParameters()
+    var
+        CopyItemParameters: Record "Copy Item Parameters";
+    begin
+        CopyItemParameters.DeleteAll();
     end;
 
     local procedure CreateBOMComponent(Item: Record Item; ParentItemNo: Code[20]; QuantityPer: Decimal)
@@ -1560,6 +1629,15 @@ codeunit 134462 "ERM Copy Item"
     begin
         NoSeriesList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
         NoSeriesList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CopyItemCheckCommentsAndUnitOfMeasurePageHandler(var CopyItem: TestPage "Copy Item")
+    begin
+        LibraryVariableStorage.Enqueue(CopyItem.Comments.AsBoolean());
+        LibraryVariableStorage.Enqueue(CopyItem.UnitsOfMeasure.AsBoolean());
+        CopyItem.Cancel.Invoke;
     end;
 
     [SendNotificationHandler]

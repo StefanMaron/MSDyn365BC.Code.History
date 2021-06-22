@@ -1,4 +1,4 @@
-codeunit 104000 "Upgrade - BaseApp"
+﻿codeunit 104000 "Upgrade - BaseApp"
 {
     Subtype = Upgrade;
 
@@ -42,6 +42,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeEmailLogging();
 
         UpgradeAPIs();
+        UpgradePurchaseRcptLineOverReceiptCode();
     end;
 
     local procedure UpdateDefaultDimensionsReferencedIds()
@@ -1039,6 +1040,26 @@ codeunit 104000 "Upgrade - BaseApp"
             exit(false);
 
         exit(true);
+    end;
+
+    local procedure UpgradePurchaseRcptLineOverReceiptCode()
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.PurchRcptLineOverReceiptCodeUpgradeTag()) then
+            exit;
+
+        PurchRcptLine.SetFilter("Over-Receipt Code", '<>''''');
+        PurchRcptLine.SetRange("Over-Receipt Code 2", '');
+        if PurchRcptLine.FindSet(true) then
+            repeat
+                PurchRcptLine."Over-Receipt Code 2" := PurchRcptLine."Over-Receipt Code";
+                PurchRcptLine.Modify(false);
+            until PurchRcptLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.PurchRcptLineOverReceiptCodeUpgradeTag());
     end;
 }
 

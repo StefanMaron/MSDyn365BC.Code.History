@@ -2254,6 +2254,48 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetStartingDocumentNo()
+    var
+        GenJournalBatch: array[3] of Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        CreatePayment: TestPage "Create Payment";
+    begin
+        // [FEATURE] [UI] [Create Payment]
+        // [SCENARIO 357623] System populates next series no. in "Starting Document No." field on "Create Payment" page when specified batch has specified "No. Series"
+        Initialize();
+
+        CreateGenJournalBatchWithNoSeries(GenJournalBatch[1], GenJournalTemplate.Type::Payments, 'A0001', 'A9999');
+        CreateGenJournalBatchWithNoSeries(GenJournalBatch[2], GenJournalTemplate.Type::Payments, 'B0001', 'B9999');
+        CreateGeneralJournalBatch(GenJournalBatch[3], GenJournalTemplate.Type::Payments);
+        GenJournalBatch[3].TestField("No. Series", '');
+
+        CreatePayment.OpenEdit();
+        CreatePayment."Template Name".SetValue(GenJournalBatch[2]."Journal Template Name");
+        CreatePayment."Batch Name".SetValue(GenJournalBatch[2].Name);
+        CreatePayment."Posting Date".AssertEquals(WorkDate());
+        CreatePayment."Starting Document No.".AssertEquals('B0001');
+        CreatePayment."Posting Date".SetValue(WorkDate() - 1);
+        CreatePayment."Starting Document No.".AssertEquals('');
+        CreatePayment."Starting Document No.".SetValue(LibraryUtility.GenerateGUID());
+        CreatePayment.OK.Invoke();
+
+        CreatePayment.OpenEdit();
+
+        CreatePayment."Template Name".AssertEquals(GenJournalBatch[2]."Journal Template Name");
+        CreatePayment."Batch Name".AssertEquals(GenJournalBatch[2].Name);
+        CreatePayment."Starting Document No.".AssertEquals('B0001');
+        CreatePayment."Template Name".SetValue(GenJournalBatch[1]."Journal Template Name");
+        CreatePayment."Batch Name".SetValue(GenJournalBatch[1].Name);
+        CreatePayment."Starting Document No.".AssertEquals('A0001');
+        CreatePayment."Template Name".SetValue(GenJournalBatch[3]."Journal Template Name");
+        CreatePayment."Batch Name".SetValue(GenJournalBatch[3].Name);
+        CreatePayment."Starting Document No.".AssertEquals('');
+
+        CreatePayment.Close();
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -2455,6 +2497,18 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalTemplate.Type := GenJournalTemplateType;
         GenJournalTemplate.Modify();
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreateGenJournalBatchWithNoSeries(var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalTemplateType: Enum "Gen. Journal Template Type"; StartingNo: Code[20]; EndingNo: Code[20])
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        CreateGenJournalBatch(GenJournalBatch, GenJournalTemplateType);
+
+        CreateNoSeriesWithIncrementByNo(NoSeriesLine, 1, StartingNo, EndingNo);
+
+        GenJournalBatch.Validate("No. Series", NoSeriesLine."Series Code");
+        GenJournalBatch.Modify(true);
     end;
 
     local procedure CreatePaymentTermsWithDiscount(var PaymentTerms: Record "Payment Terms")
@@ -2663,6 +2717,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         NoSeries.Get(LibraryERM.CreateNoSeriesCode);
         NoSeriesLine.SetRange("Series Code", NoSeries.Code);
         NoSeriesLine.FindFirst();
+        NoSeriesLine."Starting Date" := WorkDate();
         NoSeriesLine."Starting No." := StartingNo;
         NoSeriesLine."Ending No." := EndingNo;
         NoSeriesLine."Increment-by No." := IncrementByNo;
@@ -3564,10 +3619,13 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CreatePaymentWithPostingModalPageHandler(var CreatePayment: TestPage "Create Payment")
+    var
+        StartingDocumentNo: Text;
     begin
-        CreatePayment."Starting Document No.".SetValue(LibraryVariableStorage.DequeueText());
+        StartingDocumentNo := LibraryVariableStorage.DequeueText();
         CreatePayment."Bank Account".SetValue(LibraryVariableStorage.DequeueText());
         CreatePayment."Posting Date".SetValue(LibraryVariableStorage.DequeueDate());
+        CreatePayment."Starting Document No.".SetValue(StartingDocumentNo);
         CreatePayment.OK.Invoke();
     end;
 

@@ -431,7 +431,7 @@ page 1156 "Company Detail"
         FinanceCue: Record "Finance Cue";
     begin
         // Calculate overdue purchase invoice amount
-        OverDuePurchInvoiceAmt := ActivitiesMgt.CalcOverduePurchaseInvoiceAmount(false);
+        OverDuePurchInvoiceAmt := ActivitiesMgt.OverduePurchaseInvoiceAmount(false, true);
 
         // Set overdue purchase invoice amount as default selected KPI
         SelectedPurchFilterTile := OverduePurchInvoiceAmtFilterTxt;
@@ -455,7 +455,7 @@ page 1156 "Company Detail"
         FinanceCue: Record "Finance Cue";
     begin
         // Calculate overdue sales invoice amount
-        OverDueSalesInvoiceAmt := ActivitiesMgt.CalcOverdueSalesInvoiceAmount(false);
+        OverDueSalesInvoiceAmt := ActivitiesMgt.OverdueSalesInvoiceAmount(false, true);
         // Set total sales to overdue sales invoice amount as default selected KPI
         SelectedSalesFilterTile := OverdueSalesInvoiceAmtFilterTxt;
         TotalSales := OverDueSalesInvoiceAmt;

@@ -1,4 +1,4 @@
-codeunit 76 "Purch.-Get Drop Shpt."
+﻿codeunit 76 "Purch.-Get Drop Shpt."
 {
     Permissions = TableData "Sales Header" = m,
                   TableData "Sales Line" = m;
@@ -99,7 +99,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
                     PurchLine.Validate("Inbound Whse. Handling Time");
                     OnBeforePurchaseLineInsert(PurchLine, SalesLine);
                     PurchLine.Insert();
-                    OnAfterPurchaseLineInsert(PurchLine);
+                    OnAfterPurchaseLineInsert(PurchLine, SalesLine, NextLineNo);
 
                     NextLineNo := NextLineNo + 10000;
 
@@ -120,7 +120,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
                             NextLineNo := PurchLine2."Line No.";
                         NextLineNo := NextLineNo + 10000;
                     end;
-
+                    OnCodeOnAfterInsertPurchExtText(SalesLine, PurchHeader, NextLineNo);
                 until SalesLine.Next = 0
             else
                 Error(
@@ -215,7 +215,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPurchaseLineInsert(var PurchaseLine: Record "Purchase Line")
+    local procedure OnAfterPurchaseLineInsert(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line"; var NextLineNo: Integer)
     begin
     end;
 
@@ -231,6 +231,11 @@ codeunit 76 "Purch.-Get Drop Shpt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesLineModify(var SalesLine: Record "Sales Line"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterInsertPurchExtText(SalesLine: Record "Sales Line"; PurchaseHeader: Record "Purchase Header"; var NextLineNo: Integer)
     begin
     end;
 

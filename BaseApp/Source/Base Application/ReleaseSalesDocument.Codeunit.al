@@ -1,6 +1,7 @@
 ﻿codeunit 414 "Release Sales Document"
 {
     TableNo = "Sales Header";
+    Permissions = TableData "Sales Header" = rm;
 
     trigger OnRun()
     begin

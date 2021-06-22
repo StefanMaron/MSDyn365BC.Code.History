@@ -38,6 +38,8 @@ report 99001020 "Carry Out Action Msg. - Plan."
                         CurrReport.Skip();
                 end;
                 Commit();
+
+                OnAfterRequisitionLineOnAfterGetRecord("Requisition Line", ProdOrderChoice);
             end;
 
             trigger OnPostDataItem()
@@ -431,7 +433,8 @@ report 99001020 "Carry Out Action Msg. - Plan."
             if ReqLineFilters.GetFilters <> '' then
                 CopyFilters(ReqLineFilters);
             SetRange("Worksheet Template Name", CurrReqWkshTemp);
-            SetRange("Journal Batch Name", CurrReqWkshName);
+            if CurrReqWkshTemp <> '' then
+                SetRange("Journal Batch Name", CurrReqWkshName);
             SetRange(Type, Type::Item);
             SetFilter("Action Message", '<>%1', "Action Message"::" ");
         end;
@@ -634,6 +637,11 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforePreReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRequisitionLineOnAfterGetRecord(var RequisitionLine: Record "Requisition Line"; ProdOrderChoice: Option)
     begin
     end;
 }

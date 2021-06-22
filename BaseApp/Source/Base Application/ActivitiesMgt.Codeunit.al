@@ -12,6 +12,7 @@ codeunit 1311 "Activities Mgt."
         RefreshFrequencyErr: Label 'Refresh intervals of less than 10 minutes are not supported.';
         NoSubCategoryWithAdditionalReportDefinitionOfCashAccountsTok: Label 'There are no %1 with %2 specified for %3', Comment = '%1 Table Comment G/L Account Category, %2 field Additional Report Definition, %3 value: Cash Accounts';
 
+    [Obsolete('Replaced by OverdueSalesInvoiceAmount(CalledFromWebService, UseCachedValue)', '17.0')]
     procedure CalcOverdueSalesInvoiceAmount(CalledFromWebService: Boolean) Amount: Decimal
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -22,22 +23,52 @@ codeunit 1311 "Activities Mgt."
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by SetFilterOverdueSalesInvoice(VendorLedgerEntry, CalledFromWebService', '17.0')]
     procedure SetFilterForCalcOverdueSalesInvoiceAmount(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CalledFromWebService: Boolean)
     begin
         DetailedCustLedgEntry.SetRange("Initial Document Type", DetailedCustLedgEntry."Initial Document Type"::Invoice);
         if CalledFromWebService then
             DetailedCustLedgEntry.SetFilter("Initial Entry Due Date", '<%1', Today)
         else
-            DetailedCustLedgEntry.SetFilter("Initial Entry Due Date", '<%1', GetDefaultWorkDate);
+            DetailedCustLedgEntry.SetFilter("Initial Entry Due Date", '<%1', GetDefaultWorkDate());
+    end;
+
+    procedure OverdueSalesInvoiceAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean): Decimal
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ActivitiesCue: record "Activities Cue";
+        Amount: Decimal;
+    begin
+        Amount := 0;
+        if UseCachedValue then
+            if ActivitiesCue.Get then
+                if not IsPassedCueData(ActivitiesCue) then
+                    Exit(ActivitiesCue."Overdue Sales Invoice Amount");
+        SetFilterOverdueSalesInvoice(CustLedgerEntry, CalledFromWebService);
+        CustLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)");
+        if CustLedgerEntry.FindSet() then
+            repeat
+                Amount := Amount + CustLedgerEntry."Remaining Amt. (LCY)";
+            until CustLedgerEntry.Next = 0;
+        exit(Amount);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetFilterOverdueSalesInvoice(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalledFromWebService: Boolean)
+    begin
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange(Open, true);
+        if CalledFromWebService then
+            CustLedgerEntry.SetFilter("Due Date", '<%1', Today)
+        else
+            CustLedgerEntry.SetFilter("Due Date", '<%1', GetDefaultWorkDate());
     end;
 
     procedure DrillDownCalcOverdueSalesInvoiceAmount()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.SetRange(Open, true);
-        CustLedgerEntry.SetFilter("Due Date", '<%1', GetDefaultWorkDate);
+        SetFilterOverdueSalesInvoice(CustLedgerEntry, false);
         CustLedgerEntry.SetFilter("Remaining Amt. (LCY)", '<>0');
         CustLedgerEntry.SetCurrentKey("Remaining Amt. (LCY)");
         CustLedgerEntry.Ascending := false;
@@ -45,6 +76,7 @@ codeunit 1311 "Activities Mgt."
         PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgerEntry);
     end;
 
+    [Obsolete('Replaced by OverduePurchaseInvoiceAmount(CalledFromWebService, UseCache', '17.0')]
     procedure CalcOverduePurchaseInvoiceAmount(CalledFromWebService: Boolean) Amount: Decimal
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -55,21 +87,52 @@ codeunit 1311 "Activities Mgt."
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by SetFilterOverduePurchaseInvoice(VendorLedgerEntry, CalledFromWebService', '17.0')]
     procedure SetFilterForCalcOverduePurchaseInvoiceAmount(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; CalledFromWebService: Boolean)
     begin
         DetailedVendorLedgEntry.SetRange("Initial Document Type", DetailedVendorLedgEntry."Initial Document Type"::Invoice);
         if CalledFromWebService then
             DetailedVendorLedgEntry.SetFilter("Initial Entry Due Date", '<%1', Today)
         else
-            DetailedVendorLedgEntry.SetFilter("Initial Entry Due Date", '<%1', GetDefaultWorkDate);
+            DetailedVendorLedgEntry.SetFilter("Initial Entry Due Date", '<%1', GetDefaultWorkDate());
+    end;
+
+    procedure OverduePurchaseInvoiceAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean): Decimal
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ActivitiesCue: Record "Activities Cue";
+        Amount: Decimal;
+    begin
+        Amount := 0;
+        if UseCachedValue then
+            if ActivitiesCue.Get then
+                if not IsPassedCueData(ActivitiesCue) then
+                    exit(ActivitiesCue."Overdue Purch. Invoice Amount");
+        SetFilterOverduePurchaseInvoice(VendorLedgerEntry, CalledFromWebService);
+        VendorLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)");
+        if VendorLedgerEntry.FindSet() then
+            repeat
+                Amount := Amount + VendorLedgerEntry."Remaining Amt. (LCY)";
+            until VendorLedgerEntry.Next = 0;
+        exit(Amount);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetFilterOverduePurchaseInvoice(var VendorLedgerEntry: Record "Vendor Ledger Entry"; CalledFromWebService: Boolean)
+    begin
+        VendorLedgerEntry.SetRange(Open, true);
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        if CalledFromWebService then
+            VendorLedgerEntry.SetFilter("Due Date", '<%1', Today)
+        else
+            VendorLedgerEntry.SetFilter("Due Date", '<%1', GetDefaultWorkDate());
     end;
 
     procedure DrillDownOverduePurchaseInvoiceAmount()
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.SetFilter("Due Date", '<%1', WorkDate);
+        SetFilterOverduePurchaseInvoice(VendorLedgerEntry, false);
         VendorLedgerEntry.SetFilter("Remaining Amt. (LCY)", '<>0');
         VendorLedgerEntry.SetCurrentKey("Remaining Amt. (LCY)");
         VendorLedgerEntry.Ascending := true;
@@ -94,7 +157,7 @@ codeunit 1311 "Activities Mgt."
         if CalledFromWebService then
             CustLedgerEntry.SetRange("Posting Date", CalcDate('<-CM>', Today), Today)
         else
-            CustLedgerEntry.SetRange("Posting Date", CalcDate('<-CM>', GetDefaultWorkDate), GetDefaultWorkDate);
+            CustLedgerEntry.SetRange("Posting Date", CalcDate('<-CM>', GetDefaultWorkDate()), GetDefaultWorkDate());
     end;
 
     procedure DrillDownSalesThisMonth()
@@ -103,7 +166,7 @@ codeunit 1311 "Activities Mgt."
     begin
         CustLedgerEntry.SetFilter("Document Type", '%1|%2',
           CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::"Credit Memo");
-        CustLedgerEntry.SetRange("Posting Date", CalcDate('<-CM>', GetDefaultWorkDate), GetDefaultWorkDate);
+        CustLedgerEntry.SetRange("Posting Date", CalcDate('<-CM>', GetDefaultWorkDate()), GetDefaultWorkDate());
         PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgerEntry);
     end;
 
@@ -113,7 +176,7 @@ codeunit 1311 "Activities Mgt."
         [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgEntrySales: Query "Cust. Ledg. Entry Sales";
     begin
-        CustLedgEntrySales.SetRange(Posting_Date, AccountingPeriod.GetFiscalYearStartDate(GetDefaultWorkDate), GetDefaultWorkDate);
+        CustLedgEntrySales.SetRange(Posting_Date, AccountingPeriod.GetFiscalYearStartDate(GetDefaultWorkDate()), GetDefaultWorkDate());
         CustLedgEntrySales.Open;
 
         if CustLedgEntrySales.Read then
@@ -126,7 +189,7 @@ codeunit 1311 "Activities Mgt."
         Top10CustomerSales: Query "Top 10 Customer Sales";
     begin
         // Total Sales (LCY) by top 10 list of customers year-to-date.
-        Top10CustomerSales.SetRange(Posting_Date, AccountingPeriod.GetFiscalYearStartDate(GetDefaultWorkDate), GetDefaultWorkDate);
+        Top10CustomerSales.SetRange(Posting_Date, AccountingPeriod.GetFiscalYearStartDate(GetDefaultWorkDate()), GetDefaultWorkDate());
         Top10CustomerSales.Open;
 
         while Top10CustomerSales.Read do
@@ -164,8 +227,8 @@ codeunit 1311 "Activities Mgt."
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange(Open, false);
-        CustLedgerEntry.SetRange("Posting Date", CalcDate('<CM-3M>', GetDefaultWorkDate), GetDefaultWorkDate);
-        CustLedgerEntry.SetRange("Closed at Date", CalcDate('<CM-3M>', GetDefaultWorkDate), GetDefaultWorkDate);
+        CustLedgerEntry.SetRange("Posting Date", CalcDate('<CM-3M>', GetDefaultWorkDate()), GetDefaultWorkDate());
+        CustLedgerEntry.SetRange("Closed at Date", CalcDate('<CM-3M>', GetDefaultWorkDate()), GetDefaultWorkDate());
     end;
 
     procedure CalcCashAccountsBalances() CashAccountBalance: Decimal
@@ -213,18 +276,18 @@ codeunit 1311 "Activities Mgt."
 
         ActivitiesCue.Get();
 
-        if not IsPassedCueDataStale(ActivitiesCue) then
+        if not IsPassedCueData(ActivitiesCue) then
             exit;
 
-        ActivitiesCue.SetFilter("Due Date Filter", '>=%1', GetDefaultWorkDate);
-        ActivitiesCue.SetFilter("Overdue Date Filter", '<%1', GetDefaultWorkDate);
-        ActivitiesCue.SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', GetDefaultWorkDate), CalcDate('<1W>', GetDefaultWorkDate));
+        ActivitiesCue.SetFilter("Due Date Filter", '>=%1', GetDefaultWorkDate());
+        ActivitiesCue.SetFilter("Overdue Date Filter", '<%1', GetDefaultWorkDate());
+        ActivitiesCue.SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', GetDefaultWorkDate()), CalcDate('<1W>', GetDefaultWorkDate()));
 
         if ActivitiesCue.FieldActive("Overdue Sales Invoice Amount") then
-            ActivitiesCue."Overdue Sales Invoice Amount" := CalcOverdueSalesInvoiceAmount(false);
+            ActivitiesCue."Overdue Sales Invoice Amount" := OverdueSalesInvoiceAmount(false, false);
 
         if ActivitiesCue.FieldActive("Overdue Purch. Invoice Amount") then
-            ActivitiesCue."Overdue Purch. Invoice Amount" := CalcOverduePurchaseInvoiceAmount(false);
+            ActivitiesCue."Overdue Purch. Invoice Amount" := OverduePurchaseInvoiceAmount(false, false);
 
         if ActivitiesCue.FieldActive("Sales This Month") then
             ActivitiesCue."Sales This Month" := CalcSalesThisMonthAmount(false);
@@ -245,10 +308,10 @@ codeunit 1311 "Activities Mgt."
         if not ActivitiesCue.Get then
             exit(false);
 
-        exit(IsPassedCueDataStale(ActivitiesCue));
+        exit(IsPassedCueData(ActivitiesCue));
     end;
 
-    local procedure IsPassedCueDataStale(ActivitiesCue: Record "Activities Cue"): Boolean
+    local procedure IsPassedCueData(ActivitiesCue: Record "Activities Cue"): Boolean
     begin
         if ActivitiesCue."Last Date/Time Modified" = 0DT then
             exit(true);

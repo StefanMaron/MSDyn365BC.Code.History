@@ -293,6 +293,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
             end else
                 OutputItemLedgEntry.SetRange("Entry Type", OutputItemLedgEntry."Entry Type"::"Assembly Output");
 
+            OnCalcCurrencyFactorOnAfterSetFilters(OutputItemLedgEntry, Rec);
             if OutputItemLedgEntry.FindLast then
                 exit(CurrExchRate.ExchangeRate(OutputItemLedgEntry."Posting Date", GLSetup."Additional Reporting Currency"));
         end;
@@ -558,5 +559,9 @@ table 5896 "Inventory Adjmt. Entry (Order)"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCurrencyFactorOnAfterSetFilters(var OutputItemLedgEntry: Record "Item Ledger Entry"; InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    begin
+    end;
 }
 

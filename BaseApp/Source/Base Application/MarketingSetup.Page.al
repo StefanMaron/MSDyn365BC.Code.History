@@ -361,9 +361,11 @@ page 5094 "Marketing Setup"
                         begin
                             if EmailLoggingEnabled then
                                 exit;
-                            if not TryInitExchangeService() then
+                            if not TryInitExchangeService() then begin
                                 SignInExchangeAdminUser();
-                            InitExchangeService();
+                                Commit();
+                                InitExchangeService();
+                            end;
                             if SetupEmailLogging.GetExchangeFolder(ExchangeWebServicesClient, ExchangeFolder, Text014) then
                                 SetQueueFolder(ExchangeFolder);
                         end;
@@ -381,9 +383,11 @@ page 5094 "Marketing Setup"
                         begin
                             if EmailLoggingEnabled then
                                 exit;
-                            if not TryInitExchangeService() then
+                            if not TryInitExchangeService() then begin
                                 SignInExchangeAdminUser();
-                            InitExchangeService();
+                                Commit();
+                                InitExchangeService();
+                            end;
                             if SetupEmailLogging.GetExchangeFolder(ExchangeWebServicesClient, ExchangeFolder, Text015) then
                                 SetStorageFolder(ExchangeFolder);
                         end;
@@ -400,7 +404,6 @@ page 5094 "Marketing Setup"
                         SetupEmailLogging: Codeunit "Setup Email Logging";
                         ErrorMessage: Text;
                     begin
-                        CurrPage.Update(true);
                         if EmailLoggingEnabled then begin
                             SignInExchangeAdminUser();
                             if not ValidateEmailLoggingSetup(Rec, ErrorMessage) then
@@ -412,6 +415,8 @@ page 5094 "Marketing Setup"
                             SetupEmailLogging.DeleteEmailLoggingJobQueueSetup();
                         end;
                         "Email Logging Enabled" := EmailLoggingEnabled;
+                        Modify();
+                        CurrPage.Update(false);
                     end;
                 }
             }
@@ -480,6 +485,8 @@ page 5094 "Marketing Setup"
                     begin
                         Commit(); // Make sure all data is committed before we run the wizard
                         AssistedSetup.Run(Page::"Setup Email Logging");
+                        if Find() then
+                            EmailLoggingEnabled := "Email Logging Enabled";
                         CurrPage.Update(false);
                     end;
                 }

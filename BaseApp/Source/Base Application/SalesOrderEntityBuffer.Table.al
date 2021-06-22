@@ -161,7 +161,7 @@ table 5495 "Sales Order Entity Buffer"
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
         {
-            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Exist("Sales Line" WHERE("Document Type" = CONST(Invoice),
                                                     "Document No." = FIELD("No."),
                                                     "Recalculate Invoice Disc." = CONST(true)));
             Caption = 'Recalculate Invoice Disc.';

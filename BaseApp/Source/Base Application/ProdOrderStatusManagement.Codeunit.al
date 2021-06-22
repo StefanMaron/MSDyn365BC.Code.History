@@ -1,4 +1,4 @@
-codeunit 5407 "Prod. Order Status Management"
+﻿codeunit 5407 "Prod. Order Status Management"
 {
     Permissions = TableData "Source Code Setup" = r,
                   TableData "Production Order" = rimd,
@@ -16,7 +16,7 @@ codeunit 5407 "Prod. Order Status Management"
             ChangeStatusForm.ReturnPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost);
             ChangeStatusOnProdOrder(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
             Commit();
-            Message(Text000, Status, TableCaption, "No.", ToProdOrder.Status, ToProdOrder.TableCaption, ToProdOrder."No.")
+            ShowStatusMessage(Rec);
         end;
     end;
 
@@ -76,7 +76,7 @@ codeunit 5407 "Prod. Order Status Management"
             FlushProdOrder(ProdOrder, NewStatus, NewPostingDate);
             WhseProdRelease.Release(ProdOrder);
         end;
-        OnAfterChangeStatusOnProdOrder(ProdOrder, ToProdOrder);
+        OnAfterChangeStatusOnProdOrder(ProdOrder, ToProdOrder, NewStatus, NewPostingDate, NewUpdateUnitCost);
 
         Commit();
 
@@ -889,6 +889,18 @@ codeunit 5407 "Prod. Order Status Management"
         OnAfterSetProdOrderCompFilters(ProdOrderComponent, ProductionOrder);
     end;
 
+    local procedure ShowStatusMessage(ProdOrder: Record "Production Order")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowStatusMessage(ProdOrder, ToProdOrder, IsHandled);
+        if IsHandled then
+            exit;
+
+        Message(Text000, ProdOrder.Status, ProdOrder.TableCaption, ProdOrder."No.", ToProdOrder.Status, ToProdOrder.TableCaption, ToProdOrder."No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitItemJnlLineFromProdOrderComp(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component")
     begin
@@ -940,7 +952,7 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterChangeStatusOnProdOrder(var ProdOrder: Record "Production Order"; var ToProdOrder: Record "Production Order")
+    local procedure OnAfterChangeStatusOnProdOrder(var ProdOrder: Record "Production Order"; var ToProdOrder: Record "Production Order"; NewStatus: Option; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     begin
     end;
 
@@ -1051,6 +1063,11 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransProdOrderOnBeforeToProdOrderInsert(var ToProdOrder: Record "Production Order"; FromProdOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowStatusMessage(ProdOrder: Record "Production Order"; ToProdOrder: Record "Production Order"; var IsHandled: Boolean)
     begin
     end;
 }

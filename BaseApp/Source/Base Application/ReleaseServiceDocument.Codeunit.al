@@ -1,6 +1,7 @@
 codeunit 416 "Release Service Document"
 {
     TableNo = "Service Header";
+    Permissions = TableData "Service Header" = rm;
 
     trigger OnRun()
     begin

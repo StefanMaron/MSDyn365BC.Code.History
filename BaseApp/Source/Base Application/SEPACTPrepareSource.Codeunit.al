@@ -1,4 +1,4 @@
-codeunit 1222 "SEPA CT-Prepare Source"
+﻿codeunit 1222 "SEPA CT-Prepare Source"
 {
     TableNo = "Gen. Journal Line";
 
@@ -26,8 +26,15 @@ codeunit 1222 "SEPA CT-Prepare Source"
     end;
 
     local procedure CreateTempJnlLines(var FromGenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    var
+        IsHandled: Boolean;
     begin
         // To fill TempGenJnlLine from the source identified by filters set on FromGenJnlLine
+        IsHandled := false;
+        OnBeforeCreateTempJnlLines(FromGenJnlLine, TempGenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TempGenJnlLine := FromGenJnlLine;
 
         OnAfterCreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
@@ -35,6 +42,11 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTempJnlLines(var FromGenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempJnlLines(var FromGenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; var IsHandled: Boolean)
     begin
     end;
 }

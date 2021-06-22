@@ -51,6 +51,7 @@ codeunit 5522 "Order Planning Mgt."
 
         RequisitionLine.Reset();
         RequisitionLine.SetRange("Worksheet Template Name", '');
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionLine.GetJnlBatchNameForOrderPlanning());
         if RequisitionLine.FindLast then;
     end;
 
@@ -171,6 +172,7 @@ codeunit 5522 "Order Planning Mgt."
     begin
         with ReqLine do begin
             Init;
+            "Journal Batch Name" := GetJnlBatchNameForOrderPlanning();
             case UnplannedDemand."Demand Type" of
                 UnplannedDemand."Demand Type"::Sales:
                     "Demand Type" := DATABASE::"Sales Line";
@@ -456,7 +458,6 @@ codeunit 5522 "Order Planning Mgt."
             ReqLine2.Reset();
             ReqLine2.SetCurrentKey("Worksheet Template Name", "Journal Batch Name", Type, "No.", "Due Date");
             ReqLine2.SetRange("Worksheet Template Name", '');
-            ReqLine2.SetRange("Journal Batch Name", '');
             ReqLine2.SetRange(Type, ReqLine2.Type::Item);
             ReqLine2.SetRange("No.", "No.");
             ReqLine2.SetRange("User ID", UserId);

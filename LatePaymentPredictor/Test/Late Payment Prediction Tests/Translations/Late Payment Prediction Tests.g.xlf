@@ -54,8 +54,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType ModelTestedMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 856479737 - NamedType 2058625442" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cannot use the model to make predictions. The quality of the model is below the specified quality threshold, which means that its predictions are unlikely to meet your requirements for accuracy. To use the model anyway, enter a lower value in the Model Quality Threshold field.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>You cannot use the model because its quality of %1 is below the value in the Model Quality Threshold field. That means its predictions are unlikely to meet your accuracy requirements. You can evaluate the model again to confirm its quality. To use the model anyway, enter a value that is less than or equal to %1 in the Model Quality Threshold field.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = current model quality (decimal)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType CurrentModelLowerQualityThanDesiredErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 856479737 - NamedType 750515220" size-unit="char" translate="yes" xml:space="preserve">

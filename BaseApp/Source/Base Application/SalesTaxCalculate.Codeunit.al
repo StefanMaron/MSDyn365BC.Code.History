@@ -1,4 +1,4 @@
-codeunit 398 "Sales Tax Calculate"
+﻿codeunit 398 "Sales Tax Calculate"
 {
 
     trigger OnRun()
@@ -28,8 +28,14 @@ codeunit 398 "Sales Tax Calculate"
     var
         MaxAmount: Decimal;
         TaxBaseAmount: Decimal;
+        IsHandled: Boolean;
     begin
         TaxAmount := 0;
+        OnBeforeCalculateTax(TaxAreaCode, TaxGroupCode, TaxLiable);
+        IsHandled := false;
+        OnBeforeCalculateTaxProcedure(TaxAreaCode, TaxGroupCode, TaxLiable, Date, Amount, Quantity, ExchangeRate, TaxAmount, IsHandled);
+        If IsHandled then
+            exit;
 
         if not TaxLiable or (TaxAreaCode = '') or (TaxGroupCode = '') or
            ((Amount = 0) and (Quantity = 0))
@@ -312,7 +318,13 @@ codeunit 398 "Sales Tax Calculate"
         TaxAmount: Decimal;
         AddedTaxAmount: Decimal;
         TaxBaseAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitSalesTaxLines(TaxAreaCode, TaxGroupCode, TaxLiable, Amount, Quantity, Date, DesiredTaxAmount, TMPTaxDetail, IsHandled, Initialised, FirstLine);
+        if IsHandled then
+            exit;
+
         TaxAmount := 0;
 
         Initialised := true;
@@ -463,6 +475,22 @@ codeunit 398 "Sales Tax Calculate"
         TaxDetail2 := TMPTaxDetail;
 
         exit(true);
+    end;
+
+    [Obsolete('Replaced by OnBeforeCalculateTaxProcedure', '17.0')]
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeCalculateTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTaxProcedure(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal; var TaxAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitSalesTaxLines(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Amount: Decimal; Quantity: Decimal; Date: Date; DesiredTaxAmount: Decimal; var TMPTaxDetail: Record "Tax Detail"; var IsHandled: Boolean; var Initialised: Boolean; var FirstLine: Boolean)
+    begin
     end;
 }
 

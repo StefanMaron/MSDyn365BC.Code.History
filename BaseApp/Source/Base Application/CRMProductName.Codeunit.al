@@ -20,5 +20,11 @@ codeunit 5344 "CRM Product Name"
     begin
         exit('Microsoft Dynamics 365 Sales');
     end;
+
+    [Scope('Cloud')]
+    procedure CDSServiceName(): Text
+    begin
+        exit('Common Data Service');
+    end;
 }
 

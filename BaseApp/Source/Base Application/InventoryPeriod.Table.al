@@ -86,6 +86,7 @@ table 5814 "Inventory Period"
     var
         InvtPeriod: Record "Inventory Period";
     begin
+        OnBeforeIsValidDate(EndingDate);
         InvtPeriod.SetFilter("Ending Date", '>=%1', EndingDate);
         InvtPeriod.SetRange(Closed, true);
         if InvtPeriod.FindLast then
@@ -112,6 +113,11 @@ table 5814 "Inventory Period"
         SetFilter("Ending Date", '>=%1', EndingDate);
         SetRange(Closed, true);
         exit(not IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsValidDate(EndingDate: Date)
+    begin
     end;
 }
 

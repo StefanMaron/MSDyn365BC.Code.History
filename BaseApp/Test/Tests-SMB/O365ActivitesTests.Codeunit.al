@@ -409,7 +409,7 @@ codeunit 139126 "O365 Activites Tests"
         ActivitiesCue."Average Collection Days" := 0;
 
         // SETUP - Set LAst Date/Time Modified to 0
-        ActivitiesCue."Last Date/Time Modified" := CurrentDateTime;
+        ActivitiesCue."Last Date/Time Modified" := 0DT;
         ActivitiesCue.Modify();
         Commit();
 

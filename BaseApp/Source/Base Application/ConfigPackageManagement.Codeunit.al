@@ -40,6 +40,13 @@ codeunit 8611 "Config. Package Management"
         QBPackageCodeTxt: Label 'DM.IIF';
         RapidStartTxt: Label 'RapidStart', Locked = true;
         IntegrationRecordErr: Label 'Cannot import table %1 through a Configuration Package.', Comment = '%1 = The name of the table.';
+        RSNotificaitonMsg: Label 'This page is intented for setting up new companies. To migrate large amount of data you should consider other alternatives such as "Data Migration From Excel" or "Edit in Excel".';
+        UsingBigRSPackageTxt: Label 'The user is shown a warning for action: %1. reason: %2', Locked = true;
+        AcknowledgePerformanceImpactTxt: Label 'The user was informed about the potential of poor perfomance and decided to continue. Process: %1', Locked = true;
+        LearnMoreTok: Label 'Learn more';
+        EvaluationInfoMsg: Label 'We have improved date and time calculations in configuration packages. Dates and times are now always treated in the local time. This ensures that dates are accurate in regions with a negative offset for UTC.';
+        RapidStartDocumentationUrlTxt: Label 'https://docs.microsoft.com/en-us/dynamics365/business-central/admin-set-up-a-company-with-rapidstart';
+        HotfixInfoUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2132822';
 
     procedure InsertPackage(var ConfigPackage: Record "Config. Package"; PackageCode: Code[20]; PackageName: Text[50]; ExcludeConfigTables: Boolean)
     begin
@@ -519,19 +526,31 @@ codeunit 8611 "Config. Package Management"
     local procedure ValidateTableRelation(PackageCode: Code[20]; TableId: Integer; var ValidatedConfigPackageTable: Record "Config. Package Table")
     var
         ConfigPackageField: Record "Config. Package Field";
+        ConfigPackageRecord: Record "Config. Package Record";
+        RecRef: RecordRef;
+        DelayedInsert: Boolean;
     begin
-        ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
-        ConfigPackageField.SetRange("Package Code", PackageCode);
-        ConfigPackageField.SetRange("Table ID", TableId);
-        ConfigPackageField.SetRange("Validate Field", true);
-        if ConfigPackageField.FindSet() then
+        ConfigPackageRecord.SetRange("Package Code", PackageCode);
+        ConfigPackageRecord.SetRange("Table ID", TableId);
+        if ConfigPackageRecord.FindSet() then
             repeat
-                ValidateFieldRelation(ConfigPackageField, ValidatedConfigPackageTable);
-            until ConfigPackageField.Next = 0;
+                Clear(RecRef);
+                RecRef.Open(TableId, true);
+                InsertPrimaryKeyFields(RecRef, ConfigPackageRecord, false, DelayedInsert);
+
+                ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
+                ConfigPackageField.SetRange("Package Code", PackageCode);
+                ConfigPackageField.SetRange("Table ID", TableId);
+                ConfigPackageField.SetRange("Validate Field", true);
+                if ConfigPackageField.FindSet() then
+                    repeat
+                        ValidateFieldRelationInRecord(ConfigPackageField, ValidatedConfigPackageTable, ConfigPackageRecord, RecRef);
+                    until ConfigPackageField.Next() = 0;
+                RecRef.Close();
+            until ConfigPackageRecord.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
-    procedure ValidateFieldRelation(ConfigPackageField: Record "Config. Package Field"; var ValidatedConfigPackageTable: Record "Config. Package Table") NoValidateErrors: Boolean
+    procedure ValidateFieldRelationInRecord(ConfigPackageField: Record "Config. Package Field"; var ValidatedConfigPackageTable: Record "Config. Package Table"; ConfigPackageRecord: Record "Config. Package Record"; RecRef: RecordRef) NoValidateErrors: Boolean
     var
         ConfigPackageData: Record "Config. Package Data";
     begin
@@ -540,11 +559,37 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageData.SetRange("Package Code", ConfigPackageField."Package Code");
         ConfigPackageData.SetRange("Table ID", ConfigPackageField."Table ID");
         ConfigPackageData.SetRange("Field ID", ConfigPackageField."Field ID");
+        ConfigPackageData.SetRange("No.", ConfigPackageRecord."No.");
         if ConfigPackageData.FindSet() then
             repeat
                 NoValidateErrors :=
                   NoValidateErrors and
-                  ValidatePackageDataRelation(ConfigPackageData, ValidatedConfigPackageTable, ConfigPackageField, true);
+                  ValidatePackageDataRelation(
+                    ConfigPackageData, ValidatedConfigPackageTable, ConfigPackageField, true, ConfigPackageRecord, RecRef);
+            until ConfigPackageData.Next() = 0;
+    end;
+
+    [Obsolete('Replaced by ValidateFieldRelationInRecord(). This function is correct for the validation of a single field without record context. Please use ValidateFieldRelationInRecord function in case of record or table wide validation.', '17.0')]
+    [Scope('OnPrem')]
+    procedure ValidateFieldRelation(ConfigPackageField: Record "Config. Package Field"; var ValidatedConfigPackageTable: Record "Config. Package Table") NoValidateErrors: Boolean
+    var
+        ConfigPackageData: Record "Config. Package Data";
+        ConfigPackageRecord: Record "Config. Package Record";
+        RecRef: RecordRef;
+    begin
+        NoValidateErrors := true;
+        RecRef.Open(ConfigPackageField."Table ID", true);
+
+        ConfigPackageData.SetRange("Package Code", ConfigPackageField."Package Code");
+        ConfigPackageData.SetRange("Table ID", ConfigPackageField."Table ID");
+        ConfigPackageData.SetRange("Field ID", ConfigPackageField."Field ID");
+        if ConfigPackageData.FindSet() then
+            repeat
+                ConfigPackageRecord.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.");
+                NoValidateErrors :=
+                  NoValidateErrors and
+                  ValidatePackageDataRelation(
+                    ConfigPackageData, ValidatedConfigPackageTable, ConfigPackageField, true, ConfigPackageRecord, RecRef);
             until ConfigPackageData.Next = 0;
     end;
 
@@ -553,12 +598,18 @@ codeunit 8611 "Config. Package Management"
     var
         TempConfigPackageTable: Record "Config. Package Table" temporary;
         ConfigPackageField: Record "Config. Package Field";
+        ConfigPackageRecord: Record "Config. Package Record";
+        RecRef: RecordRef;
+        DelayedInsert: Boolean;
     begin
+        RecRef.Open(ConfigPackageData."Table ID", true);
+        ConfigPackageRecord.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.");
+        InsertPrimaryKeyFields(RecRef, ConfigPackageRecord, false, DelayedInsert);
         ConfigPackageField.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID");
-        exit(ValidatePackageDataRelation(ConfigPackageData, TempConfigPackageTable, ConfigPackageField, false));
+        exit(ValidatePackageDataRelation(ConfigPackageData, TempConfigPackageTable, ConfigPackageField, false, ConfigPackageRecord, RecRef));
     end;
 
-    local procedure ValidatePackageDataRelation(var ConfigPackageData: Record "Config. Package Data"; var ValidatedConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field"; GenerateFieldError: Boolean): Boolean
+    local procedure ValidatePackageDataRelation(var ConfigPackageData: Record "Config. Package Data"; var ValidatedConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field"; GenerateFieldError: Boolean; ConfigPackageRecord: Record "Config. Package Record"; RecRef: RecordRef): Boolean
     var
         ErrorText: Text[250];
         RelationTableNo: Integer;
@@ -576,7 +627,7 @@ codeunit 8611 "Config. Package Management"
               ConfigPackageData, ConfigPackageField, ValidatedConfigPackageTable, RelationTableNo, RelationFieldNo, DataInPackageData);
 
             if not DataInPackageData then begin
-                ErrorText := ValidateFieldRelationAgainstCompanyData(ConfigPackageData);
+                ErrorText := ValidateFieldRelationAgainstCompanyData(ConfigPackageData, ConfigPackageRecord, RecRef);
                 if ErrorText <> '' then begin
                     if GenerateFieldError then
                         FieldError(ConfigPackageData, ErrorText, ErrorTypeEnum::TableRelation);
@@ -630,6 +681,125 @@ codeunit 8611 "Config. Package Management"
         exit(false);
     end;
 
+    internal procedure ShowWarningOnImportingBigConfPackageFromExcel(FileSize: Integer): Action
+    begin
+        exit(ShowWarningOnImportingBigConfPackage(FileSize, 'Excel'));
+    end;
+
+    internal procedure ShowWarningOnImportingBigConfPackageFromRapidStart(FileSize: Integer): Action
+    begin
+        exit(ShowWarningOnImportingBigConfPackage(FileSize, 'RapidStart'));
+    end;
+
+    local procedure ShowWarningOnImportingBigConfPackage(FileSize: Integer; ImportingThrough: Text): Action
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+        ConfigPackageWarning: Page "Config. Package Warning";
+        BigFileSize: Integer;
+    begin
+        if not EnvironmentInformation.IsSaaS() then
+            exit(Action::OK);
+
+        BigFileSize := 3145728; // 3 MBytes
+        if FileSize > BigFileSize then begin
+            SendTraceTag('0000BV2', RapidStartTxt, Verbosity::Normal, StrSubstNo(UsingBigRSPackageTxt, 'Import ' + ImportingThrough, 'FileSize: ' + Format(FileSize)), DataClassification::SystemMetadata);
+            ConfigPackageWarning.SwitchContextToImport();
+            ConfigPackageWarning.RunModal();
+            if ConfigPackageWarning.GetAction() = Action::OK then
+                SendTraceTag('0000BV3', RapidStartTxt, Verbosity::Normal, StrSubstNo(AcknowledgePerformanceImpactTxt, 'Import ' + ImportingThrough), DataClassification::SystemMetadata);
+            exit(ConfigPackageWarning.GetAction());
+        end;
+        exit(Action::OK);
+    end;
+
+    internal procedure ShowWarningOnApplyingBigConfPackage(RecordCount: Integer): Action
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+        ConfigPackageWarning: Page "Config. Package Warning";
+        RecordCountLimit: Integer;
+    begin
+        if not EnvironmentInformation.IsSaaS() then
+            exit(Action::OK);
+
+        RecordCountLimit := 5000;
+        if RecordCount > RecordCountLimit then begin
+            SendTraceTag('0000BVJ', RapidStartTxt, Verbosity::Normal, StrSubstNo(UsingBigRSPackageTxt, 'Apply Package', 'Records: ' + Format(RecordCount)), DataClassification::SystemMetadata);
+            ConfigPackageWarning.SwitchContextToApply();
+            ConfigPackageWarning.RunModal();
+            if ConfigPackageWarning.GetAction() = Action::OK then
+                SendTraceTag('0000BVK', RapidStartTxt, Verbosity::Normal, StrSubstNo(AcknowledgePerformanceImpactTxt, 'Apply Package'), DataClassification::SystemMetadata);
+            exit(ConfigPackageWarning.GetAction());
+        end;
+        exit(Action::OK);
+    end;
+
+    internal procedure ShowRapidStartNotification()
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+        RSNotificaiton: Notification;
+    begin
+        if not EnvironmentInformation.IsSaaS() then
+            exit;
+
+        if not IsExistingCompany() then
+            exit;
+
+        RSNotificaiton.Message(RSNotificaitonMsg);
+        RSNotificaiton.AddAction(LearnMoreTok, Codeunit::"Config. Package Management", 'LearnMoreNotificationAction');
+        RSNotificaiton.Send();
+    end;
+
+    internal procedure ShowDateTimeEvaluationChangeNotification()
+    var
+        TimeZone: Record "Time Zone";
+        UserPersonalization: Record "User Personalization";
+        EnvironmentInformation: Codeunit "Environment Information";
+        DateTimeEvaluationChangeNotifiction: Notification;
+    begin
+        if not EnvironmentInformation.IsSaaS() then
+            exit;
+
+        if not UserPersonalization.Get(UserSecurityId()) then
+            exit;
+
+        TimeZone.SetRange(ID, UserPersonalization."Time Zone");
+
+        if not TimeZone.FindFirst() then
+            exit;
+
+        if not TimeZone."Display Name".Contains('UTC-') then
+            exit;
+
+        DateTimeEvaluationChangeNotifiction.Message(EvaluationInfoMsg);
+        DateTimeEvaluationChangeNotifiction.AddAction(LearnMoreTok, Codeunit::"Config. Package Management", 'HotfixInfoAction');
+        DateTimeEvaluationChangeNotifiction.Send();
+    end;
+
+    internal procedure HotfixInfoAction(var Notification: Notification)
+    begin
+        HyperLink(HotfixInfoUrlTxt);
+    end;
+
+    internal procedure LearnMoreNotificationAction(var Notification: Notification)
+    begin
+        HyperLink(RapidStartDocumentationUrlTxt);
+    end;
+
+    local procedure IsExistingCompany(): Boolean
+    var
+        CompanyInformation: Record "Company Information";
+        ThreeMonths: Duration;
+    begin
+        if not CompanyInformation.Get() then
+            exit(false);
+
+        if CompanyInformation."Created DateTime" = 0DT then
+            exit(false);
+
+        ThreeMonths := CreateDateTime(CalcDate('<+3M>', Today()), Time()) - CurrentDateTime();
+        exit(CurrentDateTime() - CompanyInformation."Created DateTime" > ThreeMonths);
+    end;
+
     procedure IsDimSetIDField(TableId: Integer; FieldId: Integer): Boolean
     var
         DimensionValue: Record "Dimension Value";
@@ -644,18 +814,12 @@ codeunit 8611 "Config. Package Management"
             ConfigPackageField."Table ID", ConfigPackageField."Field ID", RelationTableNo, RelationFieldNo));
     end;
 
-    local procedure ValidateFieldRelationAgainstCompanyData(ConfigPackageData: Record "Config. Package Data"): Text[250]
+    local procedure ValidateFieldRelationAgainstCompanyData(ConfigPackageData: Record "Config. Package Data"; ConfigPackageRecord: Record "Config. Package Record"; RecRef: RecordRef): Text[250]
     var
-        ConfigPackageRecord: Record "Config. Package Record";
         ConfigPackageField: Record "Config. Package Field";
         ConfigPackageTable: Record "Config. Package Table";
-        RecRef: RecordRef;
         FieldRef: FieldRef;
-        DelayedInsert: Boolean;
     begin
-        RecRef.Open(ConfigPackageData."Table ID");
-        ConfigPackageRecord.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.");
-        InsertPrimaryKeyFields(RecRef, ConfigPackageRecord, false, DelayedInsert);
         ConfigPackageField.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID");
         ConfigPackageTable.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID");
         ModifyRecordDataField(ConfigPackageRecord, ConfigPackageField, ConfigPackageData, ConfigPackageTable, RecRef, false, false, false);
@@ -845,15 +1009,29 @@ codeunit 8611 "Config. Package Management"
     var
         DimSetEntry: Record "Dimension Set Entry";
         ConfigPackageTableParent: Record "Config. Package Table";
+        LocalConfigPackageRecord: Record "Config. Package Record";
+        LocalConfigPackageField: Record "Config. Package Field";
         IntegrationService: Codeunit "Integration Service";
         IntegrationManagement: Codeunit "Integration Management";
         TableCount: Integer;
         RSApplyDataStartMsg: Label 'Apply of data started.', Locked = true;
-        RSApplyDataFinishMsg: Label 'Apply of data finished; duration: %1', Locked = true;
+        RSApplyDataFinishMsg: Label 'Apply of data finished. Error count: %1. Duration: %2 milliseconds. Total Records: %3. Total Fields: %4.', Locked = true;
         DurationAsInt: BigInteger;
         StartTime: DateTime;
         DimSetIDUsed: Boolean;
+        RecordCount: Integer;
+        FieldCount: Integer;
     begin
+        LocalConfigPackageRecord.SetRange("Package Code", ConfigPackage.Code);
+        RecordCount := LocalConfigPackageRecord.Count();
+        LocalConfigPackageField.SetRange("Package Code", ConfigPackage.code);
+        FieldCount := LocalConfigPackageField.Count();
+        if GuiAllowed() then begin
+            Commit();
+            if ShowWarningOnApplyingBigConfPackage(RecordCount) = Action::Cancel then
+                exit;
+        end;
+
         StartTime := CurrentDateTime();
         SendTraceTag('00009Q8', RapidStartTxt, Verbosity::Normal, RSApplyDataStartMsg, DataClassification::SystemMetadata);
 
@@ -935,7 +1113,8 @@ codeunit 8611 "Config. Package Management"
 
         RecordsModifiedCount := MaxInt(RecordsModifiedCount - RecordsInsertedCount, 0);
         DurationAsInt := CurrentDateTime() - StartTime;
-        SendTraceTag('00009Q9', RapidStartTxt, Verbosity::Normal, StrSubstNo(RSApplyDataFinishMsg, DurationAsInt), DataClassification::SystemMetadata);
+        // Tag used for analytics - DO NOT MODIFY
+        SendTraceTag('00009Q9', RapidStartTxt, Verbosity::Normal, StrSubstNo(RSApplyDataFinishMsg, ErrorCount, DurationAsInt, RecordCount, FieldCount), DataClassification::SystemMetadata);
 
         if not HideDialog then
             Message(NoTablesAndErrorsMsg, TableCount, ErrorCount, RecordsInsertedCount, RecordsModifiedCount);
@@ -1376,64 +1555,61 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageRecord.TestField("Package Code");
         ConfigPackageRecord.TestField("Table ID");
 
-        ConfigPackageData.Reset();
         ConfigPackageData.SetRange("Package Code", ConfigPackageRecord."Package Code");
         ConfigPackageData.SetRange("Table ID", ConfigPackageRecord."Table ID");
         ConfigPackageData.SetRange("No.", ConfigPackageRecord."No.");
         ConfigPackageData.SetRange("Field ID", ConfigMgt.DimensionFieldID, ConfigMgt.DimensionFieldID + 999);
         ConfigPackageData.SetFilter(Value, '<>%1', '');
+
+        if ConfigPackageData.IsEmpty() then
+            exit;
+
         if ConfigPackageData.FindSet() then
             repeat
                 if ConfigPackageField.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID") then begin
                     // find if Dimension Code already exist
                     RecordFound := false;
+
                     ConfigPackageDataDim[1].SetRange("Package Code", ConfigPackageRecord."Package Code");
                     ConfigPackageDataDim[1].SetRange("Table ID", DATABASE::"Default Dimension");
                     ConfigPackageDataDim[1].SetRange("Field ID", DefaultDim.FieldNo("Table ID"));
                     ConfigPackageDataDim[1].SetRange(Value, Format(ConfigPackageRecord."Table ID"));
-                    if ConfigPackageDataDim[1].FindSet() then
-                        repeat
-                            ConfigPackageDataDim[2].SetRange("Package Code", ConfigPackageRecord."Package Code");
-                            ConfigPackageDataDim[2].SetRange("Table ID", DATABASE::"Default Dimension");
-                            ConfigPackageDataDim[2].SetRange("No.", ConfigPackageDataDim[1]."No.");
-                            ConfigPackageDataDim[2].SetRange("Field ID", DefaultDim.FieldNo("No."));
-                            ConfigPackageDataDim[2].SetRange(Value, MasterNo);
-                            if ConfigPackageDataDim[2].FindSet() then
-                                repeat
-                                    ConfigPackageDataDim[3].SetRange("Package Code", ConfigPackageRecord."Package Code");
-                                    ConfigPackageDataDim[3].SetRange("Table ID", DATABASE::"Default Dimension");
-                                    ConfigPackageDataDim[3].SetRange("No.", ConfigPackageDataDim[2]."No.");
-                                    ConfigPackageDataDim[3].SetRange("Field ID", DefaultDim.FieldNo("Dimension Code"));
-                                    ConfigPackageDataDim[3].SetRange(Value, ConfigPackageField."Field Name");
-                                    RecordFound := ConfigPackageDataDim[3].FindFirst;
-                                until (ConfigPackageDataDim[2].Next = 0) or RecordFound;
-                        until (ConfigPackageDataDim[1].Next = 0) or RecordFound;
+                    if not ConfigPackageDataDim[1].IsEmpty() then
+                        if ConfigPackageDataDim[1].FindSet() then
+                            repeat
+                                if ConfigPackageDataDim[2].Get(ConfigPackageRecord."Package Code", Database::"Default Dimension", ConfigPackageDataDim[1]."No.", DefaultDim.FieldNo("No.")) and
+                                    (ConfigPackageDataDim[2].Value = MasterNo)
+                                then
+                                    if ConfigPackageDataDim[3].Get(ConfigPackageRecord."Package Code", Database::"Default Dimension", ConfigPackageDataDim[2]."No.", DefaultDim.FieldNo("Dimension Code")) and
+                                        (ConfigPackageDataDim[3].Value = ConfigPackageField."Field Name")
+                                    then
+                                        RecordFound := true;
+                            until (ConfigPackageDataDim[1].Next() = 0) or RecordFound;
+
                     if not RecordFound then begin
                         if not ConfigPackageTableDim.Get(ConfigPackageRecord."Package Code", DATABASE::"Default Dimension") then
                             InsertPackageTable(ConfigPackageTableDim, ConfigPackageRecord."Package Code", DATABASE::"Default Dimension");
                         InitPackageRecord(ConfigPackageRecordDim, ConfigPackageTableDim."Package Code", ConfigPackageTableDim."Table ID");
                         // Insert Default Dimension record
                         InsertPackageData(ConfigPackageDataDim[4],
-                          ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
-                          DefaultDim.FieldNo("Table ID"), Format(ConfigPackageRecord."Table ID"), false);
+                            ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
+                            DefaultDim.FieldNo("Table ID"), Format(ConfigPackageRecord."Table ID"), false);
                         InsertPackageData(ConfigPackageDataDim[4],
-                          ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
-                          DefaultDim.FieldNo("No."), Format(MasterNo), false);
+                            ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
+                            DefaultDim.FieldNo("No."), Format(MasterNo), false);
                         InsertPackageData(ConfigPackageDataDim[4],
-                          ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
-                          DefaultDim.FieldNo("Dimension Code"), ConfigPackageField."Field Name", false);
+                            ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
+                            DefaultDim.FieldNo("Dimension Code"), ConfigPackageField."Field Name", false);
                         if IsBlankDim(ConfigPackageData.Value) then
                             InsertPackageData(ConfigPackageDataDim[4],
-                              ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
-                              DefaultDim.FieldNo("Dimension Value Code"), '', false)
+                                ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
+                                DefaultDim.FieldNo("Dimension Value Code"), '', false)
                         else
                             InsertPackageData(ConfigPackageDataDim[4],
-                              ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
-                              DefaultDim.FieldNo("Dimension Value Code"), ConfigPackageData.Value, false);
+                                ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
+                                DefaultDim.FieldNo("Dimension Value Code"), ConfigPackageData.Value, false);
                     end else begin
-                        ConfigPackageDataDim[3].SetRange("Field ID", DefaultDim.FieldNo("Dimension Value Code"));
-                        ConfigPackageDataDim[3].SetRange(Value);
-                        ConfigPackageDataDim[3].FindFirst;
+                        ConfigPackageDataDim[3].Get(ConfigPackageRecord."Package Code", Database::"Default Dimension", ConfigPackageDataDim[2]."No.", DefaultDim.FieldNo("Dimension Value Code"));
                         ConfigPackageDataDim[3].Value := ConfigPackageData.Value;
                         ConfigPackageDataDim[3].Modify();
                     end;
@@ -1445,11 +1621,11 @@ codeunit 8611 "Config. Package Management"
                                 InsertPackageTable(ConfigPackageTableDim, ConfigPackageRecord."Package Code", DATABASE::"Dimension Value");
                             InitPackageRecord(ConfigPackageRecordDim, ConfigPackageTableDim."Package Code", ConfigPackageTableDim."Table ID");
                             InsertPackageData(ConfigPackageDataDim[4],
-                              ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
-                              DimValue.FieldNo("Dimension Code"), ConfigPackageField."Field Name", false);
+                                ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
+                                DimValue.FieldNo("Dimension Code"), ConfigPackageField."Field Name", false);
                             InsertPackageData(ConfigPackageDataDim[4],
-                              ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
-                              DimValue.FieldNo(Code), ConfigPackageData.Value, false);
+                                ConfigPackageRecordDim."Package Code", ConfigPackageRecordDim."Table ID", ConfigPackageRecordDim."No.",
+                                DimValue.FieldNo(Code), ConfigPackageData.Value, false);
                         end;
                 end;
             until ConfigPackageData.Next = 0;

@@ -104,7 +104,7 @@ codeunit 8618 "Config. Excel Exchange"
         TempSetupDataFileName: Text;
         TempSchemaFileName: Text;
         ExcelExportStartMsg: Label 'Export of Excel data started.', Locked = true;
-        ExcelExportFinishMsg: Label 'Export of Excel data finished; duration: %1; FileName: %2', Locked = true;
+        ExcelExportFinishMsg: Label 'Export of Excel data finished. Duration: %1 milliseconds.', Locked = true;
         DurationAsInt: BigInteger;
         StartTime: DateTime;
         DataTableCounter: Integer;
@@ -195,7 +195,8 @@ codeunit 8618 "Config. Excel Exchange"
               StrSubstNo(ExcelFileNameTok, Format(CurrentDateTime, 0, '<Day,2>_<Month,2>_<Year4>_<Hours24>_<Minutes,2>_<Seconds,2>'));
 
         DurationAsInt := CurrentDateTime() - StartTime;
-        SendTraceTag('00009QB', RapidStartTxt, Verbosity::Normal, StrSubstNo(ExcelExportFinishMsg, DurationAsInt, FileName), DataClassification::SystemMetadata);
+        // Tag used for analytics - DO NOT MODIFY
+        SendTraceTag('00009QB', RapidStartTxt, Verbosity::Normal, StrSubstNo(ExcelExportFinishMsg, DurationAsInt), DataClassification::SystemMetadata);
 
 
         if not FileOnServer then
@@ -220,10 +221,14 @@ codeunit 8618 "Config. Excel Exchange"
     procedure ImportExcelFromPackage(): Boolean
     var
         TempBlob: Codeunit "Temp Blob";
+        ConfigPackageManagement: Codeunit "Config. Package Management";
     begin
-        if IsFileImportedToBLOB(TempBlob) then
-            exit(ImportExcel(TempBlob));
-        exit(false)
+        if not IsFileImportedToBLOB(TempBlob) then
+            exit(false);
+        if GuiAllowed() then
+            if ConfigPackageManagement.ShowWarningOnImportingBigConfPackageFromExcel(TempBlob.Length()) = Action::Cancel then
+                exit(false);
+        exit(ImportExcel(TempBlob));
     end;
 
     procedure ImportExcelFromSelectedPackage(PackageCode: Code[20]): Boolean
@@ -336,20 +341,22 @@ codeunit 8618 "Config. Excel Exchange"
         WrkSheetId: Integer;
         DataColumnTableId: Integer;
         SheetCount: Integer;
-        ExcelImportStartMsg: Label 'Import of Excel data started.', Locked = true;
-        ExcelImportFinishMsg: Label 'Import of Excel data finished; duration: %1', Locked = true;
+        ExcelImportStartMsg: Label 'Converting Excel data started.', Locked = true;
+        ExcelImportFinishMsg: Label 'Converting Excel data finished. Duration: %1 milliseconds. File size: %3.', Locked = true;
         DurationAsInt: BigInteger;
         StartTime: DateTime;
+        FileSize: Integer;
     begin
-        StartTime := CurrentDateTime();
-        SendTraceTag('00009QC', RapidStartTxt, Verbosity::Normal, ExcelImportStartMsg, DataClassification::SystemMetadata);
-
         TempBlob.CreateInStream(InStream);
+        FileSize := TempBlob.Length();
         WrkbkReader := WrkbkReader.Open(InStream);
         if not IsImportFromExcelConfirmed(TempConfigPackageTable) then begin
             Clear(WrkbkReader);
             exit(false);
         end;
+
+        StartTime := CurrentDateTime();
+        SendTraceTag('00009QC', RapidStartTxt, Verbosity::Normal, ExcelImportStartMsg, DataClassification::SystemMetadata);
         WorkBookPart := WrkbkReader.Workbook.WorkbookPart;
         XMLSchemaDataFile := OpenXMLManagement.ExtractXMLSchema(WorkBookPart);
 
@@ -373,7 +380,8 @@ codeunit 8618 "Config. Excel Exchange"
         ConfigXMLExchange.SetExcelMode(true);
 
         DurationAsInt := CurrentDateTime() - StartTime;
-        SendTraceTag('00009QD', RapidStartTxt, Verbosity::Normal, StrSubstNo(ExcelImportFinishMsg, DurationAsInt), DataClassification::SystemMetadata);
+        // Tag used for analytics - DO NOT MODIFY
+        SendTraceTag('00009QD', RapidStartTxt, Verbosity::Normal, StrSubstNo(ExcelImportFinishMsg, DurationAsInt, FileSize), DataClassification::SystemMetadata);
         if ConfigXMLExchange.ImportPackageXMLFromStream(InStream) then
             Imported := true;
 

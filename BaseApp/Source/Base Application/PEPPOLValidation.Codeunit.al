@@ -70,11 +70,7 @@ codeunit 1620 "PEPPOL Validation"
             if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order] then
                 TestField("Shipment Date");
             TestField("Your Reference");
-            TestField("Ship-to Address");
-            TestField("Ship-to City");
-            TestField("Ship-to Post Code");
-            TestField("Ship-to Country/Region Code");
-            CheckCountryRegionCode("Ship-to Country/Region Code");
+            CheckShipToAddress(SalesHeader);
             TestField("Due Date");
 
             if CompanyInfo.IBAN = '' then
@@ -82,6 +78,8 @@ codeunit 1620 "PEPPOL Validation"
             CompanyInfo.TestField("Bank Branch No.");
             CompanyInfo.TestField("SWIFT Code");
         end;
+
+        OnAfterCheckSalesDocument(SalesHeader, CompanyInfo);
     end;
 
     local procedure CheckSalesDocumentLines(SalesHeader: Record "Sales Header")
@@ -257,6 +255,32 @@ codeunit 1620 "PEPPOL Validation"
         CountryRegion.Get(CountryRegionCode);
         if StrLen(CountryRegion.Code) <> MaxCountryCodeLength then
             CountryRegion.FieldError(Code, StrSubstNo(WrongLengthErr, MaxCountryCodeLength));
+    end;
+
+    local procedure CheckShipToAddress(SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckShipToAddress(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesHeader.TestField("Ship-to Address");
+        SalesHeader.TestField("Ship-to City");
+        SalesHeader.TestField("Ship-to Post Code");
+        SalesHeader.TestField("Ship-to Country/Region Code");
+        CheckCountryRegionCode(SalesHeader."Ship-to Country/Region Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckSalesDocument(SalesHeader: Record "Sales Header"; CompanyInfo: Record "Company Information")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckShipToAddress(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

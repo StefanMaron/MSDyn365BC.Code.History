@@ -91,6 +91,15 @@ table 5906 "Service Comment Line"
         OnAfterSetUpNewLine(Rec, ServCommentLine);
     end;
 
+    procedure DeleteComments(TableName: Option; TableType: Option; DocNo: Code[20])
+    begin
+        SetRange("Table Name", TableName);
+        SetRange("Table Subtype", TableType);
+        SetRange("No.", DocNo);
+        if not IsEmpty then
+            DeleteAll();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var ServiceCommentLineRec: Record "Service Comment Line"; var ServiceCommentLineFilter: Record "Service Comment Line")
     begin

@@ -78,17 +78,29 @@ codeunit 5465 "Graph Mgt - General Tools"
     var
         ODataEdmType: Record "OData Edm Type";
         ODataOutStream: OutStream;
+        ODataInStream: InStream;
+        ExistingEDMDefinition: Text;
         RecordExist: Boolean;
     begin
         if not ODataEdmType.WritePermission then
             exit;
 
+        ODataEdmType.SetAutoCalcFields("Edm Xml");
         RecordExist := ODataEdmType.Get(NewKey);
 
         if not RecordExist then begin
             Clear(ODataEdmType);
             ODataEdmType.Key := NewKey;
         end;
+
+        if RecordExist then
+            if ODataEdmType."Edm Xml".HasValue() then begin
+                ODataEdmType."Edm Xml".CreateInStream(ODataInStream, TEXTENCODING::UTF8);
+                ODataInStream.ReadText(ExistingEDMDefinition);
+
+                if (ODataEdmType.Description = NewDescription) and (ExistingEDMDefinition = OdmDefinition) then
+                    exit;
+            end;
 
         ODataEdmType.Validate(Description, NewDescription);
         ODataEdmType."Edm Xml".CreateOutStream(ODataOutStream, TEXTENCODING::UTF8);

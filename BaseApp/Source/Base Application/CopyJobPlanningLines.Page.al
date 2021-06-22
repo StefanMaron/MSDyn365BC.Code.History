@@ -142,6 +142,7 @@ page 1042 "Copy Job Planning Lines"
             CopyJob.SetCopyQuantity(CopyQuantity);
             CopyJob.SetCopyJobPlanningLineType(PlanningLineType);
             CopyJob.SetJobTaskDateRange(FromDate, ToDate);
+            OnQueryClosePageOnBeforeCopyJobPlanningLines(SourceJobNo, SourceJobTaskNo, PlanningLineType, FromDate, ToDate, TargetJobNo, TargetJobTaskNo, CopyQuantity);
             CopyJob.CopyJobPlanningLines(SourceJobTask, TargetJobTask);
             Message(Text001);
         end
@@ -191,6 +192,11 @@ page 1042 "Copy Job Planning Lines"
         TargetJobNo := TargetJobTask2."Job No.";
         TargetJobTask := TargetJobTask2;
         TargetJobTaskNo := TargetJobTask2."Job Task No.";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnQueryClosePageOnBeforeCopyJobPlanningLines(SourceJobNo: Code[20]; SourceJobTaskNo: Code[20]; PlanningLineType: Option; FromDate: Date; ToDate: Date; TargetJobNo: Code[20]; TargetJobTaskNo: Code[20]; CopyQuantity: Boolean)
+    begin
     end;
 }
 

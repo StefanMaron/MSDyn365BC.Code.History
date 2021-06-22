@@ -50,6 +50,8 @@ codeunit 213 "Res. Jnl.-Post Batch"
     var
         UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
+        OnBeforeCode(ResJnlLine);
+
         with ResJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
@@ -146,6 +148,8 @@ codeunit 213 "Res. Jnl.-Post Batch"
                         end;
                 ResJnlPostLine.RunWithCheck(ResJnlLine);
             until Next = 0;
+
+            OnCodeOnAfterPostJnlLines(ResJnlBatch, ResJnlLine, ResRegNo);
 
             // Copy register no. and current journal batch name to the res. journal
             if not ResReg.FindLast or (ResReg."No." <> ResRegNo) then
@@ -261,6 +265,16 @@ codeunit 213 "Res. Jnl.-Post Batch"
                       MaxStrLen(Description)),
                     '>');
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterPostJnlLines(var ResJnlBatch: Record "Res. Journal Batch"; var ResJnlLine: Record "Res. Journal Line"; ResRegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var ResJnlLine: Record "Res. Journal Line")
+    begin
     end;
 }
 
