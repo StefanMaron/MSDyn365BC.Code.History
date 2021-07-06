@@ -70,8 +70,8 @@ codeunit 1641 "Setup Email Logging"
         VideoUrlSetupEmailLoggingTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843360', Locked = true;
         SetupEmailLoggingDescriptionTxt: Label 'Track email exchanges between your sales team and your customers and prospects, and then turn the emails into actionable opportunities.';
         EmptyAccessTokenTxt: Label 'Access token is empty.', Locked = true;
-        TenantIdExtractedTxt: Label 'Tenant ID %1 has been extracted from token.', Locked = true;
-        CannotExtractTenantIdTxt: Label 'Cannot extract tenant ID from token %1.', Locked = true;
+        TenantIdExtractedTxt: Label 'Tenant ID has been extracted from token.', Locked = true;
+        CannotExtractTenantIdTxt: Label 'Cannot extract tenant ID from token.', Locked = true;
         CannotExtractTenantIdErr: Label 'Cannot extract tenant ID from the access token.';
 
     [TryFunction]
@@ -539,12 +539,12 @@ codeunit 1641 "Setup Email Logging"
         if AccessToken <> '' then begin
             if TryExtractTenantIdFromAccessToken(TenantId, AccessToken) then begin
                 if TenantId <> '' then begin
-                    Session.LogMessage('0000D9P', StrSubstNo(TenantIdExtractedTxt, TenantId), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+                    Session.LogMessage('0000D9P', TenantIdExtractedTxt, Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                     exit;
                 end;
-                Session.LogMessage('0000CR1', StrSubstNo(CannotExtractTenantIdTxt, AccessToken), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+                Session.LogMessage('0000CR1', CannotExtractTenantIdTxt, Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             end else
-                Session.LogMessage('0000CR2', StrSubstNo(CannotExtractTenantIdTxt, AccessToken), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
+                Session.LogMessage('0000CR2', CannotExtractTenantIdTxt, Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
         end else
             Session.LogMessage('0000CR3', EmptyAccessTokenTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 

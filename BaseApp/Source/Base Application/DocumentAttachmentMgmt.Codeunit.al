@@ -8,24 +8,55 @@ codeunit 1173 "Document Attachment Mgmt"
     end;
 
     var
+        ConfirmManagement: Codeunit "Confirm Management";
         PrintedToAttachmentTxt: Label 'The document has been printed to attachments.';
         NoSaveToPDFReportTxt: Label 'There are no reports which could be saved to PDF for this document.';
         ShowAttachmentsTxt: Label 'Show Attachments';
+        DeleteAttachmentsConfirmQst: Label 'Do you want to delete the attachments for this document?';
 
     local procedure DeleteAttachedDocuments(RecRef: RecordRef)
     var
         DocumentAttachment: Record "Document Attachment";
+    begin
+        if RecRef.IsTemporary() then
+            exit;
+        if DocumentAttachment.IsEmpty() then
+            exit;
+
+        SetDocumentAttachmentFiltersForRecRef(DocumentAttachment, RecRef);
+        if AttachedDocumentsExist(RecRef) then
+            DocumentAttachment.DeleteAll();
+    end;
+
+    local procedure DeleteAttachedDocumentsWithConfirm(RecRef: RecordRef)
+    begin
+        if AttachedDocumentsExist(RecRef) then
+            if ConfirmManagement.GetResponseOrDefault(DeleteAttachmentsConfirmQst, true) then
+                DeleteAttachedDocuments(RecRef);
+    end;
+
+    local procedure AttachedDocumentsExist(RecRef: RecordRef): Boolean
+    var
+        DocumentAttachment: Record "Document Attachment";
+    begin
+        if RecRef.IsTemporary() then
+            exit(false);
+        if DocumentAttachment.IsEmpty() then
+            exit(false);
+
+        SetDocumentAttachmentFiltersForRecRef(DocumentAttachment, RecRef);
+        exit(not DocumentAttachment.IsEmpty())
+    end;
+
+    local procedure SetDocumentAttachmentFiltersForRecRef(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef)
+    var
         FieldRef: FieldRef;
         RecNo: Code[20];
         DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         LineNo: Integer;
     begin
-        if RecRef.IsTemporary then
-            exit;
-        if DocumentAttachment.IsEmpty() then
-            exit;
         DocumentAttachment.SetRange("Table ID", RecRef.Number);
-        case RecRef.Number of
+        case RecRef.Number() of
             DATABASE::Customer,
             DATABASE::Vendor,
             DATABASE::Item,
@@ -78,7 +109,6 @@ codeunit 1173 "Document Attachment Mgmt"
                     DocumentAttachment.SetRange("No.", RecNo);
                 end;
         end;
-        DocumentAttachment.DeleteAll();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterDeleteEvent', '', false, false)]
@@ -393,7 +423,7 @@ codeunit 1173 "Document Attachment Mgmt"
 
         RecRef.GetTable(Rec);
         if (Rec."Sell-to Customer No." <> xRec."Sell-to Customer No.") and (xRec."Sell-to Customer No." <> '') then
-            DeleteAttachedDocuments(RecRef);
+            DeleteAttachedDocumentsWithConfirm(RecRef);
 
         DocAttachFlowForSalesHeaderInsert(Rec, true);
     end;
@@ -590,7 +620,7 @@ codeunit 1173 "Document Attachment Mgmt"
 
         RecRef.GetTable(Rec);
         if (Rec."Buy-from Vendor No." <> xRec."Buy-from Vendor No.") and (xRec."Buy-from Vendor No." <> '') then
-            DeleteAttachedDocuments(RecRef);
+            DeleteAttachedDocumentsWithConfirm(RecRef);
 
         DocAttachFlowForPurchaseHeaderInsert(Rec, true);
     end;

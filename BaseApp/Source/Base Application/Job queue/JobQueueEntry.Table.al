@@ -5,7 +5,7 @@ table 472 "Job Queue Entry"
     DrillDownPageID = "Job Queue Entries";
     LookupPageID = "Job Queue Entries";
     Permissions = TableData "Job Queue Entry" = rimd,
-                  TableData "Job Queue Log Entry" = rim;
+                  TableData "Job Queue Log Entry" = rimd;
     ReplicateData = false;
 
     fields
@@ -200,8 +200,8 @@ table 472 "Job Queue Entry"
 
             trigger OnValidate()
             begin
-                SetRecurringField();
                 Clear("Next Run Date Formula");
+                SetRecurringField();
                 SetMinimumNumberOfMinutesBetweenRuns();
             end;
         }

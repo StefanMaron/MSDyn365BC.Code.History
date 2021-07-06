@@ -956,34 +956,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    procedure CreateUserUT()
-    var
-        User: Record User;
-        AccessControl: Record "Access Control";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 375285] Run CreateUser() of codeunit Library - Document Approvals.
-
-        // [WHEN] Run CreateUser() function of codeunit Library - Document Approvals.
-        LibraryDocumentApprovals.CreateUser(LibraryUtility.GenerateGUID(), UserId());
-
-        // [THEN] A windows user is created. The user has SUPER permission set assigned.
-        User.SetRange("User Name", UserId());
-        User.FindFirst();
-        User.TestField("User Security ID");
-        User.TestField("Windows Security ID", SID(UserId()));
-
-        AccessControl.SetRange("User Security ID", User."User Security ID");
-        AccessControl.FindFirst();
-        AccessControl.TestField("Role ID", 'SUPER');
-        AccessControl.TestField("Company Name", '');
-        AccessControl.TestField(Scope, AccessControl.Scope::System);
-
-        // Tear down
-        User.Delete();
-    end;
-
-    [Test]
     procedure CreateNonWindowsUserUT()
     var
         User: Record User;

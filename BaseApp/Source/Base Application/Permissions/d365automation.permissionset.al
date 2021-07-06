@@ -673,6 +673,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Integration Synch. Job Errors" = RIMD,
                   tabledata "Integration Table Mapping" = RIMD,
                   tabledata "Inter. Log Entry Comment Line" = RIMD,
+                  tabledata "Interaction Merge Data" = R,
                   tabledata "Interaction Group" = RIMD,
                   tabledata "Interaction Log Entry" = RIMD,
                   tabledata "Interaction Template" = RIMD,

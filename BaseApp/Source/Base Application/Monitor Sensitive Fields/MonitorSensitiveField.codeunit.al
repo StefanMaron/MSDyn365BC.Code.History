@@ -596,7 +596,7 @@ codeunit 1392 "Monitor Sensitive Field"
             AuditCategory::PolicyManagement);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Generate Activity Telemetry", 'OnActivityTelemetry', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Management", 'OnSendDailyTelemetry', '', true, true)]
     local procedure SendTelemetryOnActivityTelemetry()
     var
         ChangeLogSetupField: Record "Change Log Setup (Field)";

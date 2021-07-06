@@ -1022,8 +1022,10 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader.TestField(Status, PriceListHeader.Status::Draft);
         // [GIVEN] Two lines, where Item is the same, but "Source Type" is 'Customer', "Source No." is <blank> in the 2nd line
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[2], PriceListHeader.Code, "Price Source Type"::Customer, '',
+            PriceListLine[2], PriceListHeader.Code, "Price Source Type"::Customer, LibrarySales.CreateCustomerNo(),
             PriceListLine[1]."Asset Type", PriceListLine[1]."Asset No.");
+        PriceListLine[2].Validate("Source No.", '');
+        PriceListLine[2].Modify();
 
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
@@ -1038,6 +1040,8 @@ codeunit 134118 "Price List Header UT"
         Item: Record Item;
         PriceListHeader: Record "Price List Header";
         PriceListLine: array[2] of Record "Price List Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
     begin
         // [SCENARIO] Update of Status in the header with lines updates lines missing Applies-to Parent No.
         Initialize();
@@ -1046,10 +1050,14 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader."Allow Updating Defaults" := true;
         PriceListHeader.Modify();
         PriceListHeader.TestField(Status, PriceListHeader.Status::Draft);
-        // [GIVEN] Two lines, where Item is the same, but "Source Type" is 'Job Task', "Source No." is <blank> in the 2nd line
-        LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[2], PriceListHeader.Code, "Price Source Type"::"Job Task", '',
-            PriceListLine[1]."Asset Type", PriceListLine[1]."Asset No.");
+        // [GIVEN] Two lines, where Item is the same, but "Source Type" is 'Job Task', "Parent Source No." is <blank> in the 2nd line
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader.Code, "Price Type"::Sale, "Price Source Type"::"Job Task", Job."No.", JobTask."Job Task No.",
+            "Price Amount Type"::Price, PriceListLine[1]."Asset Type", PriceListLine[1]."Asset No.");
+        PriceListLine[2].Validate("Parent Source No.", '');
+        PriceListLine[2].Modify();
 
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
@@ -1059,6 +1067,7 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
     procedure T068_UpdateStatusOnHeaderAsDefaultWithBlankProductNo()
     var
         Item: Record Item;
@@ -1081,10 +1090,13 @@ codeunit 134118 "Price List Header UT"
         PriceListLine[2].Modify();
 
         // [WHEN] Set "Status" as 'Active'
-        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+        PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error message: "Product No. must have a value"
-        Assert.ExpectedError(ProductNoMustBeFilledErr);
+        // [THEN] Both lines are active
+        PriceListLine[1].Find();
+        PriceListLine[1].Testfield(Status, "Price Status"::Active);
+        PriceListLine[2].Find();
+        PriceListLine[2].Testfield(Status, "Price Status"::Active);
     end;
 
     [Test]
@@ -1707,12 +1719,12 @@ codeunit 134118 "Price List Header UT"
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, "Price Type"::Sale, SourceType, ParentSourceNo, DeletedSourceNo);
         LibraryPriceCalculation.CreatePriceListLine(
-            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Resource, '');
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Resource, LibraryResource.CreateResourceNo());
 
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, "Price Type"::Sale, SourceType, ParentSourceNo, SourceNo);
         LibraryPriceCalculation.CreatePriceListLine(
-            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Resource, '');
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Resource, LibraryResource.CreateResourceNo());
     end;
 
     local procedure CreatePriceListFor(SourceType: Enum "Price Source Type"; DeletedSourceNo: Code[20]; SourceNo: Code[20]; AmountType: Enum "Price Amount Type")
@@ -1726,12 +1738,12 @@ codeunit 134118 "Price List Header UT"
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, "Price Type"::Sale, SourceType, DeletedSourceNo);
         LibraryPriceCalculation.CreatePriceListLine(
-            PriceListLine, PriceListHeader, AmountType, "Price Asset Type"::Item, '');
+            PriceListLine, PriceListHeader, AmountType, "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
 
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, "Price Type"::Sale, SourceType, SourceNo);
         LibraryPriceCalculation.CreatePriceListLine(
-            PriceListLine, PriceListHeader, AmountType, "Price Asset Type"::Item, '');
+            PriceListLine, PriceListHeader, AmountType, "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
     end;
 
     local procedure FillPriceListHeader(var PriceListHeader: Record "Price List Header")

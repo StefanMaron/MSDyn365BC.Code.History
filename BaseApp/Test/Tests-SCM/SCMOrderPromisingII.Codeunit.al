@@ -1250,6 +1250,50 @@ codeunit 137157 "SCM Order Promising II"
         OrderPromisingLine.TestField("Earliest Shipment Date", 0D);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    procedure ShipmentDateOnReservEntriesNotUpdatedBeforeAccept()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        OrderPromisingLine: Record "Order Promising Line";
+        ReservationEntry: Record "Reservation Entry";
+        AvailabilityManagement: Codeunit AvailabilityManagement;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Reservation]
+        // [SCENARIO 395270] Shipment Date on reservation entries is not updated when Available to Promise is calculated but not accepted yet.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Post inventory for 1 pc.
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournalLine(Item."No.", '', Qty);
+
+        // [GIVEN] Sales order for 2 pcs, shipment date = WORKDATE.
+        // [GIVEN] Reserve 1 pc from the inventory.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 2 * Qty, '', WorkDate());
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [GIVEN] Purchase order for 1 pc, receipt date = WORKDATE + 1 week.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', LibraryRandom.RandDate(30));
+
+        // [WHEN] Calculate Available to Promise for the sales line.
+        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
+
+        // [THEN] Shipment date on reservation entries for the sales line remains WORKDATE.
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", true);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Shipment Date", WorkDate());
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1893,6 +1937,12 @@ codeunit 137157 "SCM Order Promising II"
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

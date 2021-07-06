@@ -3,16 +3,6 @@
   <file datatype="xml" source-language="en-US" target-language="es-MX" original="_Exclude_APIV1_">
     <body>
       <group id="body">
-        <trans-unit id="Codeunit 2349943443 - Method 623035405" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SendCreditMemo</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Send Sales Document - Method SendCreditMemo</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2349943443 - Method 245949867" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SendQuote</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Send Sales Document - Method SendQuote</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2349943443 - NamedType 3903114897" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Thank you for your business. Your %1 has been cancelled.</source>
           <target state="translated">Gracias por confiar en nosotros. Se ha cancelado %1.</target>
@@ -48,16 +38,6 @@
           <target state="translated">Especifica la descripción del producto.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Attachments - Control fileName - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 4012389571 - Method 2956438658" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Import</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Config. Packages - Method Import</note>
-        </trans-unit>
-        <trans-unit id="Page 4012389571 - Method 2377652117" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Apply</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Config. Packages - Method Apply</note>
         </trans-unit>
         <trans-unit id="Page 4012389571 - NamedType 767948417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot apply a package while import or apply is in progress.</source>
@@ -130,16 +110,6 @@
           <target state="translated">Especifica el estado de la implementación.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extension Depl. - Control status - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2435319090 - Method 1183212613" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>install</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extensions - Method install</note>
-        </trans-unit>
-        <trans-unit id="Page 2435319090 - Method 1065785315" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>uninstall</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. Extensions - Method uninstall</note>
         </trans-unit>
         <trans-unit id="Page 2435319090 - NamedType 2453902129" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 is already installed.</source>
@@ -368,11 +338,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - JournalLines - Control journalDisplayName - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 43150540 - Method 2826319982" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>post</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Journals - Method post</note>
-        </trans-unit>
         <trans-unit id="Page 43150540 - NamedType 3903509543" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The General Journal Batch with ID %1 cannot be found.</source>
           <target state="translated">No se puede encontrar el lote de diario general con id. %1.</target>
@@ -577,11 +542,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - Control unitOfMeasure - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 1789293813 - Method 2826319982" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Post</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoices - Method Post</note>
-        </trans-unit>
         <trans-unit id="Page 1789293813 - Control 3547028482 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the buy-from address of the Purchase Invoice.</source>
           <target state="translated">Especifica la dirección de compra de la factura de compra.</target>
@@ -773,31 +733,6 @@
           <target state="translated">Especifica el precio de venta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control unitPrice - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 1278005506 - Method 2826319982" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Post</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Method Post</note>
-        </trans-unit>
-        <trans-unit id="Page 1278005506 - Method 1745666226" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>PostAndSend</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Method PostAndSend</note>
-        </trans-unit>
-        <trans-unit id="Page 1278005506 - Method 3536390876" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Send</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Method Send</note>
-        </trans-unit>
-        <trans-unit id="Page 1278005506 - Method 2965653801" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Method Cancel</note>
-        </trans-unit>
-        <trans-unit id="Page 1278005506 - Method 1602697992" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CancelAndSend</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Method CancelAndSend</note>
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Credit Memo.</source>
@@ -1002,36 +937,6 @@
           <target state="translated">Especifica el precio de venta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Control unitPrice - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3424186788 - Method 2826319982" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Post</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Method Post</note>
-        </trans-unit>
-        <trans-unit id="Page 3424186788 - Method 1745666226" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>PostAndSend</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Method PostAndSend</note>
-        </trans-unit>
-        <trans-unit id="Page 3424186788 - Method 3536390876" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Send</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Method Send</note>
-        </trans-unit>
-        <trans-unit id="Page 3424186788 - Method 2965653801" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Method Cancel</note>
-        </trans-unit>
-        <trans-unit id="Page 3424186788 - Method 1602697992" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CancelAndSend</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Method CancelAndSend</note>
-        </trans-unit>
-        <trans-unit id="Page 3424186788 - Method 119245231" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>MakeCorrectiveCreditMemo</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Method MakeCorrectiveCreditMemo</note>
         </trans-unit>
         <trans-unit id="Page 3424186788 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Invoice.</source>
@@ -1261,11 +1166,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - Control unitPrice - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 2686554897 - Method 845171118" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ShipAndInvoice</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Method ShipAndInvoice</note>
-        </trans-unit>
         <trans-unit id="Page 2686554897 - NamedType 3550849197" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You do not have permissions to read Sales Orders.</source>
           <target state="translated">No tiene permisos para leer pedidos de venta.</target>
@@ -1469,21 +1369,6 @@
           <target state="translated">Especifica el precio de venta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - Control unitPrice - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 1019532645 - Method 1060152626" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>MakeInvoice</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Method MakeInvoice</note>
-        </trans-unit>
-        <trans-unit id="Page 1019532645 - Method 3860688859" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>MakeOrder</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Method MakeOrder</note>
-        </trans-unit>
-        <trans-unit id="Page 1019532645 - Method 3536390876" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Send</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quotes - Method Send</note>
         </trans-unit>
         <trans-unit id="Page 1019532645 - NamedType 2625991481" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You do not have permissions to read Sales Quotes.</source>

@@ -155,12 +155,8 @@ codeunit 5333 "CRM Integration Telemetry"
     end;
 
     local procedure ScheduleIntegrationTelemetryAfterIntegrationEnabled()
-    var
-        CodeUnitMetadata: Record "CodeUnit Metadata";
-        TelemetryManagement: Codeunit "Telemetry Management";
     begin
-        if CodeUnitMetadata.Get(CODEUNIT::"CRM Integration Telemetry") then
-            TelemetryManagement.ScheduleCalEventsForTelemetryAsync(CodeUnitMetadata.RecordId, CODEUNIT::"Create Telemetry Cal. Events", 10);
+        TaskScheduler.CreateTask(Codeunit::"CRM Integration Telemetry", 0, true, CompanyName(), CreateDateTime(Today() + 1, 0T));
     end;
 
     [Scope('OnPrem')]

@@ -41,22 +41,16 @@ codeunit 5052 AttachmentManagement
         TempDeliverySorterWord: Record "Delivery Sorter" temporary;
         TempDeliverySorterOther: Record "Delivery Sorter" temporary;
         InteractLogEntry: Record "Interaction Log Entry";
-        WordManagement: Codeunit WordManagement;
+        WordTemplateInteractions: Codeunit "Word Template Interactions";
         IsHandled: Boolean;
     begin
         OnBeforeSend(DeliverySorter, IsHandled);
         if IsHandled then
             exit;
-
-#if not CLEAN17
         ProcessDeliverySorter(DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterWord, TempDeliverySorterOther);
 
-        // Procedure merge only works on the windows client which has been retired.
         if TempDeliverySorterWord.FindFirst then
-            WordManagement.Merge(TempDeliverySorterWord);
-#else
-        ProcessDeliverySorter(DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterOther);
-#endif
+            WordTemplateInteractions.Merge(TempDeliverySorterWord);
 
         if TempDeliverySorterHtml.FindFirst then
             DeliverHTMLEmail(TempDeliverySorterHtml, InteractLogEntry);
@@ -76,18 +70,13 @@ codeunit 5052 AttachmentManagement
         TempDeliverySorterWord: Record "Delivery Sorter" temporary;
         TempDeliverySorterOther: Record "Delivery Sorter" temporary;
         InteractLogEntry: Record "Interaction Log Entry";
-        WordManagement: Codeunit WordManagement;
+        WordTemplateInteractions: Codeunit "Word Template Interactions";
         ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
     begin
-#if not CLEAN17
         ProcessDeliverySorter(DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterWord, TempDeliverySorterOther);
 
-        // Procedure merge only works on the windows client which has been retired.
         if TempDeliverySorterWord.FindFirst then
-            WordManagement.Merge(TempDeliverySorterWord);
-#else
-        ProcessDeliverySorter(DeliverySorter, TempDeliverySorterHtml, TempDeliverySorterOther);
-#endif
+            WordTemplateInteractions.Merge(TempDeliverySorterWord);
 
         InitializeExchange(ExchangeWebServicesServer);
         if TempDeliverySorterHtml.FindFirst then
@@ -460,21 +449,31 @@ codeunit 5052 AttachmentManagement
 
     local procedure SendHTMLEmail(var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry"; EmailBodyFilePath: Text)
     var
+        Contact: Record Contact;
         EmailFeature: Codeunit "Email Feature";
         DocumentMailing: Codeunit "Document-Mailing";
         TempBlob: Codeunit "Temp Blob";
-        SourceReference: RecordRef;
         AttachmentStream: Instream;
         IsSent: Boolean;
+        SourceTableIDs, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
     begin
         TempBlob.CreateInStream(AttachmentStream);
-        SourceReference.GetTable(InteractLogEntry);
-        SourceReference.GetBySystemId(InteractLogEntry.SystemId);
+
+        SourceTableIDs.Add(Database::"Interaction Log Entry");
+        SourceIDs.Add(InteractLogEntry.SystemId);
+        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+        if Contact.Get(InteractLogEntry."Contact No.") then begin
+            SourceTableIDs.Add(Database::Contact);
+            SourceIDs.Add(Contact.SystemId);
+            SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+        end;
 
         if EmailFeature.IsEnabled() then
             IsSent := DocumentMailing.EmailFile(
                 AttachmentStream, '', EmailBodyFilePath,
-                TempDeliverySorterHtml.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceReference)
+                TempDeliverySorterHtml.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceTableIDs, SourceIDs, SourceRelationTypes)
         else
             IsSent := DocumentMailing.EmailFileWithSubject(
            '', '', EmailBodyFilePath,
@@ -497,25 +496,35 @@ codeunit 5052 AttachmentManagement
 
     local procedure SendEmailWithAttachment(TempDeliverySorterOther: Record "Delivery Sorter" temporary; InteractLogEntry: Record "Interaction Log Entry"; AttachmentFileFullName: Text; EmailBodyFilePath: Text)
     var
+        Contact: Record Contact;
         EmailFeature: Codeunit "Email Feature";
         DocumentMailing: Codeunit "Document-Mailing";
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
-        SourceReference: RecordRef;
         AttachmentStream: Instream;
         IsSent: Boolean;
+        SourceTableIDs, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
     begin
         if AttachmentFileFullName <> '' then begin
             FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFileFullName);
             TempBlob.CreateInStream(AttachmentStream);
         end;
-        SourceReference.GetTable(InteractLogEntry);
-        SourceReference.GetBySystemId(InteractLogEntry.SystemId);
+
+        SourceTableIDs.Add(Database::"Interaction Log Entry");
+        SourceIDs.Add(InteractLogEntry.SystemId);
+        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+        if Contact.Get(InteractLogEntry."Contact No.") then begin
+            SourceTableIDs.Add(Database::Contact);
+            SourceIDs.Add(Contact.SystemId);
+            SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+        end;
 
         if EmailFeature.IsEnabled() then
             IsSent := DocumentMailing.EmailFile(
                 AttachmentStream, GetAttachmentFileDefaultName(TempDeliverySorterOther."Attachment No."),
-                EmailBodyFilePath, TempDeliverySorterOther.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceReference)
+                EmailBodyFilePath, TempDeliverySorterOther.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceTableIDs, SourceIDs, SourceRelationTypes)
         else
             IsSent := DocumentMailing.EmailFileWithSubject(
                 AttachmentFileFullName, GetAttachmentFileDefaultName(TempDeliverySorterOther."Attachment No."),
@@ -562,16 +571,10 @@ codeunit 5052 AttachmentManagement
         Commit();
     end;
 
-#if not CLEAN17
     local procedure ProcessDeliverySorter(var DeliverySorter: Record "Delivery Sorter"; var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var TempDeliverySorterWord: Record "Delivery Sorter" temporary; var TempDeliverySorterOther: Record "Delivery Sorter" temporary)
-#else
-    local procedure ProcessDeliverySorter(var DeliverySorter: Record "Delivery Sorter"; var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var TempDeliverySorterOther: Record "Delivery Sorter" temporary)
-#endif
     var
         Attachment: Record Attachment;
-        WordManagement: Codeunit WordManagement;
-        ClientTypeManagement: Codeunit "Client Type Management";
-        WordApplicationHandler: Codeunit WordApplicationHandler;
+        WordTemplateInteractions: Codeunit "Word Template Interactions";
         Window: Dialog;
         NoOfAttachments: Integer;
         I: Integer;
@@ -588,36 +591,26 @@ codeunit 5052 AttachmentManagement
             NoOfAttachments := DeliverySorter.Count();
             repeat
                 DeliverySorter.TestField("Correspondence Type");
-                if not Attachment.Get(DeliverySorter."Attachment No.") then
+                if not (Attachment.Get(DeliverySorter."Attachment No.")) and (DeliverySorter."Word Template Code" = '') then
                     Error(Text008);
-                if WordManagement.IsWordDocumentExtension(Attachment."File Extension") then
-                    WordManagement.Activate(WordApplicationHandler, 5052);
                 case true of
+                    not (DeliverySorter."Word Template Code" = ''):
+                        begin
+                            TempDeliverySorterWord := DeliverySorter;
+                            TempDeliverySorterWord.Insert();
+                        end;
                     Attachment."File Extension" = 'HTML':
                         begin
                             TempDeliverySorterHtml := DeliverySorter;
                             OnProcessDeliverySorterHtml(DeliverySorter, TempDeliverySorterHtml, Attachment, I);
                             TempDeliverySorterHtml.Insert();
                         end;
-                    WordManagement.IsWordDocumentExtension(Attachment."File Extension") and not
-                  (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop]):
-#if not CLEAN17
-                        if WordManagement.CanRunWordApp then begin
+                    WordTemplateInteractions.IsWordDocumentExtension(Attachment."File Extension"):
+                        begin
                             TempDeliverySorterWord := DeliverySorter;
                             OnProcessDeliverySorterWord(DeliverySorter, TempDeliverySorterWord, Attachment, I);
                             TempDeliverySorterWord.Insert();
-                        end else begin
-                            TempDeliverySorterOther := DeliverySorter;
-                            OnProcessDeliverySorterOther(DeliverySorter, TempDeliverySorterOther, Attachment, I);
-                            TempDeliverySorterOther.Insert();
                         end;
-#else
-                        begin
-                            TempDeliverySorterOther := DeliverySorter;
-                            OnProcessDeliverySorterOther(DeliverySorter, TempDeliverySorterOther, Attachment, I);
-                            TempDeliverySorterOther.Insert();
-                        end;
-#endif
                     else begin
                             TempDeliverySorterOther := DeliverySorter;
                             OnProcessDeliverySorterOther(DeliverySorter, TempDeliverySorterOther, Attachment, I);

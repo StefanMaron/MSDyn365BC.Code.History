@@ -1,11 +1,15 @@
 permissionset 5947 "D365 ITEM, EDIT"
 {
     Assignable = true;
-
     Caption = 'Dynamics 365 Create items';
-    Permissions = tabledata "Avg. Cost Adjmt. Entry Point" = rimd,
+
+    Permissions = tabledata "Accounting Period" = R,
+                  tabledata "Avg. Cost Adjmt. Entry Point" = rimd,
+                  tabledata "Assembly Header" = R,
+                  tabledata "Assembly Line" = R,
                   tabledata "Bin Content" = Rd,
                   tabledata Currency = RM,
+                  tabledata "Default Dimension" = RIMD,
                   tabledata "Dtld. Price Calculation Setup" = RIMD,
                   tabledata "Duplicate Price Line" = RIMD,
                   tabledata Item = RIMD,
@@ -13,6 +17,7 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Item Analysis View Budg. Entry" = RIMD,
                   tabledata "Item Analysis View Entry" = RIMD,
                   tabledata "Item Analysis View Filter" = RIMD,
+                  tabledata "Item Attribute Value Mapping" = RIMD,
                   tabledata "Item Budget Entry" = RIMD,
                   tabledata "Item Budget Name" = RIMD,
                   tabledata "Item Category" = R,
@@ -20,10 +25,14 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Item Charge Assignment (Sales)" = r,
                   tabledata "Item Cross Reference" = RIMD,
                   tabledata "Item Discount Group" = RIMD,
+                  tabledata "Item Identifier" = RIMD,
                   tabledata "Item Journal Line" = RIMD,
                   tabledata "Item Reference" = RIMD,
                   tabledata "Item Translation" = RIMD,
                   tabledata "Item Vendor" = RIMD,
+                  tabledata "Inventory Adjmt. Entry (Order)" = Rimd,
+                  tabledata "Job Planning Line" = R,
+                  tabledata "My Item" = RIMD,
                   tabledata "Nonstock Item" = RIMD,
                   tabledata "Price Asset" = RIMD,
                   tabledata "Price Calculation Buffer" = RIMD,
@@ -33,6 +42,7 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
+                  tabledata "Production BOM Line" = R,
                   tabledata "Purch. Cr. Memo Line" = r,
                   tabledata "Purch. Inv. Line" = r,
                   tabledata "Purch. Rcpt. Line" = r,
@@ -42,6 +52,7 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Purchase Price Access" = RIMD,
                   tabledata "Return Receipt Line" = r,
                   tabledata "Return Shipment Line" = r,
+                  tabledata "Resource Skill" = RIMD,
                   tabledata "Sales Cr.Memo Line" = r,
                   tabledata "Sales Discount Access" = RimD,
                   tabledata "Sales Invoice Line" = r,
@@ -49,6 +60,10 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Sales Price" = RIMD,
                   tabledata "Sales Price Access" = RIMD,
                   tabledata "Sales Shipment Line" = r,
+                  tabledata "Service Contract Line" = R,
+                  tabledata "Service Item" = RM,
+                  tabledata "Service Item Component" = RM,
+                  tabledata "Service Ledger Entry" = Rm,
                   tabledata "Social Listening Search Topic" = RIMD,
                   tabledata "Special Equipment" = R,
                   tabledata "Standard Item Journal" = RIMD,
@@ -57,10 +72,12 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "Stockkeeping Unit" = RIMD,
                   tabledata "Stockkeeping Unit Comment Line" = RIMD,
                   tabledata "Substitution Condition" = RIMD,
+                  tabledata "Troubleshooting Setup" = RIMD,
                   tabledata "Tariff Number" = R,
                   tabledata "Tracking Specification" = Rimd,
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
-                  tabledata "Vendor Bank Account" = R;
+                  tabledata "Vendor Bank Account" = R,
+                  tabledata "Warranty Ledger Entry" = RM;
 }

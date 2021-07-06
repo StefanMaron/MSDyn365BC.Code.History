@@ -1028,6 +1028,16 @@ table 181 "Posted Gen. Journal Line"
         }
     }
 
+    fieldgroups
+    {
+        fieldgroup(DropDown; "Journal Template Name", "Journal Batch Name", "Line No.")
+        {
+        }
+        fieldgroup(Brick; "Journal Template Name", "Journal Batch Name", "Line No.")
+        {
+        }
+    }
+
     procedure InsertFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line"; GLRegNo: Integer; FirstLine: Boolean)
     var
         IsHandled: Boolean;

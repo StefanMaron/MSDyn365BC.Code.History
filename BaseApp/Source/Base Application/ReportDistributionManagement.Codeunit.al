@@ -168,6 +168,8 @@ codeunit 452 "Report Distribution Management"
         end;
 
         TranslationHelper.RestoreGlobalLanguage();
+
+        OnAfterGetFullDocumentTypeText(DocumentVariant, DocumentTypeText);
     end;
 
     procedure GetDocumentLanguageCode(DocumentVariant: Variant): Code[10]
@@ -313,7 +315,7 @@ codeunit 452 "Report Distribution Management"
           ClientFileName);
     end;
 
-    local procedure SendAttachment(PostedDocumentNo: Code[20]; SendEmailAddress: Text[250]; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; DocumentVariant: Variant; SendTo: Option; ServerEmailBodyFilePath: Text[250]; ReportUsage: Enum "Report Selection Usage")
+    local procedure SendAttachment(PostedDocumentNo: Code[20]; SendEmailAddress: Text[250]; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; DocumentVariant: Variant; SendTo: Option; ServerEmailBodyFilePath: Text[250]; ReportUsage: Enum "Report Selection Usage"; var ReceiverRecord: RecordRef)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DocumentMailing: Codeunit "Document-Mailing";
@@ -322,6 +324,8 @@ codeunit 452 "Report Distribution Management"
         SourceReference: RecordRef;
         DocumentType: Text[50];
         AttachmentStream: Instream;
+        SourceTableIDs, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
     begin
         DocumentType := GetFullDocumentTypeText(DocumentVariant);
 
@@ -336,9 +340,17 @@ codeunit 452 "Report Distribution Management"
         end;
         SourceReference.GetTable(DocumentVariant);
 
+        SourceTableIDs.Add(SourceReference.Number());
+        SourceIDs.Add(SourceReference.Field(SourceReference.SystemIdNo()).Value());
+        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+        SourceTableIDs.Add(ReceiverRecord.Number());
+        SourceIDs.Add(SourceReference.Field(ReceiverRecord.SystemIdNo()).Value());
+        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+
         DocumentMailing.EmailFile(
           AttachmentStream, AttachmentFileName, ServerEmailBodyFilePath, PostedDocumentNo,
-          SendEmailAddress, DocumentType, HideDialog, ReportUsage.AsInteger(), SourceReference);
+          SendEmailAddress, DocumentType, HideDialog, ReportUsage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
     end;
 
     [Scope('OnPrem')]
@@ -349,6 +361,7 @@ codeunit 452 "Report Distribution Management"
         DocumentSendingProfile: Record "Document Sending Profile";
         ReportSelections: Record "Report Selections";
         DocumentMailing: Codeunit "Document-Mailing";
+        ReceiverRecord: RecordRef;
         XMLPath: Text[250];
         ClientFileName: Text[250];
         ReportUsage: Enum "Report Selection Usage";
@@ -364,6 +377,8 @@ codeunit 452 "Report Distribution Management"
 
         ElectronicDocumentFormat.SendElectronically(XMLPath, ClientFileName, DocumentVariant, DocumentFormat);
         Commit();
+        ReceiverRecord.Open(Database::Customer);
+        ReceiverRecord.GetBySystemId(Customer.SystemId);
         SendAttachment(
           ElectronicDocumentFormat.GetDocumentNo(DocumentVariant),
           SendToEmailAddress,
@@ -371,7 +386,7 @@ codeunit 452 "Report Distribution Management"
           ClientFileName,
           DocumentVariant,
           DocumentSendingProfile."Send To"::"Electronic Document",
-          ServerEmailBodyFilePath, ReportUsage);
+          ServerEmailBodyFilePath, ReportUsage, ReceiverRecord);
     end;
 
     [Scope('OnPrem')]
@@ -382,6 +397,7 @@ codeunit 452 "Report Distribution Management"
         DocumentSendingProfile: Record "Document Sending Profile";
         ReportSelections: Record "Report Selections";
         DocumentMailing: Codeunit "Document-Mailing";
+        ReceiverRecord: RecordRef;
         XMLPath: Text[250];
         ClientFileName: Text[250];
         ReportUsage: Enum "Report Selection Usage";
@@ -398,6 +414,8 @@ codeunit 452 "Report Distribution Management"
 
         ElectronicDocumentFormat.SendElectronically(XMLPath, ClientFileName, DocumentVariant, DocumentFormat);
         Commit();
+        ReceiverRecord.Open(Database::Vendor);
+        ReceiverRecord.GetBySystemId(Vendor.SystemId);
         SendAttachment(
           ElectronicDocumentFormat.GetDocumentNo(DocumentVariant),
           SendToEmailAddress,
@@ -405,7 +423,7 @@ codeunit 452 "Report Distribution Management"
           ClientFileName,
           DocumentVariant,
           DocumentSendingProfile."Send To"::"Electronic Document",
-          ServerEmailBodyFilePath, ReportUsage);
+          ServerEmailBodyFilePath, ReportUsage, ReceiverRecord);
     end;
 
     [Scope('OnPrem')]
@@ -486,6 +504,11 @@ codeunit 452 "Report Distribution Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetBillToCustomer(var Customer: Record Customer; DocumentVariant: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetFullDocumentTypeText(DocumentVariant: Variant; var DocumentTypeText: Text[50])
     begin
     end;
 }

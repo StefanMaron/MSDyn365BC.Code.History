@@ -215,8 +215,8 @@ xmlport 9174 "Import Tenant Permission Sets"
                 end;
             until TempAggregatePermissionSet.Next() = 0;
 
-        if EnvironmentInformation.IsSaaS() and SystemPermissionsExist and ServerSettings.GetUsePermissionSetsFromExtensions() then
-            Message(SystemPermissionSetSaaSErr);
+        if SystemPermissionsExist and ServerSettings.GetUsePermissionSetsFromExtensions() then
+            Message(SystemPermissionSetMsg);
     end;
 
     local procedure ProcessSystemPermissionSet(AggregatePermissionSet: Record "Aggregate Permission Set")
@@ -318,7 +318,7 @@ xmlport 9174 "Import Tenant Permission Sets"
     end;
 
     var
-        SystemPermissionSetSaaSErr: Label 'You cannot modify system permission sets.';
+        SystemPermissionSetMsg: Label 'You cannot modify system permission sets.';
         PermissionSetAlreadyExistsErr: Label 'Permission set %1 already exists.', Comment = '%1 = Role ID';
         UpdatePermissions: Boolean;
         SystemPermissionsExist: Boolean;

@@ -280,25 +280,69 @@ page 9237 "Resource Capacity Matrix"
             {
                 Caption = '&Prices';
                 Image = Price;
+#if not CLEAN19
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Costs';
                     Image = ResourceCosts;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Resource Costs";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
                     ToolTip = 'View or change detailed information about costs for the resource.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '19.0';
                 }
                 action(Prices)
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Prices';
                     Image = Price;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Resource Prices";
                     RunPageLink = Type = CONST(Resource),
                                   Code = FIELD("No.");
                     ToolTip = 'View or edit prices for the resource.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '19.0';
+                }
+#endif
+                action(PurchPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Purchase Prices';
+                    Image = ResourceCosts;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or change detailed information about costs for the resource group.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Any);
+                    end;
+                }
+                action(SalesPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Sales Prices';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category4;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or edit prices for the resource group.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Sale, AmountType::Any);
+                    end;
                 }
             }
             group("Plan&ning")
@@ -339,12 +383,20 @@ page 9237 "Resource Capacity Matrix"
         end;
     end;
 
+    trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
+
     var
         MatrixRecords: array[32] of Record Date;
         QtyType: Option "Net Change","Balance at Date";
         MATRIX_NoOfMatrixColumns: Integer;
         MATRIX_CellData: array[32] of Decimal;
         MATRIX_ColumnCaption: array[32] of Text[1024];
+        ExtendedPriceEnabled: Boolean;
 
     local procedure SetDateFilter(ColumnID: Integer)
     begin

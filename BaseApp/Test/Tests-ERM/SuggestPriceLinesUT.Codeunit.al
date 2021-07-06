@@ -111,6 +111,35 @@ codeunit 134168 "Suggest Price Lines UT"
     end;
 
     [Test]
+    [HandlerFunctions('SuggestPriceLineModalHandler')]
+    procedure T005_CopyPricesFromAllPriceLists()
+    var
+        PriceLineFilters: Record "Price Line Filters";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        Customer: Record Customer;
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        Initialize(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::Customer, Customer."No.",
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, Customer."No.");
+
+        PriceListLine.SetRange("Source Type", "Price Source Type"::Customer);
+        PriceListLine.SetRange("Source No.", Customer."No.");
+        LibraryVariableStorage.Enqueue(PriceListLine.GetView());
+        PriceListManagement.CopyLines(PriceListHeader);
+
+        PriceListLine.Reset();
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        Assert.RecordCount(PriceListLine, 1);
+    end;
+
+    [Test]
     [HandlerFunctions('CopyPriceLinesModalHandler')]
     procedure T010_SalesPriceListCannotCopySamePriceList()
     var
@@ -926,7 +955,7 @@ codeunit 134168 "Suggest Price Lines UT"
 
         // [GIVEN] Two duplicate price lines, where #2 has "Remove" as 'Yes'
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, '');
+            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
         PriceListLine[2] := PriceListLine[1];
         PriceListLine[2]."Line No." := 0;
         PriceListLine[2].Insert();
@@ -955,7 +984,7 @@ codeunit 134168 "Suggest Price Lines UT"
 
         // [GIVEN] Two duplicate price lines, where #2 has "Remove" as 'Yes'
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, '');
+            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
         PriceListLine[2] := PriceListLine[1];
         PriceListLine[2]."Line No." := 0;
         PriceListLine[2].Insert();
@@ -985,7 +1014,7 @@ codeunit 134168 "Suggest Price Lines UT"
 
         // [GIVEN] Two duplicate price lines, where #2 has "Remove" as 'Yes'
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, '');
+            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
         PriceListLine[2] := PriceListLine[1];
         PriceListLine[2]."Line No." := 0;
         PriceListLine[2].Insert();
@@ -1013,7 +1042,7 @@ codeunit 134168 "Suggest Price Lines UT"
 
         // [GIVEN] Three duplicate price lines, where #2 and #3 have "Remove" as 'Yes'
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, '');
+            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
         PriceListLine[2] := PriceListLine[1];
         PriceListLine[2]."Line No." := 0;
         PriceListLine[2].Insert();
@@ -1058,9 +1087,9 @@ codeunit 134168 "Suggest Price Lines UT"
         Initialize(false);
 
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, '');
+            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[2], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, '');
+            PriceListLine[2], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", PriceListLine[1]."Asset No.");
 
         // [WHEN] Add two lines
         DuplicatePriceLine.Add(LineNo, PriceListLine[1], PriceListLine[2]);
@@ -1090,13 +1119,13 @@ codeunit 134168 "Suggest Price Lines UT"
 
         // [GIVEN] Two duplicate lines #1 and #2, where #2 is duplicate to #1.
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, '');
+            PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[2], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, '');
+            PriceListLine[2], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", PriceListLine[1]."Asset No.");
         DuplicatePriceLine.Add(LineNo, PriceListLine[1], PriceListLine[2]);
 
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[3], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, '');
+            PriceListLine[3], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
 
         // [WHEN] Add one line as duplicate to #1
         DuplicatePriceLine.Add(LineNo, 1, PriceListLine[3]);
@@ -2323,5 +2352,15 @@ codeunit 134168 "Suggest Price Lines UT"
         if RecRef.FindFirst() then
             RecRef.Delete();
         RecRef.Close();
+    end;
+
+    [ModalPageHandler]
+    procedure SuggestPriceLineModalHandler(var SuggestPriceLine: TestPage "Suggest Price Lines")
+    var
+        CustomerFilter: text;
+    begin
+        CustomerFilter := LibraryVariableStorage.DequeueText();
+        SuggestPriceLine."Price Line Filter".SetValue(CustomerFilter);
+        SuggestPriceLine.OK().Invoke();
     end;
 }

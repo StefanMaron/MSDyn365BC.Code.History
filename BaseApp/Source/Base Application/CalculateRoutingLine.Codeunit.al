@@ -289,7 +289,7 @@ codeunit 99000774 "Calculate Routing Line"
                     RelevantEfficiency := 100;
 
                 IsHandled := false;
-                OnCreateLoadForwardOnBeforeCalcEndingTime(EndingTime, CalendarEntry, AvQtyBase, RelevantEfficiency, ConCurrCap, IsHandled, ProdOrderRoutingLine);
+                OnCreateLoadForwardOnBeforeCalcEndingTime(EndingTime, CalendarEntry, AvQtyBase, RelevantEfficiency, ConCurrCap, IsHandled, ProdOrderRoutingLine, TimeType);
                 if not IsHandled then
                     EndingTime := CalendarEntry."Starting Time" + Round(AvQtyBase * 100 / RelevantEfficiency / ConCurrCap, 1, '>');
 
@@ -2092,7 +2092,7 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateLoadForwardOnBeforeCalcEndingTime(var EndingTime: Time; CalendarEntry: Record "Calendar Entry"; AvQtyBase: Decimal; RelevantEfficiency: Decimal; ConCurrCap: Decimal; var IsHandled: Boolean; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    local procedure OnCreateLoadForwardOnBeforeCalcEndingTime(var EndingTime: Time; CalendarEntry: Record "Calendar Entry"; AvQtyBase: Decimal; RelevantEfficiency: Decimal; ConCurrCap: Decimal; var IsHandled: Boolean; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type")
     begin
     end;
 

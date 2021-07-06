@@ -1181,16 +1181,41 @@
 
     local procedure SendEmailDirectly(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; FoundBody: Boolean; FoundAttachment: Boolean; ServerEmailBodyFilePath: Text[250]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection") AllEmailsWereSuccessful: Boolean
     var
+        Customer: Record Customer;
+        Vendor: Record Vendor;
         TempBlob: Codeunit "Temp Blob";
         DocumentMailing: Codeunit "Document-Mailing";
         OfficeAttachmentManager: Codeunit "Office Attachment Manager";
+        DataTypeManagement: Codeunit "Data Type Management";
         DocumentRecord: RecordRef;
+        FieldRef: FieldRef;
         EmailAddress: Text[250];
+        SourceTableIDs, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
         IsHandled: Boolean;
         AttachmentStream: InStream;
     begin
         IsHandled := false;
         DocumentRecord.GetTable(RecordVariant);
+
+        // Primary Source - Document being sent by email
+        SourceTableIDs.Add(DocumentRecord.Number());
+        SourceIDs.Add(DocumentRecord.Field(DocumentRecord.SystemIdNo).Value());
+        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+        // Related Source - Customer or vendor receiving the document
+        if GetAccountTableId(DocumentRecord.Number()) = Database::Customer then
+            if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Sell-to Customer No.') and Customer.Get(FieldRef.Value()) then begin
+                SourceTableIDs.Add(Database::Customer);
+                SourceIDs.Add(Customer.SystemId);
+                SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+            end
+        else
+            if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Buy-from Vendor No.') and Vendor.Get(FieldRef.Value()) then begin
+                SourceTableIDs.Add(Database::Vendor);
+                SourceIDs.Add(Vendor.SystemId);
+                SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+            end;
 
         OnBeforeSendEmailDirectly(Rec, ReportUsage, RecordVariant, DocNo, DocName, FoundBody, FoundAttachment, ServerEmailBodyFilePath, DefaultEmailAddress, ShowDialog, TempAttachReportSelections, CustomReportSelection, AllEmailsWereSuccessful, IsHandled);
         if IsHandled then
@@ -1204,7 +1229,8 @@
             TempBlob.CreateInStream(AttachmentStream);
             EmailAddress := CopyStr(
                 GetNextEmailAddressFromCustomReportSelection(CustomReportSelection, DefaultEmailAddress, Usage, Sequence), 1, MaxStrLen(EmailAddress));
-            AllEmailsWereSuccessful := DocumentMailing.EmailFile(AttachmentStream, '', ServerEmailBodyFilePath, DocNo, EmailAddress, DocName, not ShowDialog, ReportUsage.AsInteger(), DocumentRecord);
+            AllEmailsWereSuccessful := DocumentMailing.EmailFile(AttachmentStream, '', ServerEmailBodyFilePath, DocNo, EmailAddress, DocName, not ShowDialog, ReportUsage.AsInteger(),
+                                            SourceTableIDs, SourceIDs, SourceRelationTypes);
         end;
 
         if FoundAttachment then begin
@@ -1232,7 +1258,8 @@
                         AllEmailsWereSuccessful and
                         DocumentMailing.EmailFile(
                             AttachmentStream, '', ServerEmailBodyFilePath,
-                            DocNo, EmailAddress, DocName, not ShowDialog, ReportUsage.AsInteger(), DocumentRecord);
+                            DocNo, EmailAddress, DocName, not ShowDialog, ReportUsage.AsInteger(),
+                            SourceTableIDs, SourceIDs, SourceRelationTypes);
                 until Next() = 0;
             end;
         end;

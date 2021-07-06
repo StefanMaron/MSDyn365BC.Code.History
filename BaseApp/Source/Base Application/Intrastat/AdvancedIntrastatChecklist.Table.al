@@ -61,6 +61,10 @@ table 8452 "Advanced Intrastat Checklist"
             DataClassification = SystemMetadata;
             Editable = false;
         }
+        field(8; "Reversed Filter Expression"; Boolean)
+        {
+            Caption = 'Reversed Filter Expression';
+        }
     }
 
     keys
@@ -145,7 +149,7 @@ table 8452 "Advanced Intrastat Checklist"
         TempIntrastatJnlLine := IntrastatJnlLine;
         TempIntrastatJnlLine.Insert();
         TempIntrastatJnlLine.SetView("Record View String");
-        exit(not TempIntrastatJnlLine.IsEmpty());
+        exit(not TempIntrastatJnlLine.IsEmpty() xor "Reversed Filter Expression");
     end;
 }
 

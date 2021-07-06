@@ -164,6 +164,7 @@ table 99000880 "Order Promising Line"
                     "Source Type"::Sales:
                         if "Earliest Shipment Date" <> 0D then begin
                             SalesLine.Get("Source Subtype", "Source ID", "Source Line No.");
+                            SalesLine.SuspendStatusCheck(true);
                             SalesLine.Validate("Shipment Date", "Earliest Shipment Date");
                             "Planned Delivery Date" := SalesLine."Planned Delivery Date";
                         end;

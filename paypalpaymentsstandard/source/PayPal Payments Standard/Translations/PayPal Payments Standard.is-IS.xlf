@@ -267,51 +267,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Create Demo Data - NamedType DemoAccountPrefixTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - Method 1259734887" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetTemplate</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - Method GetTemplate</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - Method 3781701796" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>TemplateAssignDefaultValues</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - Method TemplateAssignDefaultValues</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - Method 2096780138" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetPayPalPaymentMethod</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - Method GetPayPalPaymentMethod</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - Method 2592307162" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>RegisterPayPalStandardTemplate</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - Method RegisterPayPalStandardTemplate</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - Method 4262230926" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ValidateChangeTargetURL</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - Method ValidateChangeTargetURL</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - Method 3337751899" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>IsValidAndSecureURL</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - Method IsValidAndSecureURL</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - Method 7283618" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetTargetURL</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - Method GetTargetURL</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - Method 1131628512" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetSandboxURL</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - Method GetSandboxURL</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1926784871 - Method 356316967" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SetPaypalAccount</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - Method SetPaypalAccount</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1926784871 - NamedType 3790335743" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>NOTE: This Is a test invoice. Therefore, no actual money transfer will be made.</source>
           <target state="translated">ATHUGIÐ: Þetta er prufureikningur. Því verða engar raunverulegar peningafærslur framkvæmdar.</target>
@@ -396,16 +351,6 @@
           <note from="Developer" annotates="general" priority="2">Ref. is short for reference from Your Reference field. After Ref there will be a number</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Standard Mgt. - NamedType YourReferenceTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - Method 3757485022" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ValidateNotification</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - Method ValidateNotification</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4159580547 - Method 2744305161" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetNotificationJsonString</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - Method GetNotificationJsonString</note>
-        </trans-unit>
         <trans-unit id="Codeunit 4159580547 - NamedType 349556811" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Transaction %2 with status %1 has already been processed.</source>
           <target state="translated">Þegar hefur verið unnið úr færslu %2 með stöðuna %1.</target>
@@ -441,11 +386,6 @@
           <target state="translated">Reikningsnúmerið %1 í færslu %2 er óvænt.</target>
           <note from="Developer" annotates="general" priority="2">%1=invoice number, %2=transaction ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Transactions Mgt. - NamedType UnexpectedInvoiceNumberErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2501375762 - Method 3212257233" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetCreatedByFilterForWebhooks</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit MS - PayPal Webhook Management - Method GetCreatedByFilterForWebhooks</note>
         </trans-unit>
         <trans-unit id="Page 113868361 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal Payments Standard Accounts</source>

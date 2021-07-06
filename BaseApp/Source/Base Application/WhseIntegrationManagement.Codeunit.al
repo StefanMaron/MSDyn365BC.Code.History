@@ -97,15 +97,27 @@ codeunit 7317 "Whse. Integration Management"
     end;
 
     procedure AllowPutawayOrQCBinsOnly(var BinType: Record "Bin Type")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeAllowPutawayOrQCBinsOnly(BinType);
+        IsHandled := false;
+        OnBeforeAllowPutawayOrQCBinsOnly(BinType, IsHandled);
+        if IsHandled then
+            exit;
 
         if BinType.Receive or BinType.Ship or BinType.Pick then
             Error(Text004, BinType.FieldCaption(Receive), BinType.FieldCaption(Ship), BinType.FieldCaption(Pick));
     end;
 
     procedure AllowPutawayPickOrQCBinsOnly(var BinType: Record "Bin Type")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAllowPutawayPickOrQCBinsOnly(BinType, IsHandled);
+        if IsHandled then
+            exit;
+
         if BinType.Receive or BinType.Ship then
             Error(Text005, BinType.FieldCaption(Receive), BinType.FieldCaption(Ship));
     end;
@@ -200,7 +212,12 @@ codeunit 7317 "Whse. Integration Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAllowPutawayOrQCBinsOnly(var BinType: Record "Bin Type")
+    local procedure OnBeforeAllowPutawayOrQCBinsOnly(var BinType: Record "Bin Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAllowPutawayPickOrQCBinsOnly(var BinType: Record "Bin Type"; var IsHandled: Boolean)
     begin
     end;
 

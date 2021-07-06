@@ -55,9 +55,17 @@ table 5076 "Segment Header"
             trigger OnValidate()
             var
                 Attachment: Record Attachment;
+                InteractionTemplate: Record "Interaction Template";
                 ErrorText: Text[80];
+                TemplateFound: Boolean;
             begin
-                if not Attachment.Get("Attachment No.") then
+                if InteractionTemplate.Get(Rec."Interaction Template Code") then
+                    if InteractionTemplate."Word Template Code" <> '' then
+                        TemplateFound := true;
+                if Attachment.Get("Attachment No.") then
+                    TemplateFound := true;
+
+                if not TemplateFound then
                     exit;
 
                 ErrorText := Attachment.CheckCorrespondenceType("Correspondence Type (Default)");
@@ -72,10 +80,15 @@ table 5076 "Segment Header"
         field(6; "Interaction Template Code"; Code[10])
         {
             Caption = 'Interaction Template Code';
-            TableRelation = "Interaction Template";
+            TableRelation = "Interaction Template".Code;
 
             trigger OnValidate()
+            var
+                InteractionTemplate: Record "Interaction Template";
             begin
+                InteractionTemplate.Get(Rec."Interaction Template Code");
+                Rec.Validate("Word Template Code", InteractionTemplate."Word Template Code");
+
                 UpdateSegLinesByFieldNo(FieldNo("Interaction Template Code"), CurrFieldNo <> 0);
             end;
         }
@@ -303,6 +316,16 @@ table 5076 "Segment Header"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(26; "Word Template Code"; Code[30])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = "Word Template".Code where("Table ID" = const(5106)); // Only Interaction Merge Data word templates are allowed
+
+            trigger OnValidate()
+            begin
+                UpdateSegLinesByFieldNo(FieldNo("Word Template Code"), CurrFieldNo <> 0);
+            end;
+        }
     }
 
     keys
@@ -375,6 +398,7 @@ table 5076 "Segment Header"
         Text010: Label 'Do you want to create %1 %2?';
         Text011: Label 'You have modified %1.\\Do you want to update the corresponding segment lines?';
         Text012: Label 'You have modified %1.\\Do you want to apply the %1 %2 to all segment lines?', Comment = 'You have modified Meeting.\\Do you want to apply the Meeting BUS to all segment lines?';
+        WordTemplateUsedErr: Label 'You cannot use an attachment when a Word template has been specified.';
 
     procedure AssistEdit(OldSegHeader: Record "Segment Header"): Boolean
     begin
@@ -424,6 +448,7 @@ table 5076 "Segment Header"
                 SegInteractLanguage."Segment Line No." := SegmentLineNo;
                 SegInteractLanguage."Language Code" := InteractionTmplLanguage."Language Code";
                 SegInteractLanguage.Description := InteractionTmplLanguage.Description;
+                SegInteractLanguage."Word Template Code" := InteractionTmplLanguage."Word Template Code";
                 if Attachment.Get(InteractionTmplLanguage."Attachment No.") then
                     SegInteractLanguage."Attachment No." := AttachmentManagement.InsertAttachment(InteractionTmplLanguage."Attachment No.");
                 SegInteractLanguage.Insert(true);
@@ -497,6 +522,7 @@ table 5076 "Segment Header"
                 FieldNo("Interaction Template Code"):
                     begin
                         SegLine.ModifyAll("Interaction Template Code", "Interaction Template Code");
+
                         UpdateSegHeader("Interaction Template Code", true);
                     end;
                 FieldNo("Unit Cost (LCY)"):
@@ -519,6 +545,8 @@ table 5076 "Segment Header"
                     SegLine.ModifyAll("Send Word Doc. As Attmt.", "Send Word Docs. as Attmt.");
                 FieldNo("Attachment No."):
                     SegLine.ModifyAll("Attachment No.", "Attachment No.");
+                FieldNo("Word Template Code"):
+                    SegLine.ModifyAll("Word Template Code", "Word Template Code");
             end;
 
         OnAfterUpdateSegLinesByFieldNo(Rec, ChangedFieldNo);
@@ -739,6 +767,9 @@ table 5076 "Segment Header"
         if "Interaction Template Code" = '' then
             exit;
 
+        if Rec."Word Template Code" <> '' then
+            Error(WordTemplateUsedErr);
+
         if "Attachment No." <> 0 then
             OpenAttachment
         else begin
@@ -752,6 +783,9 @@ table 5076 "Segment Header"
     var
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
+        if Rec."Word Template Code" <> '' then
+            Error(WordTemplateUsedErr);
+
         if not SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then begin
             SegInteractLanguage.Init();
             SegInteractLanguage."Segment No." := "No.";
@@ -768,6 +802,9 @@ table 5076 "Segment Header"
     var
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
+        if Rec."Word Template Code" <> '' then
+            Error(WordTemplateUsedErr);
+
         if SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then
             if SegInteractLanguage."Attachment No." <> 0 then
                 SegInteractLanguage.OpenAttachment;
@@ -778,6 +815,9 @@ table 5076 "Segment Header"
     var
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
+        if Rec."Word Template Code" <> '' then
+            Error(WordTemplateUsedErr);
+
         if not SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then begin
             SegInteractLanguage.Init();
             SegInteractLanguage."Segment No." := "No.";
@@ -795,6 +835,9 @@ table 5076 "Segment Header"
     var
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
+        if Rec."Word Template Code" <> '' then
+            Error(WordTemplateUsedErr);
+
         if SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then
             if SegInteractLanguage."Attachment No." <> 0 then
                 SegInteractLanguage.ExportAttachment;
@@ -805,6 +848,9 @@ table 5076 "Segment Header"
     var
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
+        if Rec."Word Template Code" <> '' then
+            Error(WordTemplateUsedErr);
+
         if SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then
             if SegInteractLanguage."Attachment No." <> 0 then
                 SegInteractLanguage.RemoveAttachment(Prompt);

@@ -102,6 +102,7 @@
         TempBatchNameTxt: Label 'BD_TEMP', Locked = true;
         TwoPlaceHoldersTok: Label '%1%2', Locked = true;
         ServiceSessionTok: Label '#%1#%2#', Locked = true;
+        GlblDimNoInconsistErr: Label 'A setting for one or more global or shortcut dimensions is incorrect. To fix it, choose the link in the Source column. For more information, choose the link in the Support URL column.';
 
     local procedure "Code"(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -1481,9 +1482,10 @@
             "Recurring Method", '%1|%2',
             GenJournalLine."Recurring Method"::"BD Balance by Dimension",
             GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension");
-        if GenJournalLine.IsEmpty then
+        if not GenJournalLine.FindFirst() then
             exit;
 
+        CheckDimSetEntryConsistency(GenJournalLine);
         SavedGenJournalLine := SrcGenJournalLine;
         TempBatchName := CreateDimBalGenJnlBatch(SrcGenJournalLine);
         CreateDimBalGenJnlLines(GenJournalLine);
@@ -1544,7 +1546,13 @@
         TempInteger: Record Integer temporary;
         TempBatchName: Code[10];
         LineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDimBalGenJnlLines(SrcGenJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TempBatchName := GetTempBatchName();
         if SrcGenJournalLine.FindSet() then
             repeat
@@ -1645,6 +1653,44 @@
             GenJournalLine."Journal Batch Name" := SavedGenJournalLine."Journal Batch Name";
     end;
 
+    local procedure CheckDimSetEntryConsistency(GenJournalLine: Record "Gen. Journal Line")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        ErrorLogged: Boolean;
+    begin
+        GeneralLedgerSetup.Get();
+
+        CheckShortcutDimConsistency(GeneralLedgerSetup."Global Dimension 1 Code", 0, ErrorLogged, GenJournalLine);
+        CheckShortcutDimConsistency(GeneralLedgerSetup."Global Dimension 2 Code", 0, ErrorLogged, GenJournalLine);
+        CheckShortcutDimConsistency(GeneralLedgerSetup."Shortcut Dimension 3 Code", 3, ErrorLogged, GenJournalLine);
+        CheckShortcutDimConsistency(GeneralLedgerSetup."Shortcut Dimension 4 Code", 4, ErrorLogged, GenJournalLine);
+        CheckShortcutDimConsistency(GeneralLedgerSetup."Shortcut Dimension 5 Code", 5, ErrorLogged, GenJournalLine);
+        CheckShortcutDimConsistency(GeneralLedgerSetup."Shortcut Dimension 6 Code", 6, ErrorLogged, GenJournalLine);
+        CheckShortcutDimConsistency(GeneralLedgerSetup."Shortcut Dimension 7 Code", 7, ErrorLogged, GenJournalLine);
+        CheckShortcutDimConsistency(GeneralLedgerSetup."Shortcut Dimension 8 Code", 8, ErrorLogged, GenJournalLine);
+    end;
+
+    local procedure CheckShortcutDimConsistency(ShortcutDimensionCode: Code[20]; ShortcutDimensionNo: Integer; var ErrorLogged: Boolean; GenJournalLine: Record "Gen. Journal Line")
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        ErrorMsgMgt: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+    begin
+        if ErrorLogged then
+            exit;
+
+        DimensionSetEntry.SetRange("Dimension Code", ShortcutDimensionCode);
+        DimensionSetEntry.SetFilter("Global Dimension No.", '<>%1', ShortcutDimensionNo);
+        if DimensionSetEntry.FindFirst() then begin
+            ErrorLogged := true;
+            ErrorMsgMgt.PushContext(ErrorContextElement, GenJournalLine.RecordId, 0, '');
+            ErrorMsgMgt.LogContextFieldError(
+              GenJournalLine.FieldNo("Recurring Method"), GlblDimNoInconsistErr, DimensionSetEntry, DimensionSetEntry.FieldNo("Global Dimension No."), ForwardLinkMgt.GetHelpCodeForTroubleshootingDimensions());
+            ErrorMsgMgt.Finish(GenJournalLine.RecordId);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; LastDocNo: code[20]; LastPostedDocNo: code[20])
     begin
@@ -1697,6 +1743,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFields(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimBalGenJnlLines(var SrcGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

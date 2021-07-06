@@ -16,6 +16,8 @@
         WorkingWithDimensionsMsg: Label 'Working with dimensions.';
         SalesLineDropShipmentTok: Label 'DROP SHIPMENT', Locked = true;
         SalesLineDropShipmentMsg: Label 'Making drop shipments';
+        TroubleshootingDimensionsTok: Label 'TROUBLESHOOTING DIMENSIONS', Locked = true;
+        TroubleshootingDimensionsMsg: Label 'Troubleshooting and correcting dimensions';
 
     procedure AddLink(NewName: Code[30]; NewDescription: Text[250]; NewLink: Text[250])
     var
@@ -55,6 +57,11 @@
         exit(SalesLineDropShipmentTok);
     end;
 
+    procedure GetHelpCodeForTroubleshootingDimensions(): Code[30]
+    begin
+        exit(TroubleshootingDimensionsTok);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Named Forward Link", 'OnLoad', '', false, false)]
     local procedure OnLoadHelpArticleCodes()
     begin
@@ -68,6 +75,8 @@
           GetHelpCodeForWorkingWithDimensions, WorkingWithDimensionsMsg, 'https://go.microsoft.com/fwlink/?linkid=2079638');
         AddLink(
           GetHelpCodeForSalesLineDropShipmentErr, SalesLineDropShipmentMsg, 'https://go.microsoft.com/fwlink/?linkid=2104945');
+        AddLink(
+            GetHelpCodeForTroubleshootingDimensions(), TroubleshootingDimensionsMsg, 'https://go.microsoft.com/fwlink/?linkid=2162522');
     end;
 }
 

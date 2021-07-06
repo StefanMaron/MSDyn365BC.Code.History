@@ -627,6 +627,8 @@ codeunit 1520 "Workflow Event Handling"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnApproveApprovalRequest', '', false, false)]
     procedure RunWorkflowOnApproveApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     begin
+        OnBeforeRunWorkflowOnApproveApprovalRequest(ApprovalEntry);
+
         WorkflowManagement.HandleEventOnKnownWorkflowInstance(RunWorkflowOnApproveApprovalRequestCode,
           ApprovalEntry, ApprovalEntry."Workflow Step Instance ID");
     end;
@@ -792,5 +794,11 @@ codeunit 1520 "Workflow Event Handling"
     local procedure OnBeforeRunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader: Record "Purchase Header")
     begin
     end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunWorkflowOnApproveApprovalRequest(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
 }
 

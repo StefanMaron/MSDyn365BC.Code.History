@@ -1,16 +1,21 @@
 permissionset 5807 "D365 PURCH DOC, EDIT"
 {
     Assignable = true;
-
     Caption = 'Dyn. 365 Create purch. doc.';
+
     Permissions = tabledata "Approval Workflow Wizard" = RIMD,
+                  tabledata "Assemble-to-Order Link" = R,
                   tabledata "Bank Account" = R,
                   tabledata "Cancelled Document" = Rimd,
+                  tabledata "Company Information" = R,
+                  tabledata Contact = RIMD,
                   tabledata "Contact Business Relation" = R,
+                  tabledata "Cost Type" = RIMD,
                   tabledata Currency = RM,
                   tabledata "Customer Bank Account" = R,
                   tabledata "Detailed Employee Ledger Entry" = Rm,
                   tabledata "Detailed Vendor Ledg. Entry" = Rm,
+                  tabledata Employee = R,
                   tabledata "Employee Ledger Entry" = Rm,
                   tabledata "General Ledger Setup" = rm,
                   tabledata "Item Charge" = R,
@@ -21,6 +26,7 @@ permissionset 5807 "D365 PURCH DOC, EDIT"
                   tabledata "Item Tracing History Buffer" = Rimd,
                   tabledata "Item Tracking Code" = R,
                   tabledata "Job Queue Category" = RIMD,
+                  tabledata "No. Series" = RIMD,
                   tabledata "Notification Entry" = RIMD,
                   tabledata "Order Address" = RIMD,
                   tabledata "Payment Terms" = RMD,
@@ -35,6 +41,7 @@ permissionset 5807 "D365 PURCH DOC, EDIT"
                   tabledata "Purchase Header Archive" = RIMD,
                   tabledata "Purchase Line" = RIMD,
                   tabledata "Purchase Line Archive" = RIMD,
+                  tabledata "Purchases & Payables Setup" = R,
                   tabledata "Record Buffer" = Rimd,
                   tabledata "Requisition Line" = RIMD,
                   tabledata "Restricted Record" = RIMD,
@@ -57,6 +64,8 @@ permissionset 5807 "D365 PURCH DOC, EDIT"
                   tabledata "Transaction Type" = R,
                   tabledata "Transport Method" = R,
                   tabledata "Unplanned Demand" = RIMD,
+                  tabledata "User Preference" = RIMD,
+                  tabledata "User Setup" = R,
                   tabledata "User Task Group" = RIMD,
                   tabledata "User Task Group Member" = RIMD,
                   tabledata "Value Entry Relation" = R,

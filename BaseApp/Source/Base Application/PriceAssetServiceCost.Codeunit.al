@@ -72,7 +72,17 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
     end;
 
     procedure PutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
+    var
+        NewPriceAsset: Record "Price Asset";
     begin
+        if PriceAsset."Asset No." = '' then
+            exit;
+
+        PriceAssetList.SetLevel(PriceAsset.Level - 1);
+        NewPriceAsset := PriceAsset;
+        NewPriceAsset.Validate("Asset No.", ''); // All Service Costs
+        PriceAssetList.Add(NewPriceAsset);
+        OnAfterPutRelatedAssetsToList(PriceAsset, PriceAssetList);
     end;
 
     procedure FillFromBuffer(var PriceAsset: Record "Price Asset"; PriceCalculationBuffer: Record "Price Calculation Buffer")
@@ -87,5 +97,10 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
         PriceAsset.Description := ServiceCost.Description;
         PriceAsset."Unit of Measure Code" := ServiceCost."Unit of Measure Code";
         PriceAsset."Variant Code" := '';
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
+    begin
     end;
 }

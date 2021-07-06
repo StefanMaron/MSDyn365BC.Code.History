@@ -440,7 +440,10 @@
     begin
         OnBeforeGetPriceSource(Customer, "Price Type"::Sale, PriceSourceList);
 
-        PriceSourceList.Add(PriceSourceType::Customer, Customer."No.");
+        if Customer."Bill-to Customer No." <> '' then
+            PriceSourceList.Add(PriceSourceType::Customer, Customer."Bill-to Customer No.")
+        else
+            PriceSourceList.Add(PriceSourceType::Customer, Customer."No.");
         PriceSourceList.Add(PriceSourceType::"All Customers");
         if Customer."Customer Price Group" <> '' then
             PriceSourceList.Add(PriceSourceType::"Customer Price Group", Customer."Customer Price Group");
@@ -478,7 +481,10 @@
     begin
         OnBeforeGetPriceSource(Vendor, "Price Type"::Purchase, PriceSourceList);
 
-        PriceSourceList.Add(PriceSourceType::Vendor, Vendor."No.");
+        if Vendor."Pay-to Vendor No." <> '' then
+            PriceSourceList.Add(PriceSourceType::Vendor, Vendor."Pay-to Vendor No.")
+        else
+            PriceSourceList.Add(PriceSourceType::Vendor, Vendor."No.");
         PriceSourceList.Add(PriceSourceType::"All Vendors");
 
         OnAfterGetPriceSource(Vendor, PriceSourceList);

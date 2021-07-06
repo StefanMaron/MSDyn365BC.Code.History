@@ -31,6 +31,27 @@ codeunit 135972 "Upg User Group Perm. Set Tests"
         Assert.AreEqual(NullGuid, UserGroupPermissionSet."App ID", 'Null GUID was expected');
     end;
 
+#if not CLEAN19
+    procedure UserGroupExportReportExcelTest()
+    var
+        UserGroupPermissionSet: Record "User Group Permission Set";
+        Assert: Codeunit "Library Assert";
+        UpgradeStatus: Codeunit "Upgrade Status";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        BaseAppGuid, NullGuid : Guid;
+    begin
+        // [SCENARIO] The upgrade is adding Export Report Excel PS in EXCEL EXPORT ACTION User Group
+        if UpgradeStatus.UpgradeTagPresentBeforeUpgrade(UpgradeTagDefinitions.GetExportExcelReportUpgradeTag()) then
+            exit;
+
+        UserGroupPermissionSet.SetRange("User Group Code", 'EXCEL EXPORT ACTION');
+        Assert.RecordCount(UserGroupPermissionSet, 2);
+
+        UserGroupPermissionSet.SetRange("Role ID", 'Export Report Excel');
+        Assert.IsTrue(UserGroupPermissionSet.FindFirst(), 'Export Report Excel was not added in EXCEL EXPORT ACTION User Group');       
+    end;
+#endif
+
     [Test]
     procedure UserGroupPermissionSetRoleIDTest()
     var

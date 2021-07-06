@@ -28,37 +28,26 @@ codeunit 1882 "Sandbox Deploymt. Cleanup"
         ExchangeSync: Record "Exchange Sync";
         JobQueueManagement: Codeunit "Job Queue Management";
     begin
-        OCRServiceSetup.ChangeCompany(CompanyName);
         OCRServiceSetup.ModifyAll("Password Key", nullGUID);
 
-        DocExchServiceSetup.ChangeCompany(CompanyName);
         DocExchServiceSetup.ModifyAll(Enabled, false);
 
-        CurrExchRateUpdateSetup.ChangeCompany(CompanyName);
         CurrExchRateUpdateSetup.ModifyAll(Enabled, false);
 
-        VATRegNoSrvConfig.ChangeCompany(CompanyName);
         VATRegNoSrvConfig.ModifyAll(Enabled, false);
 
-        GraphMailSetup.ChangeCompany(CompanyName);
         GraphMailSetup.ModifyAll(Enabled, false);
 
-        SMTPMailSetup.ChangeCompany(CompanyName);
         SMTPMailSetup.ModifyAll("SMTP Server", '');
 
-        CRMConnectionSetup.ChangeCompany(CompanyName);
         CRMConnectionSetup.ModifyAll("Is Enabled", false);
 
-        CDSConnectionSetup.ChangeCompany(CompanyName);
         CDSConnectionSetup.ModifyAll("Is Enabled", false);
 
-        ServiceConnection.ChangeCompany(CompanyName);
         ServiceConnection.ModifyAll(Status, ServiceConnection.Status::Disabled);
 
-        MarketingSetup.ChangeCompany(CompanyName);
         MarketingSetup.ModifyAll("Exchange Service URL", '');
 
-        ExchangeSync.ChangeCompany(CompanyName);
         ExchangeSync.ModifyAll(Enabled, false);
 
         JobQueueManagement.SetRecurringJobsOnHold(CompanyName);

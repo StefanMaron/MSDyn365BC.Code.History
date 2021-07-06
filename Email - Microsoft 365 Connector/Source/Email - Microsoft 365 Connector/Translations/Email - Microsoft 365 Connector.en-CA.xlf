@@ -3,48 +3,6 @@
   <file datatype="xml" source-language="en-US" target-language="en-CA" original="Email - Microsoft 365 Connector">
     <body>
       <group id="body">
-        <trans-unit id="Codeunit 1136830377 - Method 2150622519" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Send</source>
-          <target state="translated">Send</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Microsoft 365 Connector - Method Send</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1136830377 - Method 1632747014" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>RegisterAccount</source>
-          <target state="translated">RegisterAccount</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Microsoft 365 Connector - Method RegisterAccount</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1136830377 - Method 546842396" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ShowAccountInformation</source>
-          <target state="translated">ShowAccountInformation</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Microsoft 365 Connector - Method ShowAccountInformation</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1136830377 - Method 35480681" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetAccounts</source>
-          <target state="translated">GetAccounts</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Microsoft 365 Connector - Method GetAccounts</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1136830377 - Method 2197567878" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>DeleteAccount</source>
-          <target state="translated">DeleteAccount</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Microsoft 365 Connector - Method DeleteAccount</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1136830377 - Method 1737071453" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetDescription</source>
-          <target state="translated">GetDescription</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Microsoft 365 Connector - Method GetDescription</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1136830377 - Method 272391901" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetLogoAsBase64</source>
-          <target state="translated">GetLogoAsBase64</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Microsoft 365 Connector - Method GetLogoAsBase64</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1136830377 - NamedType 1427565258" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Use Microsoft 365 shared mailboxes.</source>
           <target state="translated">Use Microsoft 365 shared mailboxes.</target>

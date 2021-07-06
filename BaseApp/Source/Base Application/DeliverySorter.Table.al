@@ -29,6 +29,17 @@ table 5074 "Delivery Sorter"
         {
             Caption = 'Language Code';
         }
+        field(7; "Word Template Code"; Code[30])
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Word Template Code';
+            TableRelation = "Word Template".Code;
+        }
+        field(18; "Wizard Action"; Enum "Interaction Template Wizard Action")
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'Wizard Action';
+        }
     }
 
     keys

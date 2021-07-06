@@ -3,56 +3,6 @@
   <file datatype="xml" source-language="en-US" target-language="fr-CA" original="Email - Current User Connector">
     <body>
       <group id="body">
-        <trans-unit id="Codeunit 1506430813 - Method 2150622519" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Send</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - Method Send</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1506430813 - Method 1632747014" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>RegisterAccount</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - Method RegisterAccount</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1506430813 - Method 546842396" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ShowAccountInformation</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - Method ShowAccountInformation</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1506430813 - Method 35480681" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetAccounts</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - Method GetAccounts</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1506430813 - Method 658013416" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetCurrentUserEmailAddress</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - Method GetCurrentUserEmailAddress</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1506430813 - Method 2197567878" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>DeleteAccount</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - Method DeleteAccount</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1506430813 - Method 1737071453" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetDescription</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - Method GetDescription</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1506430813 - Method 272391901" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetLogoAsBase64</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - Method GetLogoAsBase64</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1506430813 - Method 2293604615" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetCurrentUsersAccountEmailAddress</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - Method GetCurrentUsersAccountEmailAddress</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1506430813 - Method 2031089052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetCurrentUserAccountName</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - Method GetCurrentUserAccountName</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1506430813 - NamedType 1293915263" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Users send emails from their sign-in account.</source>
           <target state="translated">Les utilisateurs envoient des courriels à partir de leur compte de connexion.</target>

@@ -69,12 +69,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Paper Width - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - Method 3828116900" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>OnDocumentPrintReady</source>
-          <target state="translated">OnDocumentPrintReady</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - Method OnDocumentPrintReady</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2195109935 - NamedType 1480471845" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>An email from address was not found.</source>
           <target state="translated">An email from address was not found.</target>
@@ -104,72 +98,6 @@
           <target state="translated">To send print job to the %1 printer, you must set up SMTP.</target>
           <note from="Developer" annotates="general" priority="2">%1 = Printer name.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType SetupSMTPErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - Method 1682439712" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SetSendToEmailPrinter</source>
-          <target state="translated">SetSendToEmailPrinter</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - Method SetSendToEmailPrinter</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - Method 206916906" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>OnOpenSendToEmailPrinter</source>
-          <target state="translated">OnOpenSendToEmailPrinter</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - Method OnOpenSendToEmailPrinter</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - Method 1474497178" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>InsertDefaults</source>
-          <target state="translated">InsertDefaults</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - Method InsertDefaults</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - Method 944588181" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>IsPaperSizeCustom</source>
-          <target state="translated">IsPaperSizeCustom</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - Method IsPaperSizeCustom</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - Method 2545386109" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>DeletePrinterSettings</source>
-          <target state="translated">DeletePrinterSettings</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - Method DeletePrinterSettings</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - Method 1096713605" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>OnQueryClosePrinterSettingsPage</source>
-          <target state="translated">OnQueryClosePrinterSettingsPage</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - Method OnQueryClosePrinterSettingsPage</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - Method 3999666519" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ValidatePaperHeight</source>
-          <target state="translated">ValidatePaperHeight</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - Method ValidatePaperHeight</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - Method 1051693039" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ValidatePaperWidth</source>
-          <target state="translated">ValidatePaperWidth</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - Method ValidatePaperWidth</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - Method 1159887499" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ConvertAndAddPrinterPaperDimensions</source>
-          <target state="translated">ConvertAndAddPrinterPaperDimensions</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - Method ConvertAndAddPrinterPaperDimensions</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - Method 329484941" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>IsSMTPSetup</source>
-          <target state="translated">IsSMTPSetup</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - Method IsSMTPSetup</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - Method 440736567" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>LearnMoreAction</source>
-          <target state="translated">LearnMoreAction</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - Method LearnMoreAction</note>
         </trans-unit>
         <trans-unit id="Codeunit 1148211046 - NamedType 2244223965" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email address is not valid. Do you want to exit?</source>

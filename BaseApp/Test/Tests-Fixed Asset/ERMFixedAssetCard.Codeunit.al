@@ -1091,6 +1091,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAsset.Find();
         FADepreciationBook.Find();
         FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
+        FixedAsset.TestField("FA Posting Group", FAPostingGroup[1].Code);
         FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[1].Code);
 
         LibraryVariableStorage.AssertEmpty();
@@ -1137,6 +1138,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAsset.Find();
         FADepreciationBook.Find();
         FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
+        FixedAsset.TestField("FA Posting Group", FAPostingGroup[1].Code);
         FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[1].Code);
 
         LibraryVariableStorage.AssertEmpty();
@@ -1182,6 +1184,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         Assert.ExpectedMessage(ExpectedMessage, LibraryVariableStorage.DequeueText());
         FixedAsset.Find();
         FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
+        FixedAsset.TestField("FA Posting Group", FAPostingGroup[2].Code);
         FADepreciationBook.Find();
         FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[2].Code);
 

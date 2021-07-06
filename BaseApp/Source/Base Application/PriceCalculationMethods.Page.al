@@ -44,9 +44,10 @@ page 7025 "Price Calculation Methods"
     trigger OnOpenPage()
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
         PriceUXManagement: Codeunit "Price UX Management";
     begin
-        PriceCalculationMgt.TestIsEnabled();
+        FeaturePriceCalculation.FailIfFeatureDisabled();
         if PriceCalculationMgt.RefreshSetup() then
             Commit();
         PriceUXManagement.GetSupportedMethods(Rec, ImplementationsPerMethod);

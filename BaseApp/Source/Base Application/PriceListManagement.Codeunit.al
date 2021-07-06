@@ -185,7 +185,9 @@ codeunit 7017 "Price List Management"
         if PriceLineFilters."From Price List Code" <> '' then begin
             FromPriceListHeader.Get(PriceLineFilters."From Price List Code");
             FromPriceListLine.SetRange("Price List Code", PriceLineFilters."From Price List Code");
-        end;
+        end else
+            if not PriceLineFilters.Worksheet then
+                FromPriceListLine.SetFilter("Price List Code", '<>%1', ToPriceListHeader.Code);
         if PriceLineFilters.Worksheet then begin
             FromPriceListLine.SetRange("Price Type", ToPriceListHeader."Price Type");
             FromPriceListLine.SetRange("Source Group", ToPriceListHeader."Source Group");
@@ -486,7 +488,10 @@ codeunit 7017 "Price List Management"
         if PriceAssetList.First(PriceAsset, 0) then
             repeat
                 PriceListLine.SetRange("Asset Type", PriceAsset."Asset Type");
-                PriceListLine.SetRange("Asset No.", PriceAsset."Asset No.");
+                if PriceAsset."Asset No." <> '' then
+                    PriceListLine.SetRange("Asset No.", PriceAsset."Asset No.")
+                else
+                    PriceListLine.SetRange("Asset No.");
                 if PriceAsset."Variant Code" <> '' then
                     PriceListLine.SetRange("Variant Code", PriceAsset."Variant Code")
                 else

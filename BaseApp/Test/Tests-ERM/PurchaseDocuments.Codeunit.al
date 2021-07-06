@@ -1380,6 +1380,8 @@ codeunit 134099 "Purchase Documents"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLineChargeItem, PurchaseHeaderOrder,
           PurchaseLineChargeItem.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), QtyToAssign);
+        PurchaseLineChargeItem.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
+        PurchaseLineChargeItem.Modify(true);
 
         LibraryVariableStorage.Enqueue(QtyToAssign);
         PurchaseLineChargeItem.ShowItemChargeAssgnt();
@@ -1399,6 +1401,9 @@ codeunit 134099 "Purchase Documents"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLineChargeItem, PurchaseHeaderOrder,
           PurchaseLineChargeItem.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), QtyToAssign);
+        PurchaseLineChargeItem.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
+        PurchaseLineChargeItem.Modify(true);
+
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLineItem, PurchaseHeaderOrder, PurchaseLineItem.Type::Item, LibraryInventory.CreateItemNo(), QtyToAssign + 1);
 

@@ -321,7 +321,10 @@ page 7004 "Sales Line Discounts"
     end;
 
     trigger OnInit()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
+        FeaturePriceCalculation.FailIfFeatureEnabled();
         CodeFilterCtrlEnable := true;
         SalesCodeFilterCtrlEnable := true;
         SalesCodeEditable := true;

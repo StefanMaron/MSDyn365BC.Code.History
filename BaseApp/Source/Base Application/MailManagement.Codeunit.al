@@ -75,18 +75,21 @@ codeunit 9520 "Mail Management"
         ToList: List of [Text];
         CcList: List of [Text];
         BccList: List of [Text];
-        SourceTableIDs: List of [Integer];
+        SourceTableIDs, SourceRelationTypes : List of [Integer];
         SourceIDs: List of [Guid];
     begin
         RecipientStringToList(TempEmailItem."Send to", ToList);
         RecipientStringToList(TempEmailItem."Send CC", CcList);
         RecipientStringToList(TempEmailItem."Send BCC", BccList);
 
-        Message.Create(ToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), true, CcList, BccList);
+        Message.Create(ToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), TempEmailItem."Send As HTML", CcList, BccList);
 
-        TempEmailItem.GetSourceDocuments(SourceTableIDs, SourceIDs);
+        TempEmailItem.GetSourceDocuments(SourceTableIDs, SourceIDs, SourceRelationTypes);
         for Index := 1 to SourceTableIDs.Count() do
-            Email.AddRelation(Message, SourceTableIDs.Get(Index), SourceIDs.Get(Index), Enum::"Email Relation Type"::"Primary Source");
+            if SourceRelationTypes.Count() < Index then
+                Email.AddRelation(Message, SourceTableIDs.Get(Index), SourceIDs.Get(Index), Enum::"Email Relation Type"::"Related Entity")
+            else
+                Email.AddRelation(Message, SourceTableIDs.Get(Index), SourceIDs.Get(Index), Enum::"Email Relation Type".FromInteger(SourceRelationTypes.Get(Index)));
 
         OnSendViaEmailModuleOnAfterCreateMessage(Message, TempEmailItem);
 
@@ -327,14 +330,14 @@ codeunit 9520 "Mail Management"
     var
         Attachments: Codeunit "Temp Blob List";
         AttachmentNames: List of [Text];
-        SourceTables: List of [Integer];
+        SourceTables, SourceRelationTypes : List of [Integer];
         SourceIDs: List of [Guid];
     begin
         ParmEmailItem.GetAttachments(Attachments, AttachmentNames);
-        ParmEmailItem.GetSourceDocuments(SourceTables, SourceIDs);
+        ParmEmailItem.GetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
         TempEmailItem := ParmEmailItem;
         TempEmailItem.SetAttachments(Attachments, AttachmentNames);
-        TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs);
+        TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
         OnSendOnBeforeQualifyFromAddress(TempEmailItem, EmailScenario);
         QualifyFromAddress(EmailScenario);
         CurrentEmailScenario := EmailScenario;

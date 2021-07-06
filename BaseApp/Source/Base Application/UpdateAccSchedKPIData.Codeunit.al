@@ -66,7 +66,6 @@ codeunit 197 "Update Acc. Sched. KPI Data"
 
         if not AccSchedKPIWebSrvLine.FindSet then
             exit;
-        AccScheduleLine.SetRange(Show, AccScheduleLine.Show::Yes);
         AccScheduleLine.SetFilter(Totaling, '<>%1', '');
         repeat
             AccScheduleLine.SetRange("Schedule Name", AccSchedKPIWebSrvLine."Acc. Schedule Name");

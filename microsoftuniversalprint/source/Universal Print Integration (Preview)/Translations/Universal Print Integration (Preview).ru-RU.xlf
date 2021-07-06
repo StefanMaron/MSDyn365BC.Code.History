@@ -99,11 +99,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Print Share Name - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2007124620 - Method 1476018402" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SendPrintJob</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - Method SendPrintJob</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2007124620 - NamedType 238027365" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The print job %1 has been sent for processing in Universal Print.</source>
           <target state="translated">Задание печати %1 отправлено на обработку в универсальную печать.</target>
@@ -140,41 +135,6 @@
           <note from="Developer" annotates="general" priority="2">%1 = a print job ID, %2 = a more detailed error message</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType UnableToUploadDocErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1382942930 - Method 3887602946" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CreateUploadSessionRequest</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Graph Helper - Method CreateUploadSessionRequest</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1382942930 - Method 2631163598" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>UploadDataRequest</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Graph Helper - Method UploadDataRequest</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1382942930 - Method 3685555039" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>StartPrintJobRequest</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Graph Helper - Method StartPrintJobRequest</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1382942930 - Method 336545590" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetJsonKeyValue</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Graph Helper - Method GetJsonKeyValue</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1382942930 - Method 2350574448" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>TryGetAccessToken</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Graph Helper - Method TryGetAccessToken</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1382942930 - Method 2402696460" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetUniversalPrintTelemetryCategory</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Graph Helper - Method GetUniversalPrintTelemetryCategory</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1382942930 - Method 3853766639" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetUniversalPrintPortalUrl</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Graph Helper - Method GetUniversalPrintPortalUrl</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1382942930 - NamedType 1254422327" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You don't have access to the data. Make sure your account has been assigned a Universal Print license and you have the required permissions.</source>
           <target state="translated">У вас нет доступа к данным. Убедитесь, что учетной записи назначена лицензия на универсальную печать и что у вас есть необходимые разрешения.</target>
@@ -186,71 +146,6 @@
           <target state="translated">Не удается проверить подлинность пользователя с помощью Azure AD.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Graph Helper - NamedType UserNotAuthenticatedTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 3999666519" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ValidatePaperHeight</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method ValidatePaperHeight</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 1051693039" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ValidatePaperWidth</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method ValidatePaperWidth</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 637522095" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ConvertAndAddPrinterPaperDimensions</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method ConvertAndAddPrinterPaperDimensions</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 2166526256" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>AddAllPrintShares</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method AddAllPrintShares</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 207087703" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>AddAllPrintSharesToBuffer</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method AddAllPrintSharesToBuffer</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 2939997429" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>PrintShareExists</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method PrintShareExists</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 2230236245" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetDefaults</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method GetDefaults</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 485430049" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetPaperTrayCapabilities</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method GetPaperTrayCapabilities</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 944588181" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>IsPaperSizeCustom</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method IsPaperSizeCustom</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 1116992994" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>OnQueryClosePrinterSettingsPage</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method OnQueryClosePrinterSettingsPage</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 2545386109" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>DeletePrinterSettings</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method DeletePrinterSettings</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 3976589045" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>LookupPaperTrays</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method LookupPaperTrays</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - Method 4241364222" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>LookupPrintShares</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - Method LookupPrintShares</note>
         </trans-unit>
         <trans-unit id="Codeunit 4208063072 - NamedType 137853743" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sends print jobs to the %1.</source>

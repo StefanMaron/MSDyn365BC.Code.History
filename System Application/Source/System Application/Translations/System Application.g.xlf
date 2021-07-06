@@ -1033,6 +1033,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Related Attachment - Field Attachment Name - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2372869910 - Field 2045991712 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Attachment Source</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Related Attachment - Field Attachment Source - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2372869910 - Field 3808409531 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Attachment System ID</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2133,6 +2138,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3456148789 - Method 333252792 - NamedType 569519751" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unable to initialize certificate!</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Signature Key - Method FromBase64String - NamedType CertInitializeErr</note>
+        </trans-unit>
         <trans-unit id="Table 3456148789 - Field 31410331 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Key Index</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2602,6 +2612,46 @@
           <source>Template</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Word Template - Field Template - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2308593832 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Word Templates Related Table</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Word Templates Related Table - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2308593832 - Field 3004954119 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Word Templates Related Table - Field Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2308593832 - Field 823559016 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Caption</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Word Templates Related Table - Field Field Caption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2308593832 - Field 3531868071 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Word Templates Related Table - Field Field No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2308593832 - Field 1635402025 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Table Caption</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Word Templates Related Table - Field Related Table Caption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2308593832 - Field 2385154712 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Table Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Word Templates Related Table - Field Related Table Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2308593832 - Field 2204602840 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Table ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Word Templates Related Table - Field Related Table ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2308593832 - Field 3135334477 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Word Templates Related Table - Field Table ID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3738775605 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Word Templates Table</source>
@@ -3198,10 +3248,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Message Impl. - NamedType EmailMessageSentCannotModifyErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 728726451 - NamedType 280698306" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 728726451 - NamedType 4100786335" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify a valid email account to send the message to.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Message Impl. - NamedType NoToAccountErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Message Impl. - NamedType NoAccountErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2918810872 - NamedType 2230688874" size-unit="char" translate="yes" xml:space="preserve">
           <source>Change e-mail account used for the selected scenarios</source>
@@ -3663,6 +3713,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recurrence Schedule Impl. - NamedType RecurrenceMaximumCalculateLimitTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3808397429 - NamedType 1574829344" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The regular expression timeout should be at most 10000 ms</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Regex Impl. - NamedType TimeoutTooHighErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3808397429 - NamedType 525889370" size-unit="char" translate="yes" xml:space="preserve">
           <source>The regular expression timeout should be at least 1000 ms</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3918,6 +3973,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Translation Implementation - NamedType CannotTranslateTempRecErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1516646291 - NamedType 2783749522" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The records cannot belong to different tables.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Translation Implementation - NamedType DifferentTableErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1516646291 - NamedType 1424434736" size-unit="char" translate="yes" xml:space="preserve">
           <source>The variant passed is not a record.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4022,6 +4082,21 @@
           <source>Do you want to override the existing template?</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Word Template Impl. - NamedType OverrideTemplateQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2612805596 - NamedType 2903052072" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The field prefix for the related entity already exists.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Word Template Impl. - NamedType RelatedTableCodeAlreadyUsedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2612805596 - NamedType 1833677576" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The related entity already exists.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Word Template Impl. - NamedType RelatedTableIdAlreadyUsedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2612805596 - NamedType 4035258234" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The length of the related table IDs (%1), does not match the length of the related table codes (%2).</source>
+          <note from="Developer" annotates="general" priority="2">%1 - Length of related table IDs list, %2 Length of related table codes list</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Word Template Impl. - NamedType RelatedTableIdsLengthErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2612805596 - NamedType 2599041866" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to specify any filters on the template entity?</source>
@@ -4847,6 +4922,21 @@
           <source>User ID</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Item Users - Control User Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2408068749 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show the checklist</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Resurfacing - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2408068749 - Property 3863440606" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tour,Checklist,Resurface,Banner</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Resurfacing - Property AdditionalSearchTerms</note>
+        </trans-unit>
+        <trans-unit id="Page 2408068749 - Control 2961552353 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to see the checklist on your home page?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Resurfacing - Control Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3183728555 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Companies</source>
@@ -6487,6 +6577,16 @@
           <source>Filename</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Related Attachments - Control FileName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 240224259 - Control 2397723431 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies source record of the attachment.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Related Attachments - Control Source - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 240224259 - Control 2397723431 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Related Attachments - Control Source - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 423292104 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Related Records</source>
@@ -9723,6 +9823,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - NamedType AddNewEntityLbl</note>
         </trans-unit>
+        <trans-unit id="Page 3314581104 - NamedType 581166427" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add a related entity (advanced)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - NamedType AddRelatedEntityAdvancedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3314581104 - NamedType 825368625" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add a related entity (simple)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - NamedType AddRelatedEntityLbl</note>
+        </trans-unit>
         <trans-unit id="Page 3314581104 - NamedType 1776506875" size-unit="char" translate="yes" xml:space="preserve">
           <source>A template with this code already exists.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -9872,6 +9982,26 @@
           <source>Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control TemplateNameOverview - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3314581104 - Control 600717327 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control AddRelatedEntity - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3314581104 - Control 770689773 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control AddRelatedEntityAdvanced - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3314581104 - Control 3707875720 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related entities share a field, typically an identifier such as its name, code, or ID, with the source entity. Predefined relations are available in the simple option. To define a relation, if you know the shared field, use the advanced option.​</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control RelatedEntityOptions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3314581104 - Control 2450499600 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You can also merge data from fields on entities that are related to the source entity. For example, if the source is the Customer entity, your template can include data from the Salesperson/Purchaser entity.​</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control SelectRelatedEntity - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3314581104 - Control 3815676058 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
@@ -10223,6 +10353,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates - Control Name - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 2359842671 - Control 4203721915 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Entities</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates - Control Word Template Related - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2359842671 - Action 3818057883 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create an empty Word template for a specific table.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -10253,6 +10388,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates - Action Download - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2359842671 - Action 1023290046 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Edit the related entities for the selected Word template.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates - Action RelatedTables - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2359842671 - Action 1023290046 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Edit related entities</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates - Action RelatedTables - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2359842671 - Action 701918397 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Upload a new template for the selected entry.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -10262,6 +10407,191 @@
           <source>Upload</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates - Action Upload - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Entity</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - NamedType 1530166770" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No source entity relation was specified.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - NamedType EmptyParentFieldErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - NamedType 62558703" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select related entity for the Word template.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - NamedType SelectRelatedTableCaptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - NamedType 2394404762" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select the source entity relation.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - NamedType SelectTableFieldLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - Control 739346273 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Entity</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - Control Group - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - Control 981736822 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - Control FieldSelection - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - Control 823559016 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the field from the source entity that creates the relationship to the related entity. If there are more than one related entities, specify the one to use for your template.​</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - Control Field Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - Control 823559016 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Entity Relation</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - Control Field Caption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - Control 3531868071 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the field no. from the source entity that creates the relationship to the related entity.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - Control Field No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - Control 2385154712 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a prefix that will indicate that the field is from the related entity when you are setting up the template. For example, if you enter Sales, the field names are prefixed with Sales_. The prefix must be unique.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - Control Related Table Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - Control 2385154712 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Prefix</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - Control Related Table Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - Control 1393533604 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the related entity.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - Control Table Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - Control 1393533604 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - Control Table Caption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3212752058 - Control 3135334477 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the id of the related entity.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Card - Control Table ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1055677777 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Entities</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related FactBox - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1055677777 - Control 1061736343 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Entities</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related FactBox - Control Tables - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1055677777 - Control 2385154712 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a prefix that will indicate that the field is from the related entity when you are setting up the template. For example, if you enter SALES, the field names are prefixed with SALES_. The prefix must be unique.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related FactBox - Control Related Table Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1055677777 - Control 2385154712 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Prefix</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related FactBox - Control Related Table Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1055677777 - Control 1393533604 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the related entity.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related FactBox - Control Table Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1055677777 - Control 1393533604 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related FactBox - Control Table Caption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1055677777 - Control 3135334477 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the id of the related entity.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related FactBox - Control Table ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1550306620 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Entities</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1550306620 - NamedType 581166427" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add a related entity (advanced)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related List - NamedType AddRelatedEntityAdvancedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1550306620 - NamedType 825368625" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add a related entity (simple)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related List - NamedType AddRelatedEntityLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1550306620 - Control 600717327 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related List - Control AddRelatedEntity - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1550306620 - Control 770689773 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related List - Control AddRelatedEntityAdvanced - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1550306620 - Control 2385154712 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a prefix that will indicate that the field is from the related entity when you are setting up the template. For example, if you enter SALES, the field names are prefixed with SALES_. The prefix must be unique.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related List - Control Related Table Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1550306620 - Control 2385154712 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Prefix</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related List - Control Related Table Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1550306620 - Control 1393533604 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the related entity.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related List - Control Table Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1550306620 - Control 1393533604 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related List - Control Table Caption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1550306620 - Control 3135334477 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the id of the related entity.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related List - Control Table ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3470670759 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Related Entities</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Part - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3470670759 - Control 2385154712 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a prefix that will indicate that the field is from the related entity when you are setting up the template. For example, if you enter SALES, the field names are prefixed with SALES_. The prefix must be unique.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Part - Control Related Table Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3470670759 - Control 2385154712 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Prefix</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Part - Control Related Table Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3470670759 - Control 1393533604 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the related entity.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Part - Control Table Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3470670759 - Control 1393533604 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Part - Control Table Caption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3470670759 - Control 3135334477 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the id of the related entity.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Related Part - Control Table ID - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 707049331 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Word Templates Tables</source>
@@ -10302,6 +10632,11 @@
           <source>The user with %1 %2 does not exist.</source>
           <note from="Developer" annotates="general" priority="2">%1 = Label User Security Id, %2 = User Security ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Change Password - NamedType UserDoesNotExistErr</note>
+        </trans-unit>
+        <trans-unit id="Query 3212038148 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Device</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Device - Property Caption</note>
         </trans-unit>
         <trans-unit id="Query 2200828805 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Plan</source>
@@ -11092,6 +11427,11 @@
           <source>D365 Excel Export Action</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet EXCEL EXPORT ACTION - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 668535799 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export Report DataSet to Excel</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Export Report Excel - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 1792714234 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Extension Management - Admin</source>

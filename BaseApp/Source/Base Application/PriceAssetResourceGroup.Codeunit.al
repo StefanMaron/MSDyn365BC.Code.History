@@ -76,9 +76,12 @@ codeunit 7044 "Price Asset - Resource Group" implements "Price Asset"
     var
         NewPriceAsset: Record "Price Asset";
     begin
+        if PriceAsset."Asset No." = '' then
+            exit;
+
         PriceAssetList.SetLevel(PriceAsset.Level - 1);
-        NewPriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::Resource);
-        NewPriceAsset.Validate("Asset No.", ''); // blank means All Resources
+        NewPriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::"Resource Group");
+        NewPriceAsset.Validate("Asset No.", ''); // All Resource Groups
         NewPriceAsset."Work Type Code" := PriceAsset."Work Type Code";
         PriceAssetList.Add(NewPriceAsset);
         OnAfterPutRelatedAssetsToList(PriceAsset, PriceAssetList);

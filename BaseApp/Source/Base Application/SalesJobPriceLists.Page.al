@@ -99,9 +99,9 @@ page 7019 "Sales Job Price Lists"
 
     trigger OnInit()
     var
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
-        PriceCalculationMgt.TestIsEnabled();
+        FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
 
     trigger OnAfterGetRecord()

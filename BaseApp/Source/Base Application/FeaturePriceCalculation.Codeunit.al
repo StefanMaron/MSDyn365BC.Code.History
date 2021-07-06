@@ -108,6 +108,8 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         XS00001Tok: Label 'S00001';
         DefaultPriceListTok: Label 'Default price list.';
         XS99999Tok: Label 'S99999';
+        FeatureIsOffErr: Label 'This page is used by a feature that is not enabled.\For more information, see Feature Management.';
+        FeatureIsOnErr: Label 'This page is no longer available. It was used by a feature that has been replaced or removed.\For more information, see Feature Management.';
 
     local procedure AdjustCRMConnectionSetup()
     var
@@ -332,5 +334,21 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         SalesReceivablesSetup."Allow Editing Active Price" := true;
         SalesReceivablesSetup.Modify();
         exit(SalesReceivablesSetup."Default Price List Code");
+    end;
+
+    procedure FailIfFeatureDisabled()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        if not PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
+            error(FeatureIsOffErr);
+    end;
+
+    procedure FailIfFeatureEnabled()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
+            error(FeatureIsOnErr)
     end;
 }

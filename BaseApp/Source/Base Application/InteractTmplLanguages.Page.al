@@ -27,6 +27,11 @@ page 5154 "Interact. Tmpl. Languages"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the description of the interaction template language. This field will not be displayed in the Word attachment.';
                 }
+                field(WordTemplateCode; "Word Template Code")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the Word template to use when you create communications for an interaction. The Word template will create either a document or be used as the body text in an email.';
+                }
                 field(Attachment; "Attachment No." <> 0)
                 {
                     ApplicationArea = RelationshipMgmt;

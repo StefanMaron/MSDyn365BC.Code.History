@@ -28,6 +28,7 @@ codeunit 134123 "Price List Line UT"
         AssetTypeForUOMErr: Label 'Product Type must be equal to Item or Resource.';
         AssetTypeMustBeItemErr: Label 'Product Type must be equal to ''Item''';
         AssetTypeMustBeResourceErr: Label 'Product Type must be equal to ''Resource''';
+        AssetTypeMustNotBeAllErr: Label 'Product Type must not be (All)';
         AssetNoMustHaveValueErr: Label 'Product No. must have a value';
         NotPostingJobTaskTypeErr: Label 'Job Task Type must be equal to ''Posting''';
         WrongPriceListCodeErr: Label 'The field Price List Code of table Price List Line contains a value (%1) that cannot be found';
@@ -543,6 +544,10 @@ codeunit 134123 "Price List Line UT"
     begin
         // [SCENARIO] "Unit Price" validation with a non-zero value blanks "Cost Factor".
         Initialize();
+        PriceListLine."Source Type" := "Price Source Type"::"All Customers";
+        PriceListLine."Asset Type" := "Price Asset Type"::"G/L Account";
+        PriceListLine."Asset No." := LibraryERM.CreateGLAccountNo();
+
         PriceListLine."Cost Factor" := 1.2;
         PriceListLine.Validate("Unit Price", 0);
         PriceListLine.TestField("Cost Factor", 1.2);
@@ -559,6 +564,10 @@ codeunit 134123 "Price List Line UT"
     begin
         // [SCENARIO] "Cost Factor" validation with a non-zero value blanks "Unit Price".
         Initialize();
+        PriceListLine."Source Type" := "Price Source Type"::"All Customers";
+        PriceListLine."Asset Type" := "Price Asset Type"::"G/L Account";
+        PriceListLine."Asset No." := LibraryERM.CreateGLAccountNo();
+
         PriceListLine."Unit Price" := 10.15;
         PriceListLine.Validate("Cost Factor", 0);
         PriceListLine.TestField("Unit Price", 10.15);
@@ -875,6 +884,54 @@ codeunit 134123 "Price List Line UT"
         asserterror PriceListLine.Validate("Variant Code", ItemVariant.Code);
         // [THEN] Error message: 'Asset No. must have a value.'
         Assert.ExpectedError(AssetNoMustHaveValueErr);
+    end;
+
+    [Test]
+    procedure T037_ValidateUnitPriceWithBlankAssetType()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Unit Price" cannot be filled if "Asset Type" is blank.
+        Initialize();
+        // [GIVEN] Price list line, where "Asset Type" is 'All', "Asset No." is <blank> 
+        PriceListLine.Validate("Price Type", "Price Type"::Sale);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::" ");
+        // [WHEN] Validate "Unit Price" as 1
+        asserterror PriceListLine.Validate("Unit Price", 1);
+        // [THEN] Error message: 'Asset Type must not be (All).'
+        Assert.ExpectedError(AssetTypeMustNotBeAllErr);
+    end;
+
+    [Test]
+    procedure T038_ValidateDirectUnitCostWithBlankAssetType()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Unit Price" cannot be filled if "Asset Type" is blank.
+        Initialize();
+        // [GIVEN] Price list line, where "Asset Type" is 'All', "Asset No." is <blank> 
+        PriceListLine.Validate("Price Type", "Price Type"::Purchase);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::" ");
+        // [WHEN] Validate "Direct Unit Cost" as 1
+        asserterror PriceListLine.Validate("Direct Unit Cost", 1);
+        // [THEN] Error message: 'Asset Type must not be (All).'
+        Assert.ExpectedError(AssetTypeMustNotBeAllErr);
+    end;
+
+    [Test]
+    procedure T039_ValidateLineDiscountPctWithBlankAssetType()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Line Discount %" cannot be filled if "Asset Type" is blank.
+        Initialize();
+        // [GIVEN] Price list line, where "Asset Type" is 'All', "Asset No." is <blank> 
+        PriceListLine.Validate("Price Type", "Price Type"::Sale);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::" ");
+        // [WHEN] Validate "Line Discount %" as 1
+        asserterror PriceListLine.Validate("Line Discount %", 1);
+        // [THEN] Error message: 'Asset Type must not be (All).'
+        Assert.ExpectedError(AssetTypeMustNotBeAllErr);
     end;
 
     [Test]
@@ -1325,7 +1382,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is 'CVAT'
-        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, false, Customer."VAT Bus. Posting Group", '', '');
+        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, false, Customer."VAT Bus. Posting Group", '', '', Customer."Currency Code");
     end;
 
     [Test]
@@ -1349,7 +1406,8 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
-        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '', '');
+        VerifyLineVariant(
+            PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '', '', '');
     end;
 
     [Test]
@@ -1379,7 +1437,7 @@ codeunit 134123 "Price List Line UT"
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'CPGVAT'
         VerifyLineVariant(
             PriceListLine, Item."Sales Unit of Measure", Item."Allow Invoice Disc.",
-            CustomerPriceGroup."Price Includes VAT", CustomerPriceGroup."VAT Bus. Posting Gr. (Price)", '', '');
+            CustomerPriceGroup."Price Includes VAT", CustomerPriceGroup."VAT Bus. Posting Gr. (Price)", '', '', '');
     end;
 
     [Test]
@@ -1410,23 +1468,34 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is 'CVAT'
-        VerifyLineVariant(PriceListLine, '', false, false, Customer."VAT Bus. Posting Group", '', '');
+        VerifyLineVariant(PriceListLine, '', false, false, Customer."VAT Bus. Posting Group", '', '', Customer."Currency Code");
     end;
 
     [Test]
     procedure T104_ValidateItemNoForVendor()
     var
+        Currency: Record Currency;
         Item: Record Item;
         PriceListLine: Record "Price List Line";
+        Vendor: Record Vendor;
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
         // [FEATURE] [Vendor] [Item]
         Initialize();
+        // [GIVEN] Vendor 'V', where "Currency Code" is 'USD', "Price Includes VAT" is Yes, "VAT Bus. Posting Group" is 'VBG'
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreateCurrency(Currency);
+        Vendor."Currency Code" := Currency.Code;
+        Vendor."Prices Including VAT" := true;
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        Vendor."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
+        Vendor.Modify();
         // [GIVEN] Item 'X', where "Purch. Unit of Measure" - 'PUoM', "Allow Invoice Disc." is Yes, 
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
         // [GIVEN] Price List Line, where "Source Type" is 'Vendor', "Asset Type" is Item
         PriceListLine.Validate("Source Type", "Price Source Type"::Vendor);
-        PriceListLine.Validate("Source No.", LibraryPurchase.CreateVendorNo());
+        PriceListLine.Validate("Source No.", Vendor."No.");
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
@@ -1434,8 +1503,8 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.Validate("Asset No.", Item."No.");
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'PUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
-        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>
-        VerifyLineVariant(PriceListLine, Item."Purch. Unit of Measure", false, false, '', '', '');
+        // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VBG'
+        VerifyLineVariant(PriceListLine, Item."Purch. Unit of Measure", false, Vendor."Prices Including VAT", Vendor."VAT Bus. Posting Group", '', '', Vendor."Currency Code");
     end;
 
     [Test]
@@ -1465,7 +1534,7 @@ codeunit 134123 "Price List Line UT"
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>
         VerifyLineVariant(
             PriceListLine, Item."Sales Unit of Measure", Item."Allow Invoice Disc.",
-            Item."Price Includes VAT", item."VAT Bus. Posting Gr. (Price)", '', '');
+            Item."Price Includes VAT", item."VAT Bus. Posting Gr. (Price)", '', '', Job."Currency Code");
     end;
 
     [Test]
@@ -1493,7 +1562,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'PUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>
-        VerifyLineVariant(PriceListLine, Item."Purch. Unit of Measure", false, false, '', '', '');
+        VerifyLineVariant(PriceListLine, Item."Purch. Unit of Measure", false, false, '', '', '', Job."Currency Code");
     end;
 
     [Test]
@@ -1522,7 +1591,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, Description is 'Descr'
-        VerifyLineVariant(PriceListLine, '', false, false, '', '', '');
+        VerifyLineVariant(PriceListLine, '', false, false, '', '', '', Job."Currency Code");
         PriceListLine.TestField(Description, GLAccount.Name);
     end;
 
@@ -1554,7 +1623,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'R-UOM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, "Work Type Code" is <blank>
-        VerifyLineVariant(PriceListLine, Resource."Base Unit of Measure", false, false, '', '', '');
+        VerifyLineVariant(PriceListLine, Resource."Base Unit of Measure", false, false, '', '', '', Job."Currency Code");
     end;
 
     [Test]
@@ -1585,7 +1654,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, "Work Type Code" is <blank>
-        VerifyLineVariant(PriceListLine, '', false, false, '', '', '');
+        VerifyLineVariant(PriceListLine, '', false, false, '', '', '', Job."Currency Code");
     end;
 
     [Test]
@@ -1618,7 +1687,9 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'R-UOM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is 'CVAT', "Work Type Code" is <blank>
-        VerifyLineVariant(PriceListLine, Resource."Base Unit of Measure", false, false, Customer."VAT Bus. Posting Group", '', '');
+        VerifyLineVariant(
+            PriceListLine, Resource."Base Unit of Measure", false, false,
+            Customer."VAT Bus. Posting Group", '', '', Customer."Currency Code");
     end;
 
     [Test]
@@ -1627,16 +1698,19 @@ codeunit 134123 "Price List Line UT"
         ResourceGroup: Record "Resource Group";
         Job: Record Job;
         PriceListLine: Record "Price List Line";
+        Vendor: Record Vendor;
         WorkType: Record "Work Type";
     begin
         // [FEATURE] [Vendor] [Resource Group]
         Initialize();
+        // [GIVEN] Vendor 'V', where "VAT Bus. Posting Group" is 'VPG'
+        LibraryPurchase.CreateVendor(Vendor);
         // [GIVEN] Resource Group 'X'
         LibraryResource.CreateResourceGroup(ResourceGroup);
         // [GIVEN] Price List Line, where "Source Type" is 'Vendor', "Asset Type" is 'Resource Group',
         // [GIVEN] "Variant Code" is 'V', "Work Type Code" is 'WT'
         PriceListLine.Validate("Source Type", "Price Source Type"::Vendor);
-        PriceListLine.Validate("Source No.", LibraryPurchase.CreateVendorNo());
+        PriceListLine.Validate("Source No.", Vendor."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         LibraryResource.CreateWorkType(WorkType);
@@ -1647,8 +1721,8 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.Validate("Asset No.", ResourceGroup."No.");
 
         // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
-        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, "Work Type Code" is <blank>
-        VerifyLineVariant(PriceListLine, '', false, false, '', '', '');
+        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is 'VPG', "Work Type Code" is <blank>
+        VerifyLineVariant(PriceListLine, '', false, false, Vendor."VAT Bus. Posting Group", '', '', '');
     end;
 
     [Test]
@@ -1676,7 +1750,9 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is 'V', "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
-        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", ItemVariant.Code, '');
+        VerifyLineVariant(
+            PriceListLine, Item."Sales Unit of Measure", true, true,
+            Item."VAT Bus. Posting Gr. (Price)", ItemVariant.Code, '', '');
     end;
 
     [Test]
@@ -1797,7 +1873,7 @@ codeunit 134123 "Price List Line UT"
     begin
         // [FEATURE] [Contact] [Item]
         Initialize();
-        // [GIVEN] Customer 'C' with Contact 'CONT', where "Currency Code" is 'USD', "VAT Bus. POsting Group" is 'CVAT', 
+        // [GIVEN] Customer 'C' with Contact 'CONT', where "VAT Bus. Posting Group" is 'CVAT', 
         // [GIVEN] "Prices Including VAT" is No, "Allow Line Disc." is Yes
         LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
         // [GIVEN] Item 'X', where "Sales Unit of Measure" - 'SUoM', "Allow Invoice Disc." is Yes, 
@@ -1814,7 +1890,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
-        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '', '');
+        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '', '', '');
     end;
 
     [Test]
@@ -1828,7 +1904,7 @@ codeunit 134123 "Price List Line UT"
     begin
         // [FEATURE] [Contact] [Item]
         Initialize();
-        // [GIVEN] Customer 'C' with Contact 'CONT', where "Currency Code" is 'USD', "VAT Bus. POsting Group" is 'CVAT', 
+        // [GIVEN] Customer 'C' with Contact 'CONT', where "VAT Bus. Posting Group" is 'CVAT', 
         // [GIVEN] "Prices Including VAT" is No, "Allow Line Disc." is Yes
         LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
         // [GIVEN] Item 'X', where "Sales Unit of Measure" - 'SUoM', "Allow Invoice Disc." is Yes, 
@@ -1846,7 +1922,7 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
-        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '', '');
+        VerifyLineVariant(PriceListLine, Item."Sales Unit of Measure", true, true, Item."VAT Bus. Posting Gr. (Price)", '', '', '');
     end;
 
     [Test]
@@ -2117,7 +2193,7 @@ codeunit 134123 "Price List Line UT"
         Initialize();
         // [GIVEN] Two "Service Cost" 'A' and 'B' have related price lines
         LibraryService.CreateServiceCost(ServiceCost[1]);
-        LibraryService.CreateServiceCost(ServiceCost[1]);
+        LibraryService.CreateServiceCost(ServiceCost[2]);
         CreateAssetPriceLines("Price Asset Type"::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code);
 
         // [WHEN] Rename "Service Cost" 'A' to 'X'
@@ -2276,6 +2352,9 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Price List Line, where "Source Type" is 'Job', "Cost Factor" is 2
         PriceListLine.Init();
         PriceListLine."Source Type" := "Price Source Type"::Job;
+        PriceListLine."Source No." := 'JOB';
+        PriceListLine."Asset Type" := "Price Asset Type"::"G/L Account";
+        PriceListLine."Asset No." := 'ACC';
         PriceListLine."Cost Factor" := 2;
         // [WHEN] Set "Unit Price" as 1
         PriceListLine.Validate("Unit Price", 1);
@@ -2293,6 +2372,9 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Price List Line, where "Source Type" is 'Job', "Unit Price" is 2
         PriceListLine.Init();
         PriceListLine."Source Type" := "Price Source Type"::Job;
+        PriceListLine."Source No." := 'JOB';
+        PriceListLine."Asset Type" := "Price Asset Type"::"G/L Account";
+        PriceListLine."Asset No." := 'ACC';
         PriceListLine."Unit Price" := 2;
         // [WHEN] Set "Cost Factor" as 1
         PriceListLine.Validate("Cost Factor", 1);
@@ -2768,7 +2850,7 @@ codeunit 134123 "Price List Line UT"
         CustomerPriceGroup.Modify(true);
     end;
 
-    local procedure VerifyLineVariant(PriceListLine: Record "Price List Line"; UoM: Code[10]; AllowInvoiceDisc: Boolean; PriceIncludesVAT: Boolean; VATBusPostingGr: Code[20]; VariantCode: Code[10]; WorkTypeCode: Code[10])
+    local procedure VerifyLineVariant(PriceListLine: Record "Price List Line"; UoM: Code[10]; AllowInvoiceDisc: Boolean; PriceIncludesVAT: Boolean; VATBusPostingGr: Code[20]; VariantCode: Code[10]; WorkTypeCode: Code[10]; CurrencyCode: Code[10])
     begin
         PriceListLine.TestField("Unit of Measure Code", UoM);
         PriceListLine.TestField("Variant Code", VariantCode);
@@ -2776,6 +2858,7 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.TestField("Price Includes VAT", PriceIncludesVAT);
         PriceListLine.TestField("VAT Bus. Posting Gr. (Price)", VATBusPostingGr);
         PriceListLine.TestField("Work Type Code", WorkTypeCode);
+        PriceListLine.TestField("Currency Code", CurrencyCode);
     end;
 
     local procedure VerifyLine(PriceListLine: Record "Price List Line"; AllowLineDisc: Boolean; PriceIncludesVAT: Boolean; VATBusPostingGr: Code[20]; CurrencyCode: Code[10])

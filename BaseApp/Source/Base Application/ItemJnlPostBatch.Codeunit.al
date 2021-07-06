@@ -163,7 +163,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             if PhysInvtCount then
                 PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount;
 
-            OnAfterPostJnlLines(ItemJnlBatch, ItemJnlLine, ItemRegNo, WhseRegNo);
+            OnAfterPostJnlLines(ItemJnlBatch, ItemJnlLine, ItemRegNo, WhseRegNo, WindowIsOpen);
 
             if WindowIsOpen then
                 Window.Close;
@@ -210,7 +210,7 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     local procedure CheckLines(var ItemJnlLine: Record "Item Journal Line")
     begin
-        OnBeforeCheckLines(ItemJnlLine);
+        OnBeforeCheckLines(ItemJnlLine, WindowIsOpen);
 
         with ItemJnlLine do begin
             LineCount := 0;
@@ -273,7 +273,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                 MakeRecurringTexts(ItemJnlLine);
                 ConstructPostingNumber(ItemJnlLine);
 
-                OnPostLinesOnBeforePostLine(ItemJnlLine, SuppressCommit);
+                OnPostLinesOnBeforePostLine(ItemJnlLine, SuppressCommit, WindowIsOpen);
 
                 if "Inventory Value Per" <> "Inventory Value Per"::" " then
                     ItemJnlPostSumLine(ItemJnlLine)
@@ -327,7 +327,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         ItemJnlLine2.CopyFilters(ItemJnlLine);
         ItemJnlLine2.FindSet();
         repeat
-            OnHandleRecurringLineOnBeforeItemJnlLine2Loop(ItemJnlLine, ItemJnlLine2);
+            OnHandleRecurringLineOnBeforeItemJnlLine2Loop(ItemJnlLine, ItemJnlLine2, WindowIsOpen);
             LineCount := LineCount + 1;
             if WindowIsOpen then begin
                 Window.Update(5, LineCount);
@@ -941,7 +941,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostJnlLines(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; ItemRegNo: Integer; WhseRegNo: Integer)
+    local procedure OnAfterPostJnlLines(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; ItemRegNo: Integer; WhseRegNo: Integer; var WindowIsOpen: Boolean)
     begin
     end;
 
@@ -971,7 +971,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckLines(var ItemJnlLine: Record "Item Journal Line")
+    local procedure OnBeforeCheckLines(var ItemJnlLine: Record "Item Journal Line"; var WindowIsOpen: Boolean)
     begin
     end;
 
@@ -1062,7 +1062,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostLinesOnBeforePostLine(var ItemJournalLine: Record "Item Journal Line"; var SuppressCommit: Boolean)
+    local procedure OnPostLinesOnBeforePostLine(var ItemJournalLine: Record "Item Journal Line"; var SuppressCommit: Boolean; var WindowIsOpen: Boolean)
     begin
     end;
 
@@ -1077,7 +1077,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnHandleRecurringLineOnBeforeItemJnlLine2Loop(var ItemJnlLine: Record "Item Journal Line"; var ItemJnlLine2: Record "Item Journal Line")
+    local procedure OnHandleRecurringLineOnBeforeItemJnlLine2Loop(var ItemJnlLine: Record "Item Journal Line"; var ItemJnlLine2: Record "Item Journal Line"; var WindowIsOpen: Boolean)
     begin
     end;
 

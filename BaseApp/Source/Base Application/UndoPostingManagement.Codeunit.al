@@ -670,6 +670,7 @@ codeunit 5817 "Undo Posting Management"
                 else
                     FieldError("Document Type");
             end;
+            OnUpdatePurchLineOnBeforePurchLineModify(PurchLine);
             Modify;
             RevertPostedItemTrackingFromPurchLine(PurchLine, TempUndoneItemLedgEntry);
             xPurchLine."Quantity (Base)" := 0;
@@ -742,6 +743,7 @@ codeunit 5817 "Undo Posting Management"
                 else
                     FieldError("Document Type");
             end;
+            OnUpdateSalesLineOnBeforeSalesLineModify(SalesLine);
             Modify;
             RevertPostedItemTrackingFromSalesLine(SalesLine, TempUndoneItemLedgEntry);
             xSalesLine."Quantity (Base)" := 0;
@@ -910,6 +912,7 @@ codeunit 5817 "Undo Posting Management"
                             ReservEntry."Shipment Date" := AvailabilityDate;
                         ReservEntry."Entry No." := 0;
                         ReservEntry.UpdateItemTracking;
+                        OnRevertPostedItemTrackingOnBeforeReservEntryInsert(ReservEntry, TempItemLedgEntry);
                         ReservEntry.Insert();
 
                         TempReservEntry := ReservEntry;
@@ -1240,12 +1243,27 @@ codeunit 5817 "Undo Posting Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRevertPostedItemTrackingOnBeforeReservEntryInsert(var ReservationEntry: Record "Reservation Entry"; var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdatePurchLineOnAfterSetQtyToShip(var PurchLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdatePurchLineOnAfterSetQtyToReceive(var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchLineOnBeforePurchLineModify(var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesLineOnBeforeSalesLineModify(var SalesLine: Record "Sales Line")
     begin
     end;
 }

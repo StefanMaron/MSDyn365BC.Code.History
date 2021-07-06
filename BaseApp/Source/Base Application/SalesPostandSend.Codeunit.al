@@ -23,6 +23,7 @@ codeunit 79 "Sales-Post and Send"
         SalesPost: Codeunit "Sales-Post";
         SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
         HideDialog: Boolean;
+        IsHandled: Boolean;
     begin
         HideDialog := false;
 
@@ -38,16 +39,20 @@ codeunit 79 "Sales-Post and Send"
                     else
                         Error(NotSupportedDocumentTypeErr, "Document Type");
                 end;
+        OnCodeOnAfterConfirmPostAndSend(SalesHeader);
 
         TempDocumentSendingProfile.CheckElectronicSendingEnabled;
         ValidateElectronicFormats(TempDocumentSendingProfile);
 
-        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
-            SalesPostYesNo.PostAndSend(SalesHeader);
-            if not (SalesHeader.Ship or SalesHeader.Invoice) then
-                exit;
-        end else
-            CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
+        IsHandled := false;
+        OnCodeOnBeforePostSalesHeader(SalesHeader, TempDocumentSendingProfile, HideDialog, IsHandled);
+        if not IsHandled then
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+                SalesPostYesNo.PostAndSend(SalesHeader);
+                if not (SalesHeader.Ship or SalesHeader.Invoice) then
+                    exit;
+            end else
+                CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
 
         OnAfterPostAndBeforeSend(SalesHeader);
 
@@ -65,6 +70,11 @@ codeunit 79 "Sales-Post and Send"
         OfficeMgt: Codeunit "Office Management";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmPostAndSend(SalesHeader, TempDocumentSendingProfile, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         Customer.Get(SalesHeader."Bill-to Customer No.");
         if OfficeMgt.IsAvailable then
             DocumentSendingProfile.GetOfficeAddinDefault(TempDocumentSendingProfile, OfficeMgt.AttachAvailable)
@@ -91,7 +101,12 @@ codeunit 79 "Sales-Post and Send"
     local procedure ValidateElectronicFormats(DocumentSendingProfile: Record "Document Sending Profile")
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateElectronicFormats(SalesHeader, DocumentSendingProfile, IsHandled);
+        if IsHandled then
+            exit;
         if (DocumentSendingProfile."E-Mail" <> DocumentSendingProfile."E-Mail"::No) and
            (DocumentSendingProfile."E-Mail Attachment" <> DocumentSendingProfile."E-Mail Attachment"::PDF)
         then begin
@@ -128,7 +143,27 @@ codeunit 79 "Sales-Post and Send"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmPostAndSend(SalesHeader: Record "Sales Header"; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateElectronicFormats(SalesHeader: Record "Sales Header"; DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostAndSend(var SalesHeader: Record "Sales Header"; var HideDialog: Boolean; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterConfirmPostAndSend(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforePostSalesHeader(SalesHeader: Record "Sales Header"; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary; HideDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

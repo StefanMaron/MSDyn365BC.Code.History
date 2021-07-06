@@ -873,6 +873,67 @@ codeunit 7201 "CDS Integration Impl."
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
     end;
 
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure SetupCertificateAuthentication(var CDSConnectionSetup: Record "CDS Connection Setup")
+    var
+        CrmHelper: DotNet CRMHelper;
+        CDSConnectionFirstPartyAppIdTxt: Text;
+        CDSConnectionFirstPartyAppCertificateTxt: Text;
+        AdminAccessToken: Text;
+        TempConnectionString: Text;
+        JITProvisioningTelemetryMessageTxt: Text;
+        PreviousIntegrationUserName: Text[250];
+    begin
+        CDSConnectionFirstPartyAppIdTxt := GetCDSConnectionFirstPartyAppId();
+        CDSConnectionFirstPartyAppCertificateTxt := GetCDSConnectionFirstPartyAppCertificate();
+        if (CDSConnectionFirstPartyAppIdTxt = '') or (CDSConnectionFirstPartyAppCertificateTxt = '') then
+            exit;
+
+        PreviousIntegrationUserName := CDSConnectionSetup."User Name";
+
+        // sign in as admin in interactive auth code flow
+        GetAccessToken(CDSConnectionSetup."Server Address", false, AdminAccessToken);
+
+        // register connection with CrmHelper
+        TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", AdminAccessToken, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+        if not InitializeConnection(CrmHelper, TempConnectionString) then begin
+            Session.LogMessage('0000AU2', ConnectionNotRegisteredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            ProcessConnectionFailures();
+            exit;
+        end;
+
+        // JIT provision (backfill) the 1st party app service principal
+        JITProvisioningTelemetryMessageTxt := CrmHelper.ProvisionServicePrincipal(CDSConnectionFirstPartyAppIdTxt, CDSConnectionFirstPartyAppCertificateTxt);
+        if JITProvisioningTelemetryMessageTxt <> '' then
+            if JITProvisioningTelemetryMessageTxt.Contains(SuccessfulJITProvisioningTelemetryMsg) then
+                Session.LogMessage('0000ENK', JITProvisioningTelemetryMessageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
+            else
+                Session.LogMessage('0000F0A', JITProvisioningTelemetryMessageTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+
+        // even though CrmHelper.ProvisionServicePrincipal contains an async Graph call, you can't expect Dataverse to be aware of the newly provisioned service principal right away.
+        // It has been tested that it fails if you try to create the application user right after you provision the service principal
+        Sleep(5000);
+
+        if not JITProvisioningTelemetryMessageTxt.Contains(SuccessfulJITProvisioningTelemetryMsg) then begin
+            // try one more time, it could have failed because of a timeout
+            JITProvisioningTelemetryMessageTxt := CrmHelper.ProvisionServicePrincipal(CDSConnectionFirstPartyAppIdTxt, CDSConnectionFirstPartyAppCertificateTxt);
+            if JITProvisioningTelemetryMessageTxt <> '' then
+                if JITProvisioningTelemetryMessageTxt.Contains(SuccessfulJITProvisioningTelemetryMsg) then
+                    Session.LogMessage('0000ENK', JITProvisioningTelemetryMessageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
+                else
+                    Session.LogMessage('0000F0A', JITProvisioningTelemetryMessageTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+        end;
+
+        // even though CrmHelper.ProvisionServicePrincipal contains an async Graph call, you can't expect Dataverse to be aware of the newly provisioned service principal right away.
+        // It has been tested that it fails if you try to create the application user right after you provision the service principal
+        Sleep(10000);
+
+        // this will create integration user and update the proxy version and connection string
+        FindOrCreateIntegrationUser(CDSConnectionSetup, '', '', AdminAccessToken);
+        AssignPreviousIntegrationUserRoles(CrmHelper, PreviousIntegrationUserName, CDSConnectionSetup, AdminAccessToken);
+    end;
+
     [TryFunction]
     local procedure UpdateIntegrationUserNameAndEmailIfNeeded(var CRMSystemuser: Record "CRM Systemuser")
     var
@@ -1307,7 +1368,10 @@ codeunit 7201 "CDS Integration Impl."
             TempAdminCDSConnectionSetup.Domain := CopyStr(AdminADDomain, 1, MaxStrLen(TempAdminCDSConnectionSetup.Domain));
             TempAdminCDSConnectionSetup."User Name" := CopyStr(AdminUser, 1, MaxStrLen(TempAdminCDSConnectionSetup."User Name"));
             TempAdminCDSConnectionSetup.SetPassword(AdminPassword);
-            UpdateConnectionString(TempAdminCDSConnectionSetup);
+            if TempAdminCDSConnectionSetup."Authentication Type" = TempAdminCDSConnectionSetup."Authentication Type"::OAuth then
+                SetConnectionString(TempAdminCDSConnectionSetup, ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUser, Format(MissingPasswordTok)))
+            else
+                UpdateConnectionString(TempAdminCDSConnectionSetup);
         end;
     end;
 
@@ -2352,6 +2416,51 @@ codeunit 7201 "CDS Integration Impl."
         Session.LogMessage('0000D4F', PreviousIntegrationUserRolesAddedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
+    [NonDebuggable]
+    local procedure AssignPreviousIntegrationUserRoles(var CrmHelper: DotNet CrmHelper; PreviousIntegrationUserName: Text[250]; var CDSConnectionSetup: Record "CDS Connection Setup"; AccessToken: Text)
+    var
+        TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
+        CRMSystemUserRoles: Record "CRM Systemuserroles";
+        PreviousIntegrationUserRole: Record "CRM Role";
+        TempConnectionName: Text;
+        PreviousIntegrationUserId: Guid;
+        CurrentIntegrationUserId: Guid;
+    begin
+        if CDSConnectionSetup."User Name" = PreviousIntegrationUserName then
+            exit;
+
+        if not TryGetUserId(CrmHelper, PreviousIntegrationUserName, PreviousIntegrationUserId) then begin
+            Session.LogMessage('0000D4A', UserNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            exit;
+        end;
+
+        if not TryGetUserId(CrmHelper, CDSConnectionSetup."User Name", CurrentIntegrationUserId) then begin
+            Session.LogMessage('0000D4B', UserNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            exit;
+        end;
+
+        ResetCache();
+
+        GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, '', '', AccessToken, '');
+        TempConnectionName := GetTempConnectionName();
+        RegisterConnection(TempAdminCDSConnectionSetup, TempConnectionName);
+        SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName, true);
+
+        // Table connection is scoped, therefore all manipulations with CDS tables must be placed
+        // in this procedure between SetDefaultTableConnection and UnregisterConnection
+
+        // assign the roles of the previous integration user to the current (newly set up) integration user
+        CRMSystemUserRoles.SetRange(SystemUserId, PreviousIntegrationUserId);
+        if CRMSystemUserRoles.FindSet() then
+            repeat
+                if PreviousIntegrationUserRole.Get(CRMSystemUserRoles.RoleId) then
+                    if not TryAssignUserRole(CrmHelper, CurrentIntegrationUserId, CRMSystemUserRoles.RoleId) then
+                        Session.LogMessage('0000D4C', CannotAssignRoleToUserTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            until CRMSystemUserRoles.Next() = 0;
+
+        UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
+        Session.LogMessage('0000D4F', PreviousIntegrationUserRolesAddedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+    end;
 
     [Scope('OnPrem')]
     procedure AssignIntegrationRole(var CrmHelper: DotNet CrmHelper; UserName: Text)
@@ -2477,10 +2586,14 @@ codeunit 7201 "CDS Integration Impl."
                 Error(AdminUserPasswordWrongErr);
             end;
 
-            if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::AD then
-                TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup, AdminADDomain))
-            else
-                TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+            case CDSConnectionSetup."Authentication Type" of
+                CDSConnectionSetup."Authentication Type"::AD:
+                    TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup, AdminADDomain));
+                CDSConnectionSetup."Authentication Type"::OAuth:
+                    TempConnectionString := ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUser, AdminPassword);
+                else
+                    TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+            end
         end else begin
             GetAccessToken(CDSConnectionSetup."Server Address", GetTokenFromCache, AccessToken);
             TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
@@ -2492,6 +2605,37 @@ codeunit 7201 "CDS Integration Impl."
         end;
     end;
 
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup: Record "CDS Connection Setup"; NewUserName: Text; NewPassword: Text): Text
+    var
+        PasswordPlaceHolderPos: Integer;
+        UserNameTokenPos: Integer;
+        NewConnectionString: Text;
+        LeftPart: Text;
+        RightPart: Text;
+        UserNameTok: Text;
+    begin
+        UserNameTok := 'UserName=';
+        PasswordPlaceHolderPos := StrPos(CDSConnectionSetup."Connection String", MissingPasswordTok);
+
+        // first replace the password
+        NewConnectionString :=
+            CopyStr(CDSConnectionSetup."Connection String", 1, PasswordPlaceHolderPos - 1) + NewPassword +
+            CopyStr(CDSConnectionSetup."Connection String", PasswordPlaceHolderPos + StrLen(MissingPasswordTok));
+
+        // then replace the user name
+        UserNameTokenPos := StrPos(NewConnectionString, UserNameTok);
+        LeftPart := CopyStr(NewConnectionString, 1, UserNameTokenPos - 1);
+        RightPart := CopyStr(NewConnectionString, UserNameTokenPos);
+        if RightPart.IndexOf(';') > 0 then
+            NewConnectionString := LeftPart + UserNameTok + NewUserName + CopyStr(RightPart, RightPart.IndexOf(';'))
+        else
+            NewConnectionString := LeftPart + UserNameTok + NewUserName;
+
+        exit(NewConnectionString);
+    end;
 
     [Scope('OnPrem')]
     [NonDebuggable]

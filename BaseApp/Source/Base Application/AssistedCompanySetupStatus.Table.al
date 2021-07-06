@@ -55,12 +55,20 @@ table 1802 "Assisted Company Setup Status"
     {
     }
 
+#if not CLEAN19
+    [Obsolete('Replaced with GetCompanySetupStatusValue', '19.0')]
     procedure GetCompanySetupStatus(Name: Text[30]) SetupStatus: Integer
+    begin
+        SetupStatus := GetCompanySetupStatusValue(Name).AsInteger();
+    end;
+#endif
+
+    procedure GetCompanySetupStatusValue(Name: Text[30]) SetupStatus: Enum "Company Setup Status"
     begin
         if "Company Name" <> Name then
             if not Get(Name) then
-                exit(0);
-        OnGetCompanySetupStatus("Company Name", SetupStatus);
+                exit(Enum::"Company Setup Status"::" ");
+        OnGetCompanySetupStatusValue("Company Name", SetupStatus);
     end;
 
     procedure DrillDownSetupStatus(Name: Text[30])
@@ -93,8 +101,16 @@ table 1802 "Assisted Company Setup Status"
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
-    local procedure OnGetCompanySetupStatus(Name: Text[30]; var SetupStatus: Integer)
+    [Obsolete('Replaced with OnGetCompanySetupStatusValue', '19.0')]
+    internal procedure OnGetCompanySetupStatus(Name: Text[30]; var SetupStatus: Integer)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCompanySetupStatusValue(Name: Text[30]; var SetupStatus: Enum "Company Setup Status")
     begin
     end;
 
@@ -107,12 +123,11 @@ table 1802 "Assisted Company Setup Status"
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
         EnvironmentInfo: Codeunit "Environment Information";
-        RefSetupStatus: Option " ",Completed,"In Progress",Error,"Missing Permission";
     begin
         if not EnvironmentInfo.IsSaaS then
             exit;
 
-        if AssistedCompanySetupStatus.GetCompanySetupStatus(CompanyNameFrom) = RefSetupStatus::Completed then begin
+        if AssistedCompanySetupStatus.GetCompanySetupStatusValue(CompanyNameFrom) = Enum::"Company Setup Status"::Completed then begin
             AssistedCompanySetupStatus.Init();
             AssistedCompanySetupStatus."Company Name" := CompanyNameTo;
             if AssistedCompanySetupStatus.Insert() then;

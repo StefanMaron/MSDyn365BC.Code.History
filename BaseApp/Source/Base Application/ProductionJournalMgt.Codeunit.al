@@ -92,6 +92,7 @@ codeunit 5510 "Production Journal Mgt"
                 ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
                 ProdOrderRtngLine.SetRange(Status, ProdOrderLine.Status);
                 ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+                OnCreateJnlLinesOnAfterProdOrderRtngLineSetFilters(ProdOrderRtngLine);
                 if ProdOrderRtngLine.Find('-') then begin
                     IsHandled := false;
                     OnCreateJnlLinesOnBeforeInsertComponents(ProdOrderRtngLine, ProdOrder, ProdOrderLine, IsHandled);
@@ -610,6 +611,11 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateJnlLinesOnBeforeCheckProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJnlLinesOnAfterProdOrderRtngLineSetFilters(var ProdOrderRtngLine: Record "Prod. Order Routing Line")
     begin
     end;
 

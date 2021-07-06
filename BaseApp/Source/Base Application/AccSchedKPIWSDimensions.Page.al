@@ -165,7 +165,6 @@ page 198 "Acc. Sched. KPI WS Dimensions"
     begin
         AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvLine.FindSet();
-        AccScheduleLine.SetRange(Show, AccScheduleLine.Show::Yes);
         AccScheduleLine.SetFilter(Totaling, '<>%1', '');
         repeat
             AccScheduleLine.SetRange("Schedule Name", AccSchedKPIWebSrvLine."Acc. Schedule Name");
@@ -249,12 +248,18 @@ page 198 "Acc. Sched. KPI WS Dimensions"
     end;
 
     local procedure InsertAccSchedulePeriod(var TempAccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer" temporary; ForecastFromBudget: Boolean)
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
     begin
         with TempAccSchedKPIBuffer do begin
             Reset;
             if FindSet then
                 repeat
-                    InsertData(TempAccSchedKPIBuffer, ForecastFromBudget);
+                    AccScheduleLine.SetRange("Schedule Name", TempAccSchedKPIBuffer."Account Schedule Name");
+                    AccScheduleLine.SetRange("Row No.", TempAccSchedKPIBuffer."KPI Code");
+                    if AccScheduleLine.FindFirst() then;
+                    if AccScheduleLine.Show = "Acc. Schedule Line Show"::Yes then
+                        InsertData(TempAccSchedKPIBuffer, ForecastFromBudget);
                 until Next() = 0;
             DeleteAll();
         end;

@@ -80,6 +80,35 @@ codeunit 134156 "Service Table Fields UT"
         Assert.IsTrue(ServiceHeader.IsCreditDocType(), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure StandardServiceItemGrCodeOnDelete()
+    var
+        StandardServiceCode: Record "Standard Service Code";
+        StandardServiceLine: Record "Standard Service Line";
+        StandardServiceItemGrCode: Record "Standard Service Item Gr. Code";
+    begin
+        // [SCENARIO 395389] System keeps standard sevice lines when users deletes standard service item group code.
+        StandardServiceCode.Init();
+        StandardServiceCode.Code := LibraryUtility.GenerateGUID();
+        StandardServiceCode.Insert();
+
+        StandardServiceLine.Init();
+        StandardServiceLine."Standard Service Code" := StandardServiceCode.Code;
+        StandardServiceLine."Line No." := 10000;
+        StandardServiceLine.Insert();
+
+        StandardServiceItemGrCode.Init();
+        StandardServiceItemGrCode."Service Item Group Code" := LibraryUtility.GenerateGUID();
+        StandardServiceItemGrCode.Code := StandardServiceCode.Code;
+        StandardServiceItemGrCode.Insert();
+
+        StandardServiceItemGrCode.Delete(true);
+
+        StandardServiceLine.SetRange("Standard Service Code", StandardServiceCode.Code);
+        Assert.RecordCount(StandardServiceLine, 1);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Service Table Fields UT");

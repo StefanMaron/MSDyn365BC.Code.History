@@ -72,7 +72,17 @@ codeunit 7046 "Price Asset - G/L Account" implements "Price Asset"
     end;
 
     procedure PutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
+    var
+        NewPriceAsset: Record "Price Asset";
     begin
+        if PriceAsset."Asset No." = '' then
+            exit;
+
+        PriceAssetList.SetLevel(PriceAsset.Level - 1);
+        NewPriceAsset := PriceAsset;
+        NewPriceAsset.Validate("Asset No.", ''); // All G/L Accounts
+        PriceAssetList.Add(NewPriceAsset);
+        OnAfterPutRelatedAssetsToList(PriceAsset, PriceAssetList);
     end;
 
     procedure FillFromBuffer(var PriceAsset: Record "Price Asset"; PriceCalculationBuffer: Record "Price Calculation Buffer")
@@ -86,5 +96,10 @@ codeunit 7046 "Price Asset - G/L Account" implements "Price Asset"
         PriceAsset.Description := GLAccount.Name;
         PriceAsset."Unit of Measure Code" := '';
         PriceAsset."Variant Code" := '';
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
+    begin
     end;
 }

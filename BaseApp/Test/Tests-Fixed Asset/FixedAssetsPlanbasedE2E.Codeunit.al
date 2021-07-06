@@ -467,13 +467,13 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
     procedure FAAcquisitionWizardModalHandler(var FixedAssetAcquisitionWizard: TestPage "Fixed Asset Acquisition Wizard")
     begin
         FixedAssetAcquisitionWizard.NextPage.Invoke;
-        FixedAssetAcquisitionWizard.AcquisitionCost.SetValue(LibraryRandom.RandInt(100));
-        FixedAssetAcquisitionWizard.AcquisitionDate.SetValue(WorkDate);
-        FixedAssetAcquisitionWizard.NextPage.Invoke;
         FixedAssetAcquisitionWizard.TypeOfAcquisitions.SetValue(FATypeOfAcquisitionTok);
         FixedAssetAcquisitionWizard.BalancingAccountNo.SetValue(LibraryERM.CreateBankAccountNo);
         if FixedAssetAcquisitionWizard.ExternalDocNo.Visible then
             FixedAssetAcquisitionWizard.ExternalDocNo.SetValue(LibraryUtility.GenerateGUID);
+        FixedAssetAcquisitionWizard.NextPage.Invoke;
+        FixedAssetAcquisitionWizard.AcquisitionCost.SetValue(LibraryRandom.RandInt(100));
+        FixedAssetAcquisitionWizard.AcquisitionDate.SetValue(WorkDate);
         FixedAssetAcquisitionWizard.NextPage.Invoke;
         FixedAssetAcquisitionWizard.PreviousPage.Invoke;
         FixedAssetAcquisitionWizard.NextPage.Invoke;

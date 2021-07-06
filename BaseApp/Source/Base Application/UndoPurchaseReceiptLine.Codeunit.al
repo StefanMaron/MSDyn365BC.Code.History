@@ -377,6 +377,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
     begin
         with PurchRcptLine do begin
             PurchLine.Get(PurchLine."Document Type"::Order, "Order No.", "Order Line No.");
+            OnUpdateOrderLineOnBeforeUpdatePurchLine(PurchRcptLine);
             UndoPostingMgt.UpdatePurchLine(PurchLine, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry);
             UndoPostingMgt.UpdatePurchaseLineOverRcptQty(PurchLine, "Over-Receipt Quantity");
             OnAfterUpdateOrderLine(PurchRcptLine, PurchLine);
@@ -580,6 +581,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnBeforeUndoValuePostingWithJob(PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOrderLineOnBeforeUpdatePurchLine(var PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
     end;
 }
