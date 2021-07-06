@@ -45,11 +45,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Bank Statement Import Preview - Field Primary Key - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1261045762 - Method 2195781182" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>RunBankStatementFileWizard</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Statement File Wizard - Method RunBankStatementFileWizard</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1261045762 - NamedType 4123649463" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up a bank statement file import format.</source>
           <target state="translated">Impostare un formato di importazione del file estratto conto bancario.</target>
@@ -164,23 +159,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType TestFormatLbl</note>
         </trans-unit>
-        <trans-unit id="Page 1261045762 - NamedType 3225951371" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Upload</source>
-          <target state="translated">Carica</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType UploadDialogTitleLbl</note>
-        </trans-unit>
         <trans-unit id="Page 1261045762 - NamedType 3391927513" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Upload a bank statement file</source>
           <target state="translated">Carica un file estratto conto bancario</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType UploadFileLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 1261045762 - NamedType 1707396675" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CSV Files|%1</source>
-          <target state="translated">File CSV|%1</target>
-          <note from="Developer" annotates="general" priority="2">%1 = File format, CSV should not be translated.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType UploadFilterLbl</note>
         </trans-unit>
         <trans-unit id="Page 1261045762 - Control 2667510389 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You're all set. Do you want to attach this format to a bank account now, so you can import bank transactions right away?</source>

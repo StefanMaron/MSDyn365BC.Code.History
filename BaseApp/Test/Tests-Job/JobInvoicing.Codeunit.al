@@ -2407,6 +2407,123 @@ codeunit 136306 "Job Invoicing"
         GetSalesDocument(JobPlanningLine, SalesHeader."Document Type"::Invoice, SalesHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
+    procedure InvoicedAmountOnJobPlanningLineEqualToSalesInvoiceInLCY()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        Qty: Decimal;
+        QtyToInvoice: Decimal;
+        UnitPrice: Decimal;
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Job Planning Line] [Sales Invoice] [Rounding]
+        // [SCENARIO 395872] Invoiced Amount (LCY) on job planning line is equal to the amount of the sales invoice created for this line. A scenario for local currency (LCY).
+        Initialize();
+        Qty := 500;
+        QtyToInvoice := 408;
+        UnitPrice := 38.21951;
+
+        // [GIVEN] Set "Unit-Amount Rounding Precision" in G/L Setup to 3 decimal digits.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Unit-Amount Rounding Precision", 0.001);
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Job with job task.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Job planning line, Quantity = 500, "Qty. to Transfer to Invoice" = 408.
+        // [GIVEN] Set "Unit Price" = 38.21951.
+        CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLine, JobTask, Qty, QtyToInvoice);
+        JobPlanningLine.Validate("Unit Price", UnitPrice);
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Create sales invoice for the job planning line.
+        Commit();
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [WHEN] Post the sales invoice.
+        SalesHeader.SetRange("Bill-to Customer No.", Job."Bill-to Customer No.");
+        SalesHeader.FindFirst();
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] "Invoiced Amount (LCY)" is equal to the sales invoice amount, which is 38.21951 * 408 = 15593.56.
+        SalesInvoiceHeader.Get(InvoiceNo);
+        SalesInvoiceHeader.CalcFields(Amount);
+        JobPlanningLine.Find();
+        JobPlanningLine.CalcFields("Qty. Transferred to Invoice", "Invoiced Amount (LCY)");
+        JobPlanningLine.TestField("Qty. Transferred to Invoice", QtyToInvoice);
+        JobPlanningLine.TestField("Invoiced Amount (LCY)", SalesInvoiceHeader.Amount);
+        JobPlanningLine.TestField("Invoiced Amount (LCY)", Round(QtyToInvoice * UnitPrice, LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
+    [Test]
+    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
+    procedure InvoicedAmountOnJobPlanningLineEqualToSalesInvoiceInFCY()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        Qty: Decimal;
+        QtyToInvoice: Decimal;
+        UnitPrice: Decimal;
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Job Planning Line] [Sales Invoice] [Rounding] [Currency]
+        // [SCENARIO 395872] Invoiced Amount (LCY) on job planning line is equal to the amount of the sales invoice created for this line. A scenario for foreign currency (FCY).
+        Initialize();
+        Qty := 500;
+        QtyToInvoice := 408;
+        UnitPrice := 38.21951;
+
+        // [GIVEN] Set "Unit-Amount Rounding Precision" in G/L Setup to 3 decimal digits.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Unit-Amount Rounding Precision", 0.001);
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Job with job task.
+        // [GIVEN] Set currency code = "FCY" on the job. Currency exchange rate = 1.0.
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1.0, 1.0));
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Job planning line, Quantity = 500, "Qty. to Transfer to Invoice" = 408.
+        // [GIVEN] Set "Unit Price" = 38.21951.
+        CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLine, JobTask, Qty, QtyToInvoice);
+        JobPlanningLine.Validate("Unit Price", UnitPrice);
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Create sales invoice for the job planning line.
+        Commit();
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [WHEN] Post the sales invoice.
+        SalesHeader.SetRange("Bill-to Customer No.", Job."Bill-to Customer No.");
+        SalesHeader.FindFirst();
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] "Invoiced Amount (LCY)" is equal to the sales invoice amount, which is 38.21951 * 408 = 15593.56.
+        SalesInvoiceHeader.Get(InvoiceNo);
+        SalesInvoiceHeader.CalcFields(Amount);
+        JobPlanningLine.Find();
+        JobPlanningLine.CalcFields("Qty. Transferred to Invoice", "Invoiced Amount (LCY)");
+        JobPlanningLine.TestField("Qty. Transferred to Invoice", QtyToInvoice);
+        JobPlanningLine.TestField("Invoiced Amount (LCY)", SalesInvoiceHeader.Amount);
+        JobPlanningLine.TestField("Invoiced Amount (LCY)", Round(QtyToInvoice * UnitPrice, LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2449,6 +2566,7 @@ codeunit 136306 "Job Invoicing"
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Jobs Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         Initialized := true;
         Commit();

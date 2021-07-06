@@ -47,7 +47,7 @@ table 5064 "Interaction Template"
         }
         field(8; "Attachment No."; Integer)
         {
-            CalcFormula = Lookup ("Interaction Tmpl. Language"."Attachment No." WHERE("Interaction Template Code" = FIELD(Code),
+            CalcFormula = Lookup("Interaction Tmpl. Language"."Attachment No." WHERE("Interaction Template Code" = FIELD(Code),
                                                                                       "Language Code" = FIELD("Language Code (Default)")));
             Caption = 'Attachment No.';
             Editable = false;
@@ -69,6 +69,7 @@ table 5064 "Interaction Template"
         field(12; "Correspondence Type (Default)"; Enum "Correspondence Type")
         {
             Caption = 'Correspondence Type (Default)';
+            InitValue = Email;
 
             trigger OnValidate()
             var
@@ -97,7 +98,7 @@ table 5064 "Interaction Template"
         }
         field(14; "No. of Interactions"; Integer)
         {
-            CalcFormula = Count ("Interaction Log Entry" WHERE("Interaction Template Code" = FIELD(Code),
+            CalcFormula = Count("Interaction Log Entry" WHERE("Interaction Template Code" = FIELD(Code),
                                                                Canceled = CONST(false),
                                                                Date = FIELD("Date Filter"),
                                                                Postponed = CONST(false)));
@@ -108,7 +109,7 @@ table 5064 "Interaction Template"
         field(15; "Cost (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Interaction Log Entry"."Cost (LCY)" WHERE("Interaction Template Code" = FIELD(Code),
+            CalcFormula = Sum("Interaction Log Entry"."Cost (LCY)" WHERE("Interaction Template Code" = FIELD(Code),
                                                                           Canceled = CONST(false),
                                                                           Date = FIELD("Date Filter"),
                                                                           Postponed = CONST(false)));
@@ -118,7 +119,7 @@ table 5064 "Interaction Template"
         }
         field(16; "Duration (Min.)"; Decimal)
         {
-            CalcFormula = Sum ("Interaction Log Entry"."Duration (Min.)" WHERE("Interaction Template Code" = FIELD(Code),
+            CalcFormula = Sum("Interaction Log Entry"."Duration (Min.)" WHERE("Interaction Template Code" = FIELD(Code),
                                                                                Canceled = CONST(false),
                                                                                Date = FIELD("Date Filter"),
                                                                                Postponed = CONST(false)));
@@ -153,6 +154,11 @@ table 5064 "Interaction Template"
                     if "Wizard Action" = "Wizard Action"::Merge then
                         "Wizard Action" := "Wizard Action"::" ";
 
+                if InteractTmplLanguage."Word Template Code" <> '' then
+                    "Word Template Code" := InteractTmplLanguage."Word Template Code"
+                else
+                    "Word Template Code" := '';
+
                 CalcFields("Attachment No.");
             end;
         }
@@ -165,8 +171,9 @@ table 5064 "Interaction Template"
                 InteractionTmplLanguage: Record "Interaction Tmpl. Language";
             begin
                 if InteractionTmplLanguage.Get(Code, "Language Code (Default)") then
-                    if (InteractionTmplLanguage."Custom Layout Code" <> '') and ("Wizard Action" <> "Wizard Action"::Merge) or
-                       (InteractionTmplLanguage."Custom Layout Code" = '') and ("Wizard Action" = "Wizard Action"::Merge)
+                    if ((InteractionTmplLanguage."Custom Layout Code" <> '') and ("Wizard Action" <> "Wizard Action"::Merge) and ("Word Template Code" = '')) or
+                       ((InteractionTmplLanguage."Custom Layout Code" = '') and ("Wizard Action" = "Wizard Action"::Merge) and ("Word Template Code" = '')) or
+                       (("Word Template Code" <> '') and ("Wizard Action" = "Wizard Action"::Import))
                     then
                         Error(Text003, FieldCaption("Wizard Action"), "Wizard Action", TableCaption, Code);
             end;
@@ -174,6 +181,36 @@ table 5064 "Interaction Template"
         field(19; "Ignore Contact Corres. Type"; Boolean)
         {
             Caption = 'Ignore Contact Corres. Type';
+        }
+        field(20; "Word Template Code"; Code[30])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = "Word Template".Code where("Table ID" = const(5106)); // Only Interaction Merge Data word templates are allowed
+
+            trigger OnValidate()
+            var
+                InteractTmplLanguage: Record "Interaction Tmpl. Language";
+            begin
+                if Rec."Attachment No." <> 0 then
+                    if Confirm(RemoveAttachmentQst) then
+                        RemoveAttachment()
+                    else begin
+                        Rec."Word Template Code" := '';
+                        exit;
+                    end;
+
+                if InteractTmplLanguage.Get(Rec.Code, Rec."Language Code (Default)") then begin
+                    InteractTmplLanguage."Word Template Code" := Rec."Word Template Code";
+                    InteractTmplLanguage.Modify();
+                end else begin
+                    InteractTmplLanguage.Init();
+                    InteractTmplLanguage."Interaction Template Code" := Rec.Code;
+                    InteractTmplLanguage."Language Code" := Rec."Language Code (Default)";
+                    InteractTmplLanguage.Description := Rec.Description;
+                    InteractTmplLanguage."Word Template Code" := Rec."Word Template Code";
+                    InteractTmplLanguage.Insert();
+                end;
+            end;
         }
     }
 
@@ -203,8 +240,17 @@ table 5064 "Interaction Template"
         InteractTmplLanguage.DeleteAll(true);
     end;
 
+    local procedure RemoveAttachment()
+    var
+        InteractTmplLanguage: Record "Interaction Tmpl. Language";
+    begin
+        if InteractTmplLanguage.Get(Code, "Language Code (Default)") then
+            InteractTmplLanguage.RemoveAttachment(false);
+    end;
+
     var
         Text003: Label '%1 = %2 can not be specified for %3 %4.', Comment = '%1 = Wizard Action caption, %2= Wizard Action, %3 = Interaction Template, %4 = Code ';
         Text004: Label 'Do you want to create %1 %2?';
+        RemoveAttachmentQst: Label 'You cannot use a Word template when an attachment is specified. Do you want to remove the attachment?';
 }
 

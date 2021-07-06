@@ -236,13 +236,13 @@ codeunit 134302 "Workflow E2E Tests"
         ApproverTriggeredByRecRef: RecordRef;
         ApproverTableIDFieldRef: FieldRef;
     begin
-        // [SCENARIO 210514] Approver is notified when a Purhcase Invoice is sent for approval
+        // [SCENARIO 210514] Approver is notified when a Purchase Invoice is sent for approval
         // [GIVEN] Workflow is set up to notify Stan.
         // [GIVEN] Purchase Invoice created.
         // [GIVEN] Cassie sent approval request for the Purchase Invoice to Stan
         // [WHEN] Stan rejects approval request.
         // [THEN] Status of the Purchase Invoice is set to Open.
-        // [THEN] Notificaiton Entries are created for Stan only.
+        // [THEN] Notification Entries are created for Stan only.
 
         // Pre-Setup
         Initialize;

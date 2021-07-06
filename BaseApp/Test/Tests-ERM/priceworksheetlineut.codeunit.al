@@ -1442,15 +1442,18 @@ codeunit 134198 "Price Worksheet Line UT"
     var
         Item: Record Item;
         PriceWorksheetLine: Record "Price Worksheet Line";
+        Vendor: Record Vendor;
     begin
         // [FEATURE] [Vendor] [Item]
         Initialize();
+        // [GIVEN] Vendor, where "VAT Bus. Posting Group" is 'VPG'
+        LibraryPurchase.CreateVendor(Vendor);
         // [GIVEN] Item 'X', where "Purch. Unit of Measure" - 'PUoM', "Allow Invoice Disc." is Yes, 
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
         // [GIVEN] Price List Line, where "Source Type" is 'Vendor', "Asset Type" is Item
         PriceWorksheetLine.Validate("Source Type", "Price Source Type"::Vendor);
-        PriceWorksheetLine.Validate("Source No.", LibraryPurchase.CreateVendorNo());
+        PriceWorksheetLine.Validate("Source No.", Vendor."No.");
         PriceWorksheetLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         PriceWorksheetLine.Validate("Asset Type", "Price Asset Type"::Item);
 
@@ -1458,8 +1461,8 @@ codeunit 134198 "Price Worksheet Line UT"
         PriceWorksheetLine.Validate("Asset No.", Item."No.");
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'PUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
-        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>
-        VerifyLineVariant(PriceWorksheetLine, Item."Purch. Unit of Measure", false, false, '', '', '');
+        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is 'VPG'
+        VerifyLineVariant(PriceWorksheetLine, Item."Purch. Unit of Measure", false, false, Vendor."VAT Bus. Posting Group", '', '');
     end;
 
     [Test]
@@ -1651,16 +1654,19 @@ codeunit 134198 "Price Worksheet Line UT"
         ResourceGroup: Record "Resource Group";
         Job: Record Job;
         PriceWorksheetLine: Record "Price Worksheet Line";
+        Vendor: Record Vendor;
         WorkType: Record "Work Type";
     begin
         // [FEATURE] [Vendor] [Resource Group]
         Initialize();
+        // [GIVEN] Vendor, where "VAT Bus. Posting Group" is 'VPG'
+        LibraryPurchase.CreateVendor(Vendor);
         // [GIVEN] Resource Group 'X'
         LibraryResource.CreateResourceGroup(ResourceGroup);
         // [GIVEN] Price List Line, where "Source Type" is 'Vendor', "Asset Type" is 'Resource Group',
         // [GIVEN] "Variant Code" is 'V', "Work Type Code" is 'WT'
         PriceWorksheetLine.Validate("Source Type", "Price Source Type"::Vendor);
-        PriceWorksheetLine.Validate("Source No.", LibraryPurchase.CreateVendorNo());
+        PriceWorksheetLine.Validate("Source No.", Vendor."No.");
         PriceWorksheetLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceWorksheetLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         LibraryResource.CreateWorkType(WorkType);
@@ -1671,8 +1677,8 @@ codeunit 134198 "Price Worksheet Line UT"
         PriceWorksheetLine.Validate("Asset No.", ResourceGroup."No.");
 
         // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
-        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, "Work Type Code" is <blank>
-        VerifyLineVariant(PriceWorksheetLine, '', false, false, '', '', '');
+        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is 'VPG', "Work Type Code" is <blank>
+        VerifyLineVariant(PriceWorksheetLine, '', false, false, Vendor."VAT Bus. Posting Group", '', '');
     end;
 
     [Test]
@@ -2141,7 +2147,7 @@ codeunit 134198 "Price Worksheet Line UT"
         Initialize();
         // [GIVEN] Two "Service Cost" 'A' and 'B' have related price lines
         LibraryService.CreateServiceCost(ServiceCost[1]);
-        LibraryService.CreateServiceCost(ServiceCost[1]);
+        LibraryService.CreateServiceCost(ServiceCost[2]);
         CreateAssetPriceLines("Price Asset Type"::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code);
 
         // [WHEN] Rename "Service Cost" 'A' to 'X'

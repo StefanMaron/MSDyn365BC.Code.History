@@ -402,6 +402,7 @@ codeunit 5980 "Service-Post"
                 ServiceShptLine."Document No." := ServiceShptHeader."No.";
                 ServiceShptLine."Line No." := 10000;
                 ServiceShptLine.Description := SourceCode.Description;
+                OnDeleteHeaderOnBeforeServiceShptLineInsert(ServiceHeader, ServiceShptHeader, ServiceShptLine);
                 ServiceShptLine.Insert();
             end;
 
@@ -412,6 +413,7 @@ codeunit 5980 "Service-Post"
                 ServiceInvLine."Document No." := ServiceInvHeader."No.";
                 ServiceInvLine."Line No." := 10000;
                 ServiceInvLine.Description := SourceCode.Description;
+                OnDeleteHeaderOnBeforeServiceInvLineInsert(ServiceHeader, ServiceInvHeader, ServiceInvLine);
                 ServiceInvLine.Insert();
             end;
 
@@ -422,6 +424,7 @@ codeunit 5980 "Service-Post"
                 ServiceCrMemoLine."Document No." := ServiceCrMemoHeader."No.";
                 ServiceCrMemoLine."Line No." := 10000;
                 ServiceCrMemoLine.Description := SourceCode.Description;
+                OnDeleteHeaderOnBeforeServiceCrMemoLineInsert(ServiceHeader, ServiceCrMemoHeader, ServiceCrMemoLine);
                 ServiceCrMemoLine.Insert();
             end;
         end;
@@ -624,6 +627,21 @@ codeunit 5980 "Service-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateWhseDocuments(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteHeaderOnBeforeServiceShptLineInsert(var ServiceHeader: Record "Service Header"; var ServiceShipmentHeader: Record "Service Shipment Header"; var ServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteHeaderOnBeforeServiceInvLineInsert(var ServiceHeader: Record "Service Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var ServiceInvoiceLine: Record "Service Invoice Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteHeaderOnBeforeServiceCrMemoLineInsert(var ServiceHeader: Record "Service Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var ServiceCrMemoLine: Record "Service Cr.Memo Line")
     begin
     end;
 

@@ -2,6 +2,12 @@ codeunit 134652 "O365 Posted Document Subtype"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    Permissions = tabledata "Sales Shipment Line" = rimd,
+                  tabledata "Sales Cr.Memo Line" = rimd,
+                  tabledata "Sales Invoice Line" = rimd,
+                  tabledata "Purch. Rcpt. Line" = rimd,
+                  tabledata "Purch. Inv. Line" = rimd,
+                  tabledata "Purch. Cr. Memo Line" = rimd;
 
     trigger OnRun()
     begin

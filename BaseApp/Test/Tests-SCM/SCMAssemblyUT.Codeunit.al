@@ -2,6 +2,8 @@ codeunit 137928 "SCM Assembly UT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    Permissions = tabledata "Whse. Item Tracking Line" = rimd,
+                  tabledata "Warehouse Entry" = rimd;
 
     trigger OnRun()
     begin

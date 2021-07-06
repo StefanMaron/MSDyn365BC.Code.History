@@ -179,13 +179,40 @@ table 7504 "Item Attribute Value Selection"
                             TempNewItemAttributeValue.Value := Format(ValDate);
                         end;
                 end;
-                if not ItemAttributeValue.FindFirst then
+                if not FindItemAttributeValueByValueFilterIncludingTranslated(ItemAttributeValue) then
                     InsertItemAttributeValue(ItemAttributeValue, Rec);
                 TempNewItemAttributeValue.ID := ItemAttributeValue.ID;
 
                 OnPopulateItemAttributeValueOnBeforeInsert(Rec, TempNewItemAttributeValue);
                 TempNewItemAttributeValue.Insert();
             until Next() = 0;
+    end;
+
+    local procedure FindItemAttributeValueByValueFilterIncludingTranslated(var ItemAttributeValue: Record "Item Attribute Value"): Boolean
+    var
+        ItemAttrValueTranslation: Record "Item Attr. Value Translation";
+    begin
+        if ItemAttributeValue.FindFirst() then
+            exit(true);
+
+        ItemAttributeValue.CopyFilter("Attribute ID", ItemAttrValueTranslation."Attribute ID");
+        ItemAttributeValue.CopyFilter(Value, ItemAttrValueTranslation.Name);
+        ItemAttrValueTranslation.SetRange("Language Code", GetGlobalLanguageCode());
+
+        if ItemAttrValueTranslation.FindFirst() then begin
+            ItemAttributeValue.ID := ItemAttrValueTranslation.ID;
+            exit(true);
+        end;
+
+        exit(false);
+    end;
+
+    local procedure GetGlobalLanguageCode(): Text
+    var
+        WindowsLanguage: Record "Windows Language";
+    begin
+        WindowsLanguage.Get(GlobalLanguage());
+        exit(WindowsLanguage."Abbreviated Name");
     end;
 
     procedure InsertItemAttributeValue(var ItemAttributeValue: Record "Item Attribute Value"; TempItemAttributeValueSelection: Record "Item Attribute Value Selection" temporary)

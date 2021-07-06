@@ -11,13 +11,24 @@ codeunit 139178 "CRM Connection String"
     var
         Assert: Codeunit Assert;
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryUtility: Codeunit "Library - Utility";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         ConnStringMustInclPasswordErr: Label 'The connection string must include the password placeholder {PASSWORD}.';
         UserNameMustInclDomainErr: Label 'The user name must include the domain when the authentication type is set to Active Directory.';
         UserNameMustBeEmailErr: Label 'The user name must be a valid email address when the authentication type is set to Office 365.';
         IsNotFoundOnThePageErr: Label 'is not found on the page';
-        LibraryApplicationArea: Codeunit "Library - Application Area";
-        LibraryUtility: Codeunit "Library - Utility";
-        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        PasswordConnectionStringFormatTxt: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
+        PasswordAuthTxt: Label 'AuthType=AD', Locked = true;
+        ClientSecretConnectionStringFormatTxt: Label '%1; Url=%2; ClientId=%3; ClientSecret=%4; ProxyVersion=%5', Locked = true;
+        ClientSecretAuthTxt: Label 'AuthType=ClientSecret', Locked = true;
+        CertificateConnectionStringFormatTxt: Label '%1; Url=%2; ClientId=%3; Certificate=%4; ProxyVersion=%5', Locked = true;
+        CertificateAuthTxt: Label 'AuthType=Certificate', Locked = true;
+        UserTok: Label '{USER}', Locked = true;
+        PasswordTok: Label '{PASSWORD}', Locked = true;
+        ClientIdTok: Label '{CLIENTID}', Locked = true;
+        ClientSecretTok: Label '{CLIENTSECRET}', Locked = true;
+        CertificateTok: Label '{CERTIFICATE}', Locked = true;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -722,6 +733,120 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetup.Find;
         // [THEN] No error appear and the value is saved
         Assert.AreEqual('', CRMConnectionSetup.GetConnectionString, 'Wrong connection string value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdatSDKVersionInConnectionStringWithPassword()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        OldConnectionString: Text;
+        NewConnectionString: Text;
+        OldVersion: Integer;
+        NewVersion: Integer;
+    begin
+        // [FEATURE] [Multiple SDK]
+        // [SCENARIO] Changing SDK version updates the connection string with the new version
+
+        // [WHEN] SDK Version in CRM Connection Setup record is "8"
+        OldVersion := 8;
+        CRMConnectionSetup.DeleteAll();
+        CRMConnectionSetup.Init();
+        CRMConnectionSetup."Is Enabled" := false;
+        CRMConnectionSetup."Server Address" := '@@test@@';
+        CRMConnectionSetup."Proxy Version" := OldVersion;
+        CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::AD;
+        CRMConnectionSetup.Insert();
+        OldConnectionString := StrSubstNo(PasswordConnectionStringFormatTxt, CRMConnectionSetup."Server Address", UserTok, PasswordTok, OldVersion, PasswordAuthTxt);
+        CRMConnectionSetup.SetConnectionString(OldConnectionString);
+        CRMConnectionSetup.Get();
+        Assert.AreEqual(OldConnectionString, CRMConnectionSetup.GetConnectionString(), 'Unexpected old connection string');
+
+        // [WHEN] SDK Version is set to "9.1"
+        NewVersion := 91;
+        CRMConnectionSetup.Validate("Proxy Version", NewVersion);
+        CRMConnectionSetup.Modify();
+
+        // [THEN] Proxy Version in CRM Connection Setup record is "9.1", other parts are unchanged
+        CRMConnectionSetup.Get();
+        NewConnectionString := StrSubstNo(PasswordConnectionStringFormatTxt, CRMConnectionSetup."Server Address", UserTok, PasswordTok, NewVersion, PasswordAuthTxt);
+        Assert.AreEqual(NewConnectionString, CRMConnectionSetup.GetConnectionString(), 'Unexpected new connection string');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdatSDKVersionInConnectionStringWithClientSecret()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        OldConnectionString: Text;
+        NewConnectionString: Text;
+        OldVersion: Integer;
+        NewVersion: Integer;
+    begin
+        // [FEATURE] [Multiple SDK]
+        // [SCENARIO] Changing SDK version updates the connection string with the new version
+
+        // [WHEN] SDK Version in CRM Connection Setup record is "8"
+        OldVersion := 8;
+        CRMConnectionSetup.DeleteAll();
+        CRMConnectionSetup.Init();
+        CRMConnectionSetup."Is Enabled" := false;
+        CRMConnectionSetup."Server Address" := '@@test@@';
+        CRMConnectionSetup."Proxy Version" := OldVersion;
+        CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
+        CRMConnectionSetup.Insert();
+        OldConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CRMConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, OldVersion);
+        CRMConnectionSetup.SetConnectionString(OldConnectionString);
+        CRMConnectionSetup.Get();
+        Assert.AreEqual(OldConnectionString, CRMConnectionSetup.GetConnectionString(), 'Unexpected old connection string');
+
+        // [WHEN] SDK Version is set to "9.1"
+        NewVersion := 91;
+        CRMConnectionSetup.Validate("Proxy Version", NewVersion);
+        CRMConnectionSetup.Modify();
+
+        // [THEN] Proxy Version in CRM Connection Setup record is "9.1", other parts are unchanged
+        CRMConnectionSetup.Get();
+        NewConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CRMConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, NewVersion);
+        Assert.AreEqual(NewConnectionString, CRMConnectionSetup.GetConnectionString(), 'Unexpected new connection string');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdatSDKVersionInConnectionStringWithCertificate()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        OldConnectionString: Text;
+        NewConnectionString: Text;
+        OldVersion: Integer;
+        NewVersion: Integer;
+    begin
+        // [FEATURE] [Multiple SDK]
+        // [SCENARIO] Changing SDK version updates the connection string with the new version
+
+        // [WHEN] SDK Version in CRM Connection Setup record is "8"
+        OldVersion := 8;
+        CRMConnectionSetup.DeleteAll();
+        CRMConnectionSetup.Init();
+        CRMConnectionSetup."Is Enabled" := false;
+        CRMConnectionSetup."Server Address" := '@@test@@';
+        CRMConnectionSetup."Proxy Version" := OldVersion;
+        CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
+        CRMConnectionSetup.Insert();
+        OldConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CRMConnectionSetup."Server Address", ClientIdTok, CertificateTok, OldVersion);
+        CRMConnectionSetup.SetConnectionString(OldConnectionString);
+        CRMConnectionSetup.Get();
+        Assert.AreEqual(OldConnectionString, CRMConnectionSetup.GetConnectionString(), 'Unexpected old connection string');
+
+        // [WHEN] SDK Version is set to "9.1"
+        NewVersion := 91;
+        CRMConnectionSetup.Validate("Proxy Version", NewVersion);
+        CRMConnectionSetup.Modify();
+
+        // [THEN] Proxy Version in CRM Connection Setup record is "9.1", other parts are unchanged
+        CRMConnectionSetup.Get();
+        NewConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CRMConnectionSetup."Server Address", ClientIdTok, CertificateTok, NewVersion);
+        Assert.AreEqual(NewConnectionString, CRMConnectionSetup.GetConnectionString(), 'Unexpected new connection string');
     end;
 
     local procedure Initialize()

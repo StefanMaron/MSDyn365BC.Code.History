@@ -1,6 +1,8 @@
 report 482 "Update Dim. Set Glbl. Dim. No."
 {
     Caption = 'Update Global Dimension No. for Dimension Set Entries';
+    ApplicationArea = Dimensions;
+    UsageCategory = Tasks;
     ProcessingOnly = true;
 
     requestpage

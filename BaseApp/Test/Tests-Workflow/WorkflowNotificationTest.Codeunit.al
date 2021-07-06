@@ -29,7 +29,6 @@ codeunit 134301 "Workflow Notification Test"
         NoSubstituteFoundErr: Label 'There is no substitute, direct approver, or approval administrator for user ID %1 in the Approval User Setup window.', Locked = true;
         LibraryERM: Codeunit "Library - ERM";
         LibraryJobQueue: Codeunit "Library - Job Queue";
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         NotificationManagement: Codeunit "Notification Management";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryPermissions: Codeunit "Library - Permissions";
@@ -195,9 +194,9 @@ codeunit 134301 "Workflow Notification Test"
         ExpectedValues: array[20] of Text;
     begin
         // [FEATURE] [Approval] [Purchase]
-        // [SCENARIO] Create a 2 notification entry based the same document the use seperated approval amounts.
+        // [SCENARIO] Create a 2 notification entry based the same document the use separated approval amounts.
         // [WHEN] 2 Approval entries are passed into the notification engine.
-        // [THEN] 2 notification entries are created with differant amounts.
+        // [THEN] 2 notification entries are created with different amounts.
 
         // Setup.
         Initialize;
@@ -296,9 +295,9 @@ codeunit 134301 "Workflow Notification Test"
         ExpectedValues: array[20] of Text;
     begin
         // [FEATURE] [Approval] [Sales]
-        // [SCENARIO] Create a 2 notification entry based the same document the use seperated approval amounts.
+        // [SCENARIO] Create a 2 notification entry based the same document the use separated approval amounts.
         // [WHEN] 2 Approval entries are passed into the notification engine.
-        // [THEN] 2 notification entries are created with differant amounts.
+        // [THEN] 2 notification entries are created with different amounts.
 
         // Setup.
         Initialize;
@@ -826,7 +825,7 @@ codeunit 134301 "Workflow Notification Test"
     var
         PurchApprovalEntry: Record "Approval Entry";
         UserSetup: Record "User Setup";
-        RequeststoApprove: TestPage "Requests to Approve";
+        RequestsToApprove: TestPage "Requests to Approve";
     begin
         // [FEATURE] [Approval]
         // [SCENARIO] Error trying change the approver id for a delegated Approval Entries in case of no found approval path
@@ -842,9 +841,9 @@ codeunit 134301 "Workflow Notification Test"
         CreateDelegateApprovalEntry(PurchApprovalEntry, DATABASE::"Purchase Header", '-2D');
 
         // Exercise
-        RequeststoApprove.OpenView;
-        RequeststoApprove.GotoRecord(PurchApprovalEntry);
-        asserterror RequeststoApprove.Delegate.Invoke;
+        RequestsToApprove.OpenView;
+        RequestsToApprove.GotoRecord(PurchApprovalEntry);
+        asserterror RequestsToApprove.Delegate.Invoke;
 
         // Verify
         Assert.ExpectedError(StrSubstNo(NoSubstituteFoundErr, UserId));
@@ -975,8 +974,8 @@ codeunit 134301 "Workflow Notification Test"
         // [WHEN] "SI" is rejected by the second user.
         ApprovalsMgmt.RejectRecordApprovalRequest(SalesHeader.RecordId);
 
-        // [THEN] Notication is not sent to Approver
-        // [THEN] Notication sent to approval Sender
+        // [THEN] Notification is not sent to Approver
+        // [THEN] Notification sent to approval Sender
         ExpectedValues[1] := 'Sales Invoice';
         ExpectedValues[2] := Format(SalesHeader."No.");
         ExpectedValues[3] := 'approval has been rejected.';
@@ -1007,7 +1006,7 @@ codeunit 134301 "Workflow Notification Test"
         // [WHEN] "SI" is rejected by the second user
         ApprovalsMgmt.RejectRecordApprovalRequest(SalesHeader.RecordId);
 
-        // [THEN] Only one Notication sent to approval Sender about rejection
+        // [THEN] Only one Notification sent to approval Sender about rejection
         ExpectedValues[1] := 'Sales Invoice';
         ExpectedValues[2] := Format(SalesHeader."No.");
         ExpectedValues[3] := 'approval has been rejected.';
@@ -1038,7 +1037,7 @@ codeunit 134301 "Workflow Notification Test"
         // [WHEN] "SI" is rejected by the "User2"
         ApprovalsMgmt.RejectRecordApprovalRequest(SalesHeader.RecordId);
 
-        // [THEN] The only rejection Notication is sent to "User1"
+        // [THEN] The only rejection Notification is sent to "User1"
         ExpectedValues[1] := 'Sales Invoice';
         ExpectedValues[2] := Format(SalesHeader."No.");
         ExpectedValues[3] := 'approval has been rejected.';
@@ -1071,7 +1070,7 @@ codeunit 134301 "Workflow Notification Test"
         // [WHEN] "SI" is rejected by "User3"
         ApprovalsMgmt.RejectRecordApprovalRequest(SalesHeader.RecordId);
 
-        // [THEN] Rejection Notication is sent to "User1"
+        // [THEN] Rejection Notification is sent to "User1"
         ExpectedValues[1] := 'Sales Invoice';
         ExpectedValues[2] := Format(SalesHeader."No.");
         ExpectedValues[3] := 'approval has been rejected.';
@@ -1665,6 +1664,7 @@ codeunit 134301 "Workflow Notification Test"
     var
         NotificationEntry: Record "Notification Entry";
         SentNotificationEntry: Record "Sent Notification Entry";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         UniqueCode1: Code[50];
         UniqueCode2: Code[50];
     begin
@@ -1681,7 +1681,7 @@ codeunit 134301 "Workflow Notification Test"
         NotificationEntry.FindSet();
 
         // [WHEN] Stan uses Notification Management codeunit to insert Sent Notification Entry records and modify them without direct permissions to insert/modify them.
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
           NotificationEntry, LibraryRandom.RandText(20), true, SentNotificationEntry."Notification Method"::Email.AsInteger());
 
@@ -1803,6 +1803,7 @@ codeunit 134301 "Workflow Notification Test"
 
     [Test]
     [Scope('OnPrem')]
+    [TestPermissions(TestPermissions::Disabled)]
     procedure TestSendersNotMixedWhenTwoUsersNotifyBySingleJobQueueEntrySMTPSetup() // To be removed together with deprecated SMTP objects
     var
         LibraryEmailFeature: Codeunit "Library - Email Feature";
@@ -1813,6 +1814,7 @@ codeunit 134301 "Workflow Notification Test"
 
     [Test]
     [Scope('OnPrem')]
+    [TestPermissions(TestPermissions::Disabled)]
     procedure TestSendersNotMixedWhenTwoUsersNotifyBySingleJobQueueEntry()
     var
         LibraryEmailFeature: Codeunit "Library - Email Feature";
@@ -1891,7 +1893,7 @@ codeunit 134301 "Workflow Notification Test"
             BindSubscription(LibrarySMTPMailHandler);
 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Background);
+        TestClientTypeSubscriber.SetClientType(ClientType::Background);
         BindSubscription(TestClientTypeSubscriber);
 
         asserterror Codeunit.Run(Codeunit::"Notification Entry Dispatcher", JobQueueEntry);
@@ -2082,6 +2084,7 @@ codeunit 134301 "Workflow Notification Test"
 
     [Test]
     [Scope('OnPrem')]
+    [TestPermissions(TestPermissions::Disabled)]
     procedure NotificationEmailBodyIsNotEmptySMTPSetup()
     var
         Item: Record Item;
@@ -2125,12 +2128,12 @@ codeunit 134301 "Workflow Notification Test"
         // [WHEN] Notification Entry is dispatched - OnBeforeSendEmail checks if server file with Email Body exists and saves it.
         BindSubscription(WorkflowNotificationTest);
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Background);
+        TestClientTypeSubscriber.SetClientType(ClientType::Background);
         BindSubscription(TestClientTypeSubscriber);
 
         JobQueueEntry.SetRange("Job Queue Category Code", 'NOTIFYNOW');
         JobQueueEntry.FindFirst();
-        asserterror CODEUNIT.Run(CODEUNIT::"Notification Entry Dispatcher", JobQueueEntry);
+        asserterror Codeunit.Run(Codeunit::"Notification Entry Dispatcher", JobQueueEntry);
         assert.IsTrue(ErrorMessageHandler.AppendTo(TempErrorMessage), 'SMTP connection error is expected');
         TempErrorMessage.FindFirst();
         Assert.IsSubstring(TempErrorMessage.Description, IgnoringFailureSendingEmailErr);
@@ -2144,6 +2147,7 @@ codeunit 134301 "Workflow Notification Test"
 
     [Test]
     [Scope('OnPrem')]
+    [TestPermissions(TestPermissions::Disabled)]
     procedure NotificationEmailBodyIsNotEmptyEmailFeature()
     var
         Item: Record Item;
@@ -2190,12 +2194,12 @@ codeunit 134301 "Workflow Notification Test"
         BindSubscription(WorkflowNotificationTest);
         ConnectorMock.FailOnSend(true);
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Background);
+        TestClientTypeSubscriber.SetClientType(ClientType::Background);
         BindSubscription(TestClientTypeSubscriber);
 
         JobQueueEntry.SetRange("Job Queue Category Code", 'NOTIFYNOW');
         JobQueueEntry.FindFirst();
-        asserterror CODEUNIT.Run(CODEUNIT::"Notification Entry Dispatcher", JobQueueEntry);
+        asserterror Codeunit.Run(Codeunit::"Notification Entry Dispatcher", JobQueueEntry);
         assert.IsTrue(ErrorMessageHandler.AppendTo(TempErrorMessage), 'Email sending error is expected');
         TempErrorMessage.FindFirst();
         Assert.IsSubstring(TempErrorMessage.Description, FailedToSendEmailEmailErr);
@@ -2880,7 +2884,7 @@ codeunit 134301 "Workflow Notification Test"
     local procedure CreateUserWithUserSetupWithEmail(var User: Record User; var UserSetup: Record "User Setup")
     begin
         LibraryPermissions.CreateUser(User, LibraryUtility.GenerateGUID, true);
-
+        
         UserSetup.Init();
         UserSetup."User ID" := User."User Name";
         UserSetup."E-Mail" := LibraryUtility.GenerateGUID + '@cronusus.com';
@@ -3013,7 +3017,7 @@ codeunit 134301 "Workflow Notification Test"
         DataTypeBuffer.SetRange(Text, DataTypeBufferText);
         DataTypeBuffer.FindFirst();
         DataTypeBuffer.CalcFields(BLOB);
-        DataTypeBuffer.BLOB.CreateInStream(InStream, TEXTENCODING::UTF8);
+        DataTypeBuffer.BLOB.CreateInStream(InStream, TextEncoding::UTF8);
         InStream.Read(EmailBody);
         VerifyHTMLBodyText(EmailBody, ExpectedValues);
     end;
@@ -3220,7 +3224,7 @@ codeunit 134301 "Workflow Notification Test"
     begin
         FileManagement.ServerFileExists(TempEmailItem."Body File Path");
         FileManagement.BLOBImportFromServerFile(TempBlob, TempEmailItem."Body File Path");
-        TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
+        TempBlob.CreateInStream(InStream, TextEncoding::UTF8);
 
         if DataTypeBuffer.FindLast() then;
         DataTypeBuffer.Init();

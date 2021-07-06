@@ -105,6 +105,11 @@ table 9500 "Email Item"
             OptionCaption = 'Custom Message,From Email Body Template';
             OptionMembers = "Custom Message","From Email Body Template";
         }
+        field(14; "Send as HTML"; Boolean)
+        {
+            Caption = 'Send as HTML';
+            InitValue = true;
+        }
         field(21; "Attachment File Path 2"; Text[250])
         {
             Caption = 'Attachment File Path 2';
@@ -225,6 +230,7 @@ table 9500 "Email Item"
         AttachmentNames: List of [Text];
         SourceTables: List of [Integer];
         SourceIDs: List of [Guid];
+        SourceRelationTypes: List of [Integer];
         TargetEmailAddressErr: Label 'The target email address has not been specified.';
 
     procedure HasAttachments(): Boolean
@@ -259,20 +265,46 @@ table 9500 "Email Item"
 
     procedure AddSourceDocument(TableID: Integer; SourceID: Guid)
     begin
-        SourceTables.Add(TableID);
-        SourceIDs.Add(SourceID);
+        AddSourceDocument(TableID, SourceID, Enum::"Email Relation Type"::"Primary Source");
     end;
 
+    procedure AddSourceDocument(TableID: Integer; SourceID: Guid; RelationType: Enum "Email Relation Type")
+    begin
+        SourceTables.Add(TableID);
+        SourceIDs.Add(SourceID);
+        SourceRelationTypes.Add(RelationType.AsInteger());
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by an overload that contains Relation Types.', '19.0')]
     procedure GetSourceDocuments(var SourceTableList: List of [Integer]; var SourceIDList: List of [Guid])
     begin
         SourceTableList := SourceTables;
         SourceIDList := SourceIDs;
     end;
+#endif
 
+    procedure GetSourceDocuments(var SourceTableList: List of [Integer]; var SourceIDList: List of [Guid]; var SourceRelationTypeList: List of [Integer])
+    begin
+        SourceTableList := SourceTables;
+        SourceIDList := SourceIDs;
+        SourceRelationTypeList := SourceRelationTypes;
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by an overload that contains Relation Types.', '19.0')]
     procedure SetSourceDocuments(NewSourceTables: List of [Integer]; NewSourceIDs: List of [Guid])
     begin
         SourceTables := NewSourceTables;
         SourceIDs := NewSourceIDs;
+    end;
+#endif
+
+    procedure SetSourceDocuments(NewSourceTables: List of [Integer]; NewSourceIDs: List of [Guid]; NewSourceRelationTypes: List of [Integer])
+    begin
+        SourceTables := NewSourceTables;
+        SourceIDs := NewSourceIDs;
+        SourceRelationTypes := NewSourceRelationTypes;
     end;
 
     procedure Initialize()
@@ -362,6 +394,11 @@ table 9500 "Email Item"
     begin
         "Send CC" := O365EmailSetup.GetCCAddressesFromO365EmailSetup();
         "Send BCC" := O365EmailSetup.GetBCCAddressesFromO365EmailSetup();
+    end;
+
+    procedure SendAsHTML(SendAsHTML: Boolean)
+    begin
+        Rec."Send As HTML" := SendAsHTML;
     end;
 
     [Scope('OnPrem')]

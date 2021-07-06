@@ -153,6 +153,7 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyJobQueueLogEntry;
         ClassifyJobQueueEntry;
         ClassifyInteractionLogEntry;
+        ClassifyInteractionMergeData();
         ClassifyPostedApprovalCommentLine;
         ClassifyPostedApprovalEntry;
         ClassifyContact;
@@ -2920,6 +2921,19 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(TableNo, DummyInteractionLogEntry.FieldNo("Entry No."));
     end;
 
+    local procedure ClassifyInteractionMergeData()
+    var
+        DummyInteractionMergeData: Record "Interaction Merge Data";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Interaction Merge Data";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyInteractionMergeData.FieldNo(ID));
+        SetFieldToPersonal(TableNo, DummyInteractionMergeData.FieldNo("Contact No."));
+        SetFieldToPersonal(TableNo, DummyInteractionMergeData.FieldNo("Salesperson Code"));
+        SetFieldToPersonal(TableNo, DummyInteractionMergeData.FieldNo("Log Entry Number"));
+    end;
+
     local procedure ClassifyPostedApprovalCommentLine()
     var
         DummyPostedApprovalCommentLine: Record "Posted Approval Comment Line";
@@ -3464,6 +3478,8 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(9988, 1); // Code
         SetFieldToPersonal(9988, 2); // Name
         SetFieldToPersonal(9988, 4); // Template
+        SetFieldToPersonal(9990, 1); // Code
+        SetFieldToPersonal(9990, 7); // Related Table Code
     end;
 
     local procedure ClassifyEmailRelatedAttachments()

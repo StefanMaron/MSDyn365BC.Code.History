@@ -18,7 +18,13 @@ codeunit 5349 "Auto Create Sales Orders"
     local procedure CreateNAVSalesOrdersFromSubmittedCRMSalesorders()
     var
         CRMSalesorder: Record "CRM Salesorder";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateNAVSalesOrdersFromSubmittedCRMSalesorders(CRMSalesorder, IsHandled);
+        if IsHandled then
+            exit;
+
         CRMSalesorder.SetRange(StateCode, CRMSalesorder.StateCode::Submitted);
         CRMSalesorder.SetFilter(LastBackofficeSubmit, '%1|%2', 0D, DMY2Date(1, 1, 1900));
         OnCreateNAVSalesOrdersFromSubmittedCRMSalesordersOnAfterCRMSalesorderSetFilters(CRMSalesorder);
@@ -30,6 +36,11 @@ codeunit 5349 "Auto Create Sales Orders"
                     Commit();
                 end;
             until CRMSalesorder.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateNAVSalesOrdersFromSubmittedCRMSalesorders(var CRMSalesorder: Record "CRM Salesorder"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

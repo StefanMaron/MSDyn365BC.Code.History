@@ -683,7 +683,8 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         OutStream: OutStream;
         InStream: InStream;
     begin
-        Initialize;
+        // [SCENARIO 397836] XMLSchema record is updated on call XSDParser.LoadSchema() in case of "Indentation" > 0
+        Initialize();
 
         // Create Files
         InfiniteLoopDefinitionFile.Create(FileManagement.ServerTempFileName('.xsd'));
@@ -721,7 +722,10 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         AlternativeNamespaceDefinitionFile.CreateInStream(InStream);
         CopyStream(OutStream, InStream);
 
+        AlternativeNamespaceXMLSchema.TestField(Indentation, 2);
+        AlternativeNamespaceXMLSchema.TestField("Target Namespace Aliases", '');
         XSDParser.LoadSchema(AlternativeNamespaceXMLSchema);
+        AlternativeNamespaceXMLSchema.TestField("Target Namespace Aliases", 'cac');
         AlternativeNamespaceDefinitionFile.Close;
 
         // Verify Nodes

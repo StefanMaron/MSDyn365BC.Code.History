@@ -113,5 +113,12 @@ page 493 "Resource Price Changes"
             }
         }
     }
+
+    trigger OnInit()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+    begin
+        FeaturePriceCalculation.FailIfFeatureEnabled();
+    end;
 }
 

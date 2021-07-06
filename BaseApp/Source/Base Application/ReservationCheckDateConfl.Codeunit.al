@@ -390,7 +390,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
 
         ForceRequest := not ReservEntry2.IsEmpty and ForceRequest;
 
-        OnAfterDateConflict(ReservationEntry, Date, IsConflict);
+        OnAfterDateConflict(ReservationEntry, Date, IsConflict, ForceRequest);
         exit(IsConflict);
     end;
 
@@ -524,7 +524,7 @@ codeunit 99000815 "Reservation-Check Date Confl."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterDateConflict(var ReservationEntry: Record "Reservation Entry"; var Date: Date; var IsConflict: Boolean)
+    local procedure OnAfterDateConflict(var ReservationEntry: Record "Reservation Entry"; var Date: Date; var IsConflict: Boolean; var ForceRequest: Boolean)
     begin
     end;
 

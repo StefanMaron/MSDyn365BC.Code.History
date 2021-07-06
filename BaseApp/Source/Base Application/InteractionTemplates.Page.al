@@ -28,10 +28,25 @@ page 5075 "Interaction Templates"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the interaction template.';
                 }
+                field("Word Template Code"; "Word Template Code")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the Word template to use when you create communications for an interaction. The Word template will create either a document or be used as the body text in an email.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
+                }
                 field("Wizard Action"; "Wizard Action")
                 {
                     ApplicationArea = RelationshipMgmt;
-                    ToolTip = 'Specifies the action to perform when you click Next in the first window of the Create Interaction wizard. There are 3 options:';
+                    ToolTip = 'Specifies the action to perform when you click Next in the first page of the Create Interaction guide. Blank results in no action. Open will fill out the template and open the email editor where you can edit the text if needed. Merge will fill out the template and send it immediately.';
+                }
+                field("Correspondence Type (Default)"; "Correspondence Type (Default)")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    ToolTip = 'Specifies the preferred type of correspondence for the interaction. NOTE: If you use the Web client, you must not select the Hard Copy option because printing is not possible from the web client.';
                 }
                 field("Language Code (Default)"; "Language Code (Default)")
                 {
@@ -49,6 +64,9 @@ page 5075 "Interaction Templates"
                     var
                         InteractTmplLanguage: Record "Interaction Tmpl. Language";
                     begin
+                        if Rec."Word Template Code" <> '' then
+                            Error(WordTemplateUsedErr);
+
                         if InteractTmplLanguage.Get(Code, "Language Code (Default)") then begin
                             if InteractTmplLanguage."Attachment No." <> 0 then
                                 InteractTmplLanguage.OpenAttachment
@@ -68,11 +86,6 @@ page 5075 "Interaction Templates"
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies that the correspondence type that you select in the Correspondence Type (Default) field should be used.';
-                }
-                field("Correspondence Type (Default)"; "Correspondence Type (Default)")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    ToolTip = 'Specifies the preferred type of correspondence for the interaction. NOTE: If you use the Web client, you must not select the Hard Copy option because printing is not possible from the web client.';
                 }
                 field("Unit Cost (LCY)"; "Unit Cost (LCY)")
                 {
@@ -183,6 +196,9 @@ page 5075 "Interaction Templates"
                     var
                         InteractTemplLanguage: Record "Interaction Tmpl. Language";
                     begin
+                        if Rec."Word Template Code" <> '' then
+                            Error(WordTemplateUsedErr);
+
                         if InteractTemplLanguage.Get(Code, "Language Code (Default)") then
                             InteractTemplLanguage.OpenAttachment;
                     end;
@@ -199,6 +215,9 @@ page 5075 "Interaction Templates"
                     var
                         InteractTemplLanguage: Record "Interaction Tmpl. Language";
                     begin
+                        if Rec."Word Template Code" <> '' then
+                            Error(WordTemplateUsedErr);
+
                         if not InteractTemplLanguage.Get(Code, "Language Code (Default)") then begin
                             InteractTemplLanguage.Init();
                             InteractTemplLanguage."Interaction Template Code" := Code;
@@ -221,6 +240,9 @@ page 5075 "Interaction Templates"
                     var
                         InteractTemplLanguage: Record "Interaction Tmpl. Language";
                     begin
+                        if Rec."Word Template Code" <> '' then
+                            Error(WordTemplateUsedErr);
+
                         if not InteractTemplLanguage.Get(Code, "Language Code (Default)") then begin
                             InteractTemplLanguage.Init();
                             InteractTemplLanguage."Interaction Template Code" := Code;
@@ -245,6 +267,9 @@ page 5075 "Interaction Templates"
                     var
                         InteractTemplLanguage: Record "Interaction Tmpl. Language";
                     begin
+                        if Rec."Word Template Code" <> '' then
+                            Error(WordTemplateUsedErr);
+
                         if not InteractTemplLanguage.Get(Code, "Language Code (Default)") then begin
                             InteractTemplLanguage.Init();
                             InteractTemplLanguage."Interaction Template Code" := Code;
@@ -268,6 +293,9 @@ page 5075 "Interaction Templates"
                     var
                         InteractTemplLanguage: Record "Interaction Tmpl. Language";
                     begin
+                        if Rec."Word Template Code" <> '' then
+                            Error(WordTemplateUsedErr);
+
                         if InteractTemplLanguage.Get(Code, "Language Code (Default)") then
                             InteractTemplLanguage.ExportAttachment;
                     end;
@@ -284,11 +312,38 @@ page 5075 "Interaction Templates"
                     var
                         InteractTemplLanguage: Record "Interaction Tmpl. Language";
                     begin
+                        if Rec."Word Template Code" <> '' then
+                            Error(WordTemplateUsedErr);
+
                         if InteractTemplLanguage.Get(Code, "Language Code (Default)") then
                             InteractTemplLanguage.RemoveAttachment(true);
                     end;
                 }
             }
+            action(WordTemplate)
+            {
+                ApplicationArea = All;
+                Caption = 'Create Interaction Word Template';
+                ToolTip = 'Create a Word template to use in interaction templates.';
+                Image = Word;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                var
+                    InteractionMergeData: Record "Interaction Merge Data";
+                    WordTemplateInteractions: Codeunit "Word Template Interactions";
+                    WordTemplatesCreationWizard: Page "Word Template Creation Wizard";
+                begin
+                    WordTemplatesCreationWizard.SetTableNo(Database::"Interaction Merge Data");
+                    WordTemplatesCreationWizard.SetRelatedTable(Database::"Contact", InteractionMergeData.FieldNo("Contact No."), 'CONTA');
+                    WordTemplatesCreationWizard.SetRelatedTable(Database::"Salesperson/Purchaser", InteractionMergeData.FieldNo("Salesperson Code"), 'SALES');
+                    WordTemplateInteractions.OnBeforeCreateInteractionWordTemplate(WordTemplatesCreationWizard);
+                    WordTemplatesCreationWizard.RunModal();
+                end;
+            }
+
         }
     }
 
@@ -303,5 +358,8 @@ page 5075 "Interaction Templates"
             if GetRangeMin("Interaction Group Code") = GetRangeMax("Interaction Group Code") then
                 "Interaction Group Code" := GetRangeMin("Interaction Group Code");
     end;
+
+    var
+        WordTemplateUsedErr: Label 'You cannot use an attachment when a Word template has been specified.';
 }
 

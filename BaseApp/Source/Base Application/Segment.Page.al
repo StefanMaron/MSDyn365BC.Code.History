@@ -121,7 +121,14 @@ page 5091 Segment
                         UpdateEditable;
                         CurrPage.SegLines.PAGE.UpdateForm;
                     end;
+                }                
+                field("Word Template Code"; "Word Template Code")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Word Template Code';
+                    ToolTip = 'Specifies the Word Template code to use for merging.';
                 }
+
                 field("Ignore Contact Corres. Type"; "Ignore Contact Corres. Type")
                 {
                     ApplicationArea = RelationshipMgmt;

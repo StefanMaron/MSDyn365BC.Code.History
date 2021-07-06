@@ -19,11 +19,13 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         ResType: Option Resource,"Group(Resource)",All;
         IsInitialized: Boolean;
@@ -3543,6 +3545,229 @@ codeunit 134159 "Test Price Calculation - V16"
         ResJournalLine.TestField("Direct Unit Cost", WTPriceListLine[1]."Direct Unit Cost");
     end;
 
+    [Test]
+    [HandlerFunctions('ResPriceListReportHandler')]
+    procedure T270_ResPriceListReport()
+    var
+        Resource: Record Resource;
+        PriceListLine: Record "Price List Line";
+        WorkType: array[2] of Record "Work Type";
+        ResPriceList: Report "Res. Price List";
+    begin
+        // [SCENARIO] Test and verify "Res. Price List" Report.
+        Initialize();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Create Resource, Work Type and Resource Price.
+        CreateResource(Resource);
+        LibraryResource.CreateWorkType(WorkType[1]);
+        LibraryResource.CreateWorkType(WorkType[2]);
+        CreateResourcePrice(PriceListLine, Resource."No.", WorkType[2].Code);
+
+        // [WHEN] Run the "Res. Price List" Report.
+        Commit();
+        Clear(ResPriceList);
+        Resource.SetRange("No.", Resource."No.");
+        ResPriceList.SetTableView(Resource);
+        ResPriceList.Run;
+
+        // [THEN] Verify values on "Res. Price List" Report.
+        VerifyResPriceList(PriceListLine, Resource."Unit Price");
+    end;
+
+    [Test]
+    [HandlerFunctions('ResPriceListReportHandler')]
+    procedure T271_ResPriceListWithCurrency()
+    var
+        Resource: Record Resource;
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        ValueVar: Variant;
+        ActualUnitPrice: Decimal;
+    begin
+        // [SCENARIO] Test and verify "Res. Price List" Report with Currency.
+        Initialize();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        // [GIVEN] Create Resource, Currency and Currency Exchange Rate.
+        CreateResource(Resource);
+        LibraryERM.CreateCurrency(Currency);
+        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code);
+
+        // [GIVEN] Calculation for Actual Unit Price is taken from Report.
+        ActualUnitPrice :=
+          Round(
+            CurrencyExchangeRate.ExchangeAmtLCYToFCY(
+              WorkDate, Currency.Code, Resource."Unit Price",
+              CurrencyExchangeRate.ExchangeRate(WorkDate, Currency.Code)),
+            Currency."Unit-Amount Rounding Precision");
+
+        // [WHEN] Run the "Res. Price List" Report with Currency.
+        RunResPriceListReport(Resource."No.", Currency.Code);
+
+        // [THEN] Verify values on "Res. Price List" Report with Currency.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('No_Resource', Resource."No.");
+        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the resource no');
+
+        LibraryReportDataset.FindCurrentRowValue('UnitPrice_Resource', ValueVar);
+        Assert.AreNearlyEqual(
+            ActualUnitPrice, ValueVar, Currency."Unit-Amount Rounding Precision", 'Resource."Unit Price"');
+    end;
+
+    [Test]
+    [HandlerFunctions('ImplementStandardCostChangesHandler,MessageHandler')]
+    procedure T280_ImplementResourceStandardCostChanges()
+    var
+        PriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        NewStdCost: Decimal;
+    begin
+        Initialize();
+        // [GIVEN] Resource, where "Direct Unit Cost" is 100
+        LibraryResource.CreateResource(Resource, '');
+
+        // [GIVEN] Active purchase Price List Line for Resource, where "Source Type" is 'All Jobs'
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Jobs", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine.Validate("Direct Unit Cost", Resource."Direct Unit Cost" + 1);
+        PriceListLine.Validate("Unit Cost", Resource."Direct Unit Cost");
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
+
+        // [WHEN] Implement Standard Cost Change, where "New Standard Cost" is 111
+        NewStdCost := Resource."Direct Unit Cost" + LibraryRandom.RandDec(100, 2);
+        ImplementStandardCostChanges(Resource, Resource."Direct Unit Cost", NewStdCost);
+
+        // [THEN] Price List line is updated: "Direct Unit Cost" is 100, "Unit Cost" is 111 
+        PriceListLine.Find();
+        PriceListLine.TestField(Status, "Price Status"::Active);
+        PriceListLine.TestField("Direct Unit Cost", Resource."Direct Unit Cost");
+        PriceListLine.TestField("Unit Cost", NewStdCost);
+    end;
+
+    [Test]
+    procedure T290_InvtReceiptLineFindPrice()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Location: Record Location;
+        BaseUOM: Record "Unit of Measure";
+        UOM: Record "Unit of Measure";
+        Item: Record Item;
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        DimensionValue: Record "Dimension Value";
+        PriceListLine: array[3] of Record "Price List Line";
+        VendNo: code[20];
+    begin
+        Initialize();
+        LibraryPriceCalculation.SetMethodInPurchSetup();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Item 'I', where "Base Unit of Measure" is 'PCS'
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(UOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure, Item."No.", UOM.Code, 5);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure, Item."No.", BaseUOM.Code, 1);
+        Item.Validate("Base Unit of Measure", ItemUnitofMeasure.Code);
+        Item.Modify();
+        // [GIVEN] Purchase Prices, where "All Vendors", Item 'I':  
+        // [GiVEN] UOM is 'PCS', "Minimal Quantity" is 0, "Direct Unit Cost" is 100
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine[1], '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::Item, Item."No.");
+        PriceListLine[1].Validate("Unit of Measure Code", ItemUnitofMeasure.Code);
+        PriceListLine[1]."Direct Unit Cost" := 100 + LibraryRandom.RandDec(100, 2);
+        PriceListLine[1].Status := "Price Status"::Active;
+        PriceListLine[1].Modify();
+        // [GiVEN] UOM is 'PCS', "Minimum Quantity" is 100, "Direct Unit Cost" is 80
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine[2], '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::Item, Item."No.");
+        PriceListLine[2].Validate("Unit of Measure Code", ItemUnitofMeasure.Code);
+        PriceListLine[2]."Minimum Quantity" := 100;
+        PriceListLine[2]."Direct Unit Cost" := Round(PriceListLine[1]."Direct Unit Cost" * 0.8, 0.01);
+        PriceListLine[2].Status := "Price Status"::Active;
+        PriceListLine[2].Modify();
+        // [GiVEN] UOM is 'BOX', "Minimal Quantity" is 0, "Direct Unit Cost" is 75
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine[3], '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::Item, Item."No.");
+        PriceListLine[3].Validate("Unit of Measure Code", UOM.Code);
+        PriceListLine[3]."Direct Unit Cost" := Round(PriceListLine[1]."Direct Unit Cost" * 0.75, 0.01);
+        PriceListLine[3].Status := "Price Status"::Active;
+        PriceListLine[3].Modify();
+
+        // [WHEN] Inventory receipt document line, where 'Item No.' is 'I'
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        InvtDocumentLine.Init();
+        InvtDocumentLine."Line No." := 10000;
+        InvtDocumentLine.Validate("Document Type", InvtDocumentLine."Document Type"::Receipt);
+        InvtDocumentLine.Validate("Document No.", InvtDocumentHeader."No.");
+        InvtDocumentLine.Validate("Item No.", Item."No.");
+        InvtDocumentLine.Insert();
+        // [THEN] Line, where "Unit Amount" is 100
+        InvtDocumentLine.TestField("Unit Amount", PriceListLine[1]."Direct Unit Cost");
+
+        // [WHEN] Set Quantity as 100 in the line
+        InvtDocumentLine.Validate(Quantity, 100);
+        // [THEN] Line, where "Unit Amount" is 80
+        InvtDocumentLine.TestField("Unit Amount", PriceListLine[2]."Direct Unit Cost");
+
+        // [WHEN] UOM is 'BOX' in the line
+        InvtDocumentLine.Validate("Unit of Measure Code", UOM.Code);
+        // [THEN] Line, where "Unit Amount" is 75
+        InvtDocumentLine.TestField("Unit Amount", PriceListLine[3]."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T291_InvtReceiptLineUOMPriceBlankUOM()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Location: Record Location;
+        BaseUOM: Record "Unit of Measure";
+        UOM: Record "Unit of Measure";
+        Item: Record Item;
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        DimensionValue: Record "Dimension Value";
+        PriceListLine: Record "Price List Line";
+        VendNo: code[20];
+    begin
+        Initialize();
+        LibraryPriceCalculation.SetMethodInPurchSetup();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Item 'I', where "Base Unit of Measure" is 'PCS', 'BOX' is 5 'PCS'
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(UOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure, Item."No.", UOM.Code, 5);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure, Item."No.", BaseUOM.Code, 1);
+        Item.Validate("Base Unit of Measure", ItemUnitofMeasure.Code);
+        Item.Modify();
+        // [GIVEN] Purchase Price, where "All Vendors", Item 'I', UOM is <blank>, "Minimal Quantity" is 0, "Direct Unit Cost" is 100
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Validate("Unit of Measure Code", '');
+        PriceListLine."Direct Unit Cost" := 100 + LibraryRandom.RandDec(100, 2);
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
+
+        // [GIVEN] Inventory receipt document line, where 'Item No.' is 'I'
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        InvtDocumentLine.Init();
+        InvtDocumentLine."Line No." := 10000;
+        InvtDocumentLine.Validate("Document Type", InvtDocumentLine."Document Type"::Receipt);
+        InvtDocumentLine.Validate("Document No.", InvtDocumentHeader."No.");
+        InvtDocumentLine.Validate("Item No.", Item."No.");
+        InvtDocumentLine.Insert();
+
+        // [WHEN] UOM is 'BOX' in the line
+        InvtDocumentLine.Validate("Unit of Measure Code", UOM.Code);
+        // [THEN] Line, where "Unit Amount" is 500
+        InvtDocumentLine.TestField("Unit Amount", PriceListLine."Direct Unit Cost" * 5);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3778,6 +4003,21 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.Modify();
     end;
 
+    local procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
+    begin
+        // Create Currency Exchange Rate with Exchange Rate Amount, Relational Exch. Rate Amount as Random values.
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(10, 2));
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+
+        // Relational Exch. Rate Amount is always greater than Exchange Rate Amount.
+        CurrencyExchangeRate.Validate(
+          "Relational Exch. Rate Amount",
+          LibraryRandom.RandDec(10, 2) + CurrencyExchangeRate."Exchange Rate Amount");
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
+        CurrencyExchangeRate.Modify(true);
+    end;
+
     local procedure CreateResource(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]): Code[20]
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -3789,12 +4029,27 @@ codeunit 134159 "Test Price Calculation - V16"
         exit(Resource."No.");
     end;
 
+    local procedure CreateResourcePrice(var PriceListLine: Record "Price List Line"; ResourceNo: Code[20]; WorkTypeCode: Code[10])
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        PriceListHeader."Price Type" := "Price Type"::Sale;
+        PriceListHeader."Source Type" := "Price Source Type"::"All Jobs";
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Resource, ResourceNo);
+        PriceListLine.Validate("Work Type Code", WorkTypeCode);
+        PriceListLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify(true);
+    end;
+
+
     local procedure CreateResourceWithGroup(var Resource: Record Resource; var ResourceGroup: Record "Resource Group")
     begin
         LibraryResource.CreateResourceGroup(ResourceGroup);
         LibraryResource.CreateResource(Resource, '');
         Resource."Direct Unit Cost" := LibraryRandom.RandDec(100, 2);
-        Resource."Unit Cost" := Resource."Unit Cost" * 1.5;
+        Resource."Unit Cost" := Round(Resource."Unit Cost" * 1.5);
         Resource."Resource Group No." := ResourceGroup."No.";
         Resource.Modify();
     end;
@@ -3806,7 +4061,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryPriceCalculation.CreatePurchPriceLine(PriceListLine, '', "Price Source Type"::"All Jobs", '', AssetType, AssetNo);
         PriceListLine."Work Type Code" := WorkTypeCode;
         PriceListLine."Direct Unit Cost" := LibraryRandom.RandDec(100, 2);
-        PriceListLine."Unit Cost" := PriceListLine."Direct Unit Cost" * 1.3;
+        PriceListLine."Unit Cost" := Round(PriceListLine."Direct Unit Cost" * 1.3);
         PriceListLine.Status := PriceListLine.Status::Active;
         PriceListLine.Modify();
     end;
@@ -3868,6 +4123,18 @@ codeunit 134159 "Test Price Calculation - V16"
 
         CustomerPostingGroup.Get(ServiceHeader."Customer Posting Group");
         UpdateVATProdPostingGroupOnInvRoundingAccount(CustomerPostingGroup.GetInvRoundingAccount(), VATPostingSetup."VAT Prod. Posting Group");
+    end;
+
+    local procedure CreateResource(var Resource: Record Resource)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryResource.CreateResource(Resource, VATPostingSetup."VAT Bus. Posting Group");
+
+        // Use Random because value is not important.
+        Resource.Validate(Capacity, LibraryRandom.RandDec(10, 2));
+        Resource.Modify(true);
     end;
 
     local procedure FindReturnShipmentHeaderNo(OrderNo: Code[20]): Code[20]
@@ -3962,6 +4229,19 @@ codeunit 134159 "Test Price Calculation - V16"
         exit(PriceCalculationBufferMgt.GetSources(TempPriceSource));
     end;
 
+    local procedure RunResPriceListReport(No: Code[20]; CurrencyCode: Code[10])
+    var
+        Resource: Record Resource;
+        ResPriceList: Report "Res. Price List";
+    begin
+        Commit();
+        Clear(ResPriceList);
+        Resource.SetRange("No.", No);
+        ResPriceList.SetTableView(Resource);
+        ResPriceList.InitializeRequest(WorkDate(), "Job Price Source Type"::"All Jobs", '', CurrencyCode);
+        ResPriceList.Run;
+    end;
+
     local procedure UpdateVATBusPostingGroupOnCustomer(CustomerNo: Code[20]; VATBusPostingGroup: Code[20])
     var
         Customer: Record Customer;
@@ -4035,6 +4315,56 @@ codeunit 134159 "Test Price Calculation - V16"
         Assert.RecordCount(TempPriceSource, 1);
     end;
 
+    local procedure VerifyResPriceList(PriceListLine: Record "Price List Line"; ResourceUnitPrice: Decimal)
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('No_Resource', PriceListLine."Asset No.");
+        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the work type code');
+        LibraryReportDataset.AssertCurrentRowValueEquals('UnitPrice_Resource', ResourceUnitPrice);
+
+        LibraryReportDataset.Reset();
+        LibraryReportDataset.SetRange('No_Resource', PriceListLine."Asset No.");
+        LibraryReportDataset.SetRange('WorkTypeCode_ResPrice', PriceListLine."Work Type Code");
+        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the work type code');
+        LibraryReportDataset.AssertCurrentRowValueEquals('UnitPrice_ResPrice', PriceListLine."Unit Price");
+    end;
+
+    local procedure CreateStandardCostWorksheet(var StandardCostWorksheetPage: TestPage "Standard Cost Worksheet"; ResourceNo: Code[20]; StandardCost: Decimal; NewStandardCost: Decimal)
+    var
+        StandardCostWorksheet: Record "Standard Cost Worksheet";
+    begin
+        StandardCostWorksheetPage.Type.SetValue(StandardCostWorksheet.Type::Resource);
+        StandardCostWorksheetPage."No.".SetValue(ResourceNo);
+        StandardCostWorksheetPage."Standard Cost".SetValue(StandardCost);
+        StandardCostWorksheetPage."New Standard Cost".SetValue(NewStandardCost);
+        StandardCostWorksheetPage.Next;
+    end;
+
+    local procedure ImplementStandardCostChanges(Resource: Record Resource; StandardCost: Decimal; NewStandardCost: Decimal)
+    var
+        StandardCostWorksheet: Record "Standard Cost Worksheet";
+        StandardCostWorksheetPage: TestPage "Standard Cost Worksheet";
+    begin
+        StandardCostWorksheet.DeleteAll();
+        StandardCostWorksheetPage.OpenEdit;
+        CreateStandardCostWorksheet(StandardCostWorksheetPage, Resource."No.", StandardCost, NewStandardCost);
+        Commit();  // Commit Required due to Run Modal.
+        StandardCostWorksheetPage."&Implement Standard Cost Changes".Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure ImplementStandardCostChangesHandler(var ImplementStandardCostChange: TestRequestPage "Implement Standard Cost Change")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        ImplementStandardCostChange.ItemJournalTemplate.SetValue(ItemJournalTemplate.Name);
+        ImplementStandardCostChange.ItemJournalBatchName.SetValue(ItemJournalBatch.Name);
+        ImplementStandardCostChange.OK.Invoke;
+    end;
+
     [ModalPageHandler]
     procedure GetPriceLinePriceModalPageHandler(var GetPriceLine: TestPage "Get Price Line")
     begin
@@ -4059,9 +4389,9 @@ codeunit 134159 "Test Price Calculation - V16"
         Assert.AreEqual(false, GetPriceLine.PurchLineDiscountPct.Visible(), 'PurchLineDiscountPct.Visible');
         Assert.AreEqual(true, GetPriceLine."Allow Line Disc.".Visible(), 'Allow Line Disc.Visible');
         Assert.AreEqual(true, GetPriceLine."Allow Invoice Disc.".Visible(), 'Allow Invoice Disc.Visible');
-        // Asset Type/No not visible as the asset list is just of one asset
-        Assert.AreEqual(false, GetPriceLine."Asset Type".Visible(), 'Asset Type.Visible');
-        Assert.AreEqual(false, GetPriceLine."Asset No.".Visible(), 'Asset No.Visible');
+        // Asset Type/No visible as the asset list contains (All items) asset
+        Assert.AreEqual(true, GetPriceLine."Asset Type".Visible(), 'Asset Type.Visible');
+        Assert.AreEqual(true, GetPriceLine."Asset No.".Visible(), 'Asset No.Visible');
         GetPriceLine.First();
         GetPriceLine.OK.Invoke();
     end;
@@ -4120,5 +4450,12 @@ codeunit 134159 "Test Price Calculation - V16"
     procedure MessageHandler(Msg: Text)
     begin
         LibraryVariableStorage.Enqueue(Msg);
+    end;
+
+    [RequestPageHandler]
+    procedure ResPriceListReportHandler(var ResPriceList: TestRequestPage "Res. Price List")
+    begin
+        ResPriceList.Handler.SetValue("Price Calculation Handler"::"Business Central (Version 16.0)");
+        ResPriceList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

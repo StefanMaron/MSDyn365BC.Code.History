@@ -213,41 +213,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Variance % - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - Method 317383965" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CalculateForecast</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method CalculateForecast</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - Method 2630670452" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>PrepareForecast</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method PrepareForecast</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - Method 4135588582" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SetItemLedgerEntryFilters</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method SetItemLedgerEntryFilters</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - Method 2361799179" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ThrowStatusError</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method ThrowStatusError</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - Method 2774771308" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>UpdateSalesForecastItemList</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method UpdateSalesForecastItemList</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - Method 2015558932" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>OnAfterPrepareSalesInvData</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method OnAfterPrepareSalesInvData</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - Method 2850381696" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>OnAfterHasMinimumSIHistData</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method OnAfterHasMinimumSIHistData</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2836764293 - NamedType 2569145044" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to initialize the forecast method. Please, contact your system administrator.</source>
           <target state="translated">Fehler beim Initialisieren der Planungsmethode. Wenden Sie sich an den Systemadministrator.</target>
@@ -296,31 +261,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType UpdateDialogTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3420482273 - Method 3728894414" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CreatePurchaseLineAction</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - Method CreatePurchaseLineAction</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3420482273 - Method 1802891409" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>DeactivateNotification</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - Method DeactivateNotification</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3420482273 - Method 1653805360" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CreateAndShowPurchaseInvoice</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - Method CreateAndShowPurchaseInvoice</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3420482273 - Method 2732367176" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CreateAndShowPurchaseOrder</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - Method CreateAndShowPurchaseOrder</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3420482273 - Method 2152780346" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetNotificationGuid</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - Method GetNotificationGuid</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3420482273 - NamedType 2614170639" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add them to this document</source>
           <target state="translated">Zu diesem Beleg hinzufügen</target>
@@ -350,41 +290,6 @@
           <target state="translated">In Ihrem Lager befinden sich keine Artikel mehr, die dieser Kreditor üblicherweise liefert.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - NamedType NotificationTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3659386448 - Method 3446239166" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CreateJobQueueEntryAndOpenCard</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method CreateJobQueueEntryAndOpenCard</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3659386448 - Method 574670273" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CreateJobQueueEntry</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method CreateJobQueueEntry</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3659386448 - Method 2434378494" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>RemoveScheduledTaskIfUserInactive</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method RemoveScheduledTaskIfUserInactive</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3659386448 - Method 1021611758" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SetupScheduledForecasting</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method SetupScheduledForecasting</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3659386448 - Method 1802891409" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>DeactivateNotification</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method DeactivateNotification</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3659386448 - Method 1741752359" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetSetupNotificationID</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method GetSetupNotificationID</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3659386448 - Method 4098687409" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>JobQueueEntryCreationInProcess</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method JobQueueEntryCreationInProcess</note>
         </trans-unit>
         <trans-unit id="Codeunit 3659386448 - NamedType 3507565196" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Don't ask again</source>

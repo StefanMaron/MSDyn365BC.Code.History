@@ -41,6 +41,11 @@ table 5103 "Interaction Tmpl. Language"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(7; "Word Template Code"; Code[30])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = "Word Template".Code WHERE("Language Code" = FIELD("Language Code"), "Table ID" = CONST(5106)); // Only Interaction Merge Data word templates with same language code are allowed
+        }
     }
 
     keys
@@ -84,7 +89,9 @@ table 5103 "Interaction Tmpl. Language"
     var
         Attachment: Record Attachment;
         InteractTmplLanguage: Record "Interaction Tmpl. Language";
+#if not CLEAN17
         WordManagement: Codeunit WordManagement;
+#endif
         NewAttachNo: Integer;
     begin
         if "Attachment No." <> 0 then begin

@@ -126,12 +126,22 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
     end;
 
     procedure PutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
+    var
+        NewPriceAsset: Record "Price Asset";
     begin
+        if PriceAsset."Asset No." = '' then
+            exit;
+
         Item.Get(PriceAsset."Asset No.");
         if Item."Item Disc. Group" <> '' then begin
             PriceAssetList.SetLevel(PriceAsset.Level);
             PriceAssetList.Add(PriceAsset."Asset Type"::"Item Discount Group", Item."Item Disc. Group");
         end;
+        PriceAssetList.SetLevel(PriceAsset.Level - 1);
+        NewPriceAsset := PriceAsset;
+        NewPriceAsset.Validate("Asset No.", ''); // All Items
+        PriceAssetList.Add(NewPriceAsset);
+
         OnAfterPutRelatedAssetsToList(PriceAsset, PriceAssetList);
     end;
 

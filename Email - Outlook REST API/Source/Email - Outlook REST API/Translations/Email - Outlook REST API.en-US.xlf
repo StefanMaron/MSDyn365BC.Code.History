@@ -69,53 +69,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Field RedirectURL - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3663318601 - Method 575855250" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetAccessToken</source>
-          <target state="translated">GetAccessToken</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - Method GetAccessToken</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3663318601 - Method 3132820264" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>TryGetAccessToken</source>
-          <target state="translated">TryGetAccessToken</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - Method TryGetAccessToken</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3663318601 - Method 1847841921" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>AuthorizationCodeTokenCacheExists</source>
-          <target state="translated">AuthorizationCodeTokenCacheExists</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - Method AuthorizationCodeTokenCacheExists</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3663318601 - Method 850783161" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SignInUsingAuthorizationCode</source>
-          <target state="translated">SignInUsingAuthorizationCode</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - Method SignInUsingAuthorizationCode</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3663318601 - NamedType 1632511380" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not get access token. Please, try to log out and log in again.</source>
           <target state="translated">Could not get access token. Please, try to log out and log in again.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - NamedType CouldNotGetAccessTokenErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 571534387 - Method 4168336146" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetAccountInformation</source>
-          <target state="translated">GetAccountInformation</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - Method GetAccountInformation</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 571534387 - Method 1641497986" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>TryGetAccountInformation</source>
-          <target state="translated">TryGetAccountInformation</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - Method TryGetAccountInformation</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 571534387 - Method 1113490928" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SendEmail</source>
-          <target state="translated">SendEmail</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - Method SendEmail</note>
         </trans-unit>
         <trans-unit id="Codeunit 571534387 - NamedType 68286719" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not send the email message. Try again later.</source>
@@ -128,78 +86,6 @@
           <target state="translated">The mailbox is not valid.\\A likely cause of this error is that the user does not have a valid license for Office 365. To read about other potential causes, visit https://docs.microsoft.com/exchange/troubleshoot/user-and-shared-mailboxes/rest-api-is-not-yet-supported-for-this-mailbox-error.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType TheMailboxIsNotValidErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 1211343817" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetAccounts</source>
-          <target state="translated">GetAccounts</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method GetAccounts</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 2197567878" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>DeleteAccount</source>
-          <target state="translated">DeleteAccount</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method DeleteAccount</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 57969273" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>EmailMessageToJson</source>
-          <target state="translated">EmailMessageToJson</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method EmailMessageToJson</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 2016127489" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>EmailMessageToJson</source>
-          <target state="translated">EmailMessageToJson</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method EmailMessageToJson</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 191809298" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>AddEmailAttachments</source>
-          <target state="translated">AddEmailAttachments</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method AddEmailAttachments</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 2869370187" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetClientIDAndSecret</source>
-          <target state="translated">GetClientIDAndSecret</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method GetClientIDAndSecret</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 3960964776" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SetupAzureAppRegistration</source>
-          <target state="translated">SetupAzureAppRegistration</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method SetupAzureAppRegistration</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 1776814847" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetRedirectURL</source>
-          <target state="translated">GetRedirectURL</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method GetRedirectURL</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 4052636362" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>IsAzureAppRegistrationSetup</source>
-          <target state="translated">IsAzureAppRegistrationSetup</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method IsAzureAppRegistrationSetup</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 1000530520" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>InitializeClients</source>
-          <target state="translated">InitializeClients</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method InitializeClients</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 3615759303" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Send</source>
-          <target state="translated">Send</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method Send</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1049555962 - Method 2939540756" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Send</source>
-          <target state="translated">Send</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - Method Send</note>
         </trans-unit>
         <trans-unit id="Codeunit 1049555962 - NamedType 3792450033" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We could not find the account. Typically, this is because the account has been deleted.</source>

@@ -3,7 +3,6 @@ page 9085 "Service Hist. Sell-to FactBox"
     Caption = 'Sell-to Customer Service History';
     PageType = CardPart;
     SourceTable = Customer;
-    SourceTableTemporary = true;
 
     layout
     {

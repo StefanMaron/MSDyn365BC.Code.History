@@ -222,6 +222,13 @@ page 1345 "Sales Price and Line Discounts"
         }
     }
 
+    trigger OnInit()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+    begin
+        FeaturePriceCalculation.FailIfFeatureEnabled();
+    end;
+
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         if ("Loaded Customer No." = GetLoadedCustNo) and ("Loaded Item No." = GetLoadedItemNo) then

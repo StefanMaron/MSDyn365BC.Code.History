@@ -73,6 +73,7 @@
                 }
                 field("Support Url"; "Support Url")
                 {
+                    Caption = 'Support URL';
                     ApplicationArea = Basic, Suite, Invoicing;
                     ExtendedDatatype = URL;
                     ToolTip = 'Specifies the URL of an external web site that offers additional support.';
@@ -162,8 +163,31 @@
                 FieldNo("Context Record ID"):
                     PageManagement.PageRunAtField("Context Record ID", "Context Field Number", false);
                 FieldNo("Record ID"):
-                    PageManagement.PageRunAtField("Record ID", "Field Number", false);
+                    if IsDimSetEntryInconsistency() then
+                        RunDimSetEntriesPage()
+                    else
+                        PageManagement.PageRunAtField("Record ID", "Field Number", false);
             end
+    end;
+
+    local procedure IsDimSetEntryInconsistency(): Boolean
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        RecId: RecordId;
+    begin
+        RecId := "Record ID";
+        exit((RecId.TableNo = Database::"Dimension Set Entry") and ("Field Number" = DimensionSetEntry.FieldNo("Global Dimension No.")));
+    end;
+
+    local procedure RunDimSetEntriesPage()
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        DimensionSetEntries: Page "Dimension Set Entries";
+    begin
+        DimensionSetEntry.Get("Record ID");
+        DimensionSetEntries.SetRecord(DimensionSetEntry);
+        DimensionSetEntries.SetUpdDimSetGlblDimNoVisible();
+        DimensionSetEntries.Run();
     end;
 
     [IntegrationEvent(false, false)]

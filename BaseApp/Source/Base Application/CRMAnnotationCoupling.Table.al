@@ -150,6 +150,31 @@ table 5392 "CRM Annotation Coupling"
         NoteLine := NoteLine.Replace('<hr />', '');
         NoteLine := NoteLine.Replace('<p>', '');
         NoteLine := NoteLine.Replace('</p>', '');
+        NoteLine := NoteLine.Replace('</span>', '');
+        RemoveSpanTags(NoteLine);
+    end;
+
+    local procedure RemoveSpanTags(var NoteLine: Text)
+    var
+        LeftPart: Text;
+        RightPart: Text;
+        IndexOfSpan: Integer;
+        IndexOfSpanEnding: Integer;
+    begin
+        IndexOfSpan := NoteLine.IndexOf('<span');
+        while IndexOfSpan > 0 do begin
+            LeftPart := CopyStr(NoteLine, 1, IndexOfSpan - 1);
+            RightPart := CopyStr(NoteLine, IndexOfSpan);
+            IndexOfSpanEnding := RightPart.IndexOf('>');
+            If IndexOfSpanEnding = 0 then
+                exit;
+            if IndexOfSpanEnding = StrLen(RightPart) then
+                RightPart := ''
+            else
+                RightPart := CopyStr(RightPart, IndexOfSpanEnding + 1);
+            NoteLine := LeftPart + RightPart;
+            IndexOfSpan := NoteLine.IndexOf('<span');
+        end;
     end;
 }
 

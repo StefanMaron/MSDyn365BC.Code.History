@@ -662,6 +662,7 @@ table 60 "Document Sending Profile"
     var
         ReportSelections: Record "Report Selections";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        Customer: Record Customer;
         ReportDistributionManagement: Codeunit "Report Distribution Management";
         DocumentMailing: Codeunit "Document-Mailing";
         DataCompression: Codeunit "Data Compression";
@@ -674,6 +675,8 @@ table 60 "Document Sending Profile"
         ServerEmailBodyFilePath: Text[250];
         SendToEmailAddress: Text[250];
         AttachmentStream: Instream;
+        SourceTableIDs, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
     begin
         if "E-Mail" = "E-Mail"::No then
             exit;
@@ -699,10 +702,20 @@ table 60 "Document Sending Profile"
                     TempBlob.CreateInStream(AttachmentStream);
                     SourceReference := RecordVariant;
 
+                    SourceTableIDs.Add(SourceReference.Number());
+                    SourceIDs.Add(SourceReference.Field(SourceReference.SystemIdNo).Value());
+                    SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+                    if Customer.Get(ToCust) then begin
+                        SourceTableIDs.Add(Database::Customer);
+                        SourceIDs.Add(Customer.SystemId);
+                        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+                    end;
+
                     ReportSelections.GetEmailBodyForCust(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
                     DocumentMailing.EmailFile(
                       AttachmentStream, ClientZipFileName, ServerEmailBodyFilePath, DocNo, SendToEmailAddress, DocName,
-                      not ShowDialog, ReportUsage.AsInteger(), SourceReference);
+                      not ShowDialog, ReportUsage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
                 end;
         end;
     end;
@@ -711,6 +724,7 @@ table 60 "Document Sending Profile"
     var
         ReportSelections: Record "Report Selections";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        Vendor: Record Vendor;
         ReportDistributionManagement: Codeunit "Report Distribution Management";
         DocumentMailing: Codeunit "Document-Mailing";
         DataCompression: Codeunit "Data Compression";
@@ -723,6 +737,8 @@ table 60 "Document Sending Profile"
         ServerEmailBodyFilePath: Text[250];
         SendToEmailAddress: Text[250];
         AttachmentStream: Instream;
+        SourceTableIDs, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
     begin
         if "E-Mail" = "E-Mail"::No then
             exit;
@@ -748,10 +764,20 @@ table 60 "Document Sending Profile"
                     TempBlob.CreateInStream(AttachmentStream);
                     SourceReference := RecordVariant;
 
+                    SourceTableIDs.Add(SourceReference.Number());
+                    SourceIDs.Add(SourceReference.Field(SourceReference.SystemIdNo).Value());
+                    SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+                    if Vendor.Get(ToVendor) then begin
+                        SourceTableIDs.Add(Database::Vendor);
+                        SourceIDs.Add(Vendor.SystemId);
+                        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+                    end;
+
                     ReportSelections.GetEmailBodyForVend(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
                     DocumentMailing.EmailFile(
                       AttachmentStream, ClientZipFileName, ServerEmailBodyFilePath, DocNo, SendToEmailAddress, DocName,
-                      not ShowDialog, ReportUsage.AsInteger(), SourceReference);
+                      not ShowDialog, ReportUsage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
                 end;
         end;
     end;

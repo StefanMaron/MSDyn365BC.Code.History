@@ -72,6 +72,7 @@ codeunit 132900 UserRoleTest
     begin
         // Test function property TransactionModel = AutoRollback
         // Bug Sicily 6812
+        Initialize;
         RandomUserName := SelectRandomADUser;
         AddUserHelper(RandomUserName);
         TestValidateUserHelper(RandomUserName);
@@ -153,7 +154,7 @@ codeunit 132900 UserRoleTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        // testfunction property TransactionModel = AutoRollback
+        // test function property TransactionModel = AutoRollback
         Initialize;
         AddUserHelper(UserName[1]);
         UserCardPage.OpenEdit;
@@ -174,7 +175,7 @@ codeunit 132900 UserRoleTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        // testfunction property TransactionModel = AutoRollback
+        // test function property TransactionModel = AutoRollback
         Initialize;
         AddUserHelper(UserName[1]);
         UserCardPage.OpenEdit;
@@ -194,7 +195,7 @@ codeunit 132900 UserRoleTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        // Test function property TransactionModel = autoRoolback
+        // Test function property TransactionModel = AutoRollback
         // Doesn't work can not invoke the delete button on a page - workaround implemented - deleting the record directly in the table
         Initialize;
         AddUserHelper(UserName[2]);
@@ -244,7 +245,7 @@ codeunit 132900 UserRoleTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        // Test function property TransactionModel = autoRoolback
+        // Test function property TransactionModel = AutoRollback
         Initialize;
         AddUserHelper(UserName[1]);
         UserCardPage.OpenEdit;
@@ -535,14 +536,14 @@ codeunit 132900 UserRoleTest
         User.SetRange("User Name", UserName[1]);
         User.FindFirst;
 
-        // Setting Applicaiton ID, sets the License Type to External User
+        // Setting Application ID, sets the License Type to External User
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         UserCard.OpenEdit;
         UserCard.GotoRecord(User);
         UserCard.ApplicationID.Value := CreateGuid;
         UserCard."License Type".AssertEquals(User."License Type"::"External User");
 
-        // Setting Applicaiotn ID to empty, sets the License Type to Full User
+        // Setting Application ID to empty, sets the License Type to Full User
         UserCard.ApplicationID.Value := '';
         UserCard."License Type".AssertEquals(User."License Type"::"Full User");
         UserCard.OK.Invoke;

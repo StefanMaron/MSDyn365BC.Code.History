@@ -101,11 +101,12 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
             PriceAssetList.SetLevel(PriceAsset.Level - 1);
             NewPriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::"Resource Group");
             NewPriceAsset.Validate("Asset No.", Resource."Resource Group No.");
-        end else begin
-            PriceAssetList.SetLevel(PriceAsset.Level - 1);
-            NewPriceAsset := PriceAsset;
-            NewPriceAsset.Validate("Asset No.", ''); // All Resources
+            NewPriceAsset."Work Type Code" := PriceAsset."Work Type Code";
+            PriceAssetList.Add(NewPriceAsset);
         end;
+        PriceAssetList.SetLevel(PriceAsset.Level - 2);
+        NewPriceAsset := PriceAsset;
+        NewPriceAsset.Validate("Asset No.", ''); // All Resources
         NewPriceAsset."Work Type Code" := PriceAsset."Work Type Code";
         PriceAssetList.Add(NewPriceAsset);
         OnAfterPutRelatedAssetsToList(PriceAsset, PriceAssetList);

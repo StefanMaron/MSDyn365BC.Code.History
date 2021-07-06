@@ -1,4 +1,4 @@
-page 479 "Dimension Set Entries"
+﻿page 479 "Dimension Set Entries"
 {
     Caption = 'Dimension Set Entries';
     Editable = false;
@@ -39,6 +39,24 @@ page 479 "Dimension Set Entries"
 
     actions
     {
+        area(Processing)
+        {
+            action(UpdDimSetGlblDimNo)
+            {
+                ApplicationArea = Dimensions;
+                Caption = 'Update Shortcut Dimension No.';
+                Promoted = true;
+                PromotedCategory = Process;
+                Image = ChangeDimensions;
+                ToolTip = 'Fix incorrect settings for one or more global or shortcut dimensions.';
+                Visible = UpdDimSetGlblDimNoVisible;
+
+                trigger OnAction()
+                begin
+                    Report.Run(Report::"Update Dim. Set Glbl. Dim. No.");
+                end;
+            }
+        }
     }
 
     trigger OnOpenPage()
@@ -54,5 +72,13 @@ page 479 "Dimension Set Entries"
     begin
         FormCaption := CopyStr(NewFormCaption + ' - ' + CurrPage.Caption, 1, MaxStrLen(FormCaption));
     end;
+
+    procedure SetUpdDimSetGlblDimNoVisible()
+    begin
+        UpdDimSetGlblDimNoVisible := true;
+    end;
+
+    var
+        UpdDimSetGlblDimNoVisible: Boolean;
 }
 

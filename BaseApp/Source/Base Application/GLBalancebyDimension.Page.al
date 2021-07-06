@@ -379,11 +379,17 @@ page 408 "G/L Balance by Dimension"
     var
         AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
         MATRIX_Step: Option Initial,Previous,Same,Next;
+        GLAccGlobalDim1Filter: Text;
+        GlAccGlobalDim2Filter: Text;
     begin
         AnalysisByDimUserParam.Load(Rec, Page::"G/L Balance by Dimension");
         OnBeforeGLAccFilter(GLAcc, "Account Filter", LineDimOption, ColumnDimOption);
-        "Dimension 1 Filter" := GLAcc.GetFilter("Global Dimension 1 Filter");
-        "Dimension 2 Filter" := GLAcc.GetFilter("Global Dimension 2 Filter");
+        GLAccGlobalDim1Filter := GLAcc.GetFilter("Global Dimension 1 Filter");
+        if (GLAccGlobalDim1Filter <> '') then
+            "Dimension 1 Filter" := GLAccGlobalDim1Filter;
+        GLAccGlobalDim2Filter := GLAcc.GetFilter("Global Dimension 2 Filter");
+        if (GLAccGlobalDim2Filter <> '') then
+            "Dimension 2 Filter" := GLAccGlobalDim2Filter;
 
         GLSetup.Get();
         Dim1FilterEnable :=

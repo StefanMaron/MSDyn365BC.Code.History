@@ -1,8 +1,10 @@
 permissionset 9921 "D365 VENDOR, EDIT"
 {
     Assignable = true;
-
     Caption = 'Dynamics 365 Create vendors';
+
+    IncludedPermissionSets = "D365 VENDOR, VIEW";
+
     Permissions = tabledata "Bank Account Ledger Entry" = rm,
                   tabledata "Check Ledger Entry" = r,
                   tabledata "Cont. Duplicate Search String" = RIMD,
@@ -29,6 +31,7 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Nonstock Item" = rm,
                   tabledata Opportunity = R,
                   tabledata "Order Address" = RIMD,
+                  tabledata "Payment Method" = R,
                   tabledata "Price Asset" = RIMD,
                   tabledata "Price Calculation Buffer" = RIMD,
                   tabledata "Price Calculation Setup" = RIMD,
@@ -70,9 +73,9 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "VAT Registration Log Details" = RIMD,
                   tabledata "VAT Registration No. Format" = RIMD,
                   tabledata Vendor = RIMD,
-                  tabledata "Vendor Bank Account" = RIMD,
-                  tabledata "Vendor Invoice Disc." = RIMD,
-                  tabledata "Vendor Ledger Entry" = RM,
+                  tabledata "Vendor Bank Account" = IMD,
+                  tabledata "Vendor Invoice Disc." = IMD,
+                  tabledata "Vendor Ledger Entry" = M,
                   tabledata "Warehouse Activity Header" = r,
                   tabledata "Warehouse Activity Line" = r,
                   tabledata "Warehouse Request" = rm,

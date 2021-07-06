@@ -475,7 +475,7 @@ codeunit 8 AccSchedManagement
                                 end;
                         end;
 
-            OnAfterCalcCellValue(AccSchedLine, ColumnLayout, Result);
+            OnAfterCalcCellValue(AccSchedLine, ColumnLayout, Result, AccountScheduleLine);
 
             AccSchedCellValue."Row No." := AccSchedLine."Line No.";
             AccSchedCellValue."Column No." := ColumnLayout."Line No.";
@@ -763,9 +763,13 @@ codeunit 8 AccSchedManagement
                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr);
                 end;
             until AccSchedLine.Next() = 0
-        else
-            if IsFilter or (not Evaluate(Result, Expression)) then
-                ShowError(Text012, SourceAccSchedLine, ColumnLayout);
+        else begin
+            IsHandled := false;
+            OnCalcCellValueInAccSchedLinesOnBeforeShowError(SourceAccSchedLine, AccSchedLine, ColumnLayout, CalcAddCurr, CellValue, StartDate, EndDate, Result, IsHandled);
+            if not IsHandled then
+                if IsFilter or (not Evaluate(Result, Expression)) then
+                    ShowError(Text012, SourceAccSchedLine, ColumnLayout);
+        end;
     end;
 
     local procedure CalcCellValueInColumnLayouts(SourceColumnLayout: Record "Column Layout"; AccSchedLine: Record "Acc. Schedule Line"; Expression: Text; CalcAddCurr: Boolean; IsFilter: Boolean) Result: Decimal
@@ -2131,7 +2135,7 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterCalcCellValue(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var Result: Decimal)
+    local procedure OnAfterCalcCellValue(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var Result: Decimal; var SourceAccScheduleLine: Record "Acc. Schedule Line")
     begin
     end;
 
@@ -2277,6 +2281,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnMoveAccSchedLinesOnAfterAccSchedLineDelete(var AccSchedLine: Record "Acc. Schedule Line"; Place: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCellValueInAccSchedLinesOnBeforeShowError(SourceAccScheduleLine: Record "Acc. Schedule Line"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var CellValue: Decimal; StartDate: Date; EndDate: Date; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

@@ -87,7 +87,6 @@ codeunit 431 "IC Outbox Export"
         DocumentMailing: Codeunit "Document-Mailing";
         ICOutboxExportXML: XMLport "IC Outbox Imp/Exp";
         EmailDialog: Page "Email Dialog";
-        DocumentReference: RecordRef;
         InStream: InStream;
         OFile: File;
         FileName: Text;
@@ -97,6 +96,8 @@ codeunit 431 "IC Outbox Export"
         CcName: Text[100];
         OutFileName: Text;
         IsHandled: Boolean;
+        SourceTableIDs, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
     begin
         IsHandled := false;
         OnBeforeSendToExternalPartner(ICOutboxTrans, IsHandled);
@@ -161,8 +162,15 @@ codeunit 431 "IC Outbox Export"
                             EmailDialog.GetRecord(EmailItem);
                             OFile.Open(FileName);
                             OFile.CreateInStream(InStream);
-                            DocumentReference.GetTable(ICOutboxTrans);
-                            DocumentReference.GetBySystemId(ICOutboxTrans.SystemId);
+
+                            SourceTableIDs.Add(Database::"IC Outbox Transaction");
+                            SourceIDs.Add(ICOutboxTrans.SystemId);
+                            SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+                            SourceTableIDs.Add(Database::"IC Partner");
+                            SourceIDs.Add(ICPartner.SystemId);
+                            SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+
                             DocumentMailing.EmailFile(
                               InStream,
                               StrSubstNo('%1.xml', ICPartner.Code),
@@ -172,7 +180,9 @@ codeunit 431 "IC Outbox Export"
                               EmailItem.Subject,
                               true,
                               5, // S.Test
-                              DocumentReference);
+                              SourceTableIDs,
+                              SourceIDs,
+                              SourceRelationTypes);
                         end else
                             MailHandler.NewMessage(
                               ToName, CcName, '',

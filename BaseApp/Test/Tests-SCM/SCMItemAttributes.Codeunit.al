@@ -2383,6 +2383,54 @@ codeunit 137413 "SCM Item Attributes"
         Assert.ExpectedError('The Item Attribute Value does not exist');
     end;
 
+    [Test]
+    procedure TranslatedAttributeNameGetsMatchedToOriginalCorrectly()
+    var
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        ItemCategory: Record "Item Category";
+        Language: Record Language;
+        ItemCategoryCard: TestPage "Item Category Card";
+        TranslatedValue: Text;
+    begin
+        // [SCENARIO 401848] When opening and closing Item Category card with Attributes which have translation for currently set global language: there is no message to delete any attribute values,
+        // the original value is not deleted, the translated value is not added to Attribute Value table.
+        Initialize();
+
+        // [GIVEN] A Language was set in options with code "XXX"
+        Language.SetRange("Windows Language ID", GlobalLanguage());
+        Language.FindFirst();
+
+        // [GIVEN] An Item Attribute was created
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Option, '');
+
+        // [GIVEN] An Item Attribute Value was created with value "VALUE"
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, LibraryUtility.GenerateGUID());
+
+        // [GIVEN] An Item Attribute Value Translation was created with value "TRANSLATED VALUE"
+        TranslatedValue := InsertOptionItemAttributeValueTranslation(Language, ItemAttribute, ItemAttributeValue);
+
+        // [GIVEN] An Item Category was created and Item Attribute with default value assigned to the category
+        LibraryInventory.CreateItemCategory(ItemCategory);
+        AssignItemAttributeValueToCategory(ItemCategory, ItemAttribute, ItemAttributeValue.Value);
+
+        // [WHEN] Open and close Item Category Card for this category
+        ItemCategoryCard.OpenView();
+        ItemCategoryCard.Filter.SetFilter(Code, ItemCategory.Code);
+        ItemCategoryCard.OK().Invoke();
+
+        // [THEN] No message for deletion of attribute values pops up
+
+        // [THEN] Original Item Attribute Value "VALUE" still exists
+        ItemAttributeValue.SetRange("Attribute ID", ItemAttribute.ID);
+        ItemAttributeValue.SetRange(Value, ItemAttributeValue.Value);
+        ItemAttributeValue.FindFirst();
+
+        // [THEN] Translated value "TRANSLATED VALUE" was not added to the Item Attribute Value table
+        ItemAttributeValue.SetRange(Value, TranslatedValue);
+        Assert.RecordIsEmpty(ItemAttributeValue);
+    end;
+
     local procedure Initialize()
     var
         ItemAttribute: Record "Item Attribute";
@@ -2492,6 +2540,17 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeValue.SetRange("Attribute ID", ItemAttribute.ID);
         ItemAttributeValue.FindFirst;
         SetItemAttributesViaItemCard(ItemCard, ItemAttribute, ItemAttributeValue.Value);
+    end;
+
+    local procedure AssignItemAttributeValueToCategory(ItemCategory: Record "Item Category"; ItemAttribute: Record "Item Attribute"; ItemAttributeValue: Text)
+    var
+        ItemCategoryCard: TestPage "Item Category Card";
+    begin
+        ItemCategoryCard.OpenEdit();
+        ItemCategoryCard.Filter.SetFilter(Code, ItemCategory.Code);
+        ItemCategoryCard.Attributes."Attribute Name".SetValue(ItemAttribute.Name);
+        ItemCategoryCard.Attributes.Value.SetValue(ItemAttributeValue);
+        ItemCategoryCard.Close();
     end;
 
     local procedure CreateItemAttributeValues(var ItemAttributeValue: Record "Item Attribute Value"; NumerOfValuesPerAttribute: Integer; ItemAttributeType: Option)

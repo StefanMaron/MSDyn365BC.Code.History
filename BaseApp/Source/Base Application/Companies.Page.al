@@ -86,7 +86,6 @@ page 357 Companies
                     ApplicationArea = Basic, Suite;
                     Caption = 'Setup Status';
                     Editable = false;
-                    OptionCaption = ' ,Completed,In Progress,Error,Missing Permission';
                     ToolTip = 'Specifies the setup status of the company.';
 
                     trigger OnDrillDown()
@@ -184,7 +183,7 @@ page 357 Companies
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
     begin
         EnableAssistedCompanySetup := false;
-        SetupStatus := 0;
+        SetupStatus := SetupStatus::" ";
         CompanyNameVar := CopyStr(Name, 1, MaxStrLen(CompanyNameVar));
         PageInEditmode := CurrPage.Editable;
         if ApplicationAreaMgmt.IsAdvancedExperienceEnabled then
@@ -194,7 +193,7 @@ page 357 Companies
             exit;
 
         EnableAssistedCompanySetup := AssistedCompanySetupStatus.Enabled;
-        SetupStatus := AssistedCompanySetupStatus.GetCompanySetupStatus(Name);
+        SetupStatus := AssistedCompanySetupStatus.GetCompanySetupStatusValue(Name);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -250,7 +249,7 @@ page 357 Companies
         CompanyTok: Label 'Company %1 has been deleted', Locked = true;
         RenameNotAllowedErr: Label 'You cannot rename this company due to the impact on performance. Instead, change the %1.', Comment = '%1 = Display Name';
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
-        SetupStatus: Option " ",Completed,"In Progress",Error,"Missing Permission";
+        SetupStatus: Enum "Company Setup Status";
         EnableAssistedCompanySetup: Boolean;
         PageInEditmode: Boolean;
         SoftwareAsAService: Boolean;

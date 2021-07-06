@@ -207,21 +207,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Submission Line - Field VAT Group Submission No. - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3917783520 - Method 1427991623" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Send</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - Method Send</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3917783520 - Method 2180170368" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>PrepareURI</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - Method PrepareURI</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3917783520 - Method 1502531657" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetVATGroupSubmissionStatusEndpoint</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - Method GetVATGroupSubmissionStatusEndpoint</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3917783520 - NamedType 3701627753" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Bearer token could not be retrieved from cache. Please refresh the VAT Group bearer token by logging in the %1 page</source>
           <target state="translated">Haltijatunnusta ei voitu noutaa välimuistista. Päivitä ALV-ryhmän haltijatunnus kirjautumalla sivulle %1</target>
@@ -288,41 +273,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Communication - NamedType UnauthorizedErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1491000021 - Method 354109579" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SetOriginalRepresentativeAmount</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - Method SetOriginalRepresentativeAmount</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1491000021 - Method 3103796767" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CountApprovedMemberSubmissionsForPeriod</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - Method CountApprovedMemberSubmissionsForPeriod</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1491000021 - Method 2324998444" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>PrepareVATCalculation</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - Method PrepareVATCalculation</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1491000021 - Method 163107497" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>MarkReleasedVATSubmissions</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - Method MarkReleasedVATSubmissions</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1491000021 - Method 370878250" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>MarkReopenedVATSubmissions</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - Method MarkReopenedVATSubmissions</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1491000021 - Method 1952960432" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>NewerVATSubmissionsExist</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - Method NewerVATSubmissionsExist</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1491000021 - Method 946777602" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GetVATGroupDefaultBCVersion</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - Method GetVATGroupDefaultBCVersion</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1491000021 - NamedType 1689235809" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>VAT Group Management allows independent companies to enter into a VAT Group with the purpose of eliminating VAT claims amongst each other.</source>
           <target state="translated">ALV-ryhmän hallinnan ansiosta itsenäiset yritykset voivat liittyä ALV-ryhmään voidakseen poistaa ALV-vaatimuksia toistensa väliltä.</target>
@@ -341,26 +291,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Helper Functions - NamedType NoVATReportSetupErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4281638274 - Method 2669132568" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>IsNotificationNeeded</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Retrieve From Sub. - Method IsNotificationNeeded</note>
-        </trans-unit>
         <trans-unit id="Codeunit 4281638274 - NamedType 3214936391" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must run the Suggest Lines action before you include returns for the VAT group.</source>
           <target state="translated">Palautusten sisällyttämiseksi ALV-ryhmään sinun on suoritettava ensin Ehdota rivejä -toiminto.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Retrieve From Sub. - NamedType SuggestLinesBeforeErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2508398934 - Method 3324131187" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CreateVATSubmissionJson</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Serialization - Method CreateVATSubmissionJson</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2508398934 - Method 2224158004" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CreateBatchRequestPayload</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Serialization - Method CreateBatchRequestPayload</note>
         </trans-unit>
         <trans-unit id="Codeunit 808841163 - NamedType 3295597712" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The VAT Due Box No. is missing in VAT Report Setup.</source>
@@ -403,21 +338,6 @@
           <target state="translated">Jäsenen %1 ALV-laskelma. %2–%3</target>
           <note from="Developer" annotates="general" priority="2">%1 is the name of a VAT group member. %2 and %3 are dates</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Settlement - NamedType VATSettlementTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3637038916 - Method 1247498919" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>UpdateAllVATReportStatus</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Submission Status - Method UpdateAllVATReportStatus</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3637038916 - Method 1841660914" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>UpdateSingleVATReportStatus</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Submission Status - Method UpdateSingleVATReportStatus</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3637038916 - Method 1356402332" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>IsVATReportValid</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit VAT Group Submission Status - Method IsVATReportValid</note>
         </trans-unit>
         <trans-unit id="Codeunit 3637038916 - NamedType 2074369582" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot update VAT report status</source>

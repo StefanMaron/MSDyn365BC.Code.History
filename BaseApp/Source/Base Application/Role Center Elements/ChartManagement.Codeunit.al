@@ -316,9 +316,11 @@ codeunit 1315 "Chart Management"
     begin
         with LastUsedChart do
             if Get(UserId) then begin
-                Validate("Code Unit ID", ChartDefinition."Code Unit ID");
-                Validate("Chart Name", ChartDefinition."Chart Name");
-                Modify;
+                if ("Code Unit ID" <> ChartDefinition."Code Unit ID") or ("Chart Name" <> ChartDefinition."Chart Name") then begin
+                    Validate("Code Unit ID", ChartDefinition."Code Unit ID");
+                    Validate("Chart Name", ChartDefinition."Chart Name");
+                    Modify;
+                end;
             end else begin
                 Validate(UID, UserId);
                 Validate("Code Unit ID", ChartDefinition."Code Unit ID");

@@ -271,7 +271,7 @@ report 492 "Copy Purchase Document"
            (PurchHeader."Document Type" = PurchHeader."Document Type"::"Credit Memo")) and
           (PurchHeader."Buy-from Vendor No." in [FromPurchHeader."Buy-from Vendor No.", '']);
 
-        OnBeforeValidateIncludeHeader(IncludeHeader, FromDocType.AsInteger());
+        OnBeforeValidateIncludeHeader(IncludeHeader, FromDocType.AsInteger(), PurchHeader, FromPurchHeader);
         ValidateIncludeHeader;
     end;
 
@@ -498,7 +498,7 @@ report 492 "Copy Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateIncludeHeader(var DoIncludeHeader: Boolean; DocType: Option)
+    local procedure OnBeforeValidateIncludeHeader(var DoIncludeHeader: Boolean; DocType: Option; var PurchHeader: Record "Purchase Header"; FromPurchHeader: Record "Purchase Header")
     begin
     end;
 

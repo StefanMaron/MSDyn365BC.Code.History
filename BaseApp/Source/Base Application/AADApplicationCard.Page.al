@@ -128,5 +128,7 @@ page 9861 "AAD Application Card"
             else
                 Error(ConsentFailedErr);
         Message(ConsentSuccessTxt);
+        Rec."Permission Granted" := true;
+        Rec.Modify();
     end;
 }

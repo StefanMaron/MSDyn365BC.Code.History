@@ -98,7 +98,7 @@ codeunit 1202 "Import Payroll Transaction"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetFileName(var GenJournalLine: Record "Gen. Journal Line"; TempBlob: Codeunit "Temp Blob"; DataExchDefCode: Code[20]; var FileName: Text)
+    local procedure OnBeforeGetFileName(var GenJournalLine: Record "Gen. Journal Line"; var TempBlob: Codeunit "Temp Blob"; DataExchDefCode: Code[20]; var FileName: Text)
     begin
     end;
 }

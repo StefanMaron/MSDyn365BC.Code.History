@@ -436,19 +436,21 @@ report 7050 "Item Price List"
         SetCurrency();
     end;
 
+    protected var
+        Currency: Record Currency;
+        PriceSource: Record "Price Source";
+        TempSalesPrice: Record "Price List Line" temporary;
+        TempSalesLineDisc: Record "Price List Line" temporary;
+        PriceSourceList: Codeunit "Price Source List";
+
     var
         CompanyInfo: Record "Company Information";
         CustPriceGr: Record "Customer Price Group";
         Cust: Record Customer;
         Campaign: Record Campaign;
-        Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
-        TempSalesPrice: Record "Price List Line" temporary;
-        TempSalesLineDisc: Record "Price List Line" temporary;
         ContBusRel: Record "Contact Business Relation";
         GLSetup: Record "General Ledger Setup";
-        PriceSource: Record "Price Source";
-        PriceSourceList: Codeunit "Price Source List";
         FormatAddr: Codeunit "Format Address";
         PriceCalcMethod: Enum "Price Calculation Method";
         PriceCalculationHandler: Enum "Price Calculation Handler";

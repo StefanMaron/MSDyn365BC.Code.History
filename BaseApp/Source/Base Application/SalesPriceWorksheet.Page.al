@@ -187,5 +187,12 @@ page 7023 "Sales Price Worksheet"
             }
         }
     }
+    
+    trigger OnInit()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+    begin
+        FeaturePriceCalculation.FailIfFeatureEnabled();
+    end;
 }
 

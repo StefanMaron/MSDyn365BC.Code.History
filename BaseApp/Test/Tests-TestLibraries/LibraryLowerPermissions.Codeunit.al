@@ -5,13 +5,8 @@ codeunit 132217 "Library - Lower Permissions"
     Permissions = TableData "Gen. Journal Batch" = rimd;
     SingleInstance = true;
 
-    trigger OnRun()
-    begin
-    end;
-
     var
-        PermissionTestHelper: DotNet PermissionTestHelper;
-        StartedLogging: Boolean;
+        PermissionsMock: Codeunit "Permissions Mock";
         HasChangedPermissionsBelowO365Full: Boolean;
         XO365FULLTxt: Label 'D365 Full Access';
         XCUSTOMERVIEWTxt: Label 'D365 Customer, View';
@@ -67,59 +62,25 @@ codeunit 132217 "Library - Lower Permissions"
         InvtPickPutawayMovementTxt: Label 'WM-R/PA/A/P/S, POST';
         WhseMgtActivitiesTxt: Label 'WM-PERIODIC';
         BasicISVTok: Label 'D365 BASIC ISV', Locked = true;
-        XSalesQOIRCTok: Label 'S&R-Q/O/I/R/C';
-        XSalesQOIRCPostTok: Label 'S&R-Q/O/I/R/C, POST';
         XBackupRestoreTok: Label 'D365 BACKUP/RESTORE';
         D365ServiceMgtTxt: Label 'D365PREM SMG, VIEW';
         D365WhseEditTok: Label 'D365 WHSE, EDIT';
 
-    procedure AddTestObjectsToTestPermissionSet()
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermission: Record "Tenant Permission";
-        TestAllObj: Record AllObj;
-        PermissionManager: Codeunit "Permission Manager";
-        NullGuid: Guid;
-    begin
-        //
-        // this currently does not work as the Permission Test Helper does not add Tenant Permission Sets 
-        //
-        if TenantPermissionSet.Get(NullGuid, XTestPermissionSetTxt) then
-            exit; // Permission set has already been created
-
-        TenantPermissionSet.Init();
-        TenantPermissionSet."App ID" := NullGuid;
-        TenantPermissionSet."Role ID" := XTestPermissionSetTxt;
-        if TenantPermissionSet.Insert() then;
-
-        TestAllObj.SetRange("Object Type", TestAllObj."Object Type"::TableData);
-        TestAllObj.SetRange("Object ID", 130000, 149999);
-        if TestAllObj.FindSet then
-            repeat
-                TenantPermission.Init();
-                TenantPermission."App ID" := NullGuid;
-                TenantPermission."Role ID" := XTestPermissionSetTxt;
-                TenantPermission."Object Type" := TestAllObj."Object Type";
-                TenantPermission."Object ID" := TestAllObj."Object ID";
-                if TenantPermission.Insert() then;
-            until TestAllObj.Next = 0;
-        Commit();
-    end;
-
     procedure StartLoggingNAVPermissions(PermissionSetRoleID: Code[20])
     begin
-        if IsNull(PermissionTestHelper) then
-            PermissionTestHelper := PermissionTestHelper.PermissionTestHelper;
-        StartedLogging := true;
+        StartLoggingNAVPermissions();
+        PushPermissionSetInternal(PermissionSetRoleID, true);
+    end;
+
+    procedure StartLoggingNAVPermissions()
+    begin
+        PermissionsMock.Start();
         HasChangedPermissionsBelowO365Full := false;
-        PushPermissionSet(PermissionSetRoleID);
     end;
 
     procedure StopLoggingNAVPermissions()
     begin
-        StartedLogging := false;
-        PermissionTestHelper.Dispose;
-        Clear(PermissionTestHelper);
+        PermissionsMock.Stop();
     end;
 
     procedure HasChangedPermissions(): Boolean
@@ -414,8 +375,10 @@ codeunit 132217 "Library - Lower Permissions"
     end;
 
     local procedure PushPermissionSetInternal(PermissionSetRoleID: Code[20]; AddDefaults: Boolean)
+    var
+        PermissionSet: Record "Permission Set";
     begin
-        if not StartedLogging then
+        if not PermissionsMock.IsStarted() then
             exit;
 
         if (UpperCase(PermissionSetRoleID) <> UpperCase(XO365FULLTxt)) and
@@ -423,21 +386,22 @@ codeunit 132217 "Library - Lower Permissions"
         then
             HasChangedPermissionsBelowO365Full := true;
 
-        PermissionTestHelper.Clear;
-        if AddDefaults then
-            PermissionTestHelper.AddEffectivePermissionSet(XBASICTxt);
-        PermissionTestHelper.AddEffectivePermissionSet(XTestPermissionSetTxt);
-        PermissionTestHelper.AddEffectivePermissionSet(PermissionSetRoleID);
-        if AddDefaults then
-            PermissionTestHelper.AddEffectivePermissionSet(XLOCALTxt);
+        PermissionsMock.Set(PermissionSetRoleID);
+        PermissionsMock.Assign(XTestPermissionSetTxt);
+
+        if AddDefaults then begin
+            PermissionsMock.Assign(XBASICTxt);
+            if PermissionSet.Get(XLOCALTxt) then
+                PermissionsMock.Assign(XLOCALTxt);
+        end;
     end;
 
     procedure AddPermissionSet(PermissionSetRoleID: Code[20])
     begin
-        if not StartedLogging then
+        if not PermissionsMock.IsStarted() then
             exit;
 
-        PermissionTestHelper.AddEffectivePermissionSet(PermissionSetRoleID);
+        PermissionsMock.Assign(PermissionSetRoleID);
     end;
 
     procedure AddO365INVSetup()
@@ -468,16 +432,6 @@ codeunit 132217 "Library - Lower Permissions"
     procedure SetO365INVPost()
     begin
         PushPermissionSet(XINVENTORYPOSTTxt);
-    end;
-
-    procedure SetSellReturn()
-    begin
-        PushPermissionSet(XSalesQOIRCTok);
-    end;
-
-    procedure SetSellReturnPost()
-    begin
-        PushPermissionSet(XSalesQOIRCPostTok);
     end;
 
     procedure SetBackupRestore()
@@ -598,16 +552,6 @@ codeunit 132217 "Library - Lower Permissions"
     procedure AddO365ServiceMgtRead()
     begin
         AddPermissionSet(D365ServiceMgtTxt);
-    end;
-
-    procedure AddSellReturn()
-    begin
-        AddPermissionSet(XSalesQOIRCTok);
-    end;
-
-    procedure AddSellReturnPost()
-    begin
-        AddPermissionSet(XSalesQOIRCPostTok);
     end;
 
     procedure AddBackupRestore()
@@ -756,7 +700,7 @@ codeunit 132217 "Library - Lower Permissions"
     [Scope('OnPrem')]
     procedure CanLowerPermission(): Boolean
     begin
-        exit(StartedLogging);
+        exit(PermissionsMock.IsStarted());
     end;
 }
 

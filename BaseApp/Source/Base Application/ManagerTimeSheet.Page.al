@@ -261,7 +261,7 @@ page 952 "Manager Time Sheet"
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
-                    PromotedOnly = true;                    
+                    PromotedOnly = true;
                     ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                     trigger OnAction()
@@ -452,6 +452,8 @@ page 952 "Manager Time Sheet"
         Clear(NoOfColumns);
 
         TimeSheetHeader.Get(CurrTimeSheetNo);
+        OnSetColumnsOnAfterGetTimeSheetHeader(TimeSheetHeader);
+
         Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
         Calendar.SetRange("Period Start", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
         if Calendar.FindSet then
@@ -618,6 +620,11 @@ page 952 "Manager Time Sheet"
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessOnAfterTimeSheetLinesFiltered(var TimeSheetLine: Record "Time Sheet Line"; "Action": Option "Approve Selected","Approve All","Reopen Selected","Reopen All","Reject Selected","Reject All")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetColumnsOnAfterGetTimeSheetHeader(var TimeSheetHeader: Record "Time Sheet Header")
     begin
     end;
 

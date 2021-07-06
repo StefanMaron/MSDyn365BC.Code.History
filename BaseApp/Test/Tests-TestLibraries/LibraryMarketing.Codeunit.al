@@ -339,6 +339,7 @@ codeunit 131900 "Library - Marketing"
         InteractionTemplate.Validate("Interaction Group Code", InteractionGroup.Code);
         // Validating Code as Description because value is not important.
         InteractionTemplate.Validate(Description, InteractionTemplate.Code + InteractionTemplate."Interaction Group Code");
+        InteractionTemplate.Validate("Correspondence Type (Default)", "Correspondence Type"::" ");
         InteractionTemplate.Insert(true);
     end;
 

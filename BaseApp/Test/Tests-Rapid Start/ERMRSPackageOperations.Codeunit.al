@@ -2,7 +2,7 @@ codeunit 136603 "ERM RS Package Operations"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
-    TestPermissions = NonRestrictive;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin

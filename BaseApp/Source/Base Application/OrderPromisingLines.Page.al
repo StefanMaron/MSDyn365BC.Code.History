@@ -186,6 +186,7 @@ page 99000959 "Order Promising Lines"
                     ReqLine.SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
                     ReqLine.SetRange("Order Promising ID", CrntSourceID);
                     ReqLine.ModifyAll("Accept Action Message", true);
+                    OnAcceptButtonOnActionOnBeforeClosePage(Rec, CrntSourceType, CrntSourceID, OrderPromisingCalculationDone);
                     CurrPage.Close;
                 end;
             }
@@ -281,6 +282,11 @@ page 99000959 "Order Promising Lines"
         if OrderPromisingCalculationDone then
             Error(Text000);
         OrderPromisingCalculationDone := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAcceptButtonOnActionOnBeforeClosePage(var OrderPromisingLine: Record "Order Promising Line"; CrntSourceType: Enum "Order Promising Line Source Type"; CrntSourceID: Code[20]; OrderPromisingCalculationDone: Boolean)
+    begin
     end;
 }
 

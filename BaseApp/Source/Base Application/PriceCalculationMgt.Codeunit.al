@@ -8,7 +8,9 @@ codeunit 7001 "Price Calculation Mgt."
     var
         ExtendedPriceFeatureIdTok: Label 'SalesPrices', Locked = true;
         NotImplementedMethodErr: Label 'Method %1 does not have active implementations for %2 price type.', Comment = '%1 - method name, %2 - price type name';
+#if not CLEAN19
         FeatureIsOffErr: Label 'Extended price calculation feature is not enabled.';
+#endif
 
     procedure RefreshSetup() Updated: Boolean;
     var
@@ -105,11 +107,14 @@ codeunit 7001 "Price Calculation Mgt."
         exit(ExtendedPriceFeatureIdTok);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by the method in Codeunit 7049 Feature - Price Calculation', '19.0')]
     procedure TestIsEnabled()
     begin
         if not IsExtendedPriceCalculationEnabled() then
             Error(FeatureIsOffErr);
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnIsExtendedPriceCalculationEnabled(var Result: Boolean)
