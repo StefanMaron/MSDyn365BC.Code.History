@@ -1207,6 +1207,8 @@ table 5077 "Segment Line"
         HTMLContentBodyText: Text;
         CustomLayoutCode: Code[20];
     begin
+        OnBeforeFinishSegLineWizard(Rec, IsFinish);
+
         HTMLAttachment := IsHTMLAttachment;
         Flag := false;
         if IsFinish then
@@ -1668,6 +1670,11 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePhoneCall(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFinishSegLineWizard(var SegmentLine: Record "Segment Line"; IsFinish: Boolean)
     begin
     end;
 

@@ -50,7 +50,6 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     var
         TempHandlingSpecification: Record "Tracking Specification" temporary;
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
-        ItemJnlLine: Record "Item Journal Line";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
         HideDialog: Boolean;
@@ -155,11 +154,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                         WhseJnlRegisterLine.Run(TempWhseJnlLine2);
                     until TempWhseJnlLine2.Next() = 0;
 
-                if IsReclass("Journal Template Name") then
-                    if CreateItemJnlLine(WhseJnlLine, ItemJnlLine) then
-                        ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-
-                OnAfterItemJnlPostLine(WhseJnlLine);
+                PostItemJnlLine();
 
                 if IsPhysInvtCount(WhseJnlTemplate, "Phys Invt Counting Period Code", "Phys Invt Counting Period Type") then begin
                     if not PhysInvtCount then begin
@@ -201,6 +196,23 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         end;
 
         OnAfterCode(WhseJnlLine, WhseJnlBatch, WhseRegNo);
+    end;
+
+    local procedure PostItemJnlLine()
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostItemJnlLine(ItemJnlPostLine, WhseJnlLine, WhseJnlTemplate, IsHandled);
+        if IsHandled then
+            exit;
+
+        if WhseJnlLine.IsReclass(WhseJnlLine."Journal Template Name") then
+            if CreateItemJnlLine(WhseJnlLine, ItemJnlLine) then
+                ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+
+        OnAfterItemJnlPostLine(WhseJnlLine);
     end;
 
     local procedure CheckLines(var TempTrackingSpecification: Record "Tracking Specification" temporary; HideDialog: Boolean)
@@ -338,6 +350,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
 
         if WhseItemTrkgLine.Find('-') then
             repeat
+                OnCreateTrackingSpecificationOnBeforeItemTrackingMgtGetWhseItemTrkgSetup(WhseJnlLine, WhseItemTrkgLine);
                 ItemTrackingMgt.GetWhseItemTrkgSetup(WhseJnlLine."Item No.", WhseItemTrackingSetup);
                 WhseItemTrkgLine.CheckTrackingIfRequired(WhseItemTrackingSetup);
             until WhseItemTrkgLine.Next() = 0;
@@ -446,6 +459,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         QtyToHandleBase: Decimal;
+        ShouldCreateReservEntry: Boolean;
     begin
         WhseItemTrkgLine.SetCurrentKey(
           "Source ID", "Source Type", "Source Subtype", "Source Batch Name",
@@ -462,9 +476,10 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Transfer);
             with WhseJnlLine2 do begin
                 repeat
-                    if not WhseItemTrkgLine.HasSameNewTracking() or
-                        (WhseItemTrkgLine."New Expiration Date" <> WhseItemTrkgLine."Expiration Date")
-                    then begin
+                    ShouldCreateReservEntry := not WhseItemTrkgLine.HasSameNewTracking() or
+                        (WhseItemTrkgLine."New Expiration Date" <> WhseItemTrkgLine."Expiration Date");
+                    OnCreateItemJnlLineOnAfterCalcShouldCreateReservEntry(WhseJnlLine2, WhseItemTrkgLine, ShouldCreateReservEntry);
+                    if ShouldCreateReservEntry then begin
                         ReservEntry.CopyTrackingFromWhseItemTrackingLine(WhseItemTrkgLine);
                         CreateReservEntry.CreateReservEntryFor(
                           DATABASE::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), '', '', 0, "Line No.", WhseItemTrkgLine."Qty. per Unit of Measure",
@@ -494,7 +509,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                     ItemJnlLine."Reason Code" := "Reason Code";
                     ItemJnlLine."Warehouse Adjustment" := true;
                     ItemJnlLine."Line No." := "Line No.";
-                    OnAfterCreateItemJnlLine(ItemJnlLine, WhseItemTrkgLine, WhseJnlLine2);
+                    OnAfterCreateItemJnlLine(ItemJnlLine, WhseItemTrkgLine, WhseJnlLine2, QtyToHandleBase);
                 end;
             end;
         end;
@@ -622,7 +637,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WarehouseJournalLine: Record "Warehouse Journal Line")
+    local procedure OnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WarehouseJournalLine: Record "Warehouse Journal Line"; QtyToHandleBase: Decimal)
     begin
     end;
 
@@ -657,6 +672,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemJnlLine(var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseJournalTemplate: Record "Warehouse Journal Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRegisterLines(var WarehouseJournalLine: Record "Warehouse Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
@@ -677,6 +697,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateItemJnlLineOnAfterCalcShouldCreateReservEntry(WarehouseJournalLine: Record "Warehouse Journal Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var ShouldCreateReservEntry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckItemAvailabilityOnAfterCalcQtyOnWarehouseEntry(var ReservedQtyOnInventory: Decimal; var QtyOnWarehouseEntries: Decimal; var WhseJnlLineQty: Decimal; var TempSKU: Record "Stockkeeping Unit" temporary)
     begin
     end;
@@ -693,6 +718,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateItemJnlLineOnBeforeExit(WhseJnlLine2: Record "Warehouse Journal Line"; var ItemJnlLine: Record "Item Journal Line"; var QtytoHandleBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTrackingSpecificationOnBeforeItemTrackingMgtGetWhseItemTrkgSetup(WarehouseJournalLine: Record "Warehouse Journal Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
     end;
 }

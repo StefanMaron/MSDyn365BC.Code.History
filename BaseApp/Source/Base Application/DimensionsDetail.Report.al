@@ -600,10 +600,14 @@ report 28 "Dimensions - Detail"
         Text003: Label '(no dimension value)';
         Text004: Label 'Not updated';
         Text014: Label '(no business unit)';
+        [SecurityFiltering(SecurityFilter::Filtered)]
         AnalysisViewEntry: Record "Analysis View Entry";
         TempSelectedDim: Record "Selected Dimension" temporary;
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GLAcc: Record "G/L Account";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         BusUnit: Record "Business Unit";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         DimVal: Record "Dimension Value";
         TempGLEntry: Record "G/L Entry" temporary;
         TempGLAcc: Record "G/L Account" temporary;

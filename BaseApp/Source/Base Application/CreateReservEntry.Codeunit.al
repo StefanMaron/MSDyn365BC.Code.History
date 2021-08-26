@@ -1,4 +1,4 @@
-codeunit 99000830 "Create Reserv. Entry"
+﻿codeunit 99000830 "Create Reserv. Entry"
 {
     Permissions = TableData "Reservation Entry" = rim;
 
@@ -100,6 +100,7 @@ codeunit 99000830 "Create Reserv. Entry"
                     ReservMgt.MakeRoomForReservation(ReservEntry2);
                     TrackingSpecificationExists :=
                       ReservMgt.CollectTrackingSpecification(TempTrkgSpec2);
+                    OnCreateEntryOnAfterCollectTrackingSpecificationTempTrkgSpec2(TempTrkgSpec2, ReservEntry2, TrackingSpecificationExists);
                 end;
             CheckValidity(ReservEntry2);
             AdjustDateIfItemLedgerEntry(ReservEntry2);
@@ -174,7 +175,7 @@ codeunit 99000830 "Create Reserv. Entry"
 
         InsertReservEntry.TestField("Qty. per Unit of Measure");
 
-        OnAfterCreateReservEntryFor(InsertReservEntry, Sign);
+        OnAfterCreateReservEntryFor(InsertReservEntry, Sign, ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForQtyPerUOM, Quantity, QuantityBase, ForReservEntry);
     end;
 
 #if not CLEAN16
@@ -457,6 +458,7 @@ codeunit 99000830 "Create Reserv. Entry"
                 else
                     QtyInvoiced := QtyToInvoiceThisLine;
                 SetQtyToHandleAndInvoice(QtyToHandleThisLine - TransferQty, QtyToInvoiceThisLine - QtyInvoiced);
+                OnTransferReservEntryOnBeforeCreateRemainingReservEntry(OldReservEntry, NewReservEntry, TransferQty);
                 CreateRemainingReservEntry(OldReservEntry,
                   0, (OldReservEntry."Quantity (Base)" - TransferQty) * CurrSignFactor);
                 NewReservEntry.Validate("Quantity (Base)", TransferQty);
@@ -1005,7 +1007,7 @@ codeunit 99000830 "Create Reserv. Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateReservEntryFor(var ReservationEntry: Record "Reservation Entry"; Sign: Integer)
+    local procedure OnAfterCreateReservEntryFor(var ReservationEntry: Record "Reservation Entry"; Sign: Integer; ForType: Option; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForQtyPerUOM: Decimal; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -1125,6 +1127,11 @@ codeunit 99000830 "Create Reserv. Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateEntryOnAfterCollectTrackingSpecificationTempTrkgSpec2(var TempTrkgSpec2: Record "Tracking Specification" temporary; ReservEntry2: Record "Reservation Entry"; var TrackingSpecificationExists: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateEntryOnBeforeOnBeforeSplitReservEntry(var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry")
     begin
     end;
@@ -1161,6 +1168,11 @@ codeunit 99000830 "Create Reserv. Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferReservEntryOnNewItemTracking(var NewReservEntry: Record "Reservation Entry"; var InsertReservEntry: Record "Reservation Entry"; TransferQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReservEntryOnBeforeCreateRemainingReservEntry(var OldReservationEntry: Record "Reservation Entry"; var NewReservationEntry: Record "Reservation Entry"; TransferQty: Decimal)
     begin
     end;
 

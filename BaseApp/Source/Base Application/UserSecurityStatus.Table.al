@@ -124,13 +124,13 @@ table 9062 "User Security Status"
     begin
         User.SetRange(State, User.State::Enabled);
         HideExternalUsers(User);
-        if not User.FindSet then
+        if not User.FindSet() then
             exit;
 
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        IsSaaS := EnvironmentInfo.IsSaaS();
         repeat
             if UserSecurityStatus.Get(User."User Security ID") then begin
-                if not AzureADPlan.DoesUserHavePlans("User Security ID") and IsSaaS then begin
+                if not AzureADPlan.DoesUserHavePlans(User."User Security ID") and IsSaaS then begin
                     UserSecurityStatus.Reviewed := false;
                     UserSecurityStatus.Modify(true);
                 end;

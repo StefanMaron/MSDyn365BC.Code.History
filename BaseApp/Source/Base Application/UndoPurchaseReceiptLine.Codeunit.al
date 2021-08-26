@@ -374,7 +374,13 @@ codeunit 5813 "Undo Purchase Receipt Line"
     procedure UpdateOrderLine(PurchRcptLine: Record "Purch. Rcpt. Line")
     var
         PurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateOrderLine(PurchRcptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchRcptLine do begin
             PurchLine.Get(PurchLine."Document Type"::Order, "Order No.", "Order Line No.");
             OnUpdateOrderLineOnBeforeUpdatePurchLine(PurchRcptLine);
@@ -561,6 +567,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReapplyJobConsumptionFromApplyToEntryList(PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; ItemJnlLine: Record "Item Journal Line"; var TempApplyToEntryList: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOrderLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean)
     begin
     end;
 

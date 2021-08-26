@@ -1611,7 +1611,13 @@ page 8626 "Config. Package Records"
         RecRef: RecordRef;
         FieldRef: FieldRef;
         ErrorText: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidatePackageData(Rec, MatrixCellData, PackageColumnField, ColumnID, IsHandled);
+        if IsHandled then
+            exit;
+
         MatrixCellData[ColumnID] := DelChr(MatrixCellData[ColumnID], '<>', ' ');
         if MatrixDimension[ColumnID] then begin
             if MatrixCellData[ColumnID] <> '' then
@@ -1651,6 +1657,11 @@ page 8626 "Config. Package Records"
             repeat
                 ConfigPackageMgt.CleanRecordError(ConfigPackageRecord);
             until ConfigPackageRecord.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePackageData(var ConfigPackageRecord: record "Config. Package Record"; var MatrixCellData: array[1000] of Text[250]; PackageColumnField: array[1000] of Integer; ColumnID: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -111,10 +111,21 @@ table 458 "Overdue Approval Entry"
     var
         PageManagement: Codeunit "Page Management";
         RecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowRecord(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not RecRef.Get("Record ID to Approve") then
             exit;
         PageManagement.PageRun(RecRef);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowRecord(var OverdueApprovalEntry: Record "Overdue Approval Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -3948,7 +3948,7 @@
           <note from="Developer" annotates="general" priority="2">%1 = table number, %2 = table name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Retention Policy Setup Impl. - NamedType TableNotAllowedErrorLbl</note>
         </trans-unit>
-        <trans-unit id="Codeunit 818105940 - NamedType 3763281237" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Codeunit 818105940 - NamedType 3763281237" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
           <source>(Cross-Company Data)</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Table Information Cache Impl. - NamedType CrossCompanyDataLbl</note>

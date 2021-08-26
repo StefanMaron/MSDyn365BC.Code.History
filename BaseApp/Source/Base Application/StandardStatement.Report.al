@@ -666,6 +666,7 @@ report 1316 "Standard Statement"
                     CustLedgerEntry.SetRange("Posting Date", StartDate, EndDate);
                     CopyFilter("Currency Filter", CustLedgerEntry."Currency Code");
                     PrintLine := not CustLedgerEntry.IsEmpty();
+                    OnCurrencyLoopOnAfterGetRecordOnAfterCustLedgerEntryCheckIsEmpty(Customer, CustLedgerEntry, PrintLine);
                 end;
                 if (not PrintLine) and PrintAllHavingBal then begin
                     Cust2 := Customer;
@@ -1183,6 +1184,11 @@ report 1316 "Standard Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnDtldCustLedgEntriesOnAfterGetRecordnAfterGetCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; var Skip: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCurrencyLoopOnAfterGetRecordOnAfterCustLedgerEntryCheckIsEmpty(Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; var PrintLine: Boolean)
     begin
     end;
 

@@ -253,6 +253,7 @@
     procedure SetParameter(ParameterId: Enum "Batch Posting Parameter Type"; Value: Variant)
     var
         BatchProcessingParameter: Record "Batch Processing Parameter";
+        IsProcessed: Boolean;
     begin
         InitBatchID;
 
@@ -260,7 +261,11 @@
         BatchProcessingParameter."Batch ID" := BatchID;
         BatchProcessingParameter."Parameter Id" := ParameterId.AsInteger();
         BatchProcessingParameter."Parameter Value" := Format(Value);
-        BatchProcessingParameter.Insert();
+
+        IsProcessed := false;
+        OnSetParameterOnBeforeParameterInsert(BatchProcessingParameter, IsProcessed);
+        if not IsProcessed then
+            BatchProcessingParameter.Insert();
     end;
 
     [Obsolete('Replaced by GetTextParameter().', '17.0')]
@@ -467,6 +472,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnIsPostWithJobQueueEnabled(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetParameterOnBeforeParameterInsert(BatchProcessingParameter: Record "Batch Processing Parameter"; var IsProcessed: Boolean)
     begin
     end;
 

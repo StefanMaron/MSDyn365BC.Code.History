@@ -37,7 +37,7 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
         UserNotTenantAdminMsg: Label 'User is not a tenant admin.', Locked = true;
 #pragma warning disable AA0240
         CompanyAdminRoleTemplateIdTok: Label '62e90394-69f5-4237-9190-012177145e10', Locked = true;
-#pragma warning restore
+#pragma warning restore AA0240
         UserSetupCategoryTxt: Label 'User Setup', Locked = true;
         UserCreatedMsg: Label 'User %1 has been created', Locked = true;
         AuthenticationEmailUpdateShouldBeTheFirstForANewUserErr: Label 'Authentication email should be the first entity to update.';

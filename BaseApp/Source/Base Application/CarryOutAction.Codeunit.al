@@ -871,10 +871,12 @@ codeunit 99000813 "Carry Out Action"
     var
         TransLine: Record "Transfer Line";
         NextLineNo: Integer;
+        ShouldInsertTransHeader: Boolean;
     begin
-        if (ReqLine."Transfer-from Code" <> TransHeader."Transfer-from Code") or
-           (ReqLine."Location Code" <> TransHeader."Transfer-to Code")
-        then
+        ShouldInsertTransHeader := (ReqLine."Transfer-from Code" <> TransHeader."Transfer-from Code") or
+           (ReqLine."Location Code" <> TransHeader."Transfer-to Code");
+        OnInsertTransLineOnAfterCalcShouldInsertTransHeader(ReqLine, TransHeader, ShouldInsertTransHeader);
+        if ShouldInsertTransHeader then
             InsertTransHeader(ReqLine, TransHeader);
 
         TransLine.SetRange("Document No.", TransHeader."No.");
@@ -1757,6 +1759,11 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTransHeaderOnBeforeTransHeaderModify(var TransHeader: Record "Transfer Header"; ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTransLineOnAfterCalcShouldInsertTransHeader(RequisitionLine: Record "Requisition Line"; TransferHeader: Record "Transfer Header"; var Result: Boolean)
     begin
     end;
 

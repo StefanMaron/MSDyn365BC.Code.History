@@ -320,6 +320,8 @@ table 7320 "Warehouse Shipment Header"
         Validate("Bin Code", Location."Shipment Bin Code");
         "Posting Date" := WorkDate;
         "Shipment Date" := WorkDate;
+
+        OnAfterOnInsert(Rec, xRec);
     end;
 
     trigger OnRename()
@@ -644,6 +646,11 @@ table 7320 "Warehouse Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssistEdit(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var xWarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 

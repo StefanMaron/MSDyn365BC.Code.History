@@ -510,7 +510,22 @@ table 8622 "Config. Line"
             exit(0);
 
         RecRef.Open(TableID, false, Filter);
-        exit(RecRef.Count);
+        if not RecRef.ReadPermission() then
+            exit(0);
+        exit(RecRef.Count());
+    end;
+
+    procedure GetNoOfRecordsText(): Text
+    var
+        RecRef: RecordRef;
+    begin
+        if "Table ID" = 0 then
+            exit;
+
+        RecRef.Open("Table ID", false, "Company Filter");
+        if not RecRef.ReadPermission() then
+            exit;
+        exit(Format(RecRef.Count()));
     end;
 
     procedure DeleteDuplicateLines()

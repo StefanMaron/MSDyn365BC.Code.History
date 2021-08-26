@@ -78,6 +78,7 @@ codeunit 9200 "Matrix Management"
         DimVal.SetRange("Dimension Code", DimensionCode);
         if DimFilter <> '' then
             DimVal.SetFilter(Code, DimFilter);
+        OnSetDimColumnSetOnAfterDimValSetFilters(DimensionCode, DimFilter, DimVal);
 
         case SetWanted of
             SetOption::Initial:
@@ -521,6 +522,11 @@ codeunit 9200 "Matrix Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGeneratePeriodAndCaption(PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; Calendar: Record Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetDimColumnSetOnAfterDimValSetFilters(DimensionCode: Code[20]; DimFilter: Text; var DimensionValue: Record "Dimension Value")
     begin
     end;
 }

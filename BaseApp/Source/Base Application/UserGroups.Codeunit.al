@@ -1,5 +1,7 @@
 Codeunit 9019 "User Groups"
 {
+    Permissions = TableData "User Group Member" = d;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Plan", 'OnRemoveUserGroupsForUserAndPlan', '', false, false)]
     local procedure OnRemoveUserGroupForUserAndPlan(PlanID: Guid; UserSecurityID: Guid);
     var

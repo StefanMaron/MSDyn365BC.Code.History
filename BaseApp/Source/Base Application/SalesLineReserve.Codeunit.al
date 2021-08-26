@@ -1,4 +1,4 @@
-codeunit 99000832 "Sales Line-Reserve"
+﻿codeunit 99000832 "Sales Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Planning Assignment" = rimd;
@@ -225,15 +225,29 @@ codeunit 99000832 "Sales Line-Reserve"
                 if not SalesLine.Get("Document Type", "Document No.", "Line No.") then
                     exit;
             ReservMgt.SetReservSource(NewSalesLine);
+            DeleteSalesReservEntries(NewSalesLine, OldSalesLine);
+            ReservMgt.ClearSurplus;
+            ReservMgt.AutoTrack("Outstanding Qty. (Base)");
+            AssignForPlanning(NewSalesLine);
+        end;
+    end;
+
+    local procedure DeleteSalesReservEntries(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteSalesReservEntries(NewSalesLine, OldSalesLine, ReservMgt, IsHandled);
+        if IsHandled then
+            exit;
+
+        with NewSalesLine do begin
             if "Qty. per Unit of Measure" <> OldSalesLine."Qty. per Unit of Measure" then
                 ReservMgt.ModifyUnitOfMeasure;
             if "Outstanding Qty. (Base)" * OldSalesLine."Outstanding Qty. (Base)" < 0 then
                 ReservMgt.DeleteReservEntries(true, 0)
             else
                 ReservMgt.DeleteReservEntries(false, "Outstanding Qty. (Base)");
-            ReservMgt.ClearSurplus;
-            ReservMgt.AutoTrack("Outstanding Qty. (Base)");
-            AssignForPlanning(NewSalesLine);
         end;
     end;
 
@@ -313,19 +327,22 @@ codeunit 99000832 "Sales Line-Reserve"
                     end;
                 end;
 
-                if not (ItemJnlLine."Assemble to Order" xor OldReservEntry."Disallow Cancellation") then
-                    if not VerifyPickedQtyReservToInventory(OldReservEntry, SalesLine, TransferQty) then
-                        if OnlyILEReservations and OppositeReservEntry.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive) then begin
-                            if OppositeReservEntry."Source Type" = DATABASE::"Item Ledger Entry" then
+                IsHandled := false;
+                OnTransferSalesLineToItemJnlLineOnBeforeTransferReservationEntry(OldReservEntry, SalesLine, ItemJnlLine, IsHandled);
+                if not IsHandled then
+                    if not (ItemJnlLine."Assemble to Order" xor OldReservEntry."Disallow Cancellation") then
+                        if not VerifyPickedQtyReservToInventory(OldReservEntry, SalesLine, TransferQty) then
+                            if OnlyILEReservations and OppositeReservEntry.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive) then begin
+                                if OppositeReservEntry."Source Type" = DATABASE::"Item Ledger Entry" then
+                                    TransferQty := CreateReservEntry.TransferReservEntry(
+                                        DATABASE::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
+                                        ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
+                                        ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                            end else
                                 TransferQty := CreateReservEntry.TransferReservEntry(
                                     DATABASE::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
                                     ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
                                     ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
-                        end else
-                            TransferQty := CreateReservEntry.TransferReservEntry(
-                                DATABASE::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
-                                ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
-                                ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
             until (ReservEngineMgt.NEXTRecord(OldReservEntry) = 0) or (TransferQty = 0);
             CheckApplFromItemEntry := CheckApplFromItemEntry and NotFullyReserved;
         end;
@@ -1042,6 +1059,11 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteSalesReservEntries(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var ReservMgt: Codeunit "Reservation Management"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferSaleLineToSalesLine(var OldSalesLine: Record "Sales Line"; var NewSalesLine: Record "Sales Line"; var TransferQty: Decimal; var IsHandled: Boolean);
     begin
     end;
@@ -1078,6 +1100,11 @@ codeunit 99000832 "Sales Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferSalesLineToItemJnlLineOnBeforeOldReservEntryTest(SalesLine: Record "Sales Line"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferSalesLineToItemJnlLineOnBeforeTransferReservationEntry(var ReservationEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line"; ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

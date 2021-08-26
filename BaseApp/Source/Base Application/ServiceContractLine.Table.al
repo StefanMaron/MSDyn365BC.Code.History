@@ -787,8 +787,14 @@ table 5964 "Service Contract Line"
         OldServContractHeader: Record "Service Contract Header";
         ServContractLine2: Record "Service Contract Line";
         LineAmount: Decimal;
+        IsHandled: Boolean;
     begin
         GetServContractHeader;
+        IsHandled := false;
+        OnUpdateContractAnnualAmountOnAfterGetServContractHeader(Rec, ServContractHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ServContractHeader."Allow Unbalanced Amounts" then begin
             LineAmount := CalculateOtherLineAmounts(ServContractHeader);
 
@@ -910,13 +916,19 @@ table 5964 "Service Contract Line"
                 Error(Text021, "Service Item No.", "Contract No.");
     end;
 
-    procedure CreditMemoBaseExists(): Boolean
+    procedure CreditMemoBaseExists() Result: Boolean
     var
         ServContractMgt: Codeunit ServContractManagement;
         CreditAmount: Decimal;
         FirstPrepaidPostingDate: Date;
         LastIncomePostingDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreditMemoBaseExists(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if "Line Amount" > 0 then begin
             TestField("Contract Expiration Date");
             if "Invoiced to Date" >= "Contract Expiration Date" then begin
@@ -1019,6 +1031,11 @@ table 5964 "Service Contract Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreditMemoBaseExists(ServiceContractLine: Record "Service Contract Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateContractExpirationDate(var ServiceContractLine: Record "Service Contract Line"; var xServiceContractLine: Record "Service Contract Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -1035,6 +1052,12 @@ table 5964 "Service Contract Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateOtherLineAmountsOnAfterSetFilters(var ServiceContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateContractAnnualAmountOnAfterGetServContractHeader(var ServiceContractLine: Record "Service Contract Line"; ServContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 

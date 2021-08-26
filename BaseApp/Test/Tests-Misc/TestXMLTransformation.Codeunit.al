@@ -300,6 +300,64 @@ codeunit 139149 "Test XML Transformation"
         Assert.ExpectedError(XMLTransformErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetJsonStructureJsonToXMLCreateDefaultRootNoEndlessLoop()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        GetJsonStructure: Codeunit "Get Json Structure";
+        InStr: InStream;
+        OutStr: OutStream;
+        Utf8Text: Label '{ ''name'': ''日本語テスト'' }';
+        RootText: Label 'root';
+        NameText: Label 'name';
+        OutputText: Text;
+    begin
+        // [SCENARIO 400994] Get Json Structure "JsonToXMLCreateDefaultRoot" should correctly process UTF8 text
+        // [GIVEN] Blob with text '{ ''name'': ''日本語テスト'' }'
+        TempBlob.CreateOutStream(OutStr, TextEncoding::UTF8);
+        OutStr.Write(Utf8Text);
+        TempBlob.CreateInStream(InStr, TextEncoding::UTF8);
+        TempBlob.CreateOutStream(OutStr, TextEncoding::UTF8);
+
+        // [WHEN] Get Json Structure "JsonToXMLCreateDefaultRoot" method is invoked with Blob InStream as input parameter
+        GetJsonStructure.JsonToXMLCreateDefaultRoot(InStr, OutStr);
+
+        // [THEN] No infinite loop happens and output contains 'root' and 'name' substrings
+        TempBlob.CreateInStream(InStr, TextEncoding::UTF8);
+        InStr.Read(OutputText);
+        Assert.IsSubstring(OutputText, NameText);
+        Assert.IsSubstring(OutputText, RootText);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetJsonStructureJsonToXMLNoEndlessLoop()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        GetJsonStructure: Codeunit "Get Json Structure";
+        InStr: InStream;
+        OutStr: OutStream;
+        Utf8Text: Label '{ ''name'': ''日本語テスト'' }';
+        NameText: Label 'name';
+        OutputText: Text;
+    begin
+        // [SCENARIO 400994] Get Json Structure "JsonToXML" method should correctly process UTF8 text
+        // [GIVEN] Blob with text '{ ''name'': ''日本語テスト'' }'
+        TempBlob.CreateOutStream(OutStr, TextEncoding::UTF8);
+        OutStr.Write(Utf8Text);
+        TempBlob.CreateInStream(InStr, TextEncoding::UTF8);
+        TempBlob.CreateOutStream(OutStr, TextEncoding::UTF8);
+
+        // [WHEN] Get Json Structure "JsonToXML" method is invoked with Blob InStream as input parameter
+        GetJsonStructure.JsonToXML(InStr, OutStr);
+
+        // [THEN] No infinite loop happens and output contains 'name' substring
+        TempBlob.CreateInStream(InStr, TextEncoding::UTF8);
+        InStr.Read(OutputText);
+        Assert.IsSubstring(OutputText, NameText);
+    end;
+
     local procedure CreateBrokenXMLText(): Text
     begin
         exit(Format(CreateGuid));

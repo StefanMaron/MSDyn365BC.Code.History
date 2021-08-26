@@ -90,7 +90,7 @@ codeunit 1550 "Record Restriction Mgt."
         RestrictedRecord.DeleteAll(true);
     end;
 
-    local procedure UpdateRestriction(RecVar: Variant; xRecVar: Variant)
+    procedure UpdateRestriction(RecVar: Variant; xRecVar: Variant)
     var
         RestrictedRecord: Record "Restricted Record";
         RecRef: RecordRef;

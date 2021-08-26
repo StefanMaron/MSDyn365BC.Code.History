@@ -1,4 +1,4 @@
-codeunit 1012 "Job Jnl.-Post Line"
+﻿codeunit 1012 "Job Jnl.-Post Line"
 {
     Permissions = TableData "Job Ledger Entry" = imd,
                   TableData "Job Register" = imd,
@@ -586,7 +586,7 @@ codeunit 1012 "Job Jnl.-Post Line"
             ValueEntry.SetRange("Document No.", "Document No.");
             ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.");
             ValueEntry.SetRange("Job Ledger Entry No.", 0);
-            OnGetJobConsumptionValueEntryFilter(ValueEntry, JobJnlLine);
+            OnGetJobConsumptionValueEntryFilter(ValueEntry, JobJnlLine, JobJournalLine);
         end;
         exit(ValueEntry.FindSet);
     end;
@@ -721,7 +721,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetJobConsumptionValueEntryFilter(var ValueEntry: Record "Value Entry"; JobJournalLine: Record "Job Journal Line")
+    local procedure OnGetJobConsumptionValueEntryFilter(var ValueEntry: Record "Value Entry"; JobJournalLine: Record "Job Journal Line"; LocalJobJournalLine: Record "Job Journal Line")
     begin
     end;
 

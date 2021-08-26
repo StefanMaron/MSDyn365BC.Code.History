@@ -277,7 +277,13 @@ codeunit 5816 "Undo Return Receipt Line"
     procedure UpdateOrderLine(ReturnRcptLine: Record "Return Receipt Line")
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateOrderLine(ReturnRcptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReturnRcptLine do begin
             SalesLine.Get(SalesLine."Document Type"::"Return Order", "Return Order No.", "Return Order Line No.");
             OnUpdateOrderLineOnBeforeUpdateSalesLine(ReturnRcptLine);
@@ -366,6 +372,11 @@ codeunit 5816 "Undo Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReturnRcptLineModify(var ReturnReceiptLine: Record "Return Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOrderLine(var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 

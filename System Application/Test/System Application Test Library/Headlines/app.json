@@ -4,29 +4,29 @@
     "publisher":  "Microsoft",
     "brief":  "Test objects for the Headlines module.",
     "description":  "Test objects for the Headlines module.",
-    "version":  "18.3.0.0",
+    "version":  "18.4.0.0",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "help":  "",
     "url":  "https://go.microsoft.com/fwlink/?LinkId=724011",
     "logo":  "",
     "dependencies":  [
-                        {
-                            "id":  "f3f75070-7762-41f5-9947-043a50dc9fc7",
-                            "name":  "Headlines",
-                            "publisher":  "Microsoft",
-                            "version":  "18.3.0.0"
-                        }
+                         {
+                             "id":  "f3f75070-7762-41f5-9947-043a50dc9fc7",
+                             "name":  "Headlines",
+                             "publisher":  "Microsoft",
+                             "version":  "18.4.0.0"
+                         }
                      ],
     "screenshots":  [
 
                     ],
-    "idRanges": [
-        {
-            "from": 139481,
-            "to": 139481
-        }
-    ],
+    "idRanges":  [
+                     {
+                         "from":  139481,
+                         "to":  139481
+                     }
+                 ],
     "platform":  "18.0.0.0",
     "target":  "OnPrem"
 }

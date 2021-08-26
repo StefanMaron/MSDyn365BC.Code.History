@@ -551,6 +551,7 @@ report 1303 "Standard Sales - Draft Invoice"
                     TotalAmountVAT += "Amount Including VAT" - Amount;
                     TotalAmountInclVAT += "Amount Including VAT";
                     TotalPaymentDiscOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
+                    OnLineOnAfterGetRecordOnAfterCalcTotals(Header, Line, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
 
                     if "VAT Clause Code" <> '' then
                         if VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0) then begin
@@ -903,6 +904,7 @@ report 1303 "Standard Sales - Draft Invoice"
 
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
+                OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(Header, Line, VATAmountLine);
 
                 if EnvInfoProxy.IsInvoicing then
                     "Language Code" := Language.GetUserLanguageCode;
@@ -1187,6 +1189,16 @@ report 1303 "Standard Sales - Draft Invoice"
         end;
 
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLineOnAfterGetRecordOnAfterCalcTotals(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATBaseAmount: Decimal; var VATAmount: Decimal; var TotalAmountInclVAT: Decimal)
+    begin
     end;
 }
 

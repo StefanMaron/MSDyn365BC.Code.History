@@ -8,6 +8,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
         AvgCostAdjmtEntryPoint.SetFilter("Location Code", GetFilter("Location Code"));
         AvgCostAdjmtEntryPoint.SetFilter("Variant Code", GetFilter("Variant Code"));
         AvgCostAdjmtEntryPoint.SetFilter("Valuation Date", GetFilter("Valuation Date"));
+        OnRunOnSetAvgCostAdjmtEntryPointFilters(AvgCostAdjmtEntryPoint, Rec);
 
         Reset;
         DeleteAll();
@@ -16,13 +17,9 @@ codeunit 5847 "Get Average Cost Calc Overview"
                 Init;
                 Type := Type::"Closing Entry";
                 "Entry No." := "Entry No." + 1;
-                "Item No." := AvgCostAdjmtEntryPoint."Item No.";
-                "Variant Code" := AvgCostAdjmtEntryPoint."Variant Code";
-                "Location Code" := AvgCostAdjmtEntryPoint."Location Code";
-                "Valuation Date" := AvgCostAdjmtEntryPoint."Valuation Date";
+                CopyAvgCostAdjmtEntryPointFieldsToAverageCostCalcOverview(AvgCostAdjmtEntryPoint, Rec);
                 "Attached to Valuation Date" := "Valuation Date";
                 "Attached to Entry No." := "Entry No.";
-                "Cost is Adjusted" := AvgCostAdjmtEntryPoint."Cost Is Adjusted";
                 if EntriesExist(Rec) then begin
                     OnBeforeAvgCostAdjmtEntryPointInsert(Rec, AvgCostAdjmtEntryPoint);
                     Insert();
@@ -103,16 +100,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
             if not ModifyLine then begin
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 Init;
-                "Item No." := ItemLedgEntry."Item No.";
-                "Location Code" := ItemLedgEntry."Location Code";
-                "Variant Code" := ItemLedgEntry."Variant Code";
-                "Posting Date" := ItemLedgEntry."Posting Date";
-                "Item Ledger Entry No." := ItemLedgEntry."Entry No.";
-                "Entry Type" := ItemLedgEntry."Entry Type";
-                "Document Type" := ItemLedgEntry."Document Type".AsInteger();
-                "Document No." := ItemLedgEntry."Document No.";
-                "Document Line No." := ItemLedgEntry."Document Line No.";
-                Description := ItemLedgEntry.Description;
+                CopyItemLedgerEntryFieldsToAverageCostCalcOverview(ItemLedgEntry, AvgCostCalcOverview);
                 "Entry No." := CopyOfAvgCostCalcOverview."Entry No." + 1;
                 case true of
                     ValueEntry."Partial Revaluation":
@@ -149,6 +137,33 @@ codeunit 5847 "Get Average Cost Calc Overview"
         end;
     end;
 
+    local procedure CopyItemLedgerEntryFieldsToAverageCostCalcOverview(var ItemLedgerEntry: Record "Item Ledger Entry"; var AverageCostCalcOverview: Record "Average Cost Calc. Overview")
+    begin
+        AverageCostCalcOverview."Item No." := ItemLedgerEntry."Item No.";
+        AverageCostCalcOverview."Location Code" := ItemLedgerEntry."Location Code";
+        AverageCostCalcOverview."Variant Code" := ItemLedgerEntry."Variant Code";
+        AverageCostCalcOverview."Posting Date" := ItemLedgerEntry."Posting Date";
+        AverageCostCalcOverview."Item Ledger Entry No." := ItemLedgerEntry."Entry No.";
+        AverageCostCalcOverview."Entry Type" := ItemLedgerEntry."Entry Type";
+        AverageCostCalcOverview."Document Type" := ItemLedgerEntry."Document Type".AsInteger();
+        AverageCostCalcOverview."Document No." := ItemLedgerEntry."Document No.";
+        AverageCostCalcOverview."Document Line No." := ItemLedgerEntry."Document Line No.";
+        AverageCostCalcOverview.Description := ItemLedgerEntry.Description;
+
+        OnAfterCopyItemLedgerEntryFieldsToAverageCostCalcOverview(ItemLedgerEntry, AverageCostCalcOverview);
+    end;
+
+    local procedure CopyAvgCostAdjmtEntryPointFieldsToAverageCostCalcOverview(var AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point"; var AverageCostCalcOverview: Record "Average Cost Calc. Overview")
+    begin
+        AverageCostCalcOverview."Item No." := AvgCostAdjmtEntryPoint."Item No.";
+        AverageCostCalcOverview."Variant Code" := AvgCostAdjmtEntryPoint."Variant Code";
+        AverageCostCalcOverview."Location Code" := AvgCostAdjmtEntryPoint."Location Code";
+        AverageCostCalcOverview."Valuation Date" := AvgCostAdjmtEntryPoint."Valuation Date";
+        AverageCostCalcOverview."Cost is Adjusted" := AvgCostAdjmtEntryPoint."Cost Is Adjusted";
+
+        OnAfterCopyAvgCostAdjmtEntryPointFieldsToAverageCostCalcOverview(AvgCostAdjmtEntryPoint, AverageCostCalcOverview)
+    end;
+
     procedure EntriesExist(var AvgCostCalcOverview: Record "Average Cost Calc. Overview"): Boolean
     begin
         with ValueEntry do begin
@@ -173,8 +188,19 @@ codeunit 5847 "Get Average Cost Calc Overview"
                 SetRange("Location Code", AvgCostCalcOverview."Location Code");
                 SetRange("Variant Code", AvgCostCalcOverview."Variant Code");
             end;
+            OnEntriesExistOnBeforeFind(ValueEntry, Item, AvgCostCalcOverview);
             exit(Find('-'));
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyAvgCostAdjmtEntryPointFieldsToAverageCostCalcOverview(var AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point"; var AverageCostCalcOverview: Record "Average Cost Calc. Overview")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyItemLedgerEntryFieldsToAverageCostCalcOverview(var ItemLedgerEntry: Record "Item Ledger Entry"; var AverageCostCalcOverview: Record "Average Cost Calc. Overview")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -197,5 +223,14 @@ codeunit 5847 "Get Average Cost Calc Overview"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnEntriesExistOnBeforeFind(var ValueEntry: Record "Value Entry"; var Item: Record Item; var AverageCostCalcOverview: Record "Average Cost Calc. Overview")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnSetAvgCostAdjmtEntryPointFilters(var AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point"; var AverageCostCalcOverview: Record "Average Cost Calc. Overview")
+    begin
+    end;
 }
 

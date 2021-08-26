@@ -1,4 +1,4 @@
-codeunit 7324 "Whse.-Activity-Post"
+﻿codeunit 7324 "Whse.-Activity-Post"
 {
     Permissions = TableData "Warehouse Setup" = m,
                   TableData "Warehouse Journal Batch" = imd,
@@ -105,11 +105,9 @@ codeunit 7324 "Whse.-Activity-Post"
                     LineCount := LineCount + 1;
                     if not HideDialog then
                         Window.Update(2, LineCount);
-                    WhseActivLine.TestField("Item No.");
-                    if Location."Bin Mandatory" then begin
-                        WhseActivLine.TestField("Unit of Measure Code");
-                        WhseActivLine.TestField("Bin Code");
-                    end;
+
+                    CheckWarehouseActivityLine(WhseActivLine, WhseActivHeader, Location);
+
                     ItemTrackingRequired := CheckItemTracking(WhseActivLine);
                     InsertTempWhseActivLine(WhseActivLine, ItemTrackingRequired);
                 until WhseActivLine.Next() = 0;
@@ -186,6 +184,17 @@ codeunit 7324 "Whse.-Activity-Post"
         end;
     end;
 
+    local procedure CheckWarehouseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location)
+    begin
+        WarehouseActivityLine.TestField("Item No.");
+        if Location."Bin Mandatory" then begin
+            WarehouseActivityLine.TestField("Unit of Measure Code");
+            WarehouseActivityLine.TestField("Bin Code");
+        end;
+
+        OnAfterCheckWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityHeader, Location);
+    end;
+
     local procedure InsertTempWhseActivLine(WhseActivLine: Record "Warehouse Activity Line"; ItemTrackingRequired: Boolean)
     begin
         OnBeforeInsertTempWhseActivLine(WhseActivLine, ItemTrackingRequired);
@@ -238,6 +247,7 @@ codeunit 7324 "Whse.-Activity-Post"
                         PurchHeader.Get("Source Subtype", "Source No.");
                         PurchLine.SetRange("Document Type", "Source Subtype");
                         PurchLine.SetRange("Document No.", "Source No.");
+                        OnInitSourceDocumentOnAfterSetPurchaseLineFilters(PurchLine, PurchHeader, WhseActivHeader);
                         if PurchLine.Find('-') then
                             repeat
                                 if "Source Document" = "Source Document"::"Purchase Order" then
@@ -271,6 +281,7 @@ codeunit 7324 "Whse.-Activity-Post"
                         SalesLine.SetRange("Document No.", "Source No.");
                         if SalesHeader."Shipping Advice" = SalesHeader."Shipping Advice"::Complete then
                             SalesLine.SetRange(Type, SalesLine.Type::Item);
+                        OnInitSourceDocumentOnAfterSetSalesLineFilters(SalesLine, SalesHeader, WhseActivHeader);
                         if SalesLine.Find('-') then
                             repeat
                                 IsHandled := false;
@@ -300,6 +311,7 @@ codeunit 7324 "Whse.-Activity-Post"
                         TransLine.SetRange("Document No.", TransHeader."No.");
                         TransLine.SetRange("Derived From Line No.", 0);
                         TransLine.SetFilter("Item No.", '<>%1', '');
+                        OnInitSourceDocumentOnAfterTransLineSetFilters(TransLine, TransHeader, WhseActivHeader);
                         if TransLine.Find('-') then
                             repeat
                                 TransLine.Validate("Qty. to Ship", 0);
@@ -751,6 +763,7 @@ codeunit 7324 "Whse.-Activity-Post"
     var
         WhseComment: Record "Warehouse Comment Line";
         WhseComment2: Record "Warehouse Comment Line";
+        RecordLinkManagement: Codeunit "Record Link Management";
     begin
         if WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away" then begin
             PostedInvtPutAwayHeader.Init();
@@ -761,6 +774,7 @@ codeunit 7324 "Whse.-Activity-Post"
             PostedInvtPutAwayHeader."Source Type" := PostedSourceType;
             OnBeforePostedInvtPutAwayHeaderInsert(PostedInvtPutAwayHeader, WhseActivHeader);
             PostedInvtPutAwayHeader.Insert(true);
+            RecordLinkManagement.CopyLinks(WhseActivHeader, PostedInvtPutAwayHeader);
             OnAfterPostedInvtPutAwayHeaderInsert(PostedInvtPutAwayHeader, WhseActivHeader);
         end else begin
             PostedInvtPickHeader.Init();
@@ -771,6 +785,7 @@ codeunit 7324 "Whse.-Activity-Post"
             PostedInvtPickHeader."Source Type" := PostedSourceType;
             OnBeforePostedInvtPickHeaderInsert(PostedInvtPickHeader, WhseActivHeader);
             PostedInvtPickHeader.Insert(true);
+            RecordLinkManagement.CopyLinks(WhseActivHeader, PostedInvtPickHeader);
             OnAfterPostedInvtPickHeaderInsert(PostedInvtPickHeader, WhseActivHeader);
         end;
 
@@ -883,7 +898,7 @@ codeunit 7324 "Whse.-Activity-Post"
             ItemJnlLine."Gen. Bus. Posting Group" := ProdOrder."Gen. Bus. Posting Group";
             GetItem("Item No.");
             ItemJnlLine."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
-            OnPostConsumptionLineOnAfterCreateItemJnlLine(ItemJnlLine, ProdOrderLine, WhseActivLine);
+            OnPostConsumptionLineOnAfterCreateItemJnlLine(ItemJnlLine, ProdOrderLine, WhseActivLine, SourceCodeSetup);
             ProdOrderCompReserve.TransferPOCompToItemJnlLineCheckILE(ProdOrderComp, ItemJnlLine, ItemJnlLine."Quantity (Base)", true);
             ItemJnlPostLine.SetCalledFromInvtPutawayPick(true);
             ItemJnlPostLine.RunWithCheck(ItemJnlLine);
@@ -938,7 +953,7 @@ codeunit 7324 "Whse.-Activity-Post"
             ItemJnlLine.Validate("Output Quantity", "Qty. to Handle");
             ItemJnlLine."Source Code" := SourceCodeSetup."Output Journal";
             ItemJnlLine."Dimension Set ID" := ProdOrderLine."Dimension Set ID";
-            OnPostOutputLineOnAfterCreateItemJnlLine(ItemJnlLine, ProdOrderLine, TempWhseActivLine);
+            OnPostOutputLineOnAfterCreateItemJnlLine(ItemJnlLine, ProdOrderLine, TempWhseActivLine, SourceCodeSetup);
             ReservProdOrderLine.TransferPOLineToItemJnlLine(
               ProdOrderLine, ItemJnlLine, ItemJnlLine."Quantity (Base)");
             ItemJnlPostLine.SetCalledFromInvtPutawayPick(true);
@@ -1062,6 +1077,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var SuppressCommit: Boolean; PrintDoc: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckWarehouseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location)
     begin
     end;
 
@@ -1266,12 +1286,27 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostConsumptionLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnInitSourceDocumentOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostOutputLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnInitSourceDocumentOnAfterSetPurchaseLineFilters(var PurchaseLine: record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostConsumptionLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentOnAfterTransLineSetFilters(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostOutputLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
 

@@ -760,18 +760,36 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         Assert.AreEqual(0, SalesHeader.CheckAvailableCreditLimit, 'Available credit limit should be 0');
     end;
 
-    [MessageHandler]
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
-    procedure MessageHandlerValidateMessage(Message: Text[1024])
+    procedure CannotMakeInvoiceOfSalesQuotePendingApproval()
+    var
+        Workflow: Record Workflow;
+        SalesHeader: Record "Sales Header";
+        IntermediateApproverUserSetup: Record "User Setup";
+        WorkflowSetup: Codeunit "Workflow Setup";
+        SalesQuotes: TestPage "Sales Quotes";
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message)
-    end;
+        // [SCENARIO 405467] The user cannot make an invoice of a sales quote when the approval workflow is enabled and the sales quote is not approved
+        Initialize;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
+        // [GIVEN] The approval workflow for sales quote is enabled.
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesQuoteApprovalWorkflowCode);
+        LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
+
+        // [GIVEN] The sales quote is created and sent to approval.
+        CreateSalesQuote(SalesHeader);
+        SetSalesDocSalespersonCode(SalesHeader, IntermediateApproverUserSetup."Salespers./Purch. Code");
+        SendSalesQuoteForApproval(SalesHeader);
+
+        // [WHEN] The user wants to Make Invoice of the sales quote.
+        SalesQuotes.OpenView;
+        SalesQuotes.GotoRecord(SalesHeader);
+        asserterror SalesQuotes.MakeInvoice.Invoke;
+
+        // [THEN] The user gets an error that he cannot use this action
+        Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(SalesHeader.RecordId, 0, 1)));
     end;
 
     local procedure Initialize()
@@ -1077,6 +1095,20 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         SalesQuotes.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, SalesQuotes.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
         SalesQuotes.Close;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerValidateMessage(Message: Text[1024])
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message)
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

@@ -96,14 +96,16 @@ table 841 "Cash Flow Account"
             CaptionClass = '1,3,1';
             Caption = 'Global Dimension 1 Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
         }
         field(30; "Global Dimension 2 Filter"; Code[20])
         {
             CaptionClass = '1,3,2';
             Caption = 'Global Dimension 2 Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
         }
         field(34; Totaling; Text[250])
         {

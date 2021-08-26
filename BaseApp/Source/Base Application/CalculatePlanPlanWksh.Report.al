@@ -13,10 +13,14 @@
             trigger OnAfterGetRecord()
             var
                 ErrorText: Text[1000];
+                IsHandled: Boolean;
             begin
                 UpdateWindow;
 
-                OnItemOnAfterGetRecordOnBeforeCheckSetAtStartPosition(Item);
+                IsHandled := false;
+                OnItemOnAfterGetRecordOnBeforeCheckSetAtStartPosition(Item, CounterOK, IsHandled);
+                if IsHandled then
+                    CurrReport.Skip();
 
                 if not SetAtStartPosition then begin
                     SetAtStartPosition := true;
@@ -59,6 +63,8 @@
 
             trigger OnPreDataItem()
             begin
+                OnBeforeItemOnPreDataItem(Item);
+
                 OpenWindow;
                 Clear(CalcItemPlan);
                 CalcItemPlan.SetTemplAndWorksheet(CurrTemplateName, CurrWorksheetName, NetChange);
@@ -177,13 +183,7 @@
 
         trigger OnOpenPage()
         begin
-            MfgSetup.Get();
-            UseForecast := MfgSetup."Current Production Forecast";
-            if MfgSetup."Combined MPS/MRP Calculation" then begin
-                MPS := true;
-                MRP := true;
-            end else
-                MRP := not MPS;
+            InitializeFromMfgSetup();
 
             OnAfterOnOpenPage;
         end;
@@ -295,6 +295,24 @@
         end;
     end;
 
+    local procedure InitializeFromMfgSetup()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitializeFromMfgSetup(UseForecast, MPS, MRP, IsHandled);
+        if IsHandled then
+            exit;
+
+        MfgSetup.Get();
+        UseForecast := MfgSetup."Current Production Forecast";
+        if MfgSetup."Combined MPS/MRP Calculation" then begin
+            MPS := true;
+            MRP := true;
+        end else
+            MRP := not MPS;
+    end;
+
     local procedure ShowPlanningErrorLog()
     var
         IsHandled: Boolean;
@@ -329,12 +347,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitializeFromMfgSetup(var UseForecast: Code[10]; var MPS: Boolean; var MRP: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeItemOnPreDataItem(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPlanningErrorLog(var PlanningErrorLog: Record "Planning Error Log"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnItemOnAfterGetRecordOnBeforeCheckSetAtStartPosition(var Item: Record Item)
+    local procedure OnItemOnAfterGetRecordOnBeforeCheckSetAtStartPosition(var Item: Record Item; var CounterOK: Integer; var IsHandled: Boolean)
     begin
     end;
 

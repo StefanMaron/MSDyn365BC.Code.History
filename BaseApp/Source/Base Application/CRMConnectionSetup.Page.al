@@ -6,7 +6,7 @@ page 5330 "CRM Connection Setup"
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
-    PromotedActionCategories = 'New,Connection,Mapping,Synchronization,Encryption';
+    PromotedActionCategories = 'New,Connection,Mapping,Synchronization,Encryption,Cloud Migration';
     ShowFilter = false;
     SourceTable = "CRM Connection Setup";
     UsageCategory = Administration;
@@ -626,6 +626,24 @@ page 5330 "CRM Connection Setup"
                 RunObject = Page "Data Encryption Management";
                 RunPageMode = View;
                 ToolTip = 'Enable or disable data encryption. Data encryption helps make sure that unauthorized users cannot read business data.';
+            }
+            action(RebuildCouplingTable)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Rebuild Coupling Table';
+                Enabled = true;
+                Image = Restore;
+                Promoted = true;
+                PromotedCategory = Category6;
+                PromotedIsBig = false;
+                ToolTip = 'Rebuilds the coupling table after Cloud Migration from Business Central 2019 Wave 1 (Business Central 14).';
+
+                trigger OnAction()
+                var
+                    CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+                begin
+                    CDSIntegrationImpl.ScheduleRebuildingOfCouplingTable();
+                end;
             }
         }
     }

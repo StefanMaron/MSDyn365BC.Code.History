@@ -44,6 +44,7 @@ codeunit 134123 "Price List Line UT"
         SourceNoMustBeFilledErr: Label 'Applies-to No. must have a value';
         SourceNoMustBeBlankErr: Label 'Applies-to No. must be equal to ''''';
         CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
+        SourceGroupJobErr: Label 'Source Group must be equal to ''Job''';
         IsInitialized: Boolean;
 
     [Test]
@@ -149,6 +150,29 @@ codeunit 134123 "Price List Line UT"
     end;
 
     [Test]
+    procedure T004_SetNextLineNo()
+    var
+        PriceListLine: Record "Price List Line";
+        LineNo: Integer;
+    begin
+        // [SCENARIO] SetNextLineNo() sets "Line No." by adding 10000 to the last line within the price list.
+        Initialize();
+
+        PriceListLine.DeleteAll();
+        PriceListLine.SetNextLineNo();
+        PriceListLine.TestField("Line No.", 10000);
+
+        PriceListLine."Price List Code" := 'X';
+        LineNo := LibraryRandom.RandInt(100000);
+        PriceListLine."Line No." := LineNo;
+        PriceListLine.Insert();
+
+        PriceListLine."Line No." := 0;
+        PriceListLine.SetNextLineNo();
+        PriceListLine.TestField("Line No.", LineNo + 10000);
+    end;
+
+    [Test]
     procedure T005_ValidateNonexistingPriceListCode()
     var
         PriceListHeader: Record "Price List Header";
@@ -236,6 +260,7 @@ codeunit 134123 "Price List Line UT"
     [Test]
     procedure T008_InsertLineForPriceListWithSourceTypeNotAll()
     var
+        Item: Record Item;
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         SourceNo: Code[20];
@@ -283,6 +308,17 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.TestField("Allow Line Disc.", PriceListHeader."Allow Line Disc.");
         PriceListLine.TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
         PriceListLine.TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
+
+        // [GIVEN] Item 'I', where "Price Includes VAT" = false
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Price Includes VAT", not PriceListHeader."Price Includes VAT");
+        Item.Modify();
+
+        // [WHEN] Validate "Asset No." as 'I'
+        PriceListLine.Validate("Asset No.", Item."No.");
+
+        // [THEN] "Price Includes VAT" is equal to the header's value
+        PriceListLine.TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
     end;
 
     [Test]
@@ -564,7 +600,7 @@ codeunit 134123 "Price List Line UT"
     begin
         // [SCENARIO] "Cost Factor" validation with a non-zero value blanks "Unit Price".
         Initialize();
-        PriceListLine."Source Type" := "Price Source Type"::"All Customers";
+        PriceListLine.Validate("Source Type", "Price Source Type"::"All Jobs");
         PriceListLine."Asset Type" := "Price Asset Type"::"G/L Account";
         PriceListLine."Asset No." := LibraryERM.CreateGLAccountNo();
 
@@ -1355,6 +1391,168 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Error: "Applies-to Parent No. must have a value"
         Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
+    end;
+
+    [Test]
+    procedure T080_SourcePriceIncludesVATKeepsHeadersValueIfNotAllowedUpdatingDefaults()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [SCENARIO 405104] "Price Includes VAT" value set in the header cannot be changed in the line by the asset validation.
+        Initialize();
+        // [GIVEN] Customer 'C', where "Price Includes VAT" = true
+        LibrarySales.CreateCustomer(Customer);
+
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, Item."VAT Prod. Posting Group");
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("VAT Bus. Posting Gr. (Price)", VATBusinessPostingGroup.Code);
+        SalesReceivablesSetup.Modify();
+
+        Customer.Validate("Prices Including VAT", true);
+        Customer.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        Customer.Modify();
+
+        // [GIVEN] Price List Header 'X', where "Source Type" is 'Customer', "Source No." is 'C', "Allow Updating Defaults" is 'No'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, Customer."No.");
+        PriceListHeader."Amount Type" := PriceListHeader."Amount Type"::Price;
+        PriceListHeader."Allow Updating Defaults" := false;
+        // [GIVEN] "Price Includes VAT" is false
+        PriceListHeader."Starting Date" := WorkDate();
+        PriceListHeader."Ending Date" := WorkDate() + 10;
+        PriceListHeader."Price Includes VAT" := false;
+        PriceListHeader."VAT Bus. Posting Gr. (Price)" := '';
+        PriceListHeader.Modify();
+        // [GIVEN] Fill the Line, where "Price List Code" is 'X' 
+        PriceListLine.Init();
+        PriceListLine.Validate("Price List Code", PriceListHeader.Code);
+        // [WHEN] Line is inserted
+        PriceListLine.Insert(true);
+
+        // [THEN] Line, where "Price Includes VAT" is false
+        PriceListLine.TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
+        PriceListLine.TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
+    end;
+
+    [Test]
+    procedure T081_AssetPriceIncludesVATKeepsHeadersValueIfNotAllowedUpdatingDefaults()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SourceNo: Code[20];
+    begin
+        // [SCENARIO 405104] "Price Includes VAT" value set in the header cannot be changed in the line by the asset validation.
+        Initialize();
+        // [GIVEN] Item 'I', where "Price Includes VAT" = true
+        LibraryInventory.CreateItem(Item);
+
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, Item."VAT Prod. Posting Group");
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("VAT Bus. Posting Gr. (Price)", VATBusinessPostingGroup.Code);
+        SalesReceivablesSetup.Modify();
+
+        Item.Validate("Price Includes VAT", true);
+        Item.Modify();
+
+        // [GIVEN] Price List Header 'X', where "Source Type" is 'Customer', "Source No." is 'C', "Allow Updating Defaults" is 'No'
+        SourceNo := LibrarySales.CreateCustomerNo();
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, SourceNo);
+        PriceListHeader."Amount Type" := PriceListHeader."Amount Type"::Price;
+        PriceListHeader."Allow Updating Defaults" := false;
+        // [GIVEN] "Price Includes VAT" is false
+        PriceListHeader."Starting Date" := WorkDate();
+        PriceListHeader."Ending Date" := WorkDate() + 10;
+        PriceListHeader."Price Includes VAT" := false;
+        PriceListHeader."VAT Bus. Posting Gr. (Price)" := '';
+        PriceListHeader.Modify();
+        // [GIVEN] Fill the Line, where "Price List Code" is 'X' 
+        PriceListLine.Init();
+        PriceListLine.Validate("Price List Code", PriceListHeader.Code);
+        PriceListLine.Insert(true);
+
+        // [WHEN] Validate "Asset Type"
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
+
+        // [THEN] Line inserted, "Price Includes VAT" is false
+        PriceListLine.TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
+        PriceListLine.TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
+
+        // [WHEN] Validate "Asset No." as 'I'
+        PriceListLine.Validate("Asset No.", Item."No.");
+
+        // [THEN] "Price Includes VAT" is false (as header's value)
+        PriceListLine.TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
+        PriceListLine.TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
+    end;
+
+    [Test]
+    procedure T082_PriceIncludesVATGetsAssetsValueIfAllowedUpdatingDeafults()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SourceNo: Code[20];
+    begin
+        // [SCENARIO 405104] "Price Includes VAT" value set in the header can be changed in the line by the asset validation if "Allow Updating Defaults".
+        Initialize();
+        // [GIVEN] Item 'I', where "Price Includes VAT" = true
+        LibraryInventory.CreateItem(Item);
+
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, Item."VAT Prod. Posting Group");
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("VAT Bus. Posting Gr. (Price)", VATBusinessPostingGroup.Code);
+        SalesReceivablesSetup.Modify();
+
+        Item.Validate("Price Includes VAT", true);
+        Item.Modify();
+
+        // [GIVEN] Price List Header 'X', where "Source Type" is 'Customer', "Source No." is 'C', "Allow Updating Defaults" is 'Yes'
+        SourceNo := LibrarySales.CreateCustomerNo();
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, SourceNo);
+        PriceListHeader."Amount Type" := PriceListHeader."Amount Type"::Price;
+        PriceListHeader."Allow Updating Defaults" := true;
+        // [GIVEN] "Price Includes VAT" is false
+        PriceListHeader."Starting Date" := WorkDate();
+        PriceListHeader."Ending Date" := WorkDate() + 10;
+        PriceListHeader."Price Includes VAT" := false;
+        PriceListHeader."VAT Bus. Posting Gr. (Price)" := '';
+        PriceListHeader.Modify();
+        // [GIVEN] Fill the Line, where "Price List Code" is 'X' 
+        PriceListLine.Init();
+        PriceListLine.Validate("Price List Code", PriceListHeader.Code);
+        PriceListLine.Insert(true);
+
+        // [WHEN] Validate "Asset Type"
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
+
+        // [THEN] Line inserted, "Price Includes VAT" is false
+        PriceListLine.TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
+        PriceListLine.TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
+
+        // [WHEN] Validate "Asset No." as 'I'
+        PriceListLine.Validate("Asset No.", Item."No.");
+
+        // [THEN] "Price Includes VAT" is true (as item's value)
+        PriceListLine.TestField("Price Includes VAT", Item."Price Includes VAT");
+        PriceListLine.TestField("VAT Bus. Posting Gr. (Price)", Item."VAT Bus. Posting Gr. (Price)");
     end;
 
     [Test]
@@ -2371,7 +2569,7 @@ codeunit 134123 "Price List Line UT"
         Initialize();
         // [GIVEN] Price List Line, where "Source Type" is 'Job', "Unit Price" is 2
         PriceListLine.Init();
-        PriceListLine."Source Type" := "Price Source Type"::Job;
+        PriceListLine.Validate("Source Type", "Price Source Type"::Job);
         PriceListLine."Source No." := 'JOB';
         PriceListLine."Asset Type" := "Price Asset Type"::"G/L Account";
         PriceListLine."Asset No." := 'ACC';
@@ -2383,7 +2581,25 @@ codeunit 134123 "Price List Line UT"
     end;
 
     [Test]
-    procedure T162_ValidateNonPostingJobTask()
+    procedure T162_ValidateCostFactorForNonJob()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Cost Factor]
+        Initialize();
+        // [GIVEN] Price List Line, where "Source Type" is 'All Customers'
+        PriceListLine.Init();
+        PriceListLine.Validate("Source Type", "Price Source Type"::"All Customers");
+        PriceListLine."Asset Type" := "Price Asset Type"::"G/L Account";
+        PriceListLine."Asset No." := 'ACC';
+        // [WHEN] Set "Cost Factor" as 1
+        asserterror PriceListLine.Validate("Cost Factor", 1);
+        // [THEN] Error message: 'Source Group must be equal to Job'
+        Assert.ExpectedError(SourceGroupJobErr);
+    end;
+
+    [Test]
+    procedure T163_ValidateNonPostingJobTask()
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -2407,7 +2623,7 @@ codeunit 134123 "Price List Line UT"
     end;
 
     [Test]
-    procedure T163_ValidateJobNoAsSource()
+    procedure T164_ValidateJobNoAsSource()
     var
         Currency: Record Currency;
         Job: Record Job;
@@ -2430,7 +2646,7 @@ codeunit 134123 "Price List Line UT"
     end;
 
     [Test]
-    procedure T164_ValidateJobNoAsParentSource()
+    procedure T165_ValidateJobNoAsParentSource()
     var
         Currency: Record Currency;
         Job: Record Job;

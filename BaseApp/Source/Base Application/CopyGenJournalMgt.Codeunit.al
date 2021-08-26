@@ -6,7 +6,7 @@ codeunit 181 "Copy Gen. Journal Mgt."
 
     var
         CopiedLinesTxt: Label '%1 posted general journal lines was copied to General Journal.\\Do you want to open target general journal?', Comment = '%1 - number of lines';
-        CanBeCopiedErr: Label 'You cannot copy posted gen. journal line with register number %1 because it contains customer or vendor or employee ledger entries that have been posted and applied in the same transaction.', Comment = '%1 = "G/L Register" number';
+        CanBeCopiedErr: Label 'You cannot copy the posted general journal lines with G/L register number %1 because they contain customer, vendor, or employee ledger entries that were posted and applied in the same G/L register.', Comment = '%1 = "G/L Register" number';
 
     procedure CopyToGenJournal(var PostedGenJournalLine: Record "Posted Gen. Journal Line")
     var

@@ -79,18 +79,23 @@ codeunit 8611 "Config. Package Management"
     end;
 
     procedure InsertPackageField(var ConfigPackageField: Record "Config. Package Field"; PackageCode: Code[20]; TableID: Integer; FieldID: Integer; FieldName: Text[30]; FieldCaption: Text[250]; SetInclude: Boolean; SetValidate: Boolean; SetLocalize: Boolean; SetDimension: Boolean)
+    var
+        SkipRelationTableID: Boolean;
     begin
         if not ConfigPackageField.Get(PackageCode, TableID, FieldID) then begin
             ConfigPackageField.Init();
             ConfigPackageField.Validate("Package Code", PackageCode);
             ConfigPackageField.Validate("Table ID", TableID);
             ConfigPackageField.Validate(Dimension, SetDimension);
+            OnInsertPackageFieldOnBeforeValidateFieldID(ConfigPackageField);
             ConfigPackageField.Validate("Field ID", FieldID);
             ConfigPackageField.Validate("Field Name", FieldName);
             ConfigPackageField."Field Caption" := FieldCaption;
             ConfigPackageField."Primary Key" := ConfigValidateMgt.IsKeyField(TableID, FieldID);
             ConfigPackageField."Include Field" := SetInclude or ConfigPackageField."Primary Key";
-            if not SetDimension then begin
+            SkipRelationTableID := not SetDimension;
+            OnInsertPackageFieldOnAfterCalcSkipRelationTableID(ConfigPackageField, SkipRelationTableID);
+            if SkipRelationTableID then begin
                 ConfigPackageField."Relation Table ID" := ConfigValidateMgt.GetRelationTableID(TableID, FieldID);
                 ConfigPackageField."Validate Field" :=
                   ConfigPackageField."Include Field" and SetValidate and not ValidateException(TableID, FieldID);
@@ -99,6 +104,7 @@ codeunit 8611 "Config. Package Management"
             ConfigPackageField.Dimension := SetDimension;
             if SetDimension then
                 ConfigPackageField."Processing Order" := ConfigPackageField."Field ID";
+            OnInsertPackageFieldOnBeforeInsert(ConfigPackageField);
             ConfigPackageField.Insert();
         end;
     end;
@@ -644,8 +650,15 @@ codeunit 8611 "Config. Package Management"
         exit(true);
     end;
 
-    procedure ValidateException(TableID: Integer; FieldID: Integer): Boolean
+    procedure ValidateException(TableID: Integer; FieldID: Integer) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateException(TableID, FieldID, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case TableID of
             // Dimension Value ID: ERROR message
             DATABASE::"Dimension Value":
@@ -2444,6 +2457,11 @@ codeunit 8611 "Config. Package Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateException(TableID: Integer; FieldID: Integer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnModifyRecordDataFieldsOnBeforeFindConfigPackageField(var ConfigPackageField: Record "Config. Package Field"; ConfigPackageRecord: Record "Config. Package Record"; RecRef: RecordRef; DoModify: Boolean; DelayedInsert: Boolean)
     begin
     end;
@@ -2462,6 +2480,21 @@ codeunit 8611 "Config. Package Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnModifyRecordDataFieldsOnAfterRecRefModify(var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPackageFieldOnAfterCalcSkipRelationTableID(var ConfigPackageField: Record "Config. Package Field"; var SkipRelationTableID: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPackageFieldOnBeforeInsert(var ConfigPackageField: Record "Config. Package Field")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPackageFieldOnBeforeValidateFieldID(var ConfigPackageField: Record "Config. Package Field")
     begin
     end;
 }

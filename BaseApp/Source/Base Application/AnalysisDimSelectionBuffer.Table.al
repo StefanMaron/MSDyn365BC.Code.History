@@ -35,7 +35,7 @@ table 7158 "Analysis Dim. Selection Buffer"
             ELSE
             IF (Code = CONST('Location')) Location.Code
             ELSE
-            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code));
+            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code),Blocked = CONST(false));
 
             trigger OnValidate()
             begin

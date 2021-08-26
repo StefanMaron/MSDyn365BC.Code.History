@@ -1785,7 +1785,7 @@ codeunit 5334 "CRM Setup Defaults"
         OnAddEntityTableMapping(TempNameValueBuffer);
     end;
 
-    local procedure AddEntityTableMapping(CRMEntityTypeName: Text; TableID: Integer; var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
+    procedure AddEntityTableMapping(CRMEntityTypeName: Text; TableID: Integer; var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
     begin
         OnBeforeAddEntityTableMapping(CRMEntityTypeName, TableID, TempNameValueBuffer);
         with TempNameValueBuffer do begin
@@ -1826,6 +1826,24 @@ codeunit 5334 "CRM Setup Defaults"
         IntegrationTableMapping.SetIntegrationTableFilter(
           GetTableFilterFromView(DATABASE::"CRM Product", CRMProduct.TableCaption, CRMProduct.GetView));
         IntegrationTableMapping.Modify();
+    end;
+
+    procedure CreateInventoryQuantityFieldMapping()
+    var
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        Item: Record Item;
+        CRMProduct: Record "CRM Product";
+    begin
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", 'ITEM-PRODUCT');
+        IntegrationFieldMapping.SetRange("Field No.", Item.FieldNo(Inventory));
+        IntegrationFieldMapping.SetRange("Integration Table Field No.", CRMProduct.FieldNo(QuantityOnHand));
+        if IntegrationFieldMapping.IsEmpty() then
+            InsertIntegrationFieldMapping(
+              'ITEM-PRODUCT',
+              Item.FieldNo(Inventory),
+              CRMProduct.FieldNo(QuantityOnHand),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false);
     end;
 
     [Scope('OnPrem')]

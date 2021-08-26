@@ -5,6 +5,7 @@ page 114 "Item Vendor Catalog"
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Prices & Discounts';
     SourceTable = "Item Vendor";
+    DelayedInsert = true;
 
     layout
     {
@@ -23,7 +24,6 @@ page 114 "Item Vendor Catalog"
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
-                    Visible = false;
                 }
                 field("Vendor No."; "Vendor No.")
                 {

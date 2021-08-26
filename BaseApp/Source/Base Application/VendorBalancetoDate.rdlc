@@ -4628,7 +4628,7 @@
                 <TablixMember>
                   <Group Name="PageBreak">
                     <GroupExpressions>
-                      <GroupExpression>=IIF(Fields!PrintOnePrPage.Value,Fields!No_Vendor.Value,TRUE)</GroupExpression>
+                      <GroupExpression>=IIF(Fields!PrintOnePrPage.Value,Fields!No_Vendor.Value,"TRUE")</GroupExpression>
                     </GroupExpressions>
                     <PageBreak>
                       <BreakLocation>Between</BreakLocation>

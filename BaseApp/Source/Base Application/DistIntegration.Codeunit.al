@@ -499,7 +499,7 @@ codeunit 5702 "Dist. Integration"
             SalesLine.SetRange(Type, SalesLine.Type::Item);
             SalesLine.SetFilter("No.", '<>%1', '');
             SalesLine.SetRange("Special Order Purch. Line No.", 0);
-            OnGetSpecialOrdersOnAfterSalesLineSetFilters(SalesLine, SalesHeader);
+            OnGetSpecialOrdersOnAfterSalesLineSetFilters(SalesLine, SalesHeader, PurchHeader);
             if SalesLine.FindSet then
                 repeat
                     IsHandled := false;
@@ -692,7 +692,7 @@ codeunit 5702 "Dist. Integration"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetSpecialOrdersOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    local procedure OnGetSpecialOrdersOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var PurchHeader: Record "Purchase Header")
     begin
     end;
 

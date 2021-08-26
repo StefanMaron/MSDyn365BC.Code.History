@@ -554,7 +554,7 @@ report 5899 "Calculate Inventory Value"
             "Partial Revaluation" := true;
             "Applied Amount" := AppliedAmount;
             Insert;
-            OnAfterInsertItemJnlLine(ItemJnlLine);
+            OnAfterInsertItemJnlLine(ItemJnlLine, EntryType2, ItemNo2, VariantCode2, LocationCode2, Quantity2, Amount2, ApplyToEntry2, AppliedAmount);
         end;
     end;
 
@@ -586,7 +586,7 @@ report 5899 "Calculate Inventory Value"
             "Source Code" := SourceCodeSetup."Revaluation Journal";
         end;
 
-        OnAfterInitItemJnlLine(ItemJnlLine);
+        OnAfterInitItemJnlLine(ItemJnlLine, ItemJnlBatch);
     end;
 
     procedure InitializeRequest(NewPostingDate: Date; NewDocNo: Code[20]; NewHideDuplWarning: Boolean; NewCalculatePer: Option; NewByLocation: Boolean; NewByVariant: Boolean; NewUpdStdCost: Boolean; NewCalcBase: Option; NewShowDialog: Boolean)
@@ -670,12 +670,12 @@ report 5899 "Calculate Inventory Value"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnAfterInitItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemJnlBatch: Record "Item Journal Batch")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnAfterInsertItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; EntryType2: Enum "Item Ledger Entry Type"; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10]; Quantity2: Decimal; Amount2: Decimal; ApplyToEntry2: Integer; AppliedAmount: Decimal)
     begin
     end;
 

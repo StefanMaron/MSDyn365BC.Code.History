@@ -861,7 +861,90 @@ codeunit 137019 "SCM Correct Invoice"
 
         // [THEN] The Sales Order can be posted again
         SalesLine.Validate("Qty. to Ship", QtyToShip);
-        SalesLine.Modify(true);        
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SetLotItemWithQtyToHandleTrackingPageHandler')]
+    procedure CancelSalesInvoiceCreatedViaGetShipmentLinesWithItemTracking()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ReservationEntry: Record "Reservation Entry";
+        TrackingSpecification: Record "Tracking Specification";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        LotNos: array[2] of Code[50];
+        i: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Get Shipment Lines]
+        // [SCENARIO 400516] Restore item tracking in the original sales order when the invoice is created via "Get Shipment Lines" and then canceled.
+        Initialize();
+
+        // [GIVEN] Lot-tracked item.
+        Item.Get(CreateTrackedItem());
+
+        // [GIVEN] Post two lots to inventory.
+        for i := 1 to ArrayLen(LotNos) do begin
+            LotNos[i] := LibraryUtility.GenerateGUID();
+            PostPositiveAdjmtWithLotNo(Item."No.", LotNos[i], LibraryRandom.RandInt(10));
+        end;
+
+        // [GIVEN] Sales order.
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Add two sales lines, quantity = 1, assign lot no.
+        for i := 1 to ArrayLen(SalesLine) do begin
+            LibrarySales.CreateSalesLineWithUnitPrice(
+                SalesLine[i], SalesHeader, Item."No.", LibraryRandom.RandDec(10, 2), 1);
+            LibraryVariableStorage.Enqueue(LotNos[i]);
+            LibraryVariableStorage.Enqueue(SalesLine[i].Quantity);
+            LibraryVariableStorage.Enqueue(SalesLine[i].Quantity);
+            SalesLine[i].OpenItemTrackingLines();
+        end;
+
+        // [GIVEN] Ship the sales order.
+        SalesShipmentHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, false));
+
+        // [GIVEN] Create sales invoice using "Get Shipment Lines".
+        // [GIVEN] Post the invoice.
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, "Sales Document Type"::Invoice, Customer."No.");
+        SalesGetShipment.SetSalesHeader(SalesHeaderInvoice);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true));
+
+        // [WHEN] Cancel the posted invoice.
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [THEN] Item tracking is restored in the original sales order.
+        // [THEN] "Quantity Handled" = "Quantity Invoiced" = 0 in item tracking for each sales line.
+        for i := 1 to ArrayLen(SalesLine) do begin
+            SalesLine[i].Find();
+            TrackingSpecification.SetSourceFilter(
+                Database::"Sales Line", SalesLine[i]."Document Type".AsInteger(), SalesLine[i]."Document No.",
+                SalesLine[i]."Line No.", false);
+            Assert.RecordIsEmpty(TrackingSpecification);
+
+            ReservationEntry.SetSourceFilter(
+                Database::"Sales Line", SalesLine[i]."Document Type".AsInteger(), SalesLine[i]."Document No.",
+                SalesLine[i]."Line No.", false);
+            ReservationEntry.FindFirst();
+            ReservationEntry.TestField("Quantity Invoiced (Base)", 0);
+        end;
+
+        // [THEN] The purchase order can be posted again.
+        SalesHeader.Find();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         LibraryVariableStorage.AssertEmpty();

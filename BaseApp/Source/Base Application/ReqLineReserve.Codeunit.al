@@ -138,11 +138,7 @@ codeunit 99000833 "Req. Line-Reserve"
             else
                 HasError := true;
 
-        if NewReqLine."Sell-to Customer No." <> '' then
-            if ShowError then
-                NewReqLine.FieldError("Sell-to Customer No.", Text003)
-            else
-                HasError := true;
+        CheckSellToCustomerNo(NewReqLine, OldReqLine, ShowError, HasError);
 
         if NewReqLine."Variant Code" <> OldReqLine."Variant Code" then
             if ShowError then
@@ -187,6 +183,22 @@ codeunit 99000833 "Req. Line-Reserve"
             then
                 AssignForPlanning(OldReqLine);
         end;
+    end;
+
+    local procedure CheckSellToCustomerNo(var NewReqLine: Record "Requisition Line"; var OldReqLine: Record "Requisition Line"; ShowError: Boolean; var HasError: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSellToCustomerNo(NewReqLine, OldReqLine, ShowError, HasError, IsHandled);
+        if IsHandled then
+            exit;
+
+        if NewReqLine."Sell-to Customer No." <> '' then
+            if ShowError then
+                NewReqLine.FieldError("Sell-to Customer No.", Text003)
+            else
+                HasError := true;
     end;
 
     procedure VerifyQuantity(var NewReqLine: Record "Requisition Line"; var OldReqLine: Record "Requisition Line")
@@ -712,6 +724,11 @@ codeunit 99000833 "Req. Line-Reserve"
     begin
         if MatchThisTable(ReservEntry."Source Type") then
             ReturnQty := GetSourceValue(ReservEntry, SourceRecRef, ReturnOption);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSellToCustomerNo(var NewReqLine: Record "Requisition Line"; var OldReqLine: Record "Requisition Line"; ShowError: Boolean; var HasError: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

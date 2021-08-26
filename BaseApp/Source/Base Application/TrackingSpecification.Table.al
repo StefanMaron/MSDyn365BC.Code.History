@@ -24,13 +24,19 @@ table 336 "Tracking Specification"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if ("Quantity (Base)" * "Quantity Handled (Base)" < 0) or
                    (Abs("Quantity (Base)") < Abs("Quantity Handled (Base)"))
                 then
                     FieldError("Quantity (Base)", StrSubstNo(Text002, FieldCaption("Quantity Handled (Base)")));
 
-                WMSManagement.CheckItemTrackingChange(Rec, xRec);
+                IsHandled := false;
+                OnValidateQuantityBaseOnBeforeCheckItemTrackingChange(Rec, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    WMSManagement.CheckItemTrackingChange(Rec, xRec);
+
                 InitQtyToShip();
                 CheckSerialNoQty();
 
@@ -1221,6 +1227,14 @@ table 336 "Tracking Specification"
         OnAfterSetNewTrackingFilterFromNewReservEntry(Rec, ReservEntry);
     end;
 
+    procedure SetNewTrackingFilterFromNewTrackingSpec(TrackingSpecification: Record "Tracking Specification")
+    begin
+        SetRange("New Serial No.", TrackingSpecification."New Serial No.");
+        SetRange("New Lot No.", TrackingSpecification."New Lot No.");
+
+        OnAfterSetNewTrackingFilterFromNewTrackingSpec(Rec, TrackingSpecification);
+    end;
+
     procedure SetTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         SetRange("Serial No.", TrackingSpecification."Serial No.");
@@ -1614,6 +1628,11 @@ table 336 "Tracking Specification"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetNewTrackingFilterFromNewTrackingSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromTrackingSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
     begin
     end;
@@ -1740,6 +1759,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckSerialNoQty(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityBaseOnBeforeCheckItemTrackingChange(var TrackingSpecification: Record "Tracking Specification"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

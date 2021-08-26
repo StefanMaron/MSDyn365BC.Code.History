@@ -41,11 +41,6 @@ codeunit 132864 "User Groups Data Setup"
         UserGroupPermissionSet.Insert();
 
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
-        UserGroupPermissionSet."Role ID" := 'EMAIL USAGE';
-        UserGroupPermissionSet."App ID" := NonEmptyAppID;
-        UserGroupPermissionSet.Insert();
-
-        UserGroupPermissionSet."User Group Code" := UserGroup.Code;
         UserGroupPermissionSet."Role ID" := 'D365 EXTENSION MGT';
         UserGroupPermissionSet."App ID" := NonEmptyAppID;
         UserGroupPermissionSet.Insert();

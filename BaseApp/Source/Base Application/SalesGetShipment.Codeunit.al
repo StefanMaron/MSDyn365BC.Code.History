@@ -77,11 +77,7 @@ codeunit 64 "Sales-Get Shipment"
                         end;
                         OnBeforeTransferLineToSalesDoc(SalesShptHeader, SalesShptLine2, SalesHeader, TransferLine);
                     end;
-                    if TransferLine then begin
-                        SalesShptLine := SalesShptLine2;
-                        SalesShptLine.InsertInvLineFromShptLine(SalesLine);
-                        CalcUpdatePrepmtAmtToDeductRounding(SalesShptLine, SalesLine, PrepmtAmtToDeductRounding);
-                    end;
+                    InsertInvoiceLineFromShipmentLine(SalesShptLine2, TransferLine, PrepmtAmtToDeductRounding);
                     OnAfterInsertLine(SalesShptLine, SalesLine, SalesShptLine2, TransferLine);
                 until Next() = 0;
 
@@ -95,6 +91,22 @@ codeunit 64 "Sales-Get Shipment"
                 if TransferLine then
                     AdjustPrepmtAmtToDeductRounding(SalesLine, PrepmtAmtToDeductRounding);
             end;
+        end;
+    end;
+
+    local procedure InsertInvoiceLineFromShipmentLine(var SalesShptLine2: Record "Sales Shipment Line"; TransferLine: Boolean; var PrepmtAmtToDeductRounding: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertInvoiceLineFromShipmentLine(SalesShptHeader, SalesShptLine2, SalesHeader, PrepmtAmtToDeductRounding, TransferLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TransferLine then begin
+            SalesShptLine := SalesShptLine2;
+            SalesShptLine.InsertInvLineFromShptLine(SalesLine);
+            CalcUpdatePrepmtAmtToDeductRounding(SalesShptLine, SalesLine, PrepmtAmtToDeductRounding);
         end;
     end;
 
@@ -303,6 +315,11 @@ codeunit 64 "Sales-Get Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertLines(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertInvoiceLineFromShipmentLine(SalesShptHeader: Record "Sales Shipment Header"; var SalesShptLine2: Record "Sales Shipment Line"; var SalesHeader: Record "Sales Header"; var PrepmtAmtToDeductRounding: Decimal; TransferLine: Boolean; var IsHandled: Boolean)
     begin
     end;
 

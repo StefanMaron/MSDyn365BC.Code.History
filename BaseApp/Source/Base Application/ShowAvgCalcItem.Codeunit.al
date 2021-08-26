@@ -12,6 +12,7 @@ codeunit 5803 "Show Avg. Calc. - Item"
             SetFilter("Valuation Date", Rec.GetFilter("Date Filter"));
             SetFilter("Location Code", Rec.GetFilter("Location Filter"));
             SetFilter("Variant Code", Rec.GetFilter("Variant Filter"));
+            OnRunOnAfterValueEntrySetFilters(ValueEntry, Rec);
         end;
         PAGE.RunModal(PAGE::"Value Entries", ValueEntry, ValueEntry."Cost Amount (Actual)");
     end;
@@ -28,6 +29,11 @@ codeunit 5803 "Show Avg. Calc. - Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDrillDownAvgCostAdjmtPoint(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterValueEntrySetFilters(var ValueEntry: Record "Value Entry"; var Item: Record Item)
     begin
     end;
 }

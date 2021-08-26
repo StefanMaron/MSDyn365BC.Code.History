@@ -140,6 +140,12 @@ codeunit 6516 "Package Management"
         TrackingSpecification.SetRange("New Package No.", ReservationEntry."New Package No.");
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Tracking Specification", 'OnAfterSetNewTrackingFilterFromNewTrackingSpec', '', false, false)]
+    local procedure TrackingSpecificationSetNewTrackingFilterFromNewTrackingSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
+    begin
+        TrackingSpecification.SetRange("New Package No.", FromTrackingSpecification."New Package No.");
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Tracking Specification", 'OnAfterSetTrackingFilterFromTrackingSpec', '', false, false)]
     local procedure TrackingSpecificationSetTrackingFilterFromTrackingSpec(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
     begin
@@ -349,6 +355,12 @@ codeunit 6516 "Package Management"
     local procedure ReservationEntrySetTrackingFilterFromReservEntry(var ReservationEntry: Record "Reservation Entry"; FromReservationEntry: Record "Reservation Entry")
     begin
         ReservationEntry.SetRange("Package No.", FromReservationEntry."Package No.");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Reservation Entry", 'OnAfterSetNewTrackingFilterFromNewReservEntry', '', false, false)]
+    local procedure ReservationEntrySetNewTrackingFilterFromNewReservEntry(var ReservationEntry: Record "Reservation Entry"; FromReservationEntry: Record "Reservation Entry")
+    begin
+        ReservationEntry.SetRange("New Package No.", FromReservationEntry."New Package No.");
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Reservation Entry", 'OnAfterSetTrackingFilterFromTrackingSpec', '', false, false)]
@@ -766,6 +778,12 @@ codeunit 6516 "Package Management"
     begin
         if ItemTrackingSetup."Package No. Required" and (ItemJournalLine."Package No." = '') then
             Error(PackageNoRequiredErr, ItemJournalLine."Item No.");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnAfterSetTrackingFilterFromItemLedgerEntry', '', false, false)]
+    local procedure ItemJournalLineOnAfterSetTrackingFilterFromItemLedgerEntry(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+        ItemJournalLine.SetRange("Package No.", ItemLedgerEntry."Package No.");
     end;
 
     // Item Entry Relation
@@ -1488,6 +1506,12 @@ codeunit 6516 "Package Management"
         WhseItemTrackingLine.SetRange("Package No.", FromWhseItemTrackingLine."Package No.");
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Whse. Item Tracking Line", 'OnAfterSetTrackingFilterFromItemLedgerEntry', '', false, false)]
+    local procedure WhseItemTrackingLineSetTrackingFilterFromItemLedgerEntry(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+        WhseItemTrackingLine.SetRange("Package No.", ItemLedgerEntry."Package No.");
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Whse. Item Tracking Line", 'OnAfterSetTrackingFilterFromPostedWhseReceiptLine', '', false, false)]
     local procedure WhseItemTrackingLineSetTrackingFilterFromPostedWhseReceiptLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
@@ -1938,8 +1962,8 @@ codeunit 6516 "Package Management"
 
     // ItemJnlPostLine.Codeunit.al
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforeCheckItemTracking', '', false, false)]
-    local procedure ItemJnlPostLineOnBeforeCheckItemTracking(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnCheckItemTrackingOnAfterCheckRequiredTrackingNos', '', false, false)]
+    local procedure ItemJnlPostLineOnCheckItemTrackingOnAfterCheckRequiredTrackingNos(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         if ItemTrackingSetup."Package No. Required" and (ItemJournalLine."Package No." = '') then
             Error(

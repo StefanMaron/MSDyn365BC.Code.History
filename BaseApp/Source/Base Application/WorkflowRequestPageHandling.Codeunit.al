@@ -43,7 +43,7 @@ codeunit 1522 "Workflow Request Page Handling"
         OnAfterInsertRequestPageEntities();
     end;
 
-    local procedure InsertReqPageEntity(Name: Code[20]; Description: Text[100]; TableId: Integer; RelatedTableId: Integer)
+    procedure InsertReqPageEntity(Name: Code[20]; Description: Text[100]; TableId: Integer; RelatedTableId: Integer)
     begin
         if not FindReqPageEntity(Name, TableId, RelatedTableId) then
             CreateReqPageEntity(Name, Description, TableId, RelatedTableId);
@@ -207,7 +207,7 @@ codeunit 1522 "Workflow Request Page Handling"
         DynamicRequestPageField.Insert();
     end;
 
-    local procedure AssignEntityToWorkflowEvent(TableID: Integer; DynamicReqPageEntityName: Code[20])
+    procedure AssignEntityToWorkflowEvent(TableID: Integer; DynamicReqPageEntityName: Code[20])
     var
         WorkflowEvent: Record "Workflow Event";
     begin

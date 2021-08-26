@@ -113,7 +113,7 @@ codeunit 5057 "VendCont-Update"
             Validate(Name);
             Validate("E-Mail");
             IsHandled := false;
-            OnInsertNewContactOnBeforeAssignNo(Cont, IsHandled, Vend);
+            OnInsertNewContactOnBeforeAssignNo(Cont, IsHandled, Vend, RMSetup, LocalCall);
             if not IsHandled then begin
                 "No." := '';
                 "No. Series" := '';
@@ -227,7 +227,7 @@ codeunit 5057 "VendCont-Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertNewContactOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean; Vendor: Record Vendor);
+    local procedure OnInsertNewContactOnBeforeAssignNo(var Contact: Record Contact; var IsHandled: Boolean; Vendor: Record Vendor; MarketingSetup: Record "Marketing Setup"; LocalCall: Boolean);
     begin
     end;
 

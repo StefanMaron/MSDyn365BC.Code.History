@@ -115,14 +115,16 @@ report 296 "Batch Post Sales Orders"
         trigger OnOpenPage()
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
+            ClientTypeManagement: Codeunit "Client Type Management";
         begin
-            SalesReceivablesSetup.Get();
-            CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
-            ReplacePostingDate := false;
-            ReplaceDocumentDate := false;
-            PrintDoc := false;
-            PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
-
+            if ClientTypeManagement.GetCurrentClientType() <> ClientType::Background then begin
+                SalesReceivablesSetup.Get();
+                CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
+                ReplacePostingDate := false;
+                ReplaceDocumentDate := false;
+                PrintDoc := false;
+                PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
+            end;
             OnAfterOnOpenPage(ShipReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc);
         end;
     }

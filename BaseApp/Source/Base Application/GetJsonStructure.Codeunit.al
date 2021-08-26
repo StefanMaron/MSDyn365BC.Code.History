@@ -50,8 +50,10 @@ codeunit 1237 "Get Json Structure"
         XmlDocument: DotNet XmlDocument;
         NewContent: Text;
     begin
-        while JsonInStream.Read(NewContent) > 0 do
+        while not JsonInStream.EOS do begin
+            JsonInStream.Read(NewContent);
             FileContent += NewContent;
+        end;
 
         XmlDocument := JsonConvert.DeserializeXmlNode(FileContent);
         XmlDocument.Save(XMLOutStream);
@@ -63,9 +65,10 @@ codeunit 1237 "Get Json Structure"
         XmlDocument: DotNet XmlDocument;
         NewContent: Text;
     begin
-        while JsonInStream.Read(NewContent) > 0 do
+        while not JsonInStream.EOS do begin
+            JsonInStream.Read(NewContent);
             FileContent += NewContent;
-
+        end;
         FileContent := '{"root":' + FileContent + '}';
 
         XmlDocument := JsonConvert.DeserializeXmlNode(FileContent, 'root');

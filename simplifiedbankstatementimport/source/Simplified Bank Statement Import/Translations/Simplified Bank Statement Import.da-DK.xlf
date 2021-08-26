@@ -57,6 +57,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Statement File Wizard - NamedType BankFileWizardTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1261045762 - NamedType 3225951371" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Upload</source>
+          <target state="translated">Upload</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Statement File Wizard - NamedType UploadDialogTitleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1261045762 - NamedType 1707396675" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CSV Files|%1</source>
+          <target state="translated">CSV-filer|%1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = File format, CSV should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Statement File Wizard - NamedType UploadFilterLbl</note>
+        </trans-unit>
         <trans-unit id="Page 1261045762 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Statement File Setup</source>
           <target state="translated">Opsætning af bankkontoudtogsfil</target>

@@ -97,6 +97,15 @@ codeunit 7045 "Price Asset - Service Cost" implements "Price Asset"
         PriceAsset.Description := ServiceCost.Description;
         PriceAsset."Unit of Measure Code" := ServiceCost."Unit of Measure Code";
         PriceAsset."Variant Code" := '';
+        case PriceAsset."Price Type" of
+            PriceAsset."Price Type"::Sale:
+                PriceAsset."Unit Price" := ServiceCost."Default Unit Price";
+            PriceAsset."Price Type"::Purchase:
+                begin
+                    PriceAsset."Unit Price 2" := ServiceCost."Default Unit Cost";
+                    PriceAsset."Unit Price" := 0;
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

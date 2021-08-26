@@ -17,65 +17,17 @@
     procedure UpdateDimSetEntryGlobalDimNo()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-        DimensionSetEntry: Record "Dimension Set Entry";
         UpdateDimSetGlblDimNo: Codeunit "Update Dim. Set Glbl. Dim. No.";
-        DimFilterString: Text;
     begin
-        BindSubscription(UpdateDimSetGlblDimNo);
-        OpenProgressDialog();
         GeneralLedgerSetup.Get();
+        OpenProgressDialog();
 
-        if GeneralLedgerSetup."Shortcut Dimension 3 Code" <> '' then begin
-            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 3 Code");
-            DimensionSetEntry.ModifyAll("Global Dimension No.", 3, false);
-            DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 3 Code";
-        end;
-        UpdateProgressDialog();
-
-        if GeneralLedgerSetup."Shortcut Dimension 4 Code" <> '' then begin
-            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 4 Code");
-            DimensionSetEntry.ModifyAll("Global Dimension No.", 4, false);
-            DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 4 Code";
-        end;
-        UpdateProgressDialog();
-
-        if GeneralLedgerSetup."Shortcut Dimension 5 Code" <> '' then begin
-            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 5 Code");
-            DimensionSetEntry.ModifyAll("Global Dimension No.", 5, false);
-            DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 5 Code";
-        end;
-        UpdateProgressDialog();
-
-        if GeneralLedgerSetup."Shortcut Dimension 6 Code" <> '' then begin
-            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 6 Code");
-            DimensionSetEntry.ModifyAll("Global Dimension No.", 6, false);
-            DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 6 Code";
-        end;
-        UpdateProgressDialog();
-
-        if GeneralLedgerSetup."Shortcut Dimension 7 Code" <> '' then begin
-            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 7 Code");
-            DimensionSetEntry.ModifyAll("Global Dimension No.", 7, false);
-            DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 7 Code";
-        end;
-        UpdateProgressDialog();
-
-        if GeneralLedgerSetup."Shortcut Dimension 8 Code" <> '' then begin
-            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 8 Code");
-            DimensionSetEntry.ModifyAll("Global Dimension No.", 8, false);
-            DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 8 Code";
-        end;
-        UpdateProgressDialog();
-
-        IF DimFilterString <> '' then begin
-            DimFilterString := DelChr(DimFilterString, '<', '&');
-            DimensionSetEntry.SetFilter("Dimension Code", DimFilterString);
-        end;
-        DimensionSetEntry.ModifyAll("Global Dimension No.", 0, false);
-        UpdateProgressDialog();
+        BlankGlobalDimensionNo();
+        BindSubscription(UpdateDimSetGlblDimNo);
+        SetGlobalDimensionNos(GeneralLedgerSetup);
+        UnbindSubscription(UpdateDimSetGlblDimNo);
 
         CloseProgressDialog();
-        UnbindSubscription(UpdateDimSetGlblDimNo);
     end;
 
     local procedure OpenProgressDialog()
@@ -96,6 +48,49 @@
     begin
         if GuiAllowed then
             Window.Close();
+    end;
+
+    procedure BlankGlobalDimensionNo()
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        DimensionSetEntry.SetLoadFields("Global Dimension No.");
+        DimensionSetEntry.SetFilter("Global Dimension No.", '>0');
+        DimensionSetEntry.ModifyAll("Global Dimension No.", 0, false);
+        UpdateProgressDialog();
+    end;
+
+    procedure SetGlobalDimensionNos(GeneralLedgerSetup: Record "General Ledger Setup")
+    begin
+        SetGlobalDimensionNo(GeneralLedgerSetup."Shortcut Dimension 3 Code", 3);
+        UpdateProgressDialog();
+
+        SetGlobalDimensionNo(GeneralLedgerSetup."Shortcut Dimension 4 Code", 4);
+        UpdateProgressDialog();
+
+        SetGlobalDimensionNo(GeneralLedgerSetup."Shortcut Dimension 5 Code", 5);
+        UpdateProgressDialog();
+
+        SetGlobalDimensionNo(GeneralLedgerSetup."Shortcut Dimension 6 Code", 6);
+        UpdateProgressDialog();
+
+        SetGlobalDimensionNo(GeneralLedgerSetup."Shortcut Dimension 7 Code", 7);
+        UpdateProgressDialog();
+
+        SetGlobalDimensionNo(GeneralLedgerSetup."Shortcut Dimension 8 Code", 8);
+        UpdateProgressDialog();
+    end;
+
+    local procedure SetGlobalDimensionNo(ShortcutDimensionCode: Code[20]; GlobalDimNo: Integer)
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        if ShortcutDimensionCode = '' then
+            exit;
+
+        DimensionSetEntry.SetLoadFields("Dimension Code", "Global Dimension No.");
+        DimensionSetEntry.SetRange("Dimension Code", ShortcutDimensionCode);
+        DimensionSetEntry.ModifyAll("Global Dimension No.", GlobalDimNo, false);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Log Management", 'OnAfterIsAlwaysLoggedTable', '', false, false)]

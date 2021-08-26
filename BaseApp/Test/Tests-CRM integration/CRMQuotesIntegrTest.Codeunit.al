@@ -28,7 +28,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
         EmptyCRMIntegrationRecErr: Label 'The empty CRM integration record for CRM Quote %1 doesn''t exist';
         SalesHeaderNotCreatedErr: Label 'The Sales Header corresponding to the CRM Quote %1 was not created';
         SalesQuoteDeleteErr: Label 'The Sales Header corresponding to the CRM Quote %1 was not deleted succesfully';
-        SalesLineDeleteErr: Label 'The Sales Lines corresponding to the Sales Header synced with the CRM Quote %1 were not deleted succesfully.';
         SalesOrderCreateErr: Label 'The Sales Order corresponding to the won processed CRM QUote %1 was not created';
 
     [Test]
@@ -559,7 +558,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesHeaderArchive: Record "Sales Header Archive";
         SalesLineArchive: Record "Sales Line Archive";
         CRMQuotedetail: Record "CRM Quotedetail";
-        SalesLine: Record "Sales Line";
         ProcessedSalesHeader: Record "Sales Header";
         CRMIntegrationRecord: Record "CRM Integration Record";
         BlankGUID: Guid;
@@ -587,9 +585,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
 
         // [THEN] The sales quote and sales qoutes lines are deleted from the Sales Quotes
         Assert.AreEqual(SalesHeader."Document Type"::Quote, SalesHeader."Document Type", StrSubstNo(SalesQuoteDeleteErr, CRMQuote.QuoteId));
-        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        Assert.IsFalse(SalesLine.FindFirst, StrSubstNo(SalesLineDeleteErr, CRMQuote.QuoteId));
 
         // [THEN] The initial sales quote is being archieved
         Assert.IsTrue(SalesHeaderArchive.Get(SalesHeaderArchive."Document Type"::Quote, SalesHeader."No.", 1, 1),

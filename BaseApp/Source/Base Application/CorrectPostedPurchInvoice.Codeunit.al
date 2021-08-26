@@ -695,17 +695,17 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         UndoPostingManagement: Codeunit "Undo Posting Management";
     begin
         PurchInvLine.SetRange("Document No.", PurchInvHeaderNo);
-        if PurchInvLine.FindSet() then begin
-            FindItemLedgEntries(TempItemLedgerEntry, PurchInvHeaderNo);
+        if PurchInvLine.FindSet() then
             repeat
+                TempItemLedgerEntry.Reset();
+                TempItemLedgerEntry.DeleteAll();
+                PurchInvLine.GetItemLedgEntries(TempItemLedgerEntry, false);
                 if PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchInvLine."Order No.", PurchInvLine."Order Line No.") then begin
                     UpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, PurchInvLine.Quantity, PurchInvLine."Quantity (Base)");
-                    TempItemLedgerEntry.SetRange("Document Line No.", PurchInvLine."Line No.");
                     TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
                     UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, PurchaseLine."Expected Receipt Date", true);
                 end;
             until PurchInvLine.Next() = 0;
-        end;
     end;
 
     local procedure UpdatePurchaseOrderLineInvoicedQuantity(var PurchaseLine: Record "Purchase Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal)

@@ -356,6 +356,43 @@ codeunit 134387 "ERM Sales Documents III"
     end;
 
     [Test]
+    [HandlerFunctions('GetShipmentLinesHandler,ConfirmHandlerFalse')]
+    [Scope('OnPrem')]
+    procedure TotalsShouldBeRecalculatedByPriceInclVAT()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        Price: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // [FEATURE] [Totals] [UI]
+        // [SCENARIO 401966] Changing "Price Incl VAT" forces the totals calculation.
+        Initialize();
+
+        // [GIVEN] Create and Receive Sales Order 'SO', where "Price Incl VAT" is 'No'
+        // [GIVEN] Create Sales Invoice 'SI' and do "Get Shipment Lines" to get line from 'SO'.
+        CreateShipmentsAndSalesInvoice(SalesHeader, SalesLine);
+        LibrarySales.GetShipmentLines(SalesLine);
+        FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine.Type::Item);
+        Price := SalesLine."Unit Price";
+
+        SalesInvoice.OpenEdit;
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+        Evaluate(AmountIncVAT, SalesInvoice.SalesLines."Total Amount Incl. VAT".Value());
+
+        // [WHEN] In 'SI' Change "Price Incl VAT" to Yes, but do not confirm recalculation of prices
+        SalesInvoice."Prices Including VAT".SetValue(true);
+
+        // [THEN] Price on the line is not changed, totals are updated on the page.
+        SalesLine.Find();
+        SalesLine.TestField("Unit Price", Price);
+        Assert.AreNotEqual(AmountIncVAT, SalesLine."Amount Including VAT", 'total is not changed.');
+        SalesInvoice.SalesLines."Total Amount Incl. VAT".AssertEquals(SalesLine."Amount Including VAT");
+    end;
+
+    [Test]
     [HandlerFunctions('QuantityOnGetShipmentLinesPageHandler')]
     [Scope('OnPrem')]
     procedure GetShipmentLinesAfterPartialPosting()
@@ -6707,6 +6744,13 @@ codeunit 134387 "ERM Sales Documents III"
     procedure PostCodesCancelHandler(var PostCodes: TestPage "Post Codes")
     begin
         PostCodes.Cancel.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerFalse(Message: Text[1024]; var Response: Boolean)
+    begin
+        Response := false;
     end;
 
     [ConfirmHandler]

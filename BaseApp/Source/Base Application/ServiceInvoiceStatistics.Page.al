@@ -191,8 +191,16 @@ page 6033 "Service Invoice Statistics"
     trigger OnAfterGetRecord()
     var
         CostCalcMgt: Codeunit "Cost Calculation Management";
+        IsHandled: Boolean;
     begin
         ClearAll;
+
+        IsHandled := false;
+        OnAfterGetRecordOnAfterClearAll(
+            Rec, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
+            LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
 
         if "Currency Code" = '' then
             currency.InitRoundingPrecision
@@ -222,6 +230,9 @@ page 6033 "Service Invoice Statistics"
                     else
                         VATPercentage := -1;
                 TotalAdjCostLCY := TotalAdjCostLCY + CostCalcMgt.CalcServInvLineCostLCY(ServInvLine);
+                OnAfterGetRecordOnAfterAddLineTotals(
+                    Rec, ServInvLine, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
+                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels);
             until ServInvLine.Next() = 0;
         VATAmount := AmountInclVAT - CustAmount;
         InvDiscAmount := Round(InvDiscAmount, currency."Amount Rounding Precision");
@@ -243,6 +254,7 @@ page 6033 "Service Invoice Statistics"
             ProfitPct := Round(100 * ProfitLCY / AmountLCY, 0.1);
 
         AdjProfitLCY := AmountLCY - TotalAdjCostLCY;
+        OnAfterGetRecordOnAfterCalculateAdjProfitLCY(Rec, AdjProfitLCY);
         if AmountLCY <> 0 then
             AdjProfitPct := Round(100 * AdjProfitLCY / AmountLCY, 0.1);
 
@@ -296,5 +308,20 @@ page 6033 "Service Invoice Statistics"
     protected var
         AmountLCY: Decimal;
         CostLCY: Decimal;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterClearAll(ServiceInvoiceHeader: Record "Service Invoice Header"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterAddLineTotals(ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceInvLine: Record "Service Invoice Line"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCalculateAdjProfitLCY(ServiceInvoiceHeader: Record "Service Invoice Header"; var AdjProfitLCY: Decimal)
+    begin
+    end;
 }
 

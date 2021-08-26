@@ -15,7 +15,6 @@ codeunit 9027 "Plan Ids"
     begin
     end;
 
-#pragma warning disable AA0240
     var
         TeamMemberPlanGUIDTxt: Label '{d9a6391b-8970-4976-bd94-5f205007c8d8}', Locked = true;
         EssentialPlanGUIDTxt: Label '{920656a2-7dd8-4c83-97b6-a356414dbd36}', Locked = true;
@@ -23,8 +22,6 @@ codeunit 9027 "Plan Ids"
         InvoicingPlanGUIDTxt: Label '{39b5c996-467e-4e60-bd62-46066f572726}', Locked = true;
         ViralSignupPlanGUIDTxt: Label '{3F2AFEED-6FB5-4BF9-998F-F2912133AEAD}', Locked = true;
         ExternalAccountantPlanGUIDTxt: Label '{170991d7-b98e-41c5-83d4-db2052e1795f}', Locked = true;
-        DelegatedAdminGUIDTxt: Label '{00000000-0000-0000-0000-000000000007}', Locked = true;
-        InternalAdminGUIDTxt: Label '{62e90394-69f5-4237-9190-012177145e10}', Locked = true;
         TeamMemberISVPlanGUIDTxt: Label '{fd1441b8-116b-4fa7-836e-d7956700e0fa}', Locked = true;
         EssentialISVPlanGUIDTxt: Label '{8bb56cea-3f11-4647-854a-212e2b05306a}', Locked = true;
         PremiumISVPlanGUIDTxt: Label '{4c52d56d-5121-425a-91a5-dd0de136ca17}', Locked = true;
@@ -32,8 +29,11 @@ codeunit 9027 "Plan Ids"
         DevicePlanGUIDTxt: Label '{100e1865-35d4-4463-aaff-d38eee3a1116}', Locked = true;
         BasicPlanGUIDTxt: Label '{2ec8b6ca-ab13-4753-a479-8c2ffe4c323b}', Locked = true;
         AccountantHubPlanGuidTxt: Label '{5d60ea51-0053-458f-80a8-b6f426a1a0c1}', Locked = true;
-        HelpDeskPlanGuidTxt: Label '{00000000-0000-0000-0000-000000000008}', Locked = true;
         InfrastructurePlanGuidTxt: Label '{996DEF3D-B36C-4153-8607-A6FD3C01B89F}', Locked = true;
+#pragma warning disable AA0240
+        DelegatedAdminGUIDTxt: Label '{00000000-0000-0000-0000-000000000007}', Locked = true;
+        InternalAdminGUIDTxt: Label '{62e90394-69f5-4237-9190-012177145e10}', Locked = true;
+        HelpDeskPlanGuidTxt: Label '{00000000-0000-0000-0000-000000000008}', Locked = true;
         D365AdminPartnerGUIDTxt: Label '{00000000-0000-0000-0000-000000000009}', Locked = true;
 #pragma warning restore AA0240
 

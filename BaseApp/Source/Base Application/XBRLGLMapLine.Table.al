@@ -38,7 +38,8 @@ table 397 "XBRL G/L Map Line"
         {
             CaptionClass = '1,3,1';
             Caption = 'Global Dimension 1 Filter';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
@@ -47,7 +48,8 @@ table 397 "XBRL G/L Map Line"
         {
             CaptionClass = '1,3,2';
             Caption = 'Global Dimension 2 Filter';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;

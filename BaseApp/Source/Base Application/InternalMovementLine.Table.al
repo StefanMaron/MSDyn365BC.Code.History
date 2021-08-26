@@ -1,4 +1,4 @@
-table 7347 "Internal Movement Line"
+﻿table 7347 "Internal Movement Line"
 {
     Caption = 'Internal Movement Line';
     LookupPageID = "Whse. Internal Put-away Lines";
@@ -40,6 +40,7 @@ table 7347 "Internal Movement Line"
             trigger OnLookup()
             begin
                 SelectLookUp(FieldNo("From Bin Code"));
+                CheckBin("Location Code", "From Bin Code", false);
             end;
 
             trigger OnValidate()
@@ -48,12 +49,7 @@ table 7347 "Internal Movement Line"
                     if "From Bin Code" <> '' then begin
                         GetLocation("Location Code");
                         Location.TestField("Bin Mandatory");
-                        if "From Bin Code" = Location."Adjustment Bin Code" then
-                            FieldError(
-                              "From Bin Code",
-                              StrSubstNo(
-                                Text000, Location.FieldCaption("Adjustment Bin Code"),
-                                Location.TableCaption));
+                        CheckBin("Location Code", "From Bin Code", false);
                         Validate(Quantity, 0);
                     end;
             end;
@@ -62,6 +58,27 @@ table 7347 "Internal Movement Line"
         {
             Caption = 'To Bin Code';
             TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"));
+
+            trigger OnLookup()
+            var
+                Bin: Record Bin;
+            begin
+                GetLocation("Location Code");
+                if Location."Bin Mandatory" then begin
+                    Bin.FilterGroup(2);
+                    Bin.SetRange("Location Code", Location.Code);
+                    Bin.FilterGroup(0);
+                    if PAGE.RunModal(0, Bin) = ACTION::LookupOK then begin
+                        "To Bin Code" := Bin.Code;
+                        CheckBin("Location Code", "To Bin Code", true);
+                    end;
+                end;
+            end;
+
+            trigger OnValidate()
+            begin
+                CheckBin("Location Code", "To Bin Code", true);
+            end;
         }
         field(14; "Item No."; Code[20])
         {
@@ -269,7 +286,6 @@ table 7347 "Internal Movement Line"
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         UOMMgt: Codeunit "Unit of Measure Management";
-        Text000: Label 'must not be the %1 of the %2';
         Text001: Label 'must not be greater than %1 units';
         Text002: Label 'You cannot rename a %1.';
         LastLineNo: Integer;
@@ -308,6 +324,7 @@ table 7347 "Internal Movement Line"
             BinContent."Item No." := "Item No.";
             BinContent."Variant Code" := "Variant Code";
             BinContent."Unit of Measure Code" := "Unit of Measure Code";
+            OnCheckBinContentQtyOnAfterInitBinContent(Rec, BinContent);
 
             AvailQtyBase := BinContent.CalcQtyAvailToTake(0);
             InternalMovementLine.SetCurrentKey(
@@ -318,6 +335,7 @@ table 7347 "Internal Movement Line"
             InternalMovementLine.SetRange("Unit of Measure Code", "Unit of Measure Code");
             InternalMovementLine.SetRange("Variant Code", "Variant Code");
             InternalMovementLine.SetFilter("Line No.", '<>%1', "Line No.");
+            OnCheckBinContentQtyOnAfterInternalMovementLineSetFilters(Rec, InternalMovementLine);
             InternalMovementLine.CalcSums("Qty. (Base)");
             if AvailQtyBase - InternalMovementLine."Qty. (Base)" < "Qty. (Base)" then
                 FieldError(
@@ -373,6 +391,7 @@ table 7347 "Internal Movement Line"
         end;
         if "Unit of Measure Code" <> '' then
             TestField("Item No.");
+        OnLookUpBinContentOnAfterBinContentSetFilters(Rec, BinContent);
         if PAGE.RunModal(0, BinContent) = ACTION::LookupOK then begin
             if BinContent."Block Movement" in [BinContent."Block Movement"::Outbound, BinContent."Block Movement"::All]
             then
@@ -461,6 +480,43 @@ table 7347 "Internal Movement Line"
                 WhseWorksheetLine, TotalWhseItemTrackingLine, SourceQuantityArray, UndefinedQtyArray, DATABASE::"Internal Movement Line"));
         end;
         exit(true);
+    end;
+
+    procedure CheckBin(LocationCode: Code[10]; BinCode: Code[20]; Inbound: Boolean)
+    var
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBin(Rec, LocationCode, BinCode, Inbound, IsHandled);
+        if IsHandled then
+            exit;
+
+        GetLocation(LocationCode);
+        if not Location."Bin Mandatory" then
+            exit;
+
+        if not Bin.Get(LocationCode, BinCode) then
+            exit;
+
+        Bin.CalcFields("Adjustment Bin");
+        Bin.TestField("Adjustment Bin", false);
+
+        if Inbound then begin
+            if BinContent.Get(LocationCode, BinCode, "Item No.", "Variant Code", "Unit of Measure Code") then begin
+                if BinContent."Block Movement" in [BinContent."Block Movement"::Inbound, BinContent."Block Movement"::All] then
+                    BinContent.FieldError("Block Movement");
+            end else
+                if Bin."Block Movement" in [Bin."Block Movement"::Inbound, Bin."Block Movement"::All] then
+                    Bin.FieldError("Block Movement");
+        end else
+            if BinContent.Get(LocationCode, BinCode, "Item No.", "Variant Code", "Unit of Measure Code") then begin
+                if BinContent."Block Movement" in [BinContent."Block Movement"::Outbound, BinContent."Block Movement"::All] then
+                    BinContent.FieldError("Block Movement");
+            end else
+                if Bin."Block Movement" in [Bin."Block Movement"::Outbound, Bin."Block Movement"::All] then
+                    Bin.FieldError("Block Movement");
     end;
 
     local procedure GetNextLineNo(): Integer
@@ -582,6 +638,26 @@ table 7347 "Internal Movement Line"
         OnSetItemTrackingLinesOnBeforeSetSource(Rec, WhseWorksheetLine);
         WhseItemTrackingLinesLines.SetSource(WhseWorksheetLine, DATABASE::"Internal Movement Line");
         WhseItemTrackingLinesLines.InsertItemTrackingLine(WhseWorksheetLine, WhseEntry, QtyToEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBinContentQtyOnAfterInitBinContent(var InternalMovementLine: Record "Internal Movement Line"; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBin(InternalMovementLine: Record "Internal Movement Line"; LocationCode: Code[10]; BinCode: Code[20]; Inbound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBinContentQtyOnAfterInternalMovementLineSetFilters(var InternalMovementLine: Record "Internal Movement Line"; var FilteredInternalMovementLine: Record "Internal Movement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookUpBinContentOnAfterBinContentSetFilters(var InternalMovementLine: Record "Internal Movement Line"; var BinContent: Record "Bin Content")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

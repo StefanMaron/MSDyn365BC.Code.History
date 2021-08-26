@@ -140,6 +140,7 @@ codeunit 410 "Update Analysis View"
             Updated := true;
         end;
 
+        OnUpdateOneOnBeforeNewAnalysisViewIncludeBudgetsCheck(NewAnalysisView, AnalysisView, Which);
         if (Which in [Which::"Budget Entries", Which::Both]) and
            NewAnalysisView."Include Budgets"
         then
@@ -639,6 +640,11 @@ codeunit 410 "Update Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateOneOnBeforeUpdateAnalysisView(var AnalysisView: Record "Analysis View"; var TempAnalysisViewEntry: Record "Analysis View Entry" temporary; var Updated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOneOnBeforeNewAnalysisViewIncludeBudgetsCheck(var NewAnalysisView: Record "Analysis View"; var AnalysisView: Record "Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both)
     begin
     end;
 

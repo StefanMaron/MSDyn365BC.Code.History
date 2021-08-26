@@ -373,7 +373,13 @@ page 5872 "BOM Cost Shares"
     var
         CalcBOMTree: Codeunit "Calculate BOM Tree";
         HasBOM: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRefreshPage(Rec, Item, AsmHeader, ProdOrderLine, ShowBy, ItemFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         Item.SetFilter("No.", ItemFilter);
         Item.SetRange("Date Filter", 0D, WorkDate);
         CalcBOMTree.SetItemFilter(Item);
@@ -432,6 +438,11 @@ page 5872 "BOM Cost Shares"
             Message(Text001)
         else
             PAGE.RunModal(PAGE::"BOM Warning Log", TempBOMWarningLog);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRefreshPage(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item; var AssemblyHeader: Record "Assembly Header"; var ProdOrderLine: Record "Prod. Order Line"; ShowBy: Option; ItemFilter: Code[250]; var IsHandled: Boolean)
+    begin
     end;
 }
 

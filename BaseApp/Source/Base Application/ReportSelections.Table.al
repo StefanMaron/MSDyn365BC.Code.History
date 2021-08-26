@@ -989,19 +989,22 @@
         DocumentAttachment: Record "Document Attachment";
         ReportDistributionMgt: Codeunit "Report Distribution Management";
         FileName: Text[250];
+        ReportCaption: Text[250];
+        DocumentLanguageCode: Code[10];
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSaveDocumentAttachmentFromRecRef(RecRef, TempAttachReportSelections, DocumentNo, AccountNo, TempBlob, IsHandled);
+        OnBeforeSaveDocumentAttachmentFromRecRef(RecRef, TempAttachReportSelections, DocumentNo, AccountNo, TempBlob, IsHandled, NumberOfReportsAttached);
         if IsHandled then
             exit;
         DocumentAttachment.InitFieldsFromRecRef(RecRef);
         DocumentAttachment."Document Flow Sales" := RecRef.Number() = Database::"Sales Header";
         DocumentAttachment."Document Flow Purchase" := RecRef.Number() = Database::"Purchase Header";
-        TempAttachReportSelections.CalcFields("Report Caption");
+        DocumentLanguageCode := ReportDistributionMgt.GetDocumentLanguageCode(RecRef);
+        ReportCaption := ReportDistributionMgt.GetReportCaption(TempAttachReportSelections."Report ID", DocumentLanguageCode);
         FileName :=
             DocumentAttachment.FindUniqueFileName(
-                StrSubstNo('%1 %2 %3', TempAttachReportSelections."Report ID", ReportDistributionMgt.GetFullDocumentTypeText(RecRef), DocumentNo), 'pdf');
+                StrSubstNo('%1 %2 %3', TempAttachReportSelections."Report ID", ReportCaption, DocumentNo), 'pdf');
         DocumentAttachment.SaveAttachment(RecRef, FileName, TempBlob);
         NumberOfReportsAttached += 1;
     end;
@@ -1210,12 +1213,12 @@
                 SourceIDs.Add(Customer.SystemId);
                 SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
             end
-        else
-            if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Buy-from Vendor No.') and Vendor.Get(FieldRef.Value()) then begin
-                SourceTableIDs.Add(Database::Vendor);
-                SourceIDs.Add(Vendor.SystemId);
-                SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
-            end;
+            else
+                if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Buy-from Vendor No.') and Vendor.Get(FieldRef.Value()) then begin
+                    SourceTableIDs.Add(Database::Vendor);
+                    SourceIDs.Add(Vendor.SystemId);
+                    SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+                end;
 
         OnBeforeSendEmailDirectly(Rec, ReportUsage, RecordVariant, DocNo, DocName, FoundBody, FoundAttachment, ServerEmailBodyFilePath, DefaultEmailAddress, ShowDialog, TempAttachReportSelections, CustomReportSelection, AllEmailsWereSuccessful, IsHandled);
         if IsHandled then
@@ -1254,6 +1257,7 @@
                     SaveReportAsPDFInTempBlob(TempBlob, "Report ID", DocumentRecord, "Custom Report Layout Code", ReportUsage);
                     TempBlob.CreateInStream(AttachmentStream);
 
+                    OnSendEmailDirectlyOnBeforeEmailWithAttachment(RecordVariant, TempAttachReportSelections, TempBlob);
                     AllEmailsWereSuccessful :=
                         AllEmailsWereSuccessful and
                         DocumentMailing.EmailFile(
@@ -1527,6 +1531,8 @@
     local procedure SaveReportAsPDFInTempBlob(var TempBlob: Codeunit "Temp Blob"; ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; ReportUsage: Enum "Report Selection Usage")
     var
         ReportLayoutSelectionLocal: Record "Report Layout Selection";
+        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
+        LastUsedParameters: Text;
         IsHandled: Boolean;
         OutStream: OutStream;
     begin
@@ -1536,7 +1542,8 @@
         OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, '', ReportUsage, true, TempBlob);
         if not IsHandled then begin
             TempBlob.CreateOutStream(OutStream);
-            Report.SaveAs(ReportID, '', ReportFormat::Pdf, OutStream, RecordVariant);
+            LastUsedParameters := CustomLayoutReporting.GetReportRequestPageParameters(ReportID);
+            Report.SaveAs(ReportID, LastUsedParameters, ReportFormat::Pdf, OutStream, RecordVariant);
         end;
         OnAfterSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, '', true, TempBlob);
 
@@ -1975,7 +1982,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSaveDocumentAttachmentFromRecRef(RecRef: RecordRef; var TempAttachReportSelections: Record "Report Selections"; DocumentNo: Code[20]; AccountNo: Code[20]; var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean)
+    local procedure OnBeforeSaveDocumentAttachmentFromRecRef(RecRef: RecordRef; var TempAttachReportSelections: Record "Report Selections"; DocumentNo: Code[20]; AccountNo: Code[20]; var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean; NumberOfReportsAttached: Integer)
     begin
     end;
 
@@ -2021,6 +2028,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSendEmailDirectlyOnBeforeSendFiles(ReportUsage: Integer; RecordVariant: Variant; var DefaultEmailAddress: Text[250]; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendEmailDirectlyOnBeforeEmailWithAttachment(RecordVariant: Variant; ReportSelection: Record "Report Selections"; var TempBlob: Codeunit "Temp Blob")
     begin
     end;
 

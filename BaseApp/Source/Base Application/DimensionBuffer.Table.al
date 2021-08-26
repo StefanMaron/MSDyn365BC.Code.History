@@ -34,7 +34,7 @@ table 360 "Dimension Buffer"
             Caption = 'Dimension Value Code';
             DataClassification = SystemMetadata;
             NotBlank = true;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
+            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"),Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -46,7 +46,7 @@ table 360 "Dimension Buffer"
         {
             Caption = 'New Dimension Value Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
+            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"),Blocked = CONST(false));
 
             trigger OnValidate()
             begin

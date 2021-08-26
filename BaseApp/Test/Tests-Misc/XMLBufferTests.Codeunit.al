@@ -815,6 +815,36 @@ codeunit 139200 "XML Buffer Tests"
         LibraryXPathXMLReader.VerifyAttributeFromNode(XmlNodeDotNet, 'i:nil', 'true');
     end;
 
+    [Test]
+    procedure SaveXmlBufferWithNamespaces_Incident_250724617()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        XmlBufferReader: Codeunit "XML Buffer Reader";
+        FileName: Text;
+    begin
+        // [FEAUTE] [UT]
+        // [SCENARIO 405913] Stan can save Xml Buffer with an attribute entry having blank namespace. 
+        TempXMLBuffer.DeleteAll();
+        TempXMLBuffer.CreateRootElement('soap:Envelope');
+        TempXMLBuffer.AddNamespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+        TempXMLBuffer.AddNamespace('xsd', 'http://www.w3.org/2001/XMLSchema');
+        TempXMLBuffer.AddNamespace('soap', 'http://schemas.xmlsoap.org/soap/envelope/');
+
+        TempXMLBuffer.AddGroupElement('soap:Body');
+        TempXMLBuffer.AddGroupElement('GetCompanyByVat');
+        TempXMLBuffer.AddNamespace('', 'http://connect.companyweb.be/');
+        TempXMLBuffer.AddGroupElement('request');
+        TempXMLBuffer.AddElement('VatNumber', 'ABC-111');
+        TempXMLBuffer.AddElement('Language', 'EN');
+        TempXMLBuffer.AddElement('CompanyWebLogin', 'sdetest');
+        TempXMLBuffer.AddElement('CompanyWebPassword', 'example');
+
+        TempXMLBuffer.FindSet();
+
+        XmlBufferReader.SaveToTempBlob(TempBlob, TempXMLBuffer);
+    end;
+
     local procedure CreateAndVerifyRootNode(var TempXMLBuffer: Record "XML Buffer" temporary; NumNamespaces: Integer; DefaultNamespace: Boolean)
     var
         TempChildrenXMLBuffer: Record "XML Buffer" temporary;

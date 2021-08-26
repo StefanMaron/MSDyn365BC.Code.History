@@ -168,6 +168,27 @@ page 1386 "Vendor Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to allow a payment tolerance for the vendor.';
                 }
+                field("Partner Type"; "Partner Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the vendor is a person or a company.';
+                }
+            }
+            group(Receiving)
+            {
+                Caption = 'Receiving';
+                field("Location Code"; "Location Code")
+                {
+                    ApplicationArea = Location;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the warehouse location where items from the vendor must be received by default.';
+                }
+                field("Shipment Method Code"; "Shipment Method Code")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
+                }
             }
         }
     }

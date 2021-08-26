@@ -241,7 +241,7 @@ codeunit 7030 "Campaign Target Group Mgt"
         CampaignTargetGr.Type := Type;
         CampaignTargetGr."No." := No;
         CampaignTargetGr."Campaign No." := CampaignNo;
-        CampaignTargetGr.Insert(true);
+        if not CampaignTargetGr.Insert(true) then;
     end;
 
     local procedure NoPriceDiscForCampaign(CampaignNo: Code[20]): Boolean

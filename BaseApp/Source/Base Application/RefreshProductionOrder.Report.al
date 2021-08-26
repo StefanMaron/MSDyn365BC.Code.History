@@ -201,6 +201,8 @@ report 99001025 "Refresh Production Order"
             CalcLines := true;
             CalcRoutings := true;
             CalcComponents := true;
+
+            OnAfterOnInit(Direction, CalcLines, CalcRoutings, CalcComponents, CreateInbRqst);
         end;
     }
 
@@ -396,6 +398,11 @@ report 99001025 "Refresh Production Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRefreshProdOrder(var ProductionOrder: Record "Production Order"; ErrorOccured: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInit(var Direction: Option; var CalcLines: Boolean; var CalcRoutings: Boolean; var CalcComponents: Boolean; var CreateInbRqst: Boolean)
     begin
     end;
 

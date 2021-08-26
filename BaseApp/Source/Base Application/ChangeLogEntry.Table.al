@@ -159,6 +159,9 @@ table 405 "Change Log Entry"
         key(Key3; "Table No.", "Date and Time")
         {
         }
+        key(Key4;"Notification Message Id")
+        {
+        }
     }
 
     fieldgroups

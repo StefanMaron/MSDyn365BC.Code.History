@@ -92,7 +92,7 @@ page 5755 "Transfer Statistics"
                     TotalParcels += Round(TransLine.Quantity / TransLine."Units per Parcel", 1, '>');
 
                 OnCalculateTotalsOnAfterAddLineTotals(
-                    TransLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+                    TransLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, Rec)
             until TransLine.Next() = 0;
     end;
 
@@ -102,7 +102,7 @@ page 5755 "Transfer Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateTotalsOnAfterAddLineTotals(var TransferLine: Record "Transfer Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var TransferLine: Record "Transfer Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; TransferHeader: Record "Transfer Header")
     begin
     end;
 }

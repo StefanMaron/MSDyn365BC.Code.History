@@ -914,7 +914,7 @@ page 232 "Apply Customer Entries"
         CurrPage.SetSelectionFilter(CustLedgEntry);
         CheckCustLedgEntry(CustLedgEntry);
 
-        OnSetCustApplIdAfterCheckAgainstApplnCurrency(Rec, CalcType.AsInteger(), GenJnlLine);
+        OnSetCustApplIdAfterCheckAgainstApplnCurrency(Rec, CalcType.AsInteger(), GenJnlLine, SalesHeader, ServHeader, ApplyingCustLedgEntry);
         CustLedgEntry.Copy(Rec);
         if CurrentRec then begin
             CustLedgEntry.SetRecFilter();
@@ -1530,7 +1530,7 @@ page 232 "Apply Customer Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetCustApplIdAfterCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalcType: Option; GenJnlLine: Record "Gen. Journal Line")
+    local procedure OnSetCustApplIdAfterCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalcType: Option; GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; ServHeader: Record "Service Header"; ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
