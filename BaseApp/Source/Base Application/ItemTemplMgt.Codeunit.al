@@ -16,6 +16,7 @@ codeunit 1336 "Item Templ. Mgt."
 
         IsHandled := true;
 
+        OnCreateItemFromTemplateOnBeforeSelectItemTemplate(Item, ItemTempl);
         if not SelectItemTemplate(ItemTempl) then
             exit(false);
 
@@ -54,6 +55,9 @@ codeunit 1336 "Item Templ. Mgt."
         Item."Item Category Code" := ItemTempl."Item Category Code";
         Item."Service Item Group" := ItemTempl."Service Item Group";
         Item."Warehouse Class Code" := ItemTempl."Warehouse Class Code";
+        Item."Item Tracking Code" := ItemTempl."Item Tracking Code";
+        Item."Serial Nos." := ItemTempl."Serial Nos.";
+        Item."Lot Nos." := ItemTempl."Lot Nos.";
         Item.Blocked := ItemTempl.Blocked;
         Item."Sales Blocked" := ItemTempl."Sales Blocked";
         Item."Purchasing Blocked" := ItemTempl."Purchasing Blocked";
@@ -236,6 +240,9 @@ codeunit 1336 "Item Templ. Mgt."
         ItemTempl."Item Category Code" := Item."Item Category Code";
         ItemTempl."Service Item Group" := Item."Service Item Group";
         ItemTempl."Warehouse Class Code" := Item."Warehouse Class Code";
+        ItemTempl."Item Tracking Code" := Item."Item Tracking Code";
+        ItemTempl."Serial Nos." := Item."Serial Nos.";
+        ItemTempl."Lot Nos." := Item."Lot Nos.";
         ItemTempl.Blocked := Item.Blocked;
         ItemTempl."Sales Blocked" := Item."Sales Blocked";
         ItemTempl."Purchasing Blocked" := Item."Purchasing Blocked";
@@ -308,6 +315,11 @@ codeunit 1336 "Item Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyTemplateOnBeforeItemModify(var Item: Record Item; ItemTempl: Record "Item Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateItemFromTemplateOnBeforeSelectItemTemplate(Item: Record Item; var ItemTempl: Record "Item Templ.")
     begin
     end;
 

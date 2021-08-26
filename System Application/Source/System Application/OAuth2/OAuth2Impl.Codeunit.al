@@ -494,6 +494,7 @@ codeunit 502 OAuth2Impl
         IdToken := CompoundToken.IdToken;
     end;
 
+#if not CLEAN17
     [NonDebuggable]
     [Obsolete('Added OAuthority parameter', '17.0')]
     [TryFunction]
@@ -502,6 +503,7 @@ codeunit 502 OAuth2Impl
         Initialize(RedirectURL);
         AccessToken := AuthFlow.ALAcquireTokenFromCacheWithCredentials(ClientID, ClientSecret, ResourceURL);
     end;
+#endif
 
     [NonDebuggable]
     [TryFunction]

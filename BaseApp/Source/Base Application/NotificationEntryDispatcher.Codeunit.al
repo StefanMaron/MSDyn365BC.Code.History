@@ -17,6 +17,8 @@ codeunit 1509 "Notification Entry Dispatcher"
     var
         NotificationManagement: Codeunit "Notification Management";
         NotificationMailSubjectTxt: Label 'Notification overview';
+        NoEmailAccountsErr: Label 'Cannot send the email. No email accounts have been added.';
+        SMTPNotDefinedErr: Label 'Cannot send the email. SMTP Setup is not defined.';
         HtmlBodyFilePath: Text;
 
     local procedure DispatchInstantNotifications()
@@ -99,6 +101,7 @@ codeunit 1509 "Notification Entry Dispatcher"
     var
         NotificationSetup: Record "Notification Setup";
         EmailFeature: Codeunit "Email Feature";
+        MailManagement: Codeunit "Mail Management";
         DocumentMailing: Codeunit "Document-Mailing";
         ErrorMessageMgt: Codeunit "Error Message Management";
         FileManagement: Codeunit "File Management";
@@ -106,6 +109,7 @@ codeunit 1509 "Notification Entry Dispatcher"
         SourceReference: RecordRef;
         BodyText: Text;
         MailSubject: Text;
+        ErrorText: Text;
         IsEmailedSuccessfully: Boolean;
         IsHandled: Boolean;
         AttachmentStream: InStream;
@@ -134,9 +138,17 @@ codeunit 1509 "Notification Entry Dispatcher"
             NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
               NotificationEntry, BodyText, true, NotificationSetup."Notification Method"::Email.AsInteger())
         else begin
-            NotificationEntry."Error Message" := GetLastErrorText();
+            ErrorText := GetLastErrorText();
+            if ErrorText = '' then
+                if not MailManagement.IsEnabled() then
+                    if EmailFeature.IsEnabled() then
+                        ErrorText := NoEmailAccountsErr
+                    else
+                        ErrorText := SMTPNotDefinedErr;
+
+            NotificationEntry."Error Message" := ErrorText;
             NotificationEntry.Modify(true);
-            ErrorMessageMgt.LogError(NotificationEntry, GetLastErrorText(), '');
+            ErrorMessageMgt.LogError(NotificationEntry, ErrorText, '');
         end;
 
         OnAfterCreateMailAndDispatch(NotificationEntry, Email, IsEmailedSuccessfully);

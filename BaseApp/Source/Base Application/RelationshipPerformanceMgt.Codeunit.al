@@ -20,10 +20,12 @@ codeunit 783 "Relationship Performance Mgt."
         Opportunity.SetRange(Closed, false);
         Opportunity.SetCurrentKey("Estimated Value (LCY)");
         Opportunity.Ascending(false);
+        OnCalcTopFiveOpportunitiesOnAfterOpportunitySetFilters(Opportunity);
         if Opportunity.FindSet then
             repeat
                 I += 1;
                 TempOpportunity := Opportunity;
+                OnCalcTopFiveOpportunitiesOnBeforeTempOpportunityInsert(TempOpportunity, Opportunity);
                 TempOpportunity.Insert();
             until (Opportunity.Next() = 0) or (I = 5);
     end;
@@ -50,13 +52,26 @@ codeunit 783 "Relationship Performance Mgt."
             SetXAxis(TempOpportunity.TableCaption, "Data Type"::String);
             CalcTopFiveOpportunities(TempOpportunity);
             TempOpportunity.SetAutoCalcFields("Estimated Value (LCY)");
+            OnUpdateDataOnAfterTempOpportunitySetFilters(TempOpportunity);
             if TempOpportunity.FindSet then
                 repeat
                     I += 1;
-                    AddColumn(TempOpportunity.Description);
+                    AddBusinessChartBufferColumn(BusinessChartBuffer, TempOpportunity);
                     SetValueByIndex(0, I - 1, TempOpportunity."Estimated Value (LCY)");
                 until TempOpportunity.Next() = 0;
         end;
+    end;
+
+    local procedure AddBusinessChartBufferColumn(var BusinessChartBuffer: Record "Business Chart Buffer"; var TempOpportunity: Record Opportunity temporary)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAddBusinessChartBufferColumn(BusinessChartBuffer, TempOpportunity, IsHandled);
+        if IsHandled then
+            exit;
+
+        BusinessChartBuffer.AddColumn(TempOpportunity.Description);
     end;
 
     [Scope('OnPrem')]
@@ -181,6 +196,26 @@ codeunit 783 "Relationship Performance Mgt."
     local procedure GetSegmentLineNotificationDataItemID(): Text
     begin
         exit('SegmentLineNotificationTok');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddBusinessChartBufferColumn(var BusinessChartBuffer: Record "Business Chart Buffer"; var TempOpportunity: Record Opportunity temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcTopFiveOpportunitiesOnAfterOpportunitySetFilters(var Opportunity: Record Opportunity)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcTopFiveOpportunitiesOnBeforeTempOpportunityInsert(var TempOpportunity: Record Opportunity temporary; Opportunity: Record Opportunity)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateDataOnAfterTempOpportunitySetFilters(var TempOpportunity: Record Opportunity temporary)
+    begin
     end;
 }
 

@@ -294,6 +294,7 @@ page 5786 "Source Document Filter Card"
 
     local procedure EnableControls()
     begin
+        OnBeforeEnableControls();
         case Rec.Type of
             Rec.Type::Inbound:
                 begin
@@ -333,6 +334,11 @@ page 5786 "Source Document Filter Card"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterInitializeControls()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeEnableControls()
     begin
     end;
 }

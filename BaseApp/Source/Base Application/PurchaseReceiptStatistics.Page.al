@@ -90,7 +90,7 @@ page 399 "Purchase Receipt Statistics"
                 if PurchRcptLine."Units per Parcel" > 0 then
                     TotalParcels := TotalParcels + Round(PurchRcptLine.Quantity / PurchRcptLine."Units per Parcel", 1, '>');
                 OnCalculateTotalsOnAfterAddLineTotals(
-                    PurchRcptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+                    PurchRcptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, Rec)
             until PurchRcptLine.Next() = 0;
     end;
 
@@ -100,7 +100,7 @@ page 399 "Purchase Receipt Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchRcptLine: Record "Purch. Rcpt. Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchRcptLine: Record "Purch. Rcpt. Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; PurchRcptHeader: Record "Purch. Rcpt. Header")
     begin
     end;
 }

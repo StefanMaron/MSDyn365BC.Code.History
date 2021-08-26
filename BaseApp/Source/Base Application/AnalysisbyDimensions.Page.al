@@ -1020,7 +1020,13 @@ page 554 "Analysis by Dimensions"
     var
         AccountCaption: Text[30];
         UnitCaption: Text[30];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateLineDimCode(GLAccountSource, LineDimCode, InternalDateFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         GetAccountCaption(AccountCaption, UnitCaption);
 
         if (UpperCase(LineDimCode) <> UpperCase(AccountCaption)) and
@@ -1048,7 +1054,13 @@ page 554 "Analysis by Dimensions"
     var
         AccountCaption: Text[30];
         UnitCaption: Text[30];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateColumnDimCode(GLAccountSource, ColumnDimCode, InternalDateFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         GetAccountCaption(AccountCaption, UnitCaption);
 
         if (UpperCase(ColumnDimCode) <> UpperCase(AccountCaption)) and
@@ -1195,6 +1207,16 @@ page 554 "Analysis by Dimensions"
             AccountCaption := CFAccount.TableCaption;
             UnitCaption := CashFlowForecast.TableCaption;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateColumnDimCode(var GLAccountSource: Boolean; var ColumnDimCode: Text[30]; var InternalDateFilter: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateLineDimCode(var GLAccountSource: Boolean; var LineDimCode: Text[30]; var InternalDateFilter: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

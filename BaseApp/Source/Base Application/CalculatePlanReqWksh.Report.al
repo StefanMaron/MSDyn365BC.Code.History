@@ -7,7 +7,7 @@ report 699 "Calculate Plan - Req. Wksh."
     {
         dataitem(Item; Item)
         {
-            DataItemTableView = SORTING("Low-Level Code") WHERE(Type = CONST(Inventory));
+            DataItemTableView = SORTING("Low-Level Code") WHERE(Type = CONST(Inventory), Blocked = CONST(false));
             RequestFilterFields = "No.", "Search Description", "Location Filter";
 
             trigger OnAfterGetRecord()
@@ -60,6 +60,7 @@ report 699 "Calculate Plan - Req. Wksh."
                         end;
                     until PlanningAssignment.Next() = 0;
 
+                OnItemOnAfterGetRecordOnBeforeCommit(ReqLine, Item, CurrTemplateName, CurrWorksheetName, FromDate);
                 Commit();
             end;
 
@@ -148,9 +149,7 @@ report 699 "Calculate Plan - Req. Wksh."
 
         trigger OnOpenPage()
         begin
-            MfgSetup.Get();
-            UseForecast := MfgSetup."Current Production Forecast";
-
+            InitializeFromMfgSetup();
             OnAfterOnOpenPage(FromDate, ToDate);
         end;
     }
@@ -234,6 +233,19 @@ report 699 "Calculate Plan - Req. Wksh."
         ToDate := EndDate;
     end;
 
+    local procedure InitializeFromMfgSetup()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitializeFromMfgSetup(UseForecast, IsHandled);
+        if IsHandled then
+            exit;
+
+        MfgSetup.Get();
+        UseForecast := MfgSetup."Current Production Forecast";
+    end;
+
     local procedure SkipPlanningForItemOnReqWksh(Item: Record Item): Boolean
     var
         SkipPlanning: Boolean;
@@ -302,7 +314,17 @@ report 699 "Calculate Plan - Req. Wksh."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitializeFromMfgSetup(var UseForecast: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPreReport(var CurrTemplateName: code[10]; var CurrWorksheetName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemOnAfterGetRecordOnBeforeCommit(var ReqLine: Record "Requisition Line"; Item: Record Item; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; FromDate: Date)
     begin
     end;
 }

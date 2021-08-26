@@ -1,4 +1,4 @@
-page 9223 "Item Statistics Matrix"
+﻿page 9223 "Item Statistics Matrix"
 {
     Caption = 'Item Statistics Matrix';
     DataCaptionExpression = ItemName;
@@ -1332,7 +1332,7 @@ page 9223 "Item Statistics Matrix"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCopyDimValueToBuf(var ItemBuffer: Record "Item Statistics Buffer"; var TheDimValue: Record "Integer"; var TheDimCodeBuf: Record "Dimension Code Buffer");
     begin
     end;

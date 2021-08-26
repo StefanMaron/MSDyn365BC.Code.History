@@ -477,6 +477,7 @@ table 7332 "Whse. Internal Put-away Line"
             WhseInternalPutAwayLine.SetRange("Unit of Measure Code", "Unit of Measure Code");
             WhseInternalPutAwayLine.SetRange("Variant Code", "Variant Code");
             WhseInternalPutAwayLine.SetFilter("Line No.", '<>%1', "Line No.");
+            OnCheckBinContentQtyOnAfterWhseInternalPutAwayLineSetFilter(Rec, WhseInternalPutAwayLine);
             WhseInternalPutAwayLine.CalcSums("Qty. (Base)");
             if AvailQtyBase - WhseInternalPutAwayLine."Qty. (Base)" < "Qty. (Base)" then
                 FieldError(
@@ -575,6 +576,7 @@ table 7332 "Whse. Internal Put-away Line"
             TestField("Item No.");
             BinContent."Unit of Measure Code" := "Unit of Measure Code";
         end;
+        OnLookupBinContentOnBeforeRunPage(Rec, BinContent);
         if PAGE.RunModal(0, BinContent) = ACTION::LookupOK then begin
             if BinContent."Block Movement" in [
                                                BinContent."Block Movement"::Outbound, BinContent."Block Movement"::All]
@@ -823,6 +825,16 @@ table 7332 "Whse. Internal Put-away Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenItemTrackingLines(var WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupBinContentOnBeforeRunPage(var WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBinContentQtyOnAfterWhseInternalPutAwayLineSetFilter(var WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"; var FilteredWhseInternalPutawayLine: Record "Whse. Internal Put-away Line")
     begin
     end;
 

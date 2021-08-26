@@ -673,6 +673,249 @@ codeunit 137931 "SCM - Movement"
         Assert.AreEqual(WhseItemTrackingLine."Quantity (Base)", TotalQty, '');
     end;
 
+    [Test]
+    [HandlerFunctions('BinContentsListModalPageHandler')]
+    procedure ValidateAndLookupFromBinCodeOnInternalMovementLine()
+    var
+        Location: Record Location;
+        FromBin: array[2] of Record Bin;
+        ToBin: Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        InternalMovementHeader: Record "Internal Movement Header";
+        InternalMovementLine: Record "Internal Movement Line";
+        InternalMovement: TestPage "Internal Movement";
+    begin
+        // [FEATURE] [Internal Movement] [Blocked]
+        // [SCENARIO 402448] Cannot select a blocked bin in "From Bin Code" in internal movement line either via lookup or validate.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location with mandatory bin.
+        // [GIVEN] Two source bin codes "S1", "S2" and a target bin code "T1".
+        CreateLocationWithBinMandatory(Location, true);
+        LibraryWarehouse.CreateBin(FromBin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(FromBin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(ToBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Create bin content for bin "S1" and block outbound movements.
+        LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', FromBin[1].Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate("Block Movement", BinContent."Block Movement"::Outbound);
+        BinContent.Modify(true);
+
+        // [GIVEN] Block all movements for bin "S2".
+        FromBin[2].Validate("Block Movement", FromBin[2]."Block Movement"::All);
+        FromBin[2].Modify(true);
+
+        // [GIVEN] Create internal movement.
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Location.Code, ToBin.Code);
+        LibraryWarehouse.CreateInternalMovementLine(InternalMovementHeader, InternalMovementLine, BinContent."Item No.", '', '', 0);
+
+        Commit();
+
+        // [WHEN] Select "From Bin Code" = "S1" via lookup.
+        // [THEN] An error message is thrown - the bin is blocked for outbound movements.
+        LibraryVariableStorage.Enqueue(FromBin[1].Code);
+        InternalMovement.OpenEdit();
+        InternalMovement.FILTER.SetFilter("No.", InternalMovementHeader."No.");
+        InternalMovement.InternalMovementLines.First();
+        asserterror InternalMovement.InternalMovementLines."From Bin Code".Lookup();
+        InternalMovement.Close();
+        Assert.ExpectedError('Outbound');
+
+        // [WHEN] Select "From Bin Code" = "S2" via validate.
+        // [THEN] An error message is thrown - the bin is blocked for all movements.
+        asserterror InternalMovementLine.Validate("From Bin Code", FromBin[2].Code);
+        Assert.ExpectedError('All');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('BinListModalPageHandler')]
+    procedure ValidateAndLookupToBinCodeOnInternalMovementLine()
+    var
+        Location: Record Location;
+        FromBin: Record Bin;
+        ToBin: array[2] of Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        InternalMovementHeader: Record "Internal Movement Header";
+        InternalMovementLine: Record "Internal Movement Line";
+        InternalMovement: TestPage "Internal Movement";
+    begin
+        // [FEATURE] [Internal Movement] [Blocked]
+        // [SCENARIO 402448] Cannot select a blocked bin in "To Bin Code" in internal movement line either via lookup or validate.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location with mandatory bin.
+        // [GIVEN] A source bin codes "S1" and two target bin codes "T1", "T2".
+        CreateLocationWithBinMandatory(Location, true);
+        LibraryWarehouse.CreateBin(FromBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(ToBin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(ToBin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Create bin content for bin "T1" and block inbound movements.
+        LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', ToBin[1].Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate("Block Movement", BinContent."Block Movement"::Inbound);
+        BinContent.Modify(true);
+
+        // [GIVEN] Block all movements for bin "T2".
+        ToBin[2].Validate("Block Movement", ToBin[2]."Block Movement"::All);
+        ToBin[2].Modify(true);
+
+        // [GIVEN] Create internal movement.
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Location.Code, '');
+        LibraryWarehouse.CreateInternalMovementLine(InternalMovementHeader, InternalMovementLine, BinContent."Item No.", '', '', 0);
+
+        Commit();
+
+        // [WHEN] Select "To Bin Code" = "T1" via lookup.
+        // [THEN] An error message is thrown - the bin is blocked for inbound movements.
+        LibraryVariableStorage.Enqueue(ToBin[1].Code);
+        InternalMovement.OpenEdit();
+        InternalMovement.FILTER.SetFilter("No.", InternalMovementHeader."No.");
+        InternalMovement.InternalMovementLines.First();
+        asserterror InternalMovement.InternalMovementLines."To Bin Code".Lookup();
+        InternalMovement.Close();
+        Assert.ExpectedError('Inbound');
+
+        // [WHEN] Select "To Bin Code" = "T2" via validate.
+        // [THEN] An error message is thrown - the bin is blocked for all movements.
+        asserterror InternalMovementLine.Validate("To Bin Code", ToBin[2].Code);
+        Assert.ExpectedError('All');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('BinListModalPageHandler')]
+    procedure ValidateAndLookupToBinCodeOnInternalMovementHeader()
+    var
+        Location: Record Location;
+        ToBin: array[2] of Record Bin;
+        InternalMovementHeader: Record "Internal Movement Header";
+        InternalMovement: TestPage "Internal Movement";
+    begin
+        // [FEATURE] [Internal Movement] [Blocked]
+        // [SCENARIO 402448] Cannot select a blocked bin in "To Bin Code" in internal movement header either via lookup or validate.
+        Initialize();
+
+        // [GIVEN] Location with mandatory bin.
+        // [GIVEN] Two bin codes "T1", "T2".
+        CreateLocationWithBinMandatory(Location, true);
+        LibraryWarehouse.CreateBin(ToBin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(ToBin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Block bin "T1" for inbound movements, block "T2" for all movements.
+        ToBin[1].Validate("Block Movement", ToBin[1]."Block Movement"::Inbound);
+        ToBin[1].Modify(true);
+        ToBin[2].Validate("Block Movement", ToBin[2]."Block Movement"::All);
+        ToBin[2].Modify(true);
+
+        // [GIVEN] Create internal movement header.
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Location.Code, '');
+
+        Commit();
+
+        // [WHEN] Select "To Bin Code" = "T1" via lookup.
+        // [THEN] An error message is thrown - the bin is blocked for inbound movements.
+        LibraryVariableStorage.Enqueue(ToBin[1].Code);
+        InternalMovement.OpenEdit();
+        InternalMovement.FILTER.SetFilter("No.", InternalMovementHeader."No.");
+        asserterror InternalMovement."To Bin Code".Lookup();
+        InternalMovement.Close();
+        Assert.ExpectedError('Inbound');
+
+        // [WHEN] Select "To Bin Code" = "T2" via validate.
+        // [THEN] An error message is thrown - the bin is blocked for all movements.
+        asserterror InternalMovementHeader.Validate("To Bin Code", ToBin[2].Code);
+        Assert.ExpectedError('All');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    procedure CheckInboundOutboundBinCodesOnCreateMovementFromInternalMvmt()
+    var
+        Location: Record Location;
+        FromBin: array[2] of Record Bin;
+        ToBin: array[2] of Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        InternalMovementHeader: Record "Internal Movement Header";
+        InternalMovementLine: Record "Internal Movement Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [Internal Movement] [Blocked]
+        // [SCENARIO 402448] Cannot create inventory movement from internal movement when either "From Bin Code" or "To Bin Code" is blocked.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location with mandatory bin.
+        // [GIVEN] Two source bin codes "S1", "S2" and two target bin codes "T1", "T2".
+        CreateLocationWithBinMandatory(Location, true);
+        LibraryWarehouse.CreateBin(FromBin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(FromBin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(ToBin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(ToBin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Post inventory to bins "S1" and "S2".
+        UpdateInventoryInBin(Item."No.", FromBin[1]);
+        UpdateInventoryInBin(Item."No.", FromBin[2]);
+
+        // [GIVEN] Block outbound movements from bin "S1".
+        BinContent.Get(Location.Code, FromBin[1].Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate("Block Movement", BinContent."Block Movement"::Outbound);
+        BinContent.Modify(true);
+
+        // [GIVEN] Block inbound movements to bin "T1".
+        ToBin[1].Validate("Block Movement", ToBin[1]."Block Movement"::Inbound);
+        ToBin[1].Modify(true);
+
+        // [GIVEN] Create internal movement.
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Location.Code, '');
+        LibraryWarehouse.CreateInternalMovementLine(
+          InternalMovementHeader, InternalMovementLine, BinContent."Item No.", '', '', LibraryRandom.RandInt(10));
+
+        Commit();
+
+        // [WHEN] Set "From Bin Code" = "S1", "To Bin Code" = "T2" and create inventory movement.
+        // [THEN] An inventory movement cannot be created - "From Bin Code" is blocked for outbound movements.
+        InternalMovementLine.Find();
+        InternalMovementLine."From Bin Code" := FromBin[1].Code;
+        InternalMovementLine."To Bin Code" := ToBin[2].Code;
+        InternalMovementLine.Modify();
+        asserterror LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
+        Assert.ExpectedError('Outbound');
+
+        // [WHEN] Set "From Bin Code" = "S2", "To Bin Code" = "T1" and create inventory movement.
+        // [THEN] An inventory movement cannot be created - "To Bin Code" is blocked for inbound movements.
+        InternalMovementLine.Find();
+        InternalMovementLine."From Bin Code" := FromBin[2].Code;
+        InternalMovementLine."To Bin Code" := ToBin[1].Code;
+        InternalMovementLine.Modify();
+        asserterror LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
+        Assert.ExpectedError('Inbound');
+
+        // [WHEN] Set "From Bin Code" = "S2", "To Bin Code" = "T2" and create inventory movement.
+        InternalMovementLine.Find();
+        InternalMovementLine."From Bin Code" := FromBin[2].Code;
+        InternalMovementLine."To Bin Code" := ToBin[2].Code;
+        InternalMovementLine.Modify();
+        LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
+
+        // [THEN] An inventory movement has been successfully created.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        Assert.RecordIsNotEmpty(WarehouseActivityLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -893,6 +1136,15 @@ codeunit 137931 "SCM - Movement"
         BinContent.Modify(true);
     end;
 
+    local procedure UpdateInventoryInBin(ItemNo: Code[20]; Bin: Record Bin)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, ItemNo, Bin."Location Code", Bin.Code, LibraryRandom.RandIntInRange(50, 100));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
     local procedure FilterWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Integer)
     begin
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
@@ -993,10 +1245,30 @@ codeunit 137931 "SCM - Movement"
         WhseItemTrackingLines.OK.Invoke();
     end;
 
+    [ModalPageHandler]
+    procedure BinListModalPageHandler(var BinList: TestPage "Bin List")
+    begin
+        BinList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        BinList.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure BinContentsListModalPageHandler(var BinContentsList: TestPage "Bin Contents List")
+    begin
+        BinContentsList.FILTER.SetFilter("Bin Code", LibraryVariableStorage.DequeueText());
+        BinContentsList.OK.Invoke();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text)
     begin
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(ConfirmMessage: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

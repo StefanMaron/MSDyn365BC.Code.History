@@ -53,28 +53,22 @@ codeunit 7017 "Price List Management"
 
     local procedure AddLine(ToPriceListHeader: Record "Price List Header"; PriceAsset: Record "Price Asset"; PriceLineFilters: Record "Price Line Filters")
     var
+        ExistingPriceListLine: Record "Price List Line";
         PriceListLine: Record "Price List Line";
     begin
         PriceListLine."Price List Code" := ToPriceListHeader.Code;
-        PriceListLine."Line No." := 0; // autoincrement
+        PriceListLine.SetNextLineNo();
         ToPriceListHeader."Allow Updating Defaults" := false; // to copy defaults
         PriceListLine.CopyFrom(ToPriceListHeader);
         PriceListLine."Amount Type" := "Price Amount Type"::Price;
         PriceListLine.CopyFrom(PriceAsset);
-        PriceListLine.Validate("Minimum Quantity", PriceLineFilters."Minimum Quantity");
+        ExistingPriceListLine.CopyPriceFrom(PriceAsset);
         AdjustAmount(PriceAsset."Unit Price", PriceLineFilters);
-        case ToPriceListHeader."Price Type" of
-            "Price Type"::Sale:
-                PriceListLine.Validate("Unit Price", PriceAsset."Unit Price");
-            "Price Type"::Purchase:
-                begin
-                    PriceListLine.Validate("Direct Unit Cost", PriceAsset."Unit Price");
-                    AdjustAmount(PriceAsset."Unit Price 2", PriceLineFilters);
-                    PriceListLine.Validate("Unit Cost", PriceAsset."Unit Price 2");
-                end;
-        end;
+        AdjustAmount(PriceAsset."Unit Price 2", PriceLineFilters);
+        PriceListLine.CopyPriceFrom(PriceAsset);
+        PriceListLine.Validate("Minimum Quantity", PriceLineFilters."Minimum Quantity");
         if PriceLineFilters.Worksheet then
-            InsertWorksheetLine(ToPriceListHeader, PriceListLine)
+            InsertWorksheetLine(ToPriceListHeader, PriceListLine, ExistingPriceListLine)
         else
             PriceListLine.Insert(true);
     end;
@@ -209,10 +203,11 @@ codeunit 7017 "Price List Management"
         end;
         AdjustAmount(ToPriceListLine."Unit Price", PriceLineFilters);
         AdjustAmount(ToPriceListLine."Direct Unit Cost", PriceLineFilters);
+        AdjustAmount(ToPriceListLine."Unit Cost", PriceLineFilters);
         if PriceLineFilters.Worksheet then
             CopyToWorksheetLine(ToPriceListLine, FromPriceListLine, PriceLineFilters."Copy As New Lines")
         else begin
-            ToPriceListLine."Line No." := 0;
+            ToPriceListLine.SetNextLineNo();
             ToPriceListLine.Insert(true);
         end;
     end;
@@ -650,7 +645,7 @@ codeunit 7017 "Price List Management"
                 Implemented := true;
             end;
         end else begin
-            PriceListLine."Line No." := 0;
+            PriceListLine.SetNextLineNo();
             if PriceListLine.Insert(true) then begin
                 InsertedUpdatedLeft[1] += 1;
                 Implemented := true;
@@ -662,11 +657,12 @@ codeunit 7017 "Price List Management"
         end;
     end;
 
-    local procedure InsertWorksheetLine(var ToPriceListHeader: Record "Price List Header"; var PriceListLine: Record "Price List Line")
+    local procedure InsertWorksheetLine(var ToPriceListHeader: Record "Price List Header"; NewPriceListLine: Record "Price List Line"; ExistingPriceListLine: Record "Price List Line")
     var
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
-        PriceWorksheetLine.TransferFields(PriceListLine);
+        PriceWorksheetLine.CopyExistingPrices(ExistingPriceListLine);
+        PriceWorksheetLine.TransferFields(NewPriceListLine);
         PriceWorksheetLine."Line No." := 0;
         PriceWorksheetLine."Source Group" := ToPriceListHeader."Source Group";
         PriceWorksheetLine.Insert(true);
@@ -695,13 +691,8 @@ codeunit 7017 "Price List Management"
         PriceWorksheetLine.TransferFields(ToPriceListLine);
         PriceWorksheetLine."Existing Unit Price" := FromPriceListLine."Unit Price";
         PriceWorksheetLine."Existing Direct Unit Cost" := FromPriceListLine."Direct Unit Cost";
-        if CreateNewLine then begin
-            PriceWorksheetLine."Price List Code" := '';
-            PriceWorksheetLine.Status := PriceWorksheetLine.Status::Draft;
-            PriceWorksheetLine."Existing Line" := false;
-            PriceWorksheetLine."Line No." := 0;
-        end else
-            PriceWorksheetLine."Existing Line" := true;
+        PriceWorksheetLine."Existing Unit Cost" := FromPriceListLine."Unit Cost";
+        PriceWorksheetLine.Validate("Existing Line", not CreateNewLine);
         PriceWorksheetLine.Insert(true);
     end;
 

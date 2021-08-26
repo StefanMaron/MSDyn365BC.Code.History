@@ -235,6 +235,8 @@ codeunit 1006 "Copy Job"
 
         DimMgt.UpdateDefaultDim(
           DATABASE::Job, TargetJob."No.", TargetJob."Global Dimension 1 Code", TargetJob."Global Dimension 2 Code");
+
+        OnAfterCopyJobDimensions(SourceJob, TargetJob);
     end;
 
     local procedure CopyJobTaskDimensions(SourceJobTask: Record "Job Task"; TargetJobTask: Record "Job Task")
@@ -245,6 +247,8 @@ codeunit 1006 "Copy Job"
           SourceJobTask."Job Task No.",
           TargetJobTask."Job No.",
           TargetJobTask."Job Task No.");
+
+        OnAfterCopyJobTaskDimensions(SourceJobTask, TargetJobTask);
     end;
 
     local procedure ExchangeJobPlanningLineAmounts(var JobPlanningLine: Record "Job Planning Line"; CurrencyCode: Code[10])
@@ -347,6 +351,16 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyJobTask(var TargetJobTask: Record "Job Task"; SourceJobTask: Record "Job Task"; CopyPrices: Boolean; CopyQuantity: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyJobDimensions(SourceJob: Record Job; var TargetJob: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyJobTaskDimensions(SourceJobTask: Record "Job Task"; TargetJobTask: Record "Job Task")
     begin
     end;
 

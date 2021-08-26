@@ -90,7 +90,7 @@ page 6655 "Return Shipment Statistics"
                 if ReturnShptLine."Units per Parcel" > 0 then
                     TotalParcels += Round(ReturnShptLine.Quantity / ReturnShptLine."Units per Parcel", 1, '>');
                 OnCalculateTotalsOnAfterAddLineTotals(
-                    ReturnShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+                    ReturnShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, Rec)
             until ReturnShptLine.Next() = 0;
     end;
 
@@ -100,7 +100,7 @@ page 6655 "Return Shipment Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateTotalsOnAfterAddLineTotals(var ReturnShipmentLine: Record "Return Shipment Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var ReturnShipmentLine: Record "Return Shipment Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; ReturnShipmentHeader: Record "Return Shipment Header")
     begin
     end;
 }

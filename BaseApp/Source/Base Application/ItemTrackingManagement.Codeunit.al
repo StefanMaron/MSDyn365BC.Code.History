@@ -303,6 +303,7 @@ codeunit 6500 "Item Tracking Management"
             ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Prospect);
             if not ReservEntry.IsEmpty() then
                 ReservEntry.DeleteAll();
+            OnRetrieveItemTrackingFromReservEntryOnAfterDeleteReservEntries(TempTrackingSpec);
             exit(true);
         end;
         exit(false);
@@ -346,6 +347,7 @@ codeunit 6500 "Item Tracking Management"
             ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Prospect);
             if not ReservEntry.IsEmpty() then
                 ReservEntry.DeleteAll();
+            OnRetrieveSubcontrItemTrackingOnAfterDeleteReservEntries(TempHandlingSpecification);
             exit(true);
         end;
         exit(false);
@@ -410,6 +412,7 @@ codeunit 6500 "Item Tracking Management"
                           TempHandlingSpecification."Qty. to Invoice (Base)" / ReservEntry."Qty. per Unit of Measure";
                         if not ReservEntry.IsReservationOrTracking() then // Late Binding
                             TempHandlingSpecification."Buffer Value1" += TempHandlingSpecification."Qty. to Handle (Base)";
+                        OnSumUpItemTrackingOnBeforeTempHandlingSpecificationModify(TempHandlingSpecification, ReservEntry);
                         TempHandlingSpecification.Modify();
                     end else begin
                         TempHandlingSpecification.Init();
@@ -601,9 +604,9 @@ codeunit 6500 "Item Tracking Management"
 
         if SkipReservation then
             ReservEntry.SetFilter("Reservation Status", '<>%1', ReservEntry."Reservation Status"::Reservation);
-        if ReservEntry.FindSet then begin
+        if ReservEntry.FindSet() then begin
             repeat
-                if ReservEntry.TrackingExists then begin
+                if ReservEntry.TrackingExists() then begin
                     TempReservEntry := ReservEntry;
                     TempReservEntry."Reservation Status" := TempReservEntry."Reservation Status"::Prospect;
                     TempReservEntry.SetPointer(ToRowID);
@@ -614,14 +617,17 @@ codeunit 6500 "Item Tracking Management"
                         TempReservEntry."Qty. to Invoice (Base)" := -TempReservEntry."Qty. to Invoice (Base)";
                         TempReservEntry."Quantity Invoiced (Base)" := -TempReservEntry."Quantity Invoiced (Base)";
                         TempReservEntry.Positive := TempReservEntry."Quantity (Base)" > 0;
-                        TempReservEntry.ClearApplFromToItemEntry;
+                        TempReservEntry.ClearApplFromToItemEntry();
+#if not CLEAN19                        
                         OnCopyItemTracking3OnBeforeSwapSign(TempReservEntry);
+#endif                        
+                        OnCopyItemTracking3OnAfterSwapSign(TempReservEntry, ReservEntry);
                     end;
                     TempReservEntry.Insert();
                 end;
             until ReservEntry.Next() = 0;
 
-            ModifyTemp337SetIfTransfer(TempReservEntry);
+            ModifyTempReservEntrySetIfTransfer(TempReservEntry);
 
             if TempReservEntry.FindSet then begin
                 ReservEntry1.Reset();
@@ -953,7 +959,13 @@ codeunit 6500 "Item Tracking Management"
         LineNo: Integer;
         CrossDockQty: Decimal;
         CrossDockQtyBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSplitPostedWhseReceiptLine(PostedWhseRcptLine, TempPostedWhseRcptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TempPostedWhseRcptLine.Reset();
         TempPostedWhseRcptLine.DeleteAll();
 
@@ -1118,6 +1130,7 @@ codeunit 6500 "Item Tracking Management"
     local procedure RemoveItemTrkgFromReservEntry(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     var
         ReservEntry: Record "Reservation Entry";
+        OriginalReservEntry: Record "Reservation Entry";
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         WarehouseShipmentLine.SetRange("No.", WhseItemTrackingLine."Source ID");
@@ -1129,16 +1142,18 @@ codeunit 6500 "Item Tracking Management"
           WarehouseShipmentLine."Source Type", WarehouseShipmentLine."Source Subtype",
           WarehouseShipmentLine."Source No.", WarehouseShipmentLine."Source Line No.", true);
         ReservEntry.SetTrackingFilterFromWhseSpec(WhseItemTrackingLine);
-        if ReservEntry.FindSet then
+        if ReservEntry.FindSet() then
             repeat
+                OriginalReservEntry := ReservEntry;
                 case ReservEntry."Reservation Status" of
                     ReservEntry."Reservation Status"::Surplus:
                         ReservEntry.Delete(true);
                     else begin
-                            ReservEntry.ClearItemTrackingFields;
+                            ReservEntry.ClearItemTrackingFields();
                             ReservEntry.Modify(true);
                         end;
                 end;
+                OnRemoveItemTrkgFromReservEntryOnAfterReservEntryLoop(ReservEntry, OriginalReservEntry);
             until ReservEntry.Next() = 0;
     end;
 
@@ -1149,11 +1164,12 @@ codeunit 6500 "Item Tracking Management"
 
     procedure InitTrackingSpecification(WhseWkshLine: Record "Whse. Worksheet Line")
     var
-        WhseItemTrkgLine: Record "Whse. Item Tracking Line";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
         PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
-        TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
+        TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary;
         WhseManagement: Codeunit "Whse. Management";
         SourceType: Integer;
+        IsHandled: Boolean;
     begin
         SourceType := WhseManagement.GetSourceType(WhseWkshLine);
         with WhseWkshLine do begin
@@ -1165,38 +1181,40 @@ codeunit 6500 "Item Tracking Management"
             end;
 
             if SourceType = DATABASE::"Prod. Order Component" then begin
-                WhseItemTrkgLine.SetSourceFilter(SourceType, "Source Subtype", "Source No.", "Source Subline No.", true);
-                WhseItemTrkgLine.SetRange("Source Prod. Order Line", "Source Line No.");
+                WhseItemTrackingLine.SetSourceFilter(SourceType, "Source Subtype", "Source No.", "Source Subline No.", true);
+                WhseItemTrackingLine.SetRange("Source Prod. Order Line", "Source Line No.");
             end else
-                WhseItemTrkgLine.SetSourceFilter(SourceType, -1, "Whse. Document No.", "Whse. Document Line No.", true);
+                WhseItemTrackingLine.SetSourceFilter(SourceType, -1, "Whse. Document No.", "Whse. Document Line No.", true);
 
-            WhseItemTrkgLine.LockTable();
-            if WhseItemTrkgLine.FindSet then begin
+            WhseItemTrackingLine.LockTable();
+            IsHandled := false;
+            OnInitTrackingSpecificationOnBeforeCalcWhseItemTrackingLines(WhseWkshLine, WhseItemTrackingLine, IsHandled);
+            if WhseItemTrackingLine.FindSet() and not IsHandled then begin
                 repeat
-                    CalcWhseItemTrkgLine(WhseItemTrkgLine);
-                    WhseItemTrkgLine.Modify();
+                    CalcWhseItemTrkgLine(WhseItemTrackingLine);
+                    WhseItemTrackingLine.Modify();
                     if SourceType in [DATABASE::"Prod. Order Component", DATABASE::"Assembly Line"] then begin
-                        TempWhseItemTrkgLine := WhseItemTrkgLine;
-                        TempWhseItemTrkgLine.Insert();
+                        TempWhseItemTrackingLine := WhseItemTrackingLine;
+                        TempWhseItemTrackingLine.Insert();
                     end;
-                until WhseItemTrkgLine.Next() = 0;
-                if not TempWhseItemTrkgLine.IsEmpty() then
-                    CheckWhseItemTrkg(TempWhseItemTrkgLine, WhseWkshLine);
+                until WhseItemTrackingLine.Next() = 0;
+                if not TempWhseItemTrackingLine.IsEmpty() then
+                    CheckWhseItemTrkg(TempWhseItemTrackingLine, WhseWkshLine);
             end else
                 case SourceType of
                     DATABASE::"Posted Whse. Receipt Line":
-                        CreateWhseItemTrkgForReceipt(WhseWkshLine);
+                        CreateWhseItemTrackingForReceipt(WhseWkshLine);
                     DATABASE::"Warehouse Shipment Line":
-                        CreateWhseItemTrkgBatch(WhseWkshLine);
+                        CreateWhseItemTrackingBatch(WhseWkshLine);
                     DATABASE::"Prod. Order Component":
-                        CreateWhseItemTrkgBatch(WhseWkshLine);
+                        CreateWhseItemTrackingBatch(WhseWkshLine);
                     DATABASE::"Assembly Line":
-                        CreateWhseItemTrkgBatch(WhseWkshLine);
+                        CreateWhseItemTrackingBatch(WhseWkshLine);
                 end;
         end;
     end;
 
-    local procedure CreateWhseItemTrkgForReceipt(WhseWkshLine: Record "Whse. Worksheet Line")
+    local procedure CreateWhseItemTrackingForReceipt(WhseWkshLine: Record "Whse. Worksheet Line")
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         WhseItemEntryRelation: Record "Whse. Item Entry Relation";
@@ -1236,11 +1254,12 @@ codeunit 6500 "Item Tracking Management"
         end;
     end;
 
-    local procedure CreateWhseItemTrkgBatch(WhseWkshLine: Record "Whse. Worksheet Line")
+    local procedure CreateWhseItemTrackingBatch(WhseWkshLine: Record "Whse. Worksheet Line")
     var
-        SourceItemTrackingLine: Record "Reservation Entry";
+        SourceReservEntry: Record "Reservation Entry";
         WhseManagement: Codeunit "Whse. Management";
         SourceType: Integer;
+        IsHandled: Boolean;
     begin
         SourceType := WhseManagement.GetSourceType(WhseWkshLine);
 
@@ -1248,18 +1267,22 @@ codeunit 6500 "Item Tracking Management"
             case SourceType of
                 DATABASE::"Prod. Order Component":
                     begin
-                        SourceItemTrackingLine.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Subline No.", true);
-                        SourceItemTrackingLine.SetSourceFilter('', "Source Line No.");
+                        SourceReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Subline No.", true);
+                        SourceReservEntry.SetSourceFilter('', "Source Line No.");
                     end;
                 else begin
-                        SourceItemTrackingLine.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
-                        SourceItemTrackingLine.SetSourceFilter('', 0);
+                        SourceReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
+                        SourceReservEntry.SetSourceFilter('', 0);
                     end;
             end;
-            if SourceItemTrackingLine.FindSet then
-                repeat
-                    CreateWhseItemTrkgForResEntry(SourceItemTrackingLine, WhseWkshLine);
-                until SourceItemTrackingLine.Next() = 0;
+
+            IsHandled := false;
+            OnCreateWhseItemTrackingBatchOnBeforeCreateWhseItemTrackingLines(WhseWkshLine, SourceReservEntry, SourceType, IsHandled);
+            if not IsHandled then
+                if SourceReservEntry.FindSet() then
+                    repeat
+                        CreateWhseItemTrkgForResEntry(SourceReservEntry, WhseWkshLine);
+                    until SourceReservEntry.Next() = 0;
         end;
     end;
 
@@ -1345,6 +1368,7 @@ codeunit 6500 "Item Tracking Management"
                 WhseItemTrkgLine."Source Type Filter" := WhseItemTrkgLine."Source Type Filter"::"Movement Worksheet";
         end;
         WhseItemTrkgLine.CalcFields("Put-away Qty. (Base)", "Pick Qty. (Base)");
+        OnCalcWhseItemTrkgLineOnAfterCalcBaseQuantities(WhseItemTrkgLine);
 
         if WhseItemTrkgLine."Put-away Qty. (Base)" > 0 then
             WhseActivQtyBase := WhseItemTrkgLine."Put-away Qty. (Base)";
@@ -1727,22 +1751,26 @@ codeunit 6500 "Item Tracking Management"
             TempTrkgSpec2.Reset();
             TempTrkgSpec1.SetCurrentKey("Lot No.", "Serial No.");
             TempTrkgSpec2.SetCurrentKey("Lot No.", "Serial No.");
-            if TempTrkgSpec1.FindSet then
+            if TempTrkgSpec1.FindSet() then
                 repeat
                     TempTrkgSpec2.SetTrackingFilterFromSpec(TempTrkgSpec1);
-                    if TempTrkgSpec2.FindFirst then begin
+                    if TempTrkgSpec2.FindFirst() then begin
                         ShouldInsertTrkgSpec := TempTrkgSpec2."Quantity (Base)" * SignFactor2 <> TempTrkgSpec1."Quantity (Base)" * SignFactor1;
                         OnSynchronizeItemTracking2OnAfterCalcShouldInsertTrkgSpec(TempTrkgSpec1, TempTrkgSpec2, TempTrkgSpec3, SignFactor1, SignFactor2, ShouldInsertTrkgSpec);
                         if ShouldInsertTrkgSpec then begin
                             TempTrkgSpec3 := TempTrkgSpec2;
+                            OnSynchronizeItemTracking2OnAfterSyncBothTrackingSpec(TempTrkgSpec3, TempTrkgSpec2, TempSourceSpec);
                             TempTrkgSpec3.Validate("Quantity (Base)",
                               (TempTrkgSpec1."Quantity (Base)" * SignFactor1 - TempTrkgSpec2."Quantity (Base)" * SignFactor2));
                             TempTrkgSpec3."Entry No." := LastEntryNo + 1;
                             TempTrkgSpec3.Insert();
                         end;
+                        OnSynchronizeItemTracking2OnBeforeDeleteSyncedTrackingSpec(
+                            TempTrkgSpec3, TempTrkgSpec1, TempTrkgSpec2, SignFactor1, SignFactor2, LastEntryNo);
                         TempTrkgSpec2.Delete();
                     end else begin
                         TempTrkgSpec3 := TempTrkgSpec1;
+                        OnSynchronizeItemTracking2OnAfterAssignNewTrackingSpec(TempTrkgSpec3, TempTrkgSpec1, TempSourceSpec);
                         TempTrkgSpec3.Validate("Quantity (Base)", TempTrkgSpec1."Quantity (Base)" * SignFactor1);
                         TempTrkgSpec3."Entry No." := LastEntryNo + 1;
                         TempTrkgSpec3.Insert();
@@ -1753,7 +1781,7 @@ codeunit 6500 "Item Tracking Management"
 
             TempTrkgSpec2.Reset();
 
-            if TempTrkgSpec2.FindFirst then
+            if TempTrkgSpec2.FindFirst() then
                 repeat
                     TempTrkgSpec3 := TempTrkgSpec2;
                     TempTrkgSpec3.Validate("Quantity (Base)", -TempTrkgSpec2."Quantity (Base)" * SignFactor2);
@@ -1789,10 +1817,16 @@ codeunit 6500 "Item Tracking Management"
         Registering := Registering2;
     end;
 
-    local procedure ModifyTemp337SetIfTransfer(var TempReservEntry: Record "Reservation Entry" temporary)
+    local procedure ModifyTempReservEntrySetIfTransfer(var TempReservEntry: Record "Reservation Entry" temporary)
     var
         TransLine: Record "Transfer Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeModifyTempReservEntrySetIfTransfer(TempReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if TempReservEntry."Source Type" = DATABASE::"Transfer Line" then begin
             TransLine.Get(TempReservEntry."Source ID", TempReservEntry."Source Ref. No.");
             TempReservEntry.ModifyAll("Reservation Status", TempReservEntry."Reservation Status"::Surplus);
@@ -1815,6 +1849,8 @@ codeunit 6500 "Item Tracking Management"
         Qty: Decimal;
         ZeroQtyToHandle: Boolean;
     begin
+        OnBeforeSynchronizeWhseItemTracking(TempTrackingSpecification, RegPickNo, Deletion);
+
         if TempTrackingSpecification.FindSet() then
             repeat
                 if TempTrackingSpecification.Correction then begin
@@ -1867,6 +1903,7 @@ codeunit 6500 "Item Tracking Management"
                                     ReservEntry."Qty. to Invoice (Base)" := ReservEntry."Quantity (Base)";
                                 end else
                                     Qty := 0;
+                                OnSynchronizeWhseItemTrackingOnbeforeReservEntryModify(ReservEntry, TempTrackingSpecification, RegPickNo, Deletion);
                                 ReservEntry.Modify();
 
                                 if IsReservedFromTransferShipment(ReservEntry) then
@@ -1875,6 +1912,7 @@ codeunit 6500 "Item Tracking Management"
                     end;
                     TempTrackingSpecification.Delete();
                 end;
+                OnSynchronizeWhseItemTrackingOnAfterTempTrackingSpecificationLoop(TempTrackingSpecification, RegPickNo, Deletion);
             until TempTrackingSpecification.Next() = 0;
 
         RegisterNewItemTrackingLines(TempTrackingSpecification);
@@ -2347,15 +2385,23 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     procedure TestExpDateOnTrackingSpecNew(var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    var
+        IsHandled: Boolean;
     begin
-        if TempTrackingSpecification."New Lot No." = '' then
-            exit;
+        IsHandled := false;
+        OnBeforeTestExpDateOnTrackingSpecNew(TempTrackingSpecification, IsHandled);
+        if not IsHandled then
+            if TempTrackingSpecification."New Lot No." = '' then
+                exit;
+
         TempTrackingSpecification.SetRange("New Lot No.", TempTrackingSpecification."New Lot No.");
         TempTrackingSpecification.SetFilter("New Expiration Date", '<>%1', TempTrackingSpecification."New Expiration Date");
         if not TempTrackingSpecification.IsEmpty() then
             Error(Text007, TempTrackingSpecification."New Lot No.");
         TempTrackingSpecification.SetRange("New Lot No.");
         TempTrackingSpecification.SetRange("New Expiration Date");
+
+        OnAfterTestExpDateOnTrackingSpecNew(TempTrackingSpecification);
     end;
 
 #if not CLEAN16
@@ -2447,6 +2493,7 @@ codeunit 6500 "Item Tracking Management"
                       "Unit Cost (LCY)", Abs(TotalCostLCY / ItemLedgEntryQty) * ToSalesLine."Qty. per Unit of Measure");
                     if not FromShptOrRcpt then
                         CopyDocMgt.CalculateRevSalesLineAmount(ToSalesLine, ItemLedgEntryQty, FromPricesInclVAT, ToPricesInclVAT);
+                    OnCopyItemLedgEntryTrkgToSalesLnOnbeforeToSalesLineInsert(ToSalesLine, TempItemLedgEntryBuf);
                     ToSalesLine.Modify();
                 end;
             end;
@@ -2837,20 +2884,18 @@ codeunit 6500 "Item Tracking Management"
         SumUpItemTracking(FromReservEntry, TempTrackingSpecification, false, true);
         TempTrackingSpecification.Reset();
         TempTrackingSpecification.SetFilter("Qty. to Handle (Base)", '<%1', 0);
-        if TempTrackingSpecification.FindSet then
+        if TempTrackingSpecification.FindSet() then
             repeat
-                ToReservEntry.SetRange("Lot No.", TempTrackingSpecification."Lot No.");
-                ToReservEntry.SetRange("Serial No.", TempTrackingSpecification."Serial No.");
+                ToReservEntry.SetTrackingFilterFromSpec(TempTrackingSpecification);
+                OnSynchronizeItemTrkgTransferOnBeforeToReservEntryModifyAll(ToReservEntry, TempTrackingSpecification);
                 ToReservEntry.ModifyAll("Qty. to Handle (Base)", 0);
                 ToReservEntry.ModifyAll("Qty. to Invoice (Base)", 0);
-
                 TempTrackingSpecification."Qty. to Handle (Base)" *= -1;
-
                 TempToReservEntry.SetCurrentKey(
                   "Item No.", "Variant Code", "Location Code", "Item Tracking", "Reservation Status", "Lot No.", "Serial No.");
-                TempToReservEntry.SetRange("Lot No.", TempTrackingSpecification."Lot No.");
-                TempToReservEntry.SetRange("Serial No.", TempTrackingSpecification."Serial No.");
-                if TempToReservEntry.FindSet then
+                TempToReservEntry.SetTrackingFilterFromSpec(TempTrackingSpecification);
+                OnSynchronizeItemTrkgTransferOnAfterTempToReservEntrySetFilters(TempToReservEntry, TempTrackingSpecification);
+                if TempToReservEntry.FindSet() then
                     repeat
                         if TempToReservEntry."Quantity (Base)" < TempTrackingSpecification."Qty. to Handle (Base)" then begin
                             TempToReservEntry."Qty. to Handle (Base)" := TempToReservEntry."Quantity (Base)";
@@ -2992,7 +3037,8 @@ codeunit 6500 "Item Tracking Management"
             SetSourceFilter(SourceBatchName, SourceProdOrderLine);
             SetRange("Location Code", LocationCode);
             SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
-            exit(not IsEmpty);
+            OnWhseItemTrkgLineExistsOnBeforeExit(WhseItemTrkgLine);
+            exit(not IsEmpty());
         end;
     end;
 
@@ -3089,9 +3135,10 @@ codeunit 6500 "Item Tracking Management"
                 "Appl.-from Item Entry" := ItemLedgEntryBuf."Entry No.";
             Description := SalesLine.Description;
             OnCopyItemLedgEntryTrkgToDocLine(ItemLedgEntryBuf, ReservEntry);
-            UpdateItemTracking;
-            OnBeforeInsertReservEntryForSalesLine(ReservEntry, SalesLine);
-            Insert;
+            UpdateItemTracking();
+            OnBeforeInsertReservEntryForSalesLine(ReservEntry, SalesLine, ItemLedgEntryBuf);
+            Insert();
+            OnAfterInsertReservEntryForSalesLine(ReservEntry, SalesLine);
         end;
     end;
 
@@ -3103,8 +3150,11 @@ codeunit 6500 "Item Tracking Management"
             exit;
 
         with ReservEntry do begin
-            InitReservEntry(ReservEntry, ItemLedgEntryBuf, QtyBase, PurchaseLine."Expected Receipt Date", EntriesExist);
-            SetSource(DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", '', 0);
+            InitReservEntry(
+                ReservEntry, ItemLedgEntryBuf, QtyBase, PurchaseLine."Expected Receipt Date", EntriesExist);
+            SetSource(
+                DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.",
+                PurchaseLine."Line No.", '', 0);
             if PurchaseLine."Document Type" in [PurchaseLine."Document Type"::Order, PurchaseLine."Document Type"::"Return Order"] then
                 "Reservation Status" := "Reservation Status"::Surplus
             else
@@ -3113,9 +3163,10 @@ codeunit 6500 "Item Tracking Management"
                 "Appl.-to Item Entry" := ItemLedgEntryBuf."Entry No.";
             Description := PurchaseLine.Description;
             OnCopyItemLedgEntryTrkgToDocLine(ItemLedgEntryBuf, ReservEntry);
-            UpdateItemTracking;
-            OnBeforeInsertReservEntryForPurchLine(ReservEntry, PurchaseLine);
-            Insert;
+            UpdateItemTracking();
+            OnBeforeInsertReservEntryForPurchLine(ReservEntry, PurchaseLine, ItemLedgEntryBuf);
+            Insert();
+            OnAfterInsertReservEntryForPurchLine(ReservEntry, PurchaseLine);
         end;
     end;
 
@@ -3150,7 +3201,7 @@ codeunit 6500 "Item Tracking Management"
             exit;
 
         with ReservEntry do begin
-            Init;
+            Init();
             TransferFields(TrackingSpecification);
             "Source Subtype" := SourceSubtype;
             "Source ID" := SourceID;
@@ -3161,6 +3212,7 @@ codeunit 6500 "Item Tracking Management"
             Positive := ("Quantity (Base)" > 0);
             "Entry No." := 0;
             "Item Tracking" := GetItemTrackingEntryType();
+            OnInsertReservationEntryFromTrackingSpecOnBeforeInsert(ReservEntry, TrackingSpecification);
             Insert();
         end;
     end;
@@ -3227,7 +3279,8 @@ codeunit 6500 "Item Tracking Management"
         ReservEntry.SetSourceFilter('', 0);
         ReservEntry.SetFilter("Item Tracking", '<>%1', ReservEntry."Item Tracking"::None);
 
-        exit(not TrackingSpecification.IsEmpty or not ReservEntry.IsEmpty);
+        OnItemTrackingExistsOnDocumentLineOnBeforeExit(TrackingSpecification, ReservEntry);
+        exit(not TrackingSpecification.IsEmpty() or not ReservEntry.IsEmpty());
     end;
 
     procedure CalcQtyToHandleForTrackedQtyOnDocumentLine(SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer): Decimal
@@ -3429,12 +3482,27 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSplitPostedWhseReceiptLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTrackingSpecification(var TrackingSpecification: Record "Tracking Specification"; ReservationEntry: Record "Reservation Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetWhseExpirationDate(ItemNo: Code[20]; VariantCode: Code[20]; Location: Record Location; LotNo: Code[50]; SerialNo: Code[50]; var ExpDate: Date; var ExpDateFound: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertReservEntryForPurchLine(var ReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertReservEntryForSalesLine(var ReservEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -3494,12 +3562,12 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertReservEntryForPurchLine(var ReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line")
+    local procedure OnBeforeInsertReservEntryForPurchLine(var ReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertReservEntryForSalesLine(var ReservEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line")
+    local procedure OnBeforeInsertReservEntryForSalesLine(var ReservEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -3559,6 +3627,11 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcWhseItemTrkgLineOnAfterCalcBaseQuantities(var WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopyLotNoInformationOnBeforeNewLotNoInfoInsert(var NewLotNoInfo: Record "Lot No. Information"; LotNoInfo: Record "Lot No. Information")
     begin
     end;
@@ -3604,9 +3677,17 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopyItemTracking3OnAfterSwapSign(var TempReservEntry: Record "Reservation Entry" temporary; ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by OnCopyItemTracking3OnAfterSwapSign()', '19.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnCopyItemTracking3OnBeforeSwapSign(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckItemTrkgInfBeforePostOnBeforeTempItemLotInfoInsert(var TempLotNoInfo: Record "Lot No. Information" temporary; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
@@ -3624,12 +3705,32 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopyItemLedgEntryTrkgToSalesLnOnbeforeToSalesLineInsert(var ToSalesLine: Record "Sales Line"; var TempItemLedgEntryBuf: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseItemTrackingBatchOnBeforeCreateWhseItemTrackingLines(WhseWkshLine: Record "Whse. Worksheet Line"; var SourceReservEntry: Record "Reservation Entry"; SourceType: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnIsOrderNetworkEntity(Type: Integer; Subtype: Integer; var IsNetworkEntity: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnInitReservEntryOnBeforeCopyTrackingFromItemLedgEntry(var ReservEntry: Record "Reservation Entry"; var ItemLedgEntryBuf: Record "Item Ledger Entry"; var EntriesExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitTrackingSpecificationOnBeforeCalcWhseItemTrackingLines(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReservationEntryFromTrackingSpecOnBeforeInsert(var ReservEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -3655,6 +3756,16 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRetrieveItemTrackingFromReservEntryFilter(var ReservEntry: Record "Reservation Entry"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveItemTrackingFromReservEntryOnAfterDeleteReservEntries(var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveSubcontrItemTrackingOnAfterDeleteReservEntries(var TempHandlingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 
@@ -3779,7 +3890,82 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyTempReservEntrySetIfTransfer(var TempReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRemoveItemTrkgFromReservEntryOnAfterReservEntryLoop(var ReservEntry: Record "Reservation Entry"; OriginalReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSynchronizeWhseItemTracking(var TempTrackingSpecification: Record "Tracking Specification" temporary; RegPickNo: Code[20]; Deletion: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeWhseItemTrackingOnAfterTempTrackingSpecificationLoop(var TempTrackingSpecification: Record "Tracking Specification" temporary; RegPickNo: Code[20]; Deletion: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeWhseItemTrackingOnBeforeReservEntryModify(var ReservEntry: Record "Reservation Entry"; var TempTrackingSpecification: Record "Tracking Specification" temporary; RegPickNo: Code[20]; Deletion: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSynchronizeItemTracking2OnAfterCalcShouldInsertTrkgSpec(var TempTrkgSpec1: Record "Tracking Specification" temporary; var TempTrkgSpec2: Record "Tracking Specification" temporary; var TempTrkgSpec3: Record "Tracking Specification" temporary; SignFactor1: Integer; SignFactor2: Integer; var ShouldInsertTrkgSpec: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeItemTracking2OnAfterSyncBothTrackingSpec(var TempTrkgSpec3: Record "Tracking Specification" temporary; TempTrkgSpec2: Record "Tracking Specification" temporary; TempSourceSpec: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeItemTracking2OnAfterAssignNewTrackingSpec(var TempTrkgSpec3: Record "Tracking Specification" temporary; TempTrkgSpec1: Record "Tracking Specification" temporary; TempSourceSpec: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeItemTracking2OnBeforeDeleteSyncedTrackingSpec(var TempTrkgSpec3: Record "Tracking Specification" temporary; TempTrkgSpec1: Record "Tracking Specification" temporary; TempTrkgSpec2: Record "Tracking Specification" temporary; SignFactor1: Integer; SignFactor2: Integer; var LastEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeItemTrkgTransferOnAfterTempToReservEntrySetFilters(var TempToReservEntry: Record "Reservation Entry" temporary; TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeItemTrkgTransferOnBeforeToReservEntryModifyAll(var ToReservEntry: Record "Reservation Entry"; TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemTrackingExistsOnDocumentLineOnBeforeExit(var TrackingSpecification: Record "Tracking Specification"; var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestExpDateOnTrackingSpecNew(var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestExpDateOnTrackingSpecNew(var TempTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWhseItemTrkgLineExistsOnBeforeExit(var WhseItemTrkgLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumUpItemTrackingOnBeforeTempHandlingSpecificationModify(var TempHandlingSpecification: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry")
     begin
     end;
 }

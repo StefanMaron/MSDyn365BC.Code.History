@@ -62,6 +62,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     var
         ToBinContent: Record "Bin Content";
         WMSMgt: Codeunit "WMS Management";
+        IsHandled: Boolean;
     begin
         WhseEntryNo := WhseEntryNo + 1;
 
@@ -126,23 +127,24 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         WhseEntry."Phys Invt Counting Period Code" := WhseJnlLine."Phys Invt Counting Period Code";
         WhseEntry."Phys Invt Counting Period Type" := WhseJnlLine."Phys Invt Counting Period Type";
 
-        OnInitWhseEntryCopyFromWhseJnlLine(WhseEntry, WhseJnlLine, OnMovement, Sign);
-
-        if Sign > 0 then begin
-            if BinCode <> Location."Adjustment Bin Code" then begin
-                if not ToBinContent.Get(
-                        WhseJnlLine."Location Code", BinCode, WhseJnlLine."Item No.", WhseJnlLine."Variant Code", WhseJnlLine."Unit of Measure Code")
-                then
-                    InsertToBinContent(WhseEntry)
-                else
-                    if Location."Default Bin Selection" = Location."Default Bin Selection"::"Last-Used Bin" then
-                        UpdateDefaultBinContent(WhseJnlLine."Item No.", WhseJnlLine."Variant Code", WhseJnlLine."Location Code", BinCode);
-                OnInitWhseEntryOnAfterGetToBinContent(WhseEntry, ItemTrackingMgt, WhseJnlLine, WhseReg, WhseEntryNo, Bin);
-            end
-        end else begin
-            if BinCode <> Location."Adjustment Bin Code" then
-                DeleteFromBinContent(WhseEntry);
-        end;
+        IsHandled := false;
+        OnInitWhseEntryCopyFromWhseJnlLine(WhseEntry, WhseJnlLine, OnMovement, Sign, Location, BinCode, IsHandled);
+        if not IsHandled then
+            if Sign > 0 then begin
+                if BinCode <> Location."Adjustment Bin Code" then begin
+                    if not ToBinContent.Get(
+                            WhseJnlLine."Location Code", BinCode, WhseJnlLine."Item No.", WhseJnlLine."Variant Code", WhseJnlLine."Unit of Measure Code")
+                    then
+                        InsertToBinContent(WhseEntry)
+                    else
+                        if Location."Default Bin Selection" = Location."Default Bin Selection"::"Last-Used Bin" then
+                            UpdateDefaultBinContent(WhseJnlLine."Item No.", WhseJnlLine."Variant Code", WhseJnlLine."Location Code", BinCode);
+                    OnInitWhseEntryOnAfterGetToBinContent(WhseEntry, ItemTrackingMgt, WhseJnlLine, WhseReg, WhseEntryNo, Bin);
+                end
+            end else begin
+                if BinCode <> Location."Adjustment Bin Code" then
+                    DeleteFromBinContent(WhseEntry);
+            end;
     end;
 
     local procedure DeleteFromBinContent(var WhseEntry: Record "Warehouse Entry")
@@ -514,7 +516,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitWhseEntryCopyFromWhseJnlLine(var WarehouseEntry: Record "Warehouse Entry"; var WarehouseJournalLine: Record "Warehouse Journal Line"; OnMovement: Boolean; Sign: Integer)
+    local procedure OnInitWhseEntryCopyFromWhseJnlLine(var WarehouseEntry: Record "Warehouse Entry"; var WarehouseJournalLine: Record "Warehouse Journal Line"; OnMovement: Boolean; Sign: Integer; Location: Record Location; BinCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -544,7 +546,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; WarehouseJournalLine: Record "Warehouse Journal Line")
+    local procedure OnBeforeInsertWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; var WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 

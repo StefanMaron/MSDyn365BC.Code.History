@@ -120,6 +120,7 @@ report 1095 "Update Job Item Cost"
 
             trigger OnPostDataItem()
             begin
+                OnBeforeOnPostDataItemJob(NoOfJobLedgEntry, HideResult);
                 if not HideResult then begin
                     if NoOfJobLedgEntry <> 0 then
                         Message(StrSubstNo(Text001, NoOfJobLedgEntry))
@@ -278,6 +279,11 @@ report 1095 "Update Job Item Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostTotalCostAdjustment(var JobLedgEntry: Record "Job Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var JobLedgerEntryCostValue: Decimal; var JobLedgerEntryCostValueACY: Decimal; var AdjustJobCost: Decimal; var AdjustJobCostLCY: Decimal; var NoOfJobLedgEntry: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPostDataItemJob(NoOfJobLedgEntry: Integer; var HideResult: Boolean)
     begin
     end;
 

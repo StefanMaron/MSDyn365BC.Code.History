@@ -1587,10 +1587,12 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceWorksheet.ModifyExistingLines.SetValue(false);
 
         // [WHEN] Set "Asset Type" is 'Item', "Asset Filter" is 'A|B', "Minimum Quantity" is 5, no rounding and click 'Ok'
+        LibraryVariableStorage.Enqueue(Format("Price Asset Type"::Item));
         Item[1].SetRange("No.", Item[1]."No.", Item[2]."No.");
         LibraryVariableStorage.Enqueue(Item[1].GetView()); // to "Asset Filter"
         MinQty := LibraryRandom.RandDec(100, 2);
         LibraryVariableStorage.Enqueue(MinQty); // "Minimum Quantity"
+        LibraryVariableStorage.Enqueue(1); // "Adjustment Factor"
         PriceWorksheet.SuggestLines.Invoke();
 
         // [THEN] Two price worksheet lines for default sales price list are added for Items 'A' and 'B' , where "Unit Price" is 'X' and 'Y', "Minimum Quantity" is 5
@@ -1599,6 +1601,102 @@ codeunit 134168 "Suggest Price Lines UT"
         VerifyPriceLine(PriceWorksheetLine, Item[1], MinQty);
         Assert.IsTrue(PriceWorksheetLine.Next() <> 0, 'The second line not found.');
         VerifyPriceLine(PriceWorksheetLine, Item[2], MinQty);
+        Assert.IsTrue(PriceWorksheetLine.Next() = 0, 'The third line must not exist.');
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestLinesWorksheetModalHandler')]
+    procedure T106_SalesPriceAddServiceCostLinesToWorksheet()
+    var
+        ServiceCost: array[2] of Record "Service Cost";
+        PriceListHeader: Record "Price List Header";
+        PriceWorksheetLine: Record "Price Worksheet Line";
+        PriceListManagement: Codeunit "Price List Management";
+        SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
+        PriceWorksheet: TestPage "Price Worksheet";
+        PriceListCode: Code[20];
+        MinQty: Decimal;
+    begin
+        // [FEATURE] [Sales] [Price Worksheet] [Service Cost]
+        Initialize(true);
+        PriceListCode := LibraryPriceCalculation.SetDefaultPriceList("Price Type"::Sale, "Price Source Group"::Customer);
+        BindSubscription(SuggestPriceLinesUT);
+        // [GIVEN] Service Costs 'A' and 'B' , where "Default Unit Price" is 'X' and 'Y'
+        LibraryService.CreateServiceCost(ServiceCost[1]);
+        ServiceCost[1]."Default Unit Price" := LibraryRandom.RandDec(1000, 2);
+        ServiceCost[1].Modify();
+        LibraryService.CreateServiceCost(ServiceCost[2]);
+        ServiceCost[2]."Default Unit Price" := LibraryRandom.RandDec(1000, 2);
+        ServiceCost[2].Modify();
+        // [GIVEN] Open Price Worksheet page for Sales/Customer and run "Suggest Lines.." 
+        PriceWorksheet.OpenEdit();
+        PriceWorksheet.PriceTypeFilter.SetValue("Price Type"::Sale);
+        PriceWorksheet.SourceGroupFilter.SetValue("Price Source Group"::Customer);
+        PriceWorksheet.ModifyExistingLines.SetValue(false);
+
+        // [WHEN] Set "Asset Type" is 'Service Cost', "Asset Filter" is 'A|B', "Minimum Quantity" is 5, no rounding and click 'Ok'
+        LibraryVariableStorage.Enqueue(Format("Price Asset Type"::"Service Cost"));
+        ServiceCost[1].SetRange(Code, ServiceCost[1].Code, ServiceCost[2].Code);
+        LibraryVariableStorage.Enqueue(ServiceCost[1].GetView()); // to "Asset Filter"
+        MinQty := LibraryRandom.RandDec(100, 2);
+        LibraryVariableStorage.Enqueue(MinQty); // "Minimum Quantity"
+        LibraryVariableStorage.Enqueue(2); // "Adjustment Factor"
+        PriceWorksheet.SuggestLines.Invoke();
+
+        //ServiceCost [THEN] Two price worksheet lines for default sales price list are added for Items 'A' and 'B' , where "Unit Price" is 'X' and 'Y', "Minimum Quantity" is 5
+        PriceWorksheetLine.SetRange("Price List Code", PriceListCode);
+        Assert.IsTrue(PriceWorksheetLine.FindSet(), 'The list is blank.');
+        VerifyPriceLine(PriceWorksheetLine, ServiceCost[1], MinQty, 2);
+        Assert.IsTrue(PriceWorksheetLine.Next() <> 0, 'The second line not found.');
+        VerifyPriceLine(PriceWorksheetLine, ServiceCost[2], MinQty, 2);
+        Assert.IsTrue(PriceWorksheetLine.Next() = 0, 'The third line must not exist.');
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestLinesWorksheetModalHandler')]
+    procedure T107_PurchPriceAddServiceCostLinesToWorksheet()
+    var
+        ServiceCost: array[2] of Record "Service Cost";
+        PriceListHeader: Record "Price List Header";
+        PriceWorksheetLine: Record "Price Worksheet Line";
+        PriceListManagement: Codeunit "Price List Management";
+        SuggestPriceLinesUT: Codeunit "Suggest Price Lines UT";
+        PriceWorksheet: TestPage "Price Worksheet";
+        PriceListCode: Code[20];
+        MinQty: Decimal;
+    begin
+        // [FEATURE] [Sales] [Price Worksheet] [Service Cost]
+        Initialize(true);
+        PriceListCode := LibraryPriceCalculation.SetDefaultPriceList("Price Type"::Purchase, "Price Source Group"::Vendor);
+        BindSubscription(SuggestPriceLinesUT);
+        // [GIVEN] Service Costs 'A' and 'B' , where "Default Unit Price" is 'X' and 'Y'
+        LibraryService.CreateServiceCost(ServiceCost[1]);
+        ServiceCost[1]."Default Unit Cost" := LibraryRandom.RandDec(1000, 2);
+        ServiceCost[1].Modify();
+        LibraryService.CreateServiceCost(ServiceCost[2]);
+        ServiceCost[2]."Default Unit Cost" := LibraryRandom.RandDec(1000, 2);
+        ServiceCost[2].Modify();
+        // [GIVEN] Open Price Worksheet page for Purchase/Vendor and run "Suggest Lines.." 
+        PriceWorksheet.OpenEdit();
+        PriceWorksheet.PriceTypeFilter.SetValue("Price Type"::Purchase);
+        PriceWorksheet.SourceGroupFilter.SetValue("Price Source Group"::Vendor);
+        PriceWorksheet.ModifyExistingLines.SetValue(false);
+
+        // [WHEN] Set "Asset Type" is 'Service Cost', "Asset Filter" is 'A|B', "Minimum Quantity" is 5, no rounding and click 'Ok'
+        LibraryVariableStorage.Enqueue(Format("Price Asset Type"::"Service Cost"));
+        ServiceCost[1].SetRange(Code, ServiceCost[1].Code, ServiceCost[2].Code);
+        LibraryVariableStorage.Enqueue(ServiceCost[1].GetView()); // to "Asset Filter"
+        MinQty := LibraryRandom.RandDec(100, 2);
+        LibraryVariableStorage.Enqueue(MinQty); // "Minimum Quantity"
+        LibraryVariableStorage.Enqueue(3); // "Adjustment Factor"
+        PriceWorksheet.SuggestLines.Invoke();
+
+        //ServiceCost [THEN] Two price worksheet lines for default purchase price list are added for Items 'A' and 'B' , where "Unit Cost" is 'X' and 'Y', "Minimum Quantity" is 5
+        PriceWorksheetLine.SetRange("Price List Code", PriceListCode);
+        Assert.IsTrue(PriceWorksheetLine.FindSet(), 'The list is blank.');
+        VerifyPriceLine(PriceWorksheetLine, ServiceCost[1], MinQty, 3);
+        Assert.IsTrue(PriceWorksheetLine.Next() <> 0, 'The second line not found.');
+        VerifyPriceLine(PriceWorksheetLine, ServiceCost[2], MinQty, 3);
         Assert.IsTrue(PriceWorksheetLine.Next() = 0, 'The third line must not exist.');
     end;
 
@@ -2063,6 +2161,30 @@ codeunit 134168 "Suggest Price Lines UT"
         end;
     end;
 
+    local procedure VerifyPriceLine(PriceWorksheetLine: Record "Price Worksheet Line"; ServiceCost: Record "Service Cost"; MinQty: Decimal; AdjFactor: Decimal)
+    begin
+        PriceWorksheetLine.TestField("Asset Type", "Price Asset Type"::"Service Cost");
+        PriceWorksheetLine.TestField("Asset No.", ServiceCost.Code);
+        PriceWorksheetLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceWorksheetLine.TestField("Minimum Quantity", MinQty);
+        case PriceWorksheetLine."Price Type" of
+            "Price Type"::Sale:
+                begin
+                    PriceWorksheetLine.TestField("Existing Unit Price", ServiceCost."Default Unit Price");
+                    PriceWorksheetLine.TestField("Unit Price", ServiceCost."Default Unit Price" * AdjFactor);
+                    PriceWorksheetLine.TestField("Direct Unit Cost", 0);
+                    PriceWorksheetLine.TestField("Unit Cost", 0);
+                end;
+            "Price Type"::Purchase:
+                begin
+                    PriceWorksheetLine.TestField("Unit Price", 0);
+                    PriceWorksheetLine.TestField("Direct Unit Cost", 0);
+                    PriceWorksheetLine.TestField("Existing Unit Cost", ServiceCost."Default Unit Cost");
+                    PriceWorksheetLine.TestField("Unit Cost", ServiceCost."Default Unit Cost" * AdjFactor);
+                end;
+        end;
+    end;
+
     [ConfirmHandler]
     procedure ConfirmYesHandler(Question: text; var Reply: Boolean)
     begin
@@ -2183,9 +2305,10 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.IsFalse(SuggestPriceLines."Price Line Filter".Visible(), '"Price Line Filter".Visible');
         Assert.IsFalse(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
 
-        SuggestPriceLines."Product Type".SetValue('Item');
+        SuggestPriceLines."Product Type".SetValue(LibraryVariableStorage.DequeueText());
         SuggestPriceLines."Product Filter".SetValue(LibraryVariableStorage.DequeueText());
         SuggestPriceLines."Minimum Quantity".SetValue(LibraryVariableStorage.DequeueDecimal());
+        SuggestPriceLines."Adjustment Factor".SetValue(LibraryVariableStorage.DequeueDecimal());
         SuggestPriceLines.OK().Invoke()
     end;
 

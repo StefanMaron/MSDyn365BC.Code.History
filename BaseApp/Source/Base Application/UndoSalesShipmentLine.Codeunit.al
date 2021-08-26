@@ -79,6 +79,7 @@ codeunit 5815 "Undo Sales Shipment Line"
             SetCurrentKey("Item Shpt. Entry No.");
             SetFilter(Quantity, '<>0');
             SetRange(Correction, false);
+            OnCodeOnAfterSalesShptLineSetFilters(SalesShptLine);
             if IsEmpty() then
                 Error(AlreadyReversedErr);
             FindFirst();
@@ -322,8 +323,12 @@ codeunit 5815 "Undo Sales Shipment Line"
     procedure UpdateOrderLine(SalesShptLine: Record "Sales Shipment Line")
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateOrderLine(SalesShptLine);
+        IsHandled := false;
+        OnBeforeUpdateOrderLine(SalesShptLine, IsHandled);
+        if IsHandled then
+            exit;
 
         with SalesShptLine do begin
             SalesLine.Get(SalesLine."Document Type"::Order, "Order No.", "Order Line No.");
@@ -616,12 +621,17 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateOrderLine(var SalesShptLine: Record "Sales Shipment Line")
+    local procedure OnBeforeUpdateOrderLine(var SalesShptLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeUndoLoop(var SalesShptLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterSalesShptLineSetFilters(var SalesShptLine: Record "Sales Shipment Line")
     begin
     end;
 

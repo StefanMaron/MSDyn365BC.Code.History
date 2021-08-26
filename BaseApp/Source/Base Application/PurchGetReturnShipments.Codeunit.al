@@ -1,4 +1,4 @@
-codeunit 6648 "Purch.-Get Return Shipments"
+﻿codeunit 6648 "Purch.-Get Return Shipments"
 {
     TableNo = "Purchase Line";
 
@@ -32,9 +32,11 @@ codeunit 6648 "Purch.-Get Return Shipments"
     procedure CreateInvLines(var ReturnShptLine2: Record "Return Shipment Line")
     var
         DifferentCurrencies: Boolean;
+        ShouldInsertReturnRcptLine: Boolean;
     begin
         with ReturnShptLine2 do begin
             SetFilter("Return Qty. Shipped Not Invd.", '<>0');
+            OnCreateInvLinesOnAfterReturnShptLine2SetFilters(ReturnShptLine2);
             if Find('-') then begin
                 PurchLine.LockTable();
                 PurchLine.SetRange("Document Type", PurchHeader."Document Type");
@@ -56,7 +58,9 @@ codeunit 6648 "Purch.-Get Return Shipments"
                         end;
                         OnBeforeTransferLineToPurchaseDoc(ReturnShptHeader, ReturnShptLine2, PurchHeader, DifferentCurrencies);
                     end;
-                    if not DifferentCurrencies then begin
+                    ShouldInsertReturnRcptLine := not DifferentCurrencies;
+                    OnCreateInvLinesOnAfterCalcShouldInsertReturnRcptLine(ReturnShptHeader, ReturnShptLine2, PurchHeader, ShouldInsertReturnRcptLine);
+                    if ShouldInsertReturnRcptLine then begin
                         ReturnShptLine := ReturnShptLine2;
                         ReturnShptLine.InsertInvLineFromRetShptLine(PurchLine);
                         if Type = Type::"Charge (Item)" then
@@ -194,6 +198,16 @@ codeunit 6648 "Purch.-Get Return Shipments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferLineToPurchaseDoc(ReturnShipmentHeader: Record "Return Shipment Header"; ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseHeader: Record "Purchase Header"; var TransferLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvLinesOnAfterCalcShouldInsertReturnRcptLine(var ReturnShipmentHeader: Record "Return Shipment Header"; var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseHeader: Record "Purchase Header"; var ShouldInsertReturnRcptLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvLinesOnAfterReturnShptLine2SetFilters(var ReturnShipmentLine: Record "Return Shipment Line")
     begin
     end;
 

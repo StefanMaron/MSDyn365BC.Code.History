@@ -803,12 +803,11 @@ table 9650 "Custom Report Layout"
         Clear(TempBlob);
         TempBlob.FromRecord(Rec, FieldNo(Layout));
 
-        if not "Built-In" then
-            TempBlob.FromRecord(Rec, FieldNo(Layout))
-        else begin
-            ReportLayout.Get(Code);
-            TempBlob.FromRecord(ReportLayout, ReportLayout.FieldNo(Layout));
-        end;
+        if "Built-In" then
+            if not TempBlob.HasValue() then begin // not a built-in report from an extension
+                ReportLayout.Get(Code);
+                TempBlob.FromRecord(ReportLayout, ReportLayout.FieldNo(Layout));
+            end;
     end;
 
     procedure ClearLayout()

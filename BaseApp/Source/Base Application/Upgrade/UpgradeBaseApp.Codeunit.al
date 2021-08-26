@@ -1,10 +1,7 @@
 ﻿codeunit 104000 "Upgrade - BaseApp"
 {
     Subtype = Upgrade;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = TableData "User Group Plan" = rimd;
 
     var
         ExcelTemplateIncomeStatementTxt: Label 'ExcelTemplateIncomeStatement', Locked = true;
@@ -1200,11 +1197,11 @@
         UserGroupPlan: Record "User Group Plan";
         UserGroup: Record "User Group";
     begin
-        IF UserGroupPlan.GET(PlanId, UserGroupCode) THEN
-            EXIT;
+        if UserGroupPlan.Get(PlanId, UserGroupCode) then
+            exit;
 
-        IF NOT UserGroup.GET(UserGroupCode) THEN
-            EXIT;
+        if not UserGroup.Get(UserGroupCode) then
+            exit;
 
         UserGroupPlan.Init();
         UserGroupPlan."Plan ID" := PlanId;
@@ -1951,52 +1948,40 @@
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionSetEntry: Record "Dimension Set Entry";
+        EnvironmentInformation: Codeunit "Environment Information";
+        UpdateDimSetGlblDimNo: Codeunit "Update Dim. Set Glbl. Dim. No.";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
-        DimFilterString: Text;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDimSetEntryGlobalDimNoUpgradeTag()) THEN
             exit;
 
         if GeneralLedgerSetup.Get() then begin
-            if GeneralLedgerSetup."Shortcut Dimension 3 Code" <> '' then begin
-                DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 3 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 3, false);
-                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 3 Code";
-            end;
-            if GeneralLedgerSetup."Shortcut Dimension 4 Code" <> '' then begin
-                DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 4 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 4, false);
-                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 4 Code";
-            end;
-            if GeneralLedgerSetup."Shortcut Dimension 5 Code" <> '' then begin
-                DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 5 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 5, false);
-                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 5 Code";
-            end;
-            if GeneralLedgerSetup."Shortcut Dimension 6 Code" <> '' then begin
-                DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 6 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 6, false);
-                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 6 Code";
-            end;
-            if GeneralLedgerSetup."Shortcut Dimension 7 Code" <> '' then begin
-                DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 7 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 7, false);
-                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 7 Code";
-            end;
-            if GeneralLedgerSetup."Shortcut Dimension 8 Code" <> '' then begin
-                DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 8 Code");
-                DimensionSetEntry.ModifyAll("Global Dimension No.", 8, false);
-                DimFilterString += '&<>' + GeneralLedgerSetup."Shortcut Dimension 8 Code";
-            end;
-            IF DimFilterString <> '' then begin
-                DimFilterString := DelChr(DimFilterString, '<', '&');
-                DimensionSetEntry.SetFilter("Dimension Code", DimFilterString);
-            end;
-            DimensionSetEntry.ModifyAll("Global Dimension No.", 0, false);
+            if EnvironmentInformation.IsSaaS() then
+                if DimensionSetEntry.Count() > GetSafeRecordCountForSaaSUpgrade() then
+                    exit;
+
+            if UpgradeDimensionSetEntryIsHandled() then
+                exit;
+            UpdateDimSetGlblDimNo.BlankGlobalDimensionNo();
+            UpdateDimSetGlblDimNo.SetGlobalDimensionNos(GeneralLedgerSetup);
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDimSetEntryGlobalDimNoUpgradeTag());
+    end;
+
+    local procedure UpgradeDimensionSetEntryIsHandled() IsHandled: Boolean;
+    begin
+        // If you have extended the table "Dimension Set Entry", ModifyAll calls in Codeunit "Update Dim. Set Glbl. Dim. No." 
+        // can lead to the whole upgrade failed by time out. 
+        // Subscribe to OnUpgradeDimensionSetEntry and return IsHandled as true to skip the "Dimension Set Entry" update. 
+        // After upgrade is done you can run the same update by report 482 "Update Dim. Set Glbl. Dim. No.".
+        OnUpgradeDimensionSetEntry(IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpgradeDimensionSetEntry(var IsHandled: Boolean)
+    begin
     end;
 
     local procedure UpgradePurchaseOrderEntityBuffer()

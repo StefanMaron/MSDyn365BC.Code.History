@@ -122,8 +122,15 @@ codeunit 99000770 "Where-Used Management"
             until ProdBOMComponent.Next() = 0;
     end;
 
-    local procedure IsActiveProductionBOM(ProductionBOMLine: Record "Production BOM Line"): Boolean
+    local procedure IsActiveProductionBOM(ProductionBOMLine: Record "Production BOM Line") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsActiveProductionBOM(ProductionBOMLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if ProductionBOMLine."Version Code" = '' then
             exit(not IsProductionBOMClosed(ProductionBOMLine));
 
@@ -144,6 +151,11 @@ codeunit 99000770 "Where-Used Management"
     begin
         ProductionBOMVersion.Get(ProductionBOMLine."Production BOM No.", ProductionBOMLine."Version Code");
         exit(ProductionBOMVersion.Status = ProductionBOMVersion.Status::Closed);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsActiveProductionBOM(ProductionBOMLine: Record "Production BOM Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

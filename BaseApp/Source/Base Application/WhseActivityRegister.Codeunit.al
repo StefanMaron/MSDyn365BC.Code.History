@@ -75,6 +75,9 @@ codeunit 7307 "Whse.-Activity-Register"
             WhseActivLine.SetFilter("Qty. to Handle (Base)", '<>0');
 
             CheckWhseActivLineIsEmpty(WhseActivLine);
+
+            MaintainZeroLines(WhseActivLine);
+
             CheckWhseItemTrkgLine(WhseActivLine);
 
             Get(WhseActivLine."Activity Type", WhseActivLine."No.");
@@ -202,12 +205,7 @@ codeunit 7307 "Whse.-Activity-Register"
                     QtyDiff := "Qty. Outstanding" - "Qty. to Handle";
                     QtyBaseDiff := "Qty. Outstanding (Base)" - "Qty. to Handle (Base)";
                     UpdateWhseActivLineQtyOutstanding(WarehouseActivityLine, QtyDiff, QtyBaseDiff);
-                    Validate("Qty. to Handle", QtyDiff);
-                    if "Qty. to Handle (Base)" > QtyBaseDiff then // round off error- qty same, not base qty
-                        "Qty. to Handle (Base)" := QtyBaseDiff;
-                    if HideDialog then
-                        Validate("Qty. to Handle", 0);
-                    Validate("Qty. Handled", Quantity - "Qty. Outstanding");
+                    UpdateWarehouseActivityLineQtyToHandle(WarehouseActivityLine, QtyDiff, QtyBaseDiff);
                     OnBeforeWhseActivLineModify(WarehouseActivityLine);
                     Modify;
                 end;
@@ -228,6 +226,25 @@ codeunit 7307 "Whse.-Activity-Register"
             Validate("Qty. Outstanding", QtyDiff);
             if "Qty. Outstanding (Base)" > QtyBaseDiff then // round off error- qty same, not base qty
                 "Qty. Outstanding (Base)" := QtyBaseDiff;
+        end;
+    end;
+
+    local procedure UpdateWarehouseActivityLineQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; QtyDiff: Decimal; QtyBaseDiff: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateWarehouseActivityLineQtyToHandle(WarehouseActivityLine, QtyDiff, QtyBaseDiff, HideDialog, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WarehouseActivityLine do begin
+            Validate("Qty. to Handle", QtyDiff);
+            if "Qty. to Handle (Base)" > QtyBaseDiff then // round off error- qty same, not base qty
+                "Qty. to Handle (Base)" := QtyBaseDiff;
+            if HideDialog then
+                Validate("Qty. to Handle", 0);
+            Validate("Qty. Handled", Quantity - "Qty. Outstanding");
         end;
     end;
 
@@ -939,6 +956,7 @@ codeunit 7307 "Whse.-Activity-Register"
         TempWhseActivLine.SetCurrentKey(
           "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
         TempWhseActivLine.SetRange("Breakbulk No.", 0);
+        OnCheckWhseItemTrkgLineOnAfterTempWhseActivLineSetFilters(TempWhseActivLine);
         if TempWhseActivLine.Find('-') then
             repeat
                 ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseActivLine."Item No.", WhseItemTrackingSetup);
@@ -1945,6 +1963,17 @@ codeunit 7307 "Whse.-Activity-Register"
         SuppressCommit := NewSuppressCommit;
     end;
 
+    local procedure MaintainZeroLines(WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type");
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityLine."No.");
+        WarehouseActivityLine.SetRange("Qty. to Handle", 0);
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                WarehouseActivityLine.ResetQtyToHandleOnReservation();
+            until WarehouseActivityLine.Next() = 0;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
@@ -2241,6 +2270,11 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWarehouseActivityLineQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; var QtyDiff: Decimal; var QtyBaseDiff: Decimal; HideDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseInternalPickLineModify(var WhseInternalPickLine: Record "Whse. Internal Pick Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -2347,6 +2381,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckWhseItemTrkgLineOnBeforeCalcQtyToRegisterBase(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckWhseItemTrkgLineOnAfterTempWhseActivLineSetFilters(var TempWhseActivLine: Record "Warehouse Activity Line" temporary)
     begin
     end;
 }

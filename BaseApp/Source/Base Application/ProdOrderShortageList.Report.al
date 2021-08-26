@@ -134,6 +134,9 @@ report 99000788 "Prod. Order - Shortage List"
                         SetRange("Location Code");
 
                         CompItem.Get("Item No.");
+                        if CompItem.IsNonInventoriableType() then
+                            CurrReport.Skip();
+
                         CompItem.SetRange("Variant Filter", "Variant Code");
                         CompItem.SetRange("Location Filter", "Location Code");
                         CompItem.SetRange(

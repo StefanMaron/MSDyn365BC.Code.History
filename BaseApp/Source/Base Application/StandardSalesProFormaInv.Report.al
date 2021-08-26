@@ -258,10 +258,15 @@ report 1302 "Standard Sales - Pro Forma Inv"
 
                 trigger OnAfterGetRecord()
                 var
+                    Location: Record Location;
                     AutoFormatType: Enum "Auto Format";
                 begin
                     Item.Get("No.");
                     OnBeforeLineOnAfterGetRecord(Header, Line);
+
+                    if IsShipment() then
+                        if Location.RequireShipment("Location Code") and ("Quantity Shipped" = 0) then
+                            "Qty. to Invoice" := Quantity;
 
                     if Quantity = 0 then begin
                         LinePrice := "Unit Price";

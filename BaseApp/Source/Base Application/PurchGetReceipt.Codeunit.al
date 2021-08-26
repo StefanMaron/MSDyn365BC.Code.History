@@ -1,4 +1,4 @@
-codeunit 74 "Purch.-Get Receipt"
+﻿codeunit 74 "Purch.-Get Receipt"
 {
     TableNo = "Purchase Line";
 
@@ -79,11 +79,7 @@ codeunit 74 "Purch.-Get Receipt"
                         end;
                         OnBeforeTransferLineToPurchaseDoc(PurchRcptHeader, PurchRcptLine2, PurchHeader, TransferLine);
                     end;
-                    if TransferLine then begin
-                        PurchRcptLine := PurchRcptLine2;
-                        PurchRcptLine.InsertInvLineFromRcptLine(PurchLine);
-                        CalcUpdatePrepmtAmtToDeductRounding(PurchRcptLine, PurchLine, PrepmtAmtToDeductRounding);
-                    end;
+                    InsertInvoiceLineFromReceiptLine(PurchRcptLine2, TransferLine, PrepmtAmtToDeductRounding);
                 until Next() = 0;
 
                 UpdateItemChargeLines();
@@ -98,6 +94,22 @@ codeunit 74 "Purch.-Get Receipt"
                 if TransferLine then
                     AdjustPrepmtAmtToDeductRounding(PurchLine, PrepmtAmtToDeductRounding);
             end;
+        end;
+    end;
+
+    local procedure InsertInvoiceLineFromReceiptLine(var PurchRcptLine2: Record "Purch. Rcpt. Line"; TransferLine: Boolean; var PrepmtAmtToDeductRounding: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertInvoiceLineFromReceiptLine(PurchRcptHeader, PurchRcptLine2, PurchHeader, TransferLine, PrepmtAmtToDeductRounding, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TransferLine then begin
+            PurchRcptLine := PurchRcptLine2;
+            PurchRcptLine.InsertInvLineFromRcptLine(PurchLine);
+            CalcUpdatePrepmtAmtToDeductRounding(PurchRcptLine, PurchLine, PrepmtAmtToDeductRounding);
         end;
     end;
 
@@ -311,6 +323,11 @@ codeunit 74 "Purch.-Get Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertLines(var PurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertInvoiceLineFromReceiptLine(PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchRcptLine2: Record "Purch. Rcpt. Line"; PurchHeader: Record "Purchase Header"; TransferLine: Boolean; var PrepmtAmtToDeductRounding: Decimal; var IsHandled: Boolean)
     begin
     end;
 

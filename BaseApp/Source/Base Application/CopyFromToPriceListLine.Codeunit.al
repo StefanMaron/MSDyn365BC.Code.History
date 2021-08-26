@@ -822,8 +822,8 @@ Codeunit 7009 CopyFromToPriceListLine
         if PriceListLine.IsTemporary then
             PriceListLine."Line No." += 10000
         else begin
-            PriceListLine."Line No." := 0;
             SetPriceListCode(PriceListLine);
+            PriceListLine.SetNextLineNo();
         end;
     end;
 

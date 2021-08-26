@@ -234,6 +234,19 @@ codeunit 452 "Report Distribution Management"
         end;
     end;
 
+    procedure GetReportCaption(ReportID: Integer; LanguageCode: Code[10]) ReportCaption: Text[250]
+    var
+        AllObjWithCaption: Record AllObjWithCaption;
+        TranslationHelper: Codeunit "Translation Helper";
+    begin
+        TranslationHelper.SetGlobalLanguageByCode(LanguageCode);
+
+        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, ReportID) then
+            ReportCaption := AllObjWithCaption."Object Caption";
+
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
     local procedure GetBillToCustomer(var Customer: Record Customer; DocumentVariant: Variant)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";

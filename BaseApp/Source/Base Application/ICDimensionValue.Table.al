@@ -50,7 +50,7 @@ table 412 "IC Dimension Value"
         field(7; "Map-to Dimension Value Code"; Code[20])
         {
             Caption = 'Map-to Dimension Value Code';
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Map-to Dimension Code"));
+            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Map-to Dimension Code"),Blocked = CONST(false));
         }
         field(8; Indentation; Integer)
         {

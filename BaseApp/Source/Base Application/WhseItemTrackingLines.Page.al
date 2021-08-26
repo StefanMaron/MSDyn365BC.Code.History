@@ -525,6 +525,8 @@ page 6550 "Whse. Item Tracking Lines"
             else
                 if not CopyToReservEntry then
                     RestoreInitialTrkgLine();
+
+        OnAfterOnClosePage(Rec, WhseWorksheetLine, FormSourceType, FormUpdated);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -774,6 +776,8 @@ page 6550 "Whse. Item Tracking Lines"
     begin
         QtyIsValid := ItemTrackingMgt.UpdateUndefinedQty(TotalWhseItemTrackingLine, SourceQuantityArray, UndefinedQtyArray);
         UpdateColorOfQty();
+
+        OnAfterUpdateUndefinedQty(Rec, TotalWhseItemTrackingLine, QtyIsValid);
     end;
 
     local procedure UpdateColorOfQty()
@@ -1004,6 +1008,16 @@ page 6550 "Whse. Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSource(var GlobalWhseWorksheetLine: Record "Whse. Worksheet Line"; SourceWhseWorksheetLine: Record "Whse. Worksheet Line"; SourceType: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnClosePage(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var WhseWorksheetLine: Record "Whse. Worksheet Line"; FormSourceType: Integer; FormUpdated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateUndefinedQty(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var TotalWhseItemTrackingLine: Record "Whse. Item Tracking Line"; var QtyIsValid: Boolean)
     begin
     end;
 

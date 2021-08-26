@@ -62,6 +62,7 @@
                     "Unit Cost" := Item."Unit Cost";
                     "Indirect Cost %" := Item."Indirect Cost %";
                     "Overhead Rate" := Item."Overhead Rate";
+                    OnValidateItemNoOnAfterAssignItemValues(Rec, Item);
                     if "Item No." <> xRec."Item No." then begin
                         Validate("Production BOM No.", Item."Production BOM No.");
                         Validate("Routing No.", Item."Routing No.");
@@ -129,7 +130,8 @@
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -140,7 +142,8 @@
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -1251,6 +1254,8 @@
             SetFilter("Remaining Qty. (Base)", '>0')
         else
             SetFilter("Remaining Qty. (Base)", '<0');
+
+        OnAfterFilterLinesForReservation(Rec, ReservationEntry, NewStatus, AvailabilityFilter, Positive);
     end;
 
     procedure SetIgnoreErrors()
@@ -1449,6 +1454,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesForReservation(var ProdOrderLine: Record "Prod. Order Line"; ReservationEntry: Record "Reservation Entry"; NewStatus: Option; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterOnDelete(var ProdOrderLine: Record "Prod. Order Line"; var RefreshRecord: Boolean)
     begin
     end;
@@ -1535,6 +1545,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteRelationsOnBeforeProdOrderCompDeleteAll(var ProdOrderComp: Record "Prod. Order Component"; Blocked: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterAssignItemValues(var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item)
     begin
     end;
 }

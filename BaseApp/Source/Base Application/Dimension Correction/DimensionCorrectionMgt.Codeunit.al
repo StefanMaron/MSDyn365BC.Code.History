@@ -817,6 +817,7 @@ codeunit 2580 "Dimension Correction Mgt"
 
         if not JobQueueEntry.Get(DimensionCorrection."Last Job Queue Entry ID") then begin
             DimensionCorrection.Status := DimensionCorrection.Status::Failed;
+            DimensionCorrection.Modify();
             exit;
         end;
 
@@ -877,8 +878,12 @@ codeunit 2580 "Dimension Correction Mgt"
                 Error(JobAlreadyInProgressErr);
 
         InProgressDimensionCorrection.SetFilter(Status, '%1|%2|%3', DimensionCorrection.Status::"In Process", DimensionCorrection.Status::"Undo in Process", DimensionCorrection.Status::"Validaton in Process");
-        if not InProgressDimensionCorrection.IsEmpty() then
-            Error(JobAlreadyInProgressErr);
+        InProgressDimensionCorrection.SetLoadFields("Entry No.", Status);
+        if InProgressDimensionCorrection.FindFirst() then
+            UpdateStatus(InProgressDimensionCorrection);
+
+        if InProgressDimensionCorrection.FindFirst() then
+            Error(AnotherJobAlreadyInProgressErr, InProgressDimensionCorrection."Entry No.");
     end;
 
     procedure SetStatusInProgress(var DimensionCorrection: Record "Dimension Correction")
@@ -1290,6 +1295,7 @@ codeunit 2580 "Dimension Correction Mgt"
         JobQueueIsRunningErr: Label 'The job queue entry is already running. Stop the existing job queue entry to schedule a new one.';
         JobQueueEntryDescTxt: Label 'Dimension Correction - %1.', Comment = '%1 - Unique number of the correction';
         JobAlreadyInProgressErr: Label 'There is a job already in progress.';
+        AnotherJobAlreadyInProgressErr: Label 'Dimension correction %1 is in progress and must complete before you can start another correction.', Comment = '%1 - Entry No of another dimension correction';
         ChangesWereResetMsg: Label 'Changes to the dimensions were reset because ledger entries were updated. We recommend that you change dimensions after selecting all ledger entries.';
         CannotChangeDimensionCodeBlockedErr: Label 'Dimension %1 cannot be used because it is blocked for the correction.', Comment = '%1 code of the dimension';
         JobQueueCategoryCodeTxt: Label 'DIMCORRECT', Locked = true;

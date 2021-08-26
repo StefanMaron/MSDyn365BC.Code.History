@@ -395,7 +395,7 @@ codeunit 730 "Copy Item"
             repeat
                 NewPriceListLine := PriceListLine;
                 NewPriceListLine."Asset No." := ToItemNo;
-                NewPriceListLine."Line No." := 0;
+                NewPriceListLine.SetNextLineNo();
                 NewPriceListLine.Insert();
             until PriceListLine.Next() = 0;
     end;

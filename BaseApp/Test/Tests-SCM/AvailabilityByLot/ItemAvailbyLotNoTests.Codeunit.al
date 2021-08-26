@@ -12,6 +12,7 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         LibrarySales: Codeunit "Library - Sales";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         DayDateFormulaTxt: Label '<%1D>', Locked = false, Comment = '%1 = no. of days';
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
@@ -521,6 +522,8 @@ codeunit 134084 "Item Avail. by Lot No Tests"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Item Avail. by Lot No Tests");
+
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
     end;
 }

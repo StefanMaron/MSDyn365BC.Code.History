@@ -1,4 +1,4 @@
-codeunit 311 "Item-Check Avail."
+﻿codeunit 311 "Item-Check Avail."
 {
     Permissions = TableData "My Notifications" = rimd;
 
@@ -69,7 +69,13 @@ codeunit 311 "Item-Check Avail."
     end;
 
     procedure TransferLineCheck(TransLine: Record "Transfer Line") Rollback: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferLineCheck(TransLine, Rollback, IsHandled);
+        if IsHandled then
+            exit(Rollback);
         NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
           TransLine.RecordId, GetItemAvailabilityNotificationId(), true);
         if TransferLineShowWarning(TransLine) then
@@ -192,7 +198,7 @@ codeunit 311 "Item-Check Avail."
         if SalesLine."Document Type" = SalesLine."Document Type"::Order then
             UseOrderPromise := true;
         IsHandled := false;
-        OnSalesLineShowWarningOnBeforeShowWarning(SalesLine, ContextInfo, OldSalesLine, IsWarning, IsHandled);
+        OnSalesLineShowWarningOnBeforeShowWarning(SalesLine, ContextInfo, OldSalesLine, IsWarning, IsHandled, OldItemNetChange);
         if IsHandled then
             exit(IsWarning);
 
@@ -727,12 +733,17 @@ codeunit 311 "Item-Check Avail."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSalesLineShowWarningOnBeforeShowWarning(SalesLine: Record "Sales Line"; var ContextInfo: Dictionary of [Text, Text]; OldSalesLine: Record "Sales Line"; var IsWarning: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeTransferLineCheck(TransferLine: Record "Transfer Line"; var Rollback: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateOnBeforeCalcInitialQtyAvailable(Item: Record Item; SchedRcpt: Decimal; ReservedRcpt: Decimal; GrossReq: Decimal; ReservedReq: Decimal; OldItemNetResChange: Decimal; NewItemNetResChange: Decimal; ContextInfo: Dictionary of [Text, Text])
+    local procedure OnSalesLineShowWarningOnBeforeShowWarning(SalesLine: Record "Sales Line"; var ContextInfo: Dictionary of [Text, Text]; OldSalesLine: Record "Sales Line"; var IsWarning: Boolean; var IsHandled: Boolean; var OldItemNetChange: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnBeforeCalcInitialQtyAvailable(Item: Record Item; var SchedRcpt: Decimal; var ReservedRcpt: Decimal; var GrossReq: Decimal; var ReservedReq: Decimal; OldItemNetResChange: Decimal; NewItemNetResChange: Decimal; ContextInfo: Dictionary of [Text, Text])
     begin
     end;
 

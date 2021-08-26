@@ -313,6 +313,7 @@ codeunit 7150 "Update Item Analysis View"
         TempItemAnalysisViewBudgEntry."Dimension 2 Value Code" := DimValue2;
         TempItemAnalysisViewBudgEntry."Dimension 3 Value Code" := DimValue3;
         TempItemAnalysisViewBudgEntry."Entry No." := ItemBudgetEntry."Entry No.";
+        OnUpdateAnalysisViewBudgetEntryOnAfterInitTempItemAnalysisViewBudgEntry(TempItemAnalysisViewBudgEntry, ItemBudgetEntry, ItemAnalysisView);
 
         if TempItemAnalysisViewBudgEntry.Find then begin
             AddValue(TempItemAnalysisViewBudgEntry."Sales Amount", ItemBudgetEntry."Sales Amount");
@@ -588,6 +589,11 @@ codeunit 7150 "Update Item Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateEntriesOnAfterSetFilters(var ItemAnalysisView: Record "Item Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAnalysisViewBudgetEntryOnAfterInitTempItemAnalysisViewBudgEntry(var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry"; var ItemBudgetEntry: Record "Item Budget Entry"; var ItemAnalysisView: Record "Item Analysis View")
     begin
     end;
 }

@@ -113,6 +113,9 @@ codeunit 1368 "Monitored Field Notification"
     var
         ChangeLogEntry: Record "Change Log Entry";
     begin
+        if IsNullGuid(MessageId) then
+            exit;
+
         ChangeLogEntry.SetRange("Notification Message Id", MessageId);
         ChangeLogEntry.SetRange("Field Log Entry Feature", ChangeLogEntry."Field Log Entry Feature"::"Monitor Sensitive Fields");
         ChangeLogEntry.SetRange("Notification Status", ChangeLogEntry."Notification Status"::"Email Enqueued");

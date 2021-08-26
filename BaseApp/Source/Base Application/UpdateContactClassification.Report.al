@@ -861,42 +861,42 @@ report 5199 "Update Contact Classification"
                   (ProfileQuestnLine2.Type = ProfileQuestnLine2.Type::Question);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeFindContactValues(var Contact: Record Contact)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeFindCustomerValues(var Customer: Record Customer)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindContactValuesOnAfterContactClassFieldCase(var Contact: Record Contact)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindContactValuesOnBeforeContLoop(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; var Contact: Record Contact)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindCustomerValuesOnBeforeCustLoop(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; var Customer: Record Customer)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindCustomerValuesOnAfterCustomerClassFieldCase(var Customer: Record Customer)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindCustomerValuesOnBeforeCustomerClassFieldCase(Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntry2: Record "Cust. Ledger Entry")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindCustomerValuesOnAvgOverdueDayOnZeroInvoices(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; var CustLedgEntry: Record "Cust. Ledger Entry"; var ValueEntry: Record "Value Entry"; var Customer: Record Customer; var CustContactNo: Code[20]; var IsHandled: Boolean)
     begin
     end;

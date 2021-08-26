@@ -177,7 +177,13 @@ codeunit 951 "Time Sheet Approval Management"
     local procedure CheckApproverPermissions(TimeSheetLine: Record "Time Sheet Line")
     var
         UserSetup: Record "User Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckApproverPermissions(TimeSheetLine, IsHandled);
+        if IsHandled then
+            exit;
+
         UserSetup.Get(UserId);
         if not UserSetup."Time Sheet Admin." then begin
             if TimeSheetLine."Approver ID" <> UpperCase(UserId) then
@@ -330,6 +336,11 @@ codeunit 951 "Time Sheet Approval Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApprove(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckApproverPermissions(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 99000834 "Purch. Line-Reserve"
+﻿codeunit 99000834 "Purch. Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd;
 
@@ -311,15 +311,29 @@ codeunit 99000834 "Purch. Line-Reserve"
                     end;
                 end;
 
-                TransferQty := CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
-                    ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
-                    ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
-                    ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                TransferPurchLineToItemJnlLineReservEntry(PurchLine, ItemJnlLine, OldReservEntry, TransferQty);
 
             until (ReservEngineMgt.NEXTRecord(OldReservEntry) = 0) or (TransferQty = 0);
             CheckApplToItemEntry := CheckApplToItemEntry and NotFullyReserved;
         end;
         exit(TransferQty);
+    end;
+
+    local procedure TransferPurchLineToItemJnlLineReservEntry(PurchLine: Record "Purchase Line"; ItemJnlLine: Record "Item Journal Line"; OldReservEntry: Record "Reservation Entry"; var TransferQty: Decimal);
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTransferPurchLineToItemJnlLineReservEntry(OldReservEntry, PurchLine, ItemJnlLine, TransferQty, IsHandled);
+        if IsHandled then
+            exit;
+
+        TransferQty :=
+            CreateReservEntry.TransferReservEntry(
+                DATABASE::"Item Journal Line",
+                ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
+                ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
+                ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
     end;
 
     procedure TransferPurchLineToPurchLine(var OldPurchLine: Record "Purchase Line"; var NewPurchLine: Record "Purchase Line"; TransferQty: Decimal)
@@ -506,6 +520,8 @@ codeunit 99000834 "Purch. Line-Reserve"
         ReservEntry.SetSourceFilter(DATABASE::"Purchase Line", PurchHeader."Document Type".AsInteger(), PurchHeader."No.", -1, true);
         ReservEntry.SetSourceFilter('', 0);
         CreateReservEntry.UpdateItemTrackingAfterPosting(ReservEntry);
+
+        OnAfterUpdateItemTrackingAfterPosting(PurchHeader);
     end;
 
     procedure SetApplySpecificItemTracking(ApplySpecific: Boolean)
@@ -765,6 +781,16 @@ codeunit 99000834 "Purch. Line-Reserve"
         then
             UpdateStatistics(
                 CalcReservEntry, ReservSummEntry, AvailabilityDate, "Purchase Document Type".FromInteger(ReservSummEntry."Entry No." - 11), Positive, TotalQuantity);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateItemTrackingAfterPosting(var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferPurchLineToItemJnlLineReservEntry(var OldReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line"; ItemJnlLine: Record "Item Journal Line"; var TransferQty: Decimal; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

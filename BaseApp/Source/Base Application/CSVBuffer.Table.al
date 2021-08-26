@@ -129,11 +129,11 @@ table 1234 "CSV Buffer"
     [Scope('OnPrem')]
     procedure SaveData(CSVFileName: Text; CSVFieldSeparator: Text[1])
     var
-	    FileManagement: Codeunit "File Management";
+        FileManagement: Codeunit "File Management";
         FileMode: DotNet FileMode;
         StreamWriter: DotNet StreamWriter;
     begin
-	    FileManagement.IsAllowedPath(CSVFileName, false);
+        FileManagement.IsAllowedPath(CSVFileName, false);
         StreamWriter := StreamWriter.StreamWriter(CSVFile.Open(CSVFileName, FileMode.Create));
         WriteToStream(StreamWriter, CSVFieldSeparator);
         StreamWriter.Close();
@@ -362,6 +362,26 @@ table 1234 "CSV Buffer"
         exit(TempCSVBuffer.Value);
     end;
 
+    /// <summary>
+    /// Gets the value on the current line with a specific field number (or position).
+    /// </summary>
+    /// <error>The field in line %1 with index %2 does not exist. The data could not be retrieved.</error>
+    /// <error>unless AcceptNonExisting is set</error>
+    /// <param name="FieldNo">The field number (or posistion) to identify the value.</param>
+    /// <returns>The value on the current line and field number <paramref name="FieldNo"/></returns>
+    procedure GetValueOfLineAt(FieldNo: Integer; AcceptNonExisting: Boolean): Text[250]
+    var
+        TempCSVBuffer: Record "CSV Buffer" temporary;
+    begin
+        TempCSVBuffer.Copy(Rec, true);
+        if not TempCSVBuffer.Get("Line No.", FieldNo) then
+            if AcceptNonExisting then
+                exit('')
+            else
+                Error(IndexDoesNotExistErr, "Line No.", FieldNo);
+
+        exit(TempCSVBuffer.Value);
+    end;
     /// <summary>
     /// Gets the number of columns store in the record.
     /// </summary>

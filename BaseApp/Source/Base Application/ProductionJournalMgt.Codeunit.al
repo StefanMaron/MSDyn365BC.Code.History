@@ -1,4 +1,4 @@
-codeunit 5510 "Production Journal Mgt"
+﻿codeunit 5510 "Production Journal Mgt"
 {
 
     trigger OnRun()
@@ -241,6 +241,7 @@ codeunit 5510 "Production Journal Mgt"
 
             if Item."Item Tracking Code" <> '' then
                 ItemTrackingMgt.CopyItemTracking(RowID1, ItemJnlLine.RowID1, false);
+            OnInsertConsumptionItemJnlLineOnAfterCopyItemTracking(ItemJnlLine, Item."Item Tracking Code", NextLineNo);
         end;
 
         NextLineNo += 10000;
@@ -372,6 +373,7 @@ codeunit 5510 "Production Journal Mgt"
 
             if IsLastOperation(ProdOrderRtngLine) then
                 ItemTrackingMgt.CopyItemTracking(RowID1, ItemJnlLine.RowID1, false);
+            OnInsertOutputItemJnlLineOnAfterCopyItemTracking(ItemJnlLine, ProdOrderRtngLine, NextLineNo);
         end;
 
         NextLineNo += 10000;
@@ -630,6 +632,11 @@ codeunit 5510 "Production Journal Mgt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertConsumptionItemJnlLineOnAfterCopyItemTracking(var ItemJournalLine: Record "Item Journal Line"; ItemTrackingCode: Code[10]; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertOutputItemJnlLine(ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
@@ -651,6 +658,11 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertOutputItemJnlLineOnBeforeSubcontractingWorkCenterUsed(var ItemJnlLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOutputItemJnlLineOnAfterCopyItemTracking(var ItemJnlLine: Record "Item Journal Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"; var NextLineNo: Integer)
     begin
     end;
 

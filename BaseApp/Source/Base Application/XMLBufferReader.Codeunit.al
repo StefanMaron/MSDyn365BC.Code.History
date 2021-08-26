@@ -92,7 +92,10 @@ codeunit 1239 "XML Buffer Reader"
             repeat
                 if TempAttributeXMLBuffer.Namespace <> '' then
                     NamespaceURI := TempParentElementXMLBuffer.GetNamespaceUriByPrefix(TempAttributeXMLBuffer.Namespace);
-                Attribute := XmlDocument.CreateAttribute(TempAttributeXMLBuffer.Name, NamespaceURI);
+                if NamespaceURI <> '' then
+                    Attribute := XmlDocument.CreateAttribute(TempAttributeXMLBuffer.Name, NamespaceURI)
+                else
+                    Attribute := XmlDocument.CreateAttribute(TempAttributeXMLBuffer.Name);
                 Attribute.InnerText := TempAttributeXMLBuffer.Value;
                 XMLCurrElement.Attributes.SetNamedItem(Attribute);
             until TempAttributeXMLBuffer.Next() = 0;

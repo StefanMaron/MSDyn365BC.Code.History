@@ -276,6 +276,7 @@ report 1408 "Bank Acc. Recon. - Test"
                                           "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
                                         BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
                                         BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+                                        OnBankAccReconciliationLineAfterGetRecordOnAfterBankAccLedgEntrySetFilters("Bank Acc. Reconciliation Line", BankAccLedgEntry);
                                         if BankAccLedgEntry.Find('-') then
                                             repeat
                                                 AppliedAmount := AppliedAmount + BankAccLedgEntry.Amount;
@@ -294,6 +295,7 @@ report 1408 "Bank Acc. Recon. - Test"
                                           "Statement Status", CheckLedgEntry."Statement Status"::"Check Entry Applied");
                                         CheckLedgEntry.SetRange("Statement No.", "Statement No.");
                                         CheckLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+                                        OnBankAccReconciliationLineAfterGetRecordOnAfterCheckLedgEntrySetFilters("Bank Acc. Reconciliation Line", CheckLedgEntry);
                                         if CheckLedgEntry.Find('-') then
                                             repeat
                                                 AppliedAmount := AppliedAmount - CheckLedgEntry.Amount;
@@ -336,6 +338,7 @@ report 1408 "Bank Acc. Recon. - Test"
                                 end else
                                     TotalDiff := TotalDiff + "Statement Amount";
                         end;
+                        OnBeforeCheckAppliedAmount("Bank Acc. Reconciliation Line", AppliedAmount);
                         if "Applied Amount" <> AppliedAmount then
                             AddError(StrSubstNo(AmountWrongErr, FieldCaption("Applied Amount"), AppliedAmount));
 
@@ -781,6 +784,21 @@ report 1408 "Bank Acc. Recon. - Test"
               "Total Unposted Applied Amount",
               "Total Positive Difference",
               "Total Negative Difference");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBankAccReconciliationLineAfterGetRecordOnAfterBankAccLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBankAccReconciliationLineAfterGetRecordOnAfterCheckLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgEntry: Record "Check Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAppliedAmount(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AppliedAmount: Decimal)
+    begin
     end;
 }
 

@@ -331,6 +331,7 @@ codeunit 5520 "Get Unplanned Demand"
             Reserve := SalesLine.Reserve = SalesLine.Reserve::Always;
             "Special Order" := SalesLine."Special Order";
             "Purchasing Code" := SalesLine."Purchasing Code";
+            OnInsertSalesLineOnBeforeInsert(UnplannedDemand, SalesLine);
             Insert;
             Copy(UnplannedDemand2);
         end;
@@ -352,6 +353,7 @@ codeunit 5520 "Get Unplanned Demand"
               (Item.Reserve = Item.Reserve::Always) and
               not (("Demand Type" = "Demand Type"::Production) and
                    ("Demand SubType" = ProdOrderComp.Status::Planned.AsInteger()));
+            OnInsertProdOrderCompLineOnBeforeInsert(UnplannedDemand, ProdOrderComp);
             Insert;
             Copy(UnplannedDemand2);
         end;
@@ -368,6 +370,7 @@ codeunit 5520 "Get Unplanned Demand"
               AsmLine."Bin Code", AsmLine."Unit of Measure Code", AsmLine."Qty. per Unit of Measure",
               DemandQtyBase, AsmLine."Due Date");
             Reserve := AsmLine.Reserve = AsmLine.Reserve::Always;
+            OnInsertAsmLineOnBeforeInsert(UnplannedDemand, AsmLine);
             Insert;
             Copy(UnplannedDemand2);
         end;
@@ -384,6 +387,7 @@ codeunit 5520 "Get Unplanned Demand"
               ServLine."Bin Code", ServLine."Unit of Measure Code", ServLine."Qty. per Unit of Measure",
               DemandQtyBase, ServLine."Needed by Date");
             Reserve := ServLine.Reserve = ServLine.Reserve::Always;
+            OnInsertServLineOnBeforeInsert(UnplannedDemand, ServLine);
             Insert;
             Copy(UnplannedDemand2);
         end;
@@ -400,6 +404,7 @@ codeunit 5520 "Get Unplanned Demand"
               JobPlanningLine."Location Code", JobPlanningLine."Bin Code", JobPlanningLine."Unit of Measure Code",
               JobPlanningLine."Qty. per Unit of Measure", DemandQtyBase, JobPlanningLine."Planning Date");
             Reserve := JobPlanningLine.Reserve = JobPlanningLine.Reserve::Always;
+            OnInsertJobPlanningLineOnBeforeInsert(UnplannedDemand, JobPlanningLine);
             Insert;
             Copy(UnplannedDemand2);
         end;
@@ -646,6 +651,31 @@ codeunit 5520 "Get Unplanned Demand"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetFilterToSpecificSalesOrder(ItemFilter: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertAsmLineOnBeforeInsert(var UnplannedDemand: Record "Unplanned Demand"; AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderCompLineOnBeforeInsert(var UnplannedDemand: Record "Unplanned Demand"; ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertSalesLineOnBeforeInsert(var UnplannedDemand: Record "Unplanned Demand"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertServLineOnBeforeInsert(var UnplannedDemand: Record "Unplanned Demand"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertJobPlanningLineOnBeforeInsert(var UnplannedDemand: Record "Unplanned Demand"; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 

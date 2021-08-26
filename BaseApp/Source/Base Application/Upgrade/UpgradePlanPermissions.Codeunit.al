@@ -1,6 +1,7 @@
 codeunit 104030 "Upgrade Plan Permissions"
 {
     Subtype = Upgrade;
+    Permissions = TableData "User Group Plan" = rimd;
 
     trigger OnUpgradePerDatabase()
     begin

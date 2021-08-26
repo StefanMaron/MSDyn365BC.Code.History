@@ -224,7 +224,8 @@ table 5741 "Transfer Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -235,7 +236,8 @@ table 5741 "Transfer Line"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -1518,7 +1520,7 @@ table 5741 "Transfer Line"
         SetFilter("Shortcut Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
         SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
-        OnAfterFilterLinesWithItemToPlan(Item, IsReceipt, IsSupplyForPlanning);
+        OnAfterFilterLinesWithItemToPlan(Item, IsReceipt, IsSupplyForPlanning, Rec);
     end;
 
     procedure FindLinesWithItemToPlan(var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean): Boolean
@@ -1687,7 +1689,7 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterFilterLinesWithItemToPlan(var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean)
+    local procedure OnAfterFilterLinesWithItemToPlan(var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean; var TransferLine: Record "Transfer Line")
     begin
     end;
 

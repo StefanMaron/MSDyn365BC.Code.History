@@ -1,4 +1,4 @@
-table 7001 "Price List Line"
+﻿table 7001 "Price List Line"
 {
     fields
     {
@@ -296,6 +296,7 @@ table 7001 "Price List Line"
             begin
                 TestStatusDraft();
                 CheckAmountType(FieldCaption("Cost Factor"), "Amount Type"::Discount);
+                TestField("Source Group", "Source Group"::Job);
                 Verify();
                 if "Cost Factor" <> 0 then
                     "Unit Price" := 0;
@@ -488,6 +489,16 @@ table 7001 "Price List Line"
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
         CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
 
+    procedure SetNextLineNo()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        "Line No." := 10000;
+        PriceListLine.SetRange("Price List Code", "Price List Code");
+        if PriceListLine.FindLast() then
+            "Line No." += PriceListLine."Line No.";
+    end;
+
     procedure IsAssetItem(): Boolean;
     begin
         exit("Asset Type" = "Asset Type"::Item);
@@ -521,9 +532,11 @@ table 7001 "Price List Line"
         exit(PriceListManagement.IsAllowedEditingActivePrice("Price Type"));
     end;
 
-    procedure IsUOMSupported(): Boolean;
+    procedure IsUOMSupported() Result: Boolean;
     begin
-        exit(IsAssetItem() or IsAssetResource());
+        Result := IsAssetItem() or IsAssetResource();
+
+        OnAfterIsUOMSupported(Rec, Result);
     end;
 
     procedure IsAmountMandatory(AmountType: enum "Price Amount Type"): Boolean;
@@ -598,13 +611,15 @@ table 7001 "Price List Line"
         "Parent Source No." := PriceSource."Parent Source No.";
         "Source ID" := PriceSource."Source ID";
 
-        "Currency Code" := PriceSource."Currency Code";
-        "Price Includes VAT" := PriceSource."Price Includes VAT";
-        "Allow Invoice Disc." := PriceSource."Allow Invoice Disc.";
-        "Allow Line Disc." := PriceSource."Allow Line Disc.";
-        "VAT Bus. Posting Gr. (Price)" := PriceSource."VAT Bus. Posting Gr. (Price)";
-        "Starting Date" := PriceSource."Starting Date";
-        "Ending Date" := PriceSource."Ending Date";
+        if not GetHeader() or PriceListHeader."Allow Updating Defaults" then begin
+            "Currency Code" := PriceSource."Currency Code";
+            "Price Includes VAT" := PriceSource."Price Includes VAT";
+            "Allow Invoice Disc." := PriceSource."Allow Invoice Disc.";
+            "Allow Line Disc." := PriceSource."Allow Line Disc.";
+            "VAT Bus. Posting Gr. (Price)" := PriceSource."VAT Bus. Posting Gr. (Price)";
+            "Starting Date" := PriceSource."Starting Date";
+            "Ending Date" := PriceSource."Ending Date";
+        end;
         OnAfterCopyFromPriceSource(PriceSource);
     end;
 
@@ -620,11 +635,25 @@ table 7001 "Price List Line"
         "Work Type Code" := PriceAsset."Work Type Code";
 
         "Allow Invoice Disc." := PriceAsset."Allow Invoice Disc.";
-        if "VAT Bus. Posting Gr. (Price)" = '' then begin
-            "Price Includes VAT" := PriceAsset."Price Includes VAT";
-            "VAT Bus. Posting Gr. (Price)" := PriceAsset."VAT Bus. Posting Gr. (Price)";
-        end;
+        if not GetHeader() or PriceListHeader."Allow Updating Defaults" then
+            if "VAT Bus. Posting Gr. (Price)" = '' then begin
+                "Price Includes VAT" := PriceAsset."Price Includes VAT";
+                "VAT Bus. Posting Gr. (Price)" := PriceAsset."VAT Bus. Posting Gr. (Price)";
+            end;
         OnAfterCopyFromPriceAsset(PriceAsset);
+    end;
+
+    procedure CopyPriceFrom(PriceAsset: Record "Price Asset")
+    begin
+        case PriceAsset."Price Type" of
+            PriceAsset."Price Type"::Sale:
+                "Unit Price" := PriceAsset."Unit Price";
+            PriceAsset."Price Type"::Purchase:
+                begin
+                    "Direct Unit Cost" := PriceAsset."Unit Price";
+                    "Unit Cost" := PriceAsset."Unit Price 2";
+                end;
+        end;
     end;
 
     procedure SetNewRecord(NewRecord: Boolean)
@@ -746,13 +775,13 @@ table 7001 "Price List Line"
                 TestField("Source Group", PriceListHeader."Source Group");
             FieldNo(Status):
                 TestField(Status, PriceListHeader.Status);
-            FieldNo("Price Includes VAT"):
-                TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
-            FieldNo("VAT Bus. Posting Gr. (Price)"):
-                TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
         end;
         if not PriceListHeader."Allow Updating Defaults" then
             case FieldId of
+                FieldNo("Price Includes VAT"):
+                    TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
+                FieldNo("VAT Bus. Posting Gr. (Price)"):
+                    TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
                 FieldNo("Currency Code"):
                     TestField("Currency Code", PriceListHeader."Currency Code");
                 FieldNo("Starting Date"):
@@ -850,6 +879,11 @@ table 7001 "Price List Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterInitHeaderDefaults(PriceListHeader: Record "Price List Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterIsUOMSupported(PriceListLine: Record "Price List Line"; var Result: Boolean)
     begin
     end;
 }

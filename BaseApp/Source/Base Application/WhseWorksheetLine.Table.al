@@ -657,6 +657,7 @@ table 7326 "Whse. Worksheet Line"
         WhseWkshLine.SetRange("Location Code", "Location Code");
         WhseWkshLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
         WhseWkshLine.SetRange("Variant Code", "Variant Code");
+        OnAssignedQtyOnReservedLinesOnAfterWhseWkshLineSetFilters(Rec, WhseWkshLine);
         if WhseWkshLine.Find('-') then
             repeat
                 if RecordId <> WhseWkshLine.RecordId then begin
@@ -721,12 +722,17 @@ table 7326 "Whse. Worksheet Line"
         AvailableQtyToMoveBase := CalcAvailQtyToMove + xRec."Qty. to Handle (Base)";
     end;
 
-    local procedure CalcAvailQtyToMove(): Decimal
+    local procedure CalcAvailQtyToMove() QtyAvailToMoveBase: Decimal
     var
         BinContent: Record "Bin Content";
         WhseWkshLine: Record "Whse. Worksheet Line";
-        QtyAvailToMoveBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcAvailQtyToMove(Rec, QtyAvailToMoveBase, IsHandled);
+        if IsHandled then
+            exit(QtyAvailToMoveBase);
+
         if ("Location Code" <> '') and ("From Bin Code" <> '') and
            ("Item No." <> '') and ("From Unit of Measure Code" <> '')
         then begin
@@ -747,7 +753,6 @@ table 7326 "Whse. Worksheet Line"
                 QtyAvailToMoveBase := QtyAvailToMoveBase - WhseWkshLine."Qty. to Handle (Base)";
             end;
         end;
-        exit(QtyAvailToMoveBase);
     end;
 
     procedure SortWhseWkshLines(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Enum "Whse. Activity Sorting Method")
@@ -1221,6 +1226,8 @@ table 7326 "Whse. Worksheet Line"
     var
         WhseItemTrackingForm: Page "Whse. Item Tracking Lines";
     begin
+        OnBeforeOpenItemTrackingLines(Rec);
+
         TestField("Item No.");
         TestField("Qty. (Base)");
         case "Whse. Document Type" of
@@ -1533,6 +1540,11 @@ table 7326 "Whse. Worksheet Line"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAssignedQtyOnReservedLinesOnAfterWhseWkshLineSetFilters(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var FilteredWhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
 #if not CLEAN16
     [Obsolete('Replaced by OnAutofillQtyToHandleOnBeforeModify.', '16.0')]
     [IntegrationEvent(false, false)]
@@ -1543,6 +1555,11 @@ table 7326 "Whse. Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAutofillQtyToHandleOnBeforeModify(var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAvailQtyToMove(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var QtyAvailToMoveBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -1573,6 +1590,11 @@ table 7326 "Whse. Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMovementCreate(var WhseWkshLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenItemTrackingLines(var WhseWkshLine: Record "Whse. Worksheet Line")
     begin
     end;
 

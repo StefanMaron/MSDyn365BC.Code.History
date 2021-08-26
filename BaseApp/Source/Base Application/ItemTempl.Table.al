@@ -101,7 +101,8 @@ table 1382 "Item Templ."
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -112,11 +113,23 @@ table 1382 "Item Templ."
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Global Dimension 2 Code");
+            end;
+        }
+        field(5402; "Serial Nos."; Code[20])
+        {
+            Caption = 'Serial Nos.';
+            TableRelation = "No. Series";
+
+            trigger OnValidate()
+            begin
+                if "Serial Nos." <> '' then
+                    TestField("Item Tracking Code");
             end;
         }
         field(5702; "Item Category Code"; Code[20])
@@ -128,6 +141,28 @@ table 1382 "Item Templ."
         {
             Caption = 'Service Item Group';
             TableRelation = "Service Item Group".Code;
+        }
+        field(6500; "Item Tracking Code"; Code[10])
+        {
+            Caption = 'Item Tracking Code';
+            TableRelation = "Item Tracking Code";
+
+            trigger OnValidate()
+            begin
+                if "Item Tracking Code" <> '' then
+                    TestField(Type, Type::Inventory);
+            end;
+        }
+        field(6501; "Lot Nos."; Code[20])
+        {
+            Caption = 'Lot Nos.';
+            TableRelation = "No. Series";
+
+            trigger OnValidate()
+            begin
+                if "Lot Nos." <> '' then
+                    TestField("Item Tracking Code");
+            end;
         }
         field(7300; "Warehouse Class Code"; Code[10])
         {
@@ -151,6 +186,15 @@ table 1382 "Item Templ."
             Clustered = true;
         }
     }
+
+    trigger OnDelete()
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        DefaultDimension.SetRange("Table ID", Database::"Item Templ.");
+        DefaultDimension.SetRange("No.", Code);
+        DefaultDimension.DeleteAll();
+    end;
 
     trigger OnRename()
     var

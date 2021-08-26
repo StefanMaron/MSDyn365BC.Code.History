@@ -105,7 +105,7 @@ codeunit 5701 "Item Subst."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeItemSubstGetPopulateTempSalesLine(TempSalesLine, TempItemSubstitution, IsHandled);
+        OnBeforeItemSubstGetPopulateTempSalesLine(TempSalesLine, TempItemSubstitution, IsHandled, SaveItemNo, SaveVariantCode);
         if IsHandled then
             exit;
 
@@ -676,7 +676,7 @@ codeunit 5701 "Item Subst."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeItemSubstGetPopulateTempSalesLine(var TempSalesline: Record "Sales Line" temporary; var TempItemSubstitution: Record "Item Substitution" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeItemSubstGetPopulateTempSalesLine(var TempSalesline: Record "Sales Line" temporary; var TempItemSubstitution: Record "Item Substitution" temporary; var IsHandled: Boolean; SaveItemNo: Code[20]; SaveVariantCode: Code[10])
     begin
     end;
 

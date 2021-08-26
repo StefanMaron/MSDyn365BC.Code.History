@@ -48,6 +48,7 @@ page 7016 "Sales Price List"
                     trigger OnValidate()
                     begin
                         ValidateSourceType(SourceType.AsInteger());
+                        CurrPage.Update(true);
                     end;
                 }
                 field(JobSourceType; JobSourceType)
@@ -62,6 +63,7 @@ page 7016 "Sales Price List"
                     trigger OnValidate()
                     begin
                         ValidateSourceType(JobSourceType.AsInteger());
+                        CurrPage.Update(true);
                     end;
                 }
                 field(SourceNo; Rec."Source No.")
@@ -74,7 +76,13 @@ page 7016 "Sales Price List"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord();
+                        CurrPage.Update(true);
+                    end;
+
+                    trigger OnLookup(var Text: Text): Boolean;
+                    begin
+                        if Rec.LookupSourceNo() then
+                            CurrPage.Update(true);
                     end;
                 }
                 group(Tax)
@@ -86,6 +94,11 @@ page 7016 "Sales Price List"
                         Importance = Additional;
                         Editable = PriceListIsEditable;
                         ToolTip = 'Specifies the default VAT business posting group code.';
+
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Update(true);
+                        end;
                     }
                     field(PriceIncludesVAT; Rec."Price Includes VAT")
                     {
@@ -93,6 +106,11 @@ page 7016 "Sales Price List"
                         Importance = Additional;
                         Editable = PriceListIsEditable;
                         ToolTip = 'Specifies the if prices include VAT.';
+
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Update(true);
+                        end;
                     }
                 }
                 group(View)
@@ -127,6 +145,11 @@ page 7016 "Sales Price List"
                     Importance = Promoted;
                     Editable = PriceListIsEditable;
                     ToolTip = 'Specifies the currency code of the price list.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field(StartingDate; Rec."Starting Date")
                 {
@@ -134,6 +157,11 @@ page 7016 "Sales Price List"
                     Importance = Promoted;
                     Editable = PriceListIsEditable;
                     ToolTip = 'Specifies the date from which the price is valid.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field(EndingDate; Rec."Ending Date")
                 {
@@ -141,6 +169,11 @@ page 7016 "Sales Price List"
                     Importance = Promoted;
                     Editable = PriceListIsEditable;
                     ToolTip = 'Specifies the last date that the price is valid.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 group(LineDefaults)
                 {
@@ -162,6 +195,11 @@ page 7016 "Sales Price List"
                         Importance = Additional;
                         Editable = PriceListIsEditable;
                         ToolTip = 'Specifies whether invoice discount is allowed. You can change this value on the lines.';
+
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Update(true);
+                        end;
                     }
                     field(AllowLineDisc; Rec."Allow Line Disc.")
                     {
@@ -169,6 +207,11 @@ page 7016 "Sales Price List"
                         Importance = Additional;
                         Editable = PriceListIsEditable;
                         ToolTip = 'Specifies whether line discounts are allowed. You can change this value on the lines.';
+
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Update(true);
+                        end;
                     }
                 }
             }
@@ -390,17 +433,19 @@ page 7016 "Sales Price List"
     var
         PriceListManagement: Codeunit "Price List Management";
     begin
-        if Rec.HasDraftLines() then begin
-            PriceListManagement.SendVerifyLinesNotification(Rec);
-            exit(false);
-        end;
+        if Rec.Find() then
+            if Rec.HasDraftLines() then begin
+                PriceListManagement.SendVerifyLinesNotification(Rec);
+                exit(false);
+            end;
         exit(true)
     end;
 
     trigger OnClosePage()
     begin
-        if Rec.Code <> '' then
-            Rec.UpdateAmountType();
+        if Rec.Find() then
+            if Rec.Code <> '' then
+                Rec.UpdateAmountType();
     end;
 
     local procedure UpdateSourceType()

@@ -1,5 +1,6 @@
 codeunit 139197 DocumentSendingPostTests
 {
+    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -28,6 +29,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryJob: Codeunit "Library - Job";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
@@ -56,6 +58,7 @@ codeunit 139197 DocumentSendingPostTests
         ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confimation.';
         CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents might use different document sending profiles. Choose one of the following options: ';
         VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ';
+        InterruptedByEventSubscriberErr: Label 'Interrupted by an event subscriber';
 
     [Test]
     [HandlerFunctions('PostAndSendHandlerNo')]
@@ -322,6 +325,71 @@ codeunit 139197 DocumentSendingPostTests
         SalesInvoice.PostAndSend.Invoke();
         // Test that after the handler clicked "Yes", Sales Header is posted
         Assert.IsFalse(SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."), 'Invoice not posted.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,SalesShipmentRequestPageHandler,PostAndSendHandlerYes,CloseEmailEditorHandler')]
+    procedure ConsiderLastUsedReportSettingsOnSendingEmail()
+    var
+        DocumentSendingProfile: Record "Document Sending Profile";
+        Item: Record Item;
+        Customer: Record Customer;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        DocumentSendingPostTests: Codeunit DocumentSendingPostTests;
+        LotNo: Code[50];
+    begin
+        // [FEATURE] [Sales] [Shipment] [Item Tracking] [Report Settings]
+        // [SCENARIO 403394] Last used report settings are taken when a report is generated as an email attachment via "Post and Send".
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Settings for "Post and Send" - send by email, attach report as PDF.
+        InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::PDF,
+          DocumentSendingProfile.Printer::No, DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
+
+        // [GIVEN] Select "Sales - Shipment" (208) report in report selections for sales shipment.
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"S.Shipment", Report::"Sales - Shipment");
+
+        // [GIVEN] Run the report for the first time, set "Show Lot/Serial" on the request page.
+        // [GIVEN] Last used report settings are now saved.
+        Commit();
+        SalesShipmentHeader.FindFirst();
+        SalesShipmentHeader.SetRecFilter();
+        Report.Run(Report::"Sales - Shipment", true, false, SalesShipmentHeader);
+
+        // [GIVEN] Post 10 pcs of an item to inventory, assign lot no. = "L".
+        LibraryItemTracking.CreateLotItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 10);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(ItemJournalLine.Quantity);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create sales order for 1 pc, select lot no. "L".
+        CreateCustomerWithEmail(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+        SalesLine.OpenItemTrackingLines();
+
+        Commit();
+
+        // [GIVEN] Subscribe to an event in "Item Tracking Doc. Management" codeunit to make sure the "Sales - Shipment" report will be run with "Show Lot/Serial" option.
+        BindSubscription(DocumentSendingPostTests);
+
+        // [WHEN] "Post and Send" the sales order.
+        asserterror CODEUNIT.Run(CODEUNIT::"Sales-Post and Send", SalesHeader);
+        UnbindSubscription(DocumentSendingPostTests);
+
+        // [THEN] The event subscriber caught the event while "Sales - Shipment" report was gathering lots according to "Show Lot/Serial" setting.
+        Assert.ExpectedError(InterruptedByEventSubscriberErr);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -4103,6 +4171,21 @@ codeunit 139197 DocumentSendingPostTests
         ServiceCreditMemoRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
+    [RequestPageHandler]
+    procedure SalesShipmentRequestPageHandler(var SalesShipment: TestRequestPage "Sales - Shipment")
+    begin
+        SalesShipment.ShowLotSN.SetValue(true);
+        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK.Invoke();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SelectSendingOptionHandler(var SelectSendingOption: TestPage "Select Sending Options")
@@ -4480,6 +4563,12 @@ codeunit 139197 DocumentSendingPostTests
     procedure PurchaseQuoteReportRequestPageHandler(var PurchaseQuote: TestRequestPage "Purchase - Quote")
     begin
         PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Doc. Management", 'OnBeforeRetrieveDocumentItemTracking', '', false, false)]
+    local procedure InvokeErrorOnRetrieveDocumentItemTracking()
+    begin
+        Error(InterruptedByEventSubscriberErr);
     end;
 }
 

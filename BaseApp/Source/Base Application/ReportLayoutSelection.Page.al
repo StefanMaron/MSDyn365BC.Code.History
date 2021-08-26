@@ -144,7 +144,7 @@ page 9652 "Report Layout Selection"
                 Caption = 'Run Report';
                 Image = "Report";
                 Promoted = true;
-                PromotedCategory = "Report";
+                PromotedCategory = Process;
                 ToolTip = 'Run a test report.';
 
                 trigger OnAction()

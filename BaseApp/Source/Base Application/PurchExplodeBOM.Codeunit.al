@@ -14,6 +14,8 @@ codeunit 73 "Purch.-Explode BOM"
         TestField(Type, Type::Item);
         TestField("Quantity Received", 0);
         TestField("Return Qty. Shipped", 0);
+
+        CalcFields("Reserved Qty. (Base)");
         TestField("Reserved Qty. (Base)", 0);
         if "Sales Order No." <> '' then
             Error(

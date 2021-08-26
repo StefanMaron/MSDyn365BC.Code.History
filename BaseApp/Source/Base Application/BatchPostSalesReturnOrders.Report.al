@@ -15,6 +15,8 @@ report 6655 "Batch Post Sales Return Orders"
             var
                 SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
             begin
+                OnBeforeSalesHeaderOnPreDataItem("Sales Header", ReceiveReq, InvReq);
+
                 SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Receive, ReceiveReq);
                 SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
                 SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, InvReq);
@@ -114,7 +116,10 @@ report 6655 "Batch Post Sales Return Orders"
         trigger OnOpenPage()
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
+            ClientTypeManagement: Codeunit "Client Type Management";
         begin
+            if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
+                exit;
             SalesReceivablesSetup.Get();
             CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
             ReplacePostingDate := false;
@@ -139,5 +144,10 @@ report 6655 "Batch Post Sales Return Orders"
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderOnPreDataItem(var SalesHeader: Record "Sales Header"; var ReceiveReq: Boolean; var InvReq: Boolean)
+    begin
+    end;
 }
 

@@ -53,15 +53,11 @@ codeunit 242 "Item Jnl.-Post+Print"
 
             OnAfterPostJournalBatch(ItemJnlLine);
 
-            if ItemReg.Get(ItemJnlPostBatch.GetItemRegNo) then begin
-                ItemReg.SetRecFilter;
-                REPORT.Run(ItemJnlTemplate."Posting Report ID", false, false, ItemReg);
-            end;
+            if ItemReg.Get(ItemJnlPostBatch.GetItemRegNo) then
+                PrintItemRegister();
 
-            if WhseReg.Get(ItemJnlPostBatch.GetWhseRegNo) then begin
-                WhseReg.SetRecFilter;
-                REPORT.Run(ItemJnlTemplate."Whse. Register Report ID", false, false, WhseReg);
-            end;
+            if WhseReg.Get(ItemJnlPostBatch.GetWhseRegNo) then
+                PrintWhseRegister();
 
             if not HideDialog then
                 if (ItemJnlPostBatch.GetItemRegNo = 0) and
@@ -88,6 +84,32 @@ codeunit 242 "Item Jnl.-Post+Print"
         end;
     end;
 
+    local procedure PrintItemRegister()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintItemRegister(ItemReg, ItemJnlTemplate, IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemReg.SetRecFilter();
+        Report.Run(ItemJnlTemplate."Posting Report ID", false, false, ItemReg);
+    end;
+
+    local procedure PrintWhseRegister()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintWhseRegister(WhseReg, ItemJnlTemplate, IsHandled);
+        if IsHandled then
+            exit;
+
+        WhseReg.SetRecFilter();
+        Report.Run(ItemJnlTemplate."Whse. Register Report ID", false, false, WhseReg);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostJournalBatch(var ItemJournalLine: Record "Item Journal Line");
     begin
@@ -95,6 +117,16 @@ codeunit 242 "Item Jnl.-Post+Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostJournalBatch(var ItemJournalLine: Record "Item Journal Line"; var HideDialog: Boolean; var SuppressCommit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintItemRegister(ItemRegister: Record "Item Register"; ItemJournalTemplate: Record "Item Journal Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintWhseRegister(WarehouseRegister: Record "Warehouse Register"; ItemJournalTemplate: Record "Item Journal Template"; var IsHandled: Boolean)
     begin
     end;
 }

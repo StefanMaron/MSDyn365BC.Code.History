@@ -116,8 +116,15 @@ codeunit 394 "FinChrgMemo-Make"
         MakeLines(CurrencyCode, true);
     end;
 
-    local procedure MakeHeader(CurrencyCode: Code[10]; Checking: Boolean): Boolean
+    local procedure MakeHeader(CurrencyCode: Code[10]; Checking: Boolean) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMakeHeader(FinChrgMemoHeaderReq, CurrencyCode, Checking, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with Cust do begin
             if not Checking then begin
                 FinChrgMemoHeader.SetCurrentKey("Customer No.", "Currency Code");
@@ -137,8 +144,10 @@ codeunit 394 "FinChrgMemo-Make"
             FinChrgMemoHeader.Validate("Currency Code", CurrencyCode);
             if not Checking then
                 FinChrgMemoHeader.Modify();
-            exit(true);
+            Result := true;
         end;
+
+        OnAfterMakeHeader(FinChrgMemoHeader, FinChrgMemoHeaderReq, CurrencyCode, Checking, Result);
     end;
 
     local procedure MakeLines(CurrencyCode: Code[10]; Checking: Boolean)
@@ -232,6 +241,16 @@ codeunit 394 "FinChrgMemo-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSet(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMakeHeader(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; FinanceChargeMemoHeaderReq: Record "Finance Charge Memo Header"; CurrencyCode: Code[10]; Checking: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeHeader(var FinanceChargeMemoHeaderReq: Record "Finance Charge Memo Header"; var CurrencyCode: Code[10]; var Checking: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

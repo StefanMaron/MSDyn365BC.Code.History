@@ -90,7 +90,7 @@ page 5756 "Transfer Shipment Statistics"
                 if TransShptLine."Units per Parcel" > 0 then
                     TotalParcels += Round(TransShptLine.Quantity / TransShptLine."Units per Parcel", 1, '>');
                 OnCalculateTotalsOnAfterAddLineTotals(
-                    TransShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+                    TransShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, Rec)
             until TransShptLine.Next() = 0;
     end;
 
@@ -100,7 +100,7 @@ page 5756 "Transfer Shipment Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateTotalsOnAfterAddLineTotals(var TransferShipmentLine: Record "Transfer Shipment Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var TransferShipmentLine: Record "Transfer Shipment Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; TransferShipmentHeader: Record "Transfer Shipment Header")
     begin
     end;
 }

@@ -4,7 +4,14 @@ codeunit 5945 CreateCreditfromContractLines
     TableNo = "Service Contract Line";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, LinesToDelete, IsHandled);
+        if IsHandled then
+            exit;
+
         ServContractHeader.Get("Contract Type", "Contract No.");
         if not Credited and
            not "New Line"
@@ -56,6 +63,11 @@ codeunit 5945 CreateCreditfromContractLines
         ServItemLineExist := false;
         CreditNoteNo := '';
         LinesToDelete := 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var ServiceContractLine: Record "Service Contract Line"; LinesToDelete: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

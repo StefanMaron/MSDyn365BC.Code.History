@@ -71,11 +71,12 @@ page 1355 "Posted Sales Inv. - Update"
     var
         xSalesInvoiceHeader: Record "Sales Invoice Header";
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
-        exit(
-          ("Payment Method Code" <> xSalesInvoiceHeader."Payment Method Code") or
-          ("Payment Reference" <> xSalesInvoiceHeader."Payment Reference"));
+        IsChanged := ("Payment Method Code" <> xSalesInvoiceHeader."Payment Method Code") or
+          ("Payment Reference" <> xSalesInvoiceHeader."Payment Reference");
+
+        OnAfterRecordChanged(Rec, xSalesInvoiceHeader, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -83,6 +84,11 @@ page 1355 "Posted Sales Inv. - Update"
     begin
         Rec := SalesInvoiceHeader;
         Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecordChanged(var SalesInvoiceHeader: Record "Sales Invoice Header"; xSalesInvoiceHeader: Record "Sales Invoice Header"; var IsChanged: Boolean)
+    begin
     end;
 }
 

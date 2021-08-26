@@ -6524,9 +6524,9 @@ Cstr(Fields!EMailCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>5.64278cm</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>4</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -6551,9 +6551,9 @@ Cstr(Fields!EMailCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>5.29cm</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>5</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -6578,16 +6578,15 @@ Cstr(Fields!EMailCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>4.93722cm</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>6</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
             <Textbox Name="CompanyInfoVATRegistrationNoCaption">
-              <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -6606,16 +6605,15 @@ Cstr(Fields!EMailCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>4.58444cm</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>7</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
             <Textbox Name="CompanyInfoHomePageCaption">
-              <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -6634,16 +6632,15 @@ Cstr(Fields!EMailCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.87889cm</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>8</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
             <Textbox Name="CompanyInfoPhoneNoCaption">
-              <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -6662,9 +6659,9 @@ Cstr(Fields!EMailCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.52611cm</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>9</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -6717,7 +6714,7 @@ Cstr(Fields!EMailCaption.Value)
               <Top>5.29cm</Top>
               <Left>3.85389cm</Left>
               <Height>11pt</Height>
-              <Width>7.60882cm</Width>
+              <Width>6.60882cm</Width>
               <ZIndex>11</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -6772,7 +6769,7 @@ Cstr(Fields!EMailCaption.Value)
               <Top>5.64278cm</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>13</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -6957,7 +6954,7 @@ Cstr(Fields!EMailCaption.Value)
               </Paragraphs>
               <Top>5.99556cm</Top>
               <Height>11pt</Height>
-              <Width>11.46271cm</Width>
+              <Width>10.46271cm</Width>
               <ZIndex>20</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -7009,9 +7006,9 @@ Cstr(Fields!EMailCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>5.99556cm</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>22</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -7038,7 +7035,7 @@ Cstr(Fields!EMailCaption.Value)
               <Top>4.93722cm</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>23</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -7065,7 +7062,7 @@ Cstr(Fields!EMailCaption.Value)
               <Top>4.23167cm</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>24</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -7118,7 +7115,7 @@ Cstr(Fields!EMailCaption.Value)
               <Top>3.87889cm</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>26</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -7599,7 +7596,7 @@ Cstr(Fields!EMailCaption.Value)
               <Top>4.58444cm</Top>
               <Left>3.81861cm</Left>
               <Height>11pt</Height>
-              <Width>7.6441cm</Width>
+              <Width>6.6441cm</Width>
               <ZIndex>44</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -7663,7 +7660,6 @@ Cstr(Fields!EMailCaption.Value)
               </Style>
             </Textbox>
             <Textbox Name="CompanyInfoEmailCaption">
-              <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -7682,9 +7678,9 @@ Cstr(Fields!EMailCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>4.23167cm</Top>
-              <Left>11.64671cm</Left>
+              <Left>10.64671cm</Left>
               <Height>11pt</Height>
-              <Width>2.88019cm</Width>
+              <Width>3.88019cm</Width>
               <ZIndex>47</ZIndex>
               <Style>
                 <Border>
@@ -7753,37 +7749,6 @@ Cstr(Fields!EMailCaption.Value)
                 <PaddingBottom>2pt</PaddingBottom>
               </Style>
             </Textbox>
-            <Textbox Name="Textbox39">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value />
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <rd:DefaultName>Textbox39</rd:DefaultName>
-              <Top>3.52611cm</Top>
-              <Height>11pt</Height>
-              <Width>11.46271cm</Width>
-              <ZIndex>50</ZIndex>
-              <Style>
-                <Border>
-                  <Style>None</Style>
-                </Border>
-                <PaddingLeft>2pt</PaddingLeft>
-                <PaddingRight>2pt</PaddingRight>
-                <PaddingTop>2pt</PaddingTop>
-                <PaddingBottom>2pt</PaddingBottom>
-              </Style>
-            </Textbox>
             <Textbox Name="Textbox40">
               <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
@@ -7802,7 +7767,7 @@ Cstr(Fields!EMailCaption.Value)
               <Top>7.40667cm</Top>
               <Height>10pt</Height>
               <Width>17.34849cm</Width>
-              <ZIndex>51</ZIndex>
+              <ZIndex>50</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -7827,7 +7792,7 @@ Cstr(Fields!EMailCaption.Value)
               <Top>7.05389cm</Top>
               <Height>10pt</Height>
               <Width>17.34849cm</Width>
-              <ZIndex>52</ZIndex>
+              <ZIndex>51</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>

@@ -297,6 +297,8 @@ table 7316 "Warehouse Receipt Header"
         Validate("Bin Code", Location."Receipt Bin Code");
         Validate("Cross-Dock Bin Code", Location."Cross-Dock Bin Code");
         "Posting Date" := WorkDate;
+
+        OnAfterOnInsert(Rec, xRec);
     end;
 
     trigger OnRename()
@@ -570,6 +572,11 @@ table 7316 "Warehouse Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssistEdit(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInsert(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var xWarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 

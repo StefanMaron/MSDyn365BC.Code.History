@@ -21,7 +21,13 @@ codeunit 7311 "Whse. Worksheet-Create"
     local procedure TransferFromWhseShptLine(var WhseWkshLine: Record "Whse. Worksheet Line"; WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; WhseShptLine: Record "Warehouse Shipment Line")
     var
         WhseShptHeader: Record "Warehouse Shipment Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferFromWhseShptLine(WhseWkshLine, WhseShptLine, WhseWkshTemplateName, WhseWkshName, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseShptLine do begin
             WhseWkshLine.SetCurrentKey(
               "Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
@@ -256,6 +262,7 @@ codeunit 7311 "Whse. Worksheet-Create"
                 WhseWkshLine."To Zone Code" := Bin."Zone Code";
             end;
         end;
+        OnAfterTransferAllButWhseDocDetailsFromAssemblyLine(WhseWkshLine, AssemblyLine);
     end;
 
     procedure FromWhseRcptLine(WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; PostedWhseRcptLine: Record "Posted Whse. Receipt Line"): Boolean
@@ -372,6 +379,7 @@ codeunit 7311 "Whse. Worksheet-Create"
                 Created := true;
                 if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
                     ItemTrackingMgt.InitTrackingSpecification(WhseWkshLine);
+                OnCreateWhseWkshLineOnAfterInsert(WhseWkshLine);
             end;
         end;
     end;
@@ -418,7 +426,22 @@ codeunit 7311 "Whse. Worksheet-Create"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferAllButWhseDocDetailsFromAssemblyLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferFromWhseShptLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateWhseWkshLineOnBeforeInsert(var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseWkshLineOnAfterInsert(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
 
