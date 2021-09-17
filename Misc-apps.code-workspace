@@ -73,6 +73,7 @@
         "allint.enabled": false,
         "al.enableCodeActions": false,
         "al.enableCodeAnalysis": false,
+        "al.backgroundCodeAnalysis": false,
         "search.exclude": {
             "**.xlf": true
         }
