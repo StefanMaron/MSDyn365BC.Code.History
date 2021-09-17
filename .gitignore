@@ -1,0 +1,9 @@
+*.app
+*.g.xlf
+ 
+rad.json
+launch.json
+settings.json
+ 
+**/.alcache/*
+**/.altemplates/*
