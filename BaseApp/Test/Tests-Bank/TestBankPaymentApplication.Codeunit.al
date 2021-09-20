@@ -21,6 +21,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Initialized: Boolean;
         ExcessiveAmtErr: Label 'You must apply the excessive amount of %1 %2 manually.', Comment = '%1 a decimal number, %2 currency code';
+        WrongStmEndBalanceErr: Label '%1 is not equal to Total Balance.', Comment = '%1 is a field caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -185,6 +186,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPmtWithBlockedDimComb()
     var
@@ -219,6 +221,7 @@ codeunit 134263 "Test Bank Payment Application"
 
         // Create Bank Rec Line - Application
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
 
         // Exercise
         LibraryLowerPermissions.AddAccountReceivables;
@@ -235,6 +238,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPmtApplnMultipleLines()
     var
@@ -266,11 +270,14 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccReconLine.Find;
         Assert.AreEqual(0, BankAccReconLine.Difference, '');
 
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
+
         // Verify: posting should succeed is Dim Comb is not blocked
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPmtApplnAmt()
     var
@@ -312,10 +319,47 @@ codeunit 134263 "Test Bank Payment Application"
         // Tear Down
 
         // Verify: posting should succeed
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
+    [Scope('OnPrem')]
+    procedure TestWrongStatementEndBalance()
+    var
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        BankAcc: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        AppliedPmtEntry: Record "Applied Payment Entry";
+    begin
+        Initialize;
+
+        // Create Sales Invoice and Post
+        CreateCustAndPostSalesInvoice(CustLedgEntry, '');
+
+        // create Bank Acc
+        LibraryERM.CreateBankAccount(BankAcc);
+
+        CreateBankPmtReconcWithLine(
+          BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
+
+        // Create Bank Rec Line - Application
+        LibraryLowerPermissions.AddAccountReceivables;
+        ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+
+        // Try to post with a wrong Statement Ending Balance
+        //UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
+        asserterror LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // [THEN] Posting is not successful 
+        Assert.ExpectedError(StrSubstNo(WrongStmEndBalanceErr, BankAccRecon.FieldCaption("Statement Ending Balance")));
+
+    end;
+
+    [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestRemaingAmtPmtWithDiscMultipleAppln()
     var
@@ -369,6 +413,7 @@ codeunit 134263 "Test Bank Payment Application"
             CustLedgEntry2.CalcFields("Remaining Amount");
             OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
             PmtReconJnl.First;
+            UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
             PmtReconJnl.Difference.AssertEquals(0);
             // Post
             LibraryERM.PostBankAccReconciliation(BankAccRecon);
@@ -465,6 +510,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithAppln()
     var
@@ -489,6 +535,7 @@ codeunit 134263 "Test Bank Payment Application"
 
         LibraryLowerPermissions.AddAccountReceivables;
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
 
         // [WHEN] Post Bank Account Reconciliation
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
@@ -505,6 +552,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithDiscAppln()
     var
@@ -540,6 +588,7 @@ codeunit 134263 "Test Bank Payment Application"
 
         // Post
         LibraryLowerPermissions.AddAccountReceivables;
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // Verify
@@ -548,6 +597,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithDiscMultipleAppln()
     var
@@ -598,6 +648,7 @@ codeunit 134263 "Test Bank Payment Application"
         end;
 
         // Post
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + StmtAmt);
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // Verify
@@ -606,6 +657,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithNoDiscAppln()
     var
@@ -647,6 +699,7 @@ codeunit 134263 "Test Bank Payment Application"
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
 
         // Post
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + StmtAmt);
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // Verify
@@ -655,6 +708,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithVendAppln()
     var
@@ -681,6 +735,7 @@ codeunit 134263 "Test Bank Payment Application"
         ApplyVendLedgEntry(BankAccReconLine, VendLedgEntry);
 
         // [WHEN] Post Bank Account Reconciliation
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // [THEN] Customer Ledger Entry for Posted Invoice is Closed
@@ -695,6 +750,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithFCYInvAppln()
     var
@@ -723,6 +779,7 @@ codeunit 134263 "Test Bank Payment Application"
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
 
         // Post
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // Verify
@@ -765,6 +822,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithFCYDiscAppln()
     var
@@ -809,6 +867,7 @@ codeunit 134263 "Test Bank Payment Application"
         Assert.AreEqual(0, BankAccReconLine.Difference, '');
 
         // Post
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // Verify
@@ -817,6 +876,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithLCYInvAndFCYPayAppln()
     var
@@ -849,6 +909,7 @@ codeunit 134263 "Test Bank Payment Application"
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
 
         // Post
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // Verify
@@ -857,6 +918,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestPostPmtWithDiscFCYInvAndLCYPayAppln()
     var
@@ -893,6 +955,7 @@ codeunit 134263 "Test Bank Payment Application"
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
 
         // Post
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // Verify
@@ -1164,6 +1227,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure PostedSourceCodeAfterReconPaymentApplication()
     var
@@ -1193,6 +1257,7 @@ codeunit 134263 "Test Bank Payment Application"
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
 
         // [WHEN] Post application
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] Created GLRegister."Source Code" = GLEntry."Source Code" = "X"
@@ -1237,6 +1302,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure SalesApplyPmtInLCYToInvoiceInFCYWithDiffCurrencyExchangeRate()
     var
@@ -1271,6 +1337,7 @@ codeunit 134263 "Test Bank Payment Application"
         ApplyCustLedgEntry(BankAccReconLine, CustLedgEntry);
 
         // [WHEN] Post Bank Account Reconciliation
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // [THEN] Sales Invoice fully applied to Payment
@@ -1279,6 +1346,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure PurchApplyPmtInLCYToInvoiceInFCYWithDiffCurrencyExchangeRate()
     var
@@ -1313,6 +1381,7 @@ codeunit 134263 "Test Bank Payment Application"
         ApplyVendLedgEntry(BankAccReconLine, VendLedgEntry);
 
         // [WHEN] Post Bank Account Reconciliation
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // [THEN] Purchase Invoice fully applied to Payment
@@ -1321,6 +1390,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure AppliesToIdIsBlankWhenNoEntriesAppliesDuringSalesPosting()
     var
@@ -1341,6 +1411,7 @@ codeunit 134263 "Test Bank Payment Application"
           BankAccReconLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
 
         // [WHEN] Post Bank Acc. Reconciliation Line
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // [THEN] "Applies-to ID" is blank in Payment Customer Ledger Entry
@@ -1350,6 +1421,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure AppliesToIdIsBlankWhenNoEntriesAppliesDuringPurchPosting()
     var
@@ -1370,6 +1442,7 @@ codeunit 134263 "Test Bank Payment Application"
           BankAccReconLine."Account Type"::Vendor, LibraryPurch.CreateVendorNo);
 
         // [WHEN] Post Bank Acc. Reconciliation Line
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccRecon);
 
         // [THEN] "Applies-to ID" is blank in Payment Vendor Ledger Entry
@@ -1379,6 +1452,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure BankPaymentApplicationBankReconciliationLCYToBankAccountLCY()
     var
@@ -1398,6 +1472,7 @@ codeunit 134263 "Test Bank Payment Application"
           BankAccReconciliationLine."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo);
 
         // [WHEN] Post Bank Payment Application
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] Bank Account Ledger Entry is posted with Amount = 100 for Bank Account "B"
@@ -1405,6 +1480,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure BankPaymentApplicationBankReconciliationFCYToBankAccountFCY()
     var
@@ -1426,6 +1502,7 @@ codeunit 134263 "Test Bank Payment Application"
           BankAccReconciliationLine."Account Type"::"Bank Account", BankAccountAppln."No.");
 
         // [WHEN] Post Bank Payment Application
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] Bank Account Ledger Entry is posted with Amount = 100 for Bank Account "B"
@@ -1433,6 +1510,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure BankPaymentApplicationBankReconciliationToBankAccountDiffCurrencies()
     var
@@ -1452,6 +1530,7 @@ codeunit 134263 "Test Bank Payment Application"
           BankAccReconciliationLine."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo);
 
         // [WHEN] Post Bank Payment Application
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
         asserterror LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] Error appeared 'You must apply the excessive amount of 100 "C" manually.'
@@ -1460,6 +1539,7 @@ codeunit 134263 "Test Bank Payment Application"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure PostPmtWithDateLessThanInvoicePostingDate()
     var
@@ -1484,6 +1564,7 @@ codeunit 134263 "Test Bank Payment Application"
         CustLedgerEntry.Modify();
 
         // [WHEN] Post Bank Payment Application
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
         asserterror LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] Error appeared "You are not allowed to apply and post an entry to an entry with an earlier posting date."
@@ -1817,11 +1898,24 @@ codeunit 134263 "Test Bank Payment Application"
         PmtReconciliationJournals.EditJournal.Invoke;
     end;
 
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccRecon.Modify();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc.OK.Invoke();
     end;
 }
 

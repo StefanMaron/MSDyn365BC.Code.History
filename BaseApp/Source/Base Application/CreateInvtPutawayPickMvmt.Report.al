@@ -283,6 +283,8 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
             "No." := '';
             "Location Code" := "Warehouse Request"."Location Code";
         end;
+
+        OnAfterInitWhseActivHeader(WhseActivHeader, "Warehouse Request");
     end;
 
     local procedure InsertTempWhseActivHdr()
@@ -371,6 +373,11 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var SkipRecord: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitWhseActivHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseRequest: Record "Warehouse Request")
     begin
     end;
 

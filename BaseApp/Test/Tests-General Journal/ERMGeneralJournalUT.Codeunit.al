@@ -1271,14 +1271,14 @@ codeunit 134920 "ERM General Journal UT"
         Customer: Record Customer;
     begin
         // [FEATURE] [Customer]
-        // [SCENARIO 378439] "Recipient Bank Account" should be empty on Invoice Gen. Jnl. Line when Account No has Customer with "Preferred Bank Account Code"
+        // [SCENARIO 407085] "Recipient Bank Account" is filled in on Invoice Gen. Jnl. Line when Account No has Customer with "Preferred Bank Account Code"
         Initialize;
         CreateCustomerWithBankAccount(Customer);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, Customer."No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", '', '');
 
-        GenJournalLine.TestField("Recipient Bank Account", '');
+        GenJournalLine.TestField("Recipient Bank Account", Customer."Preferred Bank Account Code");
     end;
 
     [Test]
@@ -1289,14 +1289,14 @@ codeunit 134920 "ERM General Journal UT"
         Customer: Record Customer;
     begin
         // [FEATURE] [Customer]
-        // [SCENARIO 378439] "Recipient Bank Account" should be empty on Invoice Gen. Jnl. Line when Bal. Account No has Customer with "Preferred Bank Account Code"
+        // [SCENARIO 407085] "Recipient Bank Account" is filled in on Invoice Gen. Jnl. Line when Bal. Account No has Customer with "Preferred Bank Account Code"
         Initialize;
         CreateCustomerWithBankAccount(Customer);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", '',
           GenJournalLine."Bal. Account Type"::Customer, Customer."No.", '');
 
-        GenJournalLine.TestField("Recipient Bank Account", '');
+        GenJournalLine.TestField("Recipient Bank Account", Customer."Preferred Bank Account Code");
     end;
 
     [Test]
@@ -1307,14 +1307,14 @@ codeunit 134920 "ERM General Journal UT"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [Vendor]
-        // [SCENARIO 378439] "Recipient Bank Account" should be empty on Invoice Gen. Jnl. Line when Account No has Vendor with "Preferred Bank Account Code"
+        // [SCENARIO 407085] "Recipient Bank Account" is filled in on Invoice Gen. Jnl. Line when Account No has Vendor with "Preferred Bank Account Code"
         Initialize;
         CreateVendorWithBankAccount(Vendor);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, Vendor."No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", '', '');
 
-        GenJournalLine.TestField("Recipient Bank Account", '');
+        GenJournalLine.TestField("Recipient Bank Account", Vendor."Preferred Bank Account Code");
     end;
 
     [Test]
@@ -1325,14 +1325,14 @@ codeunit 134920 "ERM General Journal UT"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [Vendor]
-        // [SCENARIO 378439] "Recipient Bank Account" should be empty on Invoice Gen. Jnl. Line when Bal. Account No has Vendor with "Preferred Bank Account Code"
+        // [SCENARIO 407085] "Recipient Bank Account" is filled in on Invoice Gen. Jnl. Line when Bal. Account No has Vendor with "Preferred Bank Account Code"
         Initialize;
         CreateVendorWithBankAccount(Vendor);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::"G/L Account", '',
           GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.", '');
 
-        GenJournalLine.TestField("Recipient Bank Account", '');
+        GenJournalLine.TestField("Recipient Bank Account", Vendor."Preferred Bank Account Code");
     end;
 
     [Test]
@@ -4381,7 +4381,7 @@ codeunit 134920 "ERM General Journal UT"
         VendorBankAccount: Record "Vendor Bank Account";
         GLAccountNo: Code[20];
     begin
-        // [SCENARIO 304753] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated with blank value for "Document Type" = " "
+        // [SCENARIO 407085] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated for "Document Type" = " "
         Initialize;
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo);
@@ -4393,7 +4393,7 @@ codeunit 134920 "ERM General Journal UT"
 
         GenJnlLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
 
-        GenJnlLine.TestField("Recipient Bank Account", '');
+        GenJnlLine.TestField("Recipient Bank Account", VendorBankAccount.Code);
     end;
 
     [Test]
@@ -4404,7 +4404,7 @@ codeunit 134920 "ERM General Journal UT"
         VendorBankAccount: Record "Vendor Bank Account";
         GLAccountNo: Code[20];
     begin
-        // [SCENARIO 304753] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated with blank value for "Document Type" = "Credit Memo"
+        // [SCENARIO 407085] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated for "Document Type" = "Credit Memo"
         Initialize;
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo);
@@ -4416,7 +4416,7 @@ codeunit 134920 "ERM General Journal UT"
 
         GenJnlLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
 
-        GenJnlLine.TestField("Recipient Bank Account", '');
+        GenJnlLine.TestField("Recipient Bank Account", VendorBankAccount.Code);
     end;
 
     [Test]
@@ -4427,7 +4427,7 @@ codeunit 134920 "ERM General Journal UT"
         CustomerBankAccount: Record "Customer Bank Account";
         GLAccountNo: Code[20];
     begin
-        // [SCENARIO 304753] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated with blank value for "Document Type" = " "
+        // [SCENARIO 407085] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated for "Document Type" = " "
         Initialize;
 
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, LibrarySales.CreateCustomerNo);
@@ -4439,7 +4439,7 @@ codeunit 134920 "ERM General Journal UT"
 
         GenJnlLine.Validate("Recipient Bank Account", CustomerBankAccount.Code);
 
-        GenJnlLine.TestField("Recipient Bank Account", '');
+        GenJnlLine.TestField("Recipient Bank Account", CustomerBankAccount.Code);
     end;
 
     [Test]
@@ -4450,7 +4450,7 @@ codeunit 134920 "ERM General Journal UT"
         CustomerBankAccount: Record "Customer Bank Account";
         GLAccountNo: Code[20];
     begin
-        // [SCENARIO 304753] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated with blank value for "Document Type" = "Credit Memo"
+        // [SCENARIO 407085] Field "Recipient Bank Account" of TAB81 Gen. Journal Line is validated for "Document Type" = "Credit Memo"
         Initialize;
 
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, LibrarySales.CreateCustomerNo);
@@ -4462,7 +4462,7 @@ codeunit 134920 "ERM General Journal UT"
 
         GenJnlLine.Validate("Recipient Bank Account", CustomerBankAccount.Code);
 
-        GenJnlLine.TestField("Recipient Bank Account", '');
+        GenJnlLine.TestField("Recipient Bank Account", CustomerBankAccount.Code);
     end;
 
     [Test]

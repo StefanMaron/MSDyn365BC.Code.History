@@ -103,6 +103,7 @@ page 9901 "Export Data"
     begin
         if EnvironmentInfo.IsSaaS then
             error(OnPremiseOnlyErr);
+        FileName := 'ExportData.navdata';
     end;
 
     trigger OnOpenPage()
@@ -125,7 +126,8 @@ page 9901 "Export Data"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        FileName := Description;
+        if Description <> '' then
+            FileName := StrSubstNo(FileNameLbl, CopyStr(Description, 1, 250));
         if CloseAction = ACTION::OK then begin
             if ExportData(
                  true,
@@ -156,6 +158,7 @@ page 9901 "Export Data"
         Selected: Boolean;
         OnPremiseOnlyErr: Label 'This functionality is supported only in Business Central on-premises.';
         CompletedMsg: Label 'The data was exported successfully.';
+        FileNameLbl: Label '%1.navdata', Locked = true;
 
     local procedure MarkAll()
     begin

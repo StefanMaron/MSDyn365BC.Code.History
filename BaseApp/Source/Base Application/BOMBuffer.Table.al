@@ -594,6 +594,8 @@ table 5870 "BOM Buffer"
     var
         MachineCenter: Record "Machine Center";
         WorkCenter: Record "Work Center";
+        RunTimeQty: Decimal;
+        SetupWaitMoveTimeQty: Decimal;
     begin
         Init;
         EntryNo += 1;
@@ -613,8 +615,9 @@ table 5870 "BOM Buffer"
         end;
 
         Description := RoutingLine.Description;
-        "Qty. per Parent" := CalcQtyPerParentFromProdRouting(RoutingLine);
-        "Qty. per Top Item" := "Qty. per Parent" * ParentQtyPer;
+        CalcQtyPerParentFromProdRouting(RoutingLine, RunTimeQty, SetupWaitMoveTimeQty);
+        "Qty. per Parent" := SetupWaitMoveTimeQty + RunTimeQty;
+        "Qty. per Top Item" := SetupWaitMoveTimeQty + RunTimeQty * ParentQtyPer;
         "Location Code" := ParentLocationCode;
         "Needed by Date" := NeedByDate;
         Indentation := NewIndentation;
@@ -950,11 +953,10 @@ table 5870 "BOM Buffer"
             "Unit Cost" := Round("Total Cost" / "Qty. per Top Item", 0.00001);
     end;
 
-    local procedure CalcQtyPerParentFromProdRouting(RoutingLine: Record "Routing Line"): Decimal
+    local procedure CalcQtyPerParentFromProdRouting(RoutingLine: Record "Routing Line"; var RunTimeQty: Decimal; var SetupWaitMoveTimeQty: Decimal)
     var
         WorkCenter: Record "Work Center";
         CalendarMgt: Codeunit "Shop Calendar Management";
-        BaseQty: Decimal;
         SetupTimeFactor: Decimal;
         RunTimeFactor: Decimal;
         WaitTimeFactor: Decimal;
@@ -966,9 +968,10 @@ table 5870 "BOM Buffer"
         WaitTimeFactor := CalendarMgt.TimeFactor(RoutingLine."Wait Time Unit of Meas. Code");
         MoveTimeFactor := CalendarMgt.TimeFactor(RoutingLine."Move Time Unit of Meas. Code");
 
-        BaseQty :=
-          RoutingLine."Setup Time" * SetupTimeFactor + RoutingLine."Run Time" * RunTimeFactor +
-          RoutingLine."Wait Time" * WaitTimeFactor + RoutingLine."Move Time" * MoveTimeFactor;
+        RunTimeQty := RoutingLine."Run Time" * RunTimeFactor;
+        SetupWaitMoveTimeQty :=
+          RoutingLine."Setup Time" * SetupTimeFactor + RoutingLine."Wait Time" * WaitTimeFactor +
+          RoutingLine."Move Time" * MoveTimeFactor;
 
         if "Unit of Measure Code" = '' then begin
             // select base UOM from Setup/Run/Wait/Move UOMs
@@ -990,7 +993,11 @@ table 5870 "BOM Buffer"
 
         if not WorkCenter.Get(RoutingLine."Work Center No.") then
             WorkCenter.Init();
-        exit(Round(BaseQty / CalendarMgt.TimeFactor("Unit of Measure Code"), WorkCenter."Calendar Rounding Precision"));
+
+        RunTimeQty :=
+          Round(RunTimeQty / CalendarMgt.TimeFactor("Unit of Measure Code"), WorkCenter."Calendar Rounding Precision");
+        SetupWaitMoveTimeQty :=
+          Round(SetupWaitMoveTimeQty / CalendarMgt.TimeFactor("Unit of Measure Code"), WorkCenter."Calendar Rounding Precision");
     end;
 
     local procedure IsLowLevelOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"): Boolean

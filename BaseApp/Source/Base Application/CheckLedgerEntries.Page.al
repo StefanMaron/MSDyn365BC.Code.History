@@ -171,11 +171,17 @@ page 374 "Check Ledger Entries"
 
     trigger OnOpenPage()
     begin
+        OnBeforeOnOpenPage();
         if (GetFilters() <> '') and not Find() then
             if FindFirst() then;
     end;
 
     var
         Navigate: Page Navigate;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage()
+    begin
+    end;
 }
 

@@ -1,4 +1,4 @@
-page 9249 "Analysis by Dimensions Matrix"
+﻿page 9249 "Analysis by Dimensions Matrix"
 {
     Caption = 'Analysis by Dimensions Matrix';
     DataCaptionExpression = AnalysisViewCode;
@@ -895,6 +895,8 @@ page 9249 "Analysis by Dimensions Matrix"
             DimOption::"Dimension 4":
                 InitDimValue(
                   DimCodeBuf, AnalysisView."Dimension 4 Code", AnalysisByDimParameters."Dimension 4 Filter");
+            else
+                OnInitRecOnCaseElse(DimOption, DimCodeBuf, AnalysisView);
         end;
         if FindFirst then;
     end;
@@ -1079,6 +1081,8 @@ page 9249 "Analysis by Dimensions Matrix"
 
                     PAGE.RunModal(PAGE::"Dimension Value List", DimVal);
                 end;
+            else
+                OnLookUpCodeOnCaseElse(DimOption, Code);
         end;
     end;
 
@@ -1183,7 +1187,7 @@ page 9249 "Analysis by Dimensions Matrix"
                     TheAnalysisViewEntry.SetFilter("Dimension 4 Value Code", DimCodeBuf.Totaling);
         end;
 
-        OnAfterSetDimFilters(TheAnalysisViewEntry, AnalysisView);
+        OnAfterSetDimFilters(TheAnalysisViewEntry, AnalysisView, DimOption, DimCodeBuf);
     end;
 
     local procedure SetCommonBudgetFilters(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry")
@@ -1260,7 +1264,7 @@ page 9249 "Analysis by Dimensions Matrix"
                     TheAnalysisViewBudgetEntry.SetFilter("Dimension 4 Value Code", DimCodeBuf.Totaling);
         end;
 
-        OnAfterSetDimBudgetFilters(TheAnalysisViewBudgetEntry, AnalysisView);
+        OnAfterSetDimBudgetFilters(TheAnalysisViewBudgetEntry, AnalysisView, DimOption, DimCodeBuf);
     end;
 
     local procedure DrillDown(SetColFilter: Boolean)
@@ -1601,13 +1605,22 @@ page 9249 "Analysis by Dimensions Matrix"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetDimFilters(var TheAnalysisViewEntry: Record "Analysis View Entry"; AnalysisView: Record "Analysis View")
+    local procedure OnAfterSetDimFilters(var TheAnalysisViewEntry: Record "Analysis View Entry"; AnalysisView: Record "Analysis View"; DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast",Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetDimBudgetFilters(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AnalysisView: Record "Analysis View")
+    local procedure OnAfterSetDimBudgetFilters(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AnalysisView: Record "Analysis View"; DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account",CashFlow,Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var DimCodeBuf: Record "Dimension Code Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInitRecOnCaseElse(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast",Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var TheDimCodeBuf: Record "Dimension Code Buffer"; var AnalysisView: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnLookUpCodeOnCaseElse(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast",Fund,DimAttrib1,DimAttrib2,DimAttrib3,DimAttrib4; var "Code": Text[30])
     begin
     end;
 }
-

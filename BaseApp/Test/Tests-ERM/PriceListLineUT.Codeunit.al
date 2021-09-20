@@ -2124,6 +2124,33 @@ codeunit 134123 "Price List Line UT"
     end;
 
     [Test]
+    procedure T119_ValidateWorkTypeForAllResources()
+    var
+        PriceListLine: Record "Price List Line";
+        WorkType: Record "Work Type";
+        UnitofMeasure: Record "Unit of Measure";
+    begin
+        // [FEATURE] [Resource] [Work Type]
+        // [SCENARIO 406833] "Work Type Code" can be set for 'all resources' price line ("Asset No." is blank)
+        Initialize();
+        // [GIVEN] Work Type 'WT', where "Unit of Measure Code" is 'UOM'
+        LibraryResource.CreateWorkType(WorkType);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
+        WorkType."Unit of Measure Code" := UnitofMeasure.Code;
+        WorkType.Modify();
+        // [GIVEN] Price List Line, where "Source Type" is 'All Vendors', "Asset Type" is 'Resource', "Asset No." is <blank>
+        PriceListLine.Validate("Source Type", "Price Source Type"::"All Vendors");
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Resource);
+
+        // [WHEN] Set "Work Type Code" as 'WT'
+        PriceListLine.Validate("Work Type Code", WorkType.Code);
+
+        // [THEN] Price Line, where "Unit of Measure Code" is 'UOM'
+        PriceListLine.TestField("Work Type Code", WorkType.Code);
+        PriceListLine.TestField("Unit of Measure Code", WorkType."Unit of Measure Code");
+    end;
+
+    [Test]
     procedure T120_DeletePricesOnResourceDeletion()
     var
         PriceListLine: Record "Price List Line";

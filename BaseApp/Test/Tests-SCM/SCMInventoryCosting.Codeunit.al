@@ -1092,6 +1092,90 @@ codeunit 137007 "SCM Inventory Costing"
         AsmItem.TestField("Standard Cost", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure ExcludeNonInventoryCompsFromStandardCostOfProdItem()
+    var
+        NonInvtCompItem: Record Item;
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [FEATURE] [Standard Cost] [Unit Cost] [Manufacturing]
+        // [SCENARIO 406951] Exclude non-inventory components from standard cost calculation of manufacturing item.
+        Initialize();
+
+        // [GIVEN] Non-inventory item "NI" with unit cost = "X".
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvtCompItem);
+        NonInvtCompItem.Validate("Costing Method", NonInvtCompItem."Costing Method"::FIFO);
+        NonInvtCompItem.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        NonInvtCompItem.Modify(true);
+
+        // [GIVEN] Normal item "I" with unit cost = "Y".
+        CreateItemWithCostingMethod(CompItem, CompItem."Costing Method"::FIFO);
+        CompItem.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        CompItem.Modify(true);
+
+        // [GIVEN] Production BOM that includes two components - "NI" and "I".
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, NonInvtCompItem."No.", CompItem."No.", 1);
+
+        // [GIVEN] Manufacturing item, select just created production BOM.
+        CreateItemWithCostingMethod(ProdItem, ProdItem."Costing Method"::Standard);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Calculate standard cost of the manufacturing item.
+        CalculateStandardCost.CalcItem(ProdItem."No.", false);
+
+        // [THEN] The standard cost = "Y" ("X" is not included).
+        ProdItem.Find();
+        ProdItem.TestField("Standard Cost", CompItem."Unit Cost");
+    end;
+
+    [Test]
+    procedure ExcludeNonInventoryCompsFromStandardCostOfAsmItem()
+    var
+        NonInvtCompItem: Record Item;
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [FEATURE] [Standard Cost] [Unit Cost] [Assembly]
+        // [SCENARIO 406951] Exclude non-inventory components from standard cost calculation of assembly item.
+        Initialize();
+
+        // [GIVEN] Non-inventory item "NI" with unit cost = "X".
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvtCompItem);
+        NonInvtCompItem.Validate("Costing Method", NonInvtCompItem."Costing Method"::FIFO);
+        NonInvtCompItem.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        NonInvtCompItem.Modify(true);
+
+        // [GIVEN] Normal item "I" with unit cost = "Y".
+        CreateItemWithCostingMethod(CompItem, CompItem."Costing Method"::FIFO);
+        CompItem.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        CompItem.Modify(true);
+
+        // [GIVEN] Assembly item.
+        // [GIVEN] Add two components "NI" and "I" to assembly BOM.
+        CreateItemWithCostingMethod(AsmItem, AsmItem."Costing Method"::Standard);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Modify(true);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, NonInvtCompItem."No.", 1, NonInvtCompItem."Base Unit of Measure");
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [WHEN] Calculate standard cost of the assembly item.
+        CalculateStandardCost.CalcItem(AsmItem."No.", true);
+
+        // [THEN] The standard cost = "Y" ("X" is not included).
+        AsmItem.Find();
+        AsmItem.TestField("Standard Cost", CompItem."Unit Cost");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

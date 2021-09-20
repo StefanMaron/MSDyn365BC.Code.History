@@ -349,7 +349,6 @@ page 8625 "Config. Package Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Export to Excel';
-                    Enabled = AditionalOptionsEnabled;
                     Image = ExportToExcel;
                     ToolTip = 'Export the data from selected tables in the package to Excel.';
 
@@ -366,7 +365,6 @@ page 8625 "Config. Package Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import from Excel';
-                    Enabled = AditionalOptionsEnabled;
                     Image = ImportExcel;
                     ToolTip = 'Import data from Excel to selected tables in the package.';
 
@@ -396,11 +394,9 @@ page 8625 "Config. Package Subform"
 
     trigger OnOpenPage()
     var
-        ConfigPackage: Record "Config. Package";
         ConfigPackageManagement: Codeunit "Config. Package Management";
     begin
         SetFilter("Company Filter (Source Table)", '%1', CompanyName);
-        AditionalOptionsEnabled := ConfigPackage.WritePermission;
         ConfigPackageManagement.RemoveRecordsWithObsoleteTableID(
           DATABASE::"Config. Package Table", FieldNo("Table ID"));
     end;
@@ -413,7 +409,6 @@ page 8625 "Config. Package Subform"
         NoOfErrorsStyleTxt: Text;
         SingleTableSelectedQst: Label 'One table has been selected. Do you want to continue?', Comment = '%1 = Table name';
         MultiRelationQst: Label 'Some fields have two or more related tables.\Do you want to check them?';
-        AditionalOptionsEnabled: Boolean;
 
     local procedure SelectionConfirmMessage(): Text
     begin

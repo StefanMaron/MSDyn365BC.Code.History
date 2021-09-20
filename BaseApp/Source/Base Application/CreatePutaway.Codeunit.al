@@ -3,8 +3,13 @@ codeunit 7313 "Create Put-away"
     TableNo = "Posted Whse. Receipt Line";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeRun(Rec);
+        IsHandled := false;
+        OnBeforeRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         PostedWhseRcptLine.Copy(Rec);
         Code;
@@ -725,6 +730,7 @@ codeunit 7313 "Create Put-away"
 
     procedure EverythingIsHandled(): Boolean
     begin
+        OnBeforeEverythingIsHandled(EverythingHandled);
         exit(EverythingHandled);
     end;
 
@@ -740,6 +746,7 @@ codeunit 7313 "Create Put-away"
         WhseActivLine: Record "Warehouse Activity Line";
         Found: Boolean;
     begin
+        OnBeforeGetFirstPutAwayDocument(TempWhseActivHeader);
         Found := TempWhseActivHeader.Find('-');
         if Found then begin
             WhseActivHeader := TempWhseActivHeader;
@@ -755,6 +762,7 @@ codeunit 7313 "Create Put-away"
         WhseActivLine: Record "Warehouse Activity Line";
         Found: Boolean;
     begin
+        OnBeforeGetNextPutAwayDocument(TempWhseActivHeader);
         Found := TempWhseActivHeader.Next <> 0;
         if Found then begin
             WhseActivHeader := TempWhseActivHeader;
@@ -768,6 +776,8 @@ codeunit 7313 "Create Put-away"
     procedure GetMessage(var ErrText000: Text[80])
     begin
         ErrText000 := MessageText;
+
+        OnAfterGetMessage(ErrText000);
     end;
 
     procedure UpdateTempWhseItemTrkgLines(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; SourceType: Integer)
@@ -786,6 +796,7 @@ codeunit 7313 "Create Put-away"
 
     procedure GetQtyHandledBase(var TempRec: Record "Whse. Item Tracking Line" temporary) QtyHandledBase: Decimal
     begin
+        OnBeforeGetQtyHandledBase(TempWhseItemTrkgLine);
         TempRec.Reset();
         TempRec.DeleteAll();
         QtyHandledBase := 0;
@@ -941,6 +952,11 @@ codeunit 7313 "Create Put-away"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetMessage(var MessageText: Text[80])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetWhseActivHeaderNo(var FirstPutAwayNo: Code[20]; var LastPutAwayNo: Code[20])
     begin
     end;
@@ -991,7 +1007,12 @@ codeunit 7313 "Create Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRun(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    local procedure OnBeforeEverythingIsHandled(var EverythingHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRun(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1007,6 +1028,21 @@ codeunit 7313 "Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetPutAwayTemplate(SKU: Record "Stockkeeping Unit"; Item: Record Item; Location: Record Location; var PutAwayTemplHeader: Record "Put-away Template Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFirstPutAwayDocument(var TempWarehouseActivityHeader: Record "Warehouse Activity Header" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNextPutAwayDocument(var TempWarehouseActivityHeader: Record "Warehouse Activity Header" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetQtyHandledBase(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
     begin
     end;
 

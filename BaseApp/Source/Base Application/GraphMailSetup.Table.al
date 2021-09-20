@@ -73,6 +73,7 @@ table 407 "Graph Mail Setup"
         exit(GraphMail.IsEnabled);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure RenewRefreshToken()
     begin
@@ -126,6 +127,7 @@ table 407 "Graph Mail Setup"
             Error('');
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SendTestMail(Recipient: Text)
     var
@@ -154,6 +156,7 @@ table 407 "Graph Mail Setup"
         GraphMail: Codeunit "Graph Mail";
         AzureKeyVault: Codeunit "Azure Key Vault";
         Payload: Text;
+        [NonDebuggable]
         Token: Text;
         ResourceId: Text;
     begin

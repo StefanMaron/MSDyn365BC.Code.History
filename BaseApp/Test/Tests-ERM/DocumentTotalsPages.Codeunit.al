@@ -1520,6 +1520,362 @@ codeunit 134344 "Document Totals Pages"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesQuoteInvoiceDiscountEditable()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Sales]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Sales Quote page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Sales Quote is opened on Sales Quote page.
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
+        SalesQuote.OpenEdit();
+        SalesQuote.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        SalesQuote.Release.Invoke();
+        Assert.IsFalse(SalesQuote.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(SalesQuote.SalesLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Sales Quote
+        SalesQuote.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable
+        Assert.IsTrue(SalesQuote.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsTrue(SalesQuote.SalesLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderInvoiceDiscountEditable()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Sales]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Sales Order page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Sales Order is opened on Sales Order page.
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        SalesOrder.Release.Invoke();
+        Assert.IsFalse(SalesOrder.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(SalesOrder.SalesLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Sales Order
+        SalesOrder.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable
+        Assert.IsTrue(SalesOrder.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsTrue(SalesOrder.SalesLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceInvoiceDiscountEditable()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Sales]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Sales Invoice page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Sales Invoice is opened on Sales Invoice page.
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        SalesInvoice.Release.Invoke();
+        Assert.IsFalse(SalesInvoice.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(SalesInvoice.SalesLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Sales Invoice
+        SalesInvoice.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable
+        Assert.IsTrue(SalesInvoice.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsTrue(SalesInvoice.SalesLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoInvoiceDiscountEditable()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Sales]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Sales Credit Memo page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Sales Credit Memo is opened on Sales Credit Memo page.
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        SalesCreditMemo.Release.Invoke();
+        Assert.IsFalse(SalesCreditMemo.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(SalesCreditMemo.SalesLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Sales Credit Memo
+        SalesCreditMemo.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable
+        Assert.IsTrue(SalesCreditMemo.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsTrue(SalesCreditMemo.SalesLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesBlanketOrderInvoiceDiscountEditable()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Sales]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Blanket Sales Order page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Blanket Sales Order is opened on Blanket Sales Order page.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        BlanketSalesOrder.OpenEdit();
+        BlanketSalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        BlanketSalesOrder.Release.Invoke();
+        Assert.IsFalse(BlanketSalesOrder.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Blanket Sales Order
+        BlanketSalesOrder.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable
+        Assert.IsTrue(BlanketSalesOrder.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsTrue(BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesRetuurnOrderInvoiceDiscountEditable()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Sales]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Sales Return Order page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Sales Return Order is opened on Sales Return Order page.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        SalesReturnOrder.OpenEdit();
+        SalesReturnOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        SalesReturnOrder.Release.Invoke();
+        Assert.IsFalse(SalesReturnOrder.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(SalesReturnOrder.SalesLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Sales Return Order
+        SalesReturnOrder.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable
+        Assert.IsTrue(SalesReturnOrder.SalesLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsTrue(SalesReturnOrder.SalesLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseQuoteInvoiceDiscountEditable()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseQuote: TestPage "Purchase Quote";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Purchase]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Purchase Quote page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Purchase Quote is opened on Purchase Quote page.
+        LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
+        PurchaseQuote.OpenEdit();
+        PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        PurchaseQuote.Release.Invoke();
+        Assert.IsFalse(PurchaseQuote.PurchLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(PurchaseQuote.PurchLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Purchase Quote
+        PurchaseQuote.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable
+        Assert.IsTrue(PurchaseQuote.PurchLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsTrue(PurchaseQuote.PurchLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderInvoiceDiscountEditable()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Purchase]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Purchase Order page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Purchase Order is opened on Purchase Order page.
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        PurchaseOrder.Release.Invoke();
+        Assert.IsFalse(PurchaseOrder.PurchLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(PurchaseOrder.PurchLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Purchase Order
+        PurchaseOrder.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable
+        Assert.IsTrue(PurchaseOrder.PurchLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsTrue(PurchaseOrder.PurchLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceInvoiceDiscountEditable()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Purchase]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Purchase Invoice page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Purchase Invoice is opened on Purchase Invoice page.
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        PurchaseInvoice."Re&lease".Invoke();
+        Assert.IsFalse(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Editable(), '');
+        Assert.IsFalse(PurchaseInvoice.PurchLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Purchase Invoice
+        PurchaseInvoice.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable
+        Assert.IsTrue(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Editable(), '');
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseCreditMemoInvoiceDiscountEditable()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Purchase]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Purchase Credit Memo page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Purchase Credit Memo is opened on Purchase Credit Memo page.
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+        PurchaseCreditMemo.OpenEdit();
+        PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        PurchaseCreditMemo.Release.Invoke();
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Purchase Credit Memo
+        PurchaseCreditMemo.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' is editabe and 'Invoice Disc. Pct.' is not editable (false property)
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseBlanketOrderInvoiceDiscountEditable()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Purchase]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Blanket Purchase Order page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Blanket Purchase Order is opened on Blanket Purchase Order page.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        BlanketPurchaseOrder.OpenEdit();
+        BlanketPurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        BlanketPurchaseOrder.Release.Invoke();
+        Assert.IsFalse(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Purchase Quote
+        BlanketPurchaseOrder.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable
+        Assert.IsTrue(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsTrue(BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseReturnOrderInvoiceDiscountEditable()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Purchase]
+        // [SCENARIO 404794] "Invoice Discount Amount" on Purchase Return Order page is Editable with Status = 'Open'
+        Initialize();
+
+        // [GIVEN] Purchase Return Order is opened on Purchase Return Order page.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseReturnOrder.OpenEdit();
+        PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable for released document
+        PurchaseReturnOrder."Re&lease".Invoke();
+        Assert.IsFalse(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsFalse(PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".Editable(), '');
+
+        // [WHEN] Reopen the Purchase Return Order
+        PurchaseReturnOrder.Reopen.Invoke();
+
+        // [THEN] 'Invoice Discount Amount' and 'Invoice Disc. Pct.' both editable
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".Editable(), '');
+        Assert.IsTrue(PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".Editable(), '');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;

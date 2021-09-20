@@ -75,7 +75,7 @@ table 5615 "FA Allocation"
         }
         field(9; "Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("G/L Account".Name WHERE("No." = FIELD("Account No.")));
+            CalcFormula = Lookup("G/L Account".Name WHERE("No." = FIELD("Account No.")));
             Caption = 'Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -146,6 +146,13 @@ table 5615 "FA Allocation"
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2 %3', Code, "Allocation Type", "Line No."),
             "Global Dimension 1 Code", "Global Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var FAAllocation: Record "FA Allocation")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

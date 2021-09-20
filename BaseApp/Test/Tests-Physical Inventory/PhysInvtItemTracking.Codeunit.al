@@ -472,6 +472,51 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         PhysInvtOrderLine.TestField("Bin Code", Bin.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,ConfirmHandlerTRUE,MessageHandler')]
+    procedure NegativeRecordingWithItemTrackingFromLocationWithBin()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LotNo: Code[50];
+    begin
+        // [FEATURE] [Item Tracking] [Warehouse]
+        // [SCENARIO 402604] Stan can post physical inventory order for negative adjustment with item tracking at location with mandatory bin.
+        Initialize();
+
+        // [GIVEN] Lot-tracked item.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Post 20 pcs of the item to inventory, assign lot no. "L".
+        LibraryVariableStorage.Enqueue(false);
+        CreateLocation(Location, Item."No.", true);
+        FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::"Positive Adjmt.", Item."No.");
+        LotNo := ItemLedgerEntry."Lot No.";
+
+        // [GIVEN] Create physical inventory order, calculate lines.
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+        CalcPhysInvtOrderLinesWithCalcQtyExpected(PhysInvtOrderHeader, Item."No.", true);
+
+        // [GIVEN] Create phys. inventory recording for 15 pcs, select lot no. "L".
+        // [GIVEN] Finish the recording.
+        CreatePhysInventoryRecordingWithTracking(
+          PhysInvtRecordLine, PhysInvtOrderHeader, PhysInvtOrderLine, Item."No.", LibraryRandom.RandInt(10));
+        FinishPhysInventoryRecording(PhysInvtRecordLine, PhysInvtOrderHeader."No.");
+
+        // [WHEN] Finish and post the phys. inventory order (negative adjustment for 5 pcs).
+        FinishAndPostPhysInventoryOrder(PhysInvtOrderHeader);
+
+        // [THEN] The physical inventory order is successfully posted.
+        FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::"Negative Adjmt.", Item."No.");
+        ItemLedgerEntry.TestField("Lot No.", LotNo);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

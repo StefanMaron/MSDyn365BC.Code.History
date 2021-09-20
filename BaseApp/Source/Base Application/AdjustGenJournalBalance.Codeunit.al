@@ -1,4 +1,4 @@
-codeunit 407 "Adjust Gen. Journal Balance"
+﻿codeunit 407 "Adjust Gen. Journal Balance"
 {
     TableNo = "Gen. Journal Line";
 
@@ -132,14 +132,21 @@ codeunit 407 "Adjust Gen. Journal Balance"
                     "Recurring Frequency" := PrevGenJnlLine2."Recurring Frequency";
                     "Posting No. Series" := PrevGenJnlLine2."Posting No. Series";
                     OnBeforeGenJnlLineInsert(NewGenJnlLine, GenJnlLine2, PrevGenJnlLine2);
-                    if TempCurrTotalBuffer."Total Amount (LCY)" <> 0 then
+                    if TempCurrTotalBuffer."Total Amount (LCY)" <> 0 then begin
+                        OnInsertCorrectionLinesOnBeforeNewGenJnlLineInsert(GenJnlLine2, PrevGenJnlLine2, NewGenJnlLine);
                         Insert;
+                    end;
                 end;
             until TempCurrTotalBuffer.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsert(var NewGenJnlLine: Record "Gen. Journal Line"; GenJnlLine2: Record "Gen. Journal Line"; PrevGenJnlLine2: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertCorrectionLinesOnBeforeNewGenJnlLineInsert(var GenJnlLine2: Record "Gen. Journal Line"; var PrevGenJnlLine2: Record "Gen. Journal Line"; var NewGenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

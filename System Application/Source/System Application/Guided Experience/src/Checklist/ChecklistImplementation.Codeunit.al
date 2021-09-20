@@ -628,12 +628,18 @@ codeunit 1993 "Checklist Implementation"
     [EventSubscriber(ObjectType::Table, Database::"Checklist Item", 'OnAfterInsertEvent', '', true, true)]
     local procedure OnAfterChecklistItemInsert(var Rec: Record "Checklist Item")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         LogMessageOnDatabaseEvent(Rec.Code, '0000EIO', ChecklistItemInsertedLbl);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Checklist Item", 'OnAfterDeleteEvent', '', true, true)]
     local procedure OnAfterChecklistItemDelete(var Rec: Record "Checklist Item")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         LogMessageOnDatabaseEvent(Rec.Code, '0000EIP', ChecklistItemDeletedLbl);
     end;
 }

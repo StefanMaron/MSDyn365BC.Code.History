@@ -122,7 +122,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                         Caption = 'Production Order';
                         field(ProductionOrder; ProdOrderChoice)
                         {
-                            ApplicationArea = Planning;
+                            ApplicationArea = Manufacturing;
                             Caption = 'Production Order';
                             OptionCaption = ' ,Planned,Firm Planned,Firm Planned & Print';
                             ToolTip = 'Specifies that you want to create production orders for item with the Prod. Order replenishment system. You can select to create either planned or firm planned production order, and you can have the new order documents printed.';

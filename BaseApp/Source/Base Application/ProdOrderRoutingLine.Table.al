@@ -1403,9 +1403,11 @@
 
         PopulateNewRoutingLineSet(TempProdOrderRoutingLine, FromTrigger);
         ProdOrderRouteMgt.UpdateComponentsBin(TempProdOrderRoutingLine, false);
+
+        OnAfterUpdateComponentsBin(TempProdOrderRoutingLine, FromTrigger);
     end;
 
-    local procedure UpdateOfComponentsBinRequired(FromTrigger: Option Insert,Modify,Delete): Boolean
+    local procedure UpdateOfComponentsBinRequired(FromTrigger: Option Insert,Modify,Delete) Result: Boolean
     begin
         if ("No." = '') and (xRec."No." = "No.") then // bin codes are and were empty
             exit(false);
@@ -1422,6 +1424,8 @@
                    ((xRec."To-Production Bin Code" <> "To-Production Bin Code") or
                     (xRec."Open Shop Floor Bin Code" <> "Open Shop Floor Bin Code"))));
         end;
+
+        OnAfterUpdateOfComponentsBinRequired(Rec, FromTrigger, Result);
     end;
 
     local procedure PopulateNewRoutingLineSet(var ProdOrderRoutingLineTmp: Record "Prod. Order Routing Line"; FromTrigger: Option Insert,Modify,Delete)
@@ -1654,6 +1658,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateStandardTaskCodeOnBeforeProdOrderRtngCommentLineInsert(var ProdOrderRtngCommentLine: Record "Prod. Order Rtng Comment Line"; StdTaskComment: Record "Standard Task Description")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateComponentsBin(var TempProdOrderRoutingLine: Record "Prod. Order Routing Line"; FromTrigger: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateOfComponentsBinRequired(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; FromTrigger: Option; var Result: Boolean)
     begin
     end;
 }

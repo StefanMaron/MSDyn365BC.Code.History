@@ -37,6 +37,8 @@
                 else
                     UpdateReservation(FieldNo("Planning Date"));
                 "Planned Delivery Date" := "Planning Date";
+
+                UpdatePlannedDueDate();
             end;
         }
         field(4; "Document No."; Code[20])
@@ -392,6 +394,10 @@
         field(83; "Document Date"; Date)
         {
             Caption = 'Document Date';
+        }
+        field(84; "Planning Due Date"; Date)
+        {
+            Caption = 'Planning Due Date';
         }
         field(1000; "Job Task No."; Code[20])
         {
@@ -1594,7 +1600,7 @@
         if Type = Type::Text then
             FieldError(Type);
 
-        OnAfterUpdateAllAmounts(Rec);
+        OnAfterUpdateAllAmounts(Rec, xRec);
     end;
 
     local procedure UpdateUnitCost()
@@ -2217,6 +2223,25 @@
         exit(true);
     end;
 
+    [Scope('OnPrem')]
+    procedure UpdatePlannedDueDate()
+    var
+        JobRec: Record Job;
+        Customer: Record Customer;
+        PaymentTerms: Record "Payment Terms";
+        DueDateCalculation: DateFormula;
+    begin
+        "Planning Due Date" := "Planning Date";
+        if "Planning Due Date" <> 0D then begin
+            JobRec.Get("Job No.");
+            Customer.Get(JobRec."Bill-to Customer No.");
+            if PaymentTerms.Get(Customer."Payment Terms Code") then begin
+                PaymentTerms.GetDueDateCalculation(DueDateCalculation);
+                "Planning Due Date" := CalcDate(DueDateCalculation, "Planning Date");
+            end;
+        end;
+    end;
+
     procedure ClearValues()
     begin
         Validate("Remaining Qty.", 0);
@@ -2230,6 +2255,14 @@
         "Posted Total Cost (LCY)" := 0;
         "Posted Line Amount" := 0;
         "Posted Line Amount (LCY)" := 0;
+    end;
+
+    procedure ClearTracking()
+    begin
+        "Serial No." := '';
+        "Lot No." := '';
+
+        OnAfterClearTracking(Rec);
     end;
 
     procedure InitFromJobPlanningLine(FromJobPlanningLine: Record "Job Planning Line"; NewQuantity: Decimal)
@@ -2325,6 +2358,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterClearTracking(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromJobLedgEntry(var JobPlanningLine: Record "Job Planning Line"; JobLedgEntry: Record "Job Ledger Entry")
     begin
     end;
@@ -2391,7 +2429,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateAllAmounts(var JobPlanningLine: Record "Job Planning Line")
+    local procedure OnAfterUpdateAllAmounts(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line")
     begin
     end;
 

@@ -2436,6 +2436,9 @@ codeunit 8611 "Config. Package Management"
     var
         Dimensions: Dictionary of [Text, Text];
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         Dimensions.Add('Category', RapidStartTxt);
         Dimensions.Add('PackageCode', Rec.Code);
         Session.LogMessage('0000E3P', StrSubstNo(ConfigurationPackageDeletedMsg, Rec.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);

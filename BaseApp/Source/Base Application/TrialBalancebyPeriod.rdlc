@@ -4055,7 +4055,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_1_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_1_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4120,7 +4120,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_2_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_2_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4185,7 +4185,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_3_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_3_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4250,7 +4250,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_4_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_4_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4315,7 +4315,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_5_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_5_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4380,7 +4380,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_6_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_6_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4445,7 +4445,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_7_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_7_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4510,7 +4510,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_8_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_8_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4575,7 +4575,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_9_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_9_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4640,7 +4640,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_10_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_10_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4705,7 +4705,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_11_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_11_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4770,7 +4770,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_12_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_12_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -4835,7 +4835,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ColumnValuesAsText_13_.Value</Value>
+                                  <Value EvaluationMode="Auto">=Code.TextToDecForExcel(Fields!ColumnValuesAsText_13_.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>6.5pt</FontSize>
@@ -6116,7 +6116,16 @@ Public Function BlankNegAndZero(ByVal Value As Decimal)
     end if
     Return Value
 End Function
-</Code>
+
+Public Function TextToDecForExcel(ByVal Value As Object) As Object
+    if UCase(Me.Report.Globals!RenderFormat.Name) = "EXCELOPENXML" then
+        if IsNumeric(Value) then
+            Return CDec(Value)
+        end if
+        Return Nothing
+    end if
+    Return Trim(Value)
+End Function</Code>
   <Language>=User!Language</Language>
   <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
   <rd:ReportUnitType>Cm</rd:ReportUnitType>

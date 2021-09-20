@@ -29,6 +29,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         UpdateContactParentCompanyTxt: Label 'Updating contact parent company.', Locked = true;
         UpdateContactParentCompanyFailedTxt: Label 'Updating contact parent company failed. Parent Customer ID: %1', Locked = true, Comment = '%1 - parent customer id';
         UpdateContactParentCompanySuccessfulTxt: Label 'Updated contact parent company successfully.', Locked = true;
+        SynchingSalesSpecificEntityTxt: Label 'Synching a %1 specific entity.', Locked = true;
 
     procedure ClearCache()
     begin
@@ -61,6 +62,20 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 CRMIntegrationRecord.Skipped := true;
                 CRMIntegrationRecord.Modify();
             end;
+    end;
+
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterDeleteAfterPosting', '', false, false)]
+    local procedure DeleteCouplingOnAfterDeleteAfterPosting(SalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; CommitIsSuppressed: Boolean)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+    begin
+        if IsNullGuid(SalesHeader.SystemId) then
+            exit;
+        CRMIntegrationRecord.SetRange("Integration ID", SalesHeader.SystemId);
+        CRMIntegrationRecord.SetRange("Table ID", Database::"Sales Header");
+        if not CRMIntegrationRecord.IsEmpty() then
+            CRMIntegrationRecord.DeleteAll();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnFindingIfJobNeedsToBeRun', '', false, false)]
@@ -464,10 +479,32 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     var
         JobQueueEntry: record "Job Queue Entry";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetFilter("Object ID to Run", '%1|%2', Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner");
         JobQueueEntry.SetRange("Record ID to Process", Rec.RecordId());
         JobQueueEntry.DeleteTasks();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Table Synch.", 'OnAfterInitSynchJob', '', true, true)]
+    local procedure LogTelemetryOnAfterInitSynchJob(ConnectionType: TableConnectionType; IntegrationTableID: Integer)
+    begin
+        if ConnectionType <> TableConnectionType::CRM then
+            exit;
+        if IntegrationTableID in [
+                Database::"CRM Salesorder",
+                Database::"CRM Invoice",
+                Database::"CRM Quote",
+                Database::"CRM Opportunity",
+                Database::"CRM Pricelevel",
+                Database::"CRM Product",
+                Database::"CRM Productpricelevel",
+                Database::"CRM Uom",
+                Database::"CRM Uomschedule",
+                Database::"CRM Account Statistics"] then
+            Session.LogMessage('0000FME', StrSubstNo(SynchingSalesSpecificEntityTxt, CRMProductName.SHORT()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
     local procedure UpdateOwnerIdAndCompanyId(var DestinationRecordRef: RecordRef)

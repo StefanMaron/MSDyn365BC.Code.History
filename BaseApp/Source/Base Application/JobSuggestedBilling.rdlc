@@ -2069,19 +2069,11 @@
             <TablixRowHierarchy>
               <TablixMembers>
                 <TablixMember>
-                  <Visibility>
-                    <Hidden>=IIF( ((Fields!JobTableCaption.Value="" AND Fields!JobNo.Value="")
-     OR Fields!JobTableCaption.Value&lt;&gt;"") AND Fields!CustTableCaption.Value&lt;&gt;"", False,True)</Hidden>
-                  </Visibility>
                   <KeepWithGroup>After</KeepWithGroup>
                   <RepeatOnNewPage>true</RepeatOnNewPage>
                   <KeepTogether>true</KeepTogether>
                 </TablixMember>
                 <TablixMember>
-                  <Visibility>
-                    <Hidden>=IIF( ((Fields!JobTableCaption.Value="" AND Fields!JobNo.Value="")
-     OR Fields!JobTableCaption.Value&lt;&gt;"") AND Fields!CustTableCaption.Value&lt;&gt;"", False,True)</Hidden>
-                  </Visibility>
                   <KeepWithGroup>After</KeepWithGroup>
                   <RepeatOnNewPage>true</RepeatOnNewPage>
                   <KeepTogether>true</KeepTogether>

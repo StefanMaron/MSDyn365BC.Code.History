@@ -53,12 +53,10 @@ codeunit 5334 "CRM Setup Defaults"
         ResetSalesInvoiceHeaderInvoiceMapping('POSTEDSALESINV-INV', IsTeamOwnershipModel, EnqueueJobQueEntries);
         ResetSalesInvoiceLineInvoiceMapping('POSTEDSALESLINE-INV');
         ResetOpportunityMapping('OPPORTUNITY', IsTeamOwnershipModel);
-        if CRMConnectionSetup."Is S.Order Integration Enabled" then begin
-            ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueEntries);
-            RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueEntries);
-            RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntries);
-            CODEUNIT.Run(CODEUNIT::"CRM Enable Posts");
-        end;
+        ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueEntries);
+        RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueEntries);
+        RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntries);
+        CODEUNIT.Run(CODEUNIT::"CRM Enable Posts");
 
         CDSSetupDefaults.RemoveCustomerContactLinkJobQueueEntries();
         RecreateStatisticsJobQueueEntry(EnqueueJobQueEntries);
@@ -321,7 +319,7 @@ codeunit 5334 "CRM Setup Defaults"
           DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice",
           CRMInvoice.FieldNo(InvoiceId), CRMInvoice.FieldNo(ModifiedOn),
           '', '', true);
-        IntegrationTableMapping."Dependency Filter" := 'OPPORTUNITY';
+        IntegrationTableMapping."Dependency Filter" := 'ITEM-PRODUCT|RESOURCE-PRODUCT|OPPORTUNITY';
         IntegrationTableMapping.Modify();
 
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
@@ -634,7 +632,7 @@ codeunit 5334 "CRM Setup Defaults"
         SalesHeader.SetRange(Status, SalesHeader.Status::Released);
         IntegrationTableMapping.SetTableFilter(
           GetTableFilterFromView(DATABASE::"Sales Header", SalesHeader.TableCaption, SalesHeader.GetView));
-        IntegrationTableMapping."Dependency Filter" := 'OPPORTUNITY';
+        IntegrationTableMapping."Dependency Filter" := 'ITEM-PRODUCT|RESOURCE-PRODUCT|OPPORTUNITY';
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
         IntegrationTableMapping.Modify();
 
@@ -859,14 +857,11 @@ codeunit 5334 "CRM Setup Defaults"
         IsTeamOwnershipModel: Boolean;
     begin
         EnqueueJobQueueEntries := CRMConnectionSetup.DoReadCRMData;
-        if CRMConnectionSetup."Is S.Order Integration Enabled" then begin
-            IsTeamOwnershipModel := CDSIntegrationMgt.IsTeamOwnershipModelSelected();
-            ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueueEntries);
-            RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueueEntries);
-            RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueueEntries);
-            CODEUNIT.Run(CODEUNIT::"CRM Enable Posts")
-        end else
-            DeleteSalesOrderSyncMappingAndJobQueueEntries('SALESORDER-ORDER');
+        IsTeamOwnershipModel := CDSIntegrationMgt.IsTeamOwnershipModelSelected();
+        ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueueEntries);
+        RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueueEntries);
+        RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueueEntries);
+        CODEUNIT.Run(CODEUNIT::"CRM Enable Posts")
     end;
 
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '18.0')]
@@ -1473,26 +1468,6 @@ codeunit 5334 "CRM Setup Defaults"
             SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
             SetRange("Object ID to Run", CODEUNIT::"Auto Create Sales Orders");
             DeleteTasks;
-        end;
-    end;
-
-    local procedure DeleteSalesOrderSyncMappingAndJobQueueEntries(IntegrationTableMappingName: Code[20])
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        IntegrationTableMapping: Record "Integration Table Mapping";
-    begin
-        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Order Status Update Job");
-        JobQueueEntry.DeleteTasks;
-        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Notes Synch Job");
-        JobQueueEntry.DeleteTasks;
-
-        if IntegrationTableMapping.Get(IntegrationTableMappingName) then begin
-            JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-            JobQueueEntry.SetFilter("Object ID to Run", OrTok, Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner");
-            JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
-            JobQueueEntry.DeleteTasks;
-            IntegrationTableMapping.Delete(true);
         end;
     end;
 

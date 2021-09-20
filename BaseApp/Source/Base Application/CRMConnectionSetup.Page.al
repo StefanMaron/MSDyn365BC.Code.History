@@ -384,7 +384,7 @@ page 5330 "CRM Connection Setup"
             action("Use Certificate Authentication")
             {
                 ApplicationArea = Suite;
-                Caption = 'Use Cerificate Authentication';
+                Caption = 'Use Certificate Authentication';
                 Image = Certificate;
                 Visible = SoftwareAsAService;
                 Promoted = true;
@@ -704,6 +704,7 @@ page 5330 "CRM Connection Setup"
 
     var
         CRMProductName: Codeunit "CRM Product Name";
+        [NonDebuggable]
         CRMPassword: Text;
         ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for %1. All custom mappings and jobs will be deleted. The default mappings and jobs will be used the next time data is synchronized. Do you want to continue?', Comment = '%1 = CRM product name';
         ConfirmGenerateIntegrationIdsQst: Label 'You are about to add integration data to tables. This process may take several minutes. Do you want to continue?';

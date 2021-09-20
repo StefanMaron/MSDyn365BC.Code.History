@@ -467,6 +467,7 @@ table 570 "G/L Account Category"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
     local procedure OnGetBalanceOnBeforeProcessChildren(var GLAccountCategory: Record "G/L Account Category"; var Balance: Decimal; var IsHandled: Boolean)
     begin
     end;

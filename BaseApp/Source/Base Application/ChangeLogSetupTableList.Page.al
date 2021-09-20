@@ -226,6 +226,7 @@ page 593 "Change Log Setup (Table) List"
             ChangeLogSetupTable.Init();
             ChangeLogSetupTable."Table No." := "Object ID";
         end;
+        OnAfterGetRec(ChangeLogSetupTable);
     end;
 
     procedure SetSource()
@@ -263,6 +264,11 @@ page 593 "Change Log Setup (Table) List"
     local procedure ChangeLogSetupTableLogDeletion()
     begin
         UpdateRec;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRec(var ChangeLogSetupTable: Record "Change Log Setup (Table)")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

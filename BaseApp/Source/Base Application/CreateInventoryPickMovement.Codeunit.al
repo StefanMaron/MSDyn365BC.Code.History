@@ -1183,6 +1183,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         WhseItemTrackingFEFO.SetSource(
           WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.",
           WhseActivLine."Source Line No.", WhseActivLine."Source Subline No.");
+        OnCreateTempHandlingSpecOnAfterWhseItemTrackingFEFOSetSource(WhseItemTrackingFEFO, WhseActivLine, WhseRequest);
         WhseItemTrackingFEFO.CreateEntrySummaryFEFO(Location, WhseActivLine."Item No.", WhseActivLine."Variant Code", true);
         if WhseItemTrackingFEFO.FindFirstEntrySummaryFEFO(EntrySummary) then begin
             InitTempHandlingSpec;
@@ -1191,12 +1192,14 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 WhseItemTrackingSetup.CopyTrackingFromEntrySummary(EntrySummary);
                 if EntrySummary."Expiration Date" <> 0D then begin
                     QtyTracked := ItemTrackedQuantity(WhseItemTrackingSetup);
+                    OnCreateTempHandlingSpecOnAfterCalcQtyTracked(EntrySummary, QtyTracked, TempHandlingSpecification);
                     if not ((EntrySummary."Serial No." <> '') and (QtyTracked > 0)) then begin
                         if Location."Bin Mandatory" then
                             TotalAvailQtyToPickBase :=
                               CalcQtyAvailToPickOnBins(WhseActivLine, WhseItemTrackingSetup, RemQtyToPickBase)
                         else
                             TotalAvailQtyToPickBase := CalcInvtAvailability(WhseActivLine, WhseItemTrackingSetup);
+                        OnCreateTempHandlingSpecOnAfterCalcTotalAvailQtyToPickBase(WhseActivLine, EntrySummary, TotalAvailQtyToPickBase);
 
                         TotalAvailQtyToPickBase := TotalAvailQtyToPickBase - QtyTracked;
                         QtyToPickBase := 0;
@@ -1961,6 +1964,21 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePickOrMoveFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; WhseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean; var CompleteShipment: Boolean; CheckLineExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempHandlingSpecOnAfterCalcTotalAvailQtyToPickBase(WhseActivLine: Record "Warehouse Activity Line"; EntrySummary: Record "Entry Summary"; var TotalAvailQtyToPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempHandlingSpecOnAfterWhseItemTrackingFEFOSetSource(var WhseItemTrackingFEFO: Codeunit "Whse. Item Tracking FEFO"; WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseRequest: Record "Warehouse Request")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempHandlingSpecOnAfterCalcQtyTracked(EntrySummary: Record "Entry Summary"; var QuantityTracked: Decimal; var TempHandlingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 

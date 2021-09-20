@@ -100,7 +100,6 @@ page 8614 "Config. Package Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Export Package';
                     Ellipsis = true;
-                    Enabled = AditionalOptionsEnabled;
                     Image = Export;
                     Promoted = true;
                     PromotedCategory = Process;
@@ -118,7 +117,6 @@ page 8614 "Config. Package Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import Package';
                     Ellipsis = true;
-                    Enabled = AditionalOptionsEnabled;
                     Image = Import;
                     Promoted = true;
                     PromotedCategory = Process;
@@ -134,7 +132,6 @@ page 8614 "Config. Package Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Export to Excel';
-                    Enabled = AditionalOptionsEnabled;
                     Image = ExportToExcel;
                     Promoted = true;
                     PromotedCategory = Category5;
@@ -157,7 +154,6 @@ page 8614 "Config. Package Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import from Excel';
-                    Enabled = AditionalOptionsEnabled;
                     Image = ImportExcel;
                     Promoted = true;
                     PromotedCategory = Category5;
@@ -297,19 +293,11 @@ page 8614 "Config. Package Card"
         IsErrorTabVisible := "No. of Errors" > 0;
     end;
 
-    trigger OnOpenPage()
-    var
-        ConfigPackage: Record "Config. Package";
-    begin
-        AditionalOptionsEnabled := ConfigPackage.WritePermission;
-    end;
-
     var
         ConfigXMLExchange: Codeunit "Config. XML Exchange";
         Text002: Label 'Validate package %1?';
         Text003: Label 'Apply data from package %1?';
         Text004: Label 'Export package %1 with %2 tables?';
-        AditionalOptionsEnabled: Boolean;
         IsErrorTabVisible: Boolean;
 
     local procedure ProcessPackageTablesWithDefaultProcessingReport()

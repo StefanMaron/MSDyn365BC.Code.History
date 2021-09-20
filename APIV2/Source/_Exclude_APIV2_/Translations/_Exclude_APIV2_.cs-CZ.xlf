@@ -1535,6 +1535,7 @@
         </trans-unit>
         <trans-unit id="Page 79567422 - Control 2620004898 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Privacy Blocked</source>
+          <target state="translated">Uzavřeno-ochrana soukromí</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control privacyBlocked - Property Caption</note>
         </trans-unit>
@@ -4632,6 +4633,7 @@
         </trans-unit>
         <trans-unit id="Page 825103897 - NamedType 3395634949" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A "vendorNumber" or a "vendorId" must be provided.</source>
+          <target state="translated">"číslododavatele" nebo "IDdodavatele" musí být poskytnuty.</target>
           <note from="Developer" annotates="general" priority="2">vendorNumber and vendorId are field names and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType BuyFromVendorNotProvidedErr</note>
         </trans-unit>
@@ -5521,6 +5523,7 @@
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 3517791419" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The action can be applied to a draft credit memo only.</source>
+          <target state="translated">Akci lze použít pouze k návrhu dobropisu.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - NamedType DraftCreditMemoActionErr</note>
         </trans-unit>

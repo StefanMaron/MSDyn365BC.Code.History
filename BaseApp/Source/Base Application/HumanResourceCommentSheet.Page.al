@@ -54,8 +54,15 @@ page 5222 "Human Resource Comment Sheet"
         MiscArticleInfo: Record "Misc. Article Information";
         ConfidentialInfo: Record "Confidential Information";
 
-    procedure Caption(HRCommentLine: Record "Human Resource Comment Line"): Text
+    procedure Caption(HRCommentLine: Record "Human Resource Comment Line") Result: Text
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCaption(HRCommentLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case HRCommentLine."Table Name" of
             HRCommentLine."Table Name"::"Employee Absence":
                 if EmployeeAbsence.Get(HRCommentLine."Table Line No.") then begin
@@ -104,6 +111,11 @@ page 5222 "Human Resource Comment Sheet"
                       ConfidentialInfo."Confidential Code");
         end;
         exit(Text000);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCaption(HRCommentLine: Record "Human Resource Comment Line"; var Result: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

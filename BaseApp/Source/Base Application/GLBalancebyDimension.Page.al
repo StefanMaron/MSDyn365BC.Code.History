@@ -88,12 +88,17 @@ page 408 "G/L Balance by Dimension"
 
                     trigger OnValidate()
                     var
+                        GLAccount: Record "G/L Account";
                         FilterTokens: Codeunit "Filter Tokens";
                         DateFilter: Text;
                     begin
                         DateFilter := "Date Filter";
                         FilterTokens.MakeDateFilter(DateFilter);
+                        GLAccount.SetFilter("Date Filter", DateFilter);
+                        DateFilter := GLAccount.GetFilter("Date Filter");
                         "Date Filter" := CopyStr(DateFilter, 1, MaxStrLen("Date Filter"));
+                        InternalDateFilter := DateFilter;
+                        DateFilterOnAfterValidate();
                     end;
                 }
                 field(GLAccFilter; "Account Filter")

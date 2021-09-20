@@ -11,6 +11,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
     var
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryMarketing: Codeunit "Library - Marketing";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
@@ -62,11 +63,12 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order",
           Customer."No.", '', LibraryRandom.RandInt(10), '', 0D);
 
-        LibrarySales.CreateCustomerWithAddress(ArgCustomer);
+        CreateCustomerWithPersonContact(ArgCustomer);
+        LibrarySales.CreateCustomerAddress(ArgCustomer);
 
         // Excercise - Open the Blanket Sales Order that has empty address fields and set the address fields
         BlanketSalesOrder.OpenEdit;
-        BlanketSalesOrder.GotoRecord(SalesHeader);
+        BlanketSalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         CopyBlanketSalesOrderSellToAddressFromCustomer(BlanketSalesOrder, ArgCustomer);
 
         // Verify - Verify that the sell-to address field values are copied to the ship-to address fields
@@ -270,6 +272,20 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Alt. Ship Addr. B. S. O.");
+    end;
+
+    local procedure CreateCustomerWithPersonContact(var Customer: Record Customer)
+    var
+        Contact: Record Contact;
+        CompanyContact: Record Contact;
+    begin
+        LibraryMarketing.CreateContactWithCustomer(CompanyContact, Customer);
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact.Validate("Company No.", CompanyContact."No.");
+        Contact.Modify(true);
+
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
     end;
 
     local procedure CopyBlanketSalesOrderSellToAddressFromCustomer(var BlanketSalesOrder: TestPage "Blanket Sales Order"; Customer: Record Customer)

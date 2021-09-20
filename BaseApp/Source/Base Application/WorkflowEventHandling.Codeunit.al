@@ -507,6 +507,9 @@ codeunit 1520 "Workflow Event Handling"
     [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnAfterInsertEvent', '', false, false)]
     procedure RunWorkflowOnAfterInsertIncomingDocument(var Rec: Record "Incoming Document"; RunTrigger: Boolean)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterInsertIncomingDocumentCode, Rec);
     end;
 
@@ -621,6 +624,9 @@ codeunit 1520 "Workflow Event Handling"
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterInsertEvent', '', false, false)]
     procedure RunWorkflowOnAfterInsertGeneralJournalLine(var Rec: Record "Gen. Journal Line"; RunTrigger: Boolean)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterInsertGeneralJournalLineCode, Rec);
     end;
 
@@ -750,6 +756,9 @@ codeunit 1520 "Workflow Event Handling"
     [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterModifyEvent', '', false, false)]
     procedure RunWorkflowOnCustomerChanged(var Rec: Record Customer; var xRec: Record Customer; RunTrigger: Boolean)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if Format(xRec) <> Format(Rec) then
             WorkflowManagement.HandleEventWithxRec(RunWorkflowOnCustomerChangedCode, Rec, xRec);
     end;
@@ -757,6 +766,9 @@ codeunit 1520 "Workflow Event Handling"
     [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterModifyEvent', '', false, false)]
     procedure RunWorkflowOnVendorChanged(var Rec: Record Vendor; var xRec: Record Vendor; RunTrigger: Boolean)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if Format(xRec) <> Format(Rec) then
             WorkflowManagement.HandleEventWithxRec(RunWorkflowOnVendorChangedCode, Rec, xRec);
     end;
@@ -766,6 +778,9 @@ codeunit 1520 "Workflow Event Handling"
     var
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if GenJnlPostPreview.IsActive then
             exit;
 

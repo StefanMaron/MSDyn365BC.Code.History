@@ -90,6 +90,8 @@
             InsertBufferEntry;
             "G/L Entry No." := TempFAGLPostBuf."Entry No.";
         end;
+
+        OnAfterInsertMaintenanceAccNo(MaintenanceLedgEntry, FAGLPostBuf);
     end;
 
     local procedure InsertBufferBalAcc(FAPostingType: Enum "FA Posting Group Account Type"; AllocAmount: Decimal; DeprBookCode: Code[10]; PostingGrCode: Code[20]; GlobalDim1Code: Code[20]; GlobalDim2Code: Code[20]; DimSetID: Integer; AutomaticEntry: Boolean; Correction: Boolean)
@@ -708,6 +710,11 @@
                                               var FAGLPostBuf: Record "FA G/L Posting Buffer"; DisposalEntry: Boolean; BookValueEntry: Boolean; var NextEntryNo: Integer;
                                               var GLEntryNo: Integer; var OrgGenJnlLine: Boolean; var NetDisp: Boolean; var NumberOfEntries: Integer; var DisposalEntryNo: Integer;
                                               var DisposalAmount: Decimal; var GainLossAmount: Decimal; var FAPostingGr2: Record "FA Posting Group"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertMaintenanceAccNo(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry"; var FAGLPostBuf: Record "FA G/L Posting Buffer")
     begin
     end;
 }

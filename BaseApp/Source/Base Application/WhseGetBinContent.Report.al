@@ -41,6 +41,11 @@ report 7391 "Whse. Get Bin Content"
                 GetItemTracking("Bin Content");
             end;
 
+            trigger OnPostDataItem()
+            begin
+                OnAfterBinContentOnPostDataItem(ItemJournalLine, TransferHeader, InternalMovementHeader, DestinationType2);
+            end;
+
             trigger OnPreDataItem()
             begin
                 if not ReportInitialized then
@@ -476,6 +481,11 @@ report 7391 "Whse. Get Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertTempTrackingSpec(var TempTrackingSpecification: Record "Tracking Specification" temporary; WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBinContentOnPostDataItem(ItemJournalLine: Record "Item Journal Line"; TransferHeader: Record "Transfer Header"; InternalMovementHeader: Record "Internal Movement Header"; DestinationType2: Option MovementWorksheet,WhseInternalPutawayHeader,ItemJournalLine,TransferHeader,InternalMovementHeader)
     begin
     end;
 

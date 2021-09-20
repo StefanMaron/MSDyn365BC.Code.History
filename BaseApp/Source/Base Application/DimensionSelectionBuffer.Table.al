@@ -35,7 +35,7 @@ table 368 "Dimension Selection Buffer"
             ELSE
             IF (Code = CONST('Business Unit')) "Business Unit".Code
             ELSE
-            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code),Blocked = CONST(false));
+            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code), Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -54,7 +54,7 @@ table 368 "Dimension Selection Buffer"
             ELSE
             IF ("Filter Lookup Table No." = CONST(840)) "Cash Flow Forecast"."No."
             ELSE
-            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code),Blocked = CONST(false));
+            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code), Blocked = CONST(false));
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -110,7 +110,6 @@ table 368 "Dimension Selection Buffer"
 
     procedure SetDimSelectionMultiple(ObjectType: Integer; ObjectID: Integer; var SelectedDimText: Text[250])
     var
-        SelectedDim: Record "Selected Dimension";
         Dim: Record Dimension;
         TempDimSelectionBuf: Record "Dimension Selection Buffer" temporary;
         DimSelectionMultiple: Page "Dimension Selection-Multiple";
@@ -118,9 +117,7 @@ table 368 "Dimension Selection Buffer"
         Clear(DimSelectionMultiple);
         if Dim.Find('-') then
             repeat
-                DimSelectionMultiple.InsertDimSelBuf(
-                  SelectedDim.Get(UserId, ObjectType, ObjectID, '', Dim.Code),
-                  Dim.Code, Dim.GetMLName(GlobalLanguage));
+                InsertDimSelBufForDimSelectionMultiple(DimSelectionMultiple, Dim, ObjectType, ObjectID)
             until Dim.Next() = 0;
 
         if DimSelectionMultiple.RunModal = ACTION::OK then begin
@@ -129,9 +126,21 @@ table 368 "Dimension Selection Buffer"
         end;
     end;
 
-    procedure SetDimSelectionChange(ObjectType: Integer; ObjectID: Integer; var SelectedDimText: Text[250])
+    local procedure InsertDimSelBufForDimSelectionMultiple(var DimSelectionMultiple: Page "Dimension Selection-Multiple"; Dimension: Record Dimension; ObjectType: Integer; ObjectID: Integer)
     var
         SelectedDim: Record "Selected Dimension";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertDimSelBufForDimSelectionMultiple(DimSelectionMultiple, Dimension, ObjectType, ObjectID, IsHandled);
+        if IsHandled then
+            exit;
+
+        DimSelectionMultiple.InsertDimSelBuf(SelectedDim.Get(UserId, ObjectType, ObjectID, '', Dimension.Code), Dimension.Code, Dimension.GetMLName(GlobalLanguage));
+    end;
+
+    procedure SetDimSelectionChange(ObjectType: Integer; ObjectID: Integer; var SelectedDimText: Text[250])
+    var
         Dim: Record Dimension;
         TempDimSelectionBuf: Record "Dimension Selection Buffer" temporary;
         DimSelectionChange: Page "Dimension Selection-Change";
@@ -139,11 +148,7 @@ table 368 "Dimension Selection Buffer"
         Clear(DimSelectionChange);
         if Dim.Find('-') then
             repeat
-                DimSelectionChange.InsertDimSelBuf(
-                  SelectedDim.Get(UserId, ObjectType, ObjectID, '', Dim.Code),
-                  Dim.Code, Dim.GetMLName(GlobalLanguage),
-                  SelectedDim."New Dimension Value Code",
-                  SelectedDim."Dimension Value Filter");
+                InsertDimSelBufForDimSelectionChange(DimSelectionChange, Dim, ObjectType, ObjectID);
             until Dim.Next() = 0;
 
         if DimSelectionChange.RunModal = ACTION::OK then begin
@@ -152,6 +157,23 @@ table 368 "Dimension Selection Buffer"
         end;
 
         OnAfterSetDimSelectionChange(Rec, TempDimSelectionBuf);
+    end;
+
+    local procedure InsertDimSelBufForDimSelectionChange(var DimSelectionChange: Page "Dimension Selection-Change"; Dimension: Record Dimension; ObjectType: Integer; ObjectID: Integer)
+    var
+        SelectedDim: Record "Selected Dimension";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertDimSelBufForDimSelectionChange(DimSelectionChange, Dimension, ObjectType, ObjectID, IsHandled);
+        if IsHandled then
+            exit;
+
+        DimSelectionChange.InsertDimSelBuf(
+          SelectedDim.Get(UserId, ObjectType, ObjectID, '', Dimension.Code),
+          Dimension.Code, Dimension.GetMLName(GlobalLanguage),
+          SelectedDim."New Dimension Value Code",
+          SelectedDim."Dimension Value Filter");
     end;
 
     procedure CompareDimText(ObjectType: Integer; ObjectID: Integer; AnalysisViewCode: Code[10]; SelectedDimText: Text[250]; DimTextFieldName: Text[100])
@@ -163,6 +185,7 @@ table 368 "Dimension Selection Buffer"
         SelectedDim.SetCurrentKey(
           "User ID", "Object Type", "Object ID", "Analysis View Code", Level, "Dimension Code");
         SetDefaultRangeOnSelectedDimTable(SelectedDim, ObjectType, ObjectID, AnalysisViewCode);
+        OnCompareDimTextOnBeforeSelectedDimFind(SelectedDim, ObjectType, ObjectID);
         if SelectedDim.Find('-') then
             repeat
                 AddDimCodeToText(SelectedDim."Dimension Code", SelectedDimTextFromDb);
@@ -191,6 +214,7 @@ table 368 "Dimension Selection Buffer"
         SelectedDim: Record "Selected Dimension";
     begin
         SetDefaultRangeOnSelectedDimTable(SelectedDim, ObjectType, ObjectID, AnalysisViewCode);
+        OnSetDimSelectionOnAfterSetDefaultRangeOnSelectedDimTable(SelectedDim, ObjectType, ObjectID);
         SelectedDim.DeleteAll();
         SelectedDimText := '';
         DimSelectionBuf.SetCurrentKey(Level, Code);
@@ -205,6 +229,7 @@ table 368 "Dimension Selection Buffer"
                 SelectedDim."New Dimension Value Code" := DimSelectionBuf."New Dimension Value Code";
                 SelectedDim."Dimension Value Filter" := DimSelectionBuf."Dimension Value Filter";
                 SelectedDim.Level := DimSelectionBuf.Level;
+                OnSetDimSelectionOnBeforeSelectedDimInsert(SelectedDim, ObjectType, ObjectID);
                 SelectedDim.Insert();
             until DimSelectionBuf.Next() = 0;
             SelectedDimText := GetDimSelectionText(ObjectType, ObjectID, AnalysisViewCode);
@@ -326,6 +351,31 @@ table 368 "Dimension Selection Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDimSelectionChange(var DimensionSelectionBuffer: Record "Dimension Selection Buffer"; var TheDimSelectionBuf: Record "Dimension Selection Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertDimSelBufForDimSelectionChange(var DimSelectionChange: Page "Dimension Selection-Change"; Dimension: Record Dimension; ObjectType: Integer; ObjectID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertDimSelBufForDimSelectionMultiple(var DimSelectionMultiple: Page "Dimension Selection-Multiple"; Dimension: Record Dimension; ObjectType: Integer; ObjectID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCompareDimTextOnBeforeSelectedDimFind(var SelectedDimension: Record "Selected Dimension"; ObjectType: Integer; ObjectID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetDimSelectionOnAfterSetDefaultRangeOnSelectedDimTable(var SelectedDimension: Record "Selected Dimension"; ObjectType: Integer; ObjectID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetDimSelectionOnBeforeSelectedDimInsert(var SelectedDimension: Record "Selected Dimension"; ObjectType: Integer; ObjectID: Integer)
     begin
     end;
 }

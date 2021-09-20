@@ -257,7 +257,9 @@ page 4509 "Email - Outlook API Setup"
 
     var
         MediaResources: Record "Media Resources";
+        [NonDebuggable]
         ClientIdText: Text;
+        [NonDebuggable]
         ClientSecretText: Text;
         DocumentationAzureUlrTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2134620', Locked = true;
         DocumentationBCUlrTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2134520', Locked = true;

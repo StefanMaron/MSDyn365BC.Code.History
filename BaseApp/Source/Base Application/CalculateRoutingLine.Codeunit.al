@@ -734,8 +734,7 @@ codeunit 99000774 "Calculate Routing Line"
                 Workcenter."Calendar Rounding Precision");
 
             with ProdOrderRoutingLine do begin
-                ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
-                ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
+                GetConstrainedSetup(ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained);
                 if not "Schedule Manually" and
                    (ResourceIsConstrained or ParentIsConstrained)
                 then
@@ -758,8 +757,7 @@ codeunit 99000774 "Calculate Routing Line"
             Workcenter."Calendar Rounding Precision");
 
         with ProdOrderRoutingLine do begin
-            ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
-            ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
+            GetConstrainedSetup(ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained);
             if not "Schedule Manually" and
                (ResourceIsConstrained or ParentIsConstrained)
             then
@@ -780,6 +778,19 @@ codeunit 99000774 "Calculate Routing Line"
         end;
 
         OnAfterCalcRoutingLineBack(ProdOrderRoutingLine, ProdOrderLine);
+    end;
+
+    local procedure GetConstrainedSetup(var ConstrainedCapacity: Record "Capacity Constrained Resource"; var ResourceIsConstrained: Boolean; var ParentWorkCenter: Record "Capacity Constrained Resource"; var ParentIsConstrained: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetConstrainedSetup(ProdOrderRoutingLine, ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained, IsHandled);
+        if IsHandled then
+            exit;
+
+        ResourceIsConstrained := ConstrainedCapacity.Get(ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.");
+        ParentIsConstrained := ParentWorkCenter.Get(ProdOrderRoutingLine.Type::"Work Center", ProdOrderRoutingLine."Work Center No.");
     end;
 
     local procedure GetSendAheadEndingTime(ProdOrderRoutingLinePrev: Record "Prod. Order Routing Line"; var SendAheadLotSize: Decimal): Boolean
@@ -1017,8 +1028,7 @@ codeunit 99000774 "Calculate Routing Line"
         UpdateDates := true;
 
         with ProdOrderRoutingLine do begin
-            ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
-            ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
+            GetConstrainedSetup(ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained);
             if not "Schedule Manually" and
                (RemainNeedQty > 0) and (ResourceIsConstrained or ParentIsConstrained)
             then
@@ -1044,8 +1054,7 @@ codeunit 99000774 "Calculate Routing Line"
                 Workcenter."Calendar Rounding Precision");
 
             with ProdOrderRoutingLine do begin
-                ResourceIsConstrained := ConstrainedCapacity.Get(Type, "No.");
-                ParentIsConstrained := ParentWorkCenter.Get(Type::"Work Center", "Work Center No.");
+                GetConstrainedSetup(ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained);
                 if not "Schedule Manually" and
                    (RemainNeedQty > 0) and (ResourceIsConstrained or ParentIsConstrained)
                 then
@@ -2006,6 +2015,11 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetConstrainedSetup(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ConstrainedCapacity: Record "Capacity Constrained Resource"; var ResourceIsConstrained: Boolean; var ParentWorkCenter: Record "Capacity Constrained Resource"; var ParentIsConstrained: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalcRoutingLineBack(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
@@ -2031,7 +2045,7 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcRoutingLineBack(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; CalculateEndDate: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCalcRoutingLineBack(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var CalculateEndDate: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -2061,7 +2075,7 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcRoutingLineForward(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; CalculateStartDate: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCalcRoutingLineForward(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var CalculateStartDate: Boolean; var IsHandled: Boolean)
     begin
     end;
 

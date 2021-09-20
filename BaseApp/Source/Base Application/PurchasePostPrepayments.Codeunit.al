@@ -1309,6 +1309,8 @@
           DimMgt.GetRecDefaultDimID(
             PurchLine, 0, TableID, No, SourceCodeSetup.Purchases,
             PurchLine."Shortcut Dimension 1 Code", PurchLine."Shortcut Dimension 2 Code", PurchLine."Dimension Set ID", DATABASE::Vendor);
+
+        OnAfterCreateDimensions(PurchLine, TableID, No);
     end;
 
     procedure GetPurchLinesToDeduct(PurchHeader: Record "Purchase Header"; var PurchLines: Record "Purchase Line")
@@ -1620,6 +1622,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateLinesOnBeforeGLPosting(var PurchaseHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; DocumentType: Option; var LastLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDimensions(var PurchLine: Record "Purchase Line"; TableID: array[10] of Integer; No: array[10] of Code[20])
     begin
     end;
 

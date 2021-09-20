@@ -135,19 +135,12 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             Window.Open(Text000, TempPhysInvtItemSelection."Item No.");
             repeat
                 Window.Update;
-                IsHandled := false;
-                OnBeforeCalcInvtQtyOnHand(
-                    DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection, IsHandled, ItemJnlLine);
-                if not IsHandled then
-                    CalcInvtQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection);
+                CalcInvtQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection);
             until TempPhysInvtItemSelection.Next() = 0;
             Window.Close;
 
-            if PrintDoc then begin
-                OnBeforePrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, TempPhysInvtItemSelection, IsHandled, PrintDocPerItem);
-                if not IsHandled then
-                    PrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, PrintDocPerItem, TempPhysInvtItemSelection);
-            end;
+            if PrintDoc then
+                PrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, PrintDocPerItem, TempPhysInvtItemSelection);
         end;
     end;
 
@@ -199,8 +192,13 @@ codeunit 7380 "Phys. Invt. Count.-Management"
     var
         Item: Record Item;
         CalculateInventory: Report "Calculate Inventory";
+        IsHandled: Boolean;
     begin
-        CalculateInventory.SetSkipDim(true);
+        IsHandled := false;
+        OnBeforeCalcInvtQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection, IsHandled, ItemJnlLine, Item);
+        if IsHandled then
+            exit;
+
         CalculateInventory.InitializeRequest(PostingDate, DocNo, ZeroQty, false);
         CalculateInventory.SetItemJnlLine(ItemJnlLine);
         CalculateInventory.InitializePhysInvtCount(
@@ -354,10 +352,16 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         SortingMethod2 := SortingMethod;
     end;
 
-    local procedure PrintPhysInvtList(var ItemJnlBatch: Record "Item Journal Batch"; PrintQtyCalculated: Boolean; PrintDocPerItem: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary)
+    local procedure PrintPhysInvtList(var ItemJnlBatch: Record "Item Journal Batch"; PrintQtyCalculated: Boolean; var PrintDocPerItem: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary)
     var
         PhysInvtList: Report "Phys. Inventory List";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintPhysInvtList(ItemJnlBatch, PrintQtyCalculated, TempPhysInvtItemSelection, IsHandled, PrintDocPerItem);
+        if IsHandled then
+            exit;
+
         if not PrintDocPerItem then begin
             ItemJnlBatch.SetRecFilter;
             ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
@@ -639,7 +643,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcInvtQtyOnHand(DocNo: Code[20]; PostingDate: Date; ZeroQty: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean; var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforeCalcInvtQtyOnHand(DocNo: Code[20]; PostingDate: Date; ZeroQty: Boolean; var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection" temporary; var IsHandled: Boolean; var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item)
     begin
     end;
 
