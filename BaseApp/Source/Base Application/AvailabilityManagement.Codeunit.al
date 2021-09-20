@@ -37,7 +37,7 @@ codeunit 99000889 AvailabilityManagement
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetFilter("Outstanding Quantity", '>0');
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 if SalesLine.IsInventoriableItem then begin
                     OrderPromisingLine.Init();
@@ -91,7 +91,7 @@ codeunit 99000889 AvailabilityManagement
             "Unavailable Quantity (Base)" := UnavailableQty;
             if "Unavailable Quantity (Base)" > 0 then begin
                 "Required Quantity (Base)" := "Unavailable Quantity (Base)";
-                GetCompanyInfo;
+                GetCompanyInfo();
                 if Format(CompanyInfo."Check-Avail. Period Calc.") <> '' then
                     "Unavailable Quantity (Base)" := -CalcAvailableQty(OrderPromisingLine)
                 else
@@ -111,7 +111,7 @@ codeunit 99000889 AvailabilityManagement
             "Required Quantity" :=
               Round("Required Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
             OnBeforeOrderPromisingLineInsert(OrderPromisingLine);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -121,7 +121,10 @@ codeunit 99000889 AvailabilityManagement
         ScheduledReceipt: Decimal;
         AvailabilityDate: Date;
     begin
-        Item.Get(OrderPromisingLine."Item No.");
+        GetCompanyInfo();
+
+        if Item."No." <> OrderPromisingLine."Item No." then
+            Item.Get(OrderPromisingLine."Item No.");
         Item.SetRange("Variant Filter", OrderPromisingLine."Variant Code");
         Item.SetRange("Location Filter", OrderPromisingLine."Location Code");
         Item.SetRange("Date Filter", 0D, OrderPromisingLine."Original Shipment Date");
@@ -232,7 +235,7 @@ codeunit 99000889 AvailabilityManagement
                             end;
                     end;
                     OnAfterCaseCalcCapableToPromise(OrderPromisingLine, CompanyInfo, OrderPromisingID, LastValidLine);
-                    Modify;
+                    Modify();
                     CreateReservations(OrderPromisingLine);
                 until Next() = 0;
 
@@ -242,7 +245,7 @@ codeunit 99000889 AvailabilityManagement
 
     procedure CalcAvailableToPromise(var OrderPromisingLine: Record "Order Promising Line")
     begin
-        GetCompanyInfo;
+        GetCompanyInfo();
         with OrderPromisingLine do begin
             SetCurrentKey("Requested Shipment Date");
             if Find('-') then
@@ -297,7 +300,7 @@ codeunit 99000889 AvailabilityManagement
                     end;
             end;
             OnCalcAvailableToPromiseLineOnBeforeModify(OrderPromisingLine);
-            Modify;
+            Modify();
         end;
     end;
 

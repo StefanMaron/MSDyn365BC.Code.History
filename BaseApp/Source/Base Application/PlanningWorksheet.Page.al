@@ -723,7 +723,7 @@ page 99000852 "Planning Worksheet"
                 }
                 action("Re&fresh Planning Line")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Planning;
                     Caption = 'Re&fresh Planning Line';
                     Ellipsis = true;
                     Image = RefreshPlanningLine;

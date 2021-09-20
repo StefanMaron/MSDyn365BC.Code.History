@@ -6697,7 +6697,7 @@
         </trans-unit>
         <trans-unit id="Page 1105213220 - Action 176562519 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View</source>
-          <target state="translated">Pohled</target>
+          <target state="translated">Zobrazit</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Worksheet - Action View - Property Caption</note>
         </trans-unit>

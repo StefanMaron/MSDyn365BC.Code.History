@@ -1933,6 +1933,63 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ReservationEntry.TestField("Source Type", DATABASE::"Item Ledger Entry");
     end;
 
+    [Test]
+    procedure RescheduleLowerLevelItemInMakeToOrderProductionOrder()
+    var
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        DummyItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        ReschedulingPeriod: DateFormula;
+    begin
+        // [FEATURE] [Planning] [Production Order] [Make-to-Order]
+        // [SCENARIO 407546] Lower-level item in make-to-order (MTO) production order is rescheduled together with the final item.
+        Initialize();
+        Evaluate(ReschedulingPeriod, '<2W>');
+
+        // [GIVEN] Lot-for-lot intermediate item "C" with Make-to-Order manufacturing policy and rescheduling period 2 weeks.
+        CreateLotProdMakeToOrderItemWithRoutingNo(ChildItem, '');
+        ChildItem.Validate("Rescheduling Period", ReschedulingPeriod);
+        ChildItem.Modify(true);
+
+        // [GIVEN] Production BOM with component item "C".
+        CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItem."No.", ChildItem."Base Unit of Measure", 1);
+
+        // [GIVEN] Lot-for-lot final product "F" with Make-to-Order manufacturing policy and rescheduling period 2 weeks.
+        // [GIVEN] Add the production BOM to the item "F".
+        CreateLotProdMakeToOrderItemWithRoutingNo(ParentItem, '');
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Validate("Rescheduling Period", ReschedulingPeriod);
+        ParentItem.Modify(true);
+
+        // [GIVEN] Sales order for item "F".
+        CreateSalesOrder(SalesLine, ParentItem."No.", '');
+
+        // [GIVEN] Calculate regenerative plan and carry out action message for items "F" and "C".
+        DummyItem.SetFilter("No.", '%1|%2', ParentItem."No.", ChildItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(DummyItem, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
+        CarryOutActionMessageOnPlanningWorksheet(ParentItem."No.");
+        CarryOutActionMessageOnPlanningWorksheet(ChildItem."No.");
+
+        // [GIVEN] Reschedule the sales order - set Shipment Date one week later.
+        SalesLine.Find();
+        SalesLine.Validate("Shipment Date", CalcDate('<1W>', SalesLine."Shipment Date"));
+        SalesLine.Modify(true);
+
+        // [WHEN] Calculate regenerative plan for items "F" and "C" again.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(DummyItem, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
+
+        // [THEN] Two planning lines for both final and intermediate items are created.
+        FindRequisitionLine(RequisitionLine, ParentItem."No.");
+        RequisitionLine.TestField("Action Message", RequisitionLine."Action Message"::Reschedule);
+        RequisitionLine.TestField("Planning Level", 0);
+        FindRequisitionLine(RequisitionLine, ChildItem."No.");
+        RequisitionLine.TestField("Action Message", RequisitionLine."Action Message"::Reschedule);
+        RequisitionLine.TestField("Planning Level", 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

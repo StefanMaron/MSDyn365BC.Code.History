@@ -1,4 +1,4 @@
-table 365 "Analysis View Entry"
+﻿table 365 "Analysis View Entry"
 {
     Caption = 'Analysis View Entry';
     DrillDownPageID = "Analysis View Entries";
@@ -130,7 +130,7 @@ table 365 "Analysis View Entry"
         Text003: Label '1,5,,Dimension 4 Value Code';
         AnalysisView: Record "Analysis View";
 
-    procedure GetCaptionClass(AnalysisViewDimType: Integer): Text[250]
+    procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
     begin
         if AnalysisView.Code <> "Analysis View Code" then
             AnalysisView.Get("Analysis View Code");
@@ -164,6 +164,8 @@ table 365 "Analysis View Entry"
                     exit(Text003);
                 end;
         end;
+
+        OnAfterGetCaptionClass(AnalysisView, AnalysisViewDimType, Result);
     end;
 
     [Scope('OnPrem')]
@@ -208,6 +210,11 @@ table 365 "Analysis View Entry"
         SetFilter("Dimension 2 Value Code", DimFilter2);
         SetFilter("Dimension 3 Value Code", DimFilter3);
         SetFilter("Dimension 4 Value Code", DimFilter4);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCaptionClass(var AnalysisView: Record "Analysis View"; AnalysisViewDimType: Integer; var Result: Text[250])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

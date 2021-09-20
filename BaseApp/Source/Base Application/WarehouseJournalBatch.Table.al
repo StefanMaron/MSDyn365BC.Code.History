@@ -151,6 +151,13 @@ table 7310 "Warehouse Journal Batch"
         "No. Series" := WhseJnlTemplate."No. Series";
         "Registering No. Series" := WhseJnlTemplate."Registering No. Series";
         "Reason Code" := WhseJnlTemplate."Reason Code";
+
+        OnAfterSetupNewBatch(Rec, WhseJnlTemplate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetupNewBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; WarehouseJournalTemplate: Record "Warehouse Journal Template")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

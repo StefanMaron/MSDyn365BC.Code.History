@@ -79,6 +79,7 @@ codeunit 1259 "Certificate Management"
         VerifyCert(IsolatedCertificate);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SaveCertToIsolatedStorage(IsolatedCertificate: Record "Isolated Certificate")
     var
@@ -95,6 +96,7 @@ codeunit 1259 "Certificate Management"
             Error(SavingCertErr);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SavePasswordToIsolatedStorage(var IsolatedCertificate: Record "Isolated Certificate")
     begin
@@ -133,6 +135,7 @@ codeunit 1259 "Certificate Management"
         if ISOLATEDSTORAGE.Get(IsolatedCertificate.Code + PasswordSuffixTxt, GetCertDataScope(IsolatedCertificate), StoredPassword) then;
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetCertAsBase64String(IsolatedCertificate: Record "Isolated Certificate"): Text
     var

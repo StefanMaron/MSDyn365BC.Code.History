@@ -57,6 +57,8 @@ codeunit 1510 "Notification Management"
         User: Record User;
         UserSetup: Record "User Setup";
     begin
+        OnBeforeInsertOverdueEntry(ApprovalEntry, OverdueApprovalEntry);
+
         with OverdueApprovalEntry do begin
             Init;
             "Approver ID" := ApprovalEntry."Approver ID";
@@ -287,6 +289,11 @@ codeunit 1510 "Notification Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetActionTextFor(var NotificationEntry: Record "Notification Entry"; var CustomText: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertOverdueEntry(ApprovalEntry: Record "Approval Entry"; var OverdueApprovalEntry: Record "Overdue Approval Entry")
     begin
     end;
 

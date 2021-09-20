@@ -49,6 +49,9 @@ codeunit 1854 "Sales Forecast Notifier"
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterTableInsert(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if ActiveDocumentVendor = Rec."Buy-from Vendor No." then
             CreateStockoutNotification(Rec);
     end;

@@ -1379,6 +1379,224 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
+    procedure T080_ConvertVATNormalExclVATToNormalInclVAT()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ExpectedPriceInclVAT: Decimal;
+    begin
+        Initialize();
+        // [GIVEN] New pricing enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Customer 'C' and Item 'I' with VAT posting setup, where "VAT Calculation Type"::"Normal VAT"
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        Item.Get(LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+
+        // [GIVEN] Price line for 'I', where "Prices Including VAT" is 'No', "Unit Price" is 100, "VAT %" is 20
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::Customer, Customer."No.", "Price Asset Type"::Item, Item."No.");
+        PriceListLine."Price Includes VAT" := false;
+        PriceListLine."VAT Bus. Posting Gr. (Price)" := VATPostingSetup."VAT Bus. Posting Group";
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
+        ExpectedPriceInclVAT := Round(PriceListLine."Unit Price" * (100 + VATPostingSetup."VAT %") / 100, 0.01);
+
+        // [GIVEN] Sales Invoice for Customer 'C', where "Prices Including VAT" is 'Yes'
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify();
+        // [WHEN] Add line for item 'I'
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Sales Line, where "Unit Price" is 120
+        SalesLine.Find();
+        Assert.AreNearlyEqual(ExpectedPriceInclVAT, Round(SalesLine."Unit Price", 0.01), 0.01, 'Wrong Unit Price incl VAT');
+    end;
+
+    [Test]
+    procedure T081_ConvertVATNormalInclVATToNormalExclVAT()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ExpectedPriceExclVAT: Decimal;
+    begin
+        Initialize();
+        // [GIVEN] New pricing enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Customer 'C' and Item 'I' with VAT posting setup, where "VAT Calculation Type"::"Normal VAT"
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        Item.Get(LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+
+        // [GIVEN] Price line for 'I', where "Prices Including VAT" is 'Yes', "Unit Price" is 120, "VAT %" is 20
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::Customer, Customer."No.", "Price Asset Type"::Item, Item."No.");
+        PriceListLine."Price Includes VAT" := true;
+        PriceListLine."VAT Bus. Posting Gr. (Price)" := VATPostingSetup."VAT Bus. Posting Group";
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
+        ExpectedPriceExclVAT := Round(PriceListLine."Unit Price" * 100 / (100 + VATPostingSetup."VAT %"), 0.01);
+
+        // [GIVEN] Sales Invoice for Customer 'C', where "Prices Including VAT" is 'No'
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Prices Including VAT", false);
+        SalesHeader.Modify();
+        // [WHEN] Add line for item 'I'
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Sales Line, where "Unit Price" is 100
+        SalesLine.Find();
+        Assert.AreNearlyEqual(ExpectedPriceExclVAT, Round(SalesLine."Unit Price", 0.01), 0.01, 'Wrong Unit Price excl VAT');
+    end;
+
+    [Test]
+    procedure T082_ConvertVATNormalExclVATToRevChargeInclVAT()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        RevChVATPostingSetup: Record "VAT Posting Setup";
+        ExpectedPriceExclVAT: Decimal;
+    begin
+        Initialize();
+        // [GIVEN] New pricing enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Customer 'C' with "Reverce Charge VAT" setup, and Item 'I' with "Normal VAT" setup
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        Item.Get(LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+        CreateRevChargeVATPostingSetup(VATPostingSetup, RevChVATPostingSetup);
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(RevChVATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Price line for 'I', where "Prices Including VAT" is 'No', "Unit Price" is 100, "Normal VAT" setup
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::Customer, Customer."No.", "Price Asset Type"::Item, Item."No.");
+        PriceListLine."Price Includes VAT" := false;
+        PriceListLine."VAT Bus. Posting Gr. (Price)" := VATPostingSetup."VAT Bus. Posting Group";
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
+        ExpectedPriceExclVAT := Round(PriceListLine."Unit Price", 0.01);
+        // [GIVEN] Sales Invoice for Customer 'C', where "Prices Including VAT" is 'Yes'
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify();
+        // [WHEN] Add line for item 'I'
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Sales Line, where "Unit Price" is 100
+        SalesLine.Find();
+        Assert.AreNearlyEqual(
+            ExpectedPriceExclVAT, Round(SalesLine."Unit Price", 0.01), 0.01, 'Wrong Unit Price excl VAT');
+    end;
+
+    [Test]
+    procedure T083_ConvertVATNormalInclVATToRevChargeExclVAT()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        RevChVATPostingSetup: Record "VAT Posting Setup";
+        ExpectedPriceExclVAT: Decimal;
+    begin
+        Initialize();
+        // [GIVEN] New pricing enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Customer 'C' with "Reverce Charge VAT" setup, and Item 'I' with "Normal VAT" setup
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        Item.Get(LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+        CreateRevChargeVATPostingSetup(VATPostingSetup, RevChVATPostingSetup);
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(RevChVATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Price line for 'I', where "Prices Including VAT" is 'Yes', "Unit Price" is 125, "Normal VAT" setup
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::Customer, Customer."No.", "Price Asset Type"::Item, Item."No.");
+        PriceListLine."Price Includes VAT" := true;
+        PriceListLine."VAT Bus. Posting Gr. (Price)" := VATPostingSetup."VAT Bus. Posting Group";
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
+        ExpectedPriceExclVAT := Round(PriceListLine."Unit Price" * 100 / (100 + VATPostingSetup."VAT %"), 0.01);
+
+        // [GIVEN] Sales Invoice for Customer 'C', where "Prices Including VAT" is 'No'
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Prices Including VAT", false);
+        SalesHeader.Modify();
+        // [WHEN] Add line for item 'I'
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Sales Line, where "Unit Price" is 100
+        SalesLine.Find();
+        Assert.AreNearlyEqual(ExpectedPriceExclVAT, Round(SalesLine."Unit Price", 0.01), 0.01, 'Wrong Unit Price excl VAT');
+    end;
+
+    [Test]
+    procedure T084_ConvertVATNormalInclVATToRevChargeInclVAT()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        RevChVATPostingSetup: Record "VAT Posting Setup";
+        ExpectedPriceExclVAT: Decimal;
+    begin
+        Initialize();
+        // [GIVEN] New pricing enabled
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Customer 'C' with "Reverce Charge VAT" setup, and Item 'I' with "Normal VAT" setup
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        Item.Get(LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+        CreateRevChargeVATPostingSetup(VATPostingSetup, RevChVATPostingSetup);
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(RevChVATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Price line for 'I', where "Prices Including VAT" is 'Yes', "Unit Price" is 125, "Normal VAT" setup
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::Customer, Customer."No.", "Price Asset Type"::Item, Item."No.");
+        PriceListLine."Price Includes VAT" := true;
+        PriceListLine."VAT Bus. Posting Gr. (Price)" := VATPostingSetup."VAT Bus. Posting Group";
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
+        ExpectedPriceExclVAT :=
+            Round(PriceListLine."Unit Price" * 100 / (100 + VATPostingSetup."VAT %"), 0.01);
+
+        // [GIVEN] Sales Invoice for Customer 'C', where "Prices Including VAT" is 'Yes'
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify();
+        // [WHEN] Add line for item 'I'
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        // [THEN] Sales Line, where "Unit Price" is 100
+        SalesLine.Find();
+        Assert.AreNearlyEqual(ExpectedPriceExclVAT, Round(SalesLine."Unit Price", 0.01), 0.01, 'Wrong Unit Price excl VAT');
+    end;
+
+    [Test]
     procedure T110_ApplyDiscountSalesLine()
     var
         Customer: Record Customer;
@@ -4135,6 +4353,18 @@ codeunit 134159 "Test Price Calculation - V16"
         // Use Random because value is not important.
         Resource.Validate(Capacity, LibraryRandom.RandDec(10, 2));
         Resource.Modify(true);
+    end;
+
+    local procedure CreateRevChargeVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup"; var RevChVATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        RevChVATPostingSetup := VATPostingSetup;
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        RevChVATPostingSetup."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
+        RevChVATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT";
+        RevChVATPostingSetup."VAT %" += 5;
+        RevChVATPostingSetup.Insert();
     end;
 
     local procedure FindReturnShipmentHeaderNo(OrderNo: Code[20]): Code[20]

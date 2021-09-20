@@ -16,6 +16,8 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
 
     var
         ProgressWindowMsg: Label 'Please wait while the operation is being completed.';
+        BankAccountRecImportedBankStatementLinesCountMsg: Label 'Number of imported lines in bank statement: %1', Locked = true;
+        BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
 
     procedure ImportBankStatement(BankAccRecon: Record "Bank Acc. Reconciliation"; DataExch: Record "Data Exch."): Boolean
     var
@@ -25,6 +27,9 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         DataExchLineDef: Record "Data Exch. Line Def";
         TempBankAccReconLine: Record "Bank Acc. Reconciliation Line" temporary;
         ProgressWindow: Dialog;
+        NumberOfLinesImported: Integer;
+        StartDateTime: DateTime;
+        FinishDateTime: DateTime;
     begin
         BankAcc.Get(BankAccRecon."Bank Account No.");
         BankAcc.GetDataExchDef(DataExchDef);
@@ -35,6 +40,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         if not DataExch.ImportToDataExch(DataExchDef) then
             exit(false);
 
+        StartDateTime := CurrentDateTime();
         ProgressWindow.Open(ProgressWindowMsg);
 
         CreateBankAccRecLineTemplate(TempBankAccReconLine, BankAccRecon, DataExch);
@@ -52,9 +58,12 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         if DataExchMapping."Post-Mapping Codeunit" <> 0 then
             CODEUNIT.Run(DataExchMapping."Post-Mapping Codeunit", TempBankAccReconLine);
 
-        InsertNonReconciledOrImportedLines(TempBankAccReconLine, GetLastStatementLineNo(BankAccRecon));
+        NumberOfLinesImported := 0;
+        InsertNonReconciledOrImportedLines(TempBankAccReconLine, GetLastStatementLineNo(BankAccRecon), NumberOfLinesImported);
 
         ProgressWindow.Close;
+        FinishDateTime := CurrentDateTime();
+        LogTelemetryOnBankAccRecOnAfterImportBankStatement(NumberOfLinesImported, StartDateTime, FinishDateTime);
         OnAfterImportBankStatement(TempBankAccReconLine, DataExch);
         exit(true);
     end;
@@ -70,6 +79,13 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
 
     procedure InsertNonReconciledOrImportedLines(var TempBankAccReconLine: Record "Bank Acc. Reconciliation Line" temporary; StatementLineNoOffset: Integer)
     var
+        NumberOfLinesImported: Integer;
+    begin
+        InsertNonReconciledOrImportedLines(TempBankAccReconLine, StatementLineNoOffset, NumberOfLinesImported)
+    end;
+
+    procedure InsertNonReconciledOrImportedLines(var TempBankAccReconLine: Record "Bank Acc. Reconciliation Line" temporary; StatementLineNoOffset: Integer; var NumberOfLinesImported: Integer)
+    var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
         if TempBankAccReconLine.FindSet then
@@ -78,6 +94,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
                     BankAccReconciliationLine := TempBankAccReconLine;
                     BankAccReconciliationLine."Statement Line No." += StatementLineNoOffset;
                     BankAccReconciliationLine.Insert();
+                    NumberOfLinesImported += 1;
                 end;
             until TempBankAccReconLine.Next() = 0;
     end;
@@ -92,6 +109,20 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         if BankAccReconLine.FindLast() then
             exit(BankAccReconLine."Statement Line No.");
         exit(0)
+    end;
+
+    local procedure LogTelemetryOnBankAccRecOnAfterImportBankStatement(NumberOfLinesImported: Integer; StartDateTime: DateTime; FinishDateTime: DateTime)
+    var
+        Dimensions: Dictionary of [Text, Text];
+        ImportDuration: BigInteger;
+    begin
+        ImportDuration := FinishDateTime - StartDateTime;
+        Dimensions.Add('Category', BankAccountRecCategoryLbl);
+        Dimensions.Add('ImportStartTime', Format(StartDateTime, 0, 9));
+        Dimensions.Add('ImportFinishTime', Format(FinishDateTime, 0, 9));
+        Dimensions.Add('ImportDuration', Format(ImportDuration));
+        Dimensions.Add('NumberOfLines', Format(NumberOfLinesImported));
+        Session.LogMessage('0000FJW', StrSubstNo(BankAccountRecImportedBankStatementLinesCountMsg, NumberOfLinesImported), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
     end;
 
     [IntegrationEvent(false, false)]

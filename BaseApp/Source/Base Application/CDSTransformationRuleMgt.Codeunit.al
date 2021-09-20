@@ -6,6 +6,9 @@ codeunit 5397 "CDS Transformation Rule Mgt."
     [EventSubscriber(ObjectType::Table, Database::"Transformation Rule", 'OnBeforeDeleteEvent', '', false, false)]
     procedure OnDeleteTransformationRule(var Rec: Record "Transformation Rule"; RunTrigger: Boolean)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if IsTransformationRuleInUse(Rec) then
             Error(StrSubstNo('%1 cannot be deleted because it is in use.', Rec.Code));
     end;

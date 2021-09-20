@@ -71,8 +71,8 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('CONTACT', 'CUSTOMER|VENDOR');
         // [THEN] 'OPPORTUNITY' line, where "Dependency Filter" = 'CONTACT'
         VerifyDependencyFilter('OPPORTUNITY', 'CONTACT');
-        // [THEN] 'POSTEDSALESINV-INV' line, where "Dependency Filter" = 'OPPORTUNITY'
-        VerifyDependencyFilter('POSTEDSALESINV-INV', 'OPPORTUNITY');
+        // [THEN] 'POSTEDSALESINV-INV' line, where "Dependency Filter" = 'ITEM-PRODUCT|RESOURCE-PRODUCT|OPPORTUNITY'
+        VerifyDependencyFilter('POSTEDSALESINV-INV', 'ITEM-PRODUCT|RESOURCE-PRODUCT|OPPORTUNITY');
         // [THEN] 'ITEM-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
         VerifyDependencyFilter('ITEM-PRODUCT', 'UNIT OF MEASURE');
         // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
@@ -103,8 +103,8 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('CONTACT', 'CUSTOMER|VENDOR');
         // [THEN] 'OPPORTUNITY' line, where "Dependency Filter" = 'CONTACT'
         VerifyDependencyFilter('OPPORTUNITY', 'CONTACT');
-        // [THEN] 'POSTEDSALESINV-INV' line, where "Dependency Filter" = 'OPPORTUNITY'
-        VerifyDependencyFilter('POSTEDSALESINV-INV', 'OPPORTUNITY');
+        // [THEN] 'POSTEDSALESINV-INV' line, where "Dependency Filter" = 'ITEM-PRODUCT|RESOURCE-PRODUCT|OPPORTUNITY'
+        VerifyDependencyFilter('POSTEDSALESINV-INV', 'ITEM-PRODUCT|RESOURCE-PRODUCT|OPPORTUNITY');
         // [THEN] 'ITEM-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
         VerifyDependencyFilter('ITEM-PRODUCT', 'UNIT OF MEASURE');
         // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
@@ -458,6 +458,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
         CRMFullSynchronization: Codeunit "CRM Full Synchronization";
         JobQueueEntryID: Guid;
+        PrevStatus: Option;
     begin
         // [FEATURE] [Integration Synch. Job]
         // [SCENARIO] Original CRM Job Queue Entry gets 'On Hold' while the full synch. job is being executed
@@ -465,8 +466,9 @@ codeunit 139187 "CRM Full Synchronization"
         LibraryLowerPermissions.SetO365Full;
         LibraryCRMIntegration.CreateContact(Contact);
 
-        // [GIVEN] Original 'CONTACT' Job Queue Entry is 'Ready'
+        // [GIVEN] Original 'CONTACT' Job Queue Entry
         Assert.IsTrue(FindJobQueueEntryForMapping('CONTACT', JobQueueEntry), 'cannot find CONTACT job queue entry');
+        PrevStatus := JobQueueEntry.Status;
 
         CRMFullSynchReviewLine.Name := 'CONTACT';
         CRMFullSynchReviewLine.Insert();
@@ -484,9 +486,9 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Find();
         CRMFullSynchReviewLine.TestField(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
-        // [THEN] Original 'CUSTOMER' Job Queue Entry is 'Ready'
+        // [THEN] Original 'CUSTOMER' Job Queue Entry has the same status as before
         JobQueueEntry.Find();
-        JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
+        JobQueueEntry.TestField(Status, PrevStatus);
     end;
 
     [Test]
@@ -538,7 +540,7 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
-        IntegrationTableMapping.SetFilter(Name, '<>POSTEDSALESLINE-INV');
+        IntegrationTableMapping.SetFilter(Name, '<>POSTEDSALESLINE-INV&<>SALESORDER-ORDER');
         MapCount := IntegrationTableMapping.Count();
         Assert.AreNotEqual(0, MapCount, 'Expected the nonzero number of table mapping records.');
         Assert.TableIsEmpty(DATABASE::"CRM Full Synch. Review Line");

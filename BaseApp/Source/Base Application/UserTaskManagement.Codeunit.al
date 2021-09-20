@@ -68,6 +68,9 @@ codeunit 1174 "User Task Management"
     var
         UserTask: Record "User Task";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         UserTask.SetRange("User Task Group Assigned To", Rec.Code);
         // empty out 'user task group assigned to' for the tasks that were assigned to the user task group that is being deleted
         UserTask.ModifyAll("User Task Group Assigned To", '');

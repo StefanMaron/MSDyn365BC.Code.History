@@ -1,4 +1,4 @@
-codeunit 9520 "Mail Management"
+﻿codeunit 9520 "Mail Management"
 {
     EventSubscriberInstance = Manual;
 
@@ -39,6 +39,11 @@ codeunit 9520 "Mail Management"
         EmailScenarioMsg: Label 'Sending email using scenario: %1.', Comment = '%1 - Email scenario (e. g. sales order)', Locked = true;
         EmailManagementCategoryTxt: Label 'EmailManagement', Locked = true;
         CurrentEmailScenario: Enum "Email Scenario";
+
+    procedure AddSource(TableId: Integer; SystemId: Guid)
+    begin
+        TempEmailItem.AddSourceDocument(TableId, SystemId);
+    end;
 
     local procedure RunMailDialog(): Boolean
     var
@@ -111,6 +116,8 @@ codeunit 9520 "Mail Management"
             Cancelled := not MailSent;
         end else
             MailSent := Email.Send(Message, TempEmailModuleAccount);
+
+        OnSendViaEmailModuleOnAfterEmailSend(Message, TempEmailItem, MailSent, Cancelled, HideEmailSendingError);
 
         if not MailSent and not Cancelled and not HideEmailSendingError then
             ErrorMessageManagement.LogSimpleErrorMessage(GetLastErrorText());
@@ -393,6 +400,7 @@ codeunit 9520 "Mail Management"
                     Error(NoDefaultScenarioDefinedErr)
                 else
                     Error(NoScenarioDefinedErr, EmailScenario);
+            OnQualifyFromAddressOnAfterGetEmailAccount(TempEmailItem, EmailScenario, TempEmailModuleAccount);
             exit;
         end;
 
@@ -794,6 +802,11 @@ codeunit 9520 "Mail Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnQualifyFromAddressOnAfterGetEmailAccount(var TempEmailItem: Record "Email Item" temporary; EmailScenario: Enum "Email Scenario"; var TempEmailAccount: Record "Email Account" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSendOnBeforeQualifyFromAddress(var TempEmailItem: Record "Email Item" temporary; EmailScenario: Enum "Email Scenario")
     begin
     end;
@@ -810,6 +823,11 @@ codeunit 9520 "Mail Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSendViaEmailModuleOnAfterCreateMessage(var Message: Codeunit "Email Message"; var TempEmailItem: Record "Email Item" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendViaEmailModuleOnAfterEmailSend(var Message: Codeunit "Email Message"; var TempEmailItem: Record "Email Item" temporary; var MailSent: Boolean; var Cancelled: Boolean; var HideEmailSendingError: Boolean)
     begin
     end;
 

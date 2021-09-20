@@ -88,6 +88,7 @@ codeunit 1651 "Exchange PowerShell Runner"
         Commit();
     end;
 
+    [NonDebuggable]
     [TryFunction]
     procedure PromptForCredentials()
     begin
@@ -135,6 +136,7 @@ codeunit 1651 "Exchange PowerShell Runner"
         exit(TempOfficeAdminCredentials.DefaultEndpoint);
     end;
 
+    [NonDebuggable]
     [TryFunction]
     local procedure CreateExchangePSRunner(var PSRunnerObj: DotNet PowerShellRunner; var OfficeAdminCredentials: Record "Office Admin. Credentials"; UseKerberos: Boolean)
     var
@@ -357,6 +359,7 @@ codeunit 1651 "Exchange PowerShell Runner"
         Invoke;
     end;
 
+    [NonDebuggable]
     [TryFunction]
     local procedure ValidateO365CredentialsWithEWS()
     var

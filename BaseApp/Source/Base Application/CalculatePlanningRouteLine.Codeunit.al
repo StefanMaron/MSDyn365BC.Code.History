@@ -699,8 +699,15 @@ codeunit 99000810 "Calculate Planning Route Line"
         PlanningRoutingLine.Modify();
     end;
 
-    local procedure GetConstrainedCapacity(CapType: Enum "Capacity Type"; CapNo: Code[20]; var ConstrainedCapacity: Record "Capacity Constrained Resource"): Boolean
+    local procedure GetConstrainedCapacity(CapType: Enum "Capacity Type"; CapNo: Code[20]; var ConstrainedCapacity: Record "Capacity Constrained Resource") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetConstrainedCapacity(CapType, CapNo, ConstrainedCapacity, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if TempConstrainedCapacity.Get(CapType, CapNo) then begin
             ConstrainedCapacity := TempConstrainedCapacity;
             exit(true);
@@ -1561,6 +1568,11 @@ codeunit 99000810 "Calculate Planning Route Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingLineForwardOnAfterCalcRemainNeedQtyForLotSize(PlanningRoutingLine: Record "Planning Routing Line"; var RemainNeedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetConstrainedCapacity(CapType: Enum "Capacity Type"; CapNo: Code[20]; var ConstrainedCapacity: Record "Capacity Constrained Resource"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

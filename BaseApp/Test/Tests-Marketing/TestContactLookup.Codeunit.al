@@ -18,28 +18,9 @@ codeunit 134837 "Test Contact Lookup"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ConfirmStubQst: Label 'Confirm Stub';
+        Assert: Codeunit Assert;
         IsInitialized: Boolean;
-
-    local procedure Initialize()
-    var
-        ObjectOptions: Record "Object Options";
-        PurchaseHeader: Record "Purchase Header";
-        LibraryApplicationArea: Codeunit "Library - Application Area";
-    begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Contact Lookup");
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
-        ObjectOptions.DeleteAll();
-
-        if IsInitialized then
-            exit;
-
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Contact Lookup");
-        IsInitialized := true;
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Contact Lookup");
-    end;
+        ChangeQst: Label 'Do you want to change';
 
     [Test]
     [HandlerFunctions('ContactListModalPageHandler')]
@@ -488,6 +469,119 @@ codeunit 134837 "Test Contact Lookup"
         PurchaseHeader.TestField("Buy-from Contact", Contact.Name);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYesEnqueueQuestion')]
+    procedure ShipToAddressWhenSetBlankSellToContactOnSalesDocument()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactNew: Record Contact;
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+        ShippingOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+    begin
+        // [SCENARIO 403724] "Ship-to" option value when update field "Contact" of General fasttab with blank value on Sales Quote card.
+        Initialize();
+
+        // [GIVEN] Customer with two contacts "C1" and "C2". "C1" is a primary contact for Customer.
+        CreateCustomerWithTwoPersonContacts(Customer, Contact, ContactNew);
+
+        // [GIVEN] Sales Quote for Customer.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+
+        // [GIVEN] Opened Sales Quote card. "Contact" field of General fasttab filled with "C1" Name.
+        // [GIVEN] Ship-to = "Default (Sell-to Address)". Ship-to Contact = "C1" Name.
+        SalesQuote.OpenEdit();
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesQuote."Sell-to Contact".AssertEquals(Contact.Name);
+        SalesQuote."Ship-to Contact".AssertEquals(Contact.Name);
+        SalesQuote.ShippingOptions.AssertEquals(ShippingOptions::"Default (Sell-to Address)");
+
+        // [WHEN] Set blank value to "Contact" field of General fasttab. Reply Yes to confirm question. Reopen Sales Quote card.
+        SalesQuote."Sell-to Contact".SetValue('');
+        SalesQuote.Close();
+        SalesQuote.OpenEdit();
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] Confirm dialog with question "Do you want to change Sell-to Contact No.?" was shown.
+        Assert.ExpectedMessage(ChangeQst, LibraryVariableStorage.DequeueText());
+
+        // [THEN] Ship-to Contact value was set to blank. Ship-to value was not updated, it is "Default (Sell-to Address)".
+        SalesQuote.ShippingOptions.AssertEquals(ShippingOptions::"Default (Sell-to Address)");
+        SalesQuote."Ship-to Contact".AssertEquals('');
+
+        // [THEN] Sell-to Contact and Sell-to Contact No. values were set to blank.
+        SalesQuote."Sell-to Contact".AssertEquals('');
+        SalesQuote."Sell-to Contact No.".AssertEquals('');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure ShipToAddressWhenSetNonBlankSellToContactOnSalesDocument()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        DummyContact: Record Contact;
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+        ShippingOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+        SellToContactName: Text[100];
+    begin
+        // [SCENARIO 403724] "Ship-to" option value when update field "Contact" of General fasttab with nonblank value on Sales Quote card.
+        Initialize();
+
+        // [GIVEN] Customer with person contact "C1" which is a primary contact for Customer.
+        CreateCustomerWithTwoPersonContacts(Customer, Contact, DummyContact);
+
+        // [GIVEN] Sales Quote for Customer.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+
+        // [GIVEN] Opened Sales Quote card. "Contact" field of General fasttab filled with "C1" Name.
+        // [GIVEN] Ship-to = "Default (Sell-to Address)". Ship-to Contact = "C1" Name.
+        SalesQuote.OpenEdit();
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesQuote."Sell-to Contact".AssertEquals(Contact.Name);
+        SalesQuote."Ship-to Contact".AssertEquals(Contact.Name);
+        SalesQuote.ShippingOptions.AssertEquals(ShippingOptions::"Default (Sell-to Address)");
+
+        // [WHEN] Set random nonblank value to "Contact" field of General fasttab. Reopen Sales Quote card.
+        SellToContactName := LibraryUtility.GenerateGUID();
+        SalesQuote."Sell-to Contact".SetValue(SellToContactName);
+        SalesQuote.Close();
+        SalesQuote.OpenEdit();
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] Ship-to Contact value was not upadated, it is equal to "C1" Name. Ship-to value was changed "Custom Address".
+        SalesQuote.ShippingOptions.AssertEquals(ShippingOptions::"Custom Address");
+        SalesQuote."Ship-to Contact".AssertEquals(Contact.Name);
+
+        // [THEN] Sell-to Contact value was set to blank. Sell-to Contact No. value was not updated, it is "C1" No.
+        SalesQuote."Sell-to Contact".AssertEquals(SellToContactName);
+        SalesQuote."Sell-to Contact No.".AssertEquals(Contact."No.");
+    end;
+
+    local procedure Initialize()
+    var
+        ObjectOptions: Record "Object Options";
+        PurchaseHeader: Record "Purchase Header";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Contact Lookup");
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup;
+        ObjectOptions.DeleteAll();
+
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Contact Lookup");
+        IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Contact Lookup");
+    end;
+
     local procedure CreateCustomerWithTwoPersonContacts(var Customer: Record Customer; var ContactPersonOne: Record Contact; var ContactPersonTwo: Record Contact)
     var
         ContactBusinessRelation: Record "Contact Business Relation";
@@ -538,6 +632,13 @@ codeunit 134837 "Test Contact Lookup"
     procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerYesEnqueueQuestion(Question: Text[1024]; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
+        Reply := true;
     end;
 
     [ModalPageHandler]

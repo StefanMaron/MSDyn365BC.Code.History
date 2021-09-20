@@ -1,4 +1,4 @@
-codeunit 1318 "Trial Balance Mgt."
+﻿codeunit 1318 "Trial Balance Mgt."
 {
 
     trigger OnRun()
@@ -42,6 +42,8 @@ codeunit 1318 "Trial Balance Mgt."
     var
         TrialBalanceSetup: Record "Trial Balance Setup";
     begin
+        OnBeforeInitialize();
+
         TrialBalanceSetup.Get();
         TrialBalanceSetup.TestField("Account Schedule Name");
         TrialBalanceSetup.TestField("Column Layout Name");
@@ -102,6 +104,7 @@ codeunit 1318 "Trial Balance Mgt."
                     until (TempColumnLayout.Next() = 0) or (TempNoOfColumns = 0);
             until AccScheduleLine.Next() = 0;
 
+        OnUpdateArraysOnBeforeCheckArrayLen(Counter);
         if Counter < ArrayLen(ValuesArr, 1) then
             Error(LessRowsThanExpectedErr);
     end;
@@ -127,6 +130,16 @@ codeunit 1318 "Trial Balance Mgt."
     begin
         AccSchedManagement.FindPeriod(AccScheduleLine, SearchText, PeriodType);
         UpdateArrays(DescriptionsArr, ValuesArr, PeriodCaptionTxt, NoOfColumns);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeInitialize()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateArraysOnBeforeCheckArrayLen(Counter: Integer)
+    begin
     end;
 }
 

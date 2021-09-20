@@ -47,7 +47,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         Initialized: Boolean;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandler,PmtApplnToCustHandler')]
+    [HandlerFunctions('MsgHandler,ConfirmHandler,PmtApplnToCustHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestXSalesOnePmtPeformance()
     var
@@ -168,6 +168,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
     var
         BankAcc: Record "Bank Account";
         BankStmtFormat: Code[20];
+        TotalLinesAmount: Decimal;
     begin
         BankStmtFormat := 'SEPA CAMT';
         CreateBankAcc(BankStmtFormat, BankAcc);
@@ -176,6 +177,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         BankAccRecon.ImportBankStatement;
 
         BankAccRecon.CalcFields("Total Transaction Amount");
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccRecon."Total Transaction Amount");
     end;
 
     local procedure OpenPmtReconJnl(BankAccRecon: Record "Bank Acc. Reconciliation"; var PmtReconJnl: TestPage "Payment Reconciliation Journal")
@@ -331,6 +333,12 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
                 until Next = 0;
     end;
 
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccRecon.Modify();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -387,6 +395,13 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
 
             OK.Invoke;
         end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc.OK.Invoke();
     end;
 }
 

@@ -816,7 +816,9 @@ report 7305 "Whse.-Source - Create Document"
             SetRange("Source Type", SourceType);
             SetRange("Source ID", PostedWhseRcptLine."No.");
             SetRange("Source Ref. No.", PostedWhseRcptLine."Line No.");
+            OnSetQuantityOnAfterWhseItemTrackingLineSetFilters(WhseItemTrackingLine, PostedWhseRcptLine);
             if FindFirst then begin
+                OnSetQuantityOnAfterFindWhseItemTrackingLine(WhseItemTrackingLine, PostedWhseRcptLine);
                 if QtyToHandleBase < "Qty. to Handle (Base)" then
                     PostedWhseRcptLine."Qty. (Base)" := QtyToHandleBase
                 else
@@ -1216,6 +1218,16 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhsePutAwayWorksheetLineOnPreDataItem(var WhsePutawayWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetQuantityOnAfterWhseItemTrackingLineSetFilters(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetQuantityOnAfterFindWhseItemTrackingLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 }

@@ -82,21 +82,27 @@ codeunit 1340 "Undo Bank Statement (Yes/No)"
         BankAccountLedgerEntry.SetRange("Statement Line No.", BankAccountStatementLine."Statement Line No.");
         if BankAccountLedgerEntry.FindSet(true, true) then
             repeat
-                BankAccountLedgerEntry."Statement No." := NewStatementNo;
-                BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied";
-                BankAccountLedgerEntry."Remaining Amount" := BankAccountLedgerEntry.Amount;
-                BankAccountLedgerEntry.Open := true;
-                BankAccountLedgerEntry.Modify();
-
                 CheckLedgerEntry.SetCurrentKey("Bank Account Ledger Entry No.");
                 CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
-                if CheckLedgerEntry.FindSet(true) then
+                if CheckLedgerEntry.FindSet(true) then begin
                     repeat
+                        CheckLedgerEntry."Statement No." := NewStatementNo;
+                        CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::"Check Entry Applied";
                         CheckLedgerEntry.Open := true;
-                        CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::"Bank Acc. Entry Applied";
                         CheckLedgerEntry.Modify();
                     until CheckLedgerEntry.Next() = 0;
 
+                    BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::"Check Entry Applied";
+                    BankAccountLedgerEntry."Statement No." := '';
+                    BankAccountLedgerEntry."Statement Line No." := 0;
+                end else begin
+                    BankAccountLedgerEntry."Statement No." := NewStatementNo;
+                    BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied";
+                end;
+
+                BankAccountLedgerEntry."Remaining Amount" := BankAccountLedgerEntry.Amount;
+                BankAccountLedgerEntry.Open := true;
+                BankAccountLedgerEntry.Modify();
             until BankAccountLedgerEntry.Next() = 0;
     end;
 }

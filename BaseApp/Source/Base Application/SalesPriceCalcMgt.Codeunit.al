@@ -330,26 +330,29 @@ codeunit 7000 "Sales Price Calc. Mgt."
             FoundSalesPrice := FindSet();
             if FoundSalesPrice then
                 repeat
-                    if IsInMinQty("Unit of Measure Code", "Minimum Quantity") then begin
-                        CalcBestUnitPriceConvertPrice(SalesPrice);
+                    IsHandled := false;
+                    OnCalcBestUnitPriceOnBeforeCalcBestUnitPriceConvertPrice(SalesPrice, Qty, IsHandled);
+                    if not IsHandled then
+                        if IsInMinQty("Unit of Measure Code", "Minimum Quantity") then begin
+                            CalcBestUnitPriceConvertPrice(SalesPrice);
 
-                        case true of
-                            ((BestSalesPrice."Currency Code" = '') and ("Currency Code" <> '')) or
-                            ((BestSalesPrice."Variant Code" = '') and ("Variant Code" <> '')):
-                                begin
-                                    BestSalesPrice := SalesPrice;
-                                    BestSalesPriceFound := true;
-                                end;
-                            ((BestSalesPrice."Currency Code" = '') or ("Currency Code" <> '')) and
-                          ((BestSalesPrice."Variant Code" = '') or ("Variant Code" <> '')):
-                                if (BestSalesPrice."Unit Price" = 0) or
-                                   (CalcLineAmount(BestSalesPrice) > CalcLineAmount(SalesPrice))
-                                then begin
-                                    BestSalesPrice := SalesPrice;
-                                    BestSalesPriceFound := true;
-                                end;
+                            case true of
+                                ((BestSalesPrice."Currency Code" = '') and ("Currency Code" <> '')) or
+                                ((BestSalesPrice."Variant Code" = '') and ("Variant Code" <> '')):
+                                    begin
+                                        BestSalesPrice := SalesPrice;
+                                        BestSalesPriceFound := true;
+                                    end;
+                                ((BestSalesPrice."Currency Code" = '') or ("Currency Code" <> '')) and
+                              ((BestSalesPrice."Variant Code" = '') or ("Variant Code" <> '')):
+                                    if (BestSalesPrice."Unit Price" = 0) or
+                                       (CalcLineAmount(BestSalesPrice) > CalcLineAmount(SalesPrice))
+                                    then begin
+                                        BestSalesPrice := SalesPrice;
+                                        BestSalesPriceFound := true;
+                                    end;
+                            end;
                         end;
-                    end;
                 until Next() = 0;
         end;
 
@@ -1292,8 +1295,8 @@ codeunit 7000 "Sales Price Calc. Mgt."
                             CopyJobGLAccPriceToJobPlanLine(JobPlanningLine, JobGLAccPrice)
                         else begin
                             JobGLAccPrice.SetRange("Job Task No.", '');
-                            if JobGLAccPrice.FindFirst then;
-                            CopyJobGLAccPriceToJobPlanLine(JobPlanningLine, JobGLAccPrice);
+                            if JobGLAccPrice.FindFirst then
+                                CopyJobGLAccPriceToJobPlanLine(JobPlanningLine, JobGLAccPrice);
                         end;
                     end;
             end;
@@ -2057,6 +2060,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCalcBestUnitPriceConvertPrice(var SalesPrice: Record "Sales Price"; var IsHandled: Boolean; Item: Record "Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcBestUnitPriceOnBeforeCalcBestUnitPriceConvertPrice(var SalesPrice: Record "Sales Price"; Qty: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

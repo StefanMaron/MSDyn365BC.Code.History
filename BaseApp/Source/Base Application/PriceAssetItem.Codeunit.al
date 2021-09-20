@@ -46,6 +46,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
     var
         xPriceAsset: Record "Price Asset";
     begin
+        OnBeforeIsLookupOK(PriceAsset, Item);
         xPriceAsset := PriceAsset;
         if Item.Get(xPriceAsset."Asset No.") then;
         if Page.RunModal(Page::"Item List", Item) = ACTION::LookupOK then begin
@@ -172,6 +173,8 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
             PriceAsset."Price Type"::Purchase:
                 PriceAsset."Unit Price" := Item."Last Direct Cost";
         end;
+
+        OnAfterFillAdditionalFields(PriceAsset, Item, ItemVariant);
     end;
 
     local procedure GetUnitOfMeasure(PriceType: Enum "Price Type"): Code[10]
@@ -193,6 +196,16 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillAdditionalFields(var PriceAsset: Record "Price Asset"; Item: Record Item; ItemVariant: Record "Item Variant")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsLookupOK(PriceAsset: Record "Price Asset"; var Item: Record Item)
     begin
     end;
 }

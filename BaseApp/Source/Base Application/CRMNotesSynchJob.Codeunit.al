@@ -299,6 +299,9 @@ codeunit 5355 "CRM Notes Synch Job"
         CRMAnnotationBuffer: Record "CRM Annotation Buffer";
         DestinationCRMID: Guid;
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not RunTrigger then
             exit;
 

@@ -626,6 +626,7 @@ codeunit 5330 "CRM Integration Management"
     begin
         IntegrationTableMapping.SetFilter(Direction, '<>%1', IntegrationTableMapping.Direction::Bidirectional);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.SetFilter("Table ID", '<>%1', Database::"Sales Header");
         if not IntegrationTableMapping.FindSet() then
             exit;
 

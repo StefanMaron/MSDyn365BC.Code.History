@@ -460,17 +460,19 @@
                     if InvtEventBuf.Find('-') then
                         repeat
                             QtyReleased -= InvtEventBuf."Remaining Quantity (Base)";
+                            OnGetBlanketSalesOrdersOnAfterAdjustQtyReleasedFromInvtEventBuf(InvtEventBuf);
                         until InvtEventBuf.Next() = 0;
                     SetRange("Document No.", "Document No.");
                     SetRange("Line No.", "Line No.");
                     repeat
                         if "Outstanding Qty. (Base)" > QtyReleased then begin
-                            InvtEventBuf.TransferFromSalesBlanketOrder(
-                              BlanketSalesLine, "Outstanding Qty. (Base)" - QtyReleased);
+                            InvtEventBuf.TransferFromSalesBlanketOrder(BlanketSalesLine, "Outstanding Qty. (Base)" - QtyReleased);
+                            OnGetBlanketSalesOrdersOnAfterTransferFromSalesBlanketOrder(BlanketSalesLine, InvtEventBuf);
                             InsertEntry(InvtEventBuf);
                             QtyReleased := 0;
                         end else
                             QtyReleased -= "Outstanding Qty. (Base)";
+                        OnGetBlanketSalesOrdersOnAfterAssignQtyReleased(BlanketSalesLine, QtyReleased);
                     until Next() = 0;
                     SetRange("Document No.");
                     SetRange("Line No.");
@@ -1116,6 +1118,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTryGetQtyOnInventory(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBlanketSalesOrdersOnAfterAssignQtyReleased(BlanketSalesLine: Record "Sales Line"; QtyReleased: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBlanketSalesOrdersOnAfterTransferFromSalesBlanketOrder(BlanketSalesLine: Record "Sales Line"; var InventoryEventBuffer: Record "Inventory Event Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBlanketSalesOrdersOnAfterAdjustQtyReleasedFromInvtEventBuf(InventoryEventBuffer: Record "Inventory Event Buffer")
     begin
     end;
 

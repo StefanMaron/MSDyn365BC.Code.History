@@ -25,6 +25,7 @@ codeunit 1021 "Job Jnl.-Post"
     local procedure "Code"()
     var
         JobJnlPostBatch: Codeunit "Job Jnl.-Post Batch";
+        IsHandled: Boolean;
     begin
         OnBeforeCode(JobJnlLine, HideDialog, SuppressCommit);
 
@@ -34,8 +35,11 @@ codeunit 1021 "Job Jnl.-Post"
             if JobJnlTemplate.Recurring and (GetFilter("Posting Date") <> '') then
                 FieldError("Posting Date", Text000);
 
-            if not Confirm(Text001) then
-                exit;
+            IsHandled := false;
+            OnCodeOnBeforeConfirm(JobJnlLine, IsHandled);
+            if not IsHandled then
+                if not Confirm(Text001) then
+                    exit;
 
             OnCodeOnAftreConfirm(JobJnlLine);
 
@@ -84,6 +88,11 @@ codeunit 1021 "Job Jnl.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAftreConfirm(var JobJnlLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeConfirm(JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

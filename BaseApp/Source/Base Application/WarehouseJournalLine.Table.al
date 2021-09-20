@@ -1226,7 +1226,13 @@ table 7311 "Warehouse Journal Line"
     var
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         BinCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupFromBinCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Line No." <> 0) and IsReclass("Journal Template Name") then begin
             LookupItemTracking(WhseItemTrackingSetup);
             BinCode := WMSMgt.BinContentLookUp("Location Code", "Item No.", "Variant Code", "Zone Code", WhseItemTrackingSetup, "Bin Code");
@@ -1552,6 +1558,11 @@ table 7311 "Warehouse Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupBinCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupFromBinCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

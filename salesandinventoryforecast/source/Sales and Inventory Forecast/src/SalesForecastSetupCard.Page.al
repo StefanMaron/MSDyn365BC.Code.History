@@ -184,6 +184,7 @@ page 1853 "Sales Forecast Setup Card"
 
     var
         UpdatingForecastsMsg: Label 'Sales forecasts are being updated in the background. This might take a minute.';
+        [NonDebuggable]
         APIKeyValue: Text[250];
         JobQueueCreationInProgressErr: Label 'Sales forecast updates are being scheduled. Please wait until the process is complete.';
 

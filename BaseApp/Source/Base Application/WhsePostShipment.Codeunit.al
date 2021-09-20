@@ -60,7 +60,7 @@ codeunit 5763 "Whse.-Post Shipment"
         with WhseShptLine do begin
             SetCurrentKey("No.");
             SetRange("No.", "No.");
-            OnBeforeCheckWhseShptLines(WhseShptLine);
+            OnBeforeCheckWhseShptLines(WhseShptLine, WhseShptHeader, Invoice, SuppressCommit);
             SetFilter("Qty. to Ship", '>0');
             if Find('-') then
                 repeat
@@ -88,6 +88,7 @@ codeunit 5763 "Whse.-Post Shipment"
 
             GetLocation("Location Code");
             WhseShptHeader.Get("No.");
+            OnCodeOnAfterGetWhseShptHeader(WhseShptHeader);
             WhseShptHeader.TestField("Posting Date");
             OnAfterCheckWhseShptLines(WhseShptHeader, WhseShptLine, Invoice, SuppressCommit);
             if WhseShptHeader."Shipping No." = '' then begin
@@ -563,15 +564,18 @@ codeunit 5763 "Whse.-Post Shipment"
     local procedure TryPostSourceSalesDocument(var SalesPost: Codeunit "Sales-Post")
     var
         IsHandled: Boolean;
+        Result: Boolean;
     begin
         IsHandled := false;
         OnPostSourceDocumentOnBeforeSalesPost(CounterSourceDocOK, SalesPost, SalesHeader, IsHandled);
         if IsHandled then
             exit;
 
-        if SalesPost.Run(SalesHeader) then
+        if SalesPost.Run(SalesHeader) then begin
             CounterSourceDocOK := CounterSourceDocOK + 1;
-        OnPostSourceDocumentOnAfterSalesPost(CounterSourceDocOK);
+            Result := true;
+        end;
+        OnPostSourceDocumentOnAfterSalesPost(CounterSourceDocOK, SalesPost, SalesHeader, Result);
     end;
 
     local procedure PostSourceSalesDocument(var SalesPost: Codeunit "Sales-Post")
@@ -580,14 +584,22 @@ codeunit 5763 "Whse.-Post Shipment"
 
         SalesPost.Run(SalesHeader);
         CounterSourceDocOK := CounterSourceDocOK + 1;
+
+        OnAfterPostSourceSalesDocument(CounterSourceDocOK, SalesPost, SalesHeader);
     end;
 
     local procedure TryPostSourcePurchDocument(var PurchPost: Codeunit "Purch.-Post")
+    var
+        Result: Boolean;
     begin
         OnBeforeTryPostSourcePurchDocument(PurchPost, PurchHeader);
 
-        if PurchPost.Run(PurchHeader) then
+        if PurchPost.Run(PurchHeader) then begin
             CounterSourceDocOK := CounterSourceDocOK + 1;
+            Result := true;
+        end;
+
+        OnAfterTryPostSourcePurchDocument(CounterSourceDocOK, PurchPost, PurchHeader, Result);
     end;
 
     local procedure PostSourcePurchDocument(var PurchPost: Codeunit "Purch.-Post")
@@ -596,14 +608,22 @@ codeunit 5763 "Whse.-Post Shipment"
 
         PurchPost.Run(PurchHeader);
         CounterSourceDocOK := CounterSourceDocOK + 1;
+
+        OnAfterPostSourcePurchDocument(CounterSourceDocOK, PurchPost, PurchHeader);
     end;
 
     local procedure TryPostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment")
+    var
+        Result: Boolean;
     begin
         OnBeforeTryPostSourceTransferDocument(TransferPostShipment, TransHeader);
 
-        if TransferPostShipment.Run(TransHeader) then
+        if TransferPostShipment.Run(TransHeader) then begin
             CounterSourceDocOK := CounterSourceDocOK + 1;
+            Result := true;
+        end;
+
+        OnAfterTryPostSourceTransferDocument(CounterSourceDocOK, TransferPostShipment, TransHeader, Result);
     end;
 
     local procedure PostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment")
@@ -612,6 +632,8 @@ codeunit 5763 "Whse.-Post Shipment"
 
         TransferPostShipment.Run(TransHeader);
         CounterSourceDocOK := CounterSourceDocOK + 1;
+
+        OnAfterPostSourceTransferDocument(CounterSourceDocOK, TransferPostShipment, TransHeader);
     end;
 
     procedure SetPrint(Print2: Boolean)
@@ -1531,7 +1553,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckWhseShptLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    local procedure OnBeforeCheckWhseShptLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; Invoice: Boolean; var SuppressCommit: Boolean)
     begin
     end;
 
@@ -1602,6 +1624,11 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePostedShptLineOnBeforePostedWhseShptLineInsert(var PostedWhseShptLine: Record "Posted Whse. Shipment Line"; WhseShptLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterGetWhseShptHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 
@@ -1701,7 +1728,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostSourceDocumentOnAfterSalesPost(var CounterSourceDocOK: Integer)
+    local procedure OnPostSourceDocumentOnAfterSalesPost(var CounterSourceDocOK: Integer; var SalesPost: Codeunit "Sales-Post"; var SalesHeader: Record "Sales Header"; Result: Boolean)
     begin
     end;
 
@@ -1777,6 +1804,31 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUpdateWhseDocumentsOnAfterWhseShptLineBufLoop(var WhseShptHeaderParam: Record "Warehouse Shipment Header"; WhseShptLine2: Record "Warehouse Shipment Line"; WhseShptLineBuf: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostSourceSalesDocument(var CounterSourceDocOK: Integer; var SalesPost: Codeunit "Sales-Post"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTryPostSourcePurchDocument(var CounterSourceDocOK: Integer; var PurchPost: Codeunit "Purch.-Post"; var PurchHeader: Record "Purchase Header"; Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostSourcePurchDocument(var CounterSourceDocOK: Integer; var PurchPost: Codeunit "Purch.-Post"; var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTryPostSourceTransferDocument(var CounterSourceDocOK: Integer; var TransferPostShipment: Codeunit "TransferOrder-Post Shipment"; var TransHeader: Record "Transfer Header"; Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostSourceTransferDocument(var CounterSourceDocOK: Integer; var TransferPostShipment: Codeunit "TransferOrder-Post Shipment"; var TransHeader: Record "Transfer Header")
     begin
     end;
 }

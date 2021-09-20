@@ -320,4 +320,13 @@
       <Cmt Name="Dev"><![CDATA[%1 a decimal number, %2 currency code]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType ExcessiveAmtErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 456907316 - NamedType 4033331863" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is not equal to Total Balance.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 is a field caption]D;]A;(LookupHint=Codeunit Test Bank Payment Application - NamedType WrongStmEndBalanceErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

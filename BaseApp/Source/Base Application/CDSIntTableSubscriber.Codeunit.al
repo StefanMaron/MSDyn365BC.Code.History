@@ -134,6 +134,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         CRMIntegrationRecord.SetCurrentKey("Integration ID");
         CRMIntegrationRecord.SetRange("Integration ID", Rec.SystemId);
         if CRMIntegrationRecord.FindFirst() then
@@ -658,13 +661,26 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMIntegrationRecord: Record "CRM Integration Record";
+        TenantLicenseState: Codeunit "Tenant License State";
+        EnumTenantLicenseState: Enum "Tenant License State";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if CDSConnectionSetup.ChangeCompany(Rec.Name) then
             if CDSConnectionSetup.Get() then
                 if CDSConnectionSetup."Is Enabled" then
                     if CRMIntegrationRecord.ChangeCompany(Rec.Name) then
-                        if not CRMIntegrationRecord.IsEmpty() then
+                        if not CRMIntegrationRecord.IsEmpty() then begin
+                            if not GuiAllowed() then
+                                if TenantLicenseState.GetLicenseState() in [
+                                    EnumTenantLicenseState::Suspended,
+                                    EnumTenantLicenseState::Deleted,
+                                    EnumTenantLicenseState::LockedOut]
+                                then
+                                    exit;
                             Error(CouplingsNeedToBeResetErr);
+                        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Table Synch.", 'OnQueryPostFilterIgnoreRecord', '', false, false)]
@@ -1043,6 +1059,28 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
         DestinationFieldRef := DestinationRecordRef.Field(SalespersonPurchaser.FieldNo(Code));
         DestinationFieldRef.Value := NewCode;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Table Synch.", 'OnAfterInitSynchJob', '', true, true)]
+    local procedure LogTelemetryOnAfterInitSynchJob(ConnectionType: TableConnectionType; IntegrationTableID: Integer)
+    begin
+        if ConnectionType <> TableConnectionType::CRM then
+            exit;
+        if IntegrationTableID in [
+                Database::"CRM Account",
+                Database::"CRM Contact",
+                Database::"CRM Transactioncurrency",
+                Database::"CRM Systemuser"] then begin
+            Session.LogMessage('0000FMC', 'Synching a base entity.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            exit;
+        end;
+        if IntegrationTableID > MinCustomTableId() then
+            Session.LogMessage('0000FMD', 'Synching a custom entity.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+    end;
+
+    local procedure MinCustomTableId(): Integer
+    begin
+        exit(50000);
     end;
 
     [Scope('OnPrem')]

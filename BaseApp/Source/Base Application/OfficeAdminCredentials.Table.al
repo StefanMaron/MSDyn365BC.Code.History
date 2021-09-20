@@ -60,6 +60,7 @@ table 1612 "Office Admin. Credentials"
         exit('https://ps.outlook.com/powershell-liveid');
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SavePassword(PasswordText: Text)
     begin
@@ -71,6 +72,7 @@ table 1612 "Office Admin. Credentials"
         Modify;
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetPassword(): Text
     var

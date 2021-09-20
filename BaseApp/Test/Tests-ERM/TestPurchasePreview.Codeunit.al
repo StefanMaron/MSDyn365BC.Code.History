@@ -1,7 +1,8 @@
-codeunit 134762 "Test Purchase Preview"
+﻿codeunit 134762 "Test Purchase Preview"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -22,9 +23,11 @@ codeunit 134762 "Test Purchase Preview"
         LibraryJournals: Codeunit "Library - Journals";
         ExpectedCost: Decimal;
         ExpectedQuantity: Decimal;
+        PurchHeaderPostingNo: Code[20];
         NoRecordsErr: Label 'There are no preview records to show.';
         NothingToPostErr: Label 'There is nothing to post.';
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
+        PostingPreviewNoTok: Label '***', Locked = true;
         IsInitialized: Boolean;
 
     [Test]
@@ -761,6 +764,37 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview.Close();
     end;
 
+    procedure PreviewPurchInvoiceWithSameInvoiceAndPostingInvoiceNos()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TestPurchPostPreview: Codeunit "Test Purchase Preview";
+        PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 406700] When PurchSetup has same values for Invoice Nos. and Posted Invoice Nos. the creating PurchInvoiceHeader.No. = "***"
+        Initialize();
+        BindSubscription(TestPurchPostPreview);
+
+        // [GIVEN] Set Purch Setup "Invoice Nos." = "III" and "Posted Invoice Nos." = "III"
+        UpdatePurchSetupPostedInvoiceNos();
+
+        // [GIVEN] Create purchase invoice
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
+          '', '', LibraryRandom.RandIntInRange(5, 10), '', WorkDate);
+        Commit();
+
+        // [WHEN] Run posting preview
+        GLPostingPreview.Trap;
+        asserterror PurchPostYesNo.Preview(PurchaseHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Purch Header "Posting No." = "***"
+        Assert.AreEqual(PostingPreviewNoTok, TestPurchPostPreview.GetPurchHeaderPostingNo(), 'Invalid Posting No.');
+    end;
+    
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -913,6 +947,26 @@ codeunit 134762 "Test Purchase Preview"
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         PmtNo := GenJournalLine."Document No.";
+    end;
+
+    local procedure UpdatePurchSetupPostedInvoiceNos()
+    var
+        PurchSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchSetup.Get();
+        PurchSetup."Posted Invoice Nos." := PurchSetup."Invoice Nos.";
+        PurchSetup.Modify();
+    end;
+
+    procedure GetPurchHeaderPostingNo(): Code[20]
+    begin
+        exit(PurchHeaderPostingNo);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterUpdatePostingNos', '', false, false)]
+    local procedure OnAfterUpdatePostingNos(var PurchaseHeader: Record "Purchase Header"; var NoSeriesMgt: Codeunit NoSeriesManagement; CommitIsSupressed: Boolean)
+    begin
+        PurchHeaderPostingNo := PurchaseHeader."Posting No.";
     end;
 
     [ModalPageHandler]

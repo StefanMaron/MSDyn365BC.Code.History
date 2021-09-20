@@ -43,6 +43,12 @@
         SalesLine.TestField("No.");
         SalesLine.TestField("Shipment Date");
         SalesLine.CalcFields("Reserved Qty. (Base)");
+
+        IsHandled := false;
+        OnCreateReservationOnBeforeCheckReservedQty(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if Abs(SalesLine."Outstanding Qty. (Base)") < Abs(SalesLine."Reserved Qty. (Base)") + QuantityBase then
             Error(
               ReservedQtyTooLargeErr,
@@ -1145,6 +1151,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRetrieveInvoiceSpecificationOnBeforeInsert(var TempInvoicingSpecification: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCheckReservedQty(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

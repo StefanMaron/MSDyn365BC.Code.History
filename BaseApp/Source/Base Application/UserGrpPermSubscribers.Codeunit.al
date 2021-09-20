@@ -8,6 +8,9 @@ codeunit 9004 "User Grp. Perm. Subscribers"
     var
         UserGroupPermissionSet: Record "User Group Permission Set";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         UserGroupPermissionSet.SetRange("User Group Code", Rec.Code);
         UserGroupPermissionSet.DeleteAll(true);
         Rec.Find;
@@ -19,6 +22,9 @@ codeunit 9004 "User Grp. Perm. Subscribers"
         UserGroupAccessControl: Record "User Group Access Control";
         AggregatePermissionSet: Record "Aggregate Permission Set";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if IsNullGuid(Rec."App ID") then
             if not (Rec."Role ID" in ['SUPER', 'SECURITY']) then begin
                 AggregatePermissionSet.SetRange("Role ID", Rec."Role ID");
@@ -36,6 +42,9 @@ codeunit 9004 "User Grp. Perm. Subscribers"
     var
         UserGroupAccessControl: Record "User Group Access Control";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         UserGroupAccessControl.RemoveUserGroupPermissionSet(Rec."User Group Code", Rec."Role ID", Rec."App ID", Rec.Scope);
     end;
 
@@ -44,6 +53,9 @@ codeunit 9004 "User Grp. Perm. Subscribers"
     var
         UserGroupAccessControl: Record "User Group Access Control";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         UserGroupAccessControl.RemoveUserGroupPermissionSet(xRec."User Group Code", xRec."Role ID", xRec."App ID", xRec.Scope);
         UserGroupAccessControl.AddUserGroupPermissionSet(Rec."User Group Code", Rec."Role ID", Rec."App ID", Rec.Scope);
     end;
@@ -53,6 +65,9 @@ codeunit 9004 "User Grp. Perm. Subscribers"
     var
         UserGroupPermissionSet: Record "User Group Permission Set";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         UserGroupPermissionSet.SetRange("Role ID", xRec."Role ID");
         if not UserGroupPermissionSet.FindSet() then
             exit;

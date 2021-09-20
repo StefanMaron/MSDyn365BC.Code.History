@@ -452,6 +452,8 @@ page 99000883 "Sales Order Planning"
     begin
         xSalesPlanLine := Rec;
 
+        OnCreateOrdersOnBeforeFindSet(Rec);
+
         if not FindSet() then
             exit;
 
@@ -552,6 +554,11 @@ page 99000883 "Sales Order Planning"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateProdOrderOnAfterGetParameters(var SalesPlanningLine: Record "Sales Planning Line"; var NewStatus: Enum "Production Order Status"; var NewOrderType: Enum "Create Production Order Type")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateOrdersOnBeforeFindSet(var SalesPlanningLine: Record "Sales Planning Line")
     begin
     end;
 

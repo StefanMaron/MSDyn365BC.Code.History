@@ -297,22 +297,23 @@ codeunit 5812 "Calculate Standard Cost"
                             ComponentQuantity :=
                               BOMComp."Quantity per" *
                               UOMMgt.GetQtyPerUnitOfMeasure(CompItem, BOMComp."Unit of Measure Code");
-                            if CompItem.IsAssemblyItem or CompItem.IsMfgItem then begin
-                                if CompItem.IsAssemblyItem then
-                                    CalcAssemblyItem(BOMComp."No.", CompItem, Level + 1, CalcMfgItems)
-                                else
-                                    if CalcMfgItems then
-                                        CalcMfgItem(BOMComp."No.", CompItem, Level + 1);
-                                Item."Rolled-up Material Cost" += ComponentQuantity * CompItem."Rolled-up Material Cost";
-                                Item."Rolled-up Capacity Cost" += ComponentQuantity * CompItem."Rolled-up Capacity Cost";
-                                Item."Rolled-up Cap. Overhead Cost" += ComponentQuantity * CompItem."Rolled-up Cap. Overhead Cost";
-                                Item."Rolled-up Mfg. Ovhd Cost" += ComponentQuantity * CompItem."Rolled-up Mfg. Ovhd Cost";
-                                Item."Rolled-up Subcontracted Cost" += ComponentQuantity * CompItem."Rolled-up Subcontracted Cost";
-                                Item."Single-Level Material Cost" += ComponentQuantity * CompItem."Standard Cost"
-                            end else begin
-                                Item."Rolled-up Material Cost" += ComponentQuantity * CompItem."Unit Cost";
-                                Item."Single-Level Material Cost" += ComponentQuantity * CompItem."Unit Cost"
-                            end;
+                            if CompItem.IsInventoriableType() then
+                                if CompItem.IsAssemblyItem or CompItem.IsMfgItem then begin
+                                    if CompItem.IsAssemblyItem then
+                                        CalcAssemblyItem(BOMComp."No.", CompItem, Level + 1, CalcMfgItems)
+                                    else
+                                        if CalcMfgItems then
+                                            CalcMfgItem(BOMComp."No.", CompItem, Level + 1);
+                                    Item."Rolled-up Material Cost" += ComponentQuantity * CompItem."Rolled-up Material Cost";
+                                    Item."Rolled-up Capacity Cost" += ComponentQuantity * CompItem."Rolled-up Capacity Cost";
+                                    Item."Rolled-up Cap. Overhead Cost" += ComponentQuantity * CompItem."Rolled-up Cap. Overhead Cost";
+                                    Item."Rolled-up Mfg. Ovhd Cost" += ComponentQuantity * CompItem."Rolled-up Mfg. Ovhd Cost";
+                                    Item."Rolled-up Subcontracted Cost" += ComponentQuantity * CompItem."Rolled-up Subcontracted Cost";
+                                    Item."Single-Level Material Cost" += ComponentQuantity * CompItem."Standard Cost"
+                                end else begin
+                                    Item."Rolled-up Material Cost" += ComponentQuantity * CompItem."Unit Cost";
+                                    Item."Single-Level Material Cost" += ComponentQuantity * CompItem."Unit Cost"
+                                end;
                             OnCalcAssemblyItemOnAfterCalcItemCost(Item, CompItem);
                         end;
                     BOMComp.Type::Resource:
@@ -584,19 +585,20 @@ codeunit 5812 "Calculate Standard Cost"
                         Type::Item:
                             begin
                                 GetItem("No.", CompItem);
-                                if CompItem.IsMfgItem() or CompItem.IsAssemblyItem() then begin
-                                    CalcMfgItem("No.", CompItem, Level + 1);
-                                    IncrCost(SLMat, CompItem."Standard Cost", CompItemQtyBase);
-                                    IncrCost(RUMat, CompItem."Rolled-up Material Cost", CompItemQtyBase);
-                                    IncrCost(RUCap, CompItem."Rolled-up Capacity Cost", CompItemQtyBase);
-                                    IncrCost(RUSub, CompItem."Rolled-up Subcontracted Cost", CompItemQtyBase);
-                                    IncrCost(RUCapOvhd, CompItem."Rolled-up Cap. Overhead Cost", CompItemQtyBase);
-                                    IncrCost(RUMfgOvhd, CompItem."Rolled-up Mfg. Ovhd Cost", CompItemQtyBase);
-                                    OnCalcProdBOMCostOnAfterCalcMfgItem(ProdBOMLine, MfgItem, MfgItemQtyBase, CompItem, CompItemQtyBase, Level, IsTypeItem, UOMFactor);
-                                end else begin
-                                    IncrCost(SLMat, CompItem."Unit Cost", CompItemQtyBase);
-                                    IncrCost(RUMat, CompItem."Unit Cost", CompItemQtyBase);
-                                end;
+                                if CompItem.IsInventoriableType() then
+                                    if CompItem.IsMfgItem() or CompItem.IsAssemblyItem() then begin
+                                        CalcMfgItem("No.", CompItem, Level + 1);
+                                        IncrCost(SLMat, CompItem."Standard Cost", CompItemQtyBase);
+                                        IncrCost(RUMat, CompItem."Rolled-up Material Cost", CompItemQtyBase);
+                                        IncrCost(RUCap, CompItem."Rolled-up Capacity Cost", CompItemQtyBase);
+                                        IncrCost(RUSub, CompItem."Rolled-up Subcontracted Cost", CompItemQtyBase);
+                                        IncrCost(RUCapOvhd, CompItem."Rolled-up Cap. Overhead Cost", CompItemQtyBase);
+                                        IncrCost(RUMfgOvhd, CompItem."Rolled-up Mfg. Ovhd Cost", CompItemQtyBase);
+                                        OnCalcProdBOMCostOnAfterCalcMfgItem(ProdBOMLine, MfgItem, MfgItemQtyBase, CompItem, CompItemQtyBase, Level, IsTypeItem, UOMFactor);
+                                    end else begin
+                                        IncrCost(SLMat, CompItem."Unit Cost", CompItemQtyBase);
+                                        IncrCost(RUMat, CompItem."Unit Cost", CompItemQtyBase);
+                                    end;
                             end;
                         Type::"Production BOM":
                             CalcProdBOMCost(

@@ -172,6 +172,8 @@ table 418 "IC Inbox Transaction"
                     ICInboxPurchDoc.RunModal;
                 end;
         end;
+
+        OnAfterShowDetails(Rec);
     end;
 
     local procedure InboxCheckAccept()
@@ -245,6 +247,11 @@ table 418 "IC Inbox Transaction"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInboxCheckAccept(var ICInboxTransaction: Record "IC Inbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDetails(var ICInboxTransaction: Record "IC Inbox Transaction")
     begin
     end;
 

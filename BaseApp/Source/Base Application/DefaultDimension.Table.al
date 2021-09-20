@@ -1,4 +1,4 @@
-table 352 "Default Dimension"
+﻿table 352 "Default Dimension"
 {
     Caption = 'Default Dimension';
 
@@ -317,7 +317,7 @@ table 352 "Default Dimension"
         exit('');
     end;
 
-    local procedure UpdateGlobalDimCode(GlobalDimCodeNo: Integer; TableID: Integer; AccNo: Code[20]; NewDimValue: Code[20])
+    procedure UpdateGlobalDimCode(GlobalDimCodeNo: Integer; TableID: Integer; AccNo: Code[20]; NewDimValue: Code[20])
     var
         IsHandled: Boolean;
     begin
@@ -391,6 +391,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateGLAccGlobalDimCodeOnCaseElse(GlobalDimCodeNo, GLAccNo, NewDimValue);
             end;
+            OnUpdateGLAccGlobalDimCodeOnBeforeGLAccModify(GLAcc, NewDimValue, GlobalDimCodeNo);
             GLAcc.Modify(true);
         end;
     end;
@@ -408,6 +409,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateCustGlobalDimCodeOnCaseElse(GlobalDimCodeNo, CustNo, NewDimValue);
             end;
+            OnUpdateCustGlobalDimCodeOnBeforeCustModify(Cust, NewDimValue, GlobalDimCodeNo);
             Cust.Modify(true);
         end;
     end;
@@ -425,6 +427,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateVendGlobalDimCodeOnCaseElse(GlobalDimCodeNo, VendNo, NewDimValue);
             end;
+            OnUpdateVendGlobalDimCodeOnBeforeVendModify(Vend, NewDimValue, GlobalDimCodeNo);
             Vend.Modify(true);
         end;
     end;
@@ -442,6 +445,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateItemGlobalDimCodeOnCaseElse(GlobalDimCodeNo, ItemNo, NewDimValue);
             end;
+            OnUpdateItemGlobalDimCodeOnBeforeItemModify(Item, NewDimValue, GlobalDimCodeNo);
             Item.Modify(true);
         end;
     end;
@@ -459,6 +463,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateResGrGlobalDimCodeOnCaseElse(GlobalDimCodeNo, ResGrNo, NewDimValue);
             end;
+            OnUpdateResGrGlobalDimCodeOnBeforeResGrModify(ResGr, NewDimValue, GlobalDimCodeNo);
             ResGr.Modify(true);
         end;
     end;
@@ -476,6 +481,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateResGlobalDimCodeCaseElse(GlobalDimCodeNo, ResNo, NewDimValue);
             end;
+            OnUpdateResGlobalDimCodeOnBeforeResModify(Res, NewDimValue, GlobalDimCodeNo);
             Res.Modify(true);
         end;
     end;
@@ -493,6 +499,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateJobGlobalDimCodeCaseElse(GlobalDimCodeNo, JobNo, NewDimValue);
             end;
+            OnUpdateJobGlobalDimCodeOnBeforeJobModify(Job, NewDimValue, GlobalDimCodeNo);
             Job.Modify(true);
         end;
     end;
@@ -510,6 +517,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateBankGlobalDimCodeCaseElse(GlobalDimCodeNo, BankAccNo, NewDimValue);
             end;
+            OnUpdateBankGlobalDimCodeOnBeforeBankModify(BankAcc, NewDimValue, GlobalDimCodeNo);
             BankAcc.Modify(true);
         end;
     end;
@@ -527,6 +535,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateEmpoyeeGlobalDimCodeCaseElse(GlobalDimCodeNo, EmployeeNo, NewDimValue);
             end;
+            OnUpdateEmployeeGlobalDimCodeOnBeforeEmployeeModify(Employee, NewDimValue, GlobalDimCodeNo);
             Employee.Modify(true);
         end;
     end;
@@ -544,6 +553,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateFAGlobalDimCodeCaseElse(GlobalDimCodeNo, FANo, NewDimValue);
             end;
+            OnUpdateFAGlobalDimCodeOnBeforeFAModify(FA, NewDimValue, GlobalDimCodeNo);
             FA.Modify(true);
         end;
     end;
@@ -561,6 +571,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateInsuranceGlobalDimCodeCaseElse(GlobalDimCodeNo, InsuranceNo, NewDimValue);
             end;
+            OnUpdateInsuranceGlobalDimCodeOnBeforeInsuranceModify(Insurance, NewDimValue, GlobalDimCodeNo);
             Insurance.Modify(true);
         end;
     end;
@@ -578,6 +589,7 @@ table 352 "Default Dimension"
                 else
                     OnUpdateRespCenterGlobalDimCodeCaseElse(GlobalDimCodeNo, RespCenterNo, NewDimValue);
             end;
+            OnUpdateRespCenterGlobalDimCodeOnBeforeRespCenterModify(RespCenter, NewDimValue, GlobalDimCodeNo);
             RespCenter.Modify(true);
         end;
     end;
@@ -1170,7 +1182,17 @@ table 352 "Default Dimension"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateGLAccGlobalDimCodeOnBeforeGLAccModify(var GLAcc: Record "G/L Account"; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateBankGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; BankAccNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBankGlobalDimCodeOnBeforeBankModify(var BankAccount: Record "Bank Account"; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
     begin
     end;
 
@@ -1185,12 +1207,22 @@ table 352 "Default Dimension"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustGlobalDimCodeOnBeforeCustModify(var Customer: Record Customer; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateCustomerTemplGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; CustomerTemplCode: Code[20]; NewDimValue: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateEmpoyeeGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; EmployeeNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateEmployeeGlobalDimCodeOnBeforeEmployeeModify(var Employee: Record Employee; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
     begin
     end;
 
@@ -1205,12 +1237,27 @@ table 352 "Default Dimension"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateFAGlobalDimCodeOnBeforeFAModify(var FixedAsset: Record "Fixed Asset"; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateInsuranceGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; InsuranceNo: Code[20]; NewDimValue: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateInsuranceGlobalDimCodeOnBeforeInsuranceModify(var Insurance: Record Insurance; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateItemGlobalDimCodeOnCaseElse(GlobalDimCodeNo: Integer; ItemNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemGlobalDimCodeOnBeforeItemModify(var Item: Record Item; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
     begin
     end;
 
@@ -1221,6 +1268,11 @@ table 352 "Default Dimension"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateJobGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; JobNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateJobGlobalDimCodeOnBeforeJobModify(var Job: Record Job; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
     begin
     end;
 
@@ -1240,12 +1292,27 @@ table 352 "Default Dimension"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateResGrGlobalDimCodeOnBeforeResGrModify(var ResGr: Record "Resource Group"; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateResGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; ResNo: Code[20]; NewDimValue: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateResGlobalDimCodeOnBeforeResModify(var Resource: Record Resource; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateRespCenterGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; RespCenterNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateRespCenterGlobalDimCodeOnBeforeRespCenterModify(var RespCenter: Record "Responsibility Center"; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
     begin
     end;
 
@@ -1256,6 +1323,11 @@ table 352 "Default Dimension"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVendGlobalDimCodeOnCaseElse(GlobalDimCodeNo: Integer; VendNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVendGlobalDimCodeOnBeforeVendModify(var Vend: Record Vendor; NewDimValue: Code[20]; GlobalDimCodeNo: Integer)
     begin
     end;
 

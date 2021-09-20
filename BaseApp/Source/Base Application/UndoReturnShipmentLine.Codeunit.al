@@ -233,7 +233,7 @@ codeunit 5814 "Undo Return Shipment Line"
             ItemJnlLine."Document Date" := ReturnShptHeader."Document Date";
             ItemJnlLine."Unit of Measure Code" := "Unit of Measure Code";
 
-            OnAfterCopyItemJnlLineFromReturnShpt(ItemJnlLine, ReturnShptHeader, ReturnShptLine);
+            OnAfterCopyItemJnlLineFromReturnShpt(ItemJnlLine, ReturnShptHeader, ReturnShptLine, WhseUndoQty);
 
             WhseUndoQty.InsertTempWhseJnlLine(
                 ItemJnlLine,
@@ -317,7 +317,7 @@ codeunit 5814 "Undo Return Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromReturnShpt(var ItemJournalLine: Record "Item Journal Line"; ReturnShipmentHeader: Record "Return Shipment Header"; ReturnShipmentLine: Record "Return Shipment Line")
+    local procedure OnAfterCopyItemJnlLineFromReturnShpt(var ItemJournalLine: Record "Item Journal Line"; ReturnShipmentHeader: Record "Return Shipment Header"; ReturnShipmentLine: Record "Return Shipment Line"; var WhseUndoQty: Codeunit "Whse. Undo Quantity")
     begin
     end;
 

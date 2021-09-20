@@ -623,6 +623,12 @@ codeunit 6516 "Package Management"
         JobPlanningLine."Package No." := JobLedgEntry."Package No.";
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Job Planning Line", 'OnAfterClearTracking', '', false, false)]
+    local procedure JobPlanningLineClearTracking(var JobPlanningLine: Record "Job Planning Line")
+    begin
+        JobPlanningLine."Package No." := '';
+    end;
+
     // Entry Summary subscribers
 
     [EventSubscriber(ObjectType::Table, Database::"Entry Summary", 'OnAfterHasSameTracking', '', false, false)]

@@ -1119,7 +1119,7 @@ codeunit 139160 "CRM Setup Test"
         SimulateIntegrationSyncJobsExecution();
 
         // [THEN] Jobs are created for each mapping and direction
-        Assert.AreEqual(37, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
+        Assert.AreEqual(39, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
         CRMConnectionSetup.DeleteAll();
         InitializeCDSConnectionSetup();
     end;

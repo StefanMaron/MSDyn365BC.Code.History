@@ -720,8 +720,9 @@ page 5091 Segment
 
     local procedure InteractionTemplateCodeOnAfter()
     begin
-        UpdateEditable;
-        CurrPage.SegLines.PAGE.UpdateForm;
+        UpdateEditable();
+        CurrPage.SegLines.PAGE.UpdateForm();
+        CurrPage.Update();
     end;
 
     local procedure InformationFlowOnAfterValidate()

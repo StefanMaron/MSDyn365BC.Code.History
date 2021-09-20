@@ -1,4 +1,4 @@
-codeunit 17 "Gen. Jnl.-Post Reverse"
+﻿codeunit 17 "Gen. Jnl.-Post Reverse"
 {
     Permissions = TableData "G/L Entry" = m,
                   TableData "Cust. Ledger Entry" = imd,
@@ -294,6 +294,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
             DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
             DtldCustLedgEntry.SetRange(Unapplied, false);
+            OnReverseCustLedgEntryOnAfterDtldCustLedgEntrySetFilters(DtldCustLedgEntry, NextDtldCustLedgEntryEntryNo);
             DtldCustLedgEntry.FindSet();
             repeat
                 DtldCustLedgEntry.TestField("Entry Type", DtldCustLedgEntry."Entry Type"::"Initial Entry");
@@ -372,6 +373,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.");
             DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
             DtldVendLedgEntry.SetRange(Unapplied, false);
+            OnReverseVendLedgEntryOnAfterDtldVendLedgEntrySetFilters(DtldVendLedgEntry, NextDtldVendLedgEntryEntryNo);
             DtldVendLedgEntry.FindSet();
             repeat
                 DtldVendLedgEntry.TestField("Entry Type", DtldVendLedgEntry."Entry Type"::"Initial Entry");
@@ -850,7 +852,17 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnReverseCustLedgEntryOnAfterDtldCustLedgEntrySetFilters(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; NextDtldCustLedgEntryEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry(var NewCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseVendLedgEntryOnAfterDtldVendLedgEntrySetFilters(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; NextDtldVendLedgEntryEntryNo: Integer)
     begin
     end;
 
