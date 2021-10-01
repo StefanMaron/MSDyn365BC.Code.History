@@ -11,6 +11,7 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
         MoveServicePasswordToIsolatedStorage();
         MoveGraphMailRefreshCodeToIsolatedStorage();
         MoveAzureADAppSetupSecretToIsolatedStorage();
+        FixAzureADAppSetup();
     end;
 
     local procedure MoveServicePasswordToIsolatedStorage()
@@ -35,6 +36,31 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
         MovePostCodeServiceSecrets();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetServicePasswordToIsolatedStorageTag());
+    end;
+
+    local procedure FixAzureADAppSetup()
+    var
+        AzureADAppSetup: Record "Azure AD App Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        IsolatedValue: Text;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAzureADSetupFixTag()) then
+            exit;
+
+        if AzureADAppSetup.FindFirst() then
+            if not IsNullGuid(AzureADAppSetup."Isolated Storage Secret Key") then
+
+                // if we have moved a value already to datascope::module then don't try to do it again.
+                // ignore the values from other isolated storage with datascope::company.
+                if not IsolatedStorage.Contains(AzureADAppSetup."Isolated Storage Secret Key", DataScope::Module) then
+                    if IsolatedStorage.Get(AzureADAppSetup."Isolated Storage Secret Key", DataScope::Company, IsolatedValue) then begin
+                        IsolatedStorage.Delete(AzureADAppSetup."Isolated Storage Secret Key", DataScope::Company);
+                        AzureADAppSetup.SetSecretKeyToIsolatedStorage(IsolatedValue);
+                        AzureADAppSetup.Modify();
+                    end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAzureADSetupFixTag());
     end;
 
     local procedure MoveGraphMailRefreshCodeToIsolatedStorage()

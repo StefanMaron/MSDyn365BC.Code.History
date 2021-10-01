@@ -40,7 +40,6 @@ page 414 "G/L Balance"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
@@ -63,7 +62,6 @@ page 414 "G/L Balance"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -299,8 +297,8 @@ page 414 "G/L Balance"
     end;
 
     protected var
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
         ClosingEntryFilter: Option Include,Exclude;
         DebitCreditTotals: Boolean;
         [InDataSet]
@@ -313,15 +311,15 @@ page 414 "G/L Balance"
     var
         Calendar: Record Date;
         AccountingPeriod: Record "Accounting Period";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         if GetFilter("Date Filter") <> '' then begin
             Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
+                PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType);
+        PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
         if AmountType = AmountType::"Net Change" then
             if Calendar."Period Start" = Calendar."Period End" then
                 SetRange("Date Filter", Calendar."Period Start")

@@ -1816,8 +1816,8 @@ codeunit 137308 "SCM Planning Reports"
         PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
         ReservationEngineMgt.InitFilterAndSortingLookupFor(ReservationEntry, true);
-        PurchLineReserve.FilterReservFor(ReservationEntry, PurchaseLine);
-        ReservationEntry.FindFirst;
+        PurchaseLine.SetReservationFilters(ReservationEntry);
+        ReservationEntry.FindFirst();
     end;
 
     local procedure VerifySalesGrossRequirement(SalesLine: Record "Sales Line")

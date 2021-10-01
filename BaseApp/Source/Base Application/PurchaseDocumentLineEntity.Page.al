@@ -4,9 +4,6 @@
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Purchase Line";
-    ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated.';
-    ObsoleteTag = '18.0';
 
     layout
     {
@@ -43,6 +40,11 @@
                 {
                     ApplicationArea = All;
                     Caption = 'No.', Locked = true;
+
+                    trigger OnValidate()
+                    begin
+                        EntityChanged := true;
+                    end;
                 }
                 field(locationCode; "Location Code")
                 {
@@ -973,5 +975,37 @@
     actions
     {
     }
-}
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        if InsertExtendedText() then
+            exit(false);
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        if EntityChanged then
+            if InsertExtendedText() then
+                exit(false);
+    end;
+
+    var
+        EntityChanged: Boolean;
+
+    local procedure InsertExtendedText(): Boolean
+    var
+        PurchaseLine: Record "Purchase Line";
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+    begin
+        if TransferExtendedText.PurchCheckIfAnyExtText(Rec, false) then begin
+            if PurchaseLine.Get(Rec."Document Type", Rec."Document No.", Rec."Line No.") then
+                Rec.Modify(true)
+            else
+                Rec.Insert(true);
+            Commit();
+            TransferExtendedText.InsertPurchExtText(Rec);
+            exit(true);
+        end;
+        exit(false);
+    end;
+}

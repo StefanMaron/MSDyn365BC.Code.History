@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 991 "Query Nav. Page Lookup"
 {
     PageType = List;
@@ -5,6 +6,9 @@ page 991 "Query Nav. Page Lookup"
     Extensible = false;
     SourceTable = "Page Metadata";
     Caption = 'Select Target Page';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -37,3 +41,4 @@ page 991 "Query Nav. Page Lookup"
         }
     }
 }
+#endif

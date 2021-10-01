@@ -102,6 +102,10 @@ dotnet
         type("Microsoft.Dynamics.Nav.Runtime.DesignedQuery.AL.DqExporter"; "DqExporter")
         {
         }
+
+        type("Microsoft.Dynamics.Nav.Runtime.LastError"; "LastError")
+        {
+        }
     }
     assembly("Microsoft.Dynamics.Nav.NavUserAccount")
     {

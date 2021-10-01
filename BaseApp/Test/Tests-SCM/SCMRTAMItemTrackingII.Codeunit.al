@@ -1989,7 +1989,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         with WarehouseActivityLine do begin
             LookUpTrackingSummary(
               WarehouseActivityLine,
-              ("Activity Type" <= "Activity Type"::Movement) or ("Action Type" <> "Action Type"::Place),
+              ("Activity Type".AsInteger() <= "Activity Type"::Movement.AsInteger()) or ("Action Type" <> "Action Type"::Place),
               -1, "Item Tracking Type"::"Lot No."); // LOOKUP
 
             // [THEN] "Expiration Date" is preserved in Pick lines.
@@ -2012,7 +2012,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseEmployee: Record "Warehouse Employee";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ItemNo: Code[20];
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Warehouse] [Lot Tracking] [Inventory Movement]
         // [SCENARIO 378930] Inventory movement is registered for item with Lot Tracking and Bin Code when Bin Types does not exist
@@ -2052,7 +2052,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         TransferHeader: Record "Transfer Header";
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Qty: Decimal;
         QtyRemToPutaway: Decimal;
     begin
@@ -2673,7 +2673,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         BlanketSalesLine: Record "Sales Line";
         SalesLine: Record "Sales Line";
         SalesOrderNo: Code[20];
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Sales] [Blanket Order] [Order]
         // [SCENARIO 340083] Item Tracking on a sales order line created from blanket order matches the quantity being ordered.
@@ -2999,7 +2999,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Item.Modify(true);
     end;
 
-    local procedure CreateAndPostItemJnlLineWithLot(ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    local procedure CreateAndPostItemJnlLineWithLot(ItemNo: Code[20]; LotNo: Code[50]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -3056,7 +3056,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Receive, Invoice);
     end;
 
-    local procedure CreateAndPostPurchaseOrderWithLotTrackedLines(LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal; NoOfLines: Integer)
+    local procedure CreateAndPostPurchaseOrderWithLotTrackedLines(LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[50]; Qty: Decimal; NoOfLines: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -3181,7 +3181,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibrarySales.PostSalesDocument(SalesHeader, Ship, Invoice);
     end;
 
-    local procedure CreateAndShipTransferOrderWithLotTrackedLines(var TransferHeader: Record "Transfer Header"; LocationFromCode: Code[10]; LocationToCode: Code[10]; LocationInTransitCode: Code[10]; ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal; NoOfLines: Integer)
+    local procedure CreateAndShipTransferOrderWithLotTrackedLines(var TransferHeader: Record "Transfer Header"; LocationFromCode: Code[10]; LocationToCode: Code[10]; LocationInTransitCode: Code[10]; ItemNo: Code[20]; LotNo: Code[50]; Qty: Decimal; NoOfLines: Integer)
     var
         TransferLine: Record "Transfer Line";
         i: Integer;
@@ -3195,7 +3195,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryInventory.PostTransferHeader(TransferHeader, true, false);
     end;
 
-    local procedure AddItemTrackingToTransferLine(var TransferLine: Record "Transfer Line"; LotNo: Code[20]; Qty: Decimal)
+    local procedure AddItemTrackingToTransferLine(var TransferLine: Record "Transfer Line"; LotNo: Code[50]; Qty: Decimal)
     var
         Direction: Option Outbound,Inbound;
     begin
@@ -3427,7 +3427,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseReceiptLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; LotNoFilter: Text; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; LotNoFilter: Text; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
@@ -3438,7 +3438,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3453,7 +3453,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Option; AutoFillQuantity: Boolean) WhseActivityHeaderNo: Code[20]
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; AutoFillQuantity: Boolean) WhseActivityHeaderNo: Code[20]
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -3464,7 +3464,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WhseActivityHeaderNo := WarehouseActivityHeader."No.";
     end;
 
-    local procedure RegisterAndDeleteWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Option)
+    local procedure RegisterAndDeleteWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -3473,7 +3473,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseActivityHeader.Delete(true);
     end;
 
-    local procedure PostInventoryActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Option)
+    local procedure PostInventoryActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -3482,7 +3482,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
     end;
 
-    local procedure PostWhseReceiptAndRegisterWarehouseActivity(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Option; AutoFillQuantity: Boolean)
+    local procedure PostWhseReceiptAndRegisterWarehouseActivity(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; AutoFillQuantity: Boolean)
     begin
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
         RegisterWarehouseActivity(SourceNo, SourceDocument, LocationCode, ItemNo, ActivityType, AutoFillQuantity);
@@ -3503,7 +3503,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
     end;
 
-    local procedure CreateWhseWorksheetName(var WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10]; Type: Option)
+    local procedure CreateWhseWorksheetName(var WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10]; Type: Enum "Warehouse Worksheet Template Type")
     var
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
     begin
@@ -3586,7 +3586,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         ItemLedgerEntry.FindSet();
     end;
 
-    local procedure CreateWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WorksheetTemplateName: Code[10]; Name: Code[10]; WhseDocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WorksheetTemplateName: Code[10]; Name: Code[10]; WhseDocumentType: Enum "Warehouse Worksheet Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
         LibraryWarehouse.CreateWhseWorksheetLine(WhseWorksheetLine, WorksheetTemplateName, Name, LocationCode, WhseDocumentType);
         WhseWorksheetLine.Validate("Item No.", ItemNo);
@@ -3837,7 +3837,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
           WarehouseActivityLine."Activity Type"::Pick, true);
     end;
 
-    local procedure UpdateQtyToHandleOnWhsePutawayLine(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[20]; QtyToHandle: Decimal)
+    local procedure UpdateQtyToHandleOnWhsePutawayLine(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[50]; QtyToHandle: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
         i: Integer;
@@ -3845,7 +3845,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         with WarehouseActivityLine do begin
             FindWarehouseActivityLine(
               WarehouseActivityLine, SourceNo, SourceDocument, LocationCode, ItemNo, LotNo, "Activity Type"::"Put-away");
-            for i := "Action Type"::Take to "Action Type"::Place do begin
+            for i := "Action Type"::Take.AsInteger() to "Action Type"::Place.AsInteger() do begin
                 SetRange("Action Type", i);
                 FindLast;
                 Validate("Qty. to Handle", QtyToHandle);
@@ -3863,7 +3863,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
     end;
 
-    local procedure UpdateSerialAndLotNoOnWarehouseActivityLine(ItemNo: Code[20]; ProductionOrderNo: Code[20]; LocationCode: Code[10]; ActionType: Option)
+    local procedure UpdateSerialAndLotNoOnWarehouseActivityLine(ItemNo: Code[20]; ProductionOrderNo: Code[20]; LocationCode: Code[10]; ActionType: Enum "Warehouse Action Type")
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -4028,7 +4028,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         ReservationEntry.ModifyAll("Expiration Date", ExpirationDate, true);
     end;
 
-    local procedure UpdateLotNoOnInventoryMovementLine(ActionType: Option; LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[20])
+    local procedure UpdateLotNoOnInventoryMovementLine(ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[50])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -4067,7 +4067,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         end;
     end;
 
-    local procedure CreateInvtMvtFromInternalMvtWithLotNo(LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20]; LotNo: Code[20])
+    local procedure CreateInvtMvtFromInternalMvtWithLotNo(LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20]; LotNo: Code[50])
     var
         InternalMovementHeader: Record "Internal Movement Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -4103,7 +4103,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         ItemJournalLine.Modify(true);
     end;
 
-    local procedure UpdateInventoryWithLotViaWhseJournal(ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[20]; Qty: Decimal)
+    local procedure UpdateInventoryWithLotViaWhseJournal(ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[50]; Qty: Decimal)
     begin
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty);
@@ -4173,7 +4173,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         end;
     end;
 
-    local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; ActivityType: Option)
+    local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -4185,7 +4185,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         until WarehouseActivityLine.Next = 0;
     end;
 
-    local procedure VerifyRegisteredWhseActivityLine(ActivityType: Option; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure VerifyRegisteredWhseActivityLine(ActivityType: Enum "Warehouse Activity Type"; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; Quantity: Decimal)
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -4200,7 +4200,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         until RegisteredWhseActivityLine.Next = 0;
     end;
 
-    local procedure VerifyRegistedInvtMovementLine(ItemNo: Code[20]; LotNo: Code[20]; BinCode: Code[20])
+    local procedure VerifyRegistedInvtMovementLine(ItemNo: Code[20]; LotNo: Code[50]; BinCode: Code[20])
     var
         DummyRegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
     begin

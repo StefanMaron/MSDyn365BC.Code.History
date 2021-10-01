@@ -16,11 +16,9 @@ table 90 "BOM Component"
         {
             Caption = 'Line No.';
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "BOM Component Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Item,Resource';
-            OptionMembers = " ",Item,Resource;
 
             trigger OnValidate()
             begin

@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135536 "Sales Credit Memo E2E Test"
 {
     Subtype = Test;
@@ -644,4 +645,4 @@ codeunit 135536 "Sales Credit Memo E2E Test"
           SalesHeader1RecordRef, SalesHeader2RecordRef, TempIgnoredFieldsForComparison, 'Credit Memos do not match');
     end;
 }
-
+#endif

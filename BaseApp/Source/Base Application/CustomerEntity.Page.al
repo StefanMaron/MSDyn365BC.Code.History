@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5471 "Customer Entity"
 {
     Caption = 'customers', Locked = true;
@@ -280,6 +281,7 @@ page 5471 "Customer Entity"
                     ApplicationArea = All;
                     Caption = 'LastModifiedDateTime', Locked = true;
                 }
+#if not CLEAN18                  
                 part(picture; "Picture Entity")
                 {
                     ApplicationArea = All;
@@ -296,6 +298,7 @@ page 5471 "Customer Entity"
                     EntitySetName = 'defaultDimensions';
                     SubPageLink = ParentId = FIELD(SystemId);
                 }
+#endif                
             }
         }
     }
@@ -450,4 +453,4 @@ page 5471 "Customer Entity"
             RegisterFieldSet(FieldNo(County));
     end;
 }
-
+#endif

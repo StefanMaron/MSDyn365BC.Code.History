@@ -61,7 +61,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
                 }
@@ -81,6 +81,13 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies either the name of, or a description of, the item or general ledger account.';
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {

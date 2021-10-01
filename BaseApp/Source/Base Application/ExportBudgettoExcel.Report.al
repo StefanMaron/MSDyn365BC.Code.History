@@ -131,7 +131,7 @@ report 82 "Export Budget to Excel"
                                     TempPeriod.Get(0, TempBudgetBuf2.Date);
                                     EnterCell(
                                       RowNo, NoOfDimensions + 2 + TempPeriod."Period No.",
-                                      MatrixMgt.FormatValue(TempBudgetBuf2.Amount, RoundingFactor, false),
+                                      MatrixMgt.FormatAmount(TempBudgetBuf2.Amount, RoundingFactor, false),
                                       GLAcc."Account Type" <> GLAcc."Account Type"::Posting,
                                       false, '', ExcelBuf."Cell Type"::Number);
                                     TempPeriod.Next;
@@ -357,7 +357,7 @@ report 82 "Export Budget to Excel"
         ColumnDimCode: array[8] of Code[20];
         HasFormulaError: Boolean;
         IncludeTotalingFormulas: Boolean;
-        RoundingFactor: Option "None","1","1000","1000000";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         HeaderRowNo: Integer;
         BusUnitDimIndex: Integer;
         BusUnitDimCode: Code[20];

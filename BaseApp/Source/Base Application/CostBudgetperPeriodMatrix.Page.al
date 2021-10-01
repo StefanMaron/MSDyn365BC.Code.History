@@ -380,7 +380,7 @@ page 1131 "Cost Budget per Period Matrix"
     var
         MATRIX_CurrentColumnOrdinal: Integer;
     begin
-        for MATRIX_CurrentColumnOrdinal := 1 to MATRIX_CurrentNoOfMatrixColumn do
+        for MATRIX_CurrentColumnOrdinal := 1 to CurrentNoOfMatrixColumn do
             MATRIX_OnAfterGetRecord(MATRIX_CurrentColumnOrdinal);
         NameIndent := Indentation;
         Emphasize := Type <> Type::"Cost Type";
@@ -395,9 +395,9 @@ page 1131 "Cost Budget per Period Matrix"
         BudgetFilter: Code[10];
         MATRIX_ColumnCaption: array[12] of Text[80];
         RoundingFactorFormatString: Text;
-        AmtType: Option "Balance at Date","Net Change";
-        RoundingFactor: Option "None","1","1000","1000000";
-        MATRIX_CurrentNoOfMatrixColumn: Integer;
+        AmtType: Enum "Analysis Amount Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        CurrentNoOfMatrixColumn: Integer;
         MATRIX_CellData: array[32] of Decimal;
         [InDataSet]
         Emphasize: Boolean;
@@ -418,29 +418,39 @@ page 1131 "Cost Budget per Period Matrix"
             SetRange("Date Filter", 0D, MatrixRecords[MATRIX_ColumnOrdinal]."Period End");
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by LoadMatrix().', '19.0')]
     procedure Load(MatrixColumns1: array[32] of Text[80]; var MatrixRecords1: array[32] of Record Date; CurrentNoOfMatrixColumns: Integer; CostCenterFilter1: Code[20]; CostObjectFilter1: Code[20]; BudgetFilter1: Code[10]; RoundingFactor1: Option "None","1","1000","1000000"; AmtType1: Option "Balance at Date","Net Change")
+    begin
+        LoadMatrix(
+            MatrixColumns1, MatrixRecords1, CurrentNoOfMatrixColumns, CostCenterFilter1, CostObjectFilter1,
+            BudgetFilter1, "Analysis Rounding Factor".FromInteger(RoundingFactor1), "Analysis Amount Type".FromInteger(AmtType1));
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[80]; var NewMatrixRecords: array[32] of Record Date; NewCurrentNoOfMatrixColumns: Integer; NewCostCenterFilter: Code[20]; NewCostObjectFilter: Code[20]; NewBudgetFilter: Code[10]; NewRoundingFactor: Enum "Analysis Rounding Factor"; NewAmountType: Enum "Analysis Amount Type")
     var
         i: Integer;
     begin
         for i := 1 to 12 do begin
-            if MatrixColumns1[i] = '' then
+            if NewMatrixColumns[i] = '' then
                 MATRIX_ColumnCaption[i] := ' '
             else
-                MATRIX_ColumnCaption[i] := MatrixColumns1[i];
-            MatrixRecords[i] := MatrixRecords1[i];
+                MATRIX_ColumnCaption[i] := NewMatrixColumns[i];
+            MatrixRecords[i] := NewMatrixRecords[i];
         end;
         if MATRIX_ColumnCaption[1] = '' then; // To make this form pass preCAL test
 
-        if CurrentNoOfMatrixColumns > ArrayLen(MATRIX_CellData) then
-            MATRIX_CurrentNoOfMatrixColumn := ArrayLen(MATRIX_CellData)
+        if NewCurrentNoOfMatrixColumns > ArrayLen(MATRIX_CellData) then
+            CurrentNoOfMatrixColumn := ArrayLen(MATRIX_CellData)
         else
-            MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
-        CostCenterFilter := CostCenterFilter1;
-        CostObjectFilter := CostObjectFilter1;
-        BudgetFilter := BudgetFilter1;
-        RoundingFactor := RoundingFactor1;
-        AmtType := AmtType1;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
+            CurrentNoOfMatrixColumn := NewCurrentNoOfMatrixColumns;
+        CostCenterFilter := NewCostCenterFilter;
+        CostObjectFilter := NewCostObjectFilter;
+        BudgetFilter := NewBudgetFilter;
+        RoundingFactor := NewRoundingFactor;
+        AmtType := NewAmountType;
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(NewRoundingFactor, false);
 
         CurrPage.Update(false);
     end;
@@ -474,7 +484,7 @@ page 1131 "Cost Budget per Period Matrix"
     begin
         SetFilters(ColumnID);
         CalcFields("Budget Amount");
-        MATRIX_CellData[ColumnID] := MatrixMgt.RoundValue("Budget Amount", RoundingFactor);
+        MATRIX_CellData[ColumnID] := MatrixMgt.RoundAmount("Budget Amount", RoundingFactor);
     end;
 
     local procedure UpdateAmount(ColumnID: Integer)

@@ -11,8 +11,10 @@ permissionset 9886 "D365 JOBS, EDIT"
                   tabledata Job = IMD,
                   tabledata "Job Cue" = IMD,
                   tabledata "Job Entry No." = IMD,
+#if not CLEAN19
                   tabledata "Job G/L Account Price" = IMD,
                   tabledata "Job Item Price" = IMD,
+#endif
                   tabledata "Job Journal Batch" = IMD,
                   tabledata "Job Journal Line" = IMD,
                   tabledata "Job Journal Quantity" = IMD,
@@ -21,7 +23,9 @@ permissionset 9886 "D365 JOBS, EDIT"
                   tabledata "Job Planning Line" = IMD,
                   tabledata "Job Planning Line Invoice" = IMD,
                   tabledata "Job Register" = imd,
+#if not CLEAN19
                   tabledata "Job Resource Price" = IMD,
+#endif
                   tabledata "Job Task" = IMD,
                   tabledata "Job Task Dimension" = IMD,
                   tabledata "Job Usage Link" = IMD,

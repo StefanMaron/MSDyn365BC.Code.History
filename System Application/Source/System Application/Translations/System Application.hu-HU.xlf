@@ -3,71 +3,6 @@
   <file datatype="xml" source-language="en-US" target-language="hu-HU" original="System Application">
     <body>
       <group id="body">
-        <trans-unit id="Table 1483379216 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Aggregated Assisted Setup</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 3512150049 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Assisted Setup Page ID</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field Assisted Setup Page ID - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 1869133296 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>External Assisted Setup</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field External Assisted Setup - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 4036313429 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Icon</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field Icon - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 4093180191 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Item Type</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field Item Type - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 4093180191 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> ,Group,Setup and Help</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field Item Type - Property OptionCaption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 146219450 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Order</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field Order - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 894914730 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Page ID</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field Page ID - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 2897660500 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Record ID</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field Record ID - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 513339096 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Status</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field Status - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 513339096 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Not Completed,Completed,Not Started,Seen,Watched,Read, </source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field Status - Property OptionCaption</note>
-        </trans-unit>
-        <trans-unit id="Table 1483379216 - Field 1539408610 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Visible</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Aggregated Assisted Setup - Field Visible - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 799089619 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assisted Setup</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -77,11 +12,6 @@
           <source>App ID</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field App ID - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 799089619 - Field 3512150049 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Assisted Setup Page ID</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Assisted Setup Page ID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 799089619 - Field 3665605423 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Completed</source>
@@ -98,20 +28,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Extension Name - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 799089619 - Field 3950520716 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Featured</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Featured - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 799089619 - Field 366198708 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Group</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Group Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 799089619 - Field 1358400863 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Help Status</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Help Status - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 799089619 - Field 1513519486 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Help Url</source>
@@ -123,95 +43,25 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Icon - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 799089619 - Field 4093180191 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Item Type</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Item Type - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 799089619 - Field 4093180191 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> ,Group,Setup and Help</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Item Type - Property OptionCaption</note>
-        </trans-unit>
         <trans-unit id="Table 799089619 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 799089619 - Field 146219450 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Order</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Order - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 799089619 - Field 894914730 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Page ID</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Page ID - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 799089619 - Field 4206260792 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Parent</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Parent - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 799089619 - Field 513339096 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Status</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Status - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 799089619 - Field 513339096 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Not Completed,Completed,Not Started,Seen,Watched,Read, </source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Status - Property OptionCaption</note>
-        </trans-unit>
-        <trans-unit id="Table 799089619 - Field 62955203 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Tour Id</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Tour Id - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 799089619 - Field 2362958084 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Tour Status</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Tour Status - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 799089619 - Field 649174547 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Video Category</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Video Category - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 799089619 - Field 448805223 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Video Status</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Video Status - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 799089619 - Field 692639126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Video Url</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Video Url - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 799089619 - Field 1539408610 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Visible</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup - Field Visible - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3440859411 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Assisted Setup Icons</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup Icons - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3440859411 - Field 320775665 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Image</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup Icons - Field Image - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3440859411 - Field 4091014368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Media Resources Ref</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup Icons - Field Media Resources Ref - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3440859411 - Field 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>No.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup Icons - Field No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 812764647 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assisted Setup Log</source>
@@ -227,16 +77,6 @@
           <source>Entery No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup Log - Field Entery No. - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 812764647 - Field 680169230 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Invoked Action</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup Log - Field Invoked Action - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 812764647 - Field 680169230 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> ,Video,Help,Tour,Assisted Setup</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Assisted Setup Log - Field Invoked Action - Property OptionCaption</note>
         </trans-unit>
         <trans-unit id="Table 812764647 - Field 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No.</source>
@@ -657,36 +497,6 @@
           <source>Video Url</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Buffer - Field Video Url - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3123343958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Product Video Category</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Category - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3123343958 - Field 529658396 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Alternate Title</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Category - Field Alternate Title - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3123343958 - Field 2997031112 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Assisted Setup ID</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Category - Field Assisted Setup ID - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3123343958 - Field 3702373668 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Category</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Category - Field Category - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3123343958 - Field 3702373668 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> ,Getting Started,,Finance &amp; Bookkeeping,Sales,Reporting &amp; BI,Inventory Management,Project Management,Workflows,Services &amp; Extensions,Setup,Warehouse Management</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Category - Field Category - Property OptionCaption</note>
-        </trans-unit>
-        <trans-unit id="Table 3123343958 - Field 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ID</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Product Video Category - Field ID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3181557883 - Field 2649176925 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>End Date</source>
@@ -1597,11 +1407,6 @@
           <source>Specifies the extension which has added this setup.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Assisted Setup - Control Extension Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 799089619 - Control 4105281732 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Group</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Assisted Setup - Control GroupName - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 799089619 - Control 1575635115 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Help</source>

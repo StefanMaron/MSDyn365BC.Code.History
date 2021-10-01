@@ -1,5 +1,6 @@
 codeunit 139164 "Library - CRM Integration"
 {
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -19,6 +20,7 @@ codeunit 139164 "Library - CRM Integration"
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         IntegrationManagement: Codeunit "Integration Management";
         LibraryERM: Codeunit "Library - ERM";
         DefaultUoMNameTxt: Label 'BOX';
@@ -142,6 +144,7 @@ codeunit 139164 "Library - CRM Integration"
         CreateCurrency(Currency);
         CreateCRMTransactionCurrency(CRMTransactioncurrency, CopyStr(Currency.Code, 1, 5));
         CoupleRecordIdToCRMId(Currency.RecordId, CRMTransactioncurrency.TransactionCurrencyId);
+        Currency.Find();
     end;
 
     [Scope('OnPrem')]
@@ -150,6 +153,7 @@ codeunit 139164 "Library - CRM Integration"
         CreateCurrency(Currency);
         CreateCRMTransactionCurrency(CRMTransactioncurrency, CopyStr(LibraryERM.GetLCYCode, 1, 5));
         CoupleRecordIdToCRMId(Currency.RecordId, CRMTransactioncurrency.TransactionCurrencyId);
+        Currency.Find();
     end;
 
     [Scope('OnPrem')]
@@ -166,6 +170,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMAccount.OwnerId := CRMSystemuser.SystemUserId;
         CreateCRMAccount(CRMAccount);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId, CRMAccount.AccountId);
+        Customer.Find();
     end;
 
     [Scope('OnPrem')]
@@ -176,6 +181,7 @@ codeunit 139164 "Library - CRM Integration"
         CreateCRMContactWithCoupledOwner(CRMContact);
         CreateContact(Contact);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
+        Contact.Find();
     end;
 
     [Scope('OnPrem')]
@@ -212,8 +218,10 @@ codeunit 139164 "Library - CRM Integration"
 
         // Couple NAV Customer Price Group and CRM Pricelevel
         CoupleRecordIdToCRMId(CustomerPriceGroup.RecordId, CRMPricelevel.PriceLevelId);
+        CustomerPriceGroup.Find();
     end;
 
+#if not CLEAN19
     [Scope('OnPrem')]
     procedure CreateCoupledSalesPriceAndPricelistLine(CustomerPriceGroup: Record "Customer Price Group"; var SalesPrice: Record "Sales Price"; var CRMProductpricelevel: Record "CRM Productpricelevel")
     var
@@ -231,8 +239,9 @@ codeunit 139164 "Library - CRM Integration"
         CRMPricelevel.Get(CRMIntegrationRecord."CRM ID");
         CreateCRMPricelistLine(CRMProductpricelevel, CRMPricelevel, CRMProduct);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesPrice.RecordId, CRMProductpricelevel.ProductPriceLevelId);
+        SalesPrice.Find();
     end;
-
+#endif
     [Scope('OnPrem')]
     procedure CreateCoupledPriceListHeaderAndPricelevel(var PriceListHeader: Record "Price List Header"; var CRMPricelevel: Record "CRM Pricelevel")
     var
@@ -247,6 +256,7 @@ codeunit 139164 "Library - CRM Integration"
         PriceListHeader.Modify();
 
         CreateCoupledPriceListHeaderAndPricelevelWithTransactionCurrency(PriceListHeader, CRMPricelevel, CRMTransactioncurrency);
+        PriceListHeader.Find();
     end;
 
     [Scope('OnPrem')]
@@ -268,6 +278,7 @@ codeunit 139164 "Library - CRM Integration"
 
         // Couple NAV PriceListHeader and CRM Pricelevel
         CoupleRecordIdToCRMId(PriceListHeader.RecordId, CRMPricelevel.PriceLevelId);
+        PriceListHeader.Find();
     end;
 
     [Scope('OnPrem')]
@@ -308,6 +319,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMProduct.Modify();
 
         CoupleRecordIdToCRMId(Resource.RecordId, CRMProduct.ProductId);
+        Resource.Find();
     end;
 
     [Scope('OnPrem')]
@@ -328,6 +340,7 @@ codeunit 139164 "Library - CRM Integration"
         CreateCRMProduct(CRMProduct, CRMTransactioncurrency, CRMUom);
 
         CoupleRecordIdToCRMId(Item.RecordId, CRMProduct.ProductId);
+        Item.Find();
     end;
 
     [Scope('OnPrem')]
@@ -338,6 +351,7 @@ codeunit 139164 "Library - CRM Integration"
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         CreateCRMSystemUser(CRMSystemuser);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SalespersonPurchaser.RecordId, CRMSystemuser.SystemUserId);
+        SalesPersonPurchaser.Find();
     end;
 
     [Scope('OnPrem')]
@@ -352,6 +366,41 @@ codeunit 139164 "Library - CRM Integration"
 
         // Couple NAV Unit of Measure and CRM UoM Schedule
         CoupleRecordIdToCRMId(UnitOfMeasure.RecordId, CRMUomschedule.UoMScheduleId);
+        UnitOfMeasure.Find();
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateCoupledItemUnitGroupAndUomSchedule(var UnitGroup: Record "Unit Group"; var CRMUomschedule: Record "CRM Uomschedule")
+    var
+        Item: Record Item;
+    begin
+        // Create the NAV Item
+        LibraryInventory.CreateItem(Item);
+        UnitGroup.Get(UnitGroup."Source Type"::Item, Item.SystemId);
+
+        // Create the CRM Uomschedule
+        CreateCRMUomschedule(CRMUomschedule, UnitGroup.Code);
+
+        // Couple NAV Unit of Measure and CRM UoM Schedule
+        CoupleRecordIdToCRMId(UnitGroup.RecordId, CRMUomschedule.UoMScheduleId);
+        UnitGroup.Find();
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateCoupledResourceUnitGroupAndUomSchedule(var UnitGroup: Record "Unit Group"; var CRMUomschedule: Record "CRM Uomschedule")
+    var
+        Resource: Record Resource;
+    begin
+        // Create the NAV Resource
+        LibraryResource.CreateResourceNew(Resource);
+        UnitGroup.Get(UnitGroup."Source Type"::Resource, Resource.SystemId);
+
+        // Create the CRM Uomschedule
+        CreateCRMUomschedule(CRMUomschedule, UnitGroup.Code);
+
+        // Couple NAV Unit of Measure and CRM UoM Schedule
+        CoupleRecordIdToCRMId(UnitGroup.RecordId, CRMUomschedule.UoMScheduleId);
+        UnitGroup.Find();
     end;
 
     [Scope('OnPrem')]
@@ -365,6 +414,7 @@ codeunit 139164 "Library - CRM Integration"
 
         // Couple NAV Opportunity and CRM Opportunity
         CoupleRecordIdToCRMId(Opportunity.RecordId, CRMOpportunity.OpportunityId);
+        Opportunity.Find();
     end;
 
     [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
@@ -391,6 +441,7 @@ codeunit 139164 "Library - CRM Integration"
         CRMTransactioncurrency.Get(CRMConnectionSetup.BaseCurrencyId);
         CreateCurrency(Currency);
         CoupleRecordIdToCRMId(Currency.RecordId, CRMTransactioncurrency.TransactionCurrencyId);
+        Currency.Find();
     end;
 
     [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
@@ -942,6 +993,25 @@ codeunit 139164 "Library - CRM Integration"
         CRMTransactioncurrency.CreatedOn := CurrentCRMDateTime();
         CRMTransactioncurrency.ModifiedOn := CRMTransactioncurrency.CreatedOn;
         CRMTransactioncurrency.Insert();
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateCRMUomschedule(var CRMUomschedule: Record "CRM Uomschedule"; CRMUomscheduleName: Text[200])
+    var
+        CRMSystemuser: Record "CRM Systemuser";
+    begin
+        EnsureCRMSystemUser();
+        CRMSystemuser.SetFilter(FirstName, '<>Integration');
+        CRMSystemuser.FindFirst;
+
+        Clear(CRMUomschedule);
+        CRMUomschedule.Init();
+        CRMUomschedule.Name := CRMUomscheduleName;
+        CRMUomschedule.CreatedBy := CRMSystemuser.SystemUserId;
+        CRMUomschedule.ModifiedBy := CRMSystemuser.SystemUserId;
+        CRMUomschedule.CreatedOn := CurrentCRMDateTime();
+        CRMUomschedule.ModifiedOn := CRMUomschedule.CreatedOn;
+        CRMUomschedule.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -1792,12 +1862,24 @@ codeunit 139164 "Library - CRM Integration"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
+        JobQueueEntryID := RunJobQueueEntryForIntTabMapping(IntegrationTableMapping, false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RunJobQueueEntryForIntTabMapping(IntegrationTableMapping: Record "Integration Table Mapping"; HandleError: Boolean) JobQueueEntryID: Guid
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
         JobQueueEntry.FindFirst;
         JobQueueEntryID := JobQueueEntry.ID;
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
-        CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
+        if HandleError then begin
+            asserterror LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
+            LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
+        end else
+            LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
     end;
 
     [Scope('OnPrem')]
@@ -1920,6 +2002,23 @@ codeunit 139164 "Library - CRM Integration"
     local procedure CurrentCRMDateTime(): DateTime
     begin
         exit(CurrentDateTime() + (CRMTimeDiffSeconds * 1000));
+    end;
+
+    procedure EnableUnitGroupMapping()
+    begin
+        UnbindSubscription(LibraryCRMIntegration);
+        BindSubscription(LibraryCRMIntegration);
+    end;
+
+    procedure DisableUnitGroupMapping()
+    begin
+        UnbindSubscription(LibraryCRMIntegration);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnIsUnitGroupMappingEnabled', '', false, false)]
+    procedure ExtendedPriceCalculationEnabledHandler(var FeatureEnabled: Boolean);
+    begin
+        FeatureEnabled := true;
     end;
 }
 

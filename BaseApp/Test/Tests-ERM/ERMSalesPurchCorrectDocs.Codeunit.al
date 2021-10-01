@@ -20,8 +20,8 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryErrorMessage: Codeunit "Library - Error Message";
         IsInitialized: Boolean;
-        COGSAccountEmptyErr: Label 'COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.';
         QtyErr: Label '%1 is wrong';
         CancelQtyErr: Label '%1 is wrong after cancel';
         CannotCancelSalesInvInventoryPeriodClosedErr: Label 'You cannot cancel this posted sales invoice because the posting inventory period is already closed.';
@@ -253,9 +253,11 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         CleanCOGSAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
 
         asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
-        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(
-          StrSubstNo(COGSAccountEmptyErr, GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group"));
+            LibraryErrorMessage.GetMissingAccountErrorMessage(
+                GeneralPostingSetup.FieldCaption("COGS Account"),
+                GeneralPostingSetup.TableCaption()));
 
         RestoreGenPostingSetup(GeneralPostingSetup);
     end;

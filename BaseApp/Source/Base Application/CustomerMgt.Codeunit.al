@@ -1,4 +1,4 @@
-﻿codeunit 1302 "Customer Mgt."
+codeunit 1302 "Customer Mgt."
 {
 
     trigger OnRun()

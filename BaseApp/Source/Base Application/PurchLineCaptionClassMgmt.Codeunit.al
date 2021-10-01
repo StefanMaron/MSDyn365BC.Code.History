@@ -53,11 +53,19 @@ codeunit 346 "Purch. Line CaptionClass Mgmt"
     begin
         GlobalPurchaseHeader := PurchaseHeader;
     end;
-
+#if not CLEAN19
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnValidatePurchaseHeaderPayToVendorNo', '', true, true)]
+    [Obsolete('Replaced by UpdatePurchLineFieldsCaptionOnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType', '19.0')]
     local procedure UpdatePurchLineFieldsCaptionOnValidatePurchaseHeaderPayToVendorNo(var Sender: Record "Purchase Header"; Vendor: Record Vendor)
     begin
         GlobalPurchaseHeader := Sender;
     end;
+#endif
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType', '', true, true)]
+    local procedure UpdatePurchLineFieldsCaptionOnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header")
+    begin
+        GlobalPurchaseHeader := PurchaseHeader;
+    end;
+
 }
 

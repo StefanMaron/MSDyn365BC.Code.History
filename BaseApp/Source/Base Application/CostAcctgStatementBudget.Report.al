@@ -94,7 +94,7 @@ report 1133 "Cost Acctg. Statement/Budget"
                 PageGroupNo := NextPageGroupNo;
                 if "New Page" then
                     NextPageGroupNo := PageGroupNo + 1;
-                CostTypeLineType := Type;
+                CostTypeLineType := Type.AsInteger();
             end;
 
             trigger OnPreDataItem()

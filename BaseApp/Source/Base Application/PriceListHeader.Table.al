@@ -137,9 +137,7 @@ table 7000 "Price List Header"
                 PriceSource.Validate("Starting Date", "Starting Date");
                 CopyFrom(PriceSource);
 
-                if not UpdateLines(FieldNo("Starting Date"), FieldCaption("Starting Date")) then
-                    if not "Allow Updating Defaults" then
-                        "Starting Date" := xRec."Starting Date";
+                UpdateLines(FieldNo("Starting Date"), FieldCaption("Starting Date"));
             end;
         }
         field(12; "Ending Date"; Date)
@@ -156,9 +154,7 @@ table 7000 "Price List Header"
                 PriceSource.Validate("Ending Date", "Ending Date");
                 CopyFrom(PriceSource);
 
-                if not UpdateLines(FieldNo("Ending Date"), FieldCaption("Ending Date")) then
-                    if not "Allow Updating Defaults" then
-                        "Ending Date" := xRec."Ending Date";
+                UpdateLines(FieldNo("Ending Date"), FieldCaption("Ending Date"));
             end;
         }
         field(13; "Price Includes VAT"; Boolean)
@@ -460,27 +456,27 @@ table 7000 "Price List Header"
         exit("Amount Type"::Any);
     end;
 
-    local procedure UpdateLines(FieldId: Integer; Caption: Text) Updated: Boolean;
+    local procedure UpdateLines(FieldId: Integer; Caption: Text)
     var
         PriceListLine: Record "Price List Line";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        Updated := true;
         if IsTemporary() then
             exit;
         PriceListLine.SetRange("Price List Code", Code);
         if PriceListLine.IsEmpty() then
             exit;
 
-        if ConfirmManagement.GetResponse(StrSubstNo(ConfirmUpdateQst, Caption), true) then
-            case FieldId of
-                FieldNo("Starting Date"):
-                    PriceListLine.ModifyAll("Starting Date", "Starting Date");
-                FieldNo("Ending Date"):
-                    PriceListLine.ModifyAll("Ending Date", "Ending Date");
-            end
-        else
-            Updated := false;
+        if "Allow Updating Defaults" then
+            if not ConfirmManagement.GetResponse(StrSubstNo(ConfirmUpdateQst, Caption), true) then
+                exit;
+
+        case FieldId of
+            FieldNo("Starting Date"):
+                PriceListLine.ModifyAll("Starting Date", "Starting Date");
+            FieldNo("Ending Date"):
+                PriceListLine.ModifyAll("Ending Date", "Ending Date");
+        end
     end;
 
     local procedure TestStatusDraft()

@@ -6,11 +6,9 @@ table 5773 "Registered Whse. Activity Line"
 
     fields
     {
-        field(1; "Activity Type"; Option)
+        field(1; "Activity Type"; Enum "Warehouse Activity Type")
         {
             Caption = 'Activity Type';
-            OptionCaption = ' ,Put-away,Pick,Movement';
-            OptionMembers = " ","Put-away",Pick,Movement;
         }
         field(2; "No."; Code[20])
         {
@@ -207,19 +205,15 @@ table 5773 "Registered Whse. Activity Line"
             Caption = 'Zone Code';
             TableRelation = Zone.Code WHERE("Location Code" = FIELD("Location Code"));
         }
-        field(7305; "Action Type"; Option)
+        field(7305; "Action Type"; Enum "Warehouse Action Type")
         {
             Caption = 'Action Type';
             Editable = false;
-            OptionCaption = ' ,Take,Place';
-            OptionMembers = " ",Take,Place;
         }
-        field(7306; "Whse. Document Type"; Option)
+        field(7306; "Whse. Document Type"; Enum "Warehouse Activity Document Type")
         {
             Caption = 'Whse. Document Type';
             Editable = false;
-            OptionCaption = ' ,Receipt,Shipment,Internal Put-away,Internal Pick,Production,Movement Worksheet,,Assembly';
-            OptionMembers = " ",Receipt,Shipment,"Internal Put-away","Internal Pick",Production,"Movement Worksheet",,Assembly;
         }
         field(7307; "Whse. Document No."; Code[20])
         {

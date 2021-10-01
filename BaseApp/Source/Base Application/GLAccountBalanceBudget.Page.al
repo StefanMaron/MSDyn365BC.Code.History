@@ -31,7 +31,6 @@ page 154 "G/L Account Balance/Budget"
                 {
                     ApplicationArea = Suite;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
@@ -54,7 +53,6 @@ page 154 "G/L Account Balance/Budget"
                 {
                     ApplicationArea = Suite;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -248,8 +246,8 @@ page 154 "G/L Account Balance/Budget"
 
     var
         GLSetup: Record "General Ledger Setup";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
         ClosingEntryFilter: Option Include,Exclude;
         GlobalDim1FilterEnable: Boolean;
         GlobalDim2FilterEnable: Boolean;
@@ -259,7 +257,7 @@ page 154 "G/L Account Balance/Budget"
 
     local procedure UpdateSubForm()
     begin
-        CurrPage.GLBalanceLines.PAGE.Set(Rec, PeriodType, AmountType, ClosingEntryFilter);
+        CurrPage.GLBalanceLines.PAGE.SetLines(Rec, PeriodType, AmountType, ClosingEntryFilter);
     end;
 
     local procedure DayPeriodTypeOnPush()

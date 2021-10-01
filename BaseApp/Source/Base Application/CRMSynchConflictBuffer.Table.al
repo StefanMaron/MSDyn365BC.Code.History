@@ -87,7 +87,7 @@ table 5374 "CRM Synch. Conflict Buffer"
         field(6; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(7; Description; Text[250])
         {
@@ -107,7 +107,7 @@ table 5374 "CRM Synch. Conflict Buffer"
         field(10; "Int. Record ID"; RecordID)
         {
             Caption = 'Int. Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(11; "Int. Description"; Text[250])
         {
@@ -132,10 +132,15 @@ table 5374 "CRM Synch. Conflict Buffer"
         field(15; "Deleted On"; DateTime)
         {
             Caption = 'Deleted On';
-            ObsoleteState = Pending;
             ObsoleteReason = 'This field is obsolete and should not be used after Integration Record is deprecated.';
-            DataClassification = SystemMetadata;
+#if CLEAN19
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '16.0';
+#endif
+            DataClassification = SystemMetadata;
         }
         field(16; "Record Exists"; Boolean)
         {
@@ -391,14 +396,118 @@ table 5374 "CRM Synch. Conflict Buffer"
     procedure RestoreDeletedRecords()
     var
         TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        LocalIdListDictionary: Dictionary of [Code[20], List of [Guid]];
+        CRMIdListDictionary: Dictionary of [Code[20], List of [Guid]];
     begin
-        TempCRMSynchConflictBuffer.Copy(Rec, true);
-        if TempCRMSynchConflictBuffer.FindSet then
-            repeat
-                TempCRMSynchConflictBuffer.RestoreDeletedRecord;
-            until TempCRMSynchConflictBuffer.Next() = 0;
+        CollectDeletedRecords(TempCRMSynchConflictBuffer, LocalIdListDictionary, CRMIdListDictionary);
+        DeleteCouplings(TempCRMSynchConflictBuffer, LocalIdListDictionary, CRMIdListDictionary);
+        CRMIntegrationManagement.CreateNewRecords(LocalIdListDictionary, CRMIdListDictionary);
     end;
 
+    local procedure CollectDeletedRecords(var TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary; var LocalIdListDictionary: Dictionary of [Code[20], List of [Guid]]; var CRMIdListDictionary: Dictionary of [Code[20], List of [Guid]])
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        MappingDictionary: Dictionary of [Integer, Code[20]];
+        LocalIdList: List of [Guid];
+        CRMIdList: List of [Guid];
+        MappingName: Code[20];
+        LocalTableId: Integer;
+        CRMTableId: Integer;
+    begin
+        TempCRMSynchConflictBuffer.Copy(Rec, true);
+        if not TempCRMSynchConflictBuffer.FindSet() then
+            exit;
+
+        repeat
+            if TempCRMSynchConflictBuffer.IsOneRecordDeleted() then begin
+                LocalTableId := TempCRMSynchConflictBuffer."Table ID";
+                CRMTableId := TempCRMSynchConflictBuffer."Int. Table ID";
+                if not MappingDictionary.ContainsKey(LocalTableId) then
+                    if IntegrationTableMapping.FindMapping(LocalTableId, CRMTableId) then begin
+                        MappingName := IntegrationTableMapping.Name;
+                        MappingDictionary.Add(LocalTableId, MappingName);
+                    end;
+                if MappingDictionary.Get(LocalTableId, MappingName) then
+                    if TempCRMSynchConflictBuffer."Record Exists" then begin
+                        if not LocalIdListDictionary.ContainsKey(MappingName) then begin
+                            Clear(LocalIdList);
+                            LocalIdListDictionary.Add(MappingName, LocalIdList);
+                        end;
+                        LocalIdList := LocalIdListDictionary.Get(MappingName);
+                        LocalIdList.Add(TempCRMSynchConflictBuffer."Integration ID")
+                    end else begin
+                        if not CRMIdListDictionary.ContainsKey(MappingName) then begin
+                            Clear(CRMIdList);
+                            CRMIdListDictionary.Add(MappingName, CRMIdList);
+                        end;
+                        CRMIdList := CRMIdListDictionary.Get(MappingName);
+                        CRMIdList.Add(TempCRMSynchConflictBuffer."CRM ID");
+                    end;
+            end;
+        until TempCRMSynchConflictBuffer.Next() = 0;
+    end;
+
+    local procedure DeleteCouplings(var TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary; var LocalIdListDictionary: Dictionary of [Code[20], List of [Guid]]; var CRMIdListDictionary: Dictionary of [Code[20], List of [Guid]])
+    begin
+        DeleteCouplingsForLocalRecords(TempCRMSynchConflictBuffer, LocalIdListDictionary);
+        DeleteCouplingsForCRMRecords(TempCRMSynchConflictBuffer, CRMIdListDictionary);
+    end;
+
+    local procedure DeleteCouplingsForLocalRecords(var TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary; var LocalIdListDictionary: Dictionary of [Code[20], List of [Guid]])
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        TempCopyCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
+        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        MappingList: List of [Code[20]];
+        LocalIdList: List of [Guid];
+        IdFilterList: List of [Text];
+        IdFilter: Text;
+        MappingName: Code[20];
+    begin
+        MappingList := LocalIdListDictionary.Keys();
+        foreach MappingName in MappingList do begin
+            LocalIdList := LocalIdListDictionary.Get(MappingName);
+            CRMIntegrationTableSynch.GetIdFilterList(LocalIdList, IdFilterList);
+            foreach IdFilter in IdFilterList do
+                if IdFilter <> '' then begin
+                    CRMIntegrationRecord.SetFilter("Integration ID", IdFilter);
+                    CRMIntegrationRecord.DeleteAll();
+                    TempCopyCRMSynchConflictBuffer.Copy(TempCRMSynchConflictBuffer, true);
+                    TempCopyCRMSynchConflictBuffer.SetFilter("Integration ID", IdFilter);
+                    TempCopyCRMSynchConflictBuffer.DeleteAll();
+                end;
+        end;
+    end;
+
+    local procedure DeleteCouplingsForCRMRecords(var TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary; var CRMIdListDictionary: Dictionary of [Code[20], List of [Guid]])
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        TempCopyCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
+        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        MappingList: List of [Code[20]];
+        CRMIdList: List of [Guid];
+        IdFilterList: List of [Text];
+        MappingName: Code[20];
+        IdFilter: Text;
+    begin
+        MappingList := CRMIdListDictionary.Keys();
+        foreach MappingName in MappingList do begin
+            CRMIdList := CRMIdListDictionary.Get(MappingName);
+            CRMIntegrationTableSynch.GetIdFilterList(CRMIdList, IdFilterList);
+            foreach IdFilter in IdFilterList do
+                if IdFilter <> '' then begin
+                    CRMIntegrationRecord.SetFilter("CRM ID", IdFilter);
+                    CRMIntegrationRecord.DeleteAll();
+                    TempCopyCRMSynchConflictBuffer.Copy(TempCRMSynchConflictBuffer, true);
+                    TempCopyCRMSynchConflictBuffer.SetFilter("CRM ID", IdFilter);
+                    TempCopyCRMSynchConflictBuffer.DeleteAll();
+                end;
+        end;
+    end;
+
+#if not CLEAN19
+    [Obsolete('Use RestoreDeletedRecords', '19.0')]
     procedure RestoreDeletedRecord()
     begin
         if IsOneRecordDeleted then
@@ -437,6 +546,7 @@ table 5374 "CRM Synch. Conflict Buffer"
             Delete;
         end;
     end;
+#endif
 
     procedure SetSelectionFilter(var CRMIntegrationRecord: Record "CRM Integration Record")
     begin

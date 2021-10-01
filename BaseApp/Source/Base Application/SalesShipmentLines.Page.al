@@ -51,6 +51,13 @@ page 5824 "Sales Shipment Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the item or general ledger account, or some descriptive text.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -191,6 +198,7 @@ page 5824 "Sales Shipment Lines"
     end;
 
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         FromSalesShptLine: Record "Sales Shipment Line";
         TempSalesShptLine: Record "Sales Shipment Line" temporary;
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";

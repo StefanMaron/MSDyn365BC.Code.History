@@ -42,10 +42,10 @@ page 9198 "Profile Import Result List"
 
     trigger OnAfterGetRecord()
     begin
-        ApplicationName := ConfPersonalizationMgt.ResolveAppNameFromAppId("Profile App ID");
+        ApplicationName := ExtensionManagement.GetAppName("Profile App ID");
     end;
 
     var
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+        ExtensionManagement: Codeunit "Extension Management";
         ApplicationName: Text;
 }

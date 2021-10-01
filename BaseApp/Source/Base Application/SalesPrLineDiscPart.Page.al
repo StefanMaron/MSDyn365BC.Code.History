@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1347 "Sales Pr. & Line Disc. Part"
 {
     Caption = 'Sales Prices';
@@ -379,4 +380,4 @@ page 1347 "Sales Pr. & Line Disc. Part"
         UpdatePriceIncludesVatAndPrices(Item, IncludesVat);
     end;
 }
-
+#endif

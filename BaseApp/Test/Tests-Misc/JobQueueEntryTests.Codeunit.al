@@ -13,6 +13,7 @@ codeunit 139018 "Job Queue Entry Tests"
         WrongEndingDateErr: Label 'Wrong ending date and time calculated.';
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
         NoErrorMessageMsg: Label 'There is no error message.';
         OnlyActiveCanBeMarkedErr: Label 'Only entries with the status In Progress can be marked as errors.';
         BackgroundSessionErr: Label 'Sessions cannot be started in tests that are run by a TestRunner that has TestIsolation set to Test or Codeunit.';
@@ -258,6 +259,7 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [FEATURE] [Job Queue Error Handler]
         // [GIVEN] An Error "Err" happens
+        BindSubscription(LibraryJobQueue);
         ExpectedErrorMessage := LibraryUtility.GenerateGUID;
         asserterror Error(ExpectedErrorMessage);
 
@@ -279,6 +281,7 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
         JobQueueLogEntry.FindLast;
         VerifyErrorInJobQueueEntryAndLog(JobQueueEntry, JobQueueLogEntry, ExpectedErrorMessage);
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]
@@ -291,6 +294,7 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [FEATURE] [Job Queue Error Handler]
         // [GIVEN] An Error "Err" happens
+        BindSubscription(LibraryJobQueue);
         ExpectedErrorMessage := LibraryUtility.GenerateGUID;
         asserterror Error(ExpectedErrorMessage);
         // [GIVEN] Job Queue Entry "A", where Status "In Process"
@@ -313,6 +317,7 @@ codeunit 139018 "Job Queue Entry Tests"
         // [THEN] Job Queue Entry "A" and Log entry "X" got Status "Error", "Error Message" is "Err"
         JobQueueLogEntry.Find;
         VerifyErrorInJobQueueEntryAndLog(JobQueueEntry, JobQueueLogEntry, ExpectedErrorMessage);
+        UnbindSubscription(LibraryJobQueue);
     end;
 
     [Test]

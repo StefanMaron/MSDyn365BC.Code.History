@@ -24,7 +24,7 @@ page 99000919 "Demand Forecast"
 
                     trigger OnValidate()
                     begin
-                        SetMatrix;
+                        SetMatrix();
                     end;
                 }
                 field(LocationFilter; LocationFilter)
@@ -55,26 +55,24 @@ page 99000919 "Demand Forecast"
                     begin
                         Location.SetFilter(Code, LocationFilter);
                         LocationFilter := Location.GetFilter(Code);
-                        SetMatrix;
+                        SetMatrix();
                     end;
                 }
                 field(PeriodType; PeriodType)
                 {
                     ApplicationArea = Planning;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        SetColumns(SetWanted::First);
+                        SetMatrixColumns("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(QtyType; QtyType)
                 {
                     ApplicationArea = Planning;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -86,7 +84,6 @@ page 99000919 "Demand Forecast"
                 {
                     ApplicationArea = Planning;
                     Caption = 'Forecast Type';
-                    OptionCaption = 'Sales Item,Component,Both';
                     ToolTip = 'Specifies one of the following two types when you create a demand forecast entry: sales item or component item.';
 
                     trigger OnValidate()
@@ -105,7 +102,7 @@ page 99000919 "Demand Forecast"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(DateFilter);
-                        SetColumns(SetWanted::First);
+                        SetMatrixColumns("Matrix Page Step Type"::Initial);
                     end;
                 }
             }
@@ -146,7 +143,7 @@ page 99000919 "Demand Forecast"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Previous);
+                    SetMatrixColumns("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Previous Column")
@@ -161,7 +158,7 @@ page 99000919 "Demand Forecast"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::PreviousColumn);
+                    SetMatrixColumns("Matrix Page Step Type"::PreviousColumn);
                 end;
             }
             action("Next Column")
@@ -176,7 +173,7 @@ page 99000919 "Demand Forecast"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::NextColumn);
+                    SetMatrixColumns("Matrix Page Step Type"::NextColumn);
                 end;
             }
             action("Next Set")
@@ -191,7 +188,7 @@ page 99000919 "Demand Forecast"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Next);
+                    SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -202,32 +199,40 @@ page 99000919 "Demand Forecast"
         if (NewProductionForecastName <> '') and (NewProductionForecastName <> ProductionForecastName) then
             ProductionForecastName := NewProductionForecastName;
         OnOpenPageOnBeforeSetColums(PeriodType, QtyType, ForecastType, LocationFilter, DateFilter);
-        SetColumns(SetWanted::First);
+        SetMatrixColumns("Matrix Page Step Type"::Initial);
     end;
 
     var
         MatrixRecords: array[32] of Record Date;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        QtyType: Option "Net Change","Balance at Date";
-        ForecastType: Option "Sales Item",Component,Both;
+        PeriodType: Enum "Analysis Period Type";
+        QtyType: Enum "Analysis Amount Type";
+        ForecastType: Enum "Demand Forecast Type";
         ProductionForecastName: Text[30];
         NewProductionForecastName: Text[30];
         LocationFilter: Text;
         DateFilter: Text[1024];
         MatrixColumnCaptions: array[32] of Text[1024];
         ColumnSet: Text[1024];
-        SetWanted: Option First,Previous,Same,Next,PreviousColumn,NextColumn;
         PKFirstRecInCurrSet: Text[100];
         CurrSetLength: Integer;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetMatrixColumns().', '19.0')]
     [Scope('OnPrem')]
-    procedure SetColumns(SetWanted: Option Initial,Previous,Same,Next,PreviousSet,NextSet)
+    procedure SetColumns(SetType: Option Initial,Previous,Same,Next,PreviousSet,NextSet)
+    begin
+        SetMatrixColumns("Matrix Page Step Type".FromInteger(SetType));
+    end;
+#endif
+
+    procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
-        MatrixMgt.GeneratePeriodMatrixData(SetWanted, ArrayLen(MatrixRecords), false, PeriodType, DateFilter, PKFirstRecInCurrSet,
-          MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
-        SetMatrix;
+        MatrixMgt.GeneratePeriodMatrixData(
+            StepType.AsInteger(), ArrayLen(MatrixRecords), false, PeriodType, DateFilter, PKFirstRecInCurrSet,
+            MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
+        SetMatrix();
     end;
 
     procedure SetProductionForecastName(NextProductionForecastName: Text[30])
@@ -238,7 +243,7 @@ page 99000919 "Demand Forecast"
     [Scope('OnPrem')]
     procedure SetMatrix()
     begin
-        CurrPage.Matrix.PAGE.Load(
+        CurrPage.Matrix.PAGE.LoadMatrix(
           MatrixColumnCaptions, MatrixRecords, ProductionForecastName, DateFilter, LocationFilter, ForecastType,
           QtyType, CurrSetLength);
         CurrPage.Update(false);
@@ -246,16 +251,16 @@ page 99000919 "Demand Forecast"
 
     local procedure ForecastTypeOnAfterValidate()
     begin
-        SetMatrix;
+        SetMatrix();
     end;
 
     local procedure QtyTypeOnAfterValidate()
     begin
-        SetMatrix;
+        SetMatrix();
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOpenPageOnBeforeSetColums(var PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; var QtyType: Option "Net Change","Balance at Date"; var ForecastType: Option "Sales Item",Component,Both; var LocationFilter: Text; var DateFilter: Text[1024])
+    local procedure OnOpenPageOnBeforeSetColums(var PeriodType: Enum "Analysis Period Type"; var QtyType: Option "Net Change","Balance at Date"; var ForecastType: Option "Sales Item",Component,Both; var LocationFilter: Text; var DateFilter: Text[1024])
     begin
     end;
 }

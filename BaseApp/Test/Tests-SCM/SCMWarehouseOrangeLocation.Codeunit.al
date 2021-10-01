@@ -295,7 +295,7 @@ codeunit 137029 "SCM Warehouse Orange Location"
     end;
 
     [Normal]
-    local procedure FilterWhseActivityLine(var WhseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option; LineNo: Integer)
+    local procedure FilterWhseActivityLine(var WhseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LineNo: Integer)
     begin
         WhseActivityLine.Reset();
         Clear(WhseActivityLine);

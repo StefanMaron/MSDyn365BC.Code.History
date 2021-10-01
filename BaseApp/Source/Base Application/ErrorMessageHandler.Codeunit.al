@@ -84,13 +84,19 @@ codeunit 29 "Error Message Handler"
 
     [Scope('OnPrem')]
     procedure RegisterErrorMessages() RegisterID: Guid
+    begin
+        RegisterID := RegisterErrorMessages(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RegisterErrorMessages(ClearError: Boolean) RegisterID: Guid
     var
         ContextErrorMessage: Record "Error Message";
         ErrorMessage: Record "Error Message";
         ErrorMessageRegister: Record "Error Message Register";
     begin
         FillErrorCallStack();
-        TempErrorMessage.LogLastError;
+        TempErrorMessage.LogLastError(ClearError);
 
         TempErrorMessage.SetRange(Context, false);
         if not TempErrorMessage.FindSet then
@@ -187,6 +193,7 @@ codeunit 29 "Error Message Handler"
             if TempErrorMessage.FindSet then
                 repeat
                     TempErrorMessageResult := TempErrorMessage;
+                    TempErrorMessageResult.SetErrorCallStack(TempErrorMessage.GetErrorCallStack());
                     TempErrorMessageResult.Insert();
                 until TempErrorMessage.Next() = 0;
             TempErrorMessage.Reset();

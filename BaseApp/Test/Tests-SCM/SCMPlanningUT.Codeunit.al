@@ -537,29 +537,6 @@ codeunit 137801 "SCM - Planning UT"
         Assert.ExpectedError('The Location Code field must be blank for items of type Non-Inventory.');
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure NonInventoryItemCannotBeSelectedOnRequisitionLine()
-    var
-        Item: Record Item;
-        RequisitionWkshName: Record "Requisition Wksh. Name";
-        RequisitionLine: Record "Requisition Line";
-    begin
-        // [FEATURE] [Non-Inventory Item] [UT]
-        // [SCENARIO 315342] A user cannot select non-inventory item on requisition worksheet line.
-        Initialize;
-
-        LibraryInventory.CreateNonInventoryTypeItem(Item);
-
-        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
-        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
-
-        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
-        asserterror RequisitionLine.Validate("No.", Item."No.");
-
-        Assert.ExpectedError(StrSubstNo(NoCannotBeFoundInItemTableErr, Item."No."));
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

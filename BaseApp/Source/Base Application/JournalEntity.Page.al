@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5482 "Journal Entity"
 {
     Caption = 'journals', Locked = true;
@@ -117,4 +118,4 @@ page 5482 "Journal Entity"
         ODataActionManagement.SetDeleteResponseLocation(ActionContext, PAGE::"Journal Entity");
     end;
 }
-
+#endif

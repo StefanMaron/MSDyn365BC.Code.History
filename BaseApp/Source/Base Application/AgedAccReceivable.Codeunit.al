@@ -249,7 +249,6 @@ codeunit 763 "Aged Acc. Receivable"
 
     local procedure GetNoOfPeriods(BusChartBuf: Record "Business Chart Buffer"): Integer
     var
-        OfficeMgt: Codeunit "Office Management";
         NoOfPeriods: Integer;
     begin
         NoOfPeriods := 14;
@@ -257,21 +256,11 @@ codeunit 763 "Aged Acc. Receivable"
             BusChartBuf."Period Length"::Day:
                 NoOfPeriods := 16;
             BusChartBuf."Period Length"::Week,
-          BusChartBuf."Period Length"::Quarter:
-                if OfficeMgt.IsAvailable then
-                    NoOfPeriods := 6
-                else
-                    NoOfPeriods := 14;
+            BusChartBuf."Period Length"::Quarter,
             BusChartBuf."Period Length"::Month:
-                if OfficeMgt.IsAvailable then
-                    NoOfPeriods := 5
-                else
-                    NoOfPeriods := 14;
+                NoOfPeriods := 14;
             BusChartBuf."Period Length"::Year:
-                if OfficeMgt.IsAvailable then
-                    NoOfPeriods := 5
-                else
-                    NoOfPeriods := 7;
+                NoOfPeriods := 7;
             BusChartBuf."Period Length"::None:
                 NoOfPeriods := 2;
         end;

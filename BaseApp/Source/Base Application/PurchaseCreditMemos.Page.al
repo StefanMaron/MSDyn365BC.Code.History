@@ -332,10 +332,9 @@ page 9309 "Purchase Credit Memos"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
-                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
             }
@@ -458,6 +457,7 @@ page 9309 "Purchase Credit Memos"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category7;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -489,7 +489,7 @@ page 9309 "Purchase Credit Memos"
                     PromotedCategory = Category7;
                     PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
-                    ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                    ToolTip = 'Finalize print the document or journal. The values and quantities are posted to the related accounts.';
                     Visible = NOT IsOfficeAddin;
 
                     trigger OnAction()
@@ -680,7 +680,7 @@ page 9309 "Purchase Credit Memos"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsScheduledPosting: Boolean;
-        IsHandled: Boolean;        
+        IsHandled: Boolean;
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);

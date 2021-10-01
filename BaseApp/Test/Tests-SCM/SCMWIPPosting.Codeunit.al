@@ -11,6 +11,7 @@ codeunit 137000 "SCM WIP Posting"
     // PostWIPEntryForParentItem                                                         151654
 
     Subtype = Test;
+    Permissions = tabledata "G/L Entry" = r;
 
     trigger OnRun()
     begin

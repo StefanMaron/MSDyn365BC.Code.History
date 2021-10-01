@@ -1,4 +1,4 @@
-﻿codeunit 482 "Update Dim. Set Glbl. Dim. No."
+codeunit 482 "Update Dim. Set Glbl. Dim. No."
 {
     EventSubscriberInstance = Manual;
     Permissions = tabledata "General Ledger Setup" = rm,

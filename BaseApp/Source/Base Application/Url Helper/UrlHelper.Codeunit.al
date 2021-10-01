@@ -59,29 +59,35 @@ codeunit 9005 "Url Helper"
         exit(UrlHelperImpl.GetO365Resource);
     end;
 
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIResourceUrl(): Text
     begin
         exit(UrlHelperImpl.GetPowerBIResourceUrl);
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIApiUrl(): Text
     begin
         exit(UrlHelperImpl.GetPowerBIApiUrl);
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIReportsUrl(): Text
     begin
         exit(UrlHelperImpl.GetPowerBIReportsUrl);
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIEmbedReportsUrl(): Text
     begin
         exit(UrlHelperImpl.GetPowerBIEmbedReportsUrl);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure GetExcelAddinProviderServiceUrl(): Text

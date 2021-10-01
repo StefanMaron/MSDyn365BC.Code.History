@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135541 "Actions E2E Test"
 {
     Subtype = Test;
@@ -851,4 +852,4 @@ codeunit 135541 "Actions E2E Test"
         LibraryGraphMgt.PostToWebServiceAndCheckResponseCode(TargetURL, JSONBody, ResponseText, ExpectedResponseCode);
     end;
 }
-
+#endif

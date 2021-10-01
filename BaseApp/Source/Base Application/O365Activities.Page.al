@@ -349,10 +349,14 @@ page 1310 "O365 Activities"
                     end;
                 }
             }
+#if not CLEAN19
             cuegroup("Product Videos")
             {
                 Caption = 'Product Videos';
-                Visible = ShowProductVideosActivities;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Product Videos are no longer shown.';
+                ObsoleteTag = '19.0';
 
                 actions
                 {
@@ -363,9 +367,14 @@ page 1310 "O365 Activities"
                         Image = TileVideo;
                         RunObject = Page "Product Videos";
                         ToolTip = 'Open a list of videos that showcase some of the product capabilities.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Product Videos are no longer shown.';
+                        ObsoleteTag = '19.0';
                     }
                 }
             }
+#endif
             cuegroup("Get started")
             {
                 Caption = 'Get started';
@@ -655,7 +664,7 @@ page 1310 "O365 Activities"
             exit(false);
         UserTours := UserTours.Create;
         UserTours.NotifyShowTourWizard;
-        if O365GettingStartedMgt.IsGettingStartedSupported then
+        if O365GettingStartedMgt.IsGettingStartedSupported() then
             if O365GettingStartedMgt.WizardHasToBeLaunched(false) then
                 HideSatisfactionSurvey := true;
         exit(true);
@@ -663,7 +672,7 @@ page 1310 "O365 Activities"
 
     trigger UserTours::ShowTourWizard(hasTourCompleted: Boolean)
     begin
-        if O365GettingStartedMgt.IsGettingStartedSupported then
+        if O365GettingStartedMgt.IsGettingStartedSupported() then
             if O365GettingStartedMgt.LaunchWizard(false, hasTourCompleted) then begin
                 HideSatisfactionSurvey := true;
                 exit;

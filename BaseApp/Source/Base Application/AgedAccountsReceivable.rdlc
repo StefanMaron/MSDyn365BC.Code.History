@@ -7535,6 +7535,9 @@ End Function
         <Field Name="RemAmt_CLEEndDateFormat">
           <DataField>RemAmt_CLEEndDateFormat</DataField>
         </Field>
+        <Field Name="CLEEndDate_ExtDocNo">
+          <DataField>CLEEndDate_ExtDocNo</DataField>
+        </Field>
         <Field Name="CLEEndDate">
           <DataField>CLEEndDate</DataField>
         </Field>

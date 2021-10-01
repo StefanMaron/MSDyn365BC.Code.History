@@ -175,24 +175,24 @@ page 9087 "Sales Line FactBox"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ClearSalesHeader();
+        Rec.ClearSalesHeader();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        CalcFields("Reserved Quantity", "Attached Doc Count");
+        Rec.CalcFields("Reserved Quantity", "Attached Doc Count");
         SalesInfoPaneMgt.ResetItemNo();
     end;
 
-    var
+    protected var
         SalesInfoPaneMgt: Codeunit "Sales Info-Pane Management";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
 
     local procedure ShowNo(): Code[20]
     begin
-        if Type <> Type::Item then
+        if Rec.Type <> Rec.Type::Item then
             exit('');
-        exit("No.");
+        exit(Rec."No.");
     end;
 }
 

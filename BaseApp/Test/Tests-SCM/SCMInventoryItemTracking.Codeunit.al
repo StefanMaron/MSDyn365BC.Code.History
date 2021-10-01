@@ -1219,7 +1219,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO] Can post Warehouse Shipment for partially produced and picked tracked Item.
@@ -1707,7 +1707,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         SalesLine: Record "Sales Line";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Quantity: Decimal;
     begin
         // [FEATURE] [Warehouse] [Shipment]
@@ -2630,7 +2630,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice);
     end;
 
-    local procedure AssignLotNoToSalesLine(SalesLine: Record "Sales Line"; LotNo: Code[20])
+    local procedure AssignLotNoToSalesLine(SalesLine: Record "Sales Line"; LotNo: Code[50])
     begin
         LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -2764,10 +2764,10 @@ codeunit 137260 "SCM Inventory Item Tracking"
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
     begin
         // Use Random value for Quantity.
-        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
-        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode);
+        LibraryWarehouse.CreateWarehouseJournalBatch(
+            WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, LocationCode);
         LibraryWarehouse.CreateWhseJournalLine(
-          WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, LocationCode, ZoneCode, BinCode,
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, LocationCode, ZoneCode, BinCode,
           WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, LibraryRandom.RandInt(10));
     end;
 
@@ -2853,7 +2853,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         RegisterWhsePick(WarehouseActivityHeader, WarehouseActivityLine);
     end;
 
-    local procedure ModifyRegisterWhsePick(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LotNo: Code[20])
+    local procedure ModifyRegisterWhsePick(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LotNo: Code[50])
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -2913,7 +2913,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure PostProductionOutputWithIT(ItemNo: Code[20]; Quantity1: Decimal; Quantity2: Decimal) LotNo: Code[20]
+    local procedure PostProductionOutputWithIT(ItemNo: Code[20]; Quantity1: Decimal; Quantity2: Decimal) LotNo: Code[50]
     var
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
@@ -3256,7 +3256,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure PostPositiveAdjustmentWithLotTracking(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; LotNo: Code[20]; Quantity: Decimal)
+    local procedure PostPositiveAdjustmentWithLotTracking(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; LotNo: Code[50]; Quantity: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -3278,7 +3278,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         PostItemJournalLineWithTracking(ItemJournalLine);
     end;
 
-    local procedure PostPositiveAdjustmentWithSNTracking(ItemNo: Code[20]; SerialNo: Code[20])
+    local procedure PostPositiveAdjustmentWithSNTracking(ItemNo: Code[20]; SerialNo: Code[50])
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -3333,7 +3333,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         ReservationEntry.Modify(true);
     end;
 
-    local procedure SplitWhseActivityLine(ItemNo: Code[20]; ActionType: Option; NewQtyToHandle: Decimal)
+    local procedure SplitWhseActivityLine(ItemNo: Code[20]; ActionType: Enum "Warehouse Action Type"; NewQtyToHandle: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3347,7 +3347,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         end;
     end;
 
-    local procedure SplitWhseActivityLineAndUpdateTracking(ItemNo: Code[20]; ActionType: Option; NewQtyToHandle: Decimal; LotNos: array[2] of Code[20])
+    local procedure SplitWhseActivityLineAndUpdateTracking(ItemNo: Code[20]; ActionType: Enum "Warehouse Action Type"; NewQtyToHandle: Decimal; LotNos: array[2] of Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ZoneCode: Code[10];
@@ -3401,7 +3401,11 @@ codeunit 137260 "SCM Inventory Item Tracking"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         WarehouseShipmentLine.SetRange("No.", WhseShipmentNo);
-        WarehouseShipmentLine.ModifyAll("Qty. to Ship", NewQty);
+        WarehouseShipmentLine.FindSet();
+        repeat
+            WarehouseShipmentLine.Validate("Qty. to Ship", NewQty);
+            WarehouseShipmentLine.Modify();
+        until WarehouseShipmentLine.Next() = 0;
     end;
 
     local procedure VerifyExpirationDateForItemTracking(LocationCode: Code[10]; ItemNo: Code[20])
@@ -3442,7 +3446,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         Assert.IsFalse(RegisteredWhseActivityLine.IsEmpty, CouldNotRegisterWhseActivityErr);
     end;
 
-    local procedure VerifyLotReservation(SalesLine: Record "Sales Line"; LotNo: Code[20])
+    local procedure VerifyLotReservation(SalesLine: Record "Sales Line"; LotNo: Code[50])
     var
         ReservEntry: Record "Reservation Entry";
     begin
@@ -3469,7 +3473,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         end;
     end;
 
-    local procedure VerifySerialReservation(SalesLine: Record "Sales Line"; SerialNo: Code[20])
+    local procedure VerifySerialReservation(SalesLine: Record "Sales Line"; SerialNo: Code[50])
     var
         ReservEntry: Record "Reservation Entry";
     begin

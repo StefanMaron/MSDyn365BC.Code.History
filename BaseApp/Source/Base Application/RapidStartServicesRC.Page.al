@@ -1,6 +1,6 @@
 page 9021 "RapidStart Services RC"
 {
-    Caption = 'RapidStart Services Implementer', Comment = '{Dependency=Match,"ProfileDescription_RAPIDSTARTSERVICES"}';
+    Caption = 'RapidStart Services Implementer';
     PageType = RoleCenter;
 
     layout

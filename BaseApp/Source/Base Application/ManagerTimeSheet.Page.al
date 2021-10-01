@@ -429,7 +429,6 @@ page 952 "Manager Time Sheet"
     end;
 
     var
-        TimeSheetHeader: Record "Time Sheet Header";
         TimeSheetDetail: Record "Time Sheet Detail";
         ColumnRecords: array[32] of Record Date;
         TimeSheetMgt: Codeunit "Time Sheet Management";
@@ -441,6 +440,9 @@ page 952 "Manager Time Sheet"
         SetWanted: Option Previous,Next;
         WorkTypeCodeAllowEdit: Boolean;
         ChargeableAllowEdit: Boolean;
+
+    protected var
+        TimeSheetHeader: Record "Time Sheet Header";
 
     procedure SetColumns()
     var

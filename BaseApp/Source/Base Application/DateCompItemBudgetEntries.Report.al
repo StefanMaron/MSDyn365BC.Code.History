@@ -89,6 +89,9 @@ report 7139 "Date Comp. Item Budget Entries"
                 if AnalysisView.FindFirst then
                     if LowestEntryNo < 2147483647 then
                         UpdateAnalysisView.SetLastBudgetEntryNo(LowestEntryNo - 1);
+
+                if UseDataArchive then
+                    DataArchive.Save();
             end;
 
             trigger OnPreDataItem()
@@ -142,6 +145,9 @@ report 7139 "Date Comp. Item Budget Entries"
                 SetRange("Analysis Area", AnalysisAreaSelection);
 
                 InitRegisters;
+
+                if UseDataArchive then
+                    DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Comp. Item Budget Entries"));
             end;
         }
     }
@@ -209,6 +215,13 @@ report 7139 "Date Comp. Item Budget Entries"
                             DimSelectionBuf.SetDimSelectionMultiple(3, REPORT::"Date Comp. Item Budget Entries", RetainDimText);
                         end;
                     }
+                    field(UseDataArchiveCtrl; UseDataArchive)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Archive Deleted Entries';
+                        ToolTip = 'Specifies whether the deleted (compressed) entries will be stored in the data archive for later inspection or export.';
+                        Visible = DataArchiveProviderExists;
+                    }
                 }
             }
         }
@@ -230,6 +243,11 @@ report 7139 "Date Comp. Item Budget Entries"
         trigger OnOpenPage()
         begin
             InitializeVariables;
+        end;
+
+        trigger OnInit()
+        begin
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         end;
     }
 
@@ -277,6 +295,10 @@ report 7139 "Date Comp. Item Budget Entries"
         DateComprMgt: Codeunit DateComprMgt;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         DimMgt: Codeunit DimensionManagement;
+        DataArchive: Codeunit "Data Archive";
+        UseDataArchive: Boolean;
+        [InDataSet]
+        DataArchiveProviderExists: Boolean;
         Window: Dialog;
         NoOfFields: Integer;
         Retain: array[10] of Boolean;
@@ -367,6 +389,8 @@ report 7139 "Date Comp. Item Budget Entries"
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(5, DateComprReg."No. Records Deleted");
         end;
+        if UseDataArchive then
+            DataArchive.SaveRecord(ItemBudgetEntry);
     end;
 
     local procedure ComprCollectedEntries()
@@ -445,11 +469,16 @@ report 7139 "Date Comp. Item Budget Entries"
     procedure InitializeRequest(AnalAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Desc: Text[100])
     begin
         RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Comp. Item Budget Entries", '');
-        InitializeRequest(AnalAreaSelection, StartDate, EndDate, PeriodLength, Desc, RetainDimText);
+        InitializeRequest(AnalAreaSelection, StartDate, EndDate, PeriodLength, Desc, RetainDimText, true);
     end;
 #endif
 
     procedure InitializeRequest(AnalAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Desc: Text[100]; RetainDimensions: Text[250])
+    begin
+        InitializeRequest(AnalAreaSelection, StartDate, EndDate, PeriodLength, Desc, RetainDimensions, true);
+    end;
+
+    procedure InitializeRequest(AnalAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Desc: Text[100]; RetainDimensions: Text[250]; DoUseDataArchive: Boolean)
     begin
         InitializeVariables;
         AnalysisAreaSelection := "Analysis Area Type".FromInteger(AnalAreaSelection);
@@ -458,6 +487,8 @@ report 7139 "Date Comp. Item Budget Entries"
         EntrdDateComprReg."Period Length" := PeriodLength;
         EntrdItemBudgetEntry.Description := Desc;
         RetainDimText := RetainDimensions;
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
     end;
 
     local procedure InitializeVariables()
@@ -474,6 +505,9 @@ report 7139 "Date Comp. Item Budget Entries"
         InsertField("Item Budget Entry".FieldNo("Budget Dimension 3 Code"), "Item Budget Entry".FieldCaption("Budget Dimension 3 Code"));
 
         RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Comp. Item Budget Entries", '');
+
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists;
     end;
 
     internal procedure SetSkipAnalysisViewUpdateCheck();
@@ -485,17 +519,15 @@ report 7139 "Date Comp. Item Budget Entries"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
         TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
         TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
         TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
-        // TelemetryDimensions.Add('Description', EntrdItemBudgetEntry.Description);
         TelemetryDimensions.Add('AnalysisAreaSelection', Format(AnalysisAreaSelection, 0, 9));
         TelemetryDimensions.Add('RetainDimensions', RetainDimText);
-        // TelemetryDimensions.Add('Filters', "Item Budget Entry".GetFilters()); // EndUserIdentifiableInformation
+        TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F4E', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
@@ -504,7 +536,6 @@ report 7139 "Date Comp. Item Budget Entries"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));

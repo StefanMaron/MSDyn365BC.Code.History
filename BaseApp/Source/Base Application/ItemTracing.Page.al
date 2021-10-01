@@ -524,8 +524,10 @@ page 6520 "Item Tracing"
     trigger OnOpenPage()
     begin
         InitButtons();
-        TraceMethod := TraceMethod::"Usage->Origin";
-        ShowComponents := ShowComponents::"Item-tracked Only";
+        if not FiltersInitialized then begin
+            TraceMethod := TraceMethod::"Usage->Origin";
+            ShowComponents := ShowComponents::"Item-tracked Only";
+        end;
 
         SetPackageTrackingVisibility();
     end;
@@ -533,8 +535,6 @@ page 6520 "Item Tracing"
     var
         TempTrackEntry: Record "Item Tracing Buffer" temporary;
         ItemTracingMgt: Codeunit "Item Tracing Mgt.";
-        TraceMethod: Option "Origin->Usage","Usage->Origin";
-        ShowComponents: Option No,"Item-tracked Only",All;
         ActualExpansionStatus: Option "Has Children",Expanded,"No Children";
         Text001: Label 'Item No. Filter is required.';
         TraceText: Text;
@@ -561,6 +561,9 @@ page 6520 "Item Tracing"
         PackageNoFilter: Text;
         ItemNoFilter: Text;
         VariantFilter: Text;
+        TraceMethod: Option "Origin->Usage","Usage->Origin";
+        ShowComponents: Option No,"Item-tracked Only",All;
+        FiltersInitialized: Boolean;
 
     procedure FindRecords()
     begin
@@ -607,6 +610,7 @@ page 6520 "Item Tracing"
         VariantFilter := ItemTrackingEntry.GetFilter("Variant Code");
         TraceMethod := TraceMethod::"Usage->Origin";
         ShowComponents := ShowComponents::"Item-tracked Only";
+        FiltersInitialized := true;
 
         OnAfterInitFilters(ItemTrackingEntry, TraceMethod, ShowComponents);
     end;

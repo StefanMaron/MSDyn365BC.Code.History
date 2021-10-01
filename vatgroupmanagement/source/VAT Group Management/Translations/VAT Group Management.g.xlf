@@ -1488,6 +1488,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Role - EnumValue Representative - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 594605920 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Member</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet VAT Group Member - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 399216970 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Representative</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet VAT Group Represent. - Property Caption</note>
+        </trans-unit>
       </group>
     </body>
   </file>

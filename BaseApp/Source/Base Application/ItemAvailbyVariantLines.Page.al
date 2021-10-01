@@ -310,7 +310,7 @@ page 5415 "Item Avail. by Variant Lines"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ExpectedInventory: Decimal;
         QtyAvailable: Decimal;
-        AmountType: Option "Net Change","Balance at Date";
+        AmountType: Enum "Analysis Amount Type";
         PlannedOrderReleases: Decimal;
         GrossRequirement: Decimal;
         PlannedOrderRcpt: Decimal;
@@ -319,7 +319,7 @@ page 5415 "Item Avail. by Variant Lines"
         PeriodStart: Date;
         PeriodEnd: Date;
 
-    procedure Set(var NewItem: Record Item; NewAmountType: Option "Net Change","Balance at Date")
+    procedure Set(var NewItem: Record Item; NewAmountType: Enum "Analysis Amount Type")
     begin
         Item.Copy(NewItem);
         PeriodStart := Item.GetRangeMin("Date Filter");
@@ -364,7 +364,7 @@ page 5415 "Item Avail. by Variant Lines"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterSet(var ItemVariant: record "Item Variant"; var Item: Record Item; AmountType: Option "Net Change","Balance at Date")
+    local procedure OnAfterSet(var ItemVariant: record "Item Variant"; var Item: Record Item; AmountType: Enum "Analysis Amount Type")
     begin
     end;
 }

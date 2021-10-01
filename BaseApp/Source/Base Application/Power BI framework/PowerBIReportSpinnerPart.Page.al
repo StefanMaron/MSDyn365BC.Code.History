@@ -378,7 +378,7 @@ page 6303 "Power BI Report Spinner Part"
                     PowerBiReportDialog: Page "Power BI Report Dialog";
                 begin
                     PowerBiReportDialog.SetReportUrl(GetEmbedUrlWithNavigation());
-                    PowerBiReportDialog.Caption(TempPowerBiReportBuffer.ReportName);
+                    PowerBiReportDialog.Caption(StrSubstNo(ReportCaptionTxt, TempPowerBiReportBuffer.ReportName, TempPowerBiReportBuffer."Workspace Name"));
                     PowerBiReportDialog.Run();
                 end;
             }
@@ -551,10 +551,10 @@ page 6303 "Power BI Report Spinner Part"
         StillDeployingMsg: Label 'We are still uploading your demo report. Once the upload finishes, choose Refresh again to see it in this page.\\If you have already reports in your Power BI workspace, you can choose Select Reports instead.';
         RefreshPartTxt: Label 'Refresh';
         SelectReportsTxt: Label 'Select reports';
+        ReportCaptionTxt: Label '%1 (Workspace: %2)', Comment = '%1: a report name, for example "Top customers by sales"; %2: a Power BI workspace name, for example "Contoso"';
         PageState: Option GetStarted,ShouldDeploy,NoReport,NoReportButDeploying,ReportVisible,ErrorVisible;
         LastOpenedReportID: Guid;
         Context: Text[30];
-        NameFilter: Text;
         HasReports: Boolean;
         AddInReady: Boolean;
         ErrorMessageText: Text;
@@ -562,13 +562,24 @@ page 6303 "Power BI Report Spinner Part"
         IsPBIAdmin: Boolean;
         HasPowerBIPermissions: Boolean;
         // Telemetry labels
+        InvalidEmbedUriErr: Label 'Invalid embed URI with length: %1', Locked = true;
         NoOptInImageTxt: Label 'There is no Power BI Opt-in image in the Database with ID: %1', Locked = true;
         PowerBiOptInTxt: Label 'User has opted in to enable Power BI services', Locked = true;
         PowerBIReportLoadTelemetryMsg: Label 'Loading Power BI report for user', Locked = true;
         ReportsResetTelemetryMsg: Label 'User has reset Power BI setup, option chosen: %1', Locked = true;
-
 #if not CLEAN18
         GetReportsTxt: Label 'Get reports';
+#endif
+#if not CLEAN19
+        NameFilter: Text;
+
+    [Obsolete('Filtering of reports when the selection page opens is deprecated. The user can use the standard search function within the page instead.', '19.0')]
+    procedure SetNameFilter(ParentFilter: Text)
+    begin
+        // Sets a text value that tells the selection page how to filter the reports list. This should be called
+        // by the parent page hosting this page part, if possible.
+        NameFilter := ParentFilter;
+    end;
 #endif
 
     local procedure OpenPageOrRefresh(ShowMessages: Boolean)
@@ -591,8 +602,6 @@ page 6303 "Power BI Report Spinner Part"
     var
         PowerBIUserConfiguration: Record "Power BI User Configuration";
         PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
-        ExceptionMessage: Text;
-        ExceptionDetails: Text;
     begin
         // No license has been verified yet
         if not PowerBISessionManager.GetHasPowerBILicense() then begin
@@ -603,12 +612,7 @@ page 6303 "Power BI Report Spinner Part"
 
         SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, Context);
         LastOpenedReportID := PowerBIUserConfiguration."Selected Report ID";
-        RefreshTempReportBuffer(ExceptionMessage, ExceptionDetails); // Also points the record to last opened report id
-
-        if ExceptionMessage <> '' then begin
-            ShowErrorMessage(ExceptionMessage);
-            exit;
-        end;
+        RefreshTempReportBuffer(); // Also points the record to last opened report id
 
         if TempPowerBiReportBuffer.IsEmpty() then begin
             if PowerBiServiceMgt.IsUserSynchronizingReports() then begin
@@ -647,6 +651,9 @@ page 6303 "Power BI Report Spinner Part"
     end;
 
     local procedure GetEmbedUrl(): Text
+    var
+        UriBuilder: Codeunit "Uri Builder";
+        Uri: Codeunit Uri;
     begin
         if TempPowerBiReportBuffer.IsEmpty() then begin
             // Clear out last opened report if there are no reports to display.
@@ -657,31 +664,57 @@ page 6303 "Power BI Report Spinner Part"
             SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
 
             Session.LogMessage('0000C35', PowerBIReportLoadTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+
+            if not Uri.IsValidUri(TempPowerBiReportBuffer.ReportEmbedUrl) then begin
+                Session.LogMessage('0000FFF', StrSubstNo(InvalidEmbedUriErr, StrLen(TempPowerBiReportBuffer.ReportEmbedUrl)), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+                exit(TempPowerBiReportBuffer.ReportEmbedUrl);
+            end;
+
             // Hides both filters and tabs for embedding in small spaces where navigation is unnecessary.
-            exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false&navContentPaneEnabled=false');
+            UriBuilder.Init(TempPowerBiReportBuffer.ReportEmbedUrl);
+            UriBuilder.AddQueryParameter('filterPaneEnabled', 'false');
+            UriBuilder.AddQueryParameter('disableBroswerDeprecationDialog', 'true');
+            UriBuilder.AddQueryParameter('navContentPaneEnabled', 'false');
+
+            UriBuilder.GetUri(Uri);
+            exit(Uri.GetAbsoluteUri());
         end;
     end;
 
     local procedure GetEmbedUrlWithNavigation(): Text
+    var
+        UriBuilder: Codeunit "Uri Builder";
+        Uri: Codeunit Uri;
     begin
         // update last loaded report
         SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
+
+        if not Uri.IsValidUri(TempPowerBiReportBuffer.ReportEmbedUrl) then begin
+            Session.LogMessage('0000FFG', StrSubstNo(InvalidEmbedUriErr, StrLen(TempPowerBiReportBuffer.ReportEmbedUrl)), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+            exit(TempPowerBiReportBuffer.ReportEmbedUrl);
+        end;
+
         // Hides filters and shows tabs for embedding in large spaces where navigation is necessary.
-        exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false');
+        UriBuilder.Init(TempPowerBiReportBuffer.ReportEmbedUrl);
+        UriBuilder.AddQueryParameter('filterPaneEnabled', 'false');
+        UriBuilder.AddQueryParameter('disableBroswerDeprecationDialog', 'true');
+
+        UriBuilder.GetUri(Uri);
+        exit(Uri.GetAbsoluteUri());
     end;
 
-    local procedure RefreshTempReportBuffer(var ExceptionMessage: Text; var ExceptionDetails: Text)
+    local procedure RefreshTempReportBuffer()
     var
         NullGuid: Guid;
     begin
         TempPowerBiReportBuffer.Reset();
         TempPowerBiReportBuffer.DeleteAll();
 
-        PowerBiServiceMgt.GetReportsForUserContext(TempPowerBiReportBuffer, ExceptionMessage, ExceptionDetails, Context);
-        if ExceptionMessage <> '' then
-            exit;
+        PowerBiServiceMgt.GetReportsForUserContext(TempPowerBiReportBuffer, Context);
 
+#if not CLEAN19
         PowerBiServiceMgt.UpdateEmbedUrlCache(TempPowerBiReportBuffer, Context);
+#endif
 
         TempPowerBiReportBuffer.Reset();
         TempPowerBiReportBuffer.SetFilter(Enabled, '%1', true);
@@ -713,23 +746,6 @@ page 6303 "Power BI Report Spinner Part"
             SetContext(PowerBiServiceMgt.GetEnglishContext());
     end;
 
-    procedure SetNameFilter(ParentFilter: Text)
-    begin
-        // Sets a text value that tells the selection page how to filter the reports list. This should be called
-        // by the parent page hosting this page part, if possible.
-        NameFilter := ParentFilter;
-    end;
-
-    local procedure ShowErrorMessage(TextToShow: Text)
-    begin
-        PageState := PageState::ErrorVisible;
-
-        if TextToShow = '' then
-            TextToShow := PowerBiServiceMgt.GetGenericError();
-        ErrorMessageText := TextToShow;
-        CurrPage.Update();
-    end;
-
     local procedure SetReport()
     begin
         if not (ClientTypeManagement.GetCurrentClientType() in [ClientType::Phone, ClientType::Windows]) then
@@ -751,17 +767,18 @@ page 6303 "Power BI Report Spinner Part"
 
     local procedure SelectReports()
     var
-        PowerBIReportSelection: Page "Power BI Report Selection";
+        PowerBIWSReportSelection: Page "Power BI WS Report Selection";
     begin
         // Opens the report selection page, then updates the onscreen report depending on the user's
         // subsequent selection and enabled/disabled settings.
-        PowerBIReportSelection.SetContext(Context);
-        PowerBIReportSelection.SetNameFilter(NameFilter);
-        PowerBIReportSelection.LookupMode(true);
+        PowerBIWSReportSelection.SetContext(Context);
 
-        PowerBIReportSelection.RunModal();
-        if PowerBIReportSelection.IsPageClosedOkay() then begin
-            PowerBIReportSelection.GetRecord(TempPowerBiReportBuffer);
+        PowerBIWSReportSelection.LookupMode(true);
+
+        PowerBIWSReportSelection.RunModal();
+        if PowerBIWSReportSelection.IsPageClosedOkay() then begin
+            PowerBIWSReportSelection.GetSelectedReports(TempPowerBiReportBuffer);
+
             if TempPowerBiReportBuffer.Enabled then begin
                 LastOpenedReportID := TempPowerBiReportBuffer.ReportID; // RefreshAvailableReports handles fallback logic on invalid selection.
                 SetLastOpenedReportID(LastOpenedReportID); // Resolves bug to set last selected report

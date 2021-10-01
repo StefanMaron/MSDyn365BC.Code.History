@@ -35,9 +35,10 @@ page 5775 "Warehouse Setup"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies whether you require users to use the pick activity.';
                 }
-                field("Last Whse. Posting Ref. No."; "Last Whse. Posting Ref. No.")
+                field("Last Whse. Posting Ref. No."; Rec.GetCurrentReference())
                 {
                     ApplicationArea = Warehouse;
+                    Caption = 'Last Whse. Posting Ref. No.';
                     ToolTip = 'Specifies that the document reference of the last warehouse posting will be shown.';
                 }
                 field("Receipt Posting Policy"; "Receipt Posting Policy")

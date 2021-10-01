@@ -466,7 +466,8 @@ report 96 "Copy G/L Budget"
                                 ToGLBudgetEntry."Budget Dimension 4 Code" := DimSetEntry."Dimension Value Code";
                         until DimSetEntry.Next() = 0;
                     end;
-                    ToGLBudgetEntry.Insert();
+                    if ToGLBudgetEntry.Amount <> 0 then
+                        ToGLBudgetEntry.Insert();
                 end;
             until TempGLBudgetEntry.Next() = 0;
         end;

@@ -21,6 +21,7 @@ codeunit 132215 "Library - Error Message"
         StringLengthCorrectErr: Label 'String length is correct even though it should not be.';
         ErrorMessageNotFoundTxt: Label 'Error message with description %1 and type %2 was not found.';
         NoValidRecordErr: Label 'No valid record was specified.';
+        MissingAccountTxt: Label '%1 is missing in %2.', Comment = '%1 = Field caption, %2 = Table caption';
 
     procedure Clear()
     begin
@@ -61,6 +62,7 @@ codeunit 132215 "Library - Error Message"
                   "Context Field Number", GetFieldNo(TempErrorMessage."Context Table Number", ErrorMessages."Context Field Name".Value));
                 TempErrorMessage."Additional Information" := ErrorMessages."Additional Information".Value;
                 TempErrorMessage."Support Url" := ErrorMessages."Support Url".Value;
+                TempErrorMessage.SetErrorCallStack(ErrorMessages.CallStack.Value);
                 TempErrorMessage.Insert();
             until not ErrorMessages.Next;
     end;
@@ -201,6 +203,11 @@ codeunit 132215 "Library - Error Message"
         Assert.IsFalse(TempErrorMessage.IsEmpty,
           StrSubstNo(ErrorMessageNotFoundTxt,
             ExpectedDescription, MessageType));
+    end;
+
+    procedure GetMissingAccountErrorMessage(FieldCaption: Text; TableCaption: Text): Text
+    begin
+        exit(StrSubstNo(MissingAccountTxt, FieldCaption, TableCaption));
     end;
 
     local procedure AssertGetRecordRefAndFieldRef(RecRelatedVariant: Variant; FieldNumber: Integer; var RecordRef: RecordRef; var FieldRef: FieldRef)

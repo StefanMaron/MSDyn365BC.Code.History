@@ -70,7 +70,7 @@ page 95 "Sales Quote Subform"
 #if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
                     ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
@@ -95,7 +95,7 @@ page 95 "Sales Quote Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
 
@@ -170,6 +170,13 @@ page 95 "Sales Quote Subform"
                         DeltaUpdateTotals();
                         OnAfterValidateDescription(Rec, xRec);
                     end;
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -530,6 +537,32 @@ page 95 "Sales Quote Subform"
                         ValidateShortcutDimension(8);
                     end;
                 }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Net Weight"; "Net Weight")
+                {
+                    Caption = 'Unit Net Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the sales statistics window, the net weight on the line is included in the total net weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Unit Volume"; "Unit Volume")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the volume of one unit of the item. In the sales statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Units per Parcel"; "Units per Parcel")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
+                    Visible = false;
+                }
             }
             group(Control53)
             {
@@ -881,6 +914,7 @@ page 95 "Sales Quote Subform"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+#if not CLEAN19
                 action("Get &Price")
                 {
                     AccessByPermission = TableData "Sales Price" = R;
@@ -917,6 +951,7 @@ page 95 "Sales Quote Subform"
                         PickDiscount();
                     end;
                 }
+#endif
                 action(GetPrice)
                 {
                     AccessByPermission = TableData "Sales Price Access" = R;
@@ -981,9 +1016,13 @@ page 95 "Sales Quote Subform"
 
                     trigger OnAction()
                     var
-                        ODataUtility: Codeunit ODataUtility;
+                        EditinExcel: Codeunit "Edit in Excel";
                     begin
-                        ODataUtility.EditWorksheetInExcel('Sales_QuoteSalesLines', CurrPage.ObjectId(false), StrSubstNo('Document_No eq ''%1''', Rec."Document No."));
+                        EditinExcel.EditPageInExcel(
+                            'Sales_QuoteSalesLines',
+                            CurrPage.ObjectId(false),
+                            StrSubstNo('Document_No eq ''%1''', Rec."Document No."),
+                            StrSubstNo(ExcelFileNameTxt, Rec."Document No."));
                     end;
 
                 }
@@ -1042,27 +1081,18 @@ page 95 "Sales Quote Subform"
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         InitType;
         OnNewRecordOnAfterInitType(Rec, xRec, BelowxRec);
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
+        SetDefaultType();
 
         Clear(ShortcutDimCode);
         UpdateTypeText();
     end;
 
     trigger OnOpenPage()
-    var
-        ServerSetting: Codeunit "Server Setting";
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
-        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        SetOpenPage();
 
         SetDimensionsVisibility();
         SetItemReferenceVisibility();
@@ -1082,6 +1112,7 @@ page 95 "Sales Quote Subform"
         IsSaaSExcelAddinEnabled: Boolean;
         ExtendedPriceEnabled: Boolean;
         TypeAsText: Text[30];
+        ExcelFileNameTxt: Label 'Sales Quote %1 - Lines', Comment = '%1 = document number, ex. 10000';
 
     protected var
         TotalSalesHeader: Record "Sales Header";
@@ -1106,6 +1137,18 @@ page 95 "Sales Quote Subform"
         UnitofMeasureCodeIsChangeable: Boolean;
         ItemChargeStyleExpression: Text;
         VATAmount: Decimal;
+
+    local procedure SetOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        OnBeforeSetOpenPage();
+
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1230,7 +1273,7 @@ page 95 "Sales Quote Subform"
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := 
+        InvDiscAmountEditable :=
             CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount" and
             (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
@@ -1331,6 +1374,8 @@ page 95 "Sales Quote Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
     local procedure SetItemReferenceVisibility()
@@ -1348,6 +1393,19 @@ page 95 "Sales Quote Subform"
         AssembleToOrderLink.UpdateAsmDimFromSalesLine(Rec);
 
         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, DimIndex);
+    end;
+
+    local procedure SetDefaultType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultType(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     [IntegrationEvent(TRUE, false)]
@@ -1404,6 +1462,21 @@ page 95 "Sales Quote Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateTotals(var TotalSalesLine: Record "Sales Line"; SuppressTotals: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultType(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility();
     begin
     end;
 }

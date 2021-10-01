@@ -33,7 +33,7 @@ page 1506 "Workflow Event Hierarchies"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Previous);
+                    SetColumns("Matrix Page Step Type"::Previous);
                 end;
             }
             action(NextSet)
@@ -48,7 +48,7 @@ page 1506 "Workflow Event Hierarchies"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Next);
+                    SetColumns("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -56,26 +56,26 @@ page 1506 "Workflow Event Hierarchies"
 
     trigger OnOpenPage()
     begin
-        SetColumns(SetWanted::Initial);
+        SetColumns("Matrix Page Step Type"::Initial);
     end;
 
     var
         MatrixManagement: Codeunit "Matrix Management";
-        SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
         ColumnSetEvents: Text;
         MATRIX_ColumnCaptions_Events: array[12] of Text[80];
         PKFirstRecInCurrSetEvents: Text;
         ColumnSetLengthEvents: Integer;
 
-    local procedure SetColumns(SetWanted: Option)
+    local procedure SetColumns(StepType: Enum "Matrix Page Step Type")
     var
         WorkflowEvent: Record "Workflow Event";
         EventRecRef: RecordRef;
     begin
         EventRecRef.Open(DATABASE::"Workflow Event");
-        MatrixManagement.GenerateMatrixData(EventRecRef, SetWanted, ArrayLen(MATRIX_ColumnCaptions_Events),
-          WorkflowEvent.FieldNo(Description), PKFirstRecInCurrSetEvents, MATRIX_ColumnCaptions_Events,
-          ColumnSetEvents, ColumnSetLengthEvents);
+        MatrixManagement.GenerateMatrixData(
+            EventRecRef, StepType.AsInteger(), ArrayLen(MATRIX_ColumnCaptions_Events),
+            WorkflowEvent.FieldNo(Description), PKFirstRecInCurrSetEvents, MATRIX_ColumnCaptions_Events,
+            ColumnSetEvents, ColumnSetLengthEvents);
 
         CurrPage.MatrixEventSubpage.PAGE.SetMatrixColumns(MATRIX_ColumnCaptions_Events, ColumnSetLengthEvents);
         CurrPage.Update(false);

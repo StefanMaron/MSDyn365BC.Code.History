@@ -61,6 +61,13 @@ page 6039 "Service Cr. Memo Lines Subform"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the name of an item, resource, cost, general ledger account, or some descriptive text on the service credit memo line.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Dimensions;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Return Reason Code"; "Return Reason Code")
                 {
                     ApplicationArea = Dimensions;

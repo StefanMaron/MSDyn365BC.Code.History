@@ -18,6 +18,7 @@ codeunit 134152 "ERM Intercompany II"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -43,7 +44,6 @@ codeunit 134152 "ERM Intercompany II"
         NoItemForCommonItemErr: Label 'There is no Item related to Common Item No. %1', Comment = '%1 = Common Item No value';
         WrongCompanyErr: Label 'The selected xml file contains data sent to IC Partner %1. Current company''s IC Partner Code is %2.', Comment = '.';
         ICPartnerCodeModifyErr: Label 'You cannot change the contents of the %1 field because this %2 has one or more open ledger entries.', Comment = '%1 = Field caption, %2 = Table caption';
-        ICOutboxSalesDocType: Option "Order",Invoice,"Credit Memo","Return Order";
         ItemTrackingDoesNotMatchDocLineErr: Label 'Item tracking does not match document line.';
         PostedInvoiceDuplicateQst: Label 'Posted invoice %1 already exists for order %2. To avoid duplicate postings, do not post order %2.\Do you still want to post order %2?', Comment = '%1 = Invoice No., %2 = Order No.';
         PostedInvoiceFromSameTransactionQst: Label 'Posted invoice %1 originates from the same IC transaction as invoice %2. To avoid duplicate postings, do not post invoice %2.\Do you still want to post invoice %2?', Comment = '%1 and %2 = Invoice No.';
@@ -1162,277 +1162,6 @@ codeunit 134152 "ERM Intercompany II"
           PurchaseLine."Direct Unit Cost",
           Round(SalesLine."Unit Price", 0.01),
           StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("No.")));
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure ReceivedICPurchaseDocumentLocationCode()
-    var
-        SalesHeader: Record "Sales Header";
-        PurchaseHeaderToSend: Record "Purchase Header";
-        PurchaseHeaderToInvoice: Record "Purchase Header";
-        ICOutboxTransaction: Record "IC Outbox Transaction";
-        ICInboxTransaction: Record "IC Inbox Transaction";
-        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
-        DocumentNo: Code[20];
-        ICPartnerCodeVendor: Code[20];
-        OldLocationMandatory: Boolean;
-    begin
-        Initialize;
-        // [GIVEN] Location is mandatory in Inventory Setup
-        OldLocationMandatory := SetupLocationMandatory(true);
-        // [GIVEN] Posted Receipt from Purchase Order
-        CreatePostPurchaseReceiptForNewVendor(PurchaseHeaderToSend, PurchaseHeaderToSend."Document Type"::Order, ICPartnerCodeVendor);
-
-        // [GIVEN] Mock send-receive purchase document and use different sales document location
-        MockSendReceivePurchDocument(PurchaseHeaderToSend, SalesHeader, ICPartnerCodeVendor, CreateLocation);
-
-        // [GIVEN] Sent Sales Invoice as IC Inbox Purchase Document
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddSalesDocsPost;
-        LibraryLowerPermissions.AddO365Setup;
-        SendSalesDocumentGetICPurchaseHeader(
-          SalesHeader, SalesHeader."Document Type"::Order,
-          ICOutboxTransaction, ICInboxTransaction, ICPartnerCodeVendor, ICInboxPurchaseHeader);
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [GIVEN] Purchase Invoice created from IC Inbox Purchase Document
-        LibraryLowerPermissions.AddPurchDocsPost;
-        ReceiveICPurchaseDocument(
-          PurchaseHeaderToInvoice, SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader,
-          PurchaseHeaderToSend."Buy-from Vendor No.");
-        UpdatePurchaseInvoice(PurchaseHeaderToInvoice, PurchaseHeaderToSend);
-        // [WHEN] Received Purchase Invoice posted
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderToInvoice, false, true);
-        // [THEN] No error occured and Location Code populated from posted receipt
-        VerifyPostedPurchaseInvoiceLocation(DocumentNo, PurchaseHeaderToSend);
-
-        // Tear down
-        SetupLocationMandatory(OldLocationMandatory);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SendSalesDocWithItemCrossRefAndVariantCode()
-    var
-        DummyICPartner: Record "IC Partner";
-        SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
-        ICPartnerCode: Code[10];
-        VendorNo: Code[20];
-    begin
-        // [SCENARIO 111330.1] Verify Item Cross Ref. with Variant Code is correctly transfered from Sales to Purchase Document
-        Initialize;
-
-        // [GIVEN] Sales Order with Item Cross Reference and Variant Code
-        CreateSalesDocumentWithDeliveryDates(
-          SalesHeader, SalesHeader."Document Type"::Order, ICPartnerCode, VendorNo, true, false,
-          DummyICPartner."Outbound Sales Item No. Type"::"Cross Reference");
-
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddSalesDocsCreate;
-        LibraryLowerPermissions.AddPurchDocsCreate;
-        // [WHEN] Send Sales Order to IC Partner
-        SendSalesDocumentReceivePurchaseDocument(SalesHeader, PurchaseHeader, ICPartnerCode, VendorNo);
-
-        // [THEN] Received Purchae Document has correct Item Cross Ref. No. and Variant Code
-        VerifyPurchDocItemCrossRefInfo(PurchaseHeader, SalesHeader);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SendPurchDocWithItemCrossRefAndVariantCode()
-    var
-        DummyICPartner: Record "IC Partner";
-        SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
-        ICPartnerCode: Code[10];
-        CustomerNo: Code[20];
-    begin
-        // [SCENARIO 111330.2] Verify Item Cross Ref. with Variant Code is correctly transfered from Purchase to Sales Document
-        Initialize;
-
-        // [GIVEN] Purchase Order with Item Cross Reference and Variant Code
-        CreatePurchaseDocumentWithReceiptDates(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, ICPartnerCode, CustomerNo,
-          CreateItem, LibraryRandom.RandIntInRange(10, 100), true, false,
-          DummyICPartner."Outbound Purch. Item No. Type"::"Cross Reference");
-
-        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddPurchDocsCreate;
-        LibraryLowerPermissions.AddSalesDocsCreate;
-        // [WHEN] Send Purchase Order to IC Partner
-        SendPurchaseDocumentReceiveSalesDocument(PurchaseHeader, SalesHeader, ICPartnerCode, CustomerNo);
-
-        // [THEN] Received Sales Document has correct Item Cross Ref. No. and Variant Code
-        VerifySalesDocItemCrossRefInfo(SalesHeader, PurchaseHeader);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ValidateSalesLineVariantCodeWithCrossRef()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        ItemCrossReference: Record "Item Cross Reference";
-    begin
-        // [SCENARIO 120301.1] Verify IC Partner is updated when validate Sales Line's Variant Code
-        Initialize;
-
-        // [GIVEN] Sales Order with Sell-to IC Partner which has "Outbound Sales Item No. Type"="Cross Reference"
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddSalesDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order,
-          CreateICCustomer(CreateICPartnerWithCrossRefOutbndType));
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
-
-        // [GIVEN] Cross-Reference with Variant Code for the Item
-        ItemCrossReference.SetRange(
-          "Cross-Reference No.",
-          CreateItemCrossRefWithVariant(SalesLine."No.", SalesLine."Sell-to Customer No.", ''));
-        ItemCrossReference.FindFirst;
-
-        // [WHEN] Validate Sales Line's "Variant Code"
-        SalesLine.Validate("Variant Code", ItemCrossReference."Variant Code");
-
-        // [THEN] Sales Line's IC Partner fields are updated with Cross-Reference data
-        Assert.AreEqual(
-          SalesLine."IC Partner Ref. Type"::"Cross Reference",
-          SalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Ref. Type")));
-        Assert.AreEqual(
-          ItemCrossReference."Cross-Reference No.",
-          SalesLine."IC Partner Reference",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Reference")));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ValidatePurchLineVariantCodeWithCrossRef()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        ItemCrossReference: Record "Item Cross Reference";
-    begin
-        // [SCENARIO 120301.2] Verify IC Partner is updated when validate Purchase Line's Variant Code
-        Initialize;
-
-        // [GIVEN] Purchase Order with Buy-from IC Partner which has "Outbound Purch. Item No. Type"="Cross Reference"
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order,
-          CreateICVendor(CreateICPartnerWithCrossRefOutbndType));
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
-
-        // [GIVEN] Cross-Reference with Variant Code for the Item
-        ItemCrossReference.SetRange(
-          "Cross-Reference No.",
-          CreateItemCrossRefWithVariant(PurchaseLine."No.", '', PurchaseLine."Buy-from Vendor No."));
-        ItemCrossReference.FindFirst;
-
-        // [WHEN] Validate Purchase Line's "Variant Code"
-        PurchaseLine.Validate("Variant Code", ItemCrossReference."Variant Code");
-
-        // [THEN] Purchase Line's IC Partner fields are updated with Cross-Reference data
-        Assert.AreEqual(
-          PurchaseLine."IC Partner Ref. Type"::"Cross Reference",
-          PurchaseLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Ref. Type")));
-        Assert.AreEqual(
-          ItemCrossReference."Cross-Reference No.",
-          PurchaseLine."IC Partner Reference",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Reference")));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ValidateSalesLineVariantCodeWithoutCrossRef()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        ItemCrossReference: Record "Item Cross Reference";
-        NewItemVariant: Record "Item Variant";
-    begin
-        // [SCENARIO 120301.3] Verify IC Partner is updated with Item info when validate Sales Line's Variant Code which is not in CrossRef setup
-        Initialize;
-
-        // [GIVEN] Sales Order with Sell-to IC Partner which has "Outbound Sales Item No. Type"="Internal No."
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddSalesDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
-        LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Order, CreateICCustomer(CreateICPartner));
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
-
-        // [GIVEN] Variant Code "VAR1" for the Item "I" with CrossRef setup
-        ItemCrossReference.SetRange(
-          "Cross-Reference No.",
-          CreateItemCrossRefWithVariant(SalesLine."No.", SalesLine."Sell-to Customer No.", ''));
-        ItemCrossReference.FindFirst;
-
-        // [GIVEN] Another Variant Code "VAR2" for item "I" without CrossRef setup
-        LibraryInventory.CreateItemVariant(NewItemVariant, SalesLine."No.");
-
-        // [WHEN] Validate Sales Line's "Variant Code"="VAR2"
-        SalesLine.Validate("Variant Code", NewItemVariant.Code);
-
-        // [THEN] SalesLine's fields are: "IC Partner Ref. Type"=Item, "IC Partner Reference"="I"
-        Assert.AreEqual(
-          SalesLine."IC Partner Ref. Type"::Item,
-          SalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Ref. Type")));
-        Assert.AreEqual(
-          SalesLine."No.",
-          SalesLine."IC Partner Reference",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Reference")));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ValidatePurchLineVariantCodeWithoutCrossRef()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        ItemCrossReference: Record "Item Cross Reference";
-        NewItemVariant: Record "Item Variant";
-    begin
-        // [SCENARIO 120301.4] Verify IC Partner is updated with Item info when validate Purchase Line's Variant Code which is not in CrossRef setup
-        Initialize;
-
-        // [GIVEN] Purchase Order with Buy-from IC Partner which has "Outbound Purch. Item No. Type"="Internal No."
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddPurchDocsCreate;
-        LibraryLowerPermissions.AddO365Setup;
-        LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateICVendor(CreateICPartner));
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
-
-        // [GIVEN] Variant Code "VAR1" for the Item "I" with CrossRef setup
-        ItemCrossReference.SetRange(
-          "Cross-Reference No.",
-          CreateItemCrossRefWithVariant(PurchaseLine."No.", '', PurchaseLine."Buy-from Vendor No."));
-        ItemCrossReference.FindFirst;
-
-        // [GIVEN] Another Variant Code "VAR2" for item "I" without CrossRef setup
-        LibraryInventory.CreateItemVariant(NewItemVariant, PurchaseLine."No.");
-
-        // [WHEN] Validate Purchase Line's "Variant Code"="VAR2"
-        PurchaseLine.Validate("Variant Code", NewItemVariant.Code);
-
-        // [THEN] PurchaseLine's fields are: "IC Partner Ref. Type"=Item, "IC Partner Reference"="I"
-        Assert.AreEqual(
-          PurchaseLine."IC Partner Ref. Type"::Item,
-          PurchaseLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Ref. Type")));
-        Assert.AreEqual(
-          PurchaseLine."No.",
-          PurchaseLine."IC Partner Reference",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Reference")));
     end;
 
     [Test]
@@ -2714,67 +2443,6 @@ codeunit 134152 "ERM Intercompany II"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SendSalesDocWithCustomerItemCrossRef()
-    var
-        DummyICPartner: Record "IC Partner";
-        SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
-        ICPartnerCode: Code[10];
-        VendorNo: Code[20];
-    begin
-        // [SCENARIO 380749] Verify Item with Item Cross Reference is correctly transfered from Sales to Purchase Document
-        Initialize;
-
-        // [GIVEN] Sales Order, Item = 'X' with Customer Cross Reference = 'Y'
-        CreateSalesDocumentWithDeliveryDates(
-          SalesHeader, SalesHeader."Document Type"::Order, ICPartnerCode, VendorNo, false, false,
-          DummyICPartner."Outbound Sales Item No. Type"::"Internal No.");
-        LibraryLowerPermissions.SetSalesDocsCreate;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddO365Setup;
-        UpdateSalesLineWithCrossRef(SalesHeader);
-
-        // [WHEN] Send Sales Order to IC Partner with outbound type "Internal No."
-        LibraryLowerPermissions.AddPurchDocsCreate;
-        SendSalesDocumentReceivePurchaseDocument(SalesHeader, PurchaseHeader, ICPartnerCode, VendorNo);
-
-        // [THEN] Received Purchase Document has correct Item No. = 'Y'
-        VerifyPurchDocItemInfo(PurchaseHeader, SalesHeader);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SendPurchDocWithVendorItemCrossRef()
-    var
-        DummyICPartner: Record "IC Partner";
-        SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
-        ICPartnerCode: Code[10];
-        CustomerNo: Code[20];
-    begin
-        // [SCENARIO 380749] Verify Item with Item Cross Reference is correctly transfered from Purchase to Sales Document
-        Initialize;
-
-        // [GIVEN] Purchase Order, Item = 'X' with Vendor Cross Reference = 'Y'
-        CreatePurchaseDocumentWithReceiptDates(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, ICPartnerCode, CustomerNo,
-          CreateItem, LibraryRandom.RandIntInRange(10, 100), false, false,
-          DummyICPartner."Outbound Purch. Item No. Type"::"Internal No.");
-        LibraryLowerPermissions.SetPurchDocsCreate;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddO365Setup;
-        UpdatePurchaseLineWithCrossRef(PurchaseHeader);
-
-        // [WHEN] Send Purchase Order to IC Partner with outbound type "Internal No."
-        LibraryLowerPermissions.AddSalesDocsCreate;
-        SendPurchaseDocumentReceiveSalesDocument(PurchaseHeader, SalesHeader, ICPartnerCode, CustomerNo);
-
-        // [THEN] Received Sales Document has correct Item No. = 'Y'.
-        VerifySalesDocItemInfo(SalesHeader, PurchaseHeader);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure BlankPurchLineReceiptNoAfterSendSalesInvoiceFromGetShptLines()
     var
         SalesHeader: Record "Sales Header";
@@ -3042,7 +2710,7 @@ codeunit 134152 "ERM Intercompany II"
         // [THEN] IC Outbox Sales line with type = "Invoice" is created.
         // [THEN] "Shipment No." and "Shipment Line No." fields on the line are populated with 'X' and "Line No." respectively.
         VerifyShipmentReceiptNosInICOutboxSalesLine(
-          PostedInvoiceNo, "IC Transaction Document Type"::Invoice, ICOutboxSalesDocType::Invoice,
+          PostedInvoiceNo, "IC Transaction Document Type"::Invoice, "IC Outbox Sales Document Type"::Invoice,
           CopyStr(SalesHeader."External Document No.", 1, 20), SalesLine."Line No.", '', 0);
     end;
 
@@ -3069,7 +2737,7 @@ codeunit 134152 "ERM Intercompany II"
         // [THEN] IC Outbox Sales line with type = "Credit Memo" is created.
         // [THEN] "Return Receipt No." and "Return Receipt Line No." fields on the line are populated with 'X' and "Line No." respectively.
         VerifyShipmentReceiptNosInICOutboxSalesLine(
-          PostedCrMemoNo, "IC Transaction Document Type"::"Credit Memo", ICOutboxSalesDocType::"Credit Memo",
+          PostedCrMemoNo, "IC Transaction Document Type"::"Credit Memo", "IC Outbox Sales Document Type"::"Credit Memo",
           '', 0, CopyStr(SalesHeader."External Document No.", 1, 20), SalesLine."Line No.");
     end;
 
@@ -3224,7 +2892,7 @@ codeunit 134152 "ERM Intercompany II"
           ReceiptNo,
           PurchaseLine."Receipt No.",
           StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Receipt No.")));
-        
+
         // Cleanup
         LibraryLowerPermissions.SetOutsideO365Scope();
         ItemEntryRelation.DeleteAll();
@@ -3921,102 +3589,6 @@ codeunit 134152 "ERM Intercompany II"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure SalesDocumentWhenValidateCrossRefNoAndMultipleItemCrossRefPresent()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        DummyItemCrossReference: Record "Item Cross Reference";
-        DummyVendorNo: Code[20];
-        CustNo: Code[20];
-        ItemNo1: Code[20];
-        ItemNo2: Code[20];
-    begin
-        // [FEATURE] [Item Cross Reference] [Sales]
-        // [SCENARIO 256279] When "Cross-Reference No." is validated in Sales Invoice and two similar Item Cross References present, then "No." in Sales Line has "No." = 1st Cross Reference "Item No".
-        Initialize;
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
-        LibraryLowerPermissions.AddSalesDocsCreate;
-        LibraryLowerPermissions.AddeRead;
-
-        // [GIVEN] Items "I1", "I2" and Customer "C"
-        PrepareCustomerVendorAndTwoItems(CustNo, DummyVendorNo, ItemNo1, ItemNo2);
-
-        // [GIVEN] Item Cross Reference for Customer "C", item "I1" and "Cross-Reference No." = 'X'
-        CreateItemCrossReference(
-          ItemNo1, '', GetBaseUoMFromItem(ItemNo1), DummyItemCrossReference."Cross-Reference Type"::Customer, CustNo, ItemNo1);
-
-        // [GIVEN] Item Cross Reference for Customer "C", item "I2" and "Cross-Reference No." = 'X'
-        CreateItemCrossReference(
-          ItemNo2, '', GetBaseUoMFromItem(ItemNo2), DummyItemCrossReference."Cross-Reference Type"::Customer, CustNo, ItemNo1);
-
-        // [GIVEN] Sales Order for Customer "C" with Sales Line Type = Item
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
-        SalesLine.Init();
-        SalesLine.Validate("Document Type", SalesHeader."Document Type");
-        SalesLine.Validate("Document No.", SalesHeader."No.");
-        SalesLine.Validate(Type, SalesLine.Type::Item);
-
-        // [WHEN] Validate "Cross-Reference No." = 'X' in Sales Line
-        LibraryVariableStorage.Enqueue(DummyItemCrossReference."Cross-Reference Type"::Customer);
-        LibraryVariableStorage.Enqueue(ItemNo1);
-        LibraryVariableStorage.Enqueue(ItemNo2);
-        SalesLine.Validate("Cross-Reference No.", ItemNo1);
-
-        // [THEN] Sales Line "No." = "I1"
-        SalesLine.TestField("No.", ItemNo1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchDocumentWhenValidateCrossRefNoAndMultipleItemCrossRefPresent()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        DummyItemCrossReference: Record "Item Cross Reference";
-        VendorNo: Code[20];
-        DummyCustNo: Code[20];
-        ItemNo1: Code[20];
-        ItemNo2: Code[20];
-    begin
-        // [FEATURE] [Item Cross Reference] [Purchase]
-        // [SCENARIO 256279] When "Cross-Reference No." is validated in Purchase Invoice and two similar Item Cross References present, then "No." in Purchase Line has "No." = 1st Cross Reference "Item No".
-        Initialize;
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
-        LibraryLowerPermissions.AddPurchDocsCreate;
-        LibraryLowerPermissions.AddeRead;
-
-        // [GIVEN] Items "I1", "I2" and Vendor "V"
-        PrepareCustomerVendorAndTwoItems(DummyCustNo, VendorNo, ItemNo1, ItemNo2);
-
-        // [GIVEN] Item Cross Reference for Vendor "V", item "I1" and "Cross-Reference No." = 'X'
-        CreateItemCrossReference(
-          ItemNo1, '', GetBaseUoMFromItem(ItemNo1), DummyItemCrossReference."Cross-Reference Type"::Vendor, VendorNo, ItemNo1);
-
-        // [GIVEN] Item Cross Reference for Vendor "V", item "I2" and "Cross-Reference No." = 'X'
-        CreateItemCrossReference(
-          ItemNo2, '', GetBaseUoMFromItem(ItemNo1), DummyItemCrossReference."Cross-Reference Type"::Vendor, VendorNo, ItemNo1);
-
-        // [GIVEN] Purchase Invoice for Vendor "V" with Purchase Line Type = Item
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        PurchaseLine.Init();
-        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
-        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
-
-        // [WHEN] Validate "Cross-Reference No." = 'X' in Purchase Line
-        LibraryVariableStorage.Enqueue(DummyItemCrossReference."Cross-Reference Type"::Vendor);
-        LibraryVariableStorage.Enqueue(ItemNo1);
-        LibraryVariableStorage.Enqueue(ItemNo2);
-        PurchaseLine.Validate("Cross-Reference No.", ItemNo1);
-
-        // [THEN] Purchase Line "No." = "I1"
-        PurchaseLine.TestField("No.", ItemNo1);
-    end;
-
-    [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler')]
     [TestPermissions(TestPermissions::Disabled)]
     [Scope('OnPrem')]
@@ -4554,6 +4126,7 @@ codeunit 134152 "ERM Intercompany II"
         SalesLine.TestField("Amount Including VAT", Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision, '<'));
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceIsNotOverriddenWhenSalesLineCreatedFromInbox()
@@ -4594,14 +4167,62 @@ codeunit 134152 "ERM Intercompany II"
         FindSalesLine(SalesLine, SalesHeader);
         SalesLine.TestField("Unit Price", UnitPrice);
     end;
+#endif
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ReceivedICPurchaseDocumentLocationCode()
+    var
+        SalesHeader: Record "Sales Header";
+        PurchaseHeaderToSend: Record "Purchase Header";
+        PurchaseHeaderToInvoice: Record "Purchase Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
+        DocumentNo: Code[20];
+        ICPartnerCodeVendor: Code[20];
+        OldLocationMandatory: Boolean;
+    begin
+        Initialize;
+        // [GIVEN] Location is mandatory in Inventory Setup
+        OldLocationMandatory := SetupLocationMandatory(true);
+        // [GIVEN] Posted Receipt from Purchase Order
+        CreatePostPurchaseReceiptForNewVendor(PurchaseHeaderToSend, PurchaseHeaderToSend."Document Type"::Order, ICPartnerCodeVendor);
+
+        // [GIVEN] Mock send-receive purchase document and use different sales document location
+        MockSendReceivePurchDocument(PurchaseHeaderToSend, SalesHeader, ICPartnerCodeVendor, CreateLocation);
+
+        // [GIVEN] Sent Sales Invoice as IC Inbox Purchase Document
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddSalesDocsPost;
+        LibraryLowerPermissions.AddO365Setup;
+        SendSalesDocumentGetICPurchaseHeader(
+          SalesHeader, SalesHeader."Document Type"::Order,
+          ICOutboxTransaction, ICInboxTransaction, ICPartnerCodeVendor, ICInboxPurchaseHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Purchase Invoice created from IC Inbox Purchase Document
+        LibraryLowerPermissions.AddPurchDocsPost;
+        ReceiveICPurchaseDocument(
+          PurchaseHeaderToInvoice, SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader,
+          PurchaseHeaderToSend."Buy-from Vendor No.");
+        UpdatePurchaseInvoice(PurchaseHeaderToInvoice, PurchaseHeaderToSend);
+        // [WHEN] Received Purchase Invoice posted
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderToInvoice, false, true);
+        // [THEN] No error occured and Location Code populated from posted receipt
+        VerifyPostedPurchaseInvoiceLocation(DocumentNo, PurchaseHeaderToSend);
+
+        // Tear down
+        SetupLocationMandatory(OldLocationMandatory);
+    end;
 
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Intercompany II");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         Clear(ICInboxOutboxMgt);
 
         APIMockEvents.SetIsAPIEnabled(true);
@@ -4613,6 +4234,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryItemReference.EnableFeature(true);
         IsInitialized := true;
         Commit();
 
@@ -4674,22 +4296,6 @@ codeunit 134152 "ERM Intercompany II"
         CopyDocumentMgt.CopySalesShptLinesToDoc(SalesHeader, SalesShipmentLine, LinesNotCopied, MissingExCostRevLink);
     end;
 
-    local procedure PrepareCustomerVendorAndTwoItems(var CustNo: Code[20]; var VendorNo: Code[20]; var ItemNo1: Code[20]; var ItemNo2: Code[20])
-    var
-        ICPartner: Record "IC Partner";
-        ICPartnerCode: Code[20];
-    begin
-        ICPartnerCode := CreateICPartner;
-        ICPartner.Get(ICPartnerCode);
-        ICPartner.Validate("Outbound Purch. Item No. Type", ICPartner."Outbound Purch. Item No. Type"::"Cross Reference");
-        ICPartner.Validate("Outbound Sales Item No. Type", ICPartner."Outbound Sales Item No. Type"::"Cross Reference");
-        ICPartner.Modify(true);
-        VendorNo := CreateICVendor(ICPartnerCode);
-        CustNo := CreateICCustomer(ICPartnerCode);
-        ItemNo1 := LibraryInventory.CreateItemNo;
-        ItemNo2 := LibraryInventory.CreateItemNo;
-    end;
-
     local procedure CreateItem(): Code[20]
     var
         Item: Record Item;
@@ -4709,19 +4315,19 @@ codeunit 134152 "ERM Intercompany II"
         exit(Item."No.");
     end;
 
-    local procedure CreateItemCrossReference(ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; CrossReferenceType: Option; CrossReferenceTypeNo: Code[30]; CrossReferenceNo: Code[20]): Code[20]
+    local procedure CreateItemReference(ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[30]; ReferenceNo: Code[20]): Code[20]
     var
-        ItemCrossReference: Record "Item Cross Reference";
+        ItemReference: Record "Item Reference";
     begin
-        ItemCrossReference.Init();
-        ItemCrossReference."Item No." := ItemNo;
-        ItemCrossReference."Variant Code" := VariantCode;
-        ItemCrossReference."Unit of Measure" := UnitOfMeasureCode;
-        ItemCrossReference."Cross-Reference Type" := CrossReferenceType;
-        ItemCrossReference."Cross-Reference Type No." := CrossReferenceTypeNo;
-        ItemCrossReference."Cross-Reference No." := CrossReferenceNo;
-        ItemCrossReference.Insert();
-        exit(CrossReferenceNo);
+        ItemReference.Init();
+        ItemReference."Item No." := ItemNo;
+        ItemReference."Variant Code" := VariantCode;
+        ItemReference."Unit of Measure" := UnitOfMeasureCode;
+        ItemReference."Reference Type" := ReferenceType;
+        ItemReference."Reference Type No." := ReferenceTypeNo;
+        ItemReference."Reference No." := ReferenceNo;
+        ItemReference.Insert();
+        exit(ReferenceNo);
     end;
 
     local procedure CreateAssembledItem(var Item: Record Item)
@@ -4736,9 +4342,9 @@ codeunit 134152 "ERM Intercompany II"
         end;
     end;
 
-    local procedure CreateItemCrossRefWithVariant(ItemNo: Code[20]; CustNo: Code[20]; VendNo: Code[20]): Code[20]
+    local procedure CreateItemRefWithVariant(ItemNo: Code[20]; CustNo: Code[20]; VendNo: Code[20]): Code[20]
     var
-        DummyItemCrossReference: Record "Item Cross Reference";
+        DummyItemReference: Record "Item Reference";
         ItemVariant: Record "Item Variant";
         Item: Record Item;
         RefItemNo: Code[20];
@@ -4746,10 +4352,10 @@ codeunit 134152 "ERM Intercompany II"
         LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
         Item.Get(ItemNo);
         RefItemNo := LibraryInventory.CreateItemNo;
-        CreateItemCrossReference(ItemNo, ItemVariant.Code, Item."Base Unit of Measure",
-          DummyItemCrossReference."Cross-Reference Type"::Vendor, VendNo, RefItemNo);
-        CreateItemCrossReference(ItemNo, ItemVariant.Code, Item."Base Unit of Measure",
-          DummyItemCrossReference."Cross-Reference Type"::Customer, CustNo, RefItemNo);
+        CreateItemReference(
+            ItemNo, ItemVariant.Code, Item."Base Unit of Measure", "Item Reference Type"::Vendor, VendNo, RefItemNo);
+        CreateItemReference(
+            ItemNo, ItemVariant.Code, Item."Base Unit of Measure", "Item Reference Type"::Customer, CustNo, RefItemNo);
         exit(RefItemNo);
     end;
 
@@ -4799,19 +4405,6 @@ codeunit 134152 "ERM Intercompany II"
         LibraryERM.CreateICGLAccount(ICGLAccount);
         ICGLAccount.Validate("Map-to G/L Acc. No.", GLAccount."No.");
         ICGLAccount.Modify(true);
-    end;
-
-    local procedure CreateICPartnerWithCrossRefOutbndType(): Code[20]
-    var
-        ICPartner: Record "IC Partner";
-    begin
-        with ICPartner do begin
-            Get(CreateICPartner);
-            Validate("Outbound Sales Item No. Type", "Outbound Sales Item No. Type"::"Cross Reference");
-            Validate("Outbound Purch. Item No. Type", "Outbound Purch. Item No. Type"::"Cross Reference");
-            Modify;
-            exit(Code);
-        end;
     end;
 
     local procedure CreateICPartnerWithCommonItemOutbndType(): Code[20]
@@ -5009,7 +4602,7 @@ codeunit 134152 "ERM Intercompany II"
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, LibraryRandom.RandIntInRange(10, 100));
     end;
 
-    local procedure CreateSalesDocumentWithDeliveryDates(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; var ICPartnerCode: Code[20]; var VendorNo: Code[20]; ItemCrossRef: Boolean; PricesInclVAT: Boolean; OutboundType: Option)
+    local procedure CreateSalesDocumentWithDeliveryDates(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; var ICPartnerCode: Code[20]; var VendorNo: Code[20]; ItemRef: Boolean; PricesInclVAT: Boolean; OutboundType: Option)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5025,10 +4618,10 @@ codeunit 134152 "ERM Intercompany II"
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandIntInRange(10, 100));
 
         SalesLine.Validate("Unit Price", SalesLine."Unit Price" + LibraryRandom.RandDec(1000, 2));
-        if ItemCrossRef then
+        if ItemRef then
             SalesLine.Validate(
-              "Cross-Reference No.",
-              CreateItemCrossRefWithVariant(SalesLine."No.", SalesLine."Sell-to Customer No.", VendorNo));
+              "Item Reference No.",
+              CreateItemRefWithVariant(SalesLine."No.", SalesLine."Sell-to Customer No.", VendorNo));
         SalesLine.Modify(true);
 
         SalesHeader.Validate(
@@ -5074,7 +4667,7 @@ codeunit 134152 "ERM Intercompany II"
         end;
     end;
 
-    local procedure CreatePurchaseDocumentWithReceiptDates(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; var ICPartnerCode: Code[20]; var CustomerNo: Code[20]; ItemNo: Code[20]; Qty: Decimal; ItemCrossRef: Boolean; PricesInclVAT: Boolean; OutboundType: Option)
+    local procedure CreatePurchaseDocumentWithReceiptDates(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; var ICPartnerCode: Code[20]; var CustomerNo: Code[20]; ItemNo: Code[20]; Qty: Decimal; ItemRef: Boolean; PricesInclVAT: Boolean; OutboundType: Option)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -5090,10 +4683,10 @@ codeunit 134152 "ERM Intercompany II"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
 
         PurchaseLine.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost" + LibraryRandom.RandDec(1000, 2));
-        if ItemCrossRef then
+        if ItemRef then
             PurchaseLine.Validate(
-              "Cross-Reference No.",
-              CreateItemCrossRefWithVariant(PurchaseLine."No.", CustomerNo, PurchaseLine."Buy-from Vendor No."));
+              "Item Reference No.",
+              CreateItemRefWithVariant(PurchaseLine."No.", CustomerNo, PurchaseLine."Buy-from Vendor No."));
 
         PurchaseLine.Modify(true);
 
@@ -5476,7 +5069,7 @@ codeunit 134152 "ERM Intercompany II"
             "IC Transaction No." := ICInboxSalesHeader."IC Transaction No.";
             "IC Partner Code" := ICInboxSalesHeader."IC Partner Code";
             "Transaction Source" := ICInboxSalesHeader."Transaction Source";
-            "Document Type" := ICInboxSalesHeader."Document Type".AsInteger();
+            "Document Type" := ICInboxSalesHeader."Document Type";
             "Line No." := LibraryUtility.GetNewRecNo(ICInboxSalesLine, FieldNo("Line No."));
             "IC Partner Ref. Type" := "IC Partner Ref. Type"::Item;
             "IC Partner Reference" := ItemNo;
@@ -5531,7 +5124,7 @@ codeunit 134152 "ERM Intercompany II"
         ICOutboxPurchHeader.TestField("Currency Code", '');
     end;
 
-    local procedure VerifyShipmentReceiptNosInICOutboxSalesLine(PostedDocNo: Code[20]; ICOutboxTransDocType: Enum "IC Transaction Document Type"; ICOutboxSalesDocType: Option; ShipmentNo: Code[20]; ShipmentLineNo: Integer; ReturnReceiptNo: Code[20]; ReturnReceiptLineNo: Integer)
+    local procedure VerifyShipmentReceiptNosInICOutboxSalesLine(PostedDocNo: Code[20]; ICOutboxTransDocType: Enum "IC Transaction Document Type"; ICOutboxSalesDocType: Enum "IC Outbox Sales Document Type"; ShipmentNo: Code[20]; ShipmentLineNo: Integer; ReturnReceiptNo: Code[20]; ReturnReceiptLineNo: Integer)
     var
         ICOutboxTransaction: Record "IC Outbox Transaction";
         ICOutboxSalesLine: Record "IC Outbox Sales Line";
@@ -5843,7 +5436,7 @@ codeunit 134152 "ERM Intercompany II"
         ICOutboxSalesHeader.FindFirst;
     end;
 
-    local procedure FindICOutboxSalesLine(var ICOutboxSalesLine: Record "IC Outbox Sales Line"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindICOutboxSalesLine(var ICOutboxSalesLine: Record "IC Outbox Sales Line"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Enum "IC Outbox Sales Document Type")
     begin
         ICOutboxSalesLine.SetRange("IC Transaction No.", TransactionNo);
         ICOutboxSalesLine.SetRange("Document No.", DocumentNo);
@@ -5868,7 +5461,7 @@ codeunit 134152 "ERM Intercompany II"
         ICOutboxPurchaseHeader.FindFirst;
     end;
 
-    local procedure FindICOutboxPurchaseLine(var ICOutboxPurchaseLine: Record "IC Outbox Purchase Line"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindICOutboxPurchaseLine(var ICOutboxPurchaseLine: Record "IC Outbox Purchase Line"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Enum "IC Outbox Purchase Document Type")
     begin
         ICOutboxPurchaseLine.SetRange("IC Transaction No.", TransactionNo);
         ICOutboxPurchaseLine.SetRange("Document No.", DocumentNo);
@@ -6136,27 +5729,27 @@ codeunit 134152 "ERM Intercompany II"
         ICPartner.Modify(true);
     end;
 
-    local procedure UpdatePurchaseLineWithCrossRef(PurchaseHeader: Record "Purchase Header")
+    local procedure UpdatePurchaseLineWithItemRef(PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
-        DummyItemCrossReference: Record "Item Cross Reference";
+        DummyItemReference: Record "Item Reference";
     begin
         FindPurchLine(PurchaseLine, PurchaseHeader);
-        CreateItemCrossReference(PurchaseLine."No.", '', PurchaseLine."Unit of Measure Code",
-          DummyItemCrossReference."Cross-Reference Type"::Vendor, PurchaseLine."Buy-from Vendor No.",
+        CreateItemReference(PurchaseLine."No.", '', PurchaseLine."Unit of Measure Code",
+          DummyItemReference."Reference Type"::Vendor, PurchaseLine."Buy-from Vendor No.",
           LibraryInventory.CreateItemNo);
         PurchaseLine.Validate("No.");
         PurchaseLine.Modify(true);
     end;
 
-    local procedure UpdateSalesLineWithCrossRef(SalesHeader: Record "Sales Header")
+    local procedure UpdateSalesLineWithItemRef(SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
-        DummyItemCrossReference: Record "Item Cross Reference";
+        DummyItemReference: Record "Item Reference";
     begin
         FindSalesLine(SalesLine, SalesHeader);
-        CreateItemCrossReference(SalesLine."No.", '', SalesLine."Unit of Measure Code",
-          DummyItemCrossReference."Cross-Reference Type"::Customer, SalesLine."Sell-to Customer No.",
+        CreateItemReference(SalesLine."No.", '', SalesLine."Unit of Measure Code",
+          DummyItemReference."Reference Type"::Customer, SalesLine."Sell-to Customer No.",
           LibraryInventory.CreateItemNo);
         SalesLine.Validate("No.");
         SalesLine.Modify(true);
@@ -6251,20 +5844,19 @@ codeunit 134152 "ERM Intercompany II"
         end;
     end;
 
-    local procedure ConvertDocTypeToICOutboxSalesLine(SourceDocumentType: Enum "Sales Document Type"): Integer
+    local procedure ConvertDocTypeToICOutboxSalesLine(SourceDocumentType: Enum "Sales Document Type"): Enum "IC Outbox Sales Document Type"
     var
         SalesHeader: Record "Sales Header";
-        ICOutboxSalesLine: Record "IC Outbox Sales Line";
     begin
         case SourceDocumentType of
             SalesHeader."Document Type"::Invoice:
-                exit(ICOutboxSalesLine."Document Type"::Invoice);
+                exit("IC Outbox Sales Document Type"::Invoice);
             SalesHeader."Document Type"::Order:
-                exit(ICOutboxSalesLine."Document Type"::Order);
+                exit("IC Outbox Sales Document Type"::Order);
             SalesHeader."Document Type"::"Credit Memo":
-                exit(ICOutboxSalesLine."Document Type"::"Credit Memo");
+                exit("IC Outbox Sales Document Type"::"Credit Memo");
             SalesHeader."Document Type"::"Return Order":
-                exit(ICOutboxSalesLine."Document Type"::"Return Order");
+                exit("IC Outbox Sales Document Type"::"Return Order");
         end;
     end;
 
@@ -6298,20 +5890,19 @@ codeunit 134152 "ERM Intercompany II"
         end;
     end;
 
-    local procedure ConvertPurchDocTypeToICOutboxPurchLine(SourceDocumentType: Enum "Purchase Document Type"): Integer
+    local procedure ConvertPurchDocTypeToICOutboxPurchLine(SourceDocumentType: Enum "Purchase Document Type"): Enum "IC Outbox Purchase Document Type"
     var
         PurchaseHeader: Record "Purchase Header";
-        ICOutboxPurchaseLine: Record "IC Outbox Purchase Line";
     begin
         case SourceDocumentType of
             PurchaseHeader."Document Type"::Invoice:
-                exit(ICOutboxPurchaseLine."Document Type"::Invoice);
+                exit("IC Outbox Purchase Document Type"::Invoice);
             PurchaseHeader."Document Type"::Order:
-                exit(ICOutboxPurchaseLine."Document Type"::Order);
+                exit("IC Outbox Purchase Document Type"::Order);
             PurchaseHeader."Document Type"::"Credit Memo":
-                exit(ICOutboxPurchaseLine."Document Type"::"Credit Memo");
+                exit("IC Outbox Purchase Document Type"::"Credit Memo");
             PurchaseHeader."Document Type"::"Return Order":
-                exit(ICOutboxPurchaseLine."Document Type"::"Return Order");
+                exit("IC Outbox Purchase Document Type"::"Return Order");
         end;
     end;
 
@@ -6455,7 +6046,7 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(PurchInvLine."Location Code", PurchaseHeader."Location Code", 'Error location code');
     end;
 
-    local procedure VerifySalesDocItemCrossRefInfo(SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header")
+    local procedure VerifySalesDocItemRefInfo(SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header")
     var
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
@@ -6467,9 +6058,9 @@ codeunit 134152 "ERM Intercompany II"
           SalesLine."No.",
           StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("No.")));
         Assert.AreEqual(
-          PurchaseLine."Cross-Reference No.",
-          SalesLine."Cross-Reference No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("Cross-Reference No.")));
+          PurchaseLine."Item Reference No.",
+          SalesLine."Item Reference No.",
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("Item Reference No.")));
         Assert.AreEqual(
           PurchaseLine."Variant Code",
           SalesLine."Variant Code",
@@ -6479,12 +6070,12 @@ codeunit 134152 "ERM Intercompany II"
           SalesLine."IC Partner Ref. Type",
           StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
-          PurchaseLine."Cross-Reference No.",
-          SalesLine."IC Partner Reference",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Reference")));
+          PurchaseLine."Item Reference No.",
+          SalesLine."IC Item Reference No.",
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Item Reference No.")));
     end;
 
-    local procedure VerifyPurchDocItemCrossRefInfo(PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
+    local procedure VerifyPurchDocItemRefInfo(PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
@@ -6496,9 +6087,9 @@ codeunit 134152 "ERM Intercompany II"
           PurchaseLine."No.",
           StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("No.")));
         Assert.AreEqual(
-          SalesLine."Cross-Reference No.",
-          PurchaseLine."Cross-Reference No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Cross-Reference No.")));
+          SalesLine."Item Reference No.",
+          PurchaseLine."Item Reference No.",
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Item Reference No.")));
         Assert.AreEqual(
           SalesLine."Variant Code",
           PurchaseLine."Variant Code",
@@ -6508,9 +6099,9 @@ codeunit 134152 "ERM Intercompany II"
           PurchaseLine."IC Partner Ref. Type",
           StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
-          SalesLine."Cross-Reference No.",
-          PurchaseLine."IC Partner Reference",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Reference")));
+          SalesLine."Item Reference No.",
+          PurchaseLine."IC Item Reference No.",
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Item Reference No.")));
     end;
 
     local procedure VerifyReservationEntryExists(DocumentType: Option; DocumentNo: Code[20])
@@ -6534,7 +6125,7 @@ codeunit 134152 "ERM Intercompany II"
         ReservationEntry.TestField(Quantity, ExpectedQty);
     end;
 
-    local procedure VerifyICOutboxSalesLine(DocumentNo: Code[20]; ICOutboxTransactionDocumentType: Enum "IC Transaction Document Type"; ICOutboxSalesLineDocumentType: Option)
+    local procedure VerifyICOutboxSalesLine(DocumentNo: Code[20]; ICOutboxTransactionDocumentType: Enum "IC Transaction Document Type"; ICOutboxSalesLineDocumentType: Enum "IC Outbox Sales Document Type")
     var
         ICOutboxTransaction: Record "IC Outbox Transaction";
         ICOutboxSalesLine: Record "IC Outbox Sales Line";

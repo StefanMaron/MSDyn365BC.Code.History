@@ -376,6 +376,7 @@ codeunit 136200 "Marketing Campaign Segments"
         VerifySaveCriteriaAndReuse(SegmentHeader."No.", SegmentHeader2."No.");
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -451,6 +452,7 @@ codeunit 136200 "Marketing Campaign Segments"
         // Campaign that is deactivated.
         VerifyPriceDiscountDeactivated(SalesHeaderNo);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -642,6 +644,7 @@ codeunit 136200 "Marketing Campaign Segments"
         VerifyCampaignWithDetails(CampaignNo, SalespersonCode, CampaignStatus.Code);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -850,6 +853,7 @@ codeunit 136200 "Marketing Campaign Segments"
         // [THEN] Error message "You must specify interaction template code "Sales Invoices" in Interaction Template Setup" is thrown
         Assert.ExpectedError(InterTemplateSalesInvoicesNotSpecifiedErr);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('AddContactsRequestPageHandler')]
@@ -1265,6 +1269,7 @@ codeunit 136200 "Marketing Campaign Segments"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Campaign Segments");
     end;
 
+#if not CLEAN19
     local procedure SalesPriceDiscountScenario(var Campaign: Record Campaign; var SalesPrice: Record "Sales Price"; var CustomerNo: Code[20]; var SalesLineDiscount: Record "Sales Line Discount")
     var
         SalesAndReceivablesSetup: Record "Sales & Receivables Setup";
@@ -1300,6 +1305,7 @@ codeunit 136200 "Marketing Campaign Segments"
         CampaignTargetGroupMgt.ActivateCampaign(Campaign);
         Campaign.Find; // get latest version after activation
     end;
+#endif
 
     local procedure AddCampaignToSegment(var SegmentHeader: Record "Segment Header")
     begin
@@ -1336,6 +1342,7 @@ codeunit 136200 "Marketing Campaign Segments"
         ApplyMailingGroup.RunModal;
     end;
 
+#if not CLEAN19
     local procedure CreateCampaignPriceDiscount(var Campaign: Record Campaign; var SalesPrice: Record "Sales Price"; var SalesLineDiscount: Record "Sales Line Discount")
     begin
         LibraryMarketing.CreateCampaign(Campaign);
@@ -1345,6 +1352,7 @@ codeunit 136200 "Marketing Campaign Segments"
         CreateSalesPrice(SalesPrice, Campaign."No.");
         CreateSalesLineDiscount(SalesLineDiscount, SalesPrice);
     end;
+#endif
 
     local procedure CreateCampaignWithDetails(SalespersonCode: Code[20]; StatusCode: Code[10]) CampaignNo: Code[20]
     var
@@ -1377,6 +1385,7 @@ codeunit 136200 "Marketing Campaign Segments"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
+#if not CLEAN19
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; SalesPrice: Record "Sales Price")
     begin
         LibraryMarketing.CreateSalesLineDiscount(SalesLineDiscount, SalesPrice."Sales Code", SalesPrice."Item No.");
@@ -1420,6 +1429,7 @@ codeunit 136200 "Marketing Campaign Segments"
         SalesPrice.Validate("Unit Price", 10000 + LibraryRandom.RandDec(1000, 2));  // To generate large decimal value.
         SalesPrice.Modify(true);
     end;
+#endif
 
     local procedure ActivatePagePriceLineDiscount(No: Code[20])
     var
@@ -1634,6 +1644,7 @@ codeunit 136200 "Marketing Campaign Segments"
         Campaign.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure UpdateSalesOrderForCampaign(SalesPrice: Record "Sales Price"; No: Code[20]; CustomerName: Text; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
@@ -1648,6 +1659,7 @@ codeunit 136200 "Marketing Campaign Segments"
         SalesOrder.SalesLines.Quantity.SetValue(Quantity);
         SalesOrder.OK.Invoke;
     end;
+#endif
 
     local procedure MockInteractionLogEntry(DocType: Enum "Interaction Log Entry Document Type"; DocNo: Code[20]; ContactNo: Code[20])
     var
@@ -1757,6 +1769,7 @@ codeunit 136200 "Marketing Campaign Segments"
         InteractionLogEntry.TestField("Attempt Failed", false);
     end;
 
+#if not CLEAN19
     local procedure VerifyPriceDiscountsActivated(SalesPrice: Record "Sales Price"; SalesLineDiscount: Record "Sales Line Discount"; SalesHeaderNo: Code[20])
     var
         SalesLine: Record "Sales Line";
@@ -1780,6 +1793,7 @@ codeunit 136200 "Marketing Campaign Segments"
             end;
         until SalesLine.Next = 0;
     end;
+#endif
 
     local procedure VerifyPriceDiscountDeactivated(SalesHeaderNo: Code[20])
     var

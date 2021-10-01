@@ -65,6 +65,7 @@ page 297 "Vendor Item Catalog"
             {
                 Caption = 'Ve&ndor Item';
                 Image = Item;
+#if not CLEAN19
                 action("Purch. Prices")
                 {
                     ApplicationArea = Planning;
@@ -98,6 +99,7 @@ page 297 "Vendor Item Catalog"
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 action(Prices)
                 {
                     AccessByPermission = TableData "Purchase Price Access" = R;

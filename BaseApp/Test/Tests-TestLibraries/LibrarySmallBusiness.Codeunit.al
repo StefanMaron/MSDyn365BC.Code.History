@@ -161,15 +161,6 @@ codeunit 132213 "Library - Small Business"
         Item.Get(ItemNew."No.");
     end;
 
-    procedure CreateItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; Item: Record Item; Item2: Record Item; ReferenceType: Option)
-    begin
-        Clear(ItemCrossReference);
-        ItemCrossReference.Validate("Item No.", Item."No.");
-        ItemCrossReference.Validate("Cross-Reference Type", ReferenceType);
-        ItemCrossReference.Validate("Cross-Reference No.", Item2."No.");
-        ItemCrossReference.Insert(true);
-    end;
-
     procedure CreateJob(var Job: Record Job)
     begin
         LibraryJob.CreateJob(Job);

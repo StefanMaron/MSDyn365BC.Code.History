@@ -61,12 +61,6 @@ codeunit 137225 "SCM Test UpdateDateTime"
             TestField("Starting Date-Time", 0DT);
             TestField("Ending Date-Time", 0DT);
 
-            SetDateNull("Starting Date", "Starting Time");
-            SetDateNull("Ending Date", "Ending Time");
-            UpdateDatetime;
-            TestField("Starting Date-Time", 0DT);
-            TestField("Ending Date-Time", 0DT);
-
             SetNullTime("Starting Date", "Starting Time");
             SetNullTime("Ending Date", "Ending Time");
             UpdateDatetime;

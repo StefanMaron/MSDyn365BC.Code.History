@@ -29,7 +29,7 @@ table 1526 "Workflow Record Change Archive"
         field(6; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(7; "Workflow Step Instance ID"; Guid)
         {

@@ -62,7 +62,7 @@ page 9239 "Sales Budget Overview Matrix"
                         DrillDown(true, ValueType::"Sales Amount");
                     end;
                 }
-                field(CostAmount; +CalcAmt(1, false))
+                field(CostAmount; +CalcAmt("Item Analysis Value Type"::"Sales Amount", false))
                 {
                     ApplicationArea = SalesBudget;
                     AutoFormatExpression = FormatStr;
@@ -316,9 +316,9 @@ page 9239 "Sales Budget Overview Matrix"
     trigger OnAfterGetCurrRecord()
     begin
         if AmountVisible then
-            Amount := CalcAmt(0, false);
+            Amount := CalcAmt("Item Analysis Value Type"::"Sales Amount", false);
         if QuantityVisible then
-            Quantity := CalcAmt(2, false);
+            Quantity := CalcAmt("Item Analysis Value Type"::Quantity, false);
     end;
 
     trigger OnAfterGetRecord()
@@ -327,9 +327,9 @@ page 9239 "Sales Budget Overview Matrix"
     begin
         NameIndent := 0;
         if AmountVisible then
-            Amount := MatrixMgt.RoundValue(CalcAmt(ValueType::"Sales Amount", false), RoundingFactor);
+            Amount := MatrixMgt.RoundAmount(CalcAmt(ValueType::"Sales Amount", false), RoundingFactor);
         if QuantityVisible then
-            Quantity := MatrixMgt.RoundValue(CalcAmt(ValueType::Quantity, false), RoundingFactor);
+            Quantity := MatrixMgt.RoundAmount(CalcAmt(ValueType::Quantity, false), RoundingFactor);
 
         MATRIX_CurrentColumnOrdinal := 0;
         while MATRIX_CurrentColumnOrdinal < MATRIX_CurrentNoOfMatrixColumn do begin
@@ -344,8 +344,8 @@ page 9239 "Sales Budget Overview Matrix"
     trigger OnFindRecord(Which: Text): Boolean
     begin
         exit(
-          ItemBudgetManagement.FindRec(
-            ItemBudgetName, LineDimOption, Rec, Which,
+          ItemBudgetManagement.FindRecord(
+            ItemBudgetName, LineDimType, Rec, Which,
             ItemFilter, SourceNoFilter, PeriodType, DateFilter, PeriodInitialized, InternalDateFilter,
             GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter));
     end;
@@ -359,8 +359,8 @@ page 9239 "Sales Budget Overview Matrix"
     trigger OnNextRecord(Steps: Integer): Integer
     begin
         exit(
-          ItemBudgetManagement.NextRec(
-            ItemBudgetName, LineDimOption, Rec, Steps,
+          ItemBudgetManagement.NextRecord(
+            ItemBudgetName, LineDimType, Rec, Steps,
             ItemFilter, SourceNoFilter, PeriodType, DateFilter,
             GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter));
     end;
@@ -383,9 +383,9 @@ page 9239 "Sales Budget Overview Matrix"
         MatrixMgt: Codeunit "Matrix Management";
         CurrentAnalysisArea: Enum "Analysis Area Type";
         CurrentBudgetName: Code[10];
-        ValueType: Option "Sales Amount","Cost Amount",Quantity;
-        RoundingFactor: Option "None","1","1000","1000000";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        ValueType: Enum "Item Analysis Value Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        PeriodType: Enum "Analysis Period Type";
         InternalDateFilter: Text;
         PeriodInitialized: Boolean;
         Text002: Label 'You may only edit column 1 to %1.';
@@ -412,66 +412,83 @@ page 9239 "Sales Budget Overview Matrix"
         BudgetDim1Filter: Text;
         BudgetDim2Filter: Text;
         BudgetDim3Filter: Text;
-        LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
-        ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
+        LineDimType: Enum "Item Budget Dimension Type";
+        ColumnDimType: Enum "Item Budget Dimension Type";
 
-    local procedure CalcAmt(ValueType: Integer; SetColFilter: Boolean): Decimal
+    local procedure CalcAmt(ValueType: Enum "Item Analysis Value Type"; SetColFilter: Boolean): Decimal
     begin
         exit(
-          ItemBudgetManagement.CalcAmount(
+          ItemBudgetManagement.CalculateAmount(
             ValueType, SetColFilter,
             ItemStatisticsBuffer, ItemBudgetName,
-            ItemFilter, SourceTypeFilter.AsInteger(), SourceNoFilter, DateFilter,
+            ItemFilter, SourceTypeFilter, SourceNoFilter, DateFilter,
             GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
-            LineDimOption, Rec, ColumnDimOption, MATRIX_ColumnTempRec));
+            LineDimType, Rec, ColumnDimType, MATRIX_ColumnTempRec));
     end;
 
-    local procedure SetAmt(ValueType: Integer; SetColFilter: Boolean; NewAmount: Decimal)
+    local procedure SetAmt(ValueType: Enum "Item Analysis Value Type"; SetColFilter: Boolean; NewAmount: Decimal)
     begin
-        ItemBudgetManagement.UpdateAmount(
+        ItemBudgetManagement.SetAmount(
           ValueType, SetColFilter,
           ItemStatisticsBuffer, ItemBudgetName,
-          ItemFilter, SourceTypeFilter.AsInteger(), SourceNoFilter, DateFilter,
+          ItemFilter, SourceTypeFilter, SourceNoFilter, DateFilter,
           GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
-          LineDimOption, Rec, ColumnDimOption, MATRIX_ColumnTempRec, NewAmount);
+          LineDimType, Rec, ColumnDimType, MATRIX_ColumnTempRec, NewAmount);
     end;
 
-    protected procedure DrillDown(OnlyLines: Boolean; ValueType: Option "Sales Amount","Cost Amount",Quantity)
+    protected procedure DrillDown(OnlyLines: Boolean; ValueType: Enum "Item Analysis Value Type")
+    var
+        ValueTypeInt: Option;
     begin
-        OnBeforeDrillDown(Rec, OnlyLines, ValueType);
+        ValueTypeInt := ValueType.AsInteger();
+        OnBeforeDrillDown(Rec, OnlyLines, ValueTypeInt);
+        ValueType := "Item Analysis Value Type".FromInteger(ValueTypeInt);
 
-        ItemBudgetManagement.BudgetDrillDown(
+        ItemBudgetManagement.DrillDownBudgetAmount(
           ItemBudgetName,
-          ItemFilter, SourceTypeFilter.AsInteger(), SourceNoFilter, DateFilter,
+          ItemFilter, SourceTypeFilter, SourceNoFilter, DateFilter,
           GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
-          LineDimOption, Rec,
-          ColumnDimOption, MATRIX_ColumnTempRec,
-          ValueType,
-          OnlyLines);
+          LineDimType, Rec,
+          ColumnDimType, MATRIX_ColumnTempRec,
+          ValueType, OnlyLines);
     end;
 
-    procedure Load(MatrixColumns1: array[32] of Text[80]; var MatrixRecords1: array[12] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; _CurrentBudgetName: Code[10]; _LineDimOption: Integer; _ColumnDimOption: Integer; _RoundingFactor: Integer; _ValueType: Integer; _PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period")
+#if not CLEAN17
+    [Obsolete('Replaced by LoadMatrix()', '19.0')]
+    procedure Load(MatrixColumns1: array[32] of Text[80]; var MatrixRecords1: array[12] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; _CurrentBudgetName: Code[10]; _LineDimOption: Integer; _ColumnDimOption: Integer; _RoundingFactor: Integer; _ValueType: Integer; _PeriodType: Option)
+    begin
+        LoadMatrix(
+            MatrixColumns1, MatrixRecords1, CurrentNoOfMatrixColumns, _CurrentBudgetName,
+            "Item Budget Dimension Type".FromInteger(_LineDimOption),
+            "Item Budget Dimension Type".FromInteger(_ColumnDimOption),
+            "Analysis Rounding Factor".FromInteger(_RoundingFactor),
+            "Item Analysis Value Type".FromInteger(_ValueType),
+            "Analysis Period Type".FromInteger(_PeriodType));
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[80]; var NewMatrixRecords: array[12] of Record "Dimension Code Buffer"; NewCurrentNoOfMatrixColumns: Integer; NewCurrentBudgetName: Code[10]; NewLineDimType: Enum "Item Budget Dimension Type"; NewColumnDimType: Enum "Item Budget Dimension Type"; NewRoundingFactor: Enum "Analysis Rounding Factor"; NewValueType: Enum "Item Analysis Value Type"; NewPeriodType: Enum "Analysis Period Type")
     var
         i: Integer;
     begin
         Clear(MATRIX_CellData);
 
         for i := 1 to 12 do begin
-            MATRIX_CaptionSet[i] := MatrixColumns1[i];
-            MatrixRecords[i] := MatrixRecords1[i];
+            MATRIX_CaptionSet[i] := NewMatrixColumns[i];
+            MatrixRecords[i] := NewMatrixRecords[i];
         end;
-        MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
+        MATRIX_CurrentNoOfMatrixColumn := NewCurrentNoOfMatrixColumns;
         CurrentAnalysisArea := CurrentAnalysisArea::Sales;
-        CurrentBudgetName := _CurrentBudgetName;
-        LineDimOption := _LineDimOption;
-        ColumnDimOption := _ColumnDimOption;
-        RoundingFactor := _RoundingFactor;
-        ValueType := _ValueType;
-        PeriodType := _PeriodType;
+        CurrentBudgetName := NewCurrentBudgetName;
+        LineDimType := NewLineDimType;
+        ColumnDimType := NewColumnDimType;
+        RoundingFactor := NewRoundingFactor;
+        ValueType := NewValueType;
+        PeriodType := NewPeriodType;
         ItemBudgetManagement.BudgetNameSelection(
           CurrentAnalysisArea.AsInteger(), CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(RoundingFactor, false);
     end;
 
     procedure SetFilters(_DateFilter: Text; _ItemFilter: Text; _SourceNoFilter: Text; _GlobalDim1Filter: Text; _GlobalDim2Filter: Text; _BudgetDim1Filter: Text; _BudgetDim2Filter: Text; _BudgetDim3Filter: Text)
@@ -495,7 +512,7 @@ page 9239 "Sales Budget Overview Matrix"
     local procedure MATRIX_OnAfterGetRecord(MATRIX_ColumnOrdinal: Integer)
     begin
         MATRIX_ColumnTempRec := MatrixRecords[MATRIX_ColumnOrdinal];
-        MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundValue(CalcAmt(ValueType, true), RoundingFactor);
+        MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount(CalcAmt(ValueType, true), RoundingFactor);
     end;
 
     local procedure UpdateAmount(MATRIX_ColumnOrdinal: Integer)
@@ -509,8 +526,8 @@ page 9239 "Sales Budget Overview Matrix"
 
         NewAmount := FromRoundedValue(MATRIX_CellData[MATRIX_ColumnOrdinal]);
         SetAmt(ValueType, true, NewAmount);
-        Amount := MatrixMgt.RoundValue(CalcAmt(ValueType::"Sales Amount", false), RoundingFactor);
-        Quantity := MatrixMgt.RoundValue(CalcAmt(ValueType::Quantity, false), RoundingFactor);
+        Amount := MatrixMgt.RoundAmount(CalcAmt(ValueType::"Sales Amount", false), RoundingFactor);
+        Quantity := MatrixMgt.RoundAmount(CalcAmt(ValueType::Quantity, false), RoundingFactor);
     end;
 
     local procedure FromRoundedValue(OrgAmount: Decimal): Decimal
@@ -534,7 +551,7 @@ page 9239 "Sales Budget Overview Matrix"
 
     local procedure AmountOnFormat(Text: Text[1024])
     begin
-        ItemBudgetManagement.FormatAmount(Text, RoundingFactor);
+        ItemBudgetManagement.FormatToAmount(Text, RoundingFactor);
     end;
 
     local procedure FormatStr(): Text

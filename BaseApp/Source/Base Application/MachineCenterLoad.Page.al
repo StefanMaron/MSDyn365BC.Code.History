@@ -19,12 +19,11 @@ page 99000889 "Machine Center Load"
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        if PeriodType = PeriodType::Period then
+                        if PeriodType = PeriodType::"Accounting Period" then
                             PeriodPeriodTypeOnValidate;
                         if PeriodType = PeriodType::Year then
                             YearPeriodTypeOnValidate;
@@ -42,7 +41,6 @@ page 99000889 "Machine Center Load"
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -71,17 +69,21 @@ page 99000889 "Machine Center Load"
     end;
 
     trigger OnOpenPage()
+    var
+        PeriodTypeOption: Option;
     begin
-        OnBeforeOpenPage(PeriodType, AmountType);
+        PeriodTypeOption := PeriodType.AsInteger();
+        OnBeforeOpenPage(PeriodTypeOption, AmountType);
+        PeriodType := "Analysis Period Type".FromInteger(PeriodTypeOption);
     end;
 
-    var
-        PeriodType: Option Day,Week,Month,Quarter,Year,Period;
-        AmountType: Option "Net Change","Balance at Date";
+    protected var
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     local procedure UpdateSubForm()
     begin
-        CurrPage.MachineCLoadLines.PAGE.Set(Rec, PeriodType, AmountType);
+        CurrPage.MachineCLoadLines.PAGE.SetLines(Rec, PeriodType, AmountType);
     end;
 
     local procedure DayPeriodTypeOnPush()
@@ -165,7 +167,7 @@ page 99000889 "Machine Center Load"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenPage(var PeriodType: Option Day,Week,Month,Quarter,Year,Period; var AmountType: Option "Net Change","Balance at Date")
+    local procedure OnBeforeOpenPage(var PeriodType: Option Day,Week,Month,Quarter,Year,Period; var AmountType: Enum "Analysis Amount Type")
     begin
     end;
 }

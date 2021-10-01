@@ -1435,7 +1435,7 @@ codeunit 137023 "SCM Timeline Visualization"
     begin
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, KitItem."No.", Location, LibraryRandom.RandInt(5) + 1, '');
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, CompItem."No.", '',
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, CompItem."No.", '',
           LibraryRandom.RandInt(5) + 1, LibraryRandom.RandInt(5) + 1, '');
         AssemblyHeader.Validate("Due Date", Date);
         AssemblyHeader.Modify(true);
@@ -1465,8 +1465,8 @@ codeunit 137023 "SCM Timeline Visualization"
         LibraryAssembly: Codeunit "Library - Assembly";
     begin
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.",
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Item, Item."No.", true),
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.",
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, Item."No.", true),
           Quantity, 0, '');
 
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");

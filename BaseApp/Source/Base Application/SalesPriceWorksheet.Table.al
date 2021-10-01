@@ -1,9 +1,14 @@
 table 7023 "Sales Price Worksheet"
 {
     Caption = 'Sales Price Worksheet';
+#if not CLEAN19
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
     ObsoleteTag = '16.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif    
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price Worksheet Line';
 
     fields
     {
@@ -13,6 +18,7 @@ table 7023 "Sales Price Worksheet"
             NotBlank = true;
             TableRelation = Item;
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 if "Item No." <> xRec."Item No." then begin
@@ -29,6 +35,7 @@ table 7023 "Sales Price Worksheet"
 
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
+#endif
         }
         field(2; "Sales Code"; Code[20])
         {
@@ -39,6 +46,7 @@ table 7023 "Sales Price Worksheet"
             ELSE
             IF ("Sales Type" = CONST(Campaign)) Campaign;
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 if ("Sales Code" <> '') and ("Sales Type" = "Sales Type"::"All Customers") then
@@ -75,21 +83,25 @@ table 7023 "Sales Price Worksheet"
                             end;
                     end;
             end;
+#endif
         }
         field(3; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
+#endif
         }
         field(4; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 if ("Starting Date" > "Ending Date") and ("Ending Date" <> 0D) then
@@ -101,6 +113,7 @@ table 7023 "Sales Price Worksheet"
 
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
+#endif
         }
         field(5; "Current Unit Price"; Decimal)
         {
@@ -146,15 +159,18 @@ table 7023 "Sales Price Worksheet"
             Caption = 'Minimum Quantity';
             MinValue = 0;
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
+#endif
         }
         field(15; "Ending Date"; Date)
         {
             Caption = 'Ending Date';
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 Validate("Starting Date");
@@ -163,6 +179,7 @@ table 7023 "Sales Price Worksheet"
                     if "Sales Type" = "Sales Type"::Campaign then
                         Error(Text002, FieldCaption("Starting Date"), FieldCaption("Ending Date"), FieldCaption("Sales Type"), "Sales Type");
             end;
+#endif
         }
         field(20; "Item Description"; Text[100])
         {
@@ -179,20 +196,24 @@ table 7023 "Sales Price Worksheet"
             Caption = 'Unit of Measure Code';
             TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
+#endif
         }
         field(5700; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
             TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
             end;
+#endif
         }
         field(7001; "Allow Line Disc."; Boolean)
         {
@@ -216,6 +237,7 @@ table 7023 "Sales Price Worksheet"
     {
     }
 
+#if not CLEAN19
     trigger OnInsert()
     begin
         if "Sales Type" = "Sales Type"::"All Customers" then
@@ -271,7 +293,7 @@ table 7023 "Sales Price Worksheet"
             OnCalcCurrentPriceOnPriceNotFound(Rec);
         end;
     end;
-
+#endif
     procedure SetSalesDescription()
     var
         Customer: Record Customer;
@@ -294,6 +316,7 @@ table 7023 "Sales Price Worksheet"
         end;
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcCurrentPriceFound(var SalesPriceWorksheet: Record "Sales Price Worksheet"; SalesPrice: Record "Sales Price")
     begin
@@ -308,5 +331,6 @@ table 7023 "Sales Price Worksheet"
     local procedure OnCalcCurrentPriceOnPriceNotFound(var SalesPriceWorksheet: Record "Sales Price Worksheet")
     begin
     end;
+#endif
 }
 

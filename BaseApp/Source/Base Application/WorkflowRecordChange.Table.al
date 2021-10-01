@@ -29,7 +29,7 @@ table 1525 "Workflow - Record Change"
         field(6; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(7; "Workflow Step Instance ID"; Guid)
         {
@@ -37,7 +37,7 @@ table 1525 "Workflow - Record Change"
         }
         field(8; "Field Caption"; Text[250])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Field No.")));
             Caption = 'Field Caption';
             FieldClass = FlowField;

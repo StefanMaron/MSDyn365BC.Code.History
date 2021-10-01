@@ -562,48 +562,129 @@ codeunit 137510 "SMB Service Item"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestItemJnlLine()
+    procedure TestItemJnlLineServiceItems()
     var
         ItemJnlLine: Record "Item Journal Line";
         Item: Record Item;
         EntryType: Integer;
     begin
+        // [Scenario] You should not be able to use service items on any entry type of item journal line.
         Initialize;
         CreateServItem(Item);
 
         // EXERCISE
-        for EntryType := 0 to 10 do begin
-            ItemJnlLine.Init();
-            asserterror ItemJnlLine.Validate("Item No.", Item."No.");
-            AssertRunTime('Type must be equal to', '');
-        end;
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::" ");
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Assembly Consumption");
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Assembly Output");
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Negative Adjmt.");
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Positive Adjmt.");
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Purchase);
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Sale);
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Transfer);
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestServReqJnlLine()
+    procedure TestItemJnlLineNonInvtItems()
     var
-        InvtItem: Record Item;
-        ServItem: Record Item;
-        NonStockItem: Record Item;
+        ItemJnlLine: Record "Item Journal Line";
+        Item: Record Item;
+        EntryType: Integer;
     begin
+        // [Scenario] You should only be able to use non-inventory items in item journal line if the entry type is 
+        // consumption or assembly consumption.
         Initialize;
-        CreateServItem(ServItem);
-        CreateInvtItem(InvtItem);
-        LibraryInventory.CreateNonInventoryTypeItem(NonStockItem);
-        Commit();
+        CreateNonInvItem(Item);
 
         // EXERCISE
-        asserterror CreateReqLine(ServItem, InvtItem);
-        AssertRunTime('The field No. of table Requisition Line', '');
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::" ");
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
 
-        asserterror CreateReqLine(InvtItem, ServItem);
-        AssertRunTime('The field Item No. of table Planning Component', '');
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Assembly Consumption");
+        ItemJnlLine.Validate("Item No.", Item."No.");
 
-        asserterror CreateReqLine(NonStockItem, InvtItem);
-        AssertRunTime('The field No. of table Requisition Line', '');
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Assembly Output");
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
 
-        CreateReqLine(InvtItem, NonStockItem);
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
+        ItemJnlLine.Validate("Item No.", Item."No.");
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Negative Adjmt.");
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::"Positive Adjmt.");
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Purchase);
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Sale);
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
+
+        ItemJnlLine.Init();
+        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Transfer);
+        asserterror ItemJnlLine.Validate("Item No.", Item."No.");
+        AssertRunTime('Type must be equal to', '');
     end;
 
     [Test]
@@ -761,9 +842,7 @@ codeunit 137510 "SMB Service Item"
         // EXERCISE
         CreateSalesOrder(Cust, SalesHeader, SalesLine, Item);
 
-        Assert.AreEqual('', SalesLine."Location Code", '');
-        asserterror SalesLine.Validate("Location Code", Cust."Location Code");
-        AssertRunTime('Type must be equal to', '');
+        Assert.AreEqual(Cust."Location Code", SalesLine."Location Code", '');
 
         LibraryInventory.CreateNonInventoryTypeItem(Item);
         CreateCustWithLocation(Cust);
@@ -771,9 +850,7 @@ codeunit 137510 "SMB Service Item"
         // EXERCISE
         CreateSalesOrder(Cust, SalesHeader, SalesLine, Item);
 
-        Assert.AreEqual('', SalesLine."Location Code", '');
-        asserterror SalesLine.Validate("Location Code", Cust."Location Code");
-        AssertRunTime('Type must be equal to', '');
+        Assert.AreEqual(Cust."Location Code", SalesLine."Location Code", '');
     end;
 
     [Test]
@@ -958,7 +1035,7 @@ codeunit 137510 "SMB Service Item"
 
         // Verify
         PurchLine.Find;
-        Assert.AreEqual('', PurchLine."Location Code", '');
+        Assert.AreEqual(Vend2."Location Code", PurchLine."Location Code", '');
     end;
 
     [Test]
@@ -978,17 +1055,13 @@ codeunit 137510 "SMB Service Item"
         // EXERCISE
         CreatePurchOrder(Vend, PurchHeader, PurchLine, Item);
 
-        Assert.AreEqual('', PurchLine."Location Code", '');
-        asserterror PurchLine.Validate("Location Code", Vend."Location Code");
-        AssertRunTime('Type must be equal', '');
+        Assert.AreEqual(Vend."Location Code", PurchLine."Location Code", '');
 
         LibraryInventory.CreateNonInventoryTypeItem(Item);
         // EXERCISE
         CreatePurchOrder(Vend, PurchHeader, PurchLine, Item);
 
-        Assert.AreEqual('', PurchLine."Location Code", '');
-        asserterror PurchLine.Validate("Location Code", Vend."Location Code");
-        AssertRunTime('Type must be equal', '');
+        Assert.AreEqual(Vend."Location Code", PurchLine."Location Code", '');
     end;
 
     [Test]
@@ -1997,7 +2070,7 @@ codeunit 137510 "SMB Service Item"
         Commit();
 
         for Index := 1 to 5 do begin
-            PurchaseLine.Type := Index;
+            PurchaseLine.Type := "Purchase Line Type".FromInteger(Index);
             PurchaseLine."No." := CopyStr(LibraryRandom.RandText(20), 1, MaxStrLen(PurchaseLine."No."));
             PurchaseLine.Quantity := LibraryRandom.RandDecInRange(100, 200, 2);
             PurchaseLine."Direct Unit Cost" := LibraryRandom.RandDecInRange(100, 200, 2);
@@ -2262,7 +2335,7 @@ codeunit 137510 "SMB Service Item"
         // [SCENARIO 394798] Stan can update "Unit Cost (LCY)" on Purchase Line and system updates "Indirect Cost %".
         Initialize();
 
-	    GeneralLedgerSetup.GetRecordOnce();
+        GeneralLedgerSetup.GetRecordOnce();
         GeneralLedgerSetup."Unit-Amount Rounding Precision" := 0.0000001;
         GeneralLedgerSetup.Modify(true);
 
@@ -2337,7 +2410,7 @@ codeunit 137510 "SMB Service Item"
         // [GIVEN] Create warehouse shipment from the sales order, populate bin code.
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
         WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.Validate("Bin Code", Bin.Code);

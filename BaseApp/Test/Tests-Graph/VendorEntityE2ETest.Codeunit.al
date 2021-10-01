@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135503 "Vendor Entity E2E Test"
 {
     Subtype = Test;
@@ -41,6 +42,7 @@ codeunit 135503 "Vendor Entity E2E Test"
 
         // [GIVEN] A vendor exists in the system.
         CreateSimpleVendor(Vendor);
+        Commit();
 
         // [WHEN] The user makes a GET request for a given Vendor.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.SystemId, PAGE::"Vendor Entity", ServiceNameTxt);
@@ -63,7 +65,8 @@ codeunit 135503 "Vendor Entity E2E Test"
 
         // [GIVEN] A vendor exists and has values assigned to some of the fields contained in complex types.
         CreateVendorWithAddress(Vendor);
-
+        Commit();
+        
         // [WHEN] The user calls GET for the given Vendor.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.SystemId, PAGE::"Vendor Entity", ServiceNameTxt);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
@@ -88,6 +91,7 @@ codeunit 135503 "Vendor Entity E2E Test"
 
         // [GIVEN] The user has constructed a simple vendor JSON object to send to the service.
         VendorJSON := GetSimpleVendorJSON(TempVendor);
+        Commit();
 
         // [WHEN] The user posts the JSON to the service.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Vendor Entity", ServiceNameTxt);
@@ -199,6 +203,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         TempVendor.TransferFields(Vendor);
         TempVendor.Name := LibraryUtility.GenerateGUID;
         RequestBody := GetSimpleVendorJSON(TempVendor);
+        Commit();
 
         // [WHEN] The user makes a patch request to the service.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.SystemId, PAGE::"Vendor Entity", ServiceNameTxt);
@@ -290,6 +295,7 @@ codeunit 135503 "Vendor Entity E2E Test"
         // [GIVEN] A vendor exists.
         CreateSimpleVendor(Vendor);
         VendorNo := Vendor."No.";
+        Commit();
 
         // [WHEN] The user makes a DELETE request to the endpoint for the vendor.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Vendor.SystemId, PAGE::"Vendor Entity", ServiceNameTxt);
@@ -386,4 +392,4 @@ codeunit 135503 "Vendor Entity E2E Test"
         Json := LibraryGraphMgt.AddComplexTypetoJSON(Json, 'address', AddressJson);
     end;
 }
-
+#endif

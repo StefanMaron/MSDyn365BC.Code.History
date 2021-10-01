@@ -14,7 +14,7 @@ pageextension 8700 "Table Information Ext." extends "Table Information"
                 Promoted = true;
                 PromotedOnly = true;
                 PromotedIsBig = true;
-                PromotedCategory = Category4;
+                PromotedCategory = Process;
                 Image = SetupList;
 
                 trigger OnAction()
@@ -24,5 +24,4 @@ pageextension 8700 "Table Information Ext." extends "Table Information"
             }
         }
     }
-
 }

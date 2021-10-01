@@ -319,7 +319,7 @@ codeunit 137090 "SCM Kitting - D1"
     end;
 
     [Normal]
-    local procedure ModifyAssemblyList(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards"; ComponentType: Option; NewComponentType: Option)
+    local procedure ModifyAssemblyList(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards"; ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type")
     var
         Item: Record Item;
         Item1: Record Item;
@@ -455,7 +455,7 @@ codeunit 137090 "SCM Kitting - D1"
     end;
 
     [Normal]
-    local procedure MultipleLvlRollup(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards"; ComponentType: Option; CalcLevel: Integer; TreeDepth: Integer; NoOfComps: Integer)
+    local procedure MultipleLvlRollup(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards"; ComponentType: Enum "BOM Component Type"; CalcLevel: Integer; TreeDepth: Integer; NoOfComps: Integer)
     var
         Item: Record Item;
         Item1: Record Item;
@@ -842,7 +842,7 @@ codeunit 137090 "SCM Kitting - D1"
     end;
 
     [Normal]
-    local procedure VariantComp(ComponentType: Option)
+    local procedure VariantComp(ComponentType: Enum "BOM Component Type")
     var
         Item: Record Item;
         Item1: Record Item;
@@ -874,11 +874,11 @@ codeunit 137090 "SCM Kitting - D1"
 
         // Exercise.
         case ComponentType of
-            BOMComponent.Type::Item:
+            "BOM Component Type"::Item:
                 asserterror
                   LibraryAssembly.CreateAssemblyListComponent(
                     ComponentType, Item1."No.", Item."No.", 'NONEX', BOMComponent."Resource Usage Type"::Direct, 1, true);
-            BOMComponent.Type::Resource:
+            "BOM Component Type"::Resource:
                 asserterror
                   LibraryAssembly.CreateAssemblyListComponent(
                     ComponentType, Resource."No.", Item."No.", ItemVariant.Code, BOMComponent."Resource Usage Type"::Direct, 1, true);

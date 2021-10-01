@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 9888 "SmartList Mgmt"
 {
     Caption = 'SmartList Management';
@@ -9,6 +10,9 @@ page 9888 "SmartList Mgmt"
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = "Designed Query Management";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -393,3 +397,4 @@ page 9888 "SmartList Mgmt"
         ModifiedBy: Text;
         ModifiedDate: DateTime;
 }
+#endif

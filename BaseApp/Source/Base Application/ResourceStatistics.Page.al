@@ -530,12 +530,15 @@ page 223 "Resource Statistics"
 
     var
         DateFilterCalc: Codeunit "DateFilter-Calc";
-        ResDateFilter: array[4] of Text[30];
-        ResDateName: array[4] of Text[30];
         i: Integer;
         j: Integer;
         Chargeable: Boolean;
         CurrentDate: Date;
+        Text000: Label 'Placeholder';
+
+    protected var
+        ResDateFilter: array[4] of Text[30];
+        ResDateName: array[4] of Text[30];
         ResCapacity: array[4] of Decimal;
         ResUsageCost: array[4] of Decimal;
         UnitPrice: array[4] of Decimal;
@@ -547,7 +550,6 @@ page 223 "Resource Statistics"
         InvoicedPct: array[4] of Decimal;
         Profit: array[4] of Decimal;
         ResProfitPct: array[4] of Decimal;
-        Text000: Label 'Placeholder';
 
     local procedure CalcPercentage(PartAmount: Decimal; Base: Decimal): Decimal
     begin

@@ -20,13 +20,13 @@ page 9169 "Profile Extension List"
                     Caption = 'Base Profile ID';
                     ToolTip = 'Specifies the ID of the profile that this profile extension is applied to.';
                 }
-                field(BaseProfileAppNameField; ConfPersonalizationMgt.ResolveAppNameFromAppId("Base Profile App ID"))
+                field(BaseProfileAppNameField; ExtensionManagement.GetAppName("Base Profile App ID"))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Base Profile Source';
                     ToolTip = 'Specifies the origin of the profile that this profile extension applies to, which can be either an extension (as indicated by its name) or a custom profile created by a user (indicated as user-created).';
                 }
-                field(AppNameField; ConfPersonalizationMgt.ResolveAppNameFromAppId("App ID"))
+                field(AppNameField; ExtensionManagement.GetAppName("App ID"))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Profile Extension Source';
@@ -37,6 +37,6 @@ page 9169 "Profile Extension List"
         }
     }
 
-    var
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+    var 
+        ExtensionManagement: Codeunit "Extension Management";
 }

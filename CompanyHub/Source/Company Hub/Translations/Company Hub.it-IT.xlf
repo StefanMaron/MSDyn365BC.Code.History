@@ -1419,6 +1419,30 @@
           <note from="Developer" annotates="general" priority="2">This is a mock sample company and should be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType CRONUSCompanyNameTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - NamedType 2429686466" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This notification is raised to help set up the company hub if no enviroments have been added.</source>
+          <target state="translated">Questa notifica viene generata per consentire l'impostazione dell'hub società se non sono stati aggiunti ambienti.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType DontShowAgainSetupCompanyHubNotificationDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - NamedType 664455644" maxwidth="128" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Hub Setup Notification</source>
+          <target state="translated">Notifica per setup hub società</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType DontShowAgainSetupCompanyHubNotificationTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - NamedType 942182862" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Don't show again</source>
+          <target state="translated">Non visualizzare più questo messaggio</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType DontShowAgainTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - NamedType 708797588" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Setup</source>
+          <target state="translated">Setup</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType EnterEnviromentsTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2252641548 - NamedType 1053948920" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The link was successfully validated.</source>
           <target state="translated">Convalida collegamento completata.</target>
@@ -1454,6 +1478,12 @@
           <target state="translated">Si raccomanda di verificare di poter accedere alla società di destinazione per poter controllare le autorizzazioni e fornire il consenso, se necessario.\\Aprire la società in una nuova finestra per verificare l'accesso?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType LoginToTargetCompanyToVerifyMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - NamedType 1453233508" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The company hub is empty. Go ahead and add the first environment.</source>
+          <target state="translated">Hub società vuoto. Continuare e aggiungere il primo ambiente.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType NoEnviromentsMsg</note>
         </trans-unit>
         <trans-unit id="Codeunit 1604991389 - NamedType 3371301238" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
@@ -1587,23 +1617,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 2174524830 - NamedType 708797588" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Add Enviroments</source>
-          <target state="translated">Aggiungi ambienti</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - NamedType EnterEnviromentsTxt</note>
-        </trans-unit>
         <trans-unit id="Page 2174524830 - NamedType 162686461" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You have chosen the name of a group, and there is nothing to look up.</source>
           <target state="translated">È stato scelto il nome di un gruppo, ma non cosa cercare.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - NamedType GroupDrillDownMsg</note>
-        </trans-unit>
-        <trans-unit id="Page 2174524830 - NamedType 1453233508" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>No environments have been added yet. Go ahead and add the first environment.</source>
-          <target state="translated">Non sono stati ancora aggiunti ambienti. Proseguire e aggiungere il primo ambiente.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - NamedType NoEnviromentsMsg</note>
         </trans-unit>
         <trans-unit id="Page 2174524830 - Control 2886508691 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of approved incoming documents that are assigned to you or to a group that you are a member of.</source>
@@ -1995,23 +2013,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 937184972 - NamedType 708797588" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Add Enviroments</source>
-          <target state="translated">Aggiungi ambienti</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - NamedType EnterEnviromentsTxt</note>
-        </trans-unit>
         <trans-unit id="Page 937184972 - NamedType 162686461" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You have chosen the name of a group, and there is nothing to look up.</source>
           <target state="translated">È stato scelto il nome di un gruppo, ma non cosa cercare.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - NamedType GroupDrillDownMsg</note>
-        </trans-unit>
-        <trans-unit id="Page 937184972 - NamedType 1453233508" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>No environments have been added yet. Go ahead and add the first environment.</source>
-          <target state="translated">Non sono stati ancora aggiunti ambienti. Proseguire e aggiungere il primo ambiente.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - NamedType NoEnviromentsMsg</note>
         </trans-unit>
         <trans-unit id="Page 937184972 - Control 2886508691 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of approved incoming documents that are assigned to you or to a group that you are a member of.</source>
@@ -2398,7 +2404,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Summary - Action ReloadAllCompanies - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1145113728 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Enviroment Link</source>
+          <source>Environment Link</source>
           <target state="translated">Collegamento ambiente</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Property Caption</note>
@@ -2506,7 +2512,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Group Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 1842558322 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies if the demo companies from this enviroment should be included or not.</source>
+          <source>Specifies if the demo companies from this environment should be included or not.</source>
           <target state="translated">Specifica se le società demo di questo ambiente devono essere incluse o meno.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Include Demo Companies - Property ToolTip</note>
@@ -2518,19 +2524,19 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Include Demo Companies - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 3817506388 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the link used to access the enviroment's companies.</source>
+          <source>Specifies the link used to access the environment's companies.</source>
           <target state="translated">Specifica il collegamento utilizzato per accedere alle società dell'ambiente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Link - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 3817506388 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Enviroment Link</source>
+          <source>Environment Link</source>
           <target state="translated">Collegamento ambiente</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Link - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the enviroment's name.</source>
+          <source>Specifies the environment's name.</source>
           <target state="translated">Specifica il nome dell'ambiente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Name - Property ToolTip</note>
@@ -2542,7 +2548,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the number of the enviroment.</source>
+          <source>Specifies the number of the environment.</source>
           <target state="translated">Specifica il numero dell'ambiente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control No. - Property ToolTip</note>
@@ -2554,7 +2560,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1145113728 - Control 880902346 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies if the companies from this enviroment are blocked for privacy reasons.</source>
+          <source>Specifies if the companies from this environment are blocked for privacy reasons.</source>
           <target state="translated">Specifica se le società di questo ambiente sono bloccate per ragioni di privacy.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Control Privacy Blocked - Property ToolTip</note>
@@ -2578,7 +2584,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment Card - Action TestEnviromentLink - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2272604806 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Enviroments</source>
+          <source>Environments</source>
           <target state="translated">Ambienti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment List - Property Caption</note>
@@ -2596,13 +2602,13 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment List - Control Link - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2272604806 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the enviroment.</source>
+          <source>Specifies the name of the environment.</source>
           <target state="translated">Specifica il nome dell'ambiente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment List - Control Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2272604806 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the No. of the enviroment.</source>
+          <source>Specifies the No. of the environment.</source>
           <target state="translated">Specifica il nr. dell'ambiente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment List - Control No. - Property ToolTip</note>
@@ -2620,25 +2626,25 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment List - Control Phone No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2272604806 - Action 1404105712 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Exports the list of enviroments.</source>
+          <source>Exports the list of environments.</source>
           <target state="translated">Esporta la lista degli ambienti.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment List - Action ExportEnviroments - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2272604806 - Action 1404105712 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Export Enviroments</source>
+          <source>Export Environments</source>
           <target state="translated">Esporta ambienti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment List - Action ExportEnviroments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2272604806 - Action 28344312 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Show enviroment groups.</source>
+          <source>Show environment groups.</source>
           <target state="translated">Visualizzare i gruppi di ambienti.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment List - Action Groups - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2272604806 - Action 28344312 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Enviroment Groups</source>
+          <source>Environment Groups</source>
           <target state="translated">Gruppi di ambienti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment List - Action Groups - Property Caption</note>
@@ -2650,7 +2656,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment List - Action ImportEnviroments - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2272604806 - Action 2032648135 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Import Enviroments</source>
+          <source>Import Environments</source>
           <target state="translated">Importa ambienti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Enviroment List - Action ImportEnviroments - Property Caption</note>
@@ -2752,13 +2758,13 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB My User Tasks - Control Due Date - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1103215212 - Control 2472339856 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the enviroment.</source>
+          <source>Specifies the name of the environment.</source>
           <target state="translated">Specifica il nome dell'ambiente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB My User Tasks - Control Enviroment Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1103215212 - Control 2472339856 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Enviroment Name</source>
+          <source>Environment Name</source>
           <target state="translated">Nome ambiente</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB My User Tasks - Control Enviroment Name - Property Caption</note>
@@ -2800,7 +2806,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB My User Tasks - Control Priority - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1103215212 - Control 329424276 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the enviroment.</source>
+          <source>Specifies the name of the environment.</source>
           <target state="translated">Specifica il nome dell'ambiente.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB My User Tasks - Control Title - Property ToolTip</note>

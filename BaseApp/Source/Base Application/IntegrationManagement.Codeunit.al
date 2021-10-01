@@ -141,8 +141,10 @@ codeunit 5150 "Integration Management"
         Customer: Record Customer;
         ShipToAddress: Record "Ship-to Address";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+#if not CLEAN19
         SalesPrice: Record "Sales Price";
         CustomerPriceGroup: Record "Customer Price Group";
+#endif
         ContactProfileAnswer: Record "Contact Profile Answer";
         ContactAltAddress: Record "Contact Alt. Address";
         RlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line";
@@ -180,6 +182,7 @@ codeunit 5150 "Integration Management"
                         InsertUpdateIntegrationRecord(ParentRecRef, TimeStamp);
                     end;
                 end;
+#if not CLEAN19
             DATABASE::"Sales Price":
                 begin
                     RecRef.SetTable(SalesPrice);
@@ -191,6 +194,7 @@ codeunit 5150 "Integration Management"
                         InsertUpdateIntegrationRecord(ParentRecRef, TimeStamp);
                     end;
                 end;
+#endif
             DATABASE::"Ship-to Address":
                 begin
                     RecRef.SetTable(ShipToAddress);
@@ -302,15 +306,21 @@ codeunit 5150 "Integration Management"
             AddToIntegrationPageList(PAGE::"Countries/Regions", DATABASE::"Country/Region", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"Shipment Methods", DATABASE::"Shipment Method", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"Opportunity List", DATABASE::Opportunity, TempNameValueBuffer, NextId);
+#if not CLEAN18
             AddToIntegrationPageList(PAGE::"Units of Measure Entity", DATABASE::"Unit of Measure", TempNameValueBuffer, NextId);
+#endif
             AddToIntegrationPageList(PAGE::Dimensions, DATABASE::Dimension, TempNameValueBuffer, NextId);
+#if not CLEAN18
             AddToIntegrationPageList(PAGE::"Item Categories Entity", DATABASE::"Item Category", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"Currencies Entity", DATABASE::Currency, TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"Country/Regions Entity", DATABASE::"Country/Region", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"Payment Methods Entity", DATABASE::"Payment Method", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"Employee Entity", DATABASE::Employee, TempNameValueBuffer, NextId);
+#endif
             AddToIntegrationPageList(PAGE::"Unlinked Attachments", DATABASE::"Unlinked Attachment", TempNameValueBuffer, NextId);
+#if not CLEAN18            
             AddToIntegrationPageList(PAGE::"Time Registration Entity", DATABASE::"Time Sheet Detail", TempNameValueBuffer, NextId);
+#endif
         end;
         OnAfterAddToIntegrationPageList(TempNameValueBuffer, NextId);
     end;
@@ -388,7 +398,9 @@ codeunit 5150 "Integration Management"
            DATABASE::Contact,
            DATABASE::"Country/Region",
            DATABASE::"Customer Price Group",
+#if not CLEAN19
            DATABASE::"Sales Price",
+#endif
            DATABASE::"Price List Header",
            DATABASE::"Price List Line",
            DATABASE::"Payment Terms",
@@ -663,16 +675,20 @@ codeunit 5150 "Integration Management"
             exit;
         if not UserCanRescheduleJob() then
             exit;
-        JobQueueEntry.FindSet();
-        repeat
-            // Restart only those jobs whose time to re-execute has nearly arrived.
-            // This postpones locking of the Job Queue Entries when restarting.
-            // Th job will restart with half a second delay
-            MomentForJobToBeReady := JobQueueDispatcher.CalcNextReadyStateMoment(JobQueueEntry);
-            if CurrentDateTime > MomentForJobToBeReady then
-                if DoesJobActOnTable(JobQueueEntry, TableNo) then
-                    JobQueueEntry.Restart;
-        until JobQueueEntry.Next() = 0;
+        if JobQueueEntry.FindSet(true) then
+            repeat
+                // Restart only those jobs whose time to re-execute has nearly arrived.
+                // This postpones locking of the Job Queue Entries when restarting.
+                // The job will restart with half a second delay
+                MomentForJobToBeReady := JobQueueDispatcher.CalcNextReadyStateMoment(JobQueueEntry);
+                if CurrentDateTime > MomentForJobToBeReady then
+                    if DoesJobActOnTable(JobQueueEntry, TableNo) then begin
+                        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+                        JobQueueEntry."Earliest Start Date/Time" := MomentForJobToBeReady;
+                        JobQueueEntry.Modify();
+                        if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", MomentForJobToBeReady) then;
+                    end;
+            until JobQueueEntry.Next() = 0;
     end;
 
     local procedure DoesJobActOnTable(JobQueueEntry: Record "Job Queue Entry"; TableNo: Integer): Boolean
@@ -689,9 +705,22 @@ codeunit 5150 "Integration Management"
     end;
 
     local procedure UserCanRescheduleJob(): Boolean
+    Var
+        JobQueueEntry: Record "Job Queue Entry";
+        DummyErrorMessageRegister: Record "Error Message Register";
+        DummyErrorMessage: Record "Error Message";
     begin
+        If not JobQueueEntry.ReadPermission then
+            exit(false);
+        if not JobQueueEntry.WritePermission then
+            exit(false);
+        if not DummyErrorMessageRegister.WritePermission then
+            exit(false);
+        if not DummyErrorMessage.WritePermission then
+            exit(false);
         if not TaskScheduler.CanCreateTask() then
             exit(false);
+
         exit(true);
     end;
 

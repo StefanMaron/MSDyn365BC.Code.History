@@ -14,7 +14,7 @@ table 62 "Record Export Buffer"
         field(2; RecordID; RecordID)
         {
             Caption = 'RecordID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(3; ServerFilePath; Text[250])
         {

@@ -1,4 +1,4 @@
-﻿page 9320 "Service Credit Memos"
+page 9320 "Service Credit Memos"
 {
     ApplicationArea = Service;
     Caption = 'Service Credit Memos';
@@ -226,10 +226,8 @@
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()
-                    var
-                        ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                     begin
-                        ServPostYesNo.PostDocument(Rec);
+                        SendToPost(Codeunit::"Service-Post (Yes/No)");
                     end;
                 }
                 action(Preview)
@@ -237,6 +235,7 @@
                     ApplicationArea = Service;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -259,7 +258,7 @@
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Service-Post and Send", Rec);
+                        SendToPost(Codeunit::"Service-Post and Send");
                     end;
                 }
                 action("Post and &Print")
@@ -274,10 +273,8 @@
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
-                    var
-                        ServPostPrint: Codeunit "Service-Post+Print";
                     begin
-                        ServPostPrint.PostDocument(Rec);
+                        SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action("Post &Batch")

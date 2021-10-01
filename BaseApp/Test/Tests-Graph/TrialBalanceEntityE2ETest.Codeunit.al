@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135523 "Trial Balance Entity E2E Test"
 {
     Subtype = Test;
@@ -86,4 +87,4 @@ codeunit 135523 "Trial Balance Entity E2E Test"
         TrialBalanceJSON := JSONManagement.WriteObjectToString;
     end;
 }
-
+#endif

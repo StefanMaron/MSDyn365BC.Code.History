@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135537 "Purchase Invoice E2E Test"
 {
     Subtype = Test;
@@ -421,4 +422,4 @@ codeunit 135537 "Purchase Invoice E2E Test"
         exit(InvoiceJSON);
     end;
 }
-
+#endif

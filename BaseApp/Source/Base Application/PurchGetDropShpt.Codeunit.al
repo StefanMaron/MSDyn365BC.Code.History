@@ -170,10 +170,6 @@ codeunit 76 "Purch.-Get Drop Shpt."
             exit;
         Item.Get(SalesLine."No.");
 
-#if not CLEAN17
-        if GetDescriptionFromItemCrossReference(PurchaseLine, SalesLine, Item) then
-            exit;
-#endif
         if GetDescriptionFromItemReference(PurchaseLine, SalesLine, Item) then
             exit;
         if GetDescriptionFromItemTranslation(PurchaseLine, SalesLine) then
@@ -185,34 +181,10 @@ codeunit 76 "Purch.-Get Drop Shpt."
         GetDescriptionFromItem(PurchaseLine, Item);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by GetDescriptionFromItemReference().', '17.0')]
-    local procedure GetDescriptionFromItemCrossReference(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line"; Item: Record Item): Boolean
-    var
-        ItemCrossRef: Record "Item Cross Reference";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        if ItemReferenceMgt.IsEnabled() then
-            exit;
-
-        if PurchHeader."Buy-from Vendor No." = '' then
-            exit(false);
-
-        exit(
-            ItemCrossRef.FindItemDescription(
-                PurchaseLine.Description, PurchaseLine."Description 2", Item."No.", SalesLine."Variant Code",
-                SalesLine."Unit of Measure Code", ItemCrossRef."Cross-Reference Type"::Vendor, PurchHeader."Buy-from Vendor No."));
-    end;
-#endif
-
     local procedure GetDescriptionFromItemReference(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line"; Item: Record Item): Boolean
     var
         ItemReference: Record "Item Reference";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        if not ItemReferenceMgt.IsEnabled() then
-            exit;
-
         if PurchHeader."Buy-from Vendor No." = '' then
             exit(false);
 

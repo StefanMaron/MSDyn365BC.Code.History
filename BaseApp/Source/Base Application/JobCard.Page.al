@@ -52,6 +52,7 @@ page 88 "Job Card"
                     begin
                         if not BilltoContactLookup() then
                             exit(false);
+                        Text := "Bill-to Contact No.";
                         BilltoCustomerNoOnAfterValidate();
                         exit(true);
                     end;
@@ -667,6 +668,7 @@ page 88 "Job Card"
                     ToolTip = 'View the job''s WIP G/L entries.';
                 }
             }
+#if not CLEAN19
             group("&Prices")
             {
                 Caption = '&Prices';
@@ -721,6 +723,7 @@ page 88 "Job Card"
                     ObsoleteTag = '17.0';
                 }
             }
+#endif
             group(Prices)
             {
                 Caption = 'Prices & Discounts';
@@ -1121,7 +1124,7 @@ page 88 "Job Card"
 
     trigger OnAfterGetRecord()
     begin
-        if Contact.Get("Bill-to Contact No.") then;
+        Contact.GetOrClear("Bill-to Contact No.");
     end;
 
     var

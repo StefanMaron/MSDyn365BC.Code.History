@@ -132,7 +132,7 @@ page 1327 "Adjust Inventory"
         end;
     end;
 
-    var
+    protected var
         Item: Record Item;
         TempItemJournalLine: Record "Item Journal Line" temporary;
         LocationCount: Integer;

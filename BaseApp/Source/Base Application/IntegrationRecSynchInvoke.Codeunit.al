@@ -17,9 +17,10 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         DestinationRecordRefContext: RecordRef;
         IntegrationTableConnectionTypeContext: TableConnectionType;
         JobIdContext: Guid;
-        SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete,Uncouple;
+        SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete,Uncouple,Couple;
         SourceAndDestinationConflictErr: Label 'Cannot update a record in the %2 table. The mapping between %3 field on the %1 table and the %4 field on the %2 table is bi-directional, and one or both values have changed since the last synchronization.', Comment = '%1 = Source record table caption, %2 = destination table caption, %3 = source field caption, %4 = destination field caption';
         ModifyFailedErr: Label 'Modifying %1 failed because of the following error: %2.', Comment = '%1 = Table Caption, %2 = Error from modify process.';
+        ModifyFailedSimpleErr: Label 'Modifying %1 failed.', Comment = '%1 = Table Caption';
         ConfigurationTemplateNotFoundErr: Label 'The %1 %2 was not found.', Comment = '%1 = Configuration Template table caption, %2 = Configuration Template Name';
         CoupledRecordIsDeletedErr: Label 'The %1 record cannot be updated because it is coupled to a deleted record.', Comment = '1% = Source Table Caption';
         CopyDataErr: Label 'The data could not be updated because of the following error: %1.', Comment = '%1 = Error message from transferdata process.';
@@ -219,6 +220,9 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     end;
 
     local procedure ModifyRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var SynchAction: Option; JobId: Guid; IntegrationTableConnectionType: TableConnectionType; BothModified: Boolean)
+    var
+        LastError: Text;
+        LogError: Text;
     begin
         OnBeforeModifyRecord(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
 
@@ -233,11 +237,14 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
             UpdateIntegrationRecordTimestamp(
               IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, IntegrationTableConnectionType, JobId, BothModified);
         end else begin
+            LastError := GetLastErrorText();
             OnErrorWhenModifyingRecord(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
             SynchAction := SynchActionType::Fail;
-            LogSynchError(
-              SourceRecordRef, DestinationRecordRef,
-              StrSubstNo(ModifyFailedErr, DestinationRecordRef.Caption(), RemoveTrailingDots(GetLastErrorText())), JobId);
+            if LastError <> '' then
+                LogError := StrSubstNo(ModifyFailedErr, DestinationRecordRef.Caption(), RemoveTrailingDots(LastError))
+            else
+                LogError := StrSubstNo(ModifyFailedSimpleErr, DestinationRecordRef.Caption());
+            LogSynchError(SourceRecordRef, DestinationRecordRef, LogError, JobId);
             MarkIntegrationRecordAsFailed(IntegrationTableMapping, SourceRecordRef, JobId, IntegrationTableConnectionType, SynchAction);
         end;
         Commit();

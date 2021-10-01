@@ -41,6 +41,7 @@ codeunit 136580 "Email Address Selection"
         Assert.IsTrue(SendToEmail = '', 'Send to ' + SendToEmail + 'Expected no email');
     end;
 
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure VerifyEmailFromOnSalesHeaderFromContact()
@@ -71,6 +72,7 @@ codeunit 136580 "Email Address Selection"
         ReportSelections.GetEmailBodyTextForCust(TempPath, GetSalesQuoteId, SalesHeader, SalesHeader."Sell-to Customer No.", SendToEmail, '');
         Assert.IsTrue(SendToEmail = ContactEmailTok, 'Send to ' + SendToEmail + 'Expected ' + ContactEmailTok);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -127,12 +129,12 @@ codeunit 136580 "Email Address Selection"
 
     local procedure GetOrderConfirmationId(): Integer
     begin
-        exit(REPORT::"Order Confirmation");
+        exit(REPORT::"Standard Sales - Order Conf.");
     end;
 
     local procedure GetSalesQuoteId(): Integer
     begin
-        exit(REPORT::"Sales - Quote");
+        exit(REPORT::"Standard Sales - Quote");
     end;
 }
 

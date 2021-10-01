@@ -132,7 +132,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         PurchaseHeader.Status := PurchaseHeader.Status::Released;
         PurchaseHeader.Modify();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
-          WorkflowSetup.BuildPurchHeaderTypeConditions(PurchaseHeader."Document Type".AsInteger(), PurchaseHeader.Status::Open.AsInteger()), WorkflowStep);
+          WorkflowSetup.BuildPurchHeaderTypeConditionsText(PurchaseHeader."Document Type", PurchaseHeader.Status::Open), WorkflowStep);
 
         // Excercise
         ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchaseHeader);
@@ -220,7 +220,7 @@ codeunit 134309 "Workflow Trigger/Event Tests"
         SalesHeader.Status := SalesHeader.Status::Released;
         SalesHeader.Modify();
         CreateAndEnableOneEventStepWorkflow(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,
-          WorkflowSetup.BuildSalesHeaderTypeConditions(SalesHeader."Document Type".AsInteger(), SalesHeader.Status::Open.AsInteger()), WorkflowStep);
+          WorkflowSetup.BuildSalesHeaderTypeConditionsText(SalesHeader."Document Type", SalesHeader.Status::Open), WorkflowStep);
 
         // Excercise
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);

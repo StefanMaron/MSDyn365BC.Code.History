@@ -5,11 +5,9 @@ table 5766 "Warehouse Activity Header"
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Warehouse Activity Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Put-away,Pick,Movement,Invt. Put-away,Invt. Pick,Invt. Movement';
-            OptionMembers = " ","Put-away",Pick,Movement,"Invt. Put-away","Invt. Pick","Invt. Movement";
         }
         field(2; "No."; Code[20])
         {

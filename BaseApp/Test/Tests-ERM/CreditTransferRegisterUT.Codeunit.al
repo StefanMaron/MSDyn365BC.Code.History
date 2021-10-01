@@ -29,6 +29,34 @@ codeunit 132570 "Credit Transfer Register UT"
         UnexpectedAmountErr: Label 'Unexpected transfer amount shown.';
 
     [Test]
+    procedure CreateNewCreditTransferEntryFillsdRecepientData()
+    var
+        BankAcc: Record "Bank Account";
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        CreditTransferRegister: Record "Credit Transfer Register";
+        GenJnlLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        Initialize;
+        PreSetup(BankAcc, Vendor, VendorBankAccount, GenJnlLine);
+
+        CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
+        CreditTransferRegister.FindLast;
+        // [WHEN] CreateNew for CreditTransferEntry
+        CreditTransferEntry.CreateNew(CreditTransferRegister."No.", 1,
+          GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine.GetAppliesToDocEntryNo,
+          GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount / 2, '',
+          GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
+
+        // [THEN] "Recipient Name", "Recipient IBAN", "Recipient Bank Account No." filled.
+        CreditTransferEntry.TestField("Recipient Name", Vendor.Name);
+        CreditTransferEntry.TestField("Recipient Bank Acc. No.", VendorBankAccount.Code);
+        CreditTransferEntry.TestField("Recipient IBAN", VendorBankAccount.IBAN);
+        CreditTransferEntry.TestField("Recipient Bank Account No.", VendorBankAccount."Bank Account No.");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure TestCancellingCreditTransferRegister()
     var
@@ -203,6 +231,7 @@ codeunit 132570 "Credit Transfer Register UT"
         CTEntryNo: Integer;
         CTEntryMessageToRecipient1: Text[70];
         CTEntryMessageToRecipient2: Text[70];
+        xIBAN: Text[50];
     begin
         // Verify that after invoking codeunit "Gen. Jnl.-Show CT Entries" on a General Journal Line,
         // corresponding credit transfer register entries are shown, by checking their entry no.
@@ -210,7 +239,7 @@ codeunit 132570 "Credit Transfer Register UT"
 
         Initialize;
         PreSetupForEmployee(BankAcc, Employee, GenJnlLine);
-
+        xIBAN := Employee.IBAN;
         // Setup
         CTEntryNo := LibraryRandom.RandInt(1000);
         CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
@@ -220,6 +249,10 @@ codeunit 132570 "Credit Transfer Register UT"
           GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount / 2, '',
           GenJnlLine."Recipient Bank Account", CTEntryMessageToRecipient1);
         CTEntryMessageToRecipient2 := CopyStr(LibraryUtility.GenerateRandomText(70), 1, 70);
+
+        Employee.IBAN := LibraryUtility.GenerateGUID();
+        Employee.Modify();
+
         CreditTransferEntry.CreateNew(CreditTransferRegister."No.", CTEntryNo + 1,
           GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine."Source Line No.",
           GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount / 2, '',
@@ -236,7 +269,7 @@ codeunit 132570 "Credit Transfer Register UT"
         Assert.AreEqual(CTEntryNo, CreditTransferRegEntries."Entry No.".AsInteger, UnexpectedCTEntryErr);
         Assert.AreNearlyEqual(GenJnlLine.Amount / 2, CreditTransferRegEntries."Transfer Amount".AsDEcimal,
           LibraryERM.GetAmountRoundingPrecision, UnexpectedAmountErr);
-        Assert.AreEqual(Employee.IBAN, CreditTransferRegEntries.RecipientIBAN.Value, UnexpectedIBANErr);
+        Assert.AreEqual(xIBAN, CreditTransferRegEntries.RecipientIBAN.Value, UnexpectedIBANErr);
         CreditTransferRegEntries.Next;
         Assert.AreEqual(CTEntryNo + 1, CreditTransferRegEntries."Entry No.".AsInteger, UnexpectedCTEntryErr);
         Assert.AreEqual(Employee.IBAN, CreditTransferRegEntries.RecipientIBAN.Value, UnexpectedIBANErr);

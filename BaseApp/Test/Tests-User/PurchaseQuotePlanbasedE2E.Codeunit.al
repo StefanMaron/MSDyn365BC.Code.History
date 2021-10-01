@@ -19,7 +19,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         IsInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmYesHandler,PurchaseOrderHandler')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmYesHandler,PurchaseOrderHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromPurchaseQuoteAsBusinessManager()
     var
@@ -42,7 +42,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmYesHandler,PurchaseOrderHandler')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmYesHandler,PurchaseOrderHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromPurchaseQuoteAsAccountant()
     var
@@ -97,7 +97,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmYesHandler,PurchaseOrderHandler')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmYesHandler,PurchaseOrderHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromPurchaseQuoteAsEssentialISVEmbUser()
     var
@@ -155,7 +155,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmYesHandler,PurchaseOrderHandler')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmYesHandler,PurchaseOrderHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromPurchaseQuoteAsDeviceISVEmbUser()
     var
@@ -198,7 +198,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Purchase Quote Plan-based E2E");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibraryPurchase.SetQuoteNoSeriesInSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -270,10 +270,18 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectVendorTemplListModalPageHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectItemTemplListModalPageHandler(var SelectVendorTemplList: TestPage "Select Item Templ. List")
+    begin
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
     end;
 
     [PageHandler]

@@ -11,7 +11,7 @@ table 9160 TempStack
         field(2; Value; RecordID)
         {
             Caption = 'Value';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
     }
 

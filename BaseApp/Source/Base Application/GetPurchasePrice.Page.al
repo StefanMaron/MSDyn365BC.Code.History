@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 7190 "Get Purchase Price"
 {
     Caption = 'Get Purchase Price';
@@ -70,4 +71,4 @@ page 7190 "Get Purchase Price"
     {
     }
 }
-
+#endif

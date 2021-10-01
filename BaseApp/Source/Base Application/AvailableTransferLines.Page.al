@@ -17,37 +17,37 @@ page 99000896 "Available - Transfer Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Transfer-from Code"; "Transfer-from Code")
+                field("Transfer-from Code"; Rec."Transfer-from Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location that items are transferred from.';
                 }
-                field("Transfer-to Code"; "Transfer-to Code")
+                field("Transfer-to Code"; Rec."Transfer-to Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location that the items are transferred to.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Receipt Date"; "Receipt Date")
+                field("Receipt Date"; Rec."Receipt Date")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the date that you expect the transfer-to location to receive the items on this line.';
                 }
-                field("Quantity (Base)"; "Quantity (Base)")
+                field("Quantity (Base)"; Rec."Quantity (Base)")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the quantity on the line expressed in base units of measure.';
                 }
-                field("Reserved Qty. Inbnd. (Base)"; "Reserved Qty. Inbnd. (Base)")
+                field("Reserved Qty. Inbnd. (Base)"; Rec."Reserved Qty. Inbnd. (Base)")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies the quantity of the item reserved at the transfer-to location, expressed in base units of measure.';
                 }
-                field("Reserved Qty. Outbnd. (Base)"; "Reserved Qty. Outbnd. (Base)")
+                field("Reserved Qty. Outbnd. (Base)"; Rec."Reserved Qty. Outbnd. (Base)")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies the quantity of the item reserved at the transfer-from location, expressed in the base unit of measure.';
@@ -60,7 +60,7 @@ page 99000896 "Available - Transfer Lines"
                     Editable = false;
                     ToolTip = 'Specifies the quantity of the item that is available.';
                 }
-                field(ReservedQuantity; GetReservedQtyInLine)
+                field(ReservedQuantity; GetReservedQtyInLine())
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Current Reserved Quantity';
@@ -70,7 +70,7 @@ page 99000896 "Available - Transfer Lines"
                     trigger OnDrillDown()
                     begin
                         ReservEntry2.Reset();
-                        SetReservationFilters(ReservEntry2, TransferDirection);
+                        Rec.SetReservationFilters(ReservEntry2, TransferDirection);
                         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
@@ -114,7 +114,7 @@ page 99000896 "Available - Transfer Lines"
                     begin
                         ReservEntry.LockTable();
                         UpdateReservMgt();
-                        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, TransferDirection.AsInteger());
+                        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, TransferDirection.AsInteger());
                         ReservMgt.CalculateRemainingQty(NewQtyReserved, NewQtyReservedBase);
                         ReservMgt.CopySign(NewQtyReserved, QtyToReserve);
                         ReservMgt.CopySign(NewQtyReservedBase, QtyToReserveBase);
@@ -141,7 +141,7 @@ page 99000896 "Available - Transfer Lines"
                             exit;
 
                         ReservEntry2.Copy(ReservEntry);
-                        SetReservationFilters(ReservEntry2, TransferDirection);
+                        Rec.SetReservationFilters(ReservEntry2, TransferDirection);
                         if ReservEntry2.Find('-') then begin
                             UpdateReservMgt();
                             repeat
@@ -158,7 +158,7 @@ page 99000896 "Available - Transfer Lines"
 
     trigger OnAfterGetRecord()
     begin
-        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, TransferDirection.AsInteger());
+        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, TransferDirection.AsInteger());
     end;
 
     trigger OnOpenPage()
@@ -180,8 +180,6 @@ page 99000896 "Available - Transfer Lines"
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         SourceRecRef: RecordRef;
-        QtyToReserve: Decimal;
-        QtyToReserveBase: Decimal;
         QtyReserved: Decimal;
         QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
@@ -189,6 +187,10 @@ page 99000896 "Available - Transfer Lines"
         CaptionText: Text;
         TransferDirection: Enum "Transfer Direction";
         DirectionIsSet: Boolean;
+
+    protected var
+        QtyToReserve: Decimal;
+        QtyToReserveBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     begin
@@ -209,85 +211,6 @@ page 99000896 "Available - Transfer Lines"
         SetInbound(ReservMgt.IsPositive);
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentSalesLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetReqLine(var CurrentReqLine: Record "Requisition Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentReqLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentPurchLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderComp);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentPlanningComponent);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; TransferDirection: Enum "Transfer Direction")
-    begin
-        SourceRecRef.GetTable(CurrentTransLine);
-        SetSource(SourceRecRef, CurrentReservEntry, TransferDirection);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetServiceInvLine(var CurrentServiceLine: Record "Service Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentServiceLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentJobPlanningLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-#endif
-
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";
@@ -299,34 +222,34 @@ page 99000896 "Available - Transfer Lines"
         case TransferDirection of
             TransferDirection::Outbound:
                 begin
-                    CalcFields("Reserved Qty. Outbnd. (Base)");
-                    QtyThisLine := "Outstanding Qty. (Base)";
-                    ReservQty := "Reserved Qty. Outbnd. (Base)";
-                    EntryDate := "Shipment Date";
-                    TestField("Transfer-from Code", ReservEntry."Location Code");
-                    LocationCode := "Transfer-from Code";
+                    Rec.CalcFields("Reserved Qty. Outbnd. (Base)");
+                    QtyThisLine := Rec."Outstanding Qty. (Base)";
+                    ReservQty := Rec."Reserved Qty. Outbnd. (Base)";
+                    EntryDate := Rec."Shipment Date";
+                    Rec.TestField("Transfer-from Code", ReservEntry."Location Code");
+                    LocationCode := Rec."Transfer-from Code";
                 end;
             TransferDirection::Inbound:
                 begin
-                    CalcFields("Reserved Qty. Inbnd. (Base)");
-                    QtyThisLine := "Outstanding Qty. (Base)";
-                    ReservQty := "Reserved Qty. Inbnd. (Base)";
-                    EntryDate := "Receipt Date";
-                    TestField("Transfer-to Code", ReservEntry."Location Code");
-                    LocationCode := "Transfer-to Code";
+                    Rec.CalcFields("Reserved Qty. Inbnd. (Base)");
+                    QtyThisLine := Rec."Outstanding Qty. (Base)";
+                    ReservQty := Rec."Reserved Qty. Inbnd. (Base)";
+                    EntryDate := Rec."Receipt Date";
+                    Rec.TestField("Transfer-to Code", ReservEntry."Location Code");
+                    LocationCode := Rec."Transfer-to Code";
                 end;
         end;
 
         if QtyThisLine - ReservQty < ReserveQuantityBase then
             Error(Text003, QtyThisLine + ReservQty);
 
-        TestField("Item No.", ReservEntry."Item No.");
-        TestField("Variant Code", ReservEntry."Variant Code");
+        Rec.TestField("Item No.", ReservEntry."Item No.");
+        Rec.TestField("Variant Code", ReservEntry."Variant Code");
 
         UpdateReservMgt();
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Transfer Line", TransferDirection.AsInteger(), "Document No.", '', "Derived From Line No.", "Line No.",
-          "Variant Code", LocationCode, "Qty. per Unit of Measure");
+          DATABASE::"Transfer Line", TransferDirection.AsInteger(), Rec."Document No.", '', Rec."Derived From Line No.", Rec."Line No.",
+          Rec."Variant Code", LocationCode, Rec."Qty. per Unit of Measure");
         ReservMgt.CreateReservation(
           ReservEntry.Description, EntryDate, ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
         UpdateReservFrom();
@@ -347,10 +270,10 @@ page 99000896 "Available - Transfer Lines"
         OnAfterUpdateReservMgt(ReservEntry);
     end;
 
-    local procedure GetReservedQtyInLine(): Decimal
+    protected procedure GetReservedQtyInLine(): Decimal
     begin
         ReservEntry2.Reset();
-        SetReservationFilters(ReservEntry2, TransferDirection);
+        Rec.SetReservationFilters(ReservEntry2, TransferDirection);
         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
         exit(ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry));
     end;
@@ -369,19 +292,19 @@ page 99000896 "Available - Transfer Lines"
         case TransferDirection of
             TransferDirection::Outbound:
                 begin
-                    SetFilter("Shipment Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
-                    SetRange("Transfer-from Code", ReservEntry."Location Code");
+                    Rec.SetFilter("Shipment Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
+                    Rec.SetRange("Transfer-from Code", ReservEntry."Location Code");
                 end;
             TransferDirection::Inbound:
                 begin
-                    SetFilter("Receipt Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
-                    SetRange("Transfer-to Code", ReservEntry."Location Code");
+                    Rec.SetFilter("Receipt Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
+                    Rec.SetRange("Transfer-to Code", ReservEntry."Location Code");
                 end;
         end;
 
-        SetRange("Item No.", ReservEntry."Item No.");
-        SetRange("Variant Code", ReservEntry."Variant Code");
-        SetFilter("Outstanding Qty. (Base)", '>0');
+        Rec.SetRange("Item No.", ReservEntry."Item No.");
+        Rec.SetRange("Variant Code", ReservEntry."Variant Code");
+        Rec.SetFilter("Outstanding Qty. (Base)", '>0');
 
         OnAfterSetFilters(Rec, ReservEntry);
     end;

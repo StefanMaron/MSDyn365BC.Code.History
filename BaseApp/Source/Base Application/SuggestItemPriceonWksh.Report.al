@@ -1,3 +1,4 @@
+#if not CLEAN19
 report 7051 "Suggest Item Price on Wksh."
 {
     Caption = 'Suggest Item Price on Wksh.';
@@ -370,4 +371,4 @@ report 7051 "Suggest Item Price on Wksh."
     begin
     end;
 }
-
+#endif

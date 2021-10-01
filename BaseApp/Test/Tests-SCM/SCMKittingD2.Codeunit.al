@@ -144,7 +144,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetCurrentKey("Document Type", "Document No.", Type);
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+        AssemblyLine.SetRange(Type, "BOM Component Type"::Item);
         AssemblyLine.SetRange("No.", BOMComponent."No.");
 
         if AssemblyLine.FindFirst then
@@ -293,7 +293,7 @@ codeunit 137091 "SCM Kitting - D2"
         end;
 
         LibraryAssembly.EditAssemblyLines(
-          ChangeType::Edit, AssemblyLine.Type::Item, AssemblyLine.Type::Item, '', AssemblyHeader."No.", true);
+          ChangeType::Edit, "BOM Component Type"::Item, "BOM Component Type"::Item, '', AssemblyHeader."No.", true);
         LibraryAssembly.UpdateOrderCost(AssemblyHeader);
 
         // Validate.
@@ -408,7 +408,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    local procedure ModifyAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean): Code[20]
+    local procedure ModifyAssemblyLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type"; UseBaseUnitOfMeasure: Boolean): Code[20]
     var
         Item: Record Item;
         Resource: Record Resource;
@@ -422,7 +422,7 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, CostingMethod, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', true);
         SaveInitialAssemblyList(TempBOMComponent, AssemblyHeader."Item No.");
-        if NewComponentType = AssemblyLine.Type::Item then
+        if NewComponentType = "BOM Component Type"::Item then
             NewComponentNo := LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Purchase, '', '')
         else
             NewComponentNo := LibraryAssembly.CreateResource(Resource, true, '');
@@ -438,7 +438,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    local procedure CostModifiedLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean)
+    local procedure CostModifiedLines(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type"; UseBaseUnitOfMeasure: Boolean)
     var
         AssemblyHeader: Record "Assembly Header";
         Item: Record Item;
@@ -451,7 +451,7 @@ codeunit 137091 "SCM Kitting - D2"
         Initialize;
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order,
           ModifyAssemblyLines(ChangeType, CostingMethod, ComponentType, NewComponentType, UseBaseUnitOfMeasure));
-        if NewComponentType = AssemblyLine.Type::Item then
+        if NewComponentType = "BOM Component Type"::Item then
             NewComponentNo := LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Purchase, '', '')
         else
             NewComponentNo := LibraryAssembly.CreateResource(Resource, true, '');
@@ -479,7 +479,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure ItemQtyPer()
     begin
         ModifyAssemblyLines(
-          ChangeType::Edit, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::" ", true);
+          ChangeType::Edit, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::" ", true);
     end;
 
     [Test]
@@ -488,7 +488,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure ResQtyPer()
     begin
         ModifyAssemblyLines(
-          ChangeType::Edit, Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, true);
+          ChangeType::Edit, Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -497,7 +497,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure UnitOfMeasure()
     begin
         ModifyAssemblyLines(
-          ChangeType::Edit, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::" ", false);
+          ChangeType::Edit, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::" ", false);
     end;
 
     [Test]
@@ -506,7 +506,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure ReplaceItemWRes()
     begin
         ModifyAssemblyLines(
-          ChangeType::Replace, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Resource, true);
+          ChangeType::Replace, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -515,7 +515,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure ReplaceItemWItem()
     begin
         ModifyAssemblyLines(
-          ChangeType::Replace, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true);
+          ChangeType::Replace, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, true);
     end;
 
     [Test]
@@ -524,7 +524,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AddItem()
     begin
         ModifyAssemblyLines(
-          ChangeType::Add, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true);
+          ChangeType::Add, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, true);
     end;
 
     [Test]
@@ -533,7 +533,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AddDirectRes()
     begin
         ModifyAssemblyLines(
-          ChangeType::Add, Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, true);
+          ChangeType::Add, Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -542,7 +542,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AddFixedRes()
     begin
         ModifyAssemblyLines(
-          ChangeType::Add, Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Add, Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Test]
@@ -551,7 +551,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure DeleteItem()
     begin
         ModifyAssemblyLines(
-          ChangeType::Delete, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false);
+          ChangeType::Delete, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, false);
     end;
 
     [Test]
@@ -560,7 +560,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure DeleteRes()
     begin
         ModifyAssemblyLines(
-          ChangeType::Delete, Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Delete, Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Test]
@@ -569,7 +569,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure DeleteAll()
     begin
         ModifyAssemblyLines(
-          ChangeType::"Delete all", Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false);
+          ChangeType::"Delete all", Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, false);
     end;
 
     [Test]
@@ -578,7 +578,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure Usage()
     begin
         ModifyAssemblyLines(
-          ChangeType::Usage, Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Usage, Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Test]
@@ -587,7 +587,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostItemQtyPer()
     begin
         CostModifiedLines(
-          ChangeType::Edit, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true);
+          ChangeType::Edit, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, true);
     end;
 
     [Test]
@@ -596,7 +596,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostResQtyPer()
     begin
         CostModifiedLines(
-          ChangeType::Edit, Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, true);
+          ChangeType::Edit, Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -605,7 +605,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostUnitOfMeasure()
     begin
         CostModifiedLines(
-          ChangeType::Edit, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false);
+          ChangeType::Edit, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, false);
     end;
 
     [Test]
@@ -614,7 +614,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostReplaceItemWItem()
     begin
         CostModifiedLines(
-          ChangeType::Replace, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true);
+          ChangeType::Replace, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, true);
     end;
 
     [Test]
@@ -623,7 +623,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostReplaceItemWRes()
     begin
         CostModifiedLines(
-          ChangeType::Replace, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Resource, true);
+          ChangeType::Replace, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -632,7 +632,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostAddItem()
     begin
         CostModifiedLines(
-          ChangeType::Add, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true);
+          ChangeType::Add, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, true);
     end;
 
     [Test]
@@ -641,7 +641,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostAddDirectRes()
     begin
         CostModifiedLines(
-          ChangeType::Add, Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, true);
+          ChangeType::Add, Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -650,7 +650,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostAddFixedRes()
     begin
         CostModifiedLines(
-          ChangeType::Add, Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Add, Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Test]
@@ -659,7 +659,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostDeleteItem()
     begin
         CostModifiedLines(
-          ChangeType::Delete, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false);
+          ChangeType::Delete, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, false);
     end;
 
     [Test]
@@ -668,7 +668,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostDeleteRes()
     begin
         CostModifiedLines(
-          ChangeType::Delete, Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Delete, Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Test]
@@ -677,7 +677,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostDeleteAll()
     begin
         CostModifiedLines(
-          ChangeType::"Delete all", Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false);
+          ChangeType::"Delete all", Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, false);
     end;
 
     [Test]
@@ -686,7 +686,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure CostUsage()
     begin
         CostModifiedLines(
-          ChangeType::Usage, Item."Costing Method"::Standard, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Usage, Item."Costing Method"::Standard, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Test]
@@ -695,7 +695,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostItemQtyPer()
     begin
         CostModifiedLines(
-          ChangeType::Edit, Item."Costing Method"::Average, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true);
+          ChangeType::Edit, Item."Costing Method"::Average, "BOM Component Type"::Item, "BOM Component Type"::Item, true);
     end;
 
     [Test]
@@ -704,7 +704,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostResQtyPer()
     begin
         CostModifiedLines(
-          ChangeType::Edit, Item."Costing Method"::Average, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, true);
+          ChangeType::Edit, Item."Costing Method"::Average, "BOM Component Type"::Resource, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -713,7 +713,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostUnitOfMeasure()
     begin
         CostModifiedLines(
-          ChangeType::Edit, Item."Costing Method"::Average, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false);
+          ChangeType::Edit, Item."Costing Method"::Average, "BOM Component Type"::Item, "BOM Component Type"::Item, false);
     end;
 
     [Test]
@@ -722,7 +722,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostReplaceItemWItem()
     begin
         CostModifiedLines(
-          ChangeType::Replace, Item."Costing Method"::Average, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true);
+          ChangeType::Replace, Item."Costing Method"::Average, "BOM Component Type"::Item, "BOM Component Type"::Item, true);
     end;
 
     [Test]
@@ -731,7 +731,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostReplaceItemWRes()
     begin
         CostModifiedLines(
-          ChangeType::Replace, Item."Costing Method"::Average, AssemblyLine.Type::Item, AssemblyLine.Type::Resource, true);
+          ChangeType::Replace, Item."Costing Method"::Average, "BOM Component Type"::Item, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -740,7 +740,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostAddItem()
     begin
         CostModifiedLines(
-          ChangeType::Add, Item."Costing Method"::Average, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true);
+          ChangeType::Add, Item."Costing Method"::Average, "BOM Component Type"::Item, "BOM Component Type"::Item, true);
     end;
 
     [Test]
@@ -749,7 +749,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostAddDirectRes()
     begin
         CostModifiedLines(
-          ChangeType::Add, Item."Costing Method"::Average, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, true);
+          ChangeType::Add, Item."Costing Method"::Average, "BOM Component Type"::Resource, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -758,7 +758,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostAddFixedRes()
     begin
         CostModifiedLines(
-          ChangeType::Add, Item."Costing Method"::Average, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Add, Item."Costing Method"::Average, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Test]
@@ -767,7 +767,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostDeleteItem()
     begin
         CostModifiedLines(
-          ChangeType::Delete, Item."Costing Method"::Average, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false);
+          ChangeType::Delete, Item."Costing Method"::Average, "BOM Component Type"::Item, "BOM Component Type"::Item, false);
     end;
 
     [Test]
@@ -776,7 +776,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostDeleteRes()
     begin
         CostModifiedLines(
-          ChangeType::Delete, Item."Costing Method"::Average, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Delete, Item."Costing Method"::Average, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Test]
@@ -785,7 +785,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostDeleteAll()
     begin
         CostModifiedLines(
-          ChangeType::"Delete all", Item."Costing Method"::Average, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false);
+          ChangeType::"Delete all", Item."Costing Method"::Average, "BOM Component Type"::Item, "BOM Component Type"::Item, false);
     end;
 
     [Test]
@@ -794,7 +794,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgCostUsage()
     begin
         CostModifiedLines(
-          ChangeType::Usage, Item."Costing Method"::Average, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Usage, Item."Costing Method"::Average, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Test]
@@ -803,7 +803,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostItemQtyPer()
     begin
         CostModifiedLines(
-          ChangeType::Edit, Item."Costing Method"::FIFO, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true);
+          ChangeType::Edit, Item."Costing Method"::FIFO, "BOM Component Type"::Item, "BOM Component Type"::Item, true);
     end;
 
     [Test]
@@ -812,7 +812,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostResQtyPer()
     begin
         CostModifiedLines(
-          ChangeType::Edit, Item."Costing Method"::FIFO, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, true);
+          ChangeType::Edit, Item."Costing Method"::FIFO, "BOM Component Type"::Resource, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -821,7 +821,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostUnitOfMeasure()
     begin
         CostModifiedLines(
-          ChangeType::Edit, Item."Costing Method"::FIFO, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false);
+          ChangeType::Edit, Item."Costing Method"::FIFO, "BOM Component Type"::Item, "BOM Component Type"::Item, false);
     end;
 
     [Test]
@@ -830,7 +830,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostReplaceItemWItem()
     begin
         CostModifiedLines(
-          ChangeType::Replace, Item."Costing Method"::FIFO, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true);
+          ChangeType::Replace, Item."Costing Method"::FIFO, "BOM Component Type"::Item, "BOM Component Type"::Item, true);
     end;
 
     [Test]
@@ -839,7 +839,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostReplaceItemWRes()
     begin
         CostModifiedLines(
-          ChangeType::Replace, Item."Costing Method"::FIFO, AssemblyLine.Type::Item, AssemblyLine.Type::Resource, true);
+          ChangeType::Replace, Item."Costing Method"::FIFO, "BOM Component Type"::Item, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -848,7 +848,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostAddItem()
     begin
         CostModifiedLines(
-          ChangeType::Add, Item."Costing Method"::FIFO, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true);
+          ChangeType::Add, Item."Costing Method"::FIFO, "BOM Component Type"::Item, "BOM Component Type"::Item, true);
     end;
 
     [Test]
@@ -857,7 +857,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostAddDirectRes()
     begin
         CostModifiedLines(
-          ChangeType::Add, Item."Costing Method"::FIFO, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, true);
+          ChangeType::Add, Item."Costing Method"::FIFO, "BOM Component Type"::Resource, "BOM Component Type"::Resource, true);
     end;
 
     [Test]
@@ -866,7 +866,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostAddFixedRes()
     begin
         CostModifiedLines(
-          ChangeType::Add, Item."Costing Method"::FIFO, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Add, Item."Costing Method"::FIFO, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Test]
@@ -875,7 +875,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostDeleteItem()
     begin
         CostModifiedLines(
-          ChangeType::Delete, Item."Costing Method"::FIFO, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false);
+          ChangeType::Delete, Item."Costing Method"::FIFO, "BOM Component Type"::Item, "BOM Component Type"::Item, false);
     end;
 
     [Test]
@@ -884,7 +884,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostDeleteRes()
     begin
         CostModifiedLines(
-          ChangeType::Delete, Item."Costing Method"::FIFO, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Delete, Item."Costing Method"::FIFO, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Test]
@@ -893,7 +893,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostDeleteAll()
     begin
         CostModifiedLines(
-          ChangeType::"Delete all", Item."Costing Method"::FIFO, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false);
+          ChangeType::"Delete all", Item."Costing Method"::FIFO, "BOM Component Type"::Item, "BOM Component Type"::Item, false);
     end;
 
     [Test]
@@ -902,7 +902,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure FIFOCostUsage()
     begin
         CostModifiedLines(
-          ChangeType::Usage, Item."Costing Method"::FIFO, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, false);
+          ChangeType::Usage, Item."Costing Method"::FIFO, "BOM Component Type"::Resource, "BOM Component Type"::Resource, false);
     end;
 
     [Normal]
@@ -920,16 +920,16 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryAssembly.CreateItem(Item, CostingMethod, Item."Replenishment System"::Purchase, '', '');
         LibraryAssembly.CreateResource(Resource, true, '');
         LibraryAssembly.EditAssemblyLines(
-          ChangeType::Add, AssemblyLine.Type::Item, AssemblyLine.Type::Item, Item."No.", AssemblyHeader."No.", true);
+          ChangeType::Add, "BOM Component Type"::Item, "BOM Component Type"::Item, Item."No.", AssemblyHeader."No.", true);
         LibraryAssembly.EditAssemblyLines(
-          ChangeType::Add, AssemblyLine.Type::Resource, AssemblyLine.Type::Resource, Resource."No.",
+          ChangeType::Add, "BOM Component Type"::Resource, "BOM Component Type"::Resource, Resource."No.",
           AssemblyHeader."No.", true);
 
         // Exercise.
         AssemblyHeader.Validate(Quantity, SignFactor * (AssemblyHeader.Quantity + LibraryRandom.RandDec(10, 2)));
         AssemblyHeader.Modify(true);
         AssemblyHeader.Validate(
-          "Unit of Measure Code", LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Item, AssemblyHeader."Item No.", BaseUoM));
+          "Unit of Measure Code", LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, AssemblyHeader."Item No.", BaseUoM));
         AssemblyHeader.Modify(true);
 
         // Validate.
@@ -1027,7 +1027,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    local procedure RefreshOrder(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Option; NewComponentType: Option; UseBaseUnitOfMeasure: Boolean; UpdateAssemblyList: Boolean)
+    local procedure RefreshOrder(ChangeType: Option " ",Add,Replace,Delete,Edit,"Delete all","Edit cards",Usage; CostingMethod: Enum "Costing Method"; ComponentType: Enum "BOM Component Type"; NewComponentType: Enum "BOM Component Type"; UseBaseUnitOfMeasure: Boolean; UpdateAssemblyList: Boolean)
     var
         AssemblyHeader: Record "Assembly Header";
         TempBOMComponent: Record "BOM Component" temporary;
@@ -1064,7 +1064,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure SimpleRefresh()
     begin
         RefreshOrder(
-          ChangeType::Add, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false, false);
+          ChangeType::Add, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, false, false);
     end;
 
     [Test]
@@ -1073,7 +1073,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure StdChangeAssemblyList()
     begin
         RefreshOrder(
-          ChangeType::Edit, Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false, true);
+          ChangeType::Edit, Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, false, true);
     end;
 
     [Test]
@@ -1082,7 +1082,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure AvgChangeAssemblyList()
     begin
         RefreshOrder(
-          ChangeType::Edit, Item."Costing Method"::Average, AssemblyLine.Type::Item, AssemblyLine.Type::Item, false, true);
+          ChangeType::Edit, Item."Costing Method"::Average, "BOM Component Type"::Item, "BOM Component Type"::Item, false, true);
     end;
 
     [Test]
@@ -1091,7 +1091,7 @@ codeunit 137091 "SCM Kitting - D2"
     procedure RefreshAfterDeleteAll()
     begin
         RefreshOrder(
-          ChangeType::"Delete all", Item."Costing Method"::Standard, AssemblyLine.Type::Item, AssemblyLine.Type::Item, true, true);
+          ChangeType::"Delete all", Item."Costing Method"::Standard, "BOM Component Type"::Item, "BOM Component Type"::Item, true, true);
     end;
 
     [Normal]
@@ -1114,7 +1114,7 @@ codeunit 137091 "SCM Kitting - D2"
             CalculateStandardCost.CalcItem(Item."No.", true);
         end;
 
-        LibraryAssembly.EditAssemblyList(ChangeType::Edit, AssemblyLine.Type::Item, AssemblyLine.Type::Item, '', Item."No.");
+        LibraryAssembly.EditAssemblyList(ChangeType::Edit, "BOM Component Type"::Item, "BOM Component Type"::Item, '', Item."No.");
         SaveInitialAssemblyList(TempBOMComponent, Item."No.");
         if Rollup then begin
             StdCostLevel := Level;
@@ -1218,7 +1218,7 @@ codeunit 137091 "SCM Kitting - D2"
         TempAssemblyLine.DeleteAll();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+        AssemblyLine.SetRange(Type, "BOM Component Type"::Item);
         if AssemblyLine.FindSet then
             repeat
                 Item.Get(AssemblyLine."No.");
@@ -1274,12 +1274,12 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetCurrentKey("Document Type", "Document No.", Type);
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+        AssemblyLine.SetRange(Type, "BOM Component Type"::Item);
         if AssemblyLine.FindSet then
             repeat
                 asserterror AssemblyLine.ExplodeAssemblyList;
                 // Validate.
-                if AssemblyLine.Type = AssemblyLine.Type::Item then
+                if AssemblyLine.Type = "BOM Component Type"::Item then
                     Assert.AreEqual(
                       StrSubstNo(ErrorItemIsNotBOM, AssemblyLine."No."), GetLastErrorText, 'Wrong BOM explosion message.')
                 else
@@ -1550,13 +1550,13 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, Item."No.", '', LibraryRandom.RandDec(10, 2), '');
 
         // Exercise.
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item1."No.",
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Item, Item1."No.", true), 40 + LibraryRandom.RandDec(20, 2), 0, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item1."No.",
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, Item1."No.", true), 40 + LibraryRandom.RandDec(20, 2), 0, '');
         if UseVariant then
             AssemblyLine.Validate("Variant Code", LibraryInventory.GetVariant(Item1."No.", AssemblyLine."Variant Code"));
         AssemblyLine.Modify(true);
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Resource, Resource."No.",
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Resource, Resource."No.", true),
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Resource, Resource."No.",
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Resource, Resource."No.", true),
           40 + LibraryRandom.RandDec(20, 2), 0, '');
         LibraryAssembly.UpdateOrderCost(AssemblyHeader);
 
@@ -1602,8 +1602,8 @@ codeunit 137091 "SCM Kitting - D2"
             ItemNo := Item."No.";
 
         // Exercise.
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, ItemNo,
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Item, AssemblyHeader."Item No.", true), 1, 0, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ItemNo,
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, AssemblyHeader."Item No.", true), 1, 0, '');
         LibraryAssembly.UpdateOrderCost(AssemblyHeader);
 
         // Validate.
@@ -1638,7 +1638,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeaderNo);
-        AssemblyLine.SetFilter(Type, '<>%1', AssemblyLine.Type::" ");
+        AssemblyLine.SetFilter(Type, '<>%1', "BOM Component Type"::" ");
         if AssemblyLine.FindSet then
             repeat
                 BOMComponent.SetRange("Parent Item No.", AssemblyHeader."Item No.");
@@ -1675,9 +1675,9 @@ codeunit 137091 "SCM Kitting - D2"
         IndirectCost: Decimal;
     begin
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, AssemblyLine."Document No.");
-        if AssemblyLine.Type = AssemblyLine.Type::" " then
+        if AssemblyLine.Type = "BOM Component Type"::" " then
             exit;
-        if (AssemblyLine.Type = AssemblyLine.Type::Resource) and
+        if (AssemblyLine.Type = "BOM Component Type"::Resource) and
            (AssemblyHeader.Quantity > 0) and (AssemblyLine."Resource Usage Type" = AssemblyLine."Resource Usage Type"::Fixed)
         then
             OrderQty := 1
@@ -1736,7 +1736,7 @@ codeunit 137091 "SCM Kitting - D2"
                 // TempBOMComponent.SETRANGE("Resource Usage Type",AssemblyLine."Resource Usage Type");
                 TempBOMComponent.FindFirst;
                 Assert.AreEqual(1, TempBOMComponent.Count, 'Too many order lines exploded.');
-                TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
+                TempAssemblyLine.SetRange(Type, "BOM Component Type"::Item);
                 TempAssemblyLine.SetRange("No.", TempBOMComponent."Parent Item No.");
                 if TempAssemblyLine.FindFirst then
                     Assert.AreNearlyEqual(TempAssemblyLine."Quantity per" * TempBOMComponent."Quantity per", AssemblyLine."Quantity per",
@@ -1867,7 +1867,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetCurrentKey("Document Type", "Document No.", Type);
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeaderNo);
-        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
+        AssemblyLine.SetRange(Type, "BOM Component Type"::Item);
         if AssemblyLine.FindSet then
             repeat
                 Assert.AreEqual(LocationCode, AssemblyLine."Location Code", 'Wrong location code on line.');

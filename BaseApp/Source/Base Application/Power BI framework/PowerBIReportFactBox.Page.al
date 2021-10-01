@@ -377,7 +377,7 @@ page 6306 "Power BI Report FactBox"
                     PowerBiReportDialog: Page "Power BI Report Dialog";
                 begin
                     PowerBiReportDialog.SetReportUrl(GetEmbedUrlWithNavigationWithFilters());
-                    PowerBiReportDialog.Caption(TempPowerBiReportBuffer.ReportName);
+                    PowerBiReportDialog.Caption(StrSubstNo(ReportCaptionTxt, TempPowerBiReportBuffer.ReportName, TempPowerBiReportBuffer."Workspace Name"));
                     PowerBiReportDialog.SetFilterValue(CurrentListSelection, CurrentReportFirstPage);
                     PowerBiReportDialog.Run();
                 end;
@@ -486,10 +486,10 @@ page 6306 "Power BI Report FactBox"
         StillDeployingMsg: Label 'We are still uploading your demo report. Once the upload finishes, choose Refresh again to see it in this page.\\If you have already reports in your Power BI workspace, you can choose Select Reports instead.';
         RefreshPartTxt: Label 'Refresh';
         SelectReportsTxt: Label 'Select reports';
+        ReportCaptionTxt: Label '%1 (Workspace: %2)', Comment = '%1: a report name, for example "Top customers by sales"; %2: a Power BI workspace name, for example "Contoso"';
         PageState: Option GetStarted,ShouldDeploy,NoReport,NoReportButDeploying,ReportVisible,ErrorVisible;
         LastOpenedReportID: Guid;
         Context: Text[30];
-        NameFilter: Text;
         HasReports: Boolean;
         AddInReady: Boolean;
         ErrorMessageText: Text;
@@ -499,12 +499,25 @@ page 6306 "Power BI Report FactBox"
         IsSaaSUser: Boolean;
         IsVisible: Boolean;
         // Telemetry labels
+        InvalidEmbedUriErr: Label 'Invalid embed URI with length: %1', Locked = true;
         NoOptInImageTxt: Label 'There is no Power BI Opt-in image in the Database with ID: %1', Locked = true;
         PowerBIReportLoadTelemetryMsg: Label 'Loading Power BI report for user', Locked = true;
         PowerBiOptInTxt: Label 'User has opted in to enable Power BI services in factbox', Locked = true;
-
 #if not CLEAN18
         GetReportsTxt: Label 'Get reports';
+#endif
+#if not CLEAN19
+        NameFilter: Text;
+
+
+    [Obsolete('Filtering of reports when the selection page opens is deprecated. The user can use the standard search function within the page instead.', '19.0')]
+    [Scope('OnPrem')]
+    procedure SetNameFilter(ParentFilter: Text)
+    begin
+        // Sets a text value that tells the selection page how to filter the reports list. This should be called
+        // by the parent page hosting this page part, if possible.
+        NameFilter := ParentFilter;
+    end;
 #endif
 
     local procedure OpenPageOrRefresh(ShowMessages: Boolean)
@@ -527,8 +540,6 @@ page 6306 "Power BI Report FactBox"
     var
         PowerBIUserConfiguration: Record "Power BI User Configuration";
         PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
-        ExceptionMessage: Text;
-        ExceptionDetails: Text;
     begin
         // No license has been verified yet
         if not PowerBISessionManager.GetHasPowerBILicense() then begin
@@ -539,12 +550,7 @@ page 6306 "Power BI Report FactBox"
 
         SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, Context);
         LastOpenedReportID := PowerBIUserConfiguration."Selected Report ID";
-        RefreshTempReportBuffer(ExceptionMessage, ExceptionDetails); // Also points the record to last opened report id
-
-        if ExceptionMessage <> '' then begin
-            ShowErrorMessage(ExceptionMessage);
-            exit;
-        end;
+        RefreshTempReportBuffer(); // Also points the record to last opened report id
 
         if TempPowerBiReportBuffer.IsEmpty() then begin
             if PowerBiServiceMgt.IsUserSynchronizingReports() then begin
@@ -583,6 +589,9 @@ page 6306 "Power BI Report FactBox"
     end;
 
     local procedure GetEmbedUrl(): Text
+    var
+        UriBuilder: Codeunit "Uri Builder";
+        Uri: Codeunit Uri;
     begin
         if TempPowerBiReportBuffer.IsEmpty() then begin
             // Clear out last opened report if there are no reports to display.
@@ -593,34 +602,59 @@ page 6306 "Power BI Report FactBox"
             SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
 
             Session.LogMessage('0000C36', PowerBIReportLoadTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+
+            if not Uri.IsValidUri(TempPowerBiReportBuffer.ReportEmbedUrl) then begin
+                Session.LogMessage('0000FFH', StrSubstNo(InvalidEmbedUriErr, StrLen(TempPowerBiReportBuffer.ReportEmbedUrl)), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+                exit(TempPowerBiReportBuffer.ReportEmbedUrl);
+            end;
+
             // Hides both filters and tabs for embedding in small spaces where navigation is unnecessary.
-            exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false&navContentPaneEnabled=false');
+            UriBuilder.Init(TempPowerBiReportBuffer.ReportEmbedUrl);
+            UriBuilder.AddQueryParameter('filterPaneEnabled', 'false');
+            UriBuilder.AddQueryParameter('disableBroswerDeprecationDialog', 'true');
+            UriBuilder.AddQueryParameter('navContentPaneEnabled', 'false');
+
+            UriBuilder.GetUri(Uri);
+            exit(Uri.GetAbsoluteUri());
         end;
     end;
 
     local procedure GetEmbedUrlWithNavigationWithFilters(): Text
+    var
+        UriBuilder: Codeunit "Uri Builder";
+        Uri: Codeunit Uri;
     begin
         // update last loaded report
         SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
+
+        if not Uri.IsValidUri(TempPowerBiReportBuffer.ReportEmbedUrl) then begin
+            Session.LogMessage('0000FJC', StrSubstNo(InvalidEmbedUriErr, StrLen(TempPowerBiReportBuffer.ReportEmbedUrl)), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+            exit(TempPowerBiReportBuffer.ReportEmbedUrl);
+        end;
+
         // Shows filters and shows navigation tabs.
-        exit(TempPowerBiReportBuffer.ReportEmbedUrl);
+        UriBuilder.Init(TempPowerBiReportBuffer.ReportEmbedUrl);
+        UriBuilder.AddQueryParameter('disableBroswerDeprecationDialog', 'true');
+
+        UriBuilder.GetUri(Uri);
+        exit(Uri.GetAbsoluteUri());
     end;
 
-    local procedure RefreshTempReportBuffer(var ExceptionMessage: Text; var ExceptionDetails: Text)
+    local procedure RefreshTempReportBuffer()
     var
         NullGuid: Guid;
     begin
         TempPowerBiReportBuffer.Reset();
         TempPowerBiReportBuffer.DeleteAll();
 
-        PowerBiServiceMgt.GetReportsForUserContext(TempPowerBiReportBuffer, ExceptionMessage, ExceptionDetails, Context);
-        if ExceptionMessage <> '' then
-            exit;
+        PowerBiServiceMgt.GetReportsForUserContext(TempPowerBiReportBuffer, Context);
 
+#if not CLEAN19
         PowerBiServiceMgt.UpdateEmbedUrlCache(TempPowerBiReportBuffer, Context);
+#endif
 
         TempPowerBiReportBuffer.Reset();
-        TempPowerBiReportBuffer.SetFilter(Enabled, '%1', true);
+        TempPowerBiReportBuffer.SetRange(Enabled, true);
         if not IsNullGuid(LastOpenedReportID) then begin
             TempPowerBiReportBuffer.SetRange(ReportID, LastOpenedReportID);
 
@@ -648,24 +682,6 @@ page 6306 "Power BI Report FactBox"
         // have codebehind, so they have no other way to set the context for their reports).
         if Context = '' then
             SetContext(PowerBiServiceMgt.GetEnglishContext());
-    end;
-
-    [Scope('OnPrem')]
-    procedure SetNameFilter(ParentFilter: Text)
-    begin
-        // Sets a text value that tells the selection page how to filter the reports list. This should be called
-        // by the parent page hosting this page part, if possible.
-        NameFilter := ParentFilter;
-    end;
-
-    local procedure ShowErrorMessage(TextToShow: Text)
-    begin
-        PageState := PageState::ErrorVisible;
-
-        if TextToShow = '' then
-            TextToShow := PowerBiServiceMgt.GetGenericError();
-        ErrorMessageText := TextToShow;
-        CurrPage.Update();
     end;
 
     local procedure SetReport()
@@ -697,24 +713,16 @@ page 6306 "Power BI Report FactBox"
 
     local procedure SelectReports()
     var
-        PowerBIReportSelection: Page "Power BI Report Selection";
-        PrevNameFilter: Text;
+        PowerBIWSReportSelection: Page "Power BI WS Report Selection";
     begin
         // Opens the report selection page, then updates the onscreen report depending on the user's
         // subsequent selection and enabled/disabled settings.
-        PowerBIReportSelection.SetContext(Context);
-        PrevNameFilter := NameFilter;
-        if Context <> '' then begin
-            NameFilter := PowerBiServiceMgt.GetFactboxFilterFromID(Context);
-            if NameFilter = '' then
-                NameFilter := PrevNameFilter;
-        end;
-        PowerBIReportSelection.SetNameFilter(NameFilter);
-        PowerBIReportSelection.LookupMode(true);
+        PowerBIWSReportSelection.SetContext(Context);
+        PowerBIWSReportSelection.LookupMode(true);
 
-        PowerBIReportSelection.RunModal();
-        if PowerBIReportSelection.IsPageClosedOkay() then begin
-            PowerBIReportSelection.GetRecord(TempPowerBiReportBuffer);
+        PowerBIWSReportSelection.RunModal();
+        if PowerBIWSReportSelection.IsPageClosedOkay() then begin
+            PowerBIWSReportSelection.GetSelectedReports(TempPowerBiReportBuffer);
 
             if TempPowerBiReportBuffer.Enabled then begin
                 LastOpenedReportID := TempPowerBiReportBuffer.ReportID; // RefreshAvailableReports handles fallback logic on invalid selection.
@@ -746,14 +754,6 @@ page 6306 "Power BI Report FactBox"
             OpenPageOrRefresh(false);
     end;
 
-#if not CLEAN16
-    [Scope('OnPrem')]
-    [Obsolete('Use HandleAddinCallback instead', '16.0')]
-    procedure GetAndSetReportFilter(data: Text)
-    begin
-        HandleAddinCallback(data);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure HandleAddinCallback(CallbackMessage: Text)
@@ -771,7 +771,9 @@ page 6306 "Power BI Report FactBox"
     begin
         // Initialize Factbox and make it visibile only if the user has a Power BI License
         IF PowerBISessionManager.GetHasPowerBILicense() then begin
+#if not CLEAN19
             SetNameFilter(PageCaption);
+#endif
             SetContext(PageId);
             PowerBIVisible := SetPowerBIUserConfig.SetUserConfig(PowerBIUserConfiguration, PageId);
         end;
@@ -806,4 +808,3 @@ page 6306 "Power BI Report FactBox"
     end;
 
 }
-

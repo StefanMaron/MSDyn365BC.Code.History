@@ -455,14 +455,12 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
     local procedure MakeInventoryAdjustment()
     var
-        InventorySetup: Record "Inventory Setup";
-        InventoryAdjustment: Codeunit "Inventory Adjustment";
+        InvtSetup: Record "Inventory Setup";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
     begin
-        InventorySetup.Get();
-        if InventorySetup."Automatic Cost Adjustment" <> InventorySetup."Automatic Cost Adjustment"::Never then begin
-            InventoryAdjustment.SetProperties(true, InventorySetup."Automatic Cost Posting");
-            InventoryAdjustment.MakeMultiLevelAdjmt();
-        end;
+        InvtSetup.Get();
+        if InvtSetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
     end;
 
     local procedure PostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; Positive: Boolean)

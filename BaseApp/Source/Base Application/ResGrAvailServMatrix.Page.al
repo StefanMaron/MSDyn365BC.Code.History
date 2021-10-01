@@ -417,7 +417,7 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
                     trigger OnAction()
                     begin
                         if PeriodType <> PeriodType::Day then
-                            Error(Text000, SelectStr(PeriodType + 1, Text001));
+                            Error(Text000, SelectStr(PeriodType.AsInteger() + 1, Text001));
 
                         Clear(ServOrderAllocMgt);
                         ServOrderAllocMgt.AllocateDate(
@@ -486,7 +486,7 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
         CurrentDocumentNo: Code[20];
         CurrentEntryNo: Integer;
         SelectedDate: Date;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         QtytoAllocate: Decimal;
         Text001: Label 'Day,Week,Month,Quarter,Year,Accounting Period';
         MATRIX_CellData: array[32] of Text[1024];
@@ -558,7 +558,7 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
         [InDataSet]
         QtytoallocateEnable: Boolean;
 
-    procedure SetData(DocumentType: Integer; DocumentNo: Code[20]; EntryNo: Integer; NewMatrixColumnCaptions: array[32] of Text[100]; var NewMatrixDateFilters: array[32] of Record Date; Period: Option Day,Week,Month,Quarter,Year,"Accounting Period")
+    procedure SetData(DocumentType: Integer; DocumentNo: Code[20]; EntryNo: Integer; NewMatrixColumnCaptions: array[32] of Text[100]; var NewMatrixDateFilters: array[32] of Record Date; Period: Enum "Analysis Period Type")
     begin
         CurrentDocumentType := DocumentType;
         CurrentDocumentNo := DocumentNo;

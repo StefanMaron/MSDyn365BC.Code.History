@@ -22,6 +22,7 @@ codeunit 134626 "Person and Company Contacts"
         BusinessRelationsNotZeroErr: Label 'No. of Business Relations must be equal to ''0''  in Contact: No.=%1. Current value is ''1''.';
         LibraryRapidStart: Codeunit "Library - Rapid Start";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryTemplates: Codeunit "Library - Templates";
 
     [Test]
     [Scope('OnPrem')]
@@ -43,15 +44,19 @@ codeunit 134626 "Person and Company Contacts"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmYesAtCreatingCustomerFromContact,CustomerTemplateListModalPageHandler,DismissMessageAboutCreatingCustomer')]
+    [HandlerFunctions('CustomerTemplateListModalPageHandler,DismissMessageAboutCreatingCustomer')]
     [Scope('OnPrem')]
     procedure CreateCustomerForPersonContactWithSameDetails()
     var
         Contact: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
+        CustomerTempl: Record "Customer Templ.";
     begin
         Initialize();
         LibraryLowerPermissions.SetO365BusFull();
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
+        CustomerTempl."Contact Type" := CustomerTempl."Contact Type"::Person;
+        CustomerTempl.Modify(true);
 
         // Setup
         CreateContactUsingContactCard(Contact);
@@ -141,7 +146,7 @@ codeunit 134626 "Person and Company Contacts"
     end;
 
     [Test]
-    [HandlerFunctions('DismissMessageAboutCreatingCustomer')]
+    [HandlerFunctions('DismissMessageAboutCreatingCustomer,CustomerTemplateListModalPageHandler')]
     [Scope('OnPrem')]
     procedure UpdateQuotesOnlyUpdatesForCorrectContact()
     var
@@ -177,15 +182,15 @@ codeunit 134626 "Person and Company Contacts"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler')]
     [Scope('OnPrem')]
     procedure CompanyContactOfCustomerCreatedFromTepmplate()
     var
-        MiniCustomerTemplate: Record "Mini Customer Template";
+        CustomerTempl: Record "Customer Templ.";
         Customer: Record Customer;
-        ConfigTemplateHeader: Record "Config. Template Header";
         Contact: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
     begin
         // [FEATURE] [Rapid Start]
         // [SCENARIO 287941] Customer's Contact field "Type" is equal to Company when Customer created from template
@@ -193,11 +198,13 @@ codeunit 134626 "Person and Company Contacts"
         LibraryLowerPermissions.SetO365BusFull();
 
         // [GIVEN] Customer template with field's "Contact Type" Default Value set to Person
-        CreateConfigTemplate(ConfigTemplateHeader);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTempl);
+        CustomerTempl."Contact Type" := CustomerTempl."Contact Type"::Person;
+        CustomerTempl.Modify(true);
 
         // [WHEN] Customer with contact "C" created from template
-        LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Code);
-        MiniCustomerTemplate.NewCustomerFromTemplate(Customer);
+        LibraryVariableStorage.Enqueue(CustomerTempl.Code);
+        CustomerTemplMgt.InsertCustomerFromTemplate(Customer);
 
         // [THEN] Contact's "C" field "Type" is equal to Company
         ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
@@ -214,7 +221,7 @@ codeunit 134626 "Person and Company Contacts"
         Contact: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
         Customer: Record Customer;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         CustomerNo: Code[20];
     begin
         // [SCENARIO 285903] Stan creates new Customer from Contact with "No." equal to existing Customer "No."
@@ -229,8 +236,8 @@ codeunit 134626 "Person and Company Contacts"
 
         // [WHEN] Stan tries to create Customer from Contact
         Contact.SetHideValidationDialog(true);
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
-        Contact.CreateCustomer(CustomerTemplate.Code);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTemplate);
+        Contact.CreateCustomerFromTemplate(CustomerTemplate.Code);
 
         // [THEN] Customer is created
         ContactBusinessRelation.FindByContact(ContactBusinessRelation."Link to Table"::Customer, Contact."No.");
@@ -670,13 +677,13 @@ codeunit 134626 "Person and Company Contacts"
     begin
         LibraryVariableStorage.Clear();
         LibraryGraphSync.DisableGraphSync();
+        LibraryTemplates.EnableTemplatesFeature();
     end;
 
     local procedure SetUpCustomerTemplate()
     var
         PaymentTerms: Record "Payment Terms";
-        CustomerTemplate: Record "Customer Template";
-        MarketingSetup: Record "Marketing Setup";
+        CustomerTemplate: Record "Customer Templ.";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         PaymentTerms.FindFirst();
@@ -686,9 +693,10 @@ codeunit 134626 "Person and Company Contacts"
         CustomerTemplate."Payment Terms Code" := PaymentTerms.Code;
         CustomerTemplate."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         CustomerTemplate.Modify();
-        MarketingSetup.Get();
-        MarketingSetup."Cust. Template Person Code" := CustomerTemplate.Code;
-        MarketingSetup.Modify();
+
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTemplate);
+        CustomerTemplate."Contact Type" := CustomerTemplate."Contact Type"::Person;
+        CustomerTemplate.Modify();
     end;
 
     local procedure CreateConfigTemplate(var ConfigTemplateHeader: Record "Config. Template Header")
@@ -757,7 +765,7 @@ codeunit 134626 "Person and Company Contacts"
     begin
         LibraryMarketing.CreatePersonContact(Contact);
         MarketingSetup.Get();
-        Contact.CreateCustomer(MarketingSetup."Cust. Template Person Code");
+        Contact.CreateCustomer();//(MarketingSetup."Cust. Template Person Code");
         GetCustomerFromContact(Contact, Customer);
     end;
 
@@ -771,17 +779,9 @@ codeunit 134626 "Person and Company Contacts"
         Customer.Get(ContactBusinessRelation."No.");
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmYesAtCreatingCustomerFromContact(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Assert.ExpectedMessage(CreateCustomerFromContactQst, Question);
-        Reply := true;
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerTemplateListModalPageHandler(var CustomerTemplateList: TestPage "Customer Template List")
+    procedure CustomerTemplateListModalPageHandler(var CustomerTemplateList: TestPage "Select Customer Templ. List")
     begin
         CustomerTemplateList.OK.Invoke();
     end;
@@ -833,10 +833,10 @@ codeunit 134626 "Person and Company Contacts"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectCustomerTemplListModalPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
-        ConfigTemplates.GotoKey(LibraryVariableStorage.DequeueText());
-        ConfigTemplates.OK.Invoke();
+        SelectCustomerTemplList.GotoKey(LibraryVariableStorage.DequeueText());
+        SelectCustomerTemplList.OK().Invoke();
     end;
 
     [ModalPageHandler]

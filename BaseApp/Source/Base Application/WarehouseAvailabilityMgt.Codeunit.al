@@ -400,18 +400,6 @@ codeunit 7314 "Warehouse Availability Mgt."
         exit(WhseEntry."Qty. (Base)");
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by CalcQtyOnBin with WhseItemTrackingSetup parameter.', '16.0')]
-    procedure CalcQtyOnBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]): Decimal
-    var
-        WhseItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        WhseItemTrackingSetup."Serial No." := SerialNo;
-        WhseItemTrackingSetup."Lot No." := LotNo;
-        exit(CalcQtyOnBin(LocationCode, BinCode, ItemNo, VariantCode, WhseItemTrackingSetup));
-    end;
-#endif
-
     procedure CalcQtyOnBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
     var
         WhseEntry: Record "Warehouse Entry";

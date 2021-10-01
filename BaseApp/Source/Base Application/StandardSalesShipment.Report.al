@@ -449,6 +449,30 @@ report 1308 "Standard Sales - Shipment"
                 column(Qty_Lbl; QtyLbl)
                 {
                 }
+                column(Unit_Gross_Weight_Lbl; GrossWeightLbl)
+                {
+                }
+                column(Unit_Gross_Weight; "Gross Weight")
+                {
+                }
+                column(Unit_Net_Weight_Lbl; NetWeightLbl)
+                {
+                }
+                column(Unit_Net_Weight; "Net Weight")
+                {
+                }
+                column(Unit_Volume_Lbl; UnitVolumeLbl)
+                {
+                }
+                column(Unit_Volume; "Unit Volume")
+                {
+                }
+                column(Units_per_Parcel_Lbl; UnitsperParcelLbl)
+                {
+                }
+                column(Units_per_Parcel; "Units per Parcel")
+                {
+                }
                 dataitem(AssemblyLine; "Posted Assembly Line")
                 {
                     DataItemTableView = SORTING("Document No.", "Line No.");
@@ -805,7 +829,6 @@ report 1308 "Standard Sales - Shipment"
         RespCenter: Record "Responsibility Center";
         SellToContact: Record Contact;
         BillToContact: Record Contact;
-        TempTrackingSpecBuffer: Record "Tracking Specification" temporary;
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -880,6 +903,13 @@ report 1308 "Standard Sales - Shipment"
         NoCaptionLbl: Label 'No.';
         PurchaseOrderNoLbl: Label 'Purchase Order No.';
         OurDocumentNoLbl: Label 'Our Document No.';
+        GrossWeightLbl: Label 'Unit Gross Weight';
+        NetWeightLbl: Label 'Unit Net Weight';
+        UnitVolumeLbl: Label 'Unit Volume';
+        UnitsperParcelLbl: Label 'Units per Parcel';
+
+    protected var
+        TempTrackingSpecBuffer: Record "Tracking Specification" temporary;
 
     local procedure InitLogInteraction()
     begin

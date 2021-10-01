@@ -23,6 +23,7 @@ codeunit 5342 "CRM Synch. Helper"
         InvalidDestinationRecordNoErr: Label 'Invalid destination record number.';
         NavTxt: Label 'NAV', Locked = true;
         RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a %3 record.', Comment = '%1 = table caption, %2 = primary key value, %3 = CRM Table caption';
+        UnitOfMeasureMustBeCoupledErr: Label '%1 Unit of Measure (%2, %3) must be coupled to a %4 record.', Comment = '%1 = table caption, %2 = primary key value, %3 = primary key value, %4 = CRM Table caption';
         RecordNotFoundErr: Label '%1 could not be found in %2.', Comment = '%1=value;%2=table name in which the value was searched';
         CanOnlyUseSystemUserOwnerTypeErr: Label 'Only %1 Owner of Type SystemUser can be mapped to Salespeople.', Comment = 'Dataverse entity owner property can be of type team or systemuser. Only the type systemuser is supported. %1 = Dataverse service name';
         DefaultNAVPriceListNameTxt: Label '%1 Default Price List', Comment = '%1 - product name';
@@ -35,6 +36,10 @@ codeunit 5342 "CRM Synch. Helper"
         SetContactParentCompanySuccessfulTxt: Label 'Set contact parent company successfuly. Company No.: %1', Locked = true, Comment = '%1 = parent company no.';
         ContactBusinessRelationOptionalTxt: Label 'Contact business relation is optional.', Locked = true;
         ContactTypeCheckIgnoredTxt: Label 'Contact type check is ignored.', Locked = true;
+        ItemUnitGroupNotFoundErr: Label 'Item Unit Group for Item %1 is not found.', Comment = '%1 - item number';
+        ResourceUnitGroupNotFoundErr: Label 'Resource Unit Group for Resource %1 is not found.', Comment = '%1 - resource number';
+        CRMUnitGroupNotFoundErr: Label 'CRM Unit Group %1 does not exist.', Comment = '%1 - unit group name';
+        BaseUnitOfMeasureCannotBeEmptyErr: Label 'Base Unit of Measure must have a value in %1. It cannot be zero or empty.', Comment = '%1 - record';
 
     procedure ClearCache()
     begin
@@ -479,8 +484,8 @@ codeunit 5342 "CRM Synch. Helper"
 
     procedure SetContactParentCompany(AccountID: Guid; DestinationContactRecordRef: RecordRef): Boolean
     var
+        Contact: Record Contact;
         CompanyContact: Record Contact;
-        DestinationFieldRef: FieldRef;
         Result: Boolean;
         OutOfMapFilter: Boolean;
     begin
@@ -489,10 +494,13 @@ codeunit 5342 "CRM Synch. Helper"
             Error(InvalidDestinationRecordNoErr);
 
         Result := FindContactByAccountId(CompanyContact, AccountID, OutOfMapFilter);
-        DestinationFieldRef := DestinationContactRecordRef.Field(CompanyContact.FieldNo("Company No."));
-        DestinationFieldRef.Value := CompanyContact."No.";
-        DestinationFieldRef := DestinationContactRecordRef.Field(CompanyContact.FieldNo("Company Name"));
-        DestinationFieldRef.Value := CompanyContact.Name;
+
+        DestinationContactRecordRef.SetTable(Contact);
+        Contact."Company No." := CompanyContact."No.";
+        Contact."Company Name" := CompanyContact.Name;
+        Contact.UpdateBusinessRelation();
+        DestinationContactRecordRef.GetTable(Contact);
+
         Session.LogMessage('0000ECI', StrSubstNo(SetContactParentCompanySuccessfulTxt, CompanyContact."No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(Result or OutOfMapFilter);
     end;
@@ -754,6 +762,38 @@ codeunit 5342 "CRM Synch. Helper"
         end;
 
         // Update the Uomschedule ID if changed
+        if CRMProduct.DefaultUoMScheduleId <> CRMUomschedule.UoMScheduleId then begin
+            CRMProduct.DefaultUoMScheduleId := CRMUomschedule.UoMScheduleId;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        exit(AdditionalFieldsWereModified);
+    end;
+
+    procedure UpdateCRMProductUomscheduleId(var CRMProduct: Record "CRM Product"; SourceRecordRef: RecordRef): Boolean
+    var
+        Item: Record Item;
+        Resource: Record Resource;
+        UnitGroup: Record "Unit Group";
+        CRMUomschedule: Record "CRM Uomschedule";
+        AdditionalFieldsWereModified: Boolean;
+    begin
+        if SourceRecordRef.Number() = Database::Item then begin
+            SourceRecordRef.SetTable(Item);
+            if not UnitGroup.Get(UnitGroup."Source Type"::Item, Item.SystemId) then
+                Error(ItemUnitGroupNotFoundErr, Item."No.");
+        end;
+
+        if SourceRecordRef.Number() = Database::Resource then begin
+            SourceRecordRef.SetTable(Resource);
+            if not UnitGroup.Get(UnitGroup."Source Type"::Resource, Resource.SystemId) then
+                Error(ResourceUnitGroupNotFoundErr, Resource."No.");
+        end;
+
+        CRMUomschedule.SetRange(Name, UnitGroup.Code);
+        if not CRMUomschedule.FindFirst() then
+            Error(CRMUnitGroupNotFoundErr, UnitGroup.Code);
+
         if CRMProduct.DefaultUoMScheduleId <> CRMUomschedule.UoMScheduleId then begin
             CRMProduct.DefaultUoMScheduleId := CRMUomschedule.UoMScheduleId;
             AdditionalFieldsWereModified := true;
@@ -1164,11 +1204,14 @@ codeunit 5342 "CRM Synch. Helper"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Modify the code to get CRMIntegrationRecord out of SalesInvoiceHeader.RecordId, then call CRMIntegrationManagement.SetCoupledFlag', '19.0')]
     procedure SetSalesInvoiceHeaderCoupledToCRM(SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         SalesInvoiceHeader."Coupled to CRM" := true;
         SalesInvoiceHeader.Modify();
     end;
+#endif
 
     procedure ShowPage(RecordID: RecordID)
     var
@@ -1304,6 +1347,73 @@ codeunit 5342 "CRM Synch. Helper"
             Error(
                 MappingMustBeSetForGUIDFieldErr,
                 SourceTableID, DestinationTableID, SourceFieldRef.Name(), DestinationFieldRef.Name());
+        end;
+    end;
+
+    procedure ConvertBaseUnitOfMeasureToUomId(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant)
+    var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        Item: Record Item;
+        Resource: Record Resource;
+        SourceRecordCode: Code[20];
+    begin
+        if Format(SourceFieldRef.Value()) = '' then
+            Error(BaseUnitOfMeasureCannotBeEmptyErr, SourceFieldRef.Record().RecordId)
+        else begin
+            case SourceFieldRef.Record().Number() of
+                Database::Item:
+                    begin
+                        SourceFieldRef.Record().SetTable(Item);
+                        SourceRecordCode := Item."No.";
+                        if ItemUnitOfMeasure.Get(SourceRecordCode, SourceFieldRef.Value()) then
+                            if CRMIntegrationRecord.FindIDFromRecordID(ItemUnitOfMeasure.RecordId, NewValue) then
+                                exit;
+                    end;
+                Database::Resource:
+                    begin
+                        SourceFieldRef.Record().SetTable(Resource);
+                        SourceRecordCode := Resource."No.";
+                        if ResourceUnitOfMeasure.Get(SourceRecordCode, SourceFieldRef.Value()) then
+                            if CRMIntegrationRecord.FindIDFromRecordID(ResourceUnitOfMeasure.RecordId, NewValue) then
+                                exit;
+                    end;
+            end;
+
+            Error(UnitOfMeasureMustBeCoupledErr, SourceFieldRef.Record().Name, SourceRecordCode, SourceFieldRef.Value(), CRMProductName.Short());
+        end;
+    end;
+
+    procedure ConvertUomIdToBaseUnitOfMeasure(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        RecId: RecordId;
+        CRMId: Guid;
+    begin
+        CRMID := SourceFieldRef.Value();
+        if IsNullGuid(CRMId) then begin
+            NewValue := '';
+            exit;
+        end else begin
+            case DestinationFieldRef.Record().Number() of
+                Database::Item:
+                    if CRMIntegrationRecord.FindRecordIDFromID(CRMId, Database::"Item Unit of Measure", RecId) then begin
+                        ItemUnitOfMeasure.Get(RecId);
+                        NewValue := ItemUnitOfMeasure.Code;
+                        exit;
+                    end;
+                Database::Resource:
+                    if CRMIntegrationRecord.FindRecordIDFromID(CRMId, Database::"Resource Unit of Measure", RecId) then begin
+                        ResourceUnitOfMeasure.Get(RecId);
+                        NewValue := ResourceUnitOfMeasure.Code;
+                        exit;
+                    end;
+            end;
+
+            Error(RecordMustBeCoupledErr, SourceFieldRef.Caption(), CRMID, CRMProductName.Short());
         end;
     end;
 

@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5480 "Account Entity"
 {
     Caption = 'accounts', Locked = true;
@@ -83,4 +84,4 @@ page 5480 "Account Entity"
     begin
     end;
 }
-
+#endif

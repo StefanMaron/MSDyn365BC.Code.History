@@ -695,7 +695,7 @@ codeunit 136450 "Attachment Storage Type"
         Initialize();
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
 
-        Attachment.ShowAttachment(DummySegmentLine, '', false, false);
+        Attachment.ShowAttachment(DummySegmentLine, '');
 
         Attachment.Delete(true);
     end;
@@ -1554,6 +1554,7 @@ codeunit 136450 "Attachment Storage Type"
         ActiveDirectoryMockEvents.Enable();
     end;
 
+#if not CLEAN19
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"WordManagement", 'OnFindActiveSubscriber', '', false, false)]
     procedure OnFindActiveSubscriberWordManagement(var IsFound: Boolean)
     var
@@ -1566,5 +1567,6 @@ codeunit 136450 "Attachment Storage Type"
         Commit();
         IsFound := IsFound;
     end;
+#endif
 }
 

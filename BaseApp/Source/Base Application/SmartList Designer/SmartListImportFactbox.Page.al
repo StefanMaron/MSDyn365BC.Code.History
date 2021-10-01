@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 9895 "SmartList Import FactBox"
 {
     Caption = 'Import';
@@ -5,6 +6,9 @@ page 9895 "SmartList Import FactBox"
     PageType = CardPart;
     SourceTable = "SmartList Import Results";
     UsageCategory = None;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -57,3 +61,4 @@ page 9895 "SmartList Import FactBox"
         SuccessCount: Integer;
         FailureCount: Integer;
 }
+#endif

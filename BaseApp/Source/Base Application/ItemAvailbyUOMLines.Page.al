@@ -310,7 +310,7 @@ page 5417 "Item Avail. by UOM Lines"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ExpectedInventory: Decimal;
         QtyAvailable: Decimal;
-        AmountType: Option "Net Change","Balance at Date";
+        AmountType: Enum "Analysis Amount Type";
         PlannedOrderReleases: Decimal;
         GrossRequirement: Decimal;
         PlannedOrderRcpt: Decimal;
@@ -325,7 +325,7 @@ page 5417 "Item Avail. by UOM Lines"
             exit(QtyInUoM / "Qty. per Unit of Measure");
     end;
 
-    procedure Set(var NewItem: Record Item; NewAmountType: Option "Net Change","Balance at Date")
+    procedure Set(var NewItem: Record Item; NewAmountType: Enum "Analysis Amount Type")
     begin
         Item.Copy(NewItem);
         PeriodStart := Item.GetRangeMin("Date Filter");

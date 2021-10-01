@@ -1,7 +1,11 @@
+#if not CLEAN19
 codeunit 451 "Job Queue Recover Job"
 {
     Permissions = TableData "Job Queue Entry" = rm, TableData "Job Queue Log Entry" = rm, Tabledata "Session Event" = r;
     TableNo = "Job Queue Entry";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The recovery job is no longer needed.';
+    ObsoleteTag = '19.0';
 
     var
         JobQueueServerTerminatedTxt: Label 'The job terminated for an unknown reason.';
@@ -76,4 +80,4 @@ codeunit 451 "Job Queue Recover Job"
     begin
     end;
 }
-
+#endif

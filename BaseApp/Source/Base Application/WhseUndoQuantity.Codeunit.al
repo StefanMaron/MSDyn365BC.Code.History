@@ -45,7 +45,7 @@ codeunit 7320 "Whse. Undo Quantity"
                     TempWhseJnlLine."Location Code" := "Location Code";
                     TempWhseJnlLine."Zone Code" := WhseEntry."Zone Code";
                     TempWhseJnlLine."Bin Code" := WhseEntry."Bin Code";
-                    TempWhseJnlLine.SetWhseDoc(WhseEntry."Whse. Document Type", WhseEntry."Whse. Document No.", 0);
+                    TempWhseJnlLine.SetWhseDocument(WhseEntry."Whse. Document Type", WhseEntry."Whse. Document No.", 0);
                     TempWhseJnlLine."Unit of Measure Code" := WhseEntry."Unit of Measure Code";
                     TempWhseJnlLine."Line No." := NextLineNo;
                     TempWhseJnlLine.CopyTrackingFromWhseEntry(WhseEntry);

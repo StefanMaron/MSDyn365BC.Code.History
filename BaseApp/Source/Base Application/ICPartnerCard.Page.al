@@ -174,6 +174,8 @@ page 609 "IC Partner Card"
         CompanyNameTransferTypeTxt: Label 'Company Name';
         FolderPathTransferTypeTxt: Label 'Folder Path';
         EmailAddressTransferTypeTxt: Label 'Email Address';
+
+    protected var
         EnableInboxDetails: Boolean;
 
     local procedure SetInboxDetailsCaption()

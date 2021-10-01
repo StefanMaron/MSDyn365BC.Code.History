@@ -3,6 +3,7 @@ page 7354 "Whse. Internal Put-away"
     Caption = 'Whse. Internal Put-away';
     PageType = Document;
     PopulateAllFields = true;
+    PromotedActionCategories = 'New,Process,Report,Release,Navigate';
     RefreshOnActivate = true;
     SourceTable = "Whse. Internal Put-away Header";
 
@@ -128,18 +129,24 @@ page 7354 "Whse. Internal Put-away"
             {
                 Caption = '&Put-away';
                 Image = CreatePutAway;
+#if not CLEAN19
                 action(List)
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'List';
                     Image = OpportunitiesList;
                     ToolTip = 'View all warehouse documents of this type that exist.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by platform capabilities.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     begin
                         LookupInternalPutAwayHeader(Rec);
                     end;
                 }
+#endif
                 action("Co&mments")
                 {
                     ApplicationArea = Warehouse;
@@ -156,6 +163,8 @@ page 7354 "Whse. Internal Put-away"
                     ApplicationArea = Warehouse;
                     Caption = 'Put-away Lines';
                     Image = PutawayLines;
+                    Promoted = true;
+                    PromotedCategory = Category5;
                     RunObject = Page "Warehouse Activity Lines";
                     RunPageLink = "Whse. Document Type" = CONST("Internal Put-away"),
                                   "Whse. Document No." = FIELD("No.");
@@ -177,6 +186,8 @@ page 7354 "Whse. Internal Put-away"
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     ToolTip = 'Release the document to the next stage of processing. When a document is released, it will be included in all availability calculations from the expected receipt date of the items. You must reopen the document before you can make changes to it.';
 
                     trigger OnAction()
@@ -192,6 +203,8 @@ page 7354 "Whse. Internal Put-away"
                     ApplicationArea = Warehouse;
                     Caption = 'Re&open';
                     Image = ReOpen;
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     ToolTip = 'Reopen the document for additional warehouse activity.';
 
                     trigger OnAction()
@@ -208,6 +221,8 @@ page 7354 "Whse. Internal Put-away"
                     Caption = 'Get Bin Content';
                     Ellipsis = true;
                     Image = GetBinContent;
+                    Promoted = true;
+                    PromotedCategory = Process;
                     ToolTip = 'Use a function to create transfer lines with items to put away or pick based on the actual content in the specified bin.';
 
                     trigger OnAction()
@@ -228,6 +243,8 @@ page 7354 "Whse. Internal Put-away"
                     Caption = 'Create Put-away';
                     Ellipsis = true;
                     Image = CreatePutAway;
+                    Promoted = true;
+                    PromotedCategory = Process;
                     ToolTip = 'Create a warehouse put-away document.';
 
                     trigger OnAction()

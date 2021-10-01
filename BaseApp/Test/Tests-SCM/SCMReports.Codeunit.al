@@ -1232,21 +1232,6 @@ codeunit 137309 "SCM Reports"
 
     [Test]
     [Scope('OnPrem')]
-    procedure VerifyNotPickInstructionOptionForReportSelectionSales()
-    var
-        ReportSelections: Record "Report Selections";
-        UsageOptionForPage: Option Quote,"Blanket Order","Order",Invoice,"Work Order","Return Order","Credit Memo",Shipment,"Return Receipt","Sales Document - Test","Prepayment Document - Test","S.Arch. Quote","S.Arch. Order","S. Arch. Return Order","Pick Instruction";
-    begin
-        // Test to check that when Pick Instruction option is not selected page report Selection - Sales shows correct reports.
-
-        VerifySelectedOptionForReportSelectionSales(
-          UsageOptionForPage::Order,
-          ReportSelections.Usage::"S.Order",
-          REPORT::"Order Confirmation");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure DeleteRoutingVersionAfterUpdateStatus()
     var
         RoutingHeader: Record "Routing Header";
@@ -1882,7 +1867,7 @@ codeunit 137309 "SCM Reports"
         Bin.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
@@ -2042,7 +2027,7 @@ codeunit 137309 "SCM Reports"
         VerifyQuantityExplosionOfBOMReport(SecondChildItem."No.", ParentItem."Production BOM No.");
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";

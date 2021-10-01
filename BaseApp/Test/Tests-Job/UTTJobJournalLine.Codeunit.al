@@ -21,6 +21,7 @@ codeunit 136351 "UT T Job Journal Line"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
+        RoundingTo0Err: Label 'Rounding of the field';
 
     [Test]
     [Scope('OnPrem')]
@@ -357,11 +358,201 @@ codeunit 136351 "UT T Job Journal Line"
     begin
         // [SCENARIO 337585] Cannot validate blank "Posting Date" on "Job Journal Line"
         JobJournalLine.Init();
-
         JobJournalLine.Validate("Posting Date", WorkDate());
         asserterror JobJournalLine.Validate("Posting Date", 0D);
 
         JobJournalLine.TestField("Posting Date", WorkDate());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyIsRoundedTo0OnJobJournalLine()
+    var
+        JobJournalLine: Record "Job Journal Line";
+        Job: Record Job;
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Job Journal Line - Rounding Precision]
+        // [SCENARIO] Error is thrown when rounding precision causes the base quantity to be rounded to 0.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandIntInRange(2, 10), QtyRoundingPrecision);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, 1);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Job Journal Line where the unit of measure code is set to the non-base unit of measure.
+        LibraryJob.CreateJob(Job);
+        JobJournalLine.Init();
+        JobJournalLine.Validate("Job No.", Job."No.");
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+        JobJournalLine.Validate("No.", Item."No.");
+        JobJournalLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity to 0
+        asserterror JobJournalLine.Validate(Quantity, 1 / (LibraryRandom.RandIntInRange(300, 1000)));
+
+        // [THEN] Error is thrown
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionSpecifiedOnJobJournalLine()
+    var
+        JobJournalLine: Record "Job Journal Line";
+        Job: Record Job;
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        QtyToSet: Decimal;
+    begin
+        // [FEATURE] [Job Journal Line - Rounding Precision]
+        // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandIntInRange(2, 10), QtyRoundingPrecision);
+        QtyToSet := LibraryRandom.RandDecInRange(1, 10, 2);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, 1);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Job Journal Line where the unit of measure code is set to the non-base unit of measure.
+        LibraryJob.CreateJob(Job);
+        JobJournalLine.Init();
+        JobJournalLine.Validate("Job No.", Job."No.");
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+        JobJournalLine.Validate("No.", Item."No.");
+        JobJournalLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity to 0
+        JobJournalLine.Validate(Quantity, QtyToSet);
+
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, QtyRoundingPrecision), JobJournalLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionUnspecifiedOnJobJournalLine()
+    var
+        JobJournalLine: Record "Job Journal Line";
+        Job: Record Job;
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        QtyToSet: Decimal;
+    begin
+        // [FEATURE] [Job Journal Line - Rounding Precision]
+        // [SCENARIO] Quantity (Base) is rounded with the default rounding precision when rounding precision is not specified.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        QtyToSet := LibraryRandom.RandDecInRange(1, 10, 7);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, 1);
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Job Journal Line where the unit of measure code is set to the non-base unit of measure.
+        LibraryJob.CreateJob(Job);
+        JobJournalLine.Init();
+        JobJournalLine.Validate("Job No.", Job."No.");
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+        JobJournalLine.Validate("No.", Item."No.");
+        JobJournalLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity to 0
+        JobJournalLine.Validate(Quantity, QtyToSet);
+
+        // [THEN] Quantity is rounded with the default rounding precision
+        Assert.AreEqual(Round(QtyToSet, 0.00001), JobJournalLine.Quantity, 'Qty. is not rounded correctly.');
+
+        // [THEN] Quantity (Base) is rounded with the default rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * JobJournalLine.Quantity, 0.00001),
+                        JobJournalLine."Quantity (Base)", 'Base qty. is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionOnJobJournalLine()
+    var
+        JobJournalLine: Record "Job Journal Line";
+        Job: Record Job;
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Job Journal Line - Rounding Precision]
+        // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandIntInRange(5, 10), QtyRoundingPrecision);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, 1);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Job Journal Line where the unit of measure code is set to the non-base unit of measure.
+        LibraryJob.CreateJob(Job);
+        JobJournalLine.Init();
+        JobJournalLine.Validate("Job No.", Job."No.");
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+        JobJournalLine.Validate("No.", Item."No.");
+        JobJournalLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity to 0
+        JobJournalLine.Validate(Quantity, (NonBaseQtyPerUOM - 1) / NonBaseQtyPerUOM);
+
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM - 1, QtyRoundingPrecision),
+                        JobJournalLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
     end;
 
     local procedure Initialize()
@@ -370,6 +561,7 @@ codeunit 136351 "UT T Job Journal Line"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT T Job Journal Line");
         LibrarySetupStorage.Restore();
+        LibraryRandom.Init();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT T Job Journal Line");
@@ -432,7 +624,7 @@ codeunit 136351 "UT T Job Journal Line"
             "Job Task No." := JobTask."Job Task No.";
             Type := Type::Item;
             "No." := LibraryJob.FindConsumable(Type);
-            "Quantity (Base)" := LibraryRandom.RandDec(100, 2);
+            "Quantity (Base)" := LibraryRandom.RandDecInRange(1, 100, 2);
             "Qty. per Unit of Measure" := 1;
             Insert;
         end;
@@ -456,7 +648,7 @@ codeunit 136351 "UT T Job Journal Line"
         PurchLine."No." := LibraryInventory.CreateItemNo;
         PurchLine."Job No." := JobTask."Job No.";
         PurchLine."Job Task No." := JobTask."Job Task No.";
-        PurchLine.Quantity := LibraryRandom.RandDec(200, 2);
+        PurchLine.Quantity := LibraryRandom.RandDecInRange(1, 200, 2);
         PurchLine."Job Unit Price" := LibraryRandom.RandDec(200, 2);
         PurchLine."Job Total Price" := LibraryRandom.RandDec(200, 2);
         PurchLine."Job Line Amount (LCY)" := LibraryRandom.RandDec(200, 2);

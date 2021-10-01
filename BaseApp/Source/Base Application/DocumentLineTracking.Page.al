@@ -145,8 +145,11 @@ page 6560 "Document Line Tracking"
         if (SourceDocNo = '') or (SourceDocLineNo = 0) then
             exit;
 
-        FindRecords;
+        FindRecords(true);
     end;
+
+    protected var
+        TempDocumentEntry: Record "Document Entry" temporary;
 
     var
         CountingRecordsMsg: Label 'Counting records...';
@@ -183,7 +186,6 @@ page 6560 "Document Line Tracking"
         PurchInvLine: Record "Purch. Inv. Line";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
         PurchLineArchive: Record "Purchase Line Archive";
-        TempDocumentEntry: Record "Document Entry" temporary;
         ReturnReceiptLine: Record "Return Receipt Line";
         ReturnShipmentLine: Record "Return Shipment Line";
         BlanketSalesOrderLine: Record "Sales Line";
@@ -229,11 +231,12 @@ page 6560 "Document Line Tracking"
         Rec := Rec;
     end;
 
-    local procedure FindRecords()
+    protected procedure FindRecords(ClearSourceTable: Boolean)
     begin
         with TempDocumentEntry do begin
             Window.Open(CountingRecordsMsg);
-            DeleteAll();
+            if ClearSourceTable then
+                DeleteAll();
             "Entry No." := 0;
 
             case SourceDocType of

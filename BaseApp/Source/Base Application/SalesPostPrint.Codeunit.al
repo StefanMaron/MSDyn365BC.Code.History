@@ -152,14 +152,14 @@ codeunit 82 "Sales-Post + Print"
         exit(true);
     end;
 
-    local procedure ConfirmationMessage(): Text
+    procedure ConfirmationMessage(): Text
     begin
         if SendReportAsEmail then
             exit(PostAndEmailQst);
         exit(PostAndPrintQst);
     end;
 
-    local procedure PrintReceive(SalesHeader: Record "Sales Header")
+    procedure PrintReceive(SalesHeader: Record "Sales Header")
     var
         ReturnRcptHeader: Record "Return Receipt Header";
         IsHandled: Boolean;
@@ -179,7 +179,7 @@ codeunit 82 "Sales-Post + Print"
             ReturnRcptHeader.PrintRecords(false);
     end;
 
-    local procedure PrintInvoice(SalesHeader: Record "Sales Header")
+    procedure PrintInvoice(SalesHeader: Record "Sales Header")
     var
         SalesInvHeader: Record "Sales Invoice Header";
         IsHandled: Boolean;
@@ -202,7 +202,7 @@ codeunit 82 "Sales-Post + Print"
             SalesInvHeader.PrintRecords(false);
     end;
 
-    local procedure PrintShip(SalesHeader: Record "Sales Header")
+    procedure PrintShip(SalesHeader: Record "Sales Header")
     var
         SalesShptHeader: Record "Sales Shipment Header";
         IsHandled: Boolean;
@@ -222,7 +222,7 @@ codeunit 82 "Sales-Post + Print"
             SalesShptHeader.PrintRecords(false);
     end;
 
-    local procedure PrintCrMemo(SalesHeader: Record "Sales Header")
+    procedure PrintCrMemo(SalesHeader: Record "Sales Header")
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         IsHandled: Boolean;

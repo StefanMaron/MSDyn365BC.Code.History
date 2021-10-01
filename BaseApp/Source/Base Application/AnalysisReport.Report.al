@@ -818,7 +818,7 @@ report 7112 "Analysis Report"
                             else begin
                                 NonZero := NonZero or (ColumnValuesDisplayed[i] <> 0);
                                 ColumnValuesAsText[i] :=
-                                  MatrixMgt.FormatValue(ColumnValuesDisplayed[i], "Rounding Factor", false);
+                                  MatrixMgt.FormatAmount(ColumnValuesDisplayed[i], "Rounding Factor", false);
                             end;
                     end;
                 until (i >= MaxColumnsDisplayed) or (Next() = 0);

@@ -61,6 +61,7 @@ codeunit 135972 "Upg User Group Perm. Set Tests"
         VerifyPermissionSetIsReplaced('EMAIL SETUP', 'Email - Admin');
         VerifyPermissionSetIsReplaced('D365 EXTENSION MGT', 'Exten. Mgt. - Admin');
         VerifyPermissionSetIsReplaced('RETENTION POL. SETUP', 'Retention Pol. Admin');
+        VerifyPermissionSetIsReplaced('EXCEL EXPORT ACTION', 'Edit in Excel - View');
     end;
 
     local procedure VerifyPermissionSetIsReplaced(OldPermissionSet: Code[20]; NewPermissionSet: Code[20])

@@ -206,6 +206,7 @@ page 6500 "Item Tracking Summary"
         xFilterRec: Record "Entry Summary";
         ItemTrackingDataCollection: Codeunit "Item Tracking Data Collection";
         MaxQuantity: Decimal;
+        QtyRoundingPrecisionBase: Decimal;
         SelectedQuantity: Decimal;
         CurrBinCode: Code[20];
 
@@ -267,6 +268,11 @@ page 6500 "Item Tracking Summary"
         MaxQuantity := MaxQty;
     end;
 
+    procedure SetQtyRoundingPrecision(QRoundingPrecisionBase: Decimal)
+    begin
+        QtyRoundingPrecisionBase := QRoundingPrecisionBase;
+    end;
+
     procedure SetCurrentBinAndItemTrkgCode(BinCode: Code[20]; ItemTrackingCode: Record "Item Tracking Code")
     begin
         ItemTrackingDataCollection.SetCurrentBinAndItemTrkgCode(BinCode, ItemTrackingCode);
@@ -293,6 +299,8 @@ page 6500 "Item Tracking Summary"
         SelectedQty := MaxQuantity;
         if Rec.FindSet() then
             repeat
+                Rec."Qty. Rounding Precision (Base)" := QtyRoundingPrecisionBase;
+
                 AvailableQty := Rec."Total Available Quantity";
                 if Rec."Bin Active" then
                     AvailableQty := MinValueAbs(QtyAvailableToSelectFromBin, Rec."Total Available Quantity");

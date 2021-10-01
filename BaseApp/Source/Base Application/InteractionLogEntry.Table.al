@@ -98,12 +98,10 @@ table 5065 "Interaction Log Entry"
         {
             Caption = 'Segment No.';
         }
-        field(19; Evaluation; Option)
+        field(19; Evaluation; Enum "Interaction Evaluation")
         {
             Caption = 'Evaluation';
             Editable = false;
-            OptionCaption = ' ,Very Positive,Positive,Neutral,Negative,Very Negative';
-            OptionMembers = " ","Very Positive",Positive,Neutral,Negative,"Very Negative";
         }
         field(20; "Time of Interaction"; Time)
         {
@@ -771,8 +769,8 @@ table 5065 "Interaction Log Entry"
             Selected := DIALOG.StrMenu(Text011);
             if Selected <> 0 then
                 repeat
-                    Evaluation := Selected;
-                    Modify;
+                    Evaluation := "Interaction Evaluation".FromInteger(Selected);
+                    Modify();
                 until Next() = 0
         end;
     end;

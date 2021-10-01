@@ -19,12 +19,17 @@ table 9012 "AAD Application"
             trigger OnValidate()
             var
                 User: Record User;
+                UserPermission: codeunit "User Permissions";
+                ErrorTxt: Text;
             begin
                 if xRec.State = state then
                     exit;
                 If not UserExists() then
                     CreateUserFromAADApplication();
                 User.Get("User Id");
+                ErrorTxt := StrSubstNo(NoPermissionToChangeUserErr, SuperPermissionSetTxt, SECURITYPermissionSetTxt);
+                if not UserPermission.CanManageUsersOnTenant(UserSecurityId()) then
+                    Error(ErrorTxt);
                 if State = State::Enabled then
                     User.State := User.State::Enabled
                 else
@@ -173,6 +178,9 @@ table 9012 "AAD Application"
     var
         CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 Table name';
         UserMustExistErr: Label 'Register an user before enabling the %1', Comment = '%1 Table AAD Application';
+        NoPermissionToChangeUserErr: Label 'You need to have either %1 or %2 privileges in the user permission set to update the state.', Comment = '%1 = SUPER; %2 = SECURITY';
+        SECURITYPermissionSetTxt: Label 'SECURITY', Locked = true;
+        SuperPermissionSetTxt: Label 'SECURITY', Locked = true;
 }
 
 

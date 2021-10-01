@@ -1,4 +1,4 @@
-﻿table 303 "Finance Charge Memo Line"
+table 303 "Finance Charge Memo Line"
 {
     Caption = 'Finance Charge Memo Line';
 
@@ -448,8 +448,9 @@
         InsertedLines: Boolean;
         IsHandled: Boolean;
     begin
+#if not CLEAN19
         OnBeforeCalcFinCharge(Rec, FinChrgMemoHeader);
-
+#endif
         IsHandled := false;
         OnBeforeCalcFinChrgProcedure(Rec, FinChrgMemoHeader, IsHandled);
         if IsHandled then
@@ -889,11 +890,14 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by OnBeforeCalcFinChrgProcedure()', '19.0')]
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnBeforeCalcFinCharge(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcFinChrgProcedure(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IsHandled: Boolean)

@@ -900,6 +900,503 @@ codeunit 134851 "Purchase Over Receipt"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePurchaseLineQtyToReceiveUT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [WHEN] Validate "Qty. to Receive" = 13
+        PurchaseLine.Validate("Qty. to Receive", 13);
+        PurchaseLine.Modify();
+
+        // [THEN] Quantity = 13
+        PurchaseLine.TestField(Quantity, 13);
+        // [THEN] "Qty. to Receive" = 13
+        PurchaseLine.TestField("Qty. to Receive", 13);
+        // [THEN] "Over-Receipt Quantity" = 3
+        PurchaseLine.TestField("Over-Receipt Quantity", 3);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePurchaseLineQtyToReceiveSameValueUT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] Validate "Qty. to Receive" = 13
+        PurchaseLine.Validate("Qty. to Receive", 13);
+        PurchaseLine.Modify();
+
+        // [WHEN] Validate "Qty. to Receive" = 13
+        PurchaseLine.Validate("Qty. to Receive", 13);
+        PurchaseLine.Modify();
+
+        // [THEN] Quantity = 13
+        PurchaseLine.TestField(Quantity, 13);
+        // [THEN] "Qty. to Receive" = 13
+        PurchaseLine.TestField("Qty. to Receive", 13);
+        // [THEN] "Over-Receipt Quantity" = 3
+        PurchaseLine.TestField("Over-Receipt Quantity", 3);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePurchaseLineOverReceiptQuantityNonZeroUT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [WHEN] Validate "Over-Receipt Quantity" = 7
+        PurchaseLine.Validate("Over-Receipt Quantity", 7);
+        PurchaseLine.Modify();
+
+        // [THEN] Quantity = 17
+        PurchaseLine.TestField(Quantity, 17);
+        // [THEN] "Qty. to Receive" = 13
+        PurchaseLine.TestField("Qty. to Receive", 17);
+        // [THEN] "Over-Receipt Quantity" = 7
+        PurchaseLine.TestField("Over-Receipt Quantity", 7);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePurchaseLineOverReceiptQuantityZeroUT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] "Over-Receipt Quantity" = 7
+        PurchaseLine.Validate("Over-Receipt Quantity", 7);
+        PurchaseLine.Modify();
+
+        // [WHEN] Validate "Over-Receipt Quantity" = 0
+        PurchaseLine.Validate("Over-Receipt Quantity", 0);
+        PurchaseLine.Modify();
+
+        // [THEN] Quantity = 10
+        PurchaseLine.TestField(Quantity, 10);
+        // [THEN] "Qty. to Receive" = 10
+        PurchaseLine.TestField("Qty. to Receive", 10);
+        // [THEN] "Over-Receipt Quantity" = 0
+        PurchaseLine.TestField("Over-Receipt Quantity", 0);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePurchaseLineOverReceiptCodeEmptyValueUT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] "Over-Receipt Quantity" = 7
+        PurchaseLine.Validate("Over-Receipt Quantity", 7);
+        PurchaseLine.Modify();
+
+        // [WHEN] Validate "Over-Receipt Code" = ''
+        PurchaseLine.Validate("Over-Receipt Code", '');
+        PurchaseLine.Modify();
+
+        // [THEN] Quantity = 10
+        PurchaseLine.TestField(Quantity, 10);
+        // [THEN] "Qty. to Receive" = 10
+        PurchaseLine.TestField("Qty. to Receive", 10);
+        // [THEN] "Over-Receipt Quantity" = 0
+        PurchaseLine.TestField("Over-Receipt Quantity", 0);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePurchaseLineQtyToReceiveTwoTimesUT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] "Qty. to Receive" = 13
+        PurchaseLine.Validate("Qty. to Receive", 13);
+        PurchaseLine.Modify();
+
+        // [WHEN] Validate "Qty. to Receive" = 17
+        PurchaseLine.Validate("Qty. to Receive", 17);
+        PurchaseLine.Modify();
+
+        // [THEN] Quantity = 17
+        PurchaseLine.TestField(Quantity, 17);
+        // [THEN] "Qty. to Receive" = 17
+        PurchaseLine.TestField("Qty. to Receive", 17);
+        // [THEN] "Over-Receipt Quantity" = 7
+        PurchaseLine.TestField("Over-Receipt Quantity", 7);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePurchaseLineQtyToReceiveTwoTimesWithReceiveUT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10, "Qty. to Receive" = 2
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+        PurchaseLine.Validate("Qty. to Receive", 2);
+        PurchaseLine.Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] "Qty. to Receive" = 13
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.Validate("Qty. to Receive", 13);
+        PurchaseLine.Modify();
+
+        // [WHEN] Validate "Qty. to Receive" = 17
+        PurchaseLine.Validate("Qty. to Receive", 17);
+        PurchaseLine.Modify();
+
+        // [THEN] Quantity = 19
+        PurchaseLine.TestField(Quantity, 19);
+        // [THEN] "Qty. to Receive" = 17
+        PurchaseLine.TestField("Qty. to Receive", 17);
+        // [THEN] "Over-Receipt Quantity" = 9
+        PurchaseLine.TestField("Over-Receipt Quantity", 9);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWarehouseReceiptLineQtyToReceiveUT()
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreateWarehouseReceipt(WarehouseReceiptHeader, WarehouseReceiptLine);
+
+        // [WHEN] Validate "Qty. to Receive" = 13
+        WarehouseReceiptLine.Validate("Qty. to Receive", 13);
+        WarehouseReceiptLine.Modify();
+
+        // [THEN] Quantity = 13
+        WarehouseReceiptLine.TestField(Quantity, 13);
+        // [THEN] "Qty. to Receive" = 13
+        WarehouseReceiptLine.TestField("Qty. to Receive", 13);
+        // [THEN] "Over-Receipt Quantity" = 3
+        WarehouseReceiptLine.TestField("Over-Receipt Quantity", 3);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWarehouseReceiptLineQtyToReceiveSameValueUT()
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreateWarehouseReceipt(WarehouseReceiptHeader, WarehouseReceiptLine);
+
+        // [GIVEN] Validate "Qty. to Receive" = 13
+        WarehouseReceiptLine.Validate("Qty. to Receive", 13);
+        WarehouseReceiptLine.Modify();
+
+        // [WHEN] Validate "Qty. to Receive" = 13
+        WarehouseReceiptLine.Validate("Qty. to Receive", 13);
+        WarehouseReceiptLine.Modify();
+
+        // [THEN] Quantity = 13
+        WarehouseReceiptLine.TestField(Quantity, 13);
+        // [THEN] "Qty. to Receive" = 13
+        WarehouseReceiptLine.TestField("Qty. to Receive", 13);
+        // [THEN] "Over-Receipt Quantity" = 3
+        WarehouseReceiptLine.TestField("Over-Receipt Quantity", 3);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWarehouseReceiptLineOverReceiptQuantityNonZeroUT()
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreateWarehouseReceipt(WarehouseReceiptHeader, WarehouseReceiptLine);
+
+        // [WHEN] Validate "Over-Receipt Quantity" = 7
+        WarehouseReceiptLine.Validate("Over-Receipt Quantity", 7);
+        WarehouseReceiptLine.Modify();
+
+        // [THEN] Quantity = 17
+        WarehouseReceiptLine.TestField(Quantity, 17);
+        // [THEN] "Qty. to Receive" = 13
+        WarehouseReceiptLine.TestField("Qty. to Receive", 17);
+        // [THEN] "Over-Receipt Quantity" = 7
+        WarehouseReceiptLine.TestField("Over-Receipt Quantity", 7);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWarehouseReceiptLineOverReceiptQuantityZeroUT()
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreateWarehouseReceipt(WarehouseReceiptHeader, WarehouseReceiptLine);
+
+        // [GIVEN] "Over-Receipt Quantity" = 7
+        WarehouseReceiptLine.Validate("Over-Receipt Quantity", 7);
+        WarehouseReceiptLine.Modify();
+
+        // [WHEN] Validate "Over-Receipt Quantity" = 0
+        WarehouseReceiptLine.Validate("Over-Receipt Quantity", 0);
+        WarehouseReceiptLine.Modify();
+
+        // [THEN] Quantity = 10
+        WarehouseReceiptLine.TestField(Quantity, 10);
+        // [THEN] "Qty. to Receive" = 10
+        WarehouseReceiptLine.TestField("Qty. to Receive", 10);
+        // [THEN] "Over-Receipt Quantity" = 0
+        WarehouseReceiptLine.TestField("Over-Receipt Quantity", 0);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWarehouseReceiptLineOverReceiptCodeEmptyValueUT()
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreateWarehouseReceipt(WarehouseReceiptHeader, WarehouseReceiptLine);
+
+        // [GIVEN] "Over-Receipt Quantity" = 7
+        WarehouseReceiptLine.Validate("Over-Receipt Quantity", 7);
+        WarehouseReceiptLine.Modify();
+
+        // [WHEN] Validate "Over-Receipt Code" = ''
+        WarehouseReceiptLine.Validate("Over-Receipt Code", '');
+        WarehouseReceiptLine.Modify();
+
+        // [THEN] Quantity = 10
+        WarehouseReceiptLine.TestField(Quantity, 10);
+        // [THEN] "Qty. to Receive" = 10
+        WarehouseReceiptLine.TestField("Qty. to Receive", 10);
+        // [THEN] "Over-Receipt Quantity" = 0
+        WarehouseReceiptLine.TestField("Over-Receipt Quantity", 0);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWarehouseReceiptLineQtyToReceiveTwoTimesUT()
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10
+        CreateWarehouseReceipt(WarehouseReceiptHeader, WarehouseReceiptLine);
+
+        // [GIVEN] "Qty. to Receive" = 13
+        WarehouseReceiptLine.Validate("Qty. to Receive", 13);
+        WarehouseReceiptLine.Modify();
+
+        // [WHEN] Validate "Qty. to Receive" = 17
+        WarehouseReceiptLine.Validate("Qty. to Receive", 17);
+        WarehouseReceiptLine.Modify();
+
+        // [THEN] Quantity = 17
+        WarehouseReceiptLine.TestField(Quantity, 17);
+        // [THEN] "Qty. to Receive" = 17
+        WarehouseReceiptLine.TestField("Qty. to Receive", 17);
+        // [THEN] "Over-Receipt Quantity" = 7
+        WarehouseReceiptLine.TestField("Over-Receipt Quantity", 7);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWarehouseReceiptLineQtyToReceiveTwoTimesWithReceiveUT()
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+    begin
+        // [SCENARIO 388925] Make code UI independent
+        Initialize();
+
+        // [GIVEN] "Over Receipt" feature is enabled
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        BindSubscription(PurchaseOverReceipt);
+
+        // [GIVEN] Purchase order, Quantity = 10, "Qty. to Receive" = 2
+        CreateWarehouseReceipt(WarehouseReceiptHeader, WarehouseReceiptLine);
+        WarehouseReceiptLine.Validate("Qty. to Receive", 2);
+        WarehouseReceiptLine.Modify();
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // [GIVEN] "Qty. to Receive" = 13
+        WarehouseReceiptLine.Get(WarehouseReceiptLine."No.", WarehouseReceiptLine."Line No.");
+        WarehouseReceiptLine.Validate("Qty. to Receive", 13);
+        WarehouseReceiptLine.Modify();
+
+        // [WHEN] Validate "Qty. to Receive" = 17
+        WarehouseReceiptLine.Validate("Qty. to Receive", 17);
+        WarehouseReceiptLine.Modify();
+
+        // [THEN] Quantity = 19
+        WarehouseReceiptLine.TestField(Quantity, 19);
+        // [THEN] "Qty. to Receive" = 17
+        WarehouseReceiptLine.TestField("Qty. to Receive", 17);
+        // [THEN] "Over-Receipt Quantity" = 9
+        WarehouseReceiptLine.TestField("Over-Receipt Quantity", 9);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Purchase Over Receipt");

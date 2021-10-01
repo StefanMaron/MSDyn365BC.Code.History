@@ -1279,6 +1279,132 @@ codeunit 134099 "Purchase Documents"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderDefaultLineType_Empty_UT()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase order line "Type" = "Document Default Line Type" from purchase setup when InitType()
+        Initialize();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = " "
+        PurchaseLineType := PurchaseLineType::" ";
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Init purchase line type
+        InitPurchaseLineType(PurchaseLine);
+
+        // [THEN] Purchase order line "Type" = "Document Default Line Type"
+        VerifyPurchaseLineType(PurchaseLine, PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderDefaultLineType_ChargeItem_UT()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase order line "Type" = "Document Default Line Type" from purchase setup when InitType()
+        Initialize();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Charge (Item)"
+        PurchaseLineType := PurchaseLineType::"Charge (Item)";
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Init purchase line type
+        InitPurchaseLineType(PurchaseLine);
+
+        // [THEN] Purchase order line "Type" = "Document Default Line Type"
+        VerifyPurchaseLineType(PurchaseLine, PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderDefaultLineType_FixedAsset_UT()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase order line "Type" = "Document Default Line Type" from purchase setup when InitType()
+        Initialize();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "Fixed Asset"
+        PurchaseLineType := PurchaseLineType::"Fixed Asset";
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Init purchase line type
+        InitPurchaseLineType(PurchaseLine);
+
+        // [THEN] Purchase order line "Type" = "Document Default Line Type"
+        VerifyPurchaseLineType(PurchaseLine, PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderDefaultLineType_GLAccount_UT()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase order line "Type" = "Document Default Line Type" from purchase setup when InitType()
+        Initialize();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = "G/L Account"
+        PurchaseLineType := PurchaseLineType::"G/L Account";
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Init purchase line type
+        InitPurchaseLineType(PurchaseLine);
+
+        // [THEN] Purchase order line "Type" = "Document Default Line Type"
+        VerifyPurchaseLineType(PurchaseLine, PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderDefaultLineType_Item_UT()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase order line "Type" = "Document Default Line Type" from purchase setup when InitType()
+        Initialize();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = Item
+        PurchaseLineType := PurchaseLineType::Item;
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Init purchase line type
+        InitPurchaseLineType(PurchaseLine);
+
+        // [THEN] Purchase order line "Type" = "Document Default Line Type"
+        VerifyPurchaseLineType(PurchaseLine, PurchaseLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderDefaultLineType_Resource_UT()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        // [SCENARIO 326906] Purchase order line "Type" = "Document Default Line Type" from purchase setup when InitType()
+        Initialize();
+
+        // [GIVEN] Purchases & payables setup "Document Default Line Type" = Resource
+        PurchaseLineType := PurchaseLineType::Resource;
+        SetDocumentDefaultLineType(PurchaseLineType);
+
+        // [WHEN] Init purchase line type
+        InitPurchaseLineType(PurchaseLine);
+
+        // [THEN] Purchase order line "Type" = "Document Default Line Type"
+        VerifyPurchaseLineType(PurchaseLine, PurchaseLineType);
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -1469,6 +1595,25 @@ codeunit 134099 "Purchase Documents"
         LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
     end;
 
+    local procedure SetDocumentDefaultLineType(PurchaseLineType: Enum "Purchase Line Type")
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Document Default Line Type" := PurchaseLineType;
+        PurchasesPayablesSetup.Modify();
+    end;
+
+    local procedure InitPurchaseLineType(var PurchaseLine: Record "Purchase Line")
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+        PurchaseLine."Document No." := PurchaseHeader."No.";
+        PurchaseLine.Type := PurchaseLine.GetDefaultLineType();
+    end;
+
     local procedure VerifyTransactionTypeWhenInsertPurchaseDocument(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1506,6 +1651,11 @@ codeunit 134099 "Purchase Documents"
         PurchaseLine.FindFirst();
         PurchaseLine.CalcFields("Qty. to Assign");
         PurchaseLine.TestField("Qty. to Assign", ExpectedQtyToAssign);
+    end;
+
+    local procedure VerifyPurchaseLineType(PurchaseLine: Record "Purchase Line"; PurchaseLineType: Enum "Purchase Line Type")
+    begin
+        PurchaseLine.TestField(Type, PurchaseLineType);
     end;
 
     [RecallNotificationHandler]

@@ -35,8 +35,6 @@ page 412 "Bank Rec. Line Match Details"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Account Ledger Entry';
-                    SubPageLink = "Statement No." = FIELD("Statement No."),
-                                  "Statement Line No." = FIELD("Statement Line No.");
                 }
             }
         }
@@ -53,8 +51,27 @@ page 412 "Bank Rec. Line Match Details"
         PaymentMatchingDetails.SetFilter(Message, '<>''''');
         if PaymentMatchingDetails.FindLast() then
             MatchDetails := PaymentMatchingDetails.Message;
+
+        PopulateLedgerEntrySubpage();
     end;
 
     var
         MatchDetails: Text;
+
+    local procedure PopulateLedgerEntrySubpage()
+    var
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+    begin
+        FilterManyToOneMatches(BankAccRecMatchBuffer);
+        if BankAccRecMatchBuffer.FindFirst() then
+            BankAccountLedgerEntry.SetRange("Entry No.", BankAccRecMatchBuffer."Ledger Entry No.")
+        else begin
+            BankAccountLedgerEntry.SetRange("Statement No.", Rec."Statement No.");
+            BankAccountLedgerEntry.SetRange("Statement Line No.", Rec."Statement Line No.");
+        end;
+
+        CurrPage.ApplyBankLedgerEntries.Page.SetTableView(BankAccountLedgerEntry);
+        CurrPage.ApplyBankLedgerEntries.Page.Update();
+    end;
 }

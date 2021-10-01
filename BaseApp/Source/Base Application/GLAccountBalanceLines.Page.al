@@ -95,7 +95,7 @@ page 416 "G/L Account Balance Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, GLPeriodLength);
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -104,7 +104,7 @@ page 416 "G/L Account Balance Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, GLPeriodLength);
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -117,22 +117,33 @@ page 416 "G/L Account Balance Lines"
         AccountingPeriod: Record "Accounting Period";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
-        GLPeriodLength: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     protected var
         GLAcc: Record "G/L Account";
         ClosingEntryFilter: Option Include,Exclude;
         DebitCreditTotals: Boolean;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure SetLines()', '19.0')]
     procedure Set(var NewGLAcc: Record "G/L Account"; NewGLPeriodLength: Integer; NewAmountType: Option "Net Change",Balance; NewClosingEntryFilter: Option Include,Exclude; NewDebitCreditTotals: Boolean)
     begin
+        SetLines(
+            NewGLAcc, "Analysis Period Type".FromInteger(NewGLPeriodLength), "Analysis Amount Type".FromInteger(NewAmountType),
+            NewClosingEntryFilter, NewDebitCreditTotals);
+    end;
+#endif
+
+    procedure SetLines(var NewGLAcc: Record "G/L Account"; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type"; NewClosingEntryFilter: Option Include,Exclude; NewDebitCreditTotals: Boolean)
+    begin
         GLAcc.Copy(NewGLAcc);
-        DeleteAll();
-        GLPeriodLength := NewGLPeriodLength;
+        Rec.DeleteAll();
+        PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         ClosingEntryFilter := NewClosingEntryFilter;
         DebitCreditTotals := NewDebitCreditTotals;
+        OnAfterSetLinesOnBeforeUpdate();
         CurrPage.Update(false);
     end;
 
@@ -142,7 +153,7 @@ page 416 "G/L Account Balance Lines"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeBalanceDrillDown(GLAcc, GLPeriodLength, AmountType, ClosingEntryFilter, DebitCreditTotals, IsHandled);
+        OnBeforeBalanceDrillDown(GLAcc, PeriodType, AmountType, ClosingEntryFilter, DebitCreditTotals, IsHandled, DateRec);
         if IsHandled then
             exit;
 
@@ -212,12 +223,17 @@ page 416 "G/L Account Balance Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBalanceDrillDown(var GLAccount: Record "G/L Account"; GLPeriodLength: Option Day,Week,Month,Quarter,Year,"Accounting Period"; AmountType: Option "Net Change","Balance at Date"; ClosingEntryFilter: Option Include,Exclude; DebitCreditTotals: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeBalanceDrillDown(var GLAccount: Record "G/L Account"; GLPeriodLength: Enum "Analysis Period Type"; AmountType: Enum "Analysis Amount Type"; ClosingEntryFilter: Option Include,Exclude; DebitCreditTotals: Boolean; var IsHandled: Boolean; DateRec: Record Date)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcLine(var GLAccount: Record "G/L Account"; var GLAccBalanceBuffer: Record "G/L Acc. Balance Buffer"; ClosingEntryFilter: Option Include,Exclude; DebitCreditTotals: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLinesOnBeforeUpdate()
     begin
     end;
 }

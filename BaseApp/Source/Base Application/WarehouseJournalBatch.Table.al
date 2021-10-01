@@ -85,14 +85,12 @@ table 7310 "Warehouse Journal Batch"
                 Location.TestField("Directed Put-away and Pick", true);
             end;
         }
-        field(21; "Template Type"; Option)
+        field(21; "Template Type"; Enum "Warehouse Journal Template Type")
         {
             CalcFormula = Lookup("Warehouse Journal Template".Type WHERE(Name = FIELD("Journal Template Name")));
             Caption = 'Template Type';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'Item,Physical Inventory,Reclassification';
-            OptionMembers = Item,"Physical Inventory",Reclassification;
         }
         field(7700; "Assigned User ID"; Code[50])
         {

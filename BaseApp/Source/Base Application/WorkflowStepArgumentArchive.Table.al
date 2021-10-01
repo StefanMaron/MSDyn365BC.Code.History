@@ -125,7 +125,7 @@ table 1531 "Workflow Step Argument Archive"
         field(200; "Original Record ID"; RecordID)
         {
             Caption = 'Original Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
     }
 

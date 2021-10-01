@@ -109,7 +109,7 @@ page 7209 "CDS Couple Salespersons"
                         if not CRMIntegrationManagement.HasUncoupledSelectedUsers(CRMSystemuser) then
                             exit;
 
-                        CRMIntegrationManagement.CreateNewSystemUsersFromCRM(CRMSystemuser);
+                        CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(CRMSystemuser);
                         AddUsersToDefaultOwningTeam(CRMSystemuser, true, false);
                     end;
                 }
@@ -143,6 +143,43 @@ page 7209 "CDS Couple Salespersons"
                         until CRMSystemuser.Next() = 0;
 
                         Commit();
+                    end;
+                }
+                action(MatchBasedCoupling)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Match-Based Coupling';
+                    Enabled = HasPermissions;
+                    Image = LinkAccount;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Couple salespersons to users in Dataverse based on criteria.';
+
+                    trigger OnAction()
+                    var
+                        IntegrationTableMapping: Record "Integration Table Mapping";
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        CountTotal: Integer;
+                        CountCoupled: Integer;
+                    begin
+                        IntegrationTableMapping.SetRange("Table ID", Database::"Salesperson/Purchaser");
+                        IntegrationtableMapping.SetRange("Delete After Synchronization", false);
+                        if not IntegrationTableMapping.FindFirst() then
+                            exit;
+
+                        TempCRMSystemuser.Reset();
+                        CountTotal := TempCRMSystemuser.Count();
+                        CountCoupled := CountAlreadyCoupled();
+                        if CountCoupled = CountTotal then begin
+                            Message(AllCoupledTxt);
+                            exit;
+                        end;
+
+                        if not Confirm(StartMatchBasedCouplingQst) then
+                            exit;
+
+                        CRMIntegrationManagement.MatchBasedCoupling(IntegrationTableMapping."Table ID", false, false, true);
+                        CurrPage.Update(false);
                     end;
                 }
             }
@@ -194,18 +231,17 @@ page 7209 "CDS Couple Salespersons"
     var
         TempNewlyCoupledCRMSystemuser: Record "CRM Systemuser" temporary;
         UsersCount: Integer;
-        UsersScheduledForCouplingCount: Integer;
         UsersCoupledCount: Integer;
     begin
         if CloseAction in [CloseAction::LookupOK, CloseAction::Yes, CloseAction::OK] then begin
-            UsersScheduledForCouplingCount := GetNewlyCoupledUsers(TempNewlyCoupledCRMSystemuser);
+            GetNewlyCoupledUsers(TempNewlyCoupledCRMSystemuser);
             ScheduleSalespersonsCoupling();
             AddUsersToDefaultOwningTeam(TempNewlyCoupledCRMSystemuser, false, true);
             TempCRMSystemuser.Reset();
             UsersCount := TempCRMSystemuser.Count();
             UsersCoupledCount := CountAlreadyCoupled();
 
-            if UsersCoupledCount + UsersScheduledForCouplingCount = UsersCount then
+            if UsersCoupledCount = UsersCount then
                 exit(true);
 
             if Confirm(StrSubstNo(ClosePageUncoupledUserTxt, UsersCoupledCount, UsersCount), true) then begin
@@ -228,7 +264,9 @@ page 7209 "CDS Couple Salespersons"
         Coupled: Option Yes,No,Current;
         FirstColumnStyle: Text;
         ClosePageUncoupledUserTxt: Label '%1 out of %2 users are coupled. To prevent issues in initial synchronization Business Central will create salespeople for uncoupled users, couple them and add them to default team. Would you like to continue?', Comment = '%1=No. of users that were coupled, %2=Total no. of users.';
+        AllCoupledTxt: Label 'All users are coupled.';
         HasPermissions: Boolean;
+        StartMatchBasedCouplingQst: Label 'You are about to couple Business Central salespersons to Dataverse users based on criteria that you define.\Refresh this page to update the status of the couplings.\\Do you want to continue?';
 
     procedure SetCurrentlyCoupledCRMSystemuser(CRMSystemuser: Record "CRM Systemuser")
     begin
@@ -396,7 +434,7 @@ page 7209 "CDS Couple Salespersons"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         Rec.MarkedOnly();
-        CRMIntegrationManagement.CreateNewSystemUsersFromCRM(Rec);
+        CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(Rec);
         AddUsersToDefaultOwningTeam(Rec, true, false);
     end;
 }

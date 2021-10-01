@@ -489,10 +489,10 @@ table 485 "Business Chart Buffer"
 
     procedure GetPeriodCaption(Date: Variant): Text
     var
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         if Date.IsDateTime or Date.IsDate then
-            exit(PeriodFormManagement.CreatePeriodFormat("Period Length", Date));
+            exit(PeriodPageManagement.CreatePeriodFormat("Analysis Period Type".FromInteger("Period Length"), Date));
         exit(Format(Date, 0, 9));
     end;
 
@@ -511,13 +511,13 @@ table 485 "Business Chart Buffer"
     procedure RecalculatePeriodFilter(var StartDate: Date; var EndDate: Date; MovePeriod: Option " ",Next,Previous)
     var
         Calendar: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         SearchText: Text[3];
     begin
         if StartDate <> 0D then begin
             Calendar.SetFilter("Period Start", '%1..%2', StartDate, EndDate);
-            if not PeriodFormMgt.FindDate('+', Calendar, "Period Length") then
-                PeriodFormMgt.FindDate('+', Calendar, Calendar."Period Type"::Date);
+            if not PeriodPageMgt.FindDate('+', Calendar, "Analysis Period Type".FromInteger("Period Length")) then
+                PeriodPageMgt.FindDate('+', Calendar, "Analysis Period Type"::Day);
             Calendar.SetRange("Period Start");
         end;
 
@@ -530,7 +530,7 @@ table 485 "Business Chart Buffer"
                 SearchText := '';
         end;
 
-        PeriodFormMgt.FindDate(SearchText, Calendar, "Period Length");
+        PeriodPageMgt.FindDate(SearchText, Calendar, "Analysis Period Type".FromInteger("Period Length"));
 
         StartDate := Calendar."Period Start";
         EndDate := Calendar."Period End";

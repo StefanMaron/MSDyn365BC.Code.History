@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 6304 "Power BI Report Selection"
 {
     Caption = 'Power BI Reports Selection';
@@ -8,6 +9,9 @@ page 6304 "Power BI Report Selection"
     PromotedActionCategories = 'New,Process,Report,Manage,Get Reports';
     SourceTable = "Power BI Report Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Power BI Report Selection now supports Power BI Workspaces and has moved to page 6322 "Power BI WS Report Selection".';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -343,3 +347,4 @@ page 6304 "Power BI Report Selection"
     end;
 }
 
+#endif

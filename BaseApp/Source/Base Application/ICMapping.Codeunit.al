@@ -7,11 +7,11 @@ codeunit 428 "IC Mapping"
 
     procedure MapAccounts(ICGLAcc: Record "IC G/L Account")
     var
-        GlAcc: Record "G/L Account";
+        GLAcc: Record "G/L Account";
     begin
-        GlAcc.SetRange("No.", ICGLAcc."No.");
-        if GlAcc.FindFirst and (ICGLAcc."Account Type" = GlAcc."Account Type") then begin
-            ICGLAcc."Map-to G/L Acc. No." := GlAcc."No.";
+        GLAcc.SetRange("No.", ICGLAcc."No.");
+        if GlAcc.FindFirst and (ICGLAcc."Account Type" = GLAcc."Account Type") then begin
+            ICGLAcc."Map-to G/L Acc. No." := GLAcc."No.";
             ICGLAcc.Modify();
         end;
     end;

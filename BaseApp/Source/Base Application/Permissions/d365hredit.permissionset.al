@@ -14,6 +14,7 @@ permissionset 3242 "D365 HR, EDIT"
                   tabledata "Employee Posting Group" = RIMD,
                   tabledata "Employee Qualification" = RMD,
                   tabledata "Employee Relative" = RD,
+                  tabledata "G/L Account" = R,
                   tabledata "Human Resource Comment Line" = RD,
                   tabledata "Misc. Article Information" = RD;
 }

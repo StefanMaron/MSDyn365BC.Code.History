@@ -105,6 +105,8 @@ page 379 "Bank Acc. Reconciliation"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Card';
                     Image = EditLines;
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     RunObject = Page "Bank Account Card";
                     RunPageLink = "No." = FIELD("Bank Account No.");
                     ShortCutKey = 'Shift+F7';
@@ -149,7 +151,16 @@ page 379 "Bank Acc. Reconciliation"
                     ToolTip = 'Transfer the lines from the current window to the general journal.';
 
                     trigger OnAction()
+                    var
+                        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
                     begin
+                        CurrPage.StmtLine.PAGE.GetSelectedRecords(TempBankAccReconciliationLine);
+                        TempBankAccReconciliationLine.Setrange(Difference, 0);
+                        TempBankAccReconciliationLine.DeleteAll();
+                        TempBankAccReconciliationLine.Setrange(Difference);
+                        if TempBankAccReconciliationLine.IsEmpty then
+                            error(NoBankAccReconcilliationLineWithDiffSellectedErr);
+                        TransferToGLJnl.SetBankAccReconLine(TempBankAccReconciliationLine);
                         TransferToGLJnl.SetBankAccRecon(Rec);
                         TransferToGLJnl.Run;
                     end;
@@ -449,6 +460,7 @@ page 379 "Bank Acc. Reconciliation"
         ListEmptyMsg: Label 'No bank statement lines exist. Choose the Import Bank Statement action to fill in the lines from a file, or enter lines manually.';
         ImportedLinesAfterStatementDateMsg: Label 'There are lines on the imported bank statement with dates that are after the statement date.';
         StatementDateEmptyMsg: Label 'The bank account reconciliation does not have a statement date. %1 is the latest date on a line. Do you want to use that date for the statement?', Comment = '%1 - statement date';
+        NoBankAccReconcilliationLineWithDiffSellectedErr: Label 'There are no Bank Acc. Reconciliation Lines with difference selcted.';
         UpdatedBankAccountLESubpageStementDate: Date;
         UpdatedBankAccountLESystemId: Guid;
 }

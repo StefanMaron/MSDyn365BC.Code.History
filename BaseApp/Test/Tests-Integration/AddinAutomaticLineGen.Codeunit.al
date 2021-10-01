@@ -527,6 +527,34 @@ codeunit 139062 "Add-in Automatic Line Gen."
         VerifyQuoteLines(SalesQuote, Item, Quantity, 4);
     end;
 
+    [Test]
+    [HandlerFunctions('HandleSuggestedLinesPageClickOKDefaultAdd')]
+    [Scope('OnPrem')]
+    procedure SuggestedLinesAreNotAddedByDefault()
+    var
+        OfficeAddinContext: Record "Office Add-in Context";
+        Item: array[5] of Record Item;
+        EmailBody: Text;
+        Quantity: array[5] of Integer;
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [SCENARIO 183290] Do not add the line items by default.
+        Initialize();
+
+        CreateRandomItems(Item, Quantity, 2);
+        EmailBody := StrSubstNo(SingleQuantityBodyText, Item[2].Description, Quantity[2]);
+        Setup(OfficeAddinContext, EmailBody, CommandType.NewSalesQuote);
+
+        SalesQuote.Trap;
+        // [WHEN] The user opens the add-in in the context of the customer email
+        RunMailEngine(OfficeAddinContext);
+
+        // [THEN] The customer card opens
+        // [THEN] The suggested line items page opens (page handler)
+        // [THEN] The suggested line items are not added by default.
+        VerifyQuoteLines(SalesQuote, Item, Quantity, 2);
+    end;
+
     local procedure Initialize()
     var
         NameValueBuffer: Record "Name/Value Buffer";
@@ -584,6 +612,17 @@ codeunit 139062 "Add-in Automatic Line Gen."
     [Scope('OnPrem')]
     procedure HandleSuggestedLinesPageClickOK(var OfficeSuggestedLineItems: TestPage "Office Suggested Line Items")
     begin
+        OfficeSuggestedLineItems.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure HandleSuggestedLinesPageClickOKDefaultAdd(var OfficeSuggestedLineItems: TestPage "Office Suggested Line Items")
+    begin
+        OfficeSuggestedLineItems.First;
+        Assert.IsFalse(OfficeSuggestedLineItems.Add.AsBoolean(), 'The Add value must be false for first item');
+        OfficeSuggestedLineItems.Next;
+        Assert.IsFalse(OfficeSuggestedLineItems.Add.AsBoolean(), 'The Add value must be false for second item');
         OfficeSuggestedLineItems.OK.Invoke;
     end;
 
@@ -858,4 +897,3 @@ codeunit 139062 "Add-in Automatic Line Gen."
         end;
     end;
 }
-

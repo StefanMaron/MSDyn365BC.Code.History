@@ -20,12 +20,6 @@ codeunit 136910 "Report Caption Subscriber"
         DocCaption := ReportCaption;
     end;
 
-    [EventSubscriber(ObjectType::Report, Report::"Sales - Invoice", 'OnBeforeGetDocumentCaption', '', false, false)]
-    local procedure OnBeforeGetSalesInvoiceCaption(SalesInvoiceHeader: Record "Sales Invoice Header"; var DocCaption: Text)
-    begin
-        DocCaption := ReportCaption;
-    end;
-
     [EventSubscriber(ObjectType::Report, Report::"Standard Sales - Invoice", 'OnBeforeGetDocumentCaption', '', false, false)]
     local procedure OnBeforeGetStdSalesInvoiceCaption(SalesInvoiceHeader: Record "Sales Invoice Header"; var DocCaption: Text)
     begin

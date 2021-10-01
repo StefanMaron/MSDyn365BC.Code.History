@@ -1,4 +1,4 @@
-﻿codeunit 5530 "Calc. Item Availability"
+codeunit 5530 "Calc. Item Availability"
 {
 
     trigger OnRun()
@@ -358,6 +358,7 @@
 
         ProdForecastEntry2.Copy(ProdForecastEntry);
         Item.CopyFilter("Location Filter", ProdForecastEntry2."Location Code");
+        Item.CopyFilter("Variant Filter", ProdForecastEntry2."Variant Code");
         OnGetRemainingForecastOnBeforeLoopOnAfterSetItemFilters(Item, ProdForecastEntry, ProdForecastEntry2);
 
         for ModuleLoop := 1 to 2 do begin
@@ -375,9 +376,20 @@
                         Item.CopyFilter("Location Filter", ItemLedgEntry."Location Code");
                         Item.CopyFilter("Location Filter", InvtEventBuf."Location Code");
                     end;
+                    if MfgSetup."Use Forecast on Variants" then begin
+                        ProdForecastEntry2.SetRange("Variant Code", ProdForecastEntry2."Variant Code");
+                        ItemLedgEntry.SetRange("Variant Code", ProdForecastEntry2."Variant Code");
+                        InvtEventBuf.SetRange("Variant Code", ProdForecastEntry2."Variant Code");
+                    end else begin
+                        Item.CopyFilter("Variant Filter", ProdForecastEntry2."Variant Code");
+                        Item.CopyFilter("Variant Filter", ItemLedgEntry."Variant Code");
+                        Item.CopyFilter("Variant Filter", InvtEventBuf."Variant Code");
+                    end;
                     ProdForecastEntry2.FindLast;
                     ProdForecastEntry2.CopyFilter("Location Code", ProdForecastEntry."Location Code");
+                    ProdForecastEntry2.CopyFilter("Variant Code", ProdForecastEntry."Variant Code");
                     Item.CopyFilter("Location Filter", ProdForecastEntry2."Location Code");
+                    Item.CopyFilter("Variant Filter", ProdForecastEntry2."Variant Code");
                     OnGetRemainingForecastOnAfterSetItemFilters(Item, ProdForecastEntry);
 
                     if ForecastExist(ProdForecastEntry, ExcludeForecastBefore, FromDate, ToDate) then
@@ -431,7 +443,7 @@
                             if RemainingForecastQty < 0 then
                                 RemainingForecastQty := 0;
 
-                            InvtEventBuf.TransferFromForecast(ProdForecastEntry, RemainingForecastQty, MfgSetup."Use Forecast on Locations");
+                            InvtEventBuf.TransferFromForecast(ProdForecastEntry, RemainingForecastQty, MfgSetup."Use Forecast on Locations", MfgSetup."Use Forecast on Variants");
                             InsertEntry(InvtEventBuf);
                             OnGetRemainingForecastOAfterInsertEntry(InvtEventBuf, Item, ProdForecastEntry);
 

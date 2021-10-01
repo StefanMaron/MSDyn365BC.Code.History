@@ -1,217 +1,89 @@
-codeunit 139310 "Exchange Setup Wizard Tests"
+codeunit 139310 "Exchange Setup Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
 
     trigger OnRun()
     begin
-        // [FEATURE] [Exchange Setup Wizard]
+        // [FEATURE] [Outlook Individual Deployment]
     end;
 
     var
         Assert: Codeunit Assert;
-        EmailPasswordMissingErr: Label 'Please enter a valid email address and password.';
         LibraryAzureADAuthFlow: Codeunit "Library - Azure AD Auth Flow";
-        DeploymentModeOption: Option User,Organization;
-        UsernamePasswordMissingErr: Label 'Please enter a valid domain username and password.';
         OAuthInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('ConfirmYesHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure VerifyStatusNotCompletedWhenNotFinished()
+    procedure VerifySetupWhenExitRightAway()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
+        OutlookIndividualDeployment: TestPage "Outlook Individual Deployment";
     begin
         // [GIVEN] A newly setup company
         Initialize;
 
-        // [WHEN] The Exchange Setup Wizard is run to the end but not finished
-        RunWizardToCompletion(ExchangeSetupWizard);
-        ExchangeSetupWizard.Close;
+        // [WHEN] The Outlook Individual Deployment wizard is exited right away
+        OutlookIndividualDeployment.Trap;
+        Page.Run(Page::"Outlook Individual Deployment");
+        OutlookIndividualDeployment.Close;
 
-        // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should not be completed.');
+        // [THEN] No assisted setup entry exists
+        Assert.IsFalse(AssistedSetup.Exists(Page::"Teams Individual Deployment"), 'Outlook Individual Deployment assisted setup entry should not exist.');
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmYesHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure VerifyStatusNotCompletedWhenExitRightAway()
+    procedure VerifySetupWhenFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
+        OutlookIndividualDeployment: TestPage "Outlook Individual Deployment";
     begin
         // [GIVEN] A newly setup company
         Initialize;
 
-        // [WHEN] The Exchange Setup Wizard wizard is exited right away
-        ExchangeSetupWizard.Trap;
-        PAGE.Run(PAGE::"Exchange Setup Wizard");
-        ExchangeSetupWizard.Close;
+        // [WHEN] The Outlook Individual Deployment is completed
+        RunWizardToCompletion(OutlookIndividualDeployment);
+        OutlookIndividualDeployment.ActionDone.Invoke;
 
-        // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should not be completed.');
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmNoHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure VerifyWizardNotExitedWhenConfirmIsNo()
-    var
-        AssistedSetup: Codeunit "Assisted Setup";
-        ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
-    begin
-        // [GIVEN] A newly setup company
-        Initialize;
-
-        // [WHEN] The Exchange Setup Wizard is closed but closing is not confirmed
-        ExchangeSetupWizard.Trap;
-        PAGE.Run(PAGE::"Exchange Setup Wizard");
-        ExchangeSetupWizard.Close;
-
-        // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should not be completed.');
+        // [THEN] No assisted setup entry exists
+        Assert.IsFalse(AssistedSetup.Exists(Page::"Teams Individual Deployment"), 'Outlook Individual Deployment assisted setup entry should not exist.');
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure VerifyUserHasEnteredEmailAndPassword()
-    var
-        ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
-    begin
-        // [GIVEN] A newly setup company
-        Initialize;
-
-        // [WHEN] The user does not enter an email address and password
-        ExchangeSetupWizard.Trap;
-        PAGE.Run(PAGE::"Exchange Setup Wizard");
-        with ExchangeSetupWizard do begin
-            ActionNext.Invoke; // Setup for page
-            DeploymentMode.SetValue(DeploymentModeOption::Organization);
-            ActionNext.Invoke; // Use O365 page
-            UseO365.SetValue(true);
-            ActionNext.Invoke; // Enter credentials page
-            asserterror ActionNext.Invoke;
-        end;
-
-        // [THEN] An error is thrown
-        Assert.ExpectedError(EmailPasswordMissingErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyUserHasEnteredOnPremUserAndPassword()
-    var
-        ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
-    begin
-        // [GIVEN] A newly setup company
-        Initialize;
-
-        // [WHEN] The user does not enter an email address and password
-        ExchangeSetupWizard.Trap;
-        PAGE.Run(PAGE::"Exchange Setup Wizard");
-        with ExchangeSetupWizard do begin
-            ActionNext.Invoke; // Setup for page
-            DeploymentMode.SetValue(DeploymentModeOption::Organization);
-            ActionNext.Invoke; // Use O365 page
-            UseO365.SetValue(false);
-            ActionNext.Invoke; // Enter credentials page
-            asserterror ActionNext.Invoke;
-        end;
-
-        // [THEN] An error is thrown
-        Assert.ExpectedError(UsernamePasswordMissingErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure OnPremDeployUnavailableInSaaS()
-    var
-        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
-    begin
-        // [GIVEN] A new company setup in SaaS
-        Initialize;
-        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-
-        // [WHEN] The user chooses to perform an on-prem organization deploy 
-        ExchangeSetupWizard.Trap;
-        PAGE.Run(PAGE::"Exchange Setup Wizard");
-        with ExchangeSetupWizard do begin
-            ActionNext.Invoke; // Setup for page
-            DeploymentMode.SetValue(DeploymentModeOption::Organization);
-            ActionNext.Invoke; // Use O365 page
-
-            // [THEN] An error is thrown when the user unchecks the O365 box
-            asserterror UseO365.SetValue(false);
-        end;
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmYesHandler')]
-    [Scope('OnPrem')]
-    procedure VerifyBackShowsCorrectCredentialPrompt()
-    var
-        ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
-    begin
-        // [GIVEN] A newly setup company
-        Initialize;
-
-        // [WHEN] The user does not enter an email address and password
-        ExchangeSetupWizard.Trap;
-        PAGE.Run(PAGE::"Exchange Setup Wizard");
-        with ExchangeSetupWizard do begin
-            ActionNext.Invoke; // Setup for page
-            DeploymentMode.SetValue(DeploymentModeOption::Organization);
-            ActionNext.Invoke; // Use O365 page
-            UseO365.SetValue(false);
-            ActionNext.Invoke; // Enter credentials page
-            ExchangeUserName.SetValue('domain\test');
-            ExchangePassword.SetValue('testpass');
-            ExchangeEndpoint.SetValue('http://mail.cronus.com/PowerShell');
-            ActionNext.Invoke; // Go to finish page
-            ActionBack.Invoke; // Back to credential page
-            ActionBack.Invoke; // Back to O365 page
-            ActionBack.Invoke; // Back to deploy type page
-            DeploymentMode.SetValue(DeploymentModeOption::User);
-            ActionNext.Invoke; // Go to credential page
-
-            // [THEN] The email and password fields are visible
-            Assert.IsTrue(Email.Visible, 'Email credential field not visible.');
-            Assert.IsTrue(Password.Visible, 'Password credential field not visible.');
-            Assert.IsFalse(ExchangeEndpoint.Visible, 'Expected Exchange endpoint field to be hidden.');
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyStatusCompletedWhenFinished()
-    var
-        AssistedSetup: Codeunit "Assisted Setup";
-        ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
-    begin
-        // [GIVEN] A newly setup company
-        Initialize;
-
-        // [WHEN] The Exchange Setup Wizard is completed
-        RunWizardToCompletion(ExchangeSetupWizard);
-        ExchangeSetupWizard.ActionFinish.Invoke;
-
-        // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Exchange Setup Wizard"), 'Exchange Setup status should be completed.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyUserNotPromptedForEmailAndPasswordWithToken()
+    procedure VerifyUserNotPromptedForEmailAndPasswordWithTokenOnPrem()
     var
         ExchangeAddinSetup: Codeunit "Exchange Add-in Setup";
-        ExchangeSetupWizard: TestPage "Exchange Setup Wizard";
+        OutlookIndividualDeployment: TestPage "Outlook Individual Deployment";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+    begin
+        // [SCENARIO] User is not prompted for email and password when a token is available.
+
+        // [GIVEN] An access token is available for the user.
+        Initialize;
+        InitializeOAuth(true);
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
+
+        // [WHEN] The user runs the Outlook Individual Deployment Page.
+        OutlookIndividualDeployment.Trap;
+        Page.Run(Page::"Outlook Individual Deployment");
+        with OutlookIndividualDeployment do begin
+            ActionNext.Invoke; // Intro step to sample email message step
+            Assert.IsFalse(ActionNext.Visible(), 'Next should not be visible at the end of the wizard');
+            // [THEN] Setup Emails is displayed
+            if ExchangeAddinSetup.SampleEmailsAvailable then
+                Assert.IsTrue(SetupSampleEmails.Visible, 'Setup emails is not visible');
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyUserNotPromptedForEmailAndPasswordInSaaS()
+    var
+        ExchangeAddinSetup: Codeunit "Exchange Add-in Setup";
+        OutlookIndividualDeployment: TestPage "Outlook Individual Deployment";
     begin
         // [SCENARIO] User is not prompted for email and password when a token is available.
 
@@ -219,61 +91,30 @@ codeunit 139310 "Exchange Setup Wizard Tests"
         Initialize;
         InitializeOAuth(true);
 
-        // [WHEN] The user runs the Exchange Setup Wizard page.
-        ExchangeSetupWizard.Trap;
-        PAGE.Run(PAGE::"Exchange Setup Wizard");
-        with ExchangeSetupWizard do begin
-            ActionNext.Invoke; // Setup for page
-            DeploymentMode.SetValue(DeploymentModeOption::User);
-            ActionNext.Invoke; // Receive sample email message page
-
-            // [THEN] Email and Password fields are not displayed and Setup Emails is displayed
-            Assert.IsFalse(Email.Visible, 'Email is visible');
-            Assert.IsFalse(Password.Visible, 'Password is visble');
+        // [WHEN] The user runs the Outlook Individual Deployment Page.
+        OutlookIndividualDeployment.Trap;
+        Page.Run(Page::"Outlook Individual Deployment");
+        with OutlookIndividualDeployment do begin
+            ActionNext.Invoke; // Intro step to sample email message step
+            Assert.IsFalse(ActionNext.Visible(), 'Next should not be visible at the end of the wizard');
+            // [THEN] Setup Emails is displayed
             if ExchangeAddinSetup.SampleEmailsAvailable then
-                Assert.IsTrue(SetupEmails.Visible, 'Setup emails is not visible');
+                Assert.IsTrue(SetupSampleEmails.Visible, 'Setup emails is not visible');
         end;
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyGettingStartedNoPromptForEmailAndPasswordWithToken()
+    local procedure RunWizardToCompletion(var OutlookIndividualDeployment: TestPage "Outlook Individual Deployment")
     var
-        ExchangeAddinSetup: Codeunit "Exchange Add-in Setup";
+        OutlookIndividualDeploymentPage: Page "Outlook Individual Deployment";
     begin
-        // [SCENARIO] During the Getting Started Wizard the user is not prompted for email and password when a token is available.
+        OutlookIndividualDeployment.Trap;
+        OutlookIndividualDeploymentPage.SkipDeploymentStage(true);
+        OutlookIndividualDeploymentPage.Run;
 
-        // [GIVEN] An access token is available for the user.
-        Initialize;
-        InitializeOAuth(true);
-
-        // [WHEN] The user runs the Exchange Add-in Setup.
-        ExchangeAddinSetup.PromptForCredentials;
-
-        // [THEN] User is not prompted for Office 365 Credentials.
-    end;
-
-    local procedure RunWizardToCompletion(var ExchangeSetupWizard: TestPage "Exchange Setup Wizard")
-    var
-        ExchangeSetupWizardPage: Page "Exchange Setup Wizard";
-    begin
-        ExchangeSetupWizard.Trap;
-        ExchangeSetupWizardPage.SkipDeploymentToExchange(true);
-        ExchangeSetupWizardPage.Run;
-
-        with ExchangeSetupWizard do begin
-            ActionNext.Invoke; // Setup for page
-            ActionBack.Invoke; // Welcome page
-            ActionNext.Invoke; // Setup for page
-            DeploymentMode.SetValue(DeploymentModeOption::Organization);
-            ActionNext.Invoke; // O365 selection page
-            UseO365.SetValue(false);
-            ActionNext.Invoke; // Enter credentials page
-            Email.SetValue('test@test.com');
-            Password.SetValue('test1234');
-            ActionNext.Invoke; // Receive sample email message page
-            ActionNext.Invoke; // That's it page
-            Assert.IsFalse(ActionNext.Enabled, 'Next should not be enabled at the end of the wizard');
+        with OutlookIndividualDeployment do begin
+            ActionNext.Invoke; // Intro step to manual instructions step
+            Assert.IsFalse(ActionNext.Visible, 'Next should not be visible at the end of the wizard');
+            Assert.IsTrue(ActionDone.Visible(), 'Done should be visible at the end of the wizard');
         end;
     end;
 
@@ -307,20 +148,6 @@ codeunit 139310 "Exchange Setup Wizard Tests"
         LibraryO365Sync.SetupNavUser;
 
         OAuthInitialized := true;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmYesHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmNoHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := false;
     end;
 
     local procedure SetAuthFlowProvider(ProviderCodeunit: Integer)

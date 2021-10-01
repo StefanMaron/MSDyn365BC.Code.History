@@ -492,6 +492,8 @@ page 5830 "Demand Overview"
         Text023: Label 'Fetching Items';
         Text025: Label 'Fetching Specific Entries in Dates';
         Text026: Label 'Displaying results';
+
+    protected var
         [InDataSet]
         DemandNoCtrlEnable: Boolean;
         [InDataSet]

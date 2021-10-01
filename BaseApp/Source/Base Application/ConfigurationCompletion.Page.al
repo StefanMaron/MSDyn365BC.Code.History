@@ -35,8 +35,12 @@ page 8638 "Configuration Completion"
                         trigger OnAssistEdit()
                         var
                             AllProfileTable: Record "All Profile";
+                            Roles: Page Roles;
                         begin
-                            if PAGE.RunModal(PAGE::"Available Roles", AllProfileTable) = ACTION::LookupOK then begin
+                            Roles.Initialize();
+                            Roles.LookupMode(true);
+                            if Roles.RunModal() = Action::LookupOK then begin
+                                Roles.GetRecord(AllProfileTable);
                                 YourProfileCode := AllProfileTable."Profile ID";
                                 "Your Profile Code" := AllProfileTable."Profile ID";
                                 "Your Profile App ID" := AllProfileTable."App ID";
@@ -71,12 +75,12 @@ page 8638 "Configuration Completion"
             action("Users Personalization")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Users Personalization';
+                Caption = 'Users Settings';
                 Image = UserSetup;
                 Promoted = true;
                 PromotedCategory = Category4;
                 PromotedIsBig = true;
-                RunObject = Page "User Personalization List";
+                RunObject = Page "User Settings List";
                 ToolTip = 'View or edit UI changes that will be configured in the database.';
             }
         }

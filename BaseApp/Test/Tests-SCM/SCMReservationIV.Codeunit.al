@@ -282,7 +282,7 @@ codeunit 137271 "SCM Reservation IV"
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         ItemUnitOfMeasure1: Record "Item Unit of Measure";
         TrackingOption: Option AssignSerialNo,AssignLotNo,SelectEntries,SetLotNo,SetSerialNo,AssignGivenLotNo;
-        LotNo: Code[20];
+        LotNo: Code[50];
         LotNo1: Code[20];
     begin
         // [FEATURE] [Item Tracking]
@@ -352,31 +352,6 @@ codeunit 137271 "SCM Reservation IV"
         SalesLine.TestField("Reserved Quantity", SalesLine.Quantity);
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure ReservedQuantityOnSalesLineWithCrossReference()
-    var
-        SalesLine: Record "Sales Line";
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        ItemQuantity: Decimal;
-    begin
-        // [SCENARIO] Reference Quantity if Cross-Reference No. is set before Qunatity
-
-        // [GIVEN] Setup Item and Create Cross-Reference
-        Initialize(false);
-        ItemQuantity := LibraryRandom.RandInt(5);
-        CreateItemWithCrossReference(Item, Item."Assembly Policy"::"Assemble-to-Order", ItemCrossReference);
-
-        // [WHEN] Update Quantity on Sales Line.
-        CreateSalesDocumentWithCrossReference(SalesLine, '', ItemQuantity, ItemCrossReference);
-
-        // [THEN] Verify Reserved Quantity on Sales LIne.
-        Assert.AreEqual(
-          ItemQuantity, SalesLine."Reserved Quantity", SalesLine.FieldCaption("Reserved Quantity"));
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -854,7 +829,7 @@ codeunit 137271 "SCM Reservation IV"
         SalesHeader: Record "Sales Header";
         ItemJournalLine: Record "Item Journal Line";
         PostedDocumentNo: Code[20];
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Order Tracking]
         // [SCENARIO] Verify Item Ledger Entry when Item Created with Order Tracking Policy and Create and Post Sales Order with Item Tracking.
@@ -884,7 +859,7 @@ codeunit 137271 "SCM Reservation IV"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesLine2: Record "Sales Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO] Error Message After Creating Sales Order with Item Tracking.
@@ -1268,7 +1243,7 @@ codeunit 137271 "SCM Reservation IV"
         PurchaseLine: Record "Purchase Line";
         OriginalQty: Decimal;
         Qty: Decimal;
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO] Item is completely reserved in Purchase Line when increasing and then decreasing quantity in Item Tracking line.
@@ -1624,7 +1599,7 @@ codeunit 137271 "SCM Reservation IV"
         SalesLine: Record "Sales Line";
         ReservationEntry: Record "Reservation Entry";
         ConfirmOption: Option SerialSpecificTrue,SerialSpecificFalse;
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Item Tracking] [Calculate Regenerative Plan] [Lot-for-Lot] [Sales]
         // [SCENARIO 215656] When a user runs lot-specific reservation for sales line with assigned Lot No. in item tracking, the resulting reservation entries should contain that Lot No.
@@ -1791,7 +1766,7 @@ codeunit 137271 "SCM Reservation IV"
         SalesHeader: array[2] of Record "Sales Header";
         SalesLine: array[2] of Record "Sales Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Qty: Decimal;
     begin
         // [FEATURE] [Warehouse Pick] [Item Tracking]
@@ -2287,7 +2262,7 @@ codeunit 137271 "SCM Reservation IV"
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, LibraryInventory.CreateItemNo, '', Qty, '');
         for i := 1 to ArrayLen(LotNo) do begin
             LibraryAssembly.CreateAssemblyLine(
-              AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", Qty, 1, '');
+              AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", Qty, 1, '');
             LibraryVariableStorage.Enqueue(TrackingOption::AssignLot);
             LibraryVariableStorage.Enqueue(AvailabilityWarningMsg);
             AssemblyLine.OpenItemTrackingLines();
@@ -2431,7 +2406,7 @@ codeunit 137271 "SCM Reservation IV"
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
         ReservEntry: Record "Reservation Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Qty: Decimal;
         QtyPerUOM: Decimal;
     begin
@@ -2635,7 +2610,7 @@ codeunit 137271 "SCM Reservation IV"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ReservationEntry: Record "Reservation Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
         QtyOnHand: Decimal;
         QtyForSale: Decimal;
     begin
@@ -2701,7 +2676,7 @@ codeunit 137271 "SCM Reservation IV"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         ReservationEntry: Record "Reservation Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Qty: Decimal;
     begin
         // [FEATURE] [Item Tracking] [Order Tracking] [Planning]
@@ -2849,7 +2824,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [THEN] The warehouse shipment can be posted.
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
         // [THEN] The sales line is shipped for 15 "PCS".
@@ -3226,7 +3201,7 @@ codeunit 137271 "SCM Reservation IV"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
-    local procedure CreatePurchaseOrderWithLotItemTracking(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; var LotNo: Code[20])
+    local procedure CreatePurchaseOrderWithLotItemTracking(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; var LotNo: Code[50])
     var
         DequeueVariable: Variant;
     begin
@@ -3356,7 +3331,7 @@ codeunit 137271 "SCM Reservation IV"
         PurchaseLine.OpenItemTrackingLines();
     end;
 
-    local procedure CreatePurchaseOrderWithManualSetLotNo(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; LotNo: Code[20])
+    local procedure CreatePurchaseOrderWithManualSetLotNo(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; LotNo: Code[50])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -3388,7 +3363,7 @@ codeunit 137271 "SCM Reservation IV"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseLineWithAlternateUOMAndLotTracking(var PurchaseLine: Record "Purchase Line"; var NewLotNo: Code[20]; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; Qty: Decimal)
+    local procedure CreatePurchaseLineWithAlternateUOMAndLotTracking(var PurchaseLine: Record "Purchase Line"; var NewLotNo: Code[50]; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; Qty: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
         PurchaseLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
@@ -3406,15 +3381,6 @@ codeunit 137271 "SCM Reservation IV"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, No, Quantity);
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Modify(true);
-    end;
-
-    local procedure CreateSalesDocumentWithCrossReference(var SalesLine: Record "Sales Line"; LocationCode: Code[10]; ItemQuantity: Decimal; ItemCrossReference: Record "Item Cross Reference")
-    begin
-        CreateSalesDocument(SalesLine, ItemCrossReference."Item No.", LocationCode, ItemQuantity);
-        with SalesLine do begin
-            Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-            Modify(true);
-        end;
     end;
 
     local procedure CreateSalesDocumentWithItemReference(var SalesLine: Record "Sales Line"; LocationCode: Code[10]; ItemQuantity: Decimal; ItemReference: Record "Item Reference")
@@ -3444,7 +3410,7 @@ codeunit 137271 "SCM Reservation IV"
         LibraryVariableStorage.Enqueue(LibraryInventory.GetReservConfirmText);
     end;
 
-    local procedure CreateSalesOrderWithManualSetLotNo(var SalesLine: Record "Sales Line"; No: Code[20]; LocationCode: Code[10]; Quantity: Decimal; LotNo: Code[20])
+    local procedure CreateSalesOrderWithManualSetLotNo(var SalesLine: Record "Sales Line"; No: Code[20]; LocationCode: Code[10]; Quantity: Decimal; LotNo: Code[50])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -3627,13 +3593,13 @@ codeunit 137271 "SCM Reservation IV"
         ReservationEntry.FindFirst;
     end;
 
-    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Option)
+    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType, LocationCode, ActionType);
         WarehouseActivityLine.FindSet();
     end;
 
-    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option; LocationCode: Code[10]; ActionType: Option): Code[20]
+    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ActionType: Enum "Warehouse Action Type"): Code[20]
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
@@ -3667,7 +3633,7 @@ codeunit 137271 "SCM Reservation IV"
     end;
 
     [Normal]
-    local procedure PostItemJournalLineWithUOMAndLot(ItemNo: Code[20]; Qty: Decimal; ItemUnitOfMeasure: Record "Item Unit of Measure"; TrackingOption: Option; LotNo: Code[20])
+    local procedure PostItemJournalLineWithUOMAndLot(ItemNo: Code[20]; Qty: Decimal; ItemUnitOfMeasure: Record "Item Unit of Measure"; TrackingOption: Option; LotNo: Code[50])
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -3754,7 +3720,7 @@ codeunit 137271 "SCM Reservation IV"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, true);
     end;
 
-    local procedure ProcessNextWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Option; Qty: Decimal; QtyToHandle: Decimal; LotNo: Code[20])
+    local procedure ProcessNextWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Enum "Warehouse Action Type"; Qty: Decimal; QtyToHandle: Decimal; LotNo: Code[50])
     begin
         WarehouseActivityLine.Next();
         WarehouseActivityLine.TestField("Action Type", ActionType);
@@ -3765,7 +3731,7 @@ codeunit 137271 "SCM Reservation IV"
         WarehouseActivityLine.Modify(true);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Option; LocationCode: Code[10]; ActionType: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -3792,7 +3758,7 @@ codeunit 137271 "SCM Reservation IV"
         LibraryVariableStorage.Enqueue(ConfirmOption);  // Enqueue value for ConfirmHandlerForReservation.
     end;
 
-    local procedure SetupITEntriesForPurchAndSalesWithSameLotNo(var SalesLine: Record "Sales Line"; var PurchaseLine: Record "Purchase Line"; var LotNo: Code[20])
+    local procedure SetupITEntriesForPurchAndSalesWithSameLotNo(var SalesLine: Record "Sales Line"; var PurchaseLine: Record "Purchase Line"; var LotNo: Code[50])
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -3865,7 +3831,7 @@ codeunit 137271 "SCM Reservation IV"
         until WarehouseActivityLine.Next = 0;
     end;
 
-    local procedure SetQtyToHandleWhseActivity(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; ItemNo: Code[20]; ActionType: Option)
+    local procedure SetQtyToHandleWhseActivity(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ItemNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
         FindWhseActivityLine(WarehouseActivityLine, ActivityType, LocationCode, ItemNo, ActionType);
         WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity / 2);
@@ -3895,27 +3861,6 @@ codeunit 137271 "SCM Reservation IV"
         WarehouseActivityLine.Modify(true);
         WarehouseActivityLine.SplitLine(WarehouseActivityLine);
     end;
-
-#if not CLEAN16
-    local procedure CreateItemWithCrossReference(var Item: Record Item; AssemblyPolicy: Enum "Assembly Policy"; var ItemCrossReference: Record "Item Cross Reference")
-    var
-        ItemUnitOfMeasure: Record "Item Unit of Measure";
-        Index: Integer;
-    begin
-        with Item do begin
-            Get(CreateAndModifyItem("Costing Method"::Standard));
-            Validate("Replenishment System", "Replenishment System"::Assembly);
-            Validate("Assembly Policy", AssemblyPolicy);
-            Modify(true);
-            LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, "No.", LibraryRandom.RandInt(5));
-            for Index := 1 to LibraryRandom.RandIntInRange(3, 5) do
-                CreateBOMComponent("No.");
-        end;
-
-        LibraryInventory.CreateItemCrossReference(
-          ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::" ", '');
-    end;
-#endif
 
     local procedure CreateItemWithItemReference(var Item: Record Item; AssemblyPolicy: Enum "Assembly Policy"; var ItemReference: Record "Item Reference")
     var
@@ -3984,7 +3929,7 @@ codeunit 137271 "SCM Reservation IV"
         PurchaseLine.OpenItemTrackingLines();
     end;
 
-    local procedure UpdateLotAndQtyToHandleOnPickLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Option; ItemNo: Code[20]; LotNo: Code[20]; QtyToHandle: Decimal)
+    local procedure UpdateLotAndQtyToHandleOnPickLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; LotNo: Code[50]; QtyToHandle: Decimal)
     begin
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
         WarehouseActivityLine.SetRange("Action Type", ActionType);
@@ -4022,7 +3967,7 @@ codeunit 137271 "SCM Reservation IV"
           CreditAmount, ActualAmount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(ValidationErr, GLEntry."Credit Amount", CreditAmount));
     end;
 
-    local procedure VerifyRegisteredWhseActivity(Type: Option; LocationCode: Code[10])
+    local procedure VerifyRegisteredWhseActivity(Type: Enum "Warehouse Activity Type"; LocationCode: Code[10])
     var
         RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
     begin
@@ -4070,7 +4015,7 @@ codeunit 137271 "SCM Reservation IV"
         PurchaseLine.TestField("Reserved Quantity", Qty);
     end;
 
-    local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; LotNo: Code[20]; Quantity: Decimal; ItemNo: Code[20])
+    local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; LotNo: Code[50]; Quantity: Decimal; ItemNo: Code[20])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

@@ -27,11 +27,14 @@ permissionset 9783 "D365 SALES DOC, EDIT"
                   tabledata "Duplicate Price Line" = RIMD,
                   tabledata "Duplicate Search String Setup" = R,
                   tabledata Employee = R,
+                  tabledata "G/L Account" = R,
                   tabledata "General Ledger Setup" = RIM,
                   tabledata "Item Charge" = R,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = RIMD,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = RIMD,
+#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Reference" = RIMD,
                   tabledata "Item Tracing Buffer" = Rimd,
@@ -59,8 +62,10 @@ permissionset 9783 "D365 SALES DOC, EDIT"
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Record Buffer" = Rimd,
+#if not CLEAN19
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
+#endif
                   tabledata "Resource Unit of Measure" = R,
                   tabledata "Restricted Record" = RIMD,
                   tabledata "Return Reason" = R,
@@ -75,11 +80,17 @@ permissionset 9783 "D365 SALES DOC, EDIT"
                   tabledata "Sales Invoice Line" = Rimd,
                   tabledata "Sales Line" = RIMD,
                   tabledata "Sales Line Archive" = RIMD,
+#if not CLEAN19
                   tabledata "Sales Line Discount" = RIMD,
+#endif
                   tabledata "Sales Planning Line" = Rimd,
+#if not CLEAN19
                   tabledata "Sales Price" = RIMD,
+#endif
                   tabledata "Sales Price Access" = RIMD,
+#if not CLEAN19
                   tabledata "Sales Price Worksheet" = RIMD,
+#endif
                   tabledata "Sales Shipment Header" = RimD,
                   tabledata "Sales Shipment Line" = Rimd,
                   tabledata "Sales & Receivables Setup" = R,

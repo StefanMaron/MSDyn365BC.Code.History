@@ -10,14 +10,12 @@ codeunit 1326 "Top Five Customers Chart Mgt."
         CustomerXCaptionTxt: Label 'Customer Name';
         SalesLCYYCaptionTxt: Label 'Sales (LCY)';
         AllOtherCustomersTxt: Label 'All Other Customers';
-        SalesAmountCaptionTxt: Label 'Amount Excl. VAT (%1)', Comment = '%1=Currency Symbol (e.g. $)';
         CustomerNameNoLbl: Label '%1 - %2', Locked = true;
         CustomerNo: array[5] of Code[20];
 
     procedure UpdateChart(var BusChartBuf: Record "Business Chart Buffer")
     var
         GLSetup: Record "General Ledger Setup";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         ColumnIndex: Integer;
         CustomerName: array[11] of Text[100];
         SalesLCY: array[11] of Decimal;
@@ -25,10 +23,7 @@ codeunit 1326 "Top Five Customers Chart Mgt."
         with BusChartBuf do begin
             Initialize();
             if GLSetup.Get() then;
-            if EnvInfoProxy.IsInvoicing() then
-                AddDecimalMeasure(StrSubstNo(SalesAmountCaptionTxt, GLSetup.GetCurrencySymbol()), 1, "Chart Type"::Doughnut)
-            else
-                AddDecimalMeasure(SalesLCYYCaptionTxt, 1, "Chart Type"::Doughnut);
+            AddDecimalMeasure(SalesLCYYCaptionTxt, 1, "Chart Type"::Doughnut);
             SetXAxis(CustomerXCaptionTxt, "Data Type"::String);
             CalcTopSalesCustomers(CustomerName, SalesLCY);
             for ColumnIndex := 1 to 6 do begin

@@ -8,7 +8,11 @@ codeunit 7203 "CDS Environment"
 
     var
         OAuthAuthorityUrlAuthCodeTxt: Label 'https://login.microsoftonline.com/common/oauth2', Locked = true;
+#if CLEAN18
+        ScopesLbl: Label 'https://globaldisco.crm.dynamics.com/user_impersonation', Locked = true;
+#else
         ResourceUrlTxt: Label 'https://globaldisco.crm.dynamics.com', Locked = true;
+#endif
         GlobalDiscoOauthCategoryLbl: Label 'Global Discoverability OAuth', Locked = true;
         MissingKeyErr: Label 'The consumer key has not been initialized and are missing from the Azure Key Vault.';
         MissingSecretErr: Label 'The consumer secret has not been initialized and are missing from the Azure Key Vault.';
@@ -18,7 +22,9 @@ codeunit 7203 "CDS Environment"
         SelectedEnvironmentTxt: Label 'Selected environment: %1', Locked = true, Comment = '%1 = The URL of the selected environment';
         ReceivedEmptyAuthCodeTokenErr: Label 'The auth code authorization for the current user to the Global Discoverability service has failed - the token returned is empty.', Locked = true;
         AcquiringAuthCodeTokenWithCertificateTxt: Label 'Attempting to acquire a token for Global Discoverability via authorization code flow, with app id and SNI certificate.', Locked = true;
+#if not CLEAN18
         AcquiringAuthCodeTokenWithClientSecretTxt: Label 'Attempting to acquire a token for Global Discoverability via authorization code flow, with app id and client secret.', Locked = true;
+#endif
         RequestFailedTxt: Label 'Request failed', Locked = true;
         CannotReadResponseTxt: Label 'Cannot read response.', Locked = true;
         CannotParseResponseTxt: Label 'Cannot parse response.', Locked = true;
@@ -74,6 +80,9 @@ codeunit 7203 "CDS Environment"
         OAuth2: Codeunit OAuth2;
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         PromptInteraction: Enum "Prompt Interaction";
+#if CLEAN18
+        Scopes: List of [Text];
+#endif
         ConsumerKey: Text;
         ConsumerSecret: Text;
         FirstPartyAppId: Text;
@@ -82,8 +91,12 @@ codeunit 7203 "CDS Environment"
         Token: Text;
         Err: Text;
     begin
+#if CLEAN18
+        Scopes.Add(ScopesLbl);
+        OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), Scopes, Token);
+#else       
         OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), ResourceUrlTxt, Token);
-
+#endif
         if Token <> '' then
             exit(Token);
 
@@ -94,9 +107,17 @@ codeunit 7203 "CDS Environment"
         RedirectUrl := CDSIntegrationImpl.GetRedirectURL();
         if (FirstPartyappId <> '') and (FirstPartyAppCertificate <> '') then begin
             Session.LogMessage('0000EI6', AcquiringAuthCodeTokenWithCertificateTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
+#if CLEAN18
+            OAuth2.AcquireAuthorizationCodeTokenFromCacheWithCertificate(FirstPartyappId, FirstPartyAppCertificate, RedirectUrl, OAuthAuthorityUrlAuthCodeTxt, Scopes, Token);
+#else
             OAuth2.AcquireAuthorizationCodeTokenFromCacheWithCertificate(FirstPartyappId, FirstPartyAppCertificate, RedirectUrl, OAuthAuthorityUrlAuthCodeTxt, ResourceUrlTxt, Token);
+# endif
             if Token = '' then
+#if CLEAN18
+                OAuth2.AcquireTokenByAuthorizationCodeWithCertificate(FirstPartyappId, FirstPartyAppCertificate, OAuthAuthorityUrlAuthCodeTxt, RedirectUrl, Scopes, PromptInteraction::Login, Token, Err);
+#else
                 OAuth2.AcquireTokenByAuthorizationCodeWithCertificate(FirstPartyappId, FirstPartyAppCertificate, OAuthAuthorityUrlAuthCodeTxt, RedirectUrl, ResourceUrlTxt, PromptInteraction::Login, Token, Err);
+# endif
 
             if Token = '' then
                 Session.LogMessage('0000EI7', ReceivedEmptyAuthCodeTokenErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
@@ -113,13 +134,20 @@ codeunit 7203 "CDS Environment"
         if ConsumerSecret = '' then
             Session.LogMessage('0000BRC', MissingSecretErr, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
 
+#if CLEAN18
+        if (ConsumerKey <> '') AND (ConsumerSecret <> '') then begin
+            OAuth2.AcquireAuthorizationCodeTokenFromCache(ConsumerKey, ConsumerSecret, RedirectUrl, OAuthAuthorityUrlAuthCodeTxt, Scopes, Token);
+            if Token = '' then
+                OAuth2.AcquireTokenByAuthorizationCode(ConsumerKey, ConsumerSecret, OAuthAuthorityUrlAuthCodeTxt, RedirectUrl, Scopes, PromptInteraction::Login, Token, Err);
+        end;
+#else
         if (ConsumerKey <> '') AND (ConsumerSecret <> '') then begin
             Session.LogMessage('0000EI8', AcquiringAuthCodeTokenWithClientSecretTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
             OAuth2.AcquireAuthorizationCodeTokenFromCache(ConsumerKey, ConsumerSecret, RedirectUrl, OAuthAuthorityUrlAuthCodeTxt, ResourceUrlTxt, Token);
             if Token = '' then
                 OAuth2.AcquireTokenByAuthorizationCode(ConsumerKey, ConsumerSecret, OAuthAuthorityUrlAuthCodeTxt, RedirectUrl, ResourceUrlTxt, PromptInteraction::Login, Token, Err);
         end;
-
+#endif
         if Token = '' then
             Session.LogMessage('0000C6I', ReceivedEmptyAuthCodeTokenErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
 

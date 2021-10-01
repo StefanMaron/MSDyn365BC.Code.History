@@ -72,6 +72,8 @@ report 493 "Carry Out Action Msg. - Req."
         EndOrderDate: Date;
         PrintOrders: Boolean;
         TempJnlBatchName: Code[10];
+
+    protected var
         HideDialog: Boolean;
         SuppressCommit: Boolean;
 

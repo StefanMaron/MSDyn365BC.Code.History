@@ -703,7 +703,7 @@ codeunit 138100 "Streamline. Autofill No Series"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesHandler')]
+    [HandlerFunctions('SelectCustomerTemplListHandler')]
     [Scope('OnPrem')]
     procedure DocNoVisibility_CustomerDefaultNoSeries()
     var
@@ -792,7 +792,7 @@ codeunit 138100 "Streamline. Autofill No Series"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesHandler')]
+    [HandlerFunctions('SelectVendorTemplListHandler')]
     [Scope('OnPrem')]
     procedure DocNoVisibility_VendorDefaultNoSeries()
     var
@@ -881,7 +881,7 @@ codeunit 138100 "Streamline. Autofill No Series"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesHandler')]
+    [HandlerFunctions('SelectItemTemplListHandler')]
     [Scope('OnPrem')]
     procedure DocNoVisibility_ItemDefaultNoSeries()
     var
@@ -1053,7 +1053,7 @@ codeunit 138100 "Streamline. Autofill No Series"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesHandlerOK')]
+    [HandlerFunctions('SelectCustomerTemplListHandlerOK')]
     [Scope('OnPrem')]
     procedure OpenCustomer_WithNoSeries_InUse()
     var
@@ -1091,7 +1091,7 @@ codeunit 138100 "Streamline. Autofill No Series"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesHandlerOK')]
+    [HandlerFunctions('SelectVendorTemplListHandlerOK')]
     [Scope('OnPrem')]
     procedure OpenVendor_WithNoSeries_InUse()
     var
@@ -1370,7 +1370,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         // Lazy Setup.
         if isInitialized then
             exit;
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         isInitialized := true;
 
         Commit();
@@ -1652,18 +1652,42 @@ codeunit 138100 "Streamline. Autofill No Series"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectCustomerTemplListHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
         LibraryVariableStorage.Enqueue(true);
-        ConfigTemplates.Cancel.Invoke;
+        SelectCustomerTemplList.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesHandlerOK(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectCustomerTemplListHandlerOK(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
         LibraryVariableStorage.Enqueue(true);
-        ConfigTemplates.OK.Invoke;
+        SelectCustomerTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectVendorTemplListHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
+    begin
+        LibraryVariableStorage.Enqueue(true);
+        SelectVendorTemplList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectVendorTemplListHandlerOK(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
+    begin
+        LibraryVariableStorage.Enqueue(true);
+        SelectVendorTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectItemTemplListHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
+    begin
+        LibraryVariableStorage.Enqueue(true);
+        SelectItemTemplList.Cancel().Invoke();
     end;
 
     local procedure SetNoSeriesDefaultNos(NoSeriesCode: Code[20]; DefaultNos: Boolean)

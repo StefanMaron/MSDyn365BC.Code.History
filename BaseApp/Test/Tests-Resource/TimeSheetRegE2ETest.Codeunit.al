@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135930 "Time Sheet Reg. E2E Test"
 {
     Subtype = Test;
@@ -1019,4 +1020,4 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         exit(TargetURL);
     end;
 }
-
+#endif

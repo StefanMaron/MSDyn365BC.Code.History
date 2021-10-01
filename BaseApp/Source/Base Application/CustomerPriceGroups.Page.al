@@ -50,6 +50,12 @@ page 7 "Customer Price Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT business group code for this price group. The code to find the VAT percentage rate in the VAT Posting Setup window that it uses to calculate the unit price.';
                 }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the customer price group is coupled to a price list in Dynamics 365 Sales.';
+                    Visible = CRMIntegrationEnabled;
+                }
             }
         }
         area(factboxes)

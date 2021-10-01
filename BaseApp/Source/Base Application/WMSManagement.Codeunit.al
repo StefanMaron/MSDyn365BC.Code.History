@@ -97,7 +97,7 @@ codeunit 7302 "WMS Management"
             SetZoneAndBinsForOutput(ItemJnlLine, WhseJnlLine);
             WhseJnlLine.SetSource(DATABASE::"Item Journal Line", 5, "Order No.", "Order Line No.", 0); // Output Journal
             WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
-            WhseJnlLine.SetWhseDoc(WhseJnlLine."Whse. Document Type"::Production, "Order No.", "Order Line No.");
+            WhseJnlLine.SetWhseDocument(WhseJnlLine."Whse. Document Type"::Production, "Order No.", "Order Line No.");
             WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
             WhseJnlLine."Reference No." := "Order No.";
             TransferWhseItemTrkg(WhseJnlLine, ItemJnlLine);
@@ -119,7 +119,7 @@ codeunit 7302 "WMS Management"
             SetZoneAndBinsForConsumption(ItemJnlLine, WhseJnlLine);
             WhseJnlLine.SetSource(DATABASE::"Item Journal Line", 4, "Order No.", "Order Line No.", "Prod. Order Comp. Line No."); // Consumption Journal
             WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
-            WhseJnlLine.SetWhseDoc(WhseJnlLine."Whse. Document Type"::Production, "Order No.", "Order Line No.");
+            WhseJnlLine.SetWhseDocument(WhseJnlLine."Whse. Document Type"::Production, "Order No.", "Order Line No.");
             WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
             WhseJnlLine."Reference No." := "Order No.";
             TransferWhseItemTrkg(WhseJnlLine, ItemJnlLine);
@@ -885,7 +885,7 @@ codeunit 7302 "WMS Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeConfirmExceededCapacity(IsHandled);
+        OnBeforeConfirmExceededCapacity(IsHandled, BinCode, CheckFieldCaption, CheckTableCaption, ValueToPutAway, ValueAvailable);
         if IsHandled then
             exit;
 
@@ -1120,15 +1120,10 @@ codeunit 7302 "WMS Management"
         exit(true);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by set of procedures for each document type, like ShowWhseRcptLine().', '19.0')]
     procedure ShowWhseDocLine(WhseDocType: Option Receipt,"Posted Receipt",Shipment,"Internal Put-away","Internal Pick",Production,,Assembly; WhseDocNo: Code[20]; WhseDocLineNo: Integer)
     var
-        WhseRcptLine: Record "Warehouse Receipt Line";
-        WhseShptLine: Record "Warehouse Shipment Line";
-        PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
-        WhseInternalPickLine: Record "Whse. Internal Pick Line";
-        WhseInternalPutawayLine: Record "Whse. Internal Put-away Line";
-        ProdOrderLine: Record "Prod. Order Line";
-        AssemblyLine: Record "Assembly Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1138,58 +1133,53 @@ codeunit 7302 "WMS Management"
 
         case WhseDocType of
             WhseDocType::Receipt:
-                begin
-                    WhseRcptLine.Reset();
-                    WhseRcptLine.SetRange("No.", WhseDocNo);
-                    WhseRcptLine.SetRange("Line No.", WhseDocLineNo);
-                    PAGE.RunModal(PAGE::"Whse. Receipt Lines", WhseRcptLine);
-                end;
+                ShowWhseRcptLine(WhseDocNo, WhseDocLineNo);
             WhseDocType::"Posted Receipt":
-                begin
-                    PostedWhseRcptLine.Reset();
-                    PostedWhseRcptLine.SetRange("No.", WhseDocNo);
-                    PostedWhseRcptLine.SetRange("Line No.", WhseDocLineNo);
-                    PAGE.RunModal(PAGE::"Posted Whse. Receipt Lines", PostedWhseRcptLine);
-                end;
+                ShowPostedWhseRcptLine(WhseDocNo, WhseDocLineNo);
             WhseDocType::Shipment:
-                begin
-                    WhseShptLine.Reset();
-                    WhseShptLine.SetRange("No.", WhseDocNo);
-                    WhseShptLine.SetRange("Line No.", WhseDocLineNo);
-                    PAGE.RunModal(PAGE::"Whse. Shipment Lines", WhseShptLine);
-                end;
+                ShowWhseShptLine(WhseDocNo, WhseDocLineNo);
             WhseDocType::"Internal Put-away":
-                begin
-                    WhseInternalPutawayLine.Reset();
-                    WhseInternalPutawayLine.SetRange("No.", WhseDocNo);
-                    WhseInternalPutawayLine.SetRange("Line No.", WhseDocLineNo);
-                    PAGE.RunModal(PAGE::"Whse. Internal Put-away Lines", WhseInternalPutawayLine);
-                end;
+                ShowWhseInternalPutawayLine(WhseDocNo, WhseDocLineNo);
             WhseDocType::"Internal Pick":
-                begin
-                    WhseInternalPickLine.Reset();
-                    WhseInternalPickLine.SetRange("No.", WhseDocNo);
-                    WhseInternalPickLine.SetRange("Line No.", WhseDocLineNo);
-                    PAGE.RunModal(PAGE::"Whse. Internal Pick Lines", WhseInternalPickLine);
-                end;
+                ShowWhseInternalPickLine(WhseDocNo, WhseDocLineNo);
             WhseDocType::Production:
-                begin
-                    ProdOrderLine.Reset();
-                    ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
-                    ProdOrderLine.SetRange("Prod. Order No.", WhseDocNo);
-                    ProdOrderLine.SetRange("Line No.", WhseDocLineNo);
-                    PAGE.RunModal(PAGE::"Prod. Order Line List", ProdOrderLine);
-                end;
+                ShowProdOrderLine(WhseDocNo, WhseDocLineNo);
             WhseDocType::Assembly:
-                begin
-                    AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
-                    AssemblyLine.SetRange("Document No.", WhseDocNo);
-                    AssemblyLine.SetRange("Line No.", WhseDocLineNo);
-                    PAGE.RunModal(PAGE::"Assembly Lines", AssemblyLine);
-                end;
+                ShowAssemblyLine(WhseDocNo, WhseDocLineNo);
             else
                 OnShowWhseDocLine(WhseDocType, WhseDocNo, WhseDocLineNo);
         end;
+    end;
+#endif
+
+    procedure ShowWhseRcptLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer)
+    var
+        WhseRcptLine: Record "Warehouse Receipt Line";
+    begin
+        WhseRcptLine.Reset();
+        WhseRcptLine.SetRange("No.", WhseDocNo);
+        WhseRcptLine.SetRange("Line No.", WhseDocLineNo);
+        PAGE.RunModal(PAGE::"Whse. Receipt Lines", WhseRcptLine);
+    end;
+
+    procedure ShowPostedWhseRcptLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer)
+    var
+        PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
+    begin
+        PostedWhseRcptLine.Reset();
+        PostedWhseRcptLine.SetRange("No.", WhseDocNo);
+        PostedWhseRcptLine.SetRange("Line No.", WhseDocLineNo);
+        PAGE.RunModal(PAGE::"Posted Whse. Receipt Lines", PostedWhseRcptLine);
+    end;
+
+    procedure ShowWhseShptLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer)
+    var
+        WhseShptLine: Record "Warehouse Shipment Line";
+    begin
+        WhseShptLine.Reset();
+        WhseShptLine.SetRange("No.", WhseDocNo);
+        WhseShptLine.SetRange("Line No.", WhseDocLineNo);
+        PAGE.RunModal(PAGE::"Whse. Shipment Lines", WhseShptLine);
     end;
 
     procedure ShowPostedWhseShptLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer)
@@ -1201,6 +1191,67 @@ codeunit 7302 "WMS Management"
         PostedWhseShptLine.SetRange("Whse. Shipment No.", WhseDocNo);
         PostedWhseShptLine.SetRange("Whse Shipment Line No.", WhseDocLineNo);
         PAGE.RunModal(PAGE::"Posted Whse. Shipment Lines", PostedWhseShptLine);
+    end;
+
+    procedure ShowWhseInternalPutawayLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer)
+    var
+        WhseInternalPutawayLine: Record "Whse. Internal Put-away Line";
+    begin
+        WhseInternalPutawayLine.Reset();
+        WhseInternalPutawayLine.SetRange("No.", WhseDocNo);
+        WhseInternalPutawayLine.SetRange("Line No.", WhseDocLineNo);
+        PAGE.RunModal(PAGE::"Whse. Internal Put-away Lines", WhseInternalPutawayLine);
+    end;
+
+    procedure ShowWhseInternalPickLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer)
+    var
+        WhseInternalPickLine: Record "Whse. Internal Pick Line";
+    begin
+        WhseInternalPickLine.Reset();
+        WhseInternalPickLine.SetRange("No.", WhseDocNo);
+        WhseInternalPickLine.SetRange("Line No.", WhseDocLineNo);
+        PAGE.RunModal(PAGE::"Whse. Internal Pick Lines", WhseInternalPickLine);
+    end;
+
+    procedure ShowProdOrderLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer)
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.Reset();
+        ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", WhseDocNo);
+        ProdOrderLine.SetRange("Line No.", WhseDocLineNo);
+        PAGE.RunModal(PAGE::"Prod. Order Line List", ProdOrderLine);
+    end;
+
+    procedure ShowAssemblyLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer)
+    var
+        AssemblyLine: Record "Assembly Line";
+    begin
+        AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
+        AssemblyLine.SetRange("Document No.", WhseDocNo);
+        AssemblyLine.SetRange("Line No.", WhseDocLineNo);
+        PAGE.RunModal(PAGE::"Assembly Lines", AssemblyLine);
+    end;
+
+    procedure ShowWhseActivityDocLine(WhseActivityDocType: Enum "Warehouse Activity Document Type"; WhseDocNo: Code[20]; WhseDocLineNo: Integer)
+    begin
+        case WhseActivityDocType of
+            WhseActivityDocType::Receipt:
+                ShowPostedWhseRcptLine(WhseDocNo, WhseDocLineNo);
+            WhseActivityDocType::Shipment:
+                ShowWhseShptLine(WhseDocNo, WhseDocLineNo);
+            WhseActivityDocType::"Internal Put-away":
+                ShowWhseInternalPutawayLine(WhseDocNo, WhseDocLineNo);
+            WhseActivityDocType::"Internal Pick":
+                ShowWhseInternalPickLine(WhseDocNo, WhseDocLineNo);
+            WhseActivityDocType::Production:
+                ShowProdOrderLine(WhseDocNo, WhseDocLineNo);
+            WhseActivityDocType::"Movement Worksheet":
+                ;
+            WhseActivityDocType::Assembly:
+                ShowAssemblyLine(WhseDocNo, WhseDocLineNo);
+        end;
     end;
 
     procedure ShowSourceDocLine(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
@@ -2183,7 +2234,7 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmExceededCapacity(var IsHandled: Boolean)
+    local procedure OnBeforeConfirmExceededCapacity(var IsHandled: Boolean; BinCode: Code[20]; CheckFieldCaption: Text[100]; CheckTableCaption: Text[100]; ValueToPutAway: Decimal; ValueAvailable: Decimal)
     begin
     end;
 
@@ -2242,10 +2293,13 @@ codeunit 7302 "WMS Management"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by set of procedures for each document type, like ShowWhseRcptLine().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowWhseDocLine(WhseDocType: Option; WhseDocNo: Code[20]; WhseDocLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBalanceQtyToHandleOnAfterSetFilters(var ToWarehouseActivityLine: Record "Warehouse Activity Line"; FromWarehouseActivityLine: Record "Warehouse Activity Line")
@@ -2337,10 +2391,13 @@ codeunit 7302 "WMS Management"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by set of procedures for each document type, like ShowWhseRcptLine().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnShowWhseDocLine(WhseDocType: Option Receipt,"Posted Receipt",Shipment,"Internal Put-away","Internal Pick",Production,,Assembly; WhseDocNo: Code[20]; WhseDocLineNo: Integer)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckWhseJnlLineOnBeforeCheckBySourceJnl(var WhseJnlLine: Record "Warehouse Journal Line"; var Bin: Record Bin; SourceJnl: Option; var BinContent: Record "Bin Content"; Location: Record Location; DecreaseQtyBase: Decimal; var IsHandled: Boolean)

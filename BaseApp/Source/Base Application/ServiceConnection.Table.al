@@ -11,7 +11,7 @@ table 1400 "Service Connection"
         field(2; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(3; Name; Text[250])
         {

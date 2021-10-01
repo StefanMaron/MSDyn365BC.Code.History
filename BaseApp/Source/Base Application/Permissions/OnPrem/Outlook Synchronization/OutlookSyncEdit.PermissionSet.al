@@ -5,10 +5,6 @@ permissionset 7871 "Outlook Sync. - Edit"
     Caption = 'Outlook Synch. power user';
 
     Permissions = tabledata "Scheduled Task" = R,
-                  codeunit "Outlook Synch. Export Schema" = X,
-                  codeunit "Outlook Synch. Finalize" = X,
-                  codeunit "Outlook Synch. Process Links" = X,
-                  codeunit "Outlook Synch. Resolve Confl." = X,
                   tabledata "Change Log Entry" = Ri,
                   tabledata "Change Log Setup (Field)" = RIM,
                   tabledata "Change Log Setup (Table)" = RIM,
@@ -17,7 +13,11 @@ permissionset 7871 "Outlook Sync. - Edit"
                   tabledata "Integration Record Archive" = RIMD,
                   tabledata "Job Queue Category" = Rimd,
                   tabledata "Job Queue Entry" = RImd,
-                  tabledata "Job Queue Log Entry" = Ri,
+#if not CLEAN19
+                  codeunit "Outlook Synch. Export Schema" = X,
+                  codeunit "Outlook Synch. Finalize" = X,
+                  codeunit "Outlook Synch. Process Links" = X,
+                  codeunit "Outlook Synch. Resolve Confl." = X,
                   tabledata "Outlook Synch. Dependency" = R,
                   tabledata "Outlook Synch. Entity" = RM,
                   tabledata "Outlook Synch. Entity Element" = R,
@@ -27,5 +27,7 @@ permissionset 7871 "Outlook Sync. - Edit"
                   tabledata "Outlook Synch. Lookup Name" = Rimd,
                   tabledata "Outlook Synch. Option Correl." = RIMD,
                   tabledata "Outlook Synch. Setup Detail" = RIMD,
-                  tabledata "Outlook Synch. User Setup" = RIMD;
+                  tabledata "Outlook Synch. User Setup" = RIMD,
+#endif
+                  tabledata "Job Queue Log Entry" = Ri;
 }

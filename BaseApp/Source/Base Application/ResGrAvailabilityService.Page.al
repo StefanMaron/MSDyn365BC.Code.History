@@ -20,13 +20,12 @@ page 6010 "Res.Gr. Availability (Service)"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        DateControl;
-                        SetColumns(SetWanted::Initial);
+                        DateControl();
+                        SetMatrixColumns("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -37,8 +36,8 @@ page 6010 "Res.Gr. Availability (Service)"
 
                     trigger OnValidate()
                     begin
-                        DateControl;
-                        SetColumns(SetWanted::Initial);
+                        DateControl();
+                        SetMatrixColumns("Matrix Page Step Type"::Initial);
                         DateFilterOnAfterValidate;
                     end;
                 }
@@ -90,7 +89,7 @@ page 6010 "Res.Gr. Availability (Service)"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Previous);
+                    SetMatrixColumns("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -105,7 +104,7 @@ page 6010 "Res.Gr. Availability (Service)"
 
                 trigger OnAction()
                 begin
-                    SetColumns(SetWanted::Next);
+                    SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -114,7 +113,7 @@ page 6010 "Res.Gr. Availability (Service)"
     trigger OnOpenPage()
     begin
         ServMgtSetup.Get();
-        SetColumns(SetWanted::Initial);
+        SetMatrixColumns("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -125,9 +124,8 @@ page 6010 "Res.Gr. Availability (Service)"
         CurrentDocumentType: Integer;
         CurrentDocumentNo: Code[20];
         CurrentEntryNo: Integer;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         DateFilter: Text;
-        SetWanted: Option Initial,Previous,Same,Next;
         PKFirstRecInCurrSet: Text[1024];
         MatrixColumnCaptions: array[32] of Text[100];
         ColumnsSet: Text[1024];
@@ -147,12 +145,21 @@ page 6010 "Res.Gr. Availability (Service)"
         DateFilter := ResRec2.GetFilter("Date Filter");
     end;
 
-    procedure SetColumns(SetWanted: Option Initial,Previous,Same,Next)
+#if not CLEAN19
+    [Obsolete('Replaced by SetmatrixColumns().', '19.0')]
+    procedure SetColumns(SetType: Option Initial,Previous,Same,Next)
+    begin
+        SetMatrixColumns("Matrix Page Step Type".FromInteger(SetType));
+    end;
+#endif
+
+    procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
-        MatrixMgt.GeneratePeriodMatrixData(SetWanted, 32, false, PeriodType, DateFilter,
-          PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnsSet, CurrSetLength, MatrixRecords);
+        MatrixMgt.GeneratePeriodMatrixData(
+            StepType.AsInteger(), 32, false, PeriodType, DateFilter,
+            PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnsSet, CurrSetLength, MatrixRecords);
     end;
 
     local procedure DateFilterOnAfterValidate()

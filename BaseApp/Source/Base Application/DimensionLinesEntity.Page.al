@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5489 "Dimension Lines Entity"
 {
     Caption = 'dimensionLines', Locked = true;
@@ -304,4 +305,4 @@ page 5489 "Dimension Lines Entity"
         Clear(GlobalDimensionValueCode);
     end;
 }
-
+#endif

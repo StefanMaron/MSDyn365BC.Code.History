@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135544 "Default Dimensions E2E Test"
 {
     Subtype = Test;
@@ -1079,4 +1080,4 @@ codeunit 135544 "Default Dimensions E2E Test"
         exit('');
     end;
 }
-
+#endif

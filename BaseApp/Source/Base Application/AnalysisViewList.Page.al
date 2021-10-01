@@ -6,7 +6,7 @@ page 556 "Analysis View List"
     Editable = false;
     PageType = List;
     SourceTable = "Analysis View";
-    UsageCategory = ReportsAndAnalysis;
+    UsageCategory = Administration;
 
     layout
     {

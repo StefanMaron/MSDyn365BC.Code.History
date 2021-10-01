@@ -20,8 +20,10 @@ codeunit 138696 "Page Troubleshooting Test"
     var
         TenantProfile: Record "Tenant Profile";
         UserPageMetadata: Record "User Page Metadata";
+        TenantProfilePageMetadata: Record "Tenant Profile Page Metadata";
     begin
         TenantProfile.DeleteAll();
+        TenantProfilePageMetadata.DeleteAll();
         if UserPageMetadata.FindSet(true, true) then
             repeat
                 UserPageMetadata.Delete();

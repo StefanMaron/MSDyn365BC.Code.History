@@ -2,6 +2,7 @@ codeunit 136503 "RES Time Sheets Creation"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -16,6 +17,7 @@ codeunit 136503 "RES Time Sheets Creation"
         LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        RESTimeSheetsCreation: Codeunit "RES Time Sheets Creation";
         Text001Err: Label 'Rolling back changes...';
         NonExistentUserErr: Label 'NON EXISTENT USER ID';
         ErrorGeneratedIncorrectErr: Label 'Incorrect Error Message';
@@ -1954,6 +1956,8 @@ codeunit 136503 "RES Time Sheets Creation"
         // Test case to check that user can switch between Time Sheets directly from Time Sheet page
         Initialize;
         SetUp;
+        BindSubscription(RESTimeSheetsCreation);
+
         // 1. Create Resource and 2 Time Sheets
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
         // 6. Open Time Sheet List page
@@ -1966,6 +1970,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 9. Validate Correct Time Sheet was opened
         Assert.AreEqual(TimeSheetHeader."No.", TimeSheet.CurrTimeSheetNo.Value, IncorrectTimeSheetNoOpenedErr);
 
+        UnbindSubscription(RESTimeSheetsCreation);
         TearDown;
     end;
 
@@ -1984,6 +1989,8 @@ codeunit 136503 "RES Time Sheets Creation"
         // Test case to check that user can switch between Time Sheets directly from Manager Time Sheet page
         Initialize;
         SetUp;
+        BindSubscription(RESTimeSheetsCreation);
+
         // 1. Create Resource and 2 Time Sheets
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
         // 2. Generate Line for both Time Sheets
@@ -2002,6 +2009,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // 4. Validate opened Manager Time Sheet list No. is correct
         Assert.AreEqual(TimeSheetHeader."No.", ManagerTimeSheet.CurrTimeSheetNo.Value, IncorrectTimeSheetNoOpenedErr);
 
+        UnbindSubscription(RESTimeSheetsCreation);
         TearDown;
     end;
 
@@ -2083,6 +2091,7 @@ codeunit 136503 "RES Time Sheets Creation"
         // Test case to check that Manager can overview archived Time Sheets
         Initialize;
         SetUp;
+        BindSubscription(RESTimeSheetsCreation);
         // 1. Create Resource and 2 Time Sheets, Submit, Approve, Suggest and post Resource Lines
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 2);
         GlobalTimeSheetNo := TimeSheetHeader."No.";
@@ -2117,6 +2126,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Assert.AreEqual(ManagerTimeSheetArchive.CurrTimeSheetNo.Value, GlobalTimeSheetNo, IncorrectTSArchiveNoOpenedErr);
         // 5. Open Posting Entries and validate
         ManagerTimeSheetArchive."Posting E&ntries".Invoke;
+        UnbindSubscription(RESTimeSheetsCreation);
         TearDown;
     end;
 
@@ -2957,6 +2967,12 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         MyTimeSheets.SetRange("User ID", UserId);
         exit(MyTimeSheets.Count);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]
+    local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
+    begin
+        Result := false;
     end;
 }
 

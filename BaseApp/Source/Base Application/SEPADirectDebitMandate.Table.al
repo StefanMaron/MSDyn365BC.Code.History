@@ -268,21 +268,21 @@ table 1230 "SEPA Direct Debit Mandate"
 
     local procedure IsOnInsertHandled() IsHandled: boolean;
     begin
-        OnBeforeInsert(IsHandled);
+        OnBeforeInsert(IsHandled, Rec);
     end;
 
     local procedure IsOnModifyHandled() IsHandled: boolean;
     begin
-        OnBeforeModify(IsHandled);
+        OnBeforeModify(IsHandled, Rec);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsert(var IsHandled: boolean)
+    local procedure OnBeforeInsert(var IsHandled: boolean; var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeModify(var IsHandled: boolean)
+    local procedure OnBeforeModify(var IsHandled: boolean; var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
     begin
     end;
 }

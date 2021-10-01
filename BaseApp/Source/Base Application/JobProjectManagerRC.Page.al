@@ -1,6 +1,6 @@
 page 9015 "Job Project Manager RC"
 {
-    Caption = 'Project Manager', Comment = '{Dependency=Match,"ProfileDescription_PROJECTMANAGER"}';
+    Caption = 'Project Manager';
     PageType = RoleCenter;
 
     layout
@@ -462,6 +462,7 @@ page 9015 "Job Project Manager RC"
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
                 ObsoleteTag = '18.0';

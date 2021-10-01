@@ -450,7 +450,7 @@ page 9259 "Contr. Gain/Loss (Grps) Matrix"
         SetDateFilter;
         CalculateTotals;
         MATRIX_CurrentColumnOrdinal := 0;
-        while MATRIX_CurrentColumnOrdinal < MATRIX_CurrentNoOfMatrixColumn do begin
+        while MATRIX_CurrentColumnOrdinal < CurrentNoOfMatrixColumn do begin
             MATRIX_CurrentColumnOrdinal := MATRIX_CurrentColumnOrdinal + 1;
             MATRIX_OnAfterGetRecord(MATRIX_CurrentColumnOrdinal);
         end;
@@ -458,7 +458,7 @@ page 9259 "Contr. Gain/Loss (Grps) Matrix"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        exit(PeriodPageMgt.FindDate(Which, Rec, PeriodType));
     end;
 
     trigger OnInit()
@@ -499,27 +499,27 @@ page 9259 "Contr. Gain/Loss (Grps) Matrix"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        exit(PeriodPageMgt.NextDate(Steps, Rec, PeriodType));
     end;
 
     trigger OnOpenPage()
     begin
         StartFilter := Format(PeriodStart) + '..';
         SetFilter("Period Start", StartFilter);
-        MATRIX_CurrentNoOfMatrixColumn := 32;
+        CurrentNoOfMatrixColumn := 32;
     end;
 
     var
         ContractGr: Record "Contract Group";
         ContractGainLossEntry: Record "Contract Gain/Loss Entry";
         MatrixRecords: array[32] of Record "Contract Group";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
-        AmountType: Option "Net Change","Balance at Date";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodPageMgt: Codeunit PeriodPageManagement;
+        AmountType: Enum "Analysis Amount Type";
+        PeriodType: Enum "Analysis Period Type";
         GroupFilter: Text[250];
         TotalGainLoss: Decimal;
         PeriodStart: Date;
-        MATRIX_CurrentNoOfMatrixColumn: Integer;
+        CurrentNoOfMatrixColumn: Integer;
         MATRIX_CellData: array[32] of Text[80];
         MATRIX_CaptionSet: array[32] of Text[80];
         StartFilter: Text[1024];
@@ -620,15 +620,26 @@ page 9259 "Contr. Gain/Loss (Grps) Matrix"
         TotalGainLoss := ContractGainLossEntry.Amount;
     end;
 
+#if not CLEAN
+    [Obsolete('Replaced by LoadMatrix().', '19.0')]
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record "Contract Group"; CurrentNoOfMatrixColumns: Integer; AmountTypeLocal: Option "Net Change","Balance at Date"; PeriodTypeLocal: Option Day,Week,Month,Quarter,Year; GroupFilterLocal: Text[250]; PeriodStartLocal: Date)
     begin
-        CopyArray(MATRIX_CaptionSet, MatrixColumns1, 1);
-        CopyArray(MatrixRecords, MatrixRecords1, 1);
-        MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
-        PeriodType := PeriodTypeLocal;
-        AmountType := AmountTypeLocal;
-        GroupFilter := GroupFilterLocal;
-        PeriodStart := PeriodStartLocal;
+        LoadMatrix(
+            MatrixColumns1, MatrixRecords1, CurrentNoOfMatrixColumns,
+            "Analysis Amount Type".FromInteger(AmountTypeLocal), "Analysis Period Type".FromInteger(PeriodTypeLocal),
+            GroupFilterLocal, PeriodStartLocal);
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record "Contract Group"; NewCurrentNoOfMatrixColumns: Integer; NewAmountType: Enum "Analysis Amount Type"; NewPeriodType: Enum "Analysis Period Type"; NewGroupFilter: Text[250]; NewPeriodStart: Date)
+    begin
+        CopyArray(MATRIX_CaptionSet, NewMatrixColumns, 1);
+        CopyArray(MatrixRecords, NewMatrixRecords, 1);
+        CurrentNoOfMatrixColumn := NewCurrentNoOfMatrixColumns;
+        PeriodType := NewPeriodType;
+        AmountType := NewAmountType;
+        GroupFilter := NewGroupFilter;
+        PeriodStart := NewPeriodStart;
     end;
 
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)

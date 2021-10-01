@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 9890 "SmartList Permission Mgmt"
 {
     Caption = 'SmartList Permission Management';
@@ -12,6 +13,9 @@ page 9890 "SmartList Permission Mgmt"
     SourceTableView = where(Type = const("User-Defined"));
     UsageCategory = None;
     RefreshOnActivate = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -89,3 +93,4 @@ page 9890 "SmartList Permission Mgmt"
         end;
     end;
 }
+#endif

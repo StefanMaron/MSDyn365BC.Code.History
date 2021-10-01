@@ -83,11 +83,9 @@ table 727 "Analysis by Dim. User Param."
             OptionMembers = Include,Exclude;
             DataClassification = SystemMetadata;
         }
-        field(23; "Rounding Factor"; Option)
+        field(23; "Rounding Factor"; Enum "Analysis Rounding Factor")
         {
             Caption = 'Rounding Factor';
-            OptionCaption = 'None,1,1000,1000000';
-            OptionMembers = None,"1","1000","1000000";
             DataClassification = SystemMetadata;
         }
         field(24; "Show In Add. Currency"; Boolean)

@@ -81,6 +81,8 @@ codeunit 5638 FAJnlManagement
 
     procedure OpenJournal(var CurrentJnlBatchName: Code[10]; var FAJnlLine: Record "FA Journal Line")
     begin
+        OnBeforeOpenJournal(CurrentJnlBatchName, FAJnlLine);
+
         CheckTemplateName(FAJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         FAJnlLine.FilterGroup := 2;
         FAJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -206,6 +208,11 @@ codeunit 5638 FAJnlManagement
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFA(var FANo: Code[20]; var FADescription: Text[100]; var IsHandled: Boolean)
     begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJournal(var CurrentJnlBatchName: Code[10]; var FAJournalLine: Record "FA Journal Line")
+    begin        
     end;
 }
 

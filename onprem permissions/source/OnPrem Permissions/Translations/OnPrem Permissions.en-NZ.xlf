@@ -947,7 +947,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 3815743448 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Tax Setup</source>
-          <target state="translated">GST Setup</target>
+          <target state="translated">Sales Tax Setup</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet STAX-SETUP - Property Caption</note>
         </trans-unit>

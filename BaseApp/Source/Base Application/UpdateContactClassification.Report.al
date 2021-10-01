@@ -146,7 +146,7 @@ report 5199 "Update Contact Classification"
         Text005: Label 'You must specify %1 and %2 in Profile Questionnaire %3, question %4. To find additional errors, run the Test report.', Comment = '%1 = Starting Date Formula;%2 = Ending Date Formula;%3 = Profile Questionaire Code;%4 = Question Description';
         Text008: Label 'You must specify %1 in Profile Questionnaire %2, question %3. To find additional errors, run the Test report.', Comment = '%1 = Sorting Method;%2 = Profile Questionaire Code;%3 = Question Description';
 
-    local procedure AnswersExists(var ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; UpdateContNo: Code[20]; Delete: Boolean): Boolean
+    protected procedure AnswersExists(var ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; UpdateContNo: Code[20]; Delete: Boolean): Boolean
     var
         ContProfileAnswer: Record "Contact Profile Answer";
         ProfileQuestnLine2: Record "Profile Questionnaire Line";
@@ -547,7 +547,7 @@ report 5199 "Update Contact Classification"
         ContactNo := '';
     end;
 
-    local procedure InsertContactValue(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; ContactNo: Code[20]; Value: Decimal; UpdateDate: Date; QuestionsAnsweredPrc: Decimal)
+    protected procedure InsertContactValue(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; ContactNo: Code[20]; Value: Decimal; UpdateDate: Date; QuestionsAnsweredPrc: Decimal)
     begin
         ContactValue.Init();
         ContactValue."Contact No." := ContactNo;

@@ -247,16 +247,20 @@ codeunit 7030 "Campaign Target Group Mgt"
     local procedure NoPriceDiscForCampaign(CampaignNo: Code[20]): Boolean
     var
         PriceListLine: Record "Price List Line";
+#if not CLEAN19
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+#endif
     begin
-        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then begin
-            PriceListLine.SetRange("Source Type", PriceListLine."Source Type"::Campaign);
-            PriceListLine.SetRange("Source No.", CampaignNo);
-            exit(PriceListLine.IsEmpty());
-        end;
-        exit(NoPriceDiscV15ForCampaign(CampaignNo));
+#if not CLEAN19
+        if not PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
+            exit(NoPriceDiscV15ForCampaign(CampaignNo));
+#endif
+        PriceListLine.SetRange("Source Type", PriceListLine."Source Type"::Campaign);
+        PriceListLine.SetRange("Source No.", CampaignNo);
+        exit(PriceListLine.IsEmpty());
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by NoPriceDiscForCampaign', '17.0')]
     local procedure NoPriceDiscV15ForCampaign(CampaignNo: Code[20]): Boolean;
     var
@@ -271,6 +275,7 @@ codeunit 7030 "Campaign Target Group Mgt"
         SalesLineDisc.SetRange("Sales Code", CampaignNo);
         exit(SalesPrice.IsEmpty() and SalesLineDisc.IsEmpty());
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddSegLineToTargetGroup(var CampaignTargetGr: Record "Campaign Target Group"; var SegLine: Record "Segment Line")

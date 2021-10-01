@@ -221,7 +221,7 @@ codeunit 132202 "Library - Manufacturing"
         RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    procedure CreateBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Option; No: Code[20]; QuantityPer: Decimal; UnitOfMeasureCode: Code[10])
+    procedure CreateBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Enum "BOM Component Type"; No: Code[20]; QuantityPer: Decimal; UnitOfMeasureCode: Code[10])
     var
         RecRef: RecordRef;
     begin
@@ -466,6 +466,18 @@ codeunit 132202 "Library - Manufacturing"
         ProductionForecastEntry.Init();
         ProductionForecastEntry.Validate("Production Forecast Name", ProductionForecastName);
         ProductionForecastEntry.Validate("Item No.", ItemNo);
+        ProductionForecastEntry.Validate("Location Code", LocationCode);
+        ProductionForecastEntry.Validate("Forecast Date", ForecastDate);
+        ProductionForecastEntry.Validate("Component Forecast", ComponentForecast);
+        ProductionForecastEntry.Insert(true);
+    end;
+
+    procedure CreateProductionForecastEntry(var ProductionForecastEntry: Record "Production Forecast Entry"; ProductionForecastName: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; ForecastDate: Date; ComponentForecast: Boolean)
+    begin
+        ProductionForecastEntry.Init();
+        ProductionForecastEntry.Validate("Production Forecast Name", ProductionForecastName);
+        ProductionForecastEntry.Validate("Item No.", ItemNo);
+        ProductionForecastEntry.Validate("Variant Code", VariantCode);
         ProductionForecastEntry.Validate("Location Code", LocationCode);
         ProductionForecastEntry.Validate("Forecast Date", ForecastDate);
         ProductionForecastEntry.Validate("Component Forecast", ComponentForecast);

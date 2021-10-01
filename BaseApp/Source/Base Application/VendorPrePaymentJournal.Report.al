@@ -751,7 +751,6 @@ report 317 "Vendor Pre-Payment Journal"
         E020Err: Label '%1 must not be %2 when %3 = %4.', Comment = '%1=Recurring Method field caption;%2=Recurring Method;%3=Account Type field caption;%4=Account Type';
         E021Err: Label 'Allocations can only be used with recurring journals.';
         E022Err: Label 'Please specify %1 in the %2 allocation lines.', Comment = '%1=Account No. field caption;%2=GenJnlAlloc record count';
-        E023Err: Label '<Month Text>', Locked = true;
         E024Err: Label '%1 %2 posted on %3, must be separated by an empty line', Comment = '%1=Document Type;%2=Document No.;%3=Posting Date';
         E025Err: Label '%1 %2 is out of balance by %3.', Comment = '%1=LastDocType;%2=LastDocNo; %3=DocBalance';
         E026Err: Label 'The reversing entries for %1 %2 are out of balance by %3.', Comment = '%1=LastDocType;%2=LastDocNo;%3=DocBalanceReverse';
@@ -865,10 +864,6 @@ report 317 "Vendor Pre-Payment Journal"
         TotalBalanceReverse: Decimal;
         AccName: Text[100];
         LastLineNo: Integer;
-        Day: Integer;
-        Week: Integer;
-        Month: Integer;
-        MonthText: Text[30];
         AmountError: Boolean;
         ErrorCounter: Integer;
         ErrorText: array[50] of Text[250];
@@ -981,27 +976,8 @@ report 317 "Vendor Pre-Payment Journal"
     local procedure MakeRecurringTexts(var GenJnlLine2: Record "Gen. Journal Line")
     begin
         with GenJnlLine2 do
-            if ("Posting Date" <> 0D) and ("Account No." <> '') and ("Recurring Method" <> "Gen. Journal Recurring Method"::" ") then begin
-                Day := Date2DMY("Posting Date", 1);
-                Week := Date2DWY("Posting Date", 2);
-                Month := Date2DMY("Posting Date", 2);
-                MonthText := Format("Posting Date", 0, E023Err);
-                AccountingPeriod.SetRange("Starting Date", 0D, "Posting Date");
-                if not AccountingPeriod.FindLast then
-                    AccountingPeriod.Name := '';
-                "Document No." :=
-                  DelChr(
-                    PadStr(
-                      StrSubstNo("Document No.", Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen("Document No.")),
-                    '>');
-                Description :=
-                  DelChr(
-                    PadStr(
-                      StrSubstNo(Description, Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen(Description)),
-                    '>');
-            end;
+            if ("Posting Date" <> 0D) and ("Account No." <> '') and ("Recurring Method" <> "Gen. Journal Recurring Method"::" ") then
+                AccountingPeriod.MakeRecurringTexts("Posting Date", "Document No.", Description);
     end;
 
     local procedure CheckBalance()

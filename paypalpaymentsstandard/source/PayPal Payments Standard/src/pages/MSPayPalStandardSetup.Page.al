@@ -5,6 +5,7 @@ page 1070 "MS - PayPal Standard Setup"
     DataCaptionExpression = '';
     InsertAllowed = false;
     PageType = Card;
+    UsageCategory = Administration;
 
     layout
     {

@@ -24,7 +24,7 @@ page 782 "Opportunity Chart"
                 trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
                 begin
                     BusinessChartBuffer.SetDrillDownIndexes(point);
-                    OppChartMgt.DrillDown(BusinessChartBuffer, Period, Opportunity.Status);
+                    OppChartMgt.DrillDown(BusinessChartBuffer, Period, Opportunity.Status.AsInteger());
                 end;
 
                 trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
@@ -222,7 +222,7 @@ page 782 "Opportunity Chart"
         if not IsChartAddInReady then
             exit;
 
-        OppChartMgt.UpdateData(BusinessChartBuffer, Period, Opportunity.Status);
+        OppChartMgt.UpdateData(BusinessChartBuffer, Period, Opportunity.Status.AsInteger());
         BusinessChartBuffer.Update(CurrPage.BusinessChart);
         UpdateStatusText(Period, Opportunity);
     end;

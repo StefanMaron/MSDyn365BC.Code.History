@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5473 "Company Information Entity"
 {
     Caption = 'companyInformation', Locked = true;
@@ -152,3 +153,4 @@ page 5473 "Company Information Entity"
         Clear(BusinessId);
     end;
 }
+#endif

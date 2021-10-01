@@ -68,12 +68,17 @@ page 5333 "CRM Skipped Records"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when the synchronization failed.';
                 }
+#if not CLEAN19                
                 field("Deleted On"; "Deleted On")
                 {
                     Visible = false;
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when the record was deleted.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    ObsoleteReason = 'The underlying table field is obsolete and will be removed.';
                 }
+#endif
             }
         }
     }
@@ -87,7 +92,7 @@ page 5333 "CRM Skipped Records"
                 AccessByPermission = TableData "CRM Integration Record" = IM;
                 ApplicationArea = Suite;
                 Caption = 'Retry';
-                Enabled = AreRecordsExist AND DoBothOfRecordsExist;
+                Enabled = AreRecordsExist AND ShowRetryOrSync;
                 Image = ResetStatus;
                 Promoted = true;
                 PromotedCategory = Category4;
@@ -134,7 +139,7 @@ page 5333 "CRM Skipped Records"
             {
                 ApplicationArea = Suite;
                 Caption = 'Synchronize';
-                Enabled = AreRecordsExist AND DoBothOfRecordsExist;
+                Enabled = AreRecordsExist AND ShowRetryOrSync;
                 Image = Refresh;
                 Promoted = true;
                 PromotedCategory = Category4;
@@ -273,7 +278,7 @@ page 5333 "CRM Skipped Records"
             {
                 ApplicationArea = Suite;
                 Caption = 'Restore Records';
-                Enabled = AreRecordsExist AND IsOneOfRecordsDeleted;
+                Enabled = AreRecordsExist AND ShowRestoreOrDelete;
                 Image = CreateMovement;
                 Promoted = true;
                 PromotedCategory = Category5;
@@ -294,7 +299,7 @@ page 5333 "CRM Skipped Records"
             {
                 ApplicationArea = Suite;
                 Caption = 'Delete Records';
-                Enabled = AreRecordsExist AND IsOneOfRecordsDeleted;
+                Enabled = AreRecordsExist AND ShowRestoreOrDelete;
                 Image = CancelLine;
                 Promoted = true;
                 PromotedCategory = Category5;
@@ -331,10 +336,26 @@ page 5333 "CRM Skipped Records"
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
     begin
         AreRecordsExist := true;
         IsOneOfRecordsDeleted := IsOneRecordDeleted;
         DoBothOfRecordsExist := DoBothRecordsExist;
+
+        TempCRMSynchConflictBuffer.Copy(Rec, true);
+        CurrPage.SetSelectionFilter(TempCRMSynchConflictBuffer);
+        if TempCRMSynchConflictBuffer.Count() > 1 then begin
+            if ShowRestoreOrDelete then
+                if DoBothOfRecordsExist then
+                    ShowRestoreOrDelete := false;
+            if ShowRetryOrSync then
+                if IsOneOfRecordsDeleted then
+                    ShowRetryOrSync := false;
+        end else begin
+            ShowRestoreOrDelete := IsOneOfRecordsDeleted;
+            ShowRetryOrSync := DoBothOfRecordsExist
+        end;
     end;
 
     trigger OnOpenPage()
@@ -351,6 +372,8 @@ page 5333 "CRM Skipped Records"
         AreRecordsExist: Boolean;
         IsOneOfRecordsDeleted: Boolean;
         DoBothOfRecordsExist: Boolean;
+        ShowRestoreOrDelete: Boolean;
+        ShowRetryOrSync: Boolean;
         SetOutside: Boolean;
         TooManyErrorsNotificationTxt: Label 'Only 100 coupled record synchronization errors are loaded. When you have resolved them, choose the Load More Errors action to load more.';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;

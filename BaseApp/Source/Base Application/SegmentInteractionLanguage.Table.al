@@ -296,10 +296,9 @@ table 5104 "Segment Interaction Language"
         end;
 
 #if CLEAN17
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then begin
+        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
             if Attachment.ImportAttachmentFromClientFile('', false, true) then
                 NewAttachmentNo := Attachment."No.";
-        end;
 #else
         if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone] then begin
             if Attachment.ImportAttachmentFromClientFile('', false, true) then

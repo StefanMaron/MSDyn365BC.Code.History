@@ -589,9 +589,6 @@ page 6550 "Whse. Item Tracking Lines"
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        UndefinedQtyArray: array[2] of Decimal;
-        SourceQuantityArray: array[2] of Decimal;
-        ColorOfQuantityArray: array[2] of Integer;
         Text001: Label 'Line';
         Text002: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
         FormSourceType: Integer;
@@ -600,6 +597,9 @@ page 6550 "Whse. Item Tracking Lines"
         Text003: Label 'Placeholder';
 
     protected var
+        UndefinedQtyArray: array[2] of Decimal;
+        SourceQuantityArray: array[2] of Decimal;
+        ColorOfQuantityArray: array[2] of Integer;
         [InDataSet]
         Handle1Visible: Boolean;
         [InDataSet]

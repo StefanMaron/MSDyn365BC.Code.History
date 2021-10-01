@@ -216,7 +216,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         asserterror AsmHeader.Validate("Bin Code", Bin1);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrBinMandatory2) > 0, 'Expected: ' + ErrBinMandatory2 + ' Actual: ' + GetLastErrorText);
         ClearLastError;
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, Item."No.", '', 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         asserterror AsmLine.Validate("Bin Code", Bin1);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrBinMandatory2) > 0, 'Expected: ' + ErrBinMandatory2 + ' Actual: ' + GetLastErrorText);
@@ -230,7 +230,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate2, Item."No.", '', 1, '');
         AsmHeader.Validate("Location Code", Location.Code);
         AsmHeader.Validate("Bin Code", Bin1); // expected: no errors
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, Item."No.", '', 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         AsmLine.Validate("Bin Code", Bin1); // expected: no errors
 
@@ -245,7 +245,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
 
         MockLocation(Location, false, false, false, true);
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate2, Item."No.", '', 1, '');
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, Item."No.", '', 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         asserterror AsmLine.Validate("Bin Code", Bin1);
         Assert.IsTrue(
@@ -259,7 +259,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
 
         MockLocation(Location, false, false, false, true);
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate2, Item."No.", '', 1, '');
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, Item."No.", '', 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         AsmLine.Validate("Bin Code", Bin3); // expected: no errors
 
@@ -410,7 +410,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         MockItem(Item, ItemVariant);
         LibraryInventory.CreateItem(ParentItem);
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate, ParentItem."No.", Location.Code, 1, '');
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, Item."No.", '', 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         AsmLine.Validate("Bin Code", Bin1);
         AsmLine.Validate(Type, AsmLine.Type::Resource);
@@ -434,7 +434,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         BinContent.Modify(true);
         LibraryInventory.CreateItem(ParentItem);
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate, ParentItem."No.", Location.Code, 1, '');
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, Item."No.", '', 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         // as no location has been chosen Bin Code on Asm line should be blank
         Assert.AreEqual('', AsmLine."Bin Code", 'as no location has been chosen Bin Code on Asm line should be blank');
         AsmLine.Validate("Location Code", Location.Code);
@@ -456,7 +456,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         BinContent.Modify(true);
         LibraryInventory.CreateItem(ParentItem);
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate, ParentItem."No.", Location.Code, 1, '');
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, Item."No.", '', 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         // location has been chosen bin code shud be pulled from From-Assembly Bin Code
         Assert.AreEqual(Location."To-Assembly Bin Code", AsmLine."Bin Code",
@@ -469,7 +469,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // BIN CODE SHOULD POINT TO EXISTING BIN
         LibraryInventory.CreateItem(Item);
         MockLocation(Location, true, false, false, false);
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, Item."No.", '', 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         Commit(); // committing as subsequent errors might roll back data creation
         // ** negative test
@@ -488,7 +488,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Item.Modify(true);
         LibraryInventory.CreateItem(ParentItem);
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate, ParentItem."No.", Location.Code, 1, '');
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, Item."No.", '', 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         Commit(); // committing as subsequent errors might roll back data creation
         // ** negative test with bin
@@ -622,7 +622,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // ASSEMBLY LINE CANNOT BE INSERTED IF STATUS NOT EQUAL Open
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         LibraryAssembly.ReleaseAO(AsmHeader);
-        asserterror LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, CompItem."No.", '', 3, 1, '');
+        asserterror LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", '', 3, 1, '');
         Assert.IsTrue(StrPos(GetLastErrorText, ErrStatusMustBeOpen) > 0,
           'Expected: ' + ErrStatusMustBeOpen + ' Actual: ' + GetLastErrorText);
         ClearLastError;
@@ -667,27 +667,27 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmLine.SetRange("Document No.", AsmHeader."No.");
         AsmLine.DeleteAll(true); // delete all lines
         MockLocation(Location1, false, false, false, false); // no bin location
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location1.Code);
         AsmLine.Modify(true);
         MockLocation(Location2, true, false, false, false); // Bin Mandatory location
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location2.Code);
         AsmLine.Modify(true);
         MockLocation(Location3, true, true, false, false); // Require Pick location
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location3.Code);
         AsmLine.Modify(true);
         MockLocation(Location4, true, true, true, false); // Require Shipment location
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location4.Code);
         AsmLine.Modify(true);
         MockLocation(Location5, true, false, true, false); // Require Shipment but not pick location
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location5.Code);
         AsmLine.Modify(true);
         MockLocation(Location6, false, false, false, true); // WMS location
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location6.Code);
         AsmLine.Modify(true);
         LibraryAssembly.ReleaseAO(AsmHeader);
@@ -756,10 +756,10 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmLine.DeleteAll(true); // delete all lines
         // make 2 asm lines with same location
         MockLocation(Location, true, true, false, false); // Require Pick location
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         AsmLine.Modify(true);
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         AsmLine.Modify(true);
         // release and reopen asm order
@@ -1115,7 +1115,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         InventoryPostingGroup.FindFirst;
         CompItem."Inventory Posting Group" := InventoryPostingGroup.Code;
         CompItem.Insert();
-        DefaultBinCodeToBeFilledSetupBOMLine(BomComp, ParentItem."No.", BomComp.Type::Item, CompItem."No.");
+        DefaultBinCodeToBeFilledSetupBOMLine(BomComp, ParentItem."No.", "BOM Component Type"::Item, CompItem."No.");
 
         DefaultBinCodeToBeFilledSetupPlanningLine(ParentItem, BomComp, ToAsmBin, FromAsmBin, ReqLine);
 
@@ -1160,8 +1160,8 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         GenProdPostingGroup.FindFirst;
         CompResource."Gen. Prod. Posting Group" := GenProdPostingGroup.Code;
         CompResource.Insert();
-        DefaultBinCodeToBeFilledSetupBOMLine(BomComp, ParentItem."No.", BomComp.Type::Item, CompItem."No.");
-        DefaultBinCodeToBeFilledSetupBOMLine(BomComp, ParentItem."No.", BomComp.Type::Resource, CompResource."No.");
+        DefaultBinCodeToBeFilledSetupBOMLine(BomComp, ParentItem."No.", "BOM Component Type"::Item, CompItem."No.");
+        DefaultBinCodeToBeFilledSetupBOMLine(BomComp, ParentItem."No.", "BOM Component Type"::Resource, CompResource."No.");
 
         DefaultBinCodeToBeFilledSetupLocation(ToAsmBin, FromAsmBin);
 
@@ -1236,7 +1236,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Assert.AreEqual('', AsmLine."Bin Code", 'Bin Code on resource line matches blank');
     end;
 
-    local procedure DefaultBinCodeToBeFilledSetupBOMLine(var BomComp: Record "BOM Component"; ParentItem: Code[20]; Type: Option; No: Code[20])
+    local procedure DefaultBinCodeToBeFilledSetupBOMLine(var BomComp: Record "BOM Component"; ParentItem: Code[20]; Type: Enum "BOM Component Type"; No: Code[20])
     var
         RecRef: RecordRef;
     begin

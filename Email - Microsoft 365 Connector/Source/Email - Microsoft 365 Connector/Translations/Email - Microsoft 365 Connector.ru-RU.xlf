@@ -101,6 +101,7 @@
         </trans-unit>
         <trans-unit id="Page 1107894685 - Control 2300938776 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control LearnMoreAboutSharedAccount - Property Caption</note>
         </trans-unit>
@@ -112,6 +113,7 @@
         </trans-unit>
         <trans-unit id="Page 1107894685 - Control 1349865275 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control LearnMorePermissions - Property Caption</note>
         </trans-unit>

@@ -209,26 +209,8 @@ page 1392 "Help And Chart Wrapper"
                         Message(Description);
                 end;
             }
-            action("Show Assisted Setup")
-            {
-                ApplicationArea = Basic, Suite, Invoicing;
-                Caption = 'Show Assisted Setup';
-                Tooltip = 'Get assistance with set-up.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Use the Product Video Topics page to play videos that show how to complete setups that are frequently used.';
-                ObsoleteTag = '16.0';
-
-                trigger OnAction()
-                begin
-                    Message(ShowAssistedSetupObsoletedMsg);
-                end;
-            }
         }
     }
-
-    var
-        ShowAssistedSetupObsoletedMsg: Label 'Use the Product Video Topics page to view the most common videos to setup Business Central.';
 
     trigger OnOpenPage()
     var

@@ -19,7 +19,6 @@ codeunit 23 "Item Jnl.-Post Batch"
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
         Text006: Label 'A maximum of %1 posting number series can be used in each journal.';
-        Text007: Label '<Month Text>', Locked = true;
         Text008: Label 'There are new postings made in the period you want to revalue item no. %1.\';
         Text009: Label 'You must calculate the inventory value again.';
         Text010: Label 'One or more reservation entries exist for the item with %1 = %2, %3 = %4, %5 = %6 which may be disrupted if you post this negative adjustment. Do you want to continue?', Comment = 'One or more reservation entries exist for the item with Item No. = 1000, Location Code = BLUE, Variant Code = NEW which may be disrupted if you post this negative adjustment. Do you want to continue?';
@@ -41,15 +40,11 @@ codeunit 23 "Item Jnl.-Post Batch"
         NoSeriesMgt2: array[10] of Codeunit NoSeriesManagement;
         WMSMgmt: Codeunit "WMS Management";
         WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
         Window: Dialog;
         ItemRegNo: Integer;
         WhseRegNo: Integer;
         StartLineNo: Integer;
-        Day: Integer;
-        Week: Integer;
-        Month: Integer;
-        MonthText: Text[30];
         NoOfRecords: Integer;
         LineCount: Integer;
         LastDocNo: Code[20];
@@ -137,12 +132,8 @@ codeunit 23 "Item Jnl.-Post Batch"
                 "Line No." := WhseRegNo;
 
             InvtSetup.Get();
-            if InvtSetup."Automatic Cost Adjustment" <>
-               InvtSetup."Automatic Cost Adjustment"::Never
-            then begin
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.MakeMultiLevelAdjmt;
-            end;
+            if InvtSetup.AutomaticCostAdjmtRequired() then
+                InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
 
             // Update/delete lines
             OnBeforeUpdateDeleteLines(ItemJnlLine, ItemRegNo);
@@ -172,7 +163,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             Clear(ItemJnlCheckLine);
             Clear(ItemJnlPostLine);
             Clear(WhseJnlPostLine);
-            Clear(InvtAdjmt)
+            Clear(InvtAdjmtHandler);
         end;
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
@@ -455,27 +446,8 @@ codeunit 23 "Item Jnl.-Post Batch"
     local procedure MakeRecurringTexts(var ItemJnlLine2: Record "Item Journal Line")
     begin
         with ItemJnlLine2 do
-            if ("Item No." <> '') and ("Recurring Method" <> 0) then begin // Not recurring
-                Day := Date2DMY("Posting Date", 1);
-                Week := Date2DWY("Posting Date", 2);
-                Month := Date2DMY("Posting Date", 2);
-                MonthText := Format("Posting Date", 0, Text007);
-                AccountingPeriod.SetRange("Starting Date", 0D, "Posting Date");
-                if not AccountingPeriod.FindLast then
-                    AccountingPeriod.Name := '';
-                "Document No." :=
-                  DelChr(
-                    PadStr(
-                      StrSubstNo("Document No.", Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen("Document No.")),
-                    '>');
-                Description :=
-                  DelChr(
-                    PadStr(
-                      StrSubstNo(Description, Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen(Description)),
-                    '>');
-            end;
+            if ("Item No." <> '') and ("Recurring Method" <> 0) then
+                AccountingPeriod.MakeRecurringTexts("Posting Date", "Document No.", Description);
     end;
 
     local procedure ItemJnlPostSumLine(ItemJnlLine4: Record "Item Journal Line")
@@ -666,9 +638,14 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     procedure PostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     var
+        Item: Record Item;
         ItemJnlTemplateType: Option;
         IsHandled: Boolean;
     begin
+        if Item.Get(ItemJnlLine."Item No.") then
+            if Item.IsNonInventoriableType() then
+                exit;
+
         with ItemJnlLine do begin
             Quantity := OriginalQuantity;
             "Quantity (Base)" := OriginalQuantityBase;
@@ -717,7 +694,13 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     local procedure CheckWMSBin(ItemJnlLine: Record "Item Journal Line")
+    var
+        Item: Record Item;
     begin
+        if Item.Get(ItemJnlLine."Item No.") then
+            if Item.IsNonInventoriableType() then
+                exit;
+
         with ItemJnlLine do begin
             GetLocation("Location Code");
             if Location."Bin Mandatory" then

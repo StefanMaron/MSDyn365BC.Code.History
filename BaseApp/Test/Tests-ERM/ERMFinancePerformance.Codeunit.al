@@ -1729,7 +1729,7 @@ codeunit 134923 "ERM Finance Performance"
 
     local procedure VerifyChart(var AccountSchedulesChartSetup: Record "Account Schedules Chart Setup"; var BusinessChartBuffer: Record "Business Chart Buffer"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; StartDate: Date; EndDate: Date)
     var
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
         ActualChartValue: Variant;
         PeriodStart: Date;
         PeriodEnd: Date;
@@ -1749,7 +1749,7 @@ codeunit 134923 "ERM Finance Performance"
                             Assert.AreEqual(PeriodEnd, DT2Date(ActualChartValue), StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1))
                         else
                             Assert.AreEqual(
-                              PeriodFormManagement.CreatePeriodFormat(BusinessChartBuffer."Period Length", PeriodEnd), ActualChartValue,
+                              PeriodPageManagement.CreatePeriodFormat(BusinessChartBuffer."Period Length", PeriodEnd), ActualChartValue,
                               StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1));
 
                         AccScheduleLine.FindSet();

@@ -96,7 +96,8 @@ report 7318 "Whse.-Shipment - Create Pick"
                               '', 0, "Line No.", "Location Code");
                             CreatePick.CreateTempLine(
                               "Location Code", "Item No.", "Variant Code", "Unit of Measure Code",
-                              '', "Bin Code", "Qty. per Unit of Measure", QtyToPick, QtyToPickBase);
+                              '', "Bin Code", "Qty. per Unit of Measure", "Qty. Rounding Precision",
+                              "Qty. Rounding Precision (Base)", QtyToPick, QtyToPickBase);
                         end;
                     end;
                 end else
@@ -116,9 +117,20 @@ report 7318 "Whse.-Shipment - Create Pick"
             end;
 
             trigger OnPreDataItem()
+            var
+                CreatePickParameters: Record "Create Pick Parameters";
             begin
-                CreatePick.SetValues(
-                  AssignedID, 1, SortActivity, 1, 0, 0, false, DoNotFillQtytoHandle, BreakbulkFilter, false);
+                CreatePickParameters."Assigned ID" := AssignedID;
+                CreatePickParameters."Sorting Method" := SortActivity;
+                CreatePickParameters."Max No. of Lines" := 0;
+                CreatePickParameters."Max No. of Source Doc." := 0;
+                CreatePickParameters."Do Not Fill Qty. to Handle" := DoNotFillQtytoHandle;
+                CreatePickParameters."Breakbulk Filter" := BreakbulkFilter;
+                CreatePickParameters."Per Bin" := false;
+                CreatePickParameters."Per Zone" := false;
+                CreatePickParameters."Whse. Document" := CreatePickParameters."Whse. Document"::Shipment;
+                CreatePickParameters."Whse. Document Type" := CreatePickParameters."Whse. Document Type"::Pick;
+                CreatePick.SetParameters(CreatePickParameters);
 
                 CopyFilters(WhseShptLine);
                 SetFilter("Qty. (Base)", '>0');

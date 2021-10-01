@@ -562,7 +562,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         CreateAndPostPurcOrderThenCreatePurchReturnOrder(Item, PurchaseHeader, PurchaseLine);
 
-        ReservMgt.SetPurchLine(PurchaseLine);
+        ReservMgt.SetReservSource(PurchaseLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', WorkDate, PurchaseLine.Quantity, PurchaseLine."Quantity (Base)");
 
         // Exercise: Post Purchase Return Order.
@@ -1787,7 +1787,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         SalesReceivablesSetup.Modify(true);
     end;
 
-    local procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Option; AverageCostCalcType: Option; AverageCostPeriod: Option)
+    local procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Option; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
     begin
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, AutomaticCostPosting, ExpectedCostPostingtoGL, AutomaticCostAdjustment, AverageCostCalcType, AverageCostPeriod);

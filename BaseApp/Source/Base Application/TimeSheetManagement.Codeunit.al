@@ -14,6 +14,26 @@ codeunit 950 "Time Sheet Management"
         Text003: Label 'Time Sheet Header %1 is not found.', Comment = 'Time Sheet Header Archive 10 is not found.';
         Text004: Label 'cannot be greater than %1 %2.', Comment = '%1 - Quantity, %2 - Unit of measure. Example: Quantity cannot be greater than 8 HOUR.';
         Text005: Label 'Time Sheet Header Archive %1 is not found.', Comment = 'Time Sheet Header Archive 10 is not found.';
+        NoLinesToCopyErr: Label 'There are no time sheet lines to copy.';
+        CopyLinesQst: Label 'Do you want to copy lines from the previous time sheet (%1)?', Comment = '%1 - number';
+        JobPlanningLinesNotFoundErr: Label 'Could not find job planning lines.';
+        CreateLinesQst: Label 'Do you want to create lines from job planning (%1)?', Comment = '%1 - number';
+        PageDataCaptionTxt: Label '%1 (%2)', Comment = '%1 - start date, %2 - Description,';
+
+    procedure TimeSheetV2Enabled() Result: Boolean
+    var
+        FeatureKey: Record "Feature Key";
+    begin
+        if FeatureKey.Get(GetTimeSheetV2FeatureKey()) then
+            Result := FeatureKey.Enabled = FeatureKey.Enabled::"All Users";
+
+        OnAfterTimeSheetV2Enabled(Result);
+    end;
+
+    local procedure GetTimeSheetV2FeatureKey(): Text[50]
+    begin
+        exit('NewTimeSheetExperience');
+    end;
 
     procedure FilterTimeSheets(var TimeSheetHeader: Record "Time Sheet Header"; FieldNo: Integer)
     var
@@ -36,6 +56,26 @@ codeunit 950 "Time Sheet Management"
             end;
             TimeSheetHeader.FilterGroup(0);
         end;
+    end;
+
+    procedure FilterAllTimeSheetLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)
+    begin
+        TimeSheetLine.FilterGroup(2);
+        TimeSheetLine.SetFilter(Type, '<>%1', TimeSheetLine.Type::" ");
+        TimeSheetLine.FilterGroup(0);
+        case ActionType of
+            ActionType::Submit:
+                TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Open);
+            ActionType::ReopenSubmitted:
+                TimeSheetLine.SetFilter(Status, '%1|%2', TimeSheetLine.Status::Submitted, TimeSheetLine.Status::Rejected);
+            ActionType::Reject,
+            ActionType::Approve:
+                TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Submitted);
+            ActionType::ReopenApproved:
+                TimeSheetLine.SetFilter(Status, '%1|%2', TimeSheetLine.Status::Approved, TimeSheetLine.Status::Rejected);
+        end;
+
+        OnAfterFilterAllLines(TimeSheetLine, ActionType);
     end;
 
     procedure CheckTimeSheetNo(var TimeSheetHeader: Record "Time Sheet Header"; TimeSheetNo: Code[20])
@@ -210,6 +250,14 @@ codeunit 950 "Time Sheet Management"
             Error(Text005, TimeSheetNo);
     end;
 
+    procedure GetTimeSheetDataCaption(TimeSheetHeader: Record "Time Sheet Header"): Text
+    begin
+        if TimeSheetHeader.Description = '' then
+            exit(Format(TimeSheetHeader."Starting Date", 0, 4));
+
+        exit(StrSubstNo(PageDataCaptionTxt, Format(TimeSheetHeader."Starting Date", 0, 4), TimeSheetHeader.Description));
+    end;
+
     procedure SetTimeSheetArchiveNo(TimeSheetNo: Code[20]; var TimeSheetLineArchive: Record "Time Sheet Line Archive")
     begin
         TimeSheetLineArchive.FilterGroup(2);
@@ -325,6 +373,18 @@ codeunit 950 "Time Sheet Management"
         end;
     end;
 
+    procedure CheckCopyPrevTimeSheetLines(TimeSheetHeader: Record "Time Sheet Header")
+    var
+        QtyToBeCopied: Integer;
+    begin
+        QtyToBeCopied := CalcPrevTimeSheetLines(TimeSheetHeader);
+        if QtyToBeCopied = 0 then
+            Message(NoLinesToCopyErr)
+        else
+            if Confirm(CopyLinesQst, true, QtyToBeCopied) then
+                CopyPrevTimeSheetLines(TimeSheetHeader);
+    end;
+
     procedure CopyPrevTimeSheetLines(ToTimeSheetHeader: Record "Time Sheet Header")
     var
         FromTimeSheetHeader: Record "Time Sheet Header";
@@ -366,11 +426,34 @@ codeunit 950 "Time Sheet Management"
                         ToTimeSheetLine."Work Type Code" := FromTimeSheetLine."Work Type Code";
                         OnBeforeToTimeSheetLineInsert(ToTimeSheetLine, FromTimeSheetLine);
                         ToTimeSheetLine.Insert();
+
+                        if TimeSheetV2Enabled() then
+                            CopyTimeSheetLineDetails(ToTimeSheetLine, FromTimeSheetLine);
                     end;
                 until FromTimeSheetLine.Next() = 0;
         end;
 
         OnAfterCopyPrevTimeSheetLines();
+    end;
+
+    local procedure CopyTimeSheetLineDetails(ToTimeSheetLine: Record "Time Sheet Line"; FromTimeSheetLine: Record "Time Sheet Line")
+    var
+        ToTimeSheetDetail: Record "Time Sheet Detail";
+        FromTimeSheetDetail: Record "Time Sheet Detail";
+    begin
+        FromTimeSheetDetail.SetRange("Time Sheet No.", FromTimeSheetLine."Time Sheet No.");
+        FromTimeSheetDetail.SetRange("Time Sheet Line No.", FromTimeSheetLine."Line No.");
+        if FromTimeSheetDetail.FindSet() then
+            repeat
+                ToTimeSheetDetail.Init();
+                ToTimeSheetDetail.TransferFields(FromTimeSheetDetail);
+                ToTimeSheetDetail."Time Sheet No." := ToTimeSheetLine."Time Sheet No.";
+                ToTimeSheetDetail."Time Sheet Line No." := ToTimeSheetLine."Line No.";
+                ToTimeSheetDetail.Date := CalcDate('<+7D>', ToTimeSheetDetail.Date);
+                ToTimeSheetDetail.Status := "Time Sheet Status"::Open;
+                ToTimeSheetDetail.Posted := false;
+                ToTimeSheetDetail.Insert();
+            until FromTimeSheetDetail.Next() = 0;
     end;
 
     procedure CalcPrevTimeSheetLines(ToTimeSheetHeader: Record "Time Sheet Header") LinesQty: Integer
@@ -386,6 +469,18 @@ codeunit 950 "Time Sheet Management"
             TimeSheetLine.SetFilter(Type, '<>%1&<>%2', TimeSheetLine.Type::Service, TimeSheetLine.Type::"Assembly Order");
             LinesQty := TimeSheetLine.Count();
         end;
+    end;
+
+    procedure CheckCreateLinesFromJobPlanning(TimeSheetHeader: Record "Time Sheet Header"): Integer
+    var
+        QtyToBeCreated: Integer;
+    begin
+        QtyToBeCreated := CalcLinesFromJobPlanning(TimeSheetHeader);
+        if QtyToBeCreated = 0 then
+            Message(JobPlanningLinesNotFoundErr)
+        else
+            if Confirm(CreateLinesQst, true, QtyToBeCreated) then
+                exit(CreateLinesFromJobPlanning(TimeSheetHeader));
     end;
 
     procedure CreateLinesFromJobPlanning(TimeSheetHeader: Record "Time Sheet Header") CreatedLinesQty: Integer
@@ -924,6 +1019,16 @@ codeunit 950 "Time Sheet Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPrevTimeSheetLines()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
     begin
     end;
 

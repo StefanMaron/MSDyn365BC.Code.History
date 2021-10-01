@@ -202,7 +202,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
         WhseCrossDockOpp."To Source Line No." := SourceLineNo;
         WhseCrossDockOpp."To Source Subline No." := SourceSubLineNo;
         WhseCrossDockOpp."To Source Document" :=
-            WhseMgt.GetSourceDocument(WhseCrossDockOpp."To Source Type", WhseCrossDockOpp."To Source Subtype");
+            WhseMgt.GetSourceDocumentType(WhseCrossDockOpp."To Source Type", WhseCrossDockOpp."To Source Subtype").AsInteger();
         WhseCrossDockOpp."Due Date" := DueDate;
         WhseCrossDockOpp."To-Src. Unit of Measure Code" := UOMCode;
         WhseCrossDockOpp."To-Src. Qty. per Unit of Meas." := QtyPerUOM;

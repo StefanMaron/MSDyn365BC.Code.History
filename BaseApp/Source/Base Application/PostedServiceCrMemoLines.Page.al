@@ -43,6 +43,13 @@ page 5952 "Posted Service Cr. Memo Lines"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of an item, resource, cost, general ledger account description, or some descriptive text on the service credit memo line.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;

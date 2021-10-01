@@ -67,7 +67,9 @@ codeunit 139450 "O365 Setup Permissions Test"
         CustomerBankAccount: Record "Customer Bank Account";
         CustomerPostingGroup: Record "Customer Posting Group";
         CustomerPriceGroup: Record "Customer Price Group";
+#if not CLEAN18
         CustomerTemplate: Record "Customer Template";
+#endif
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         ShipToAddress: Record "Ship-to Address";
         StandardSalesCode: Record "Standard Sales Code";
@@ -88,7 +90,9 @@ codeunit 139450 "O365 Setup Permissions Test"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+#if not CLEAN18
         LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+#endif
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
         LibrarySales.CreateStandardSalesCode(StandardSalesCode);

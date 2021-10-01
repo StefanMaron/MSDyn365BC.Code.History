@@ -54,6 +54,37 @@ page 5346 "CRM Pricelevel List"
 
     actions
     {
+        area(processing)
+        {
+            action(ShowOnlyUncoupled)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Hide Coupled Price Levels';
+                Image = FilterLines;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Do not show coupled price levels.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(true);
+                end;
+            }
+            action(ShowAll)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Show Coupled Price Levels';
+                Image = ClearFilter;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Show coupled price levels.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(false);
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -65,13 +96,16 @@ page 5346 "CRM Pricelevel List"
             if CurrentlyCoupledCRMPricelevel.PriceLevelId = PriceLevelId then begin
                 Coupled := 'Current';
                 FirstColumnStyle := 'Strong';
+                Mark(true);
             end else begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
+                Mark(false);
             end
         else begin
             Coupled := 'No';
             FirstColumnStyle := 'None';
+            Mark(true);
         end;
     end;
 

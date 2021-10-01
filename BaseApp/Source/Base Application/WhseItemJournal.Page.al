@@ -306,16 +306,16 @@ page 7324 "Whse. Item Journal"
     var
         JnlSelected: Boolean;
     begin
-        if IsOpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
-            CurrentLocationCode := "Location Code";
-            OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
+        if Rec.IsOpenedFromBatch then begin
+            CurrentJnlBatchName := Rec."Journal Batch Name";
+            CurrentLocationCode := Rec."Location Code";
+            Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
             exit;
         end;
-        TemplateSelection(PAGE::"Whse. Item Journal", 0, Rec, JnlSelected);
+        JnlSelected := Rec.TemplateSelection(PAGE::"Whse. Item Journal", "Warehouse Journal Template Type"::Item, Rec);
         if not JnlSelected then
             Error('');
-        OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
+        Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
     end;
 
     var

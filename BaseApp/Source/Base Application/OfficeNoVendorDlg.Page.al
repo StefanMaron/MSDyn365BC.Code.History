@@ -27,7 +27,7 @@ page 1628 "Office No Vendor Dlg"
 
                     trigger OnDrillDown()
                     begin
-                        CreateVendor();
+                        CreateVendorFromTemplate('');
                         CurrPage.Close();
                     end;
                 }

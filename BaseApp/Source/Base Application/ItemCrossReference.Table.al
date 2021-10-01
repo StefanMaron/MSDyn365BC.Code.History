@@ -1,11 +1,8 @@
 table 5717 "Item Cross Reference"
 {
     Caption = 'Item Cross Reference';
-#if not CLEAN16
-    LookupPageID = "Cross Reference List";
-#endif
     ObsoleteReason = 'Replaced by ItemReference table as part of Item Reference feature.';
-#if not CLEAN18
+#if not CLEAN19
     ObsoleteState = Pending;
     ObsoleteTag = '18.0';
 #else
@@ -65,15 +62,6 @@ table 5717 "Item Cross Reference"
         {
             Caption = 'Discontinue Bar Code';
 
-#if not CLEAN16
-            trigger OnValidate()
-            begin
-                if "Discontinue Bar Code" and
-                   ("Cross-Reference Type" <> "Cross-Reference Type"::"Bar Code")
-                then
-                    Error(Text001, TableCaption);
-            end;
-#endif
         }
         field(9; "Description 2"; Text[50])
         {
@@ -111,112 +99,8 @@ table 5717 "Item Cross Reference"
         }
     }
 
-#if not CLEAN16
-    trigger OnDelete()
-    begin
-        if "Cross-Reference Type" = "Cross-Reference Type"::Vendor then
-            DeleteItemVendor(Rec)
-    end;
-
-    trigger OnInsert()
-    begin
-        if ("Cross-Reference Type No." <> '') and
-           ("Cross-Reference Type" = "Cross-Reference Type"::" ")
-        then
-            Error(Text000, FieldCaption("Cross-Reference Type No."));
-
-        Item.Get("Item No.");
-        if "Unit of Measure" = '' then
-            Validate("Unit of Measure", Item."Base Unit of Measure");
-        CreateItemVendor;
-    end;
-
-    trigger OnRename()
-    begin
-        if ("Cross-Reference Type No." <> '') and
-           ("Cross-Reference Type" = "Cross-Reference Type"::" ")
-        then
-            Error(Text000, FieldCaption("Cross-Reference Type No."));
-
-        if ("Cross-Reference Type" = "Cross-Reference Type"::Vendor) and not ItemVendorResetRequired(xRec, Rec) then
-            UpdateItemVendorNo(xRec, "Cross-Reference No.")
-        else begin
-            if xRec."Cross-Reference Type" = "Cross-Reference Type"::Vendor then
-                DeleteItemVendor(xRec);
-            if "Cross-Reference Type" = "Cross-Reference Type"::Vendor then
-                CreateItemVendor;
-        end;
-    end;
-
-    var
-        Text000: Label 'You cannot enter a %1 for a blank Cross-Reference Type.';
-        Text001: Label 'This %1 is not a bar code.';
-        Item: Record Item;
-        ItemVend: Record "Item Vendor";
-
-    local procedure CreateItemVendor()
-    begin
-        if ("Cross-Reference Type" = "Cross-Reference Type"::Vendor) and
-           ItemVend.WritePermission
-        then begin
-            ItemVend.Reset();
-            ItemVend.SetRange("Item No.", "Item No.");
-            ItemVend.SetRange("Vendor No.", "Cross-Reference Type No.");
-            ItemVend.SetRange("Variant Code", "Variant Code");
-            if ItemVend.IsEmpty() then begin
-                ItemVend."Item No." := "Item No.";
-                ItemVend."Vendor No." := "Cross-Reference Type No.";
-                ItemVend.Validate("Vendor No.");
-                ItemVend."Variant Code" := "Variant Code";
-                ItemVend."Vendor Item No." := "Cross-Reference No.";
-                ItemVend.Insert();
-                OnAfterCreateItemVendor(Rec, ItemVend);
-            end;
-        end;
-    end;
-
-    local procedure DeleteItemVendor(ItemCrossReference: Record "Item Cross Reference")
-    begin
-        if not MultipleCrossReferencesExist(ItemCrossReference) then
-            if ItemVend.Get(ItemCrossReference."Cross-Reference Type No.", ItemCrossReference."Item No.", ItemCrossReference."Variant Code") then
-                if UpperCase(DelChr(ItemVend."Vendor Item No.", '<', ' ')) = ItemCrossReference."Cross-Reference No." then begin
-                    OnBeforeItemVendorDelete(ItemVend, ItemCrossReference);
-                    ItemVend.Delete();
-                end;
-    end;
-
-    local procedure UpdateItemVendorNo(ItemCrossReference: Record "Item Cross Reference"; NewCrossRefNo: Code[20])
-    begin
-        if not MultipleCrossReferencesExist(ItemCrossReference) then
-            if ItemVend.Get(ItemCrossReference."Cross-Reference Type No.", ItemCrossReference."Item No.", ItemCrossReference."Variant Code") then begin
-                ItemVend."Vendor Item No." := NewCrossRefNo;
-                ItemVend.Modify();
-            end;
-    end;
-
-    local procedure ItemVendorResetRequired(OldItemCrossRef: Record "Item Cross Reference"; NewItemCrossRef: Record "Item Cross Reference"): Boolean
-    begin
-        exit(
-          (OldItemCrossRef."Item No." <> NewItemCrossRef."Item No.") or
-          (OldItemCrossRef."Variant Code" <> NewItemCrossRef."Variant Code") or
-          (OldItemCrossRef."Cross-Reference Type" <> NewItemCrossRef."Cross-Reference Type") or
-          (OldItemCrossRef."Cross-Reference Type No." <> NewItemCrossRef."Cross-Reference Type No."));
-    end;
-
-    local procedure MultipleCrossReferencesExist(ItemCrossReference: Record "Item Cross Reference"): Boolean
-    var
-        ItemCrossReference2: Record "Item Cross Reference";
-    begin
-        ItemCrossReference2.SetRange("Item No.", ItemCrossReference."Item No.");
-        ItemCrossReference2.SetRange("Variant Code", ItemCrossReference."Variant Code");
-        ItemCrossReference2.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type");
-        ItemCrossReference2.SetRange("Cross-Reference Type No.", ItemCrossReference."Cross-Reference Type No.");
-        ItemCrossReference2.SetRange("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-        ItemCrossReference2.SetFilter("Unit of Measure", '<>%1', ItemCrossReference."Unit of Measure");
-
-        exit(not ItemCrossReference2.IsEmpty);
-    end;
-
+#if not CLEAN19
+    [Obsolete('Replaced by Item Reference feature.', '19.0')]
     procedure FindItemDescription(var ItemDescription: Text[100]; var ItemDescription2: Text[50]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; CrossRefType: Option; CrossRefTypeNo: Code[20]): Boolean
     var
         ItemCrossReference: Record "Item Cross Reference";
@@ -236,7 +120,9 @@ table 5717 "Item Cross Reference"
 
         exit(false);
     end;
+#endif
 
+#if not CLEAN17
     [Obsolete('Replaced by FindItemDescription().', '17.0')]
     procedure GetItemDescription(var ItemDescription: Text; var ItemDescription2: Text; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; CrossRefType: Option; CrossRefTypeNo: Code[20]): Boolean
     var
@@ -247,7 +133,10 @@ table 5717 "Item Cross Reference"
         ItemDescription := NewDescription;
         ItemDescription2 := NewDescription2;
     end;
+#endif
 
+#if not CLEAN19
+    [Obsolete('Replaced by Item Reference feature.', '19.0')]
     procedure HasValidUnitOfMeasure(): Boolean
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -259,11 +148,13 @@ table 5717 "Item Cross Reference"
         exit(ItemUnitOfMeasure.FindFirst);
     end;
 
+    [Obsolete('Replaced by Item Reference feature.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateItemVendor(var ItemCrossReference: Record "Item Cross Reference"; ItemVendor: Record "Item Vendor")
     begin
     end;
 
+    [Obsolete('Replaced by Item Reference feature.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeItemVendorDelete(ItemVendor: Record "Item Vendor"; ItemCrossReference: Record "Item Cross Reference")
     begin

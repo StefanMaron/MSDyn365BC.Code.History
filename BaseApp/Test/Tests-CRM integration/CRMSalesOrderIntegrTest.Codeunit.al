@@ -588,7 +588,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.CreateNewRecordsInCRM(SalesInvoiceHeader.RecordId);
         // JobQueueEntry is inserted and executed
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRange(SystemId, SalesInvoiceHeader.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
           DATABASE::"Sales Invoice Header", SalesInvoiceHeader.GetView, IntegrationTableMapping);
 

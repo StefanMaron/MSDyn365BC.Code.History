@@ -12,6 +12,7 @@ codeunit 136120 "Service Warranty and Discounts"
     var
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
@@ -617,6 +618,7 @@ codeunit 136120 "Service Warranty and Discounts"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
+#if not CLEAN19
     local procedure UpdateItemDiscount(var Item: Record Item; CustomerNo: Code[20]; LineDiscountPercentage: Decimal)
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -628,6 +630,21 @@ codeunit 136120 "Service Warranty and Discounts"
         SalesLineDiscount.Validate("Line Discount %", LineDiscountPercentage);
         SalesLineDiscount.Modify(true);
     end;
+#else
+    local procedure UpdateItemDiscount(var Item: Record Item; CustomerNo: Code[20]; LineDiscountPercentage: Decimal)
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine, '', "Price Source Type"::Customer, CustomerNo, "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Validate("Starting Date", WorkDate());
+        PriceListLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        PriceListLine.Validate("Minimum Quantity", LibraryRandom.RandInt(10));
+        PriceListLine.Validate("Line Discount %", LineDiscountPercentage);
+        PriceListLine.Validate(Status, "Price Status"::Active);
+        PriceListLine.Modify(true);
+    end;
+#endif
 
     local procedure UpdateManualLineDiscount(OrderNo: Code[20]; LineDiscountPercentage: Decimal)
     var

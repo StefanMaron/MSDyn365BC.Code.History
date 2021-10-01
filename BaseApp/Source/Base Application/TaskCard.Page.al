@@ -473,7 +473,7 @@ page 5098 "Task Card"
         SetRecurringEditable;
         EnableFields;
         ContactNoOnFormat(Format("Contact No."));
-        if Contact.Get("Contact No.") then;
+        Contact.GetOrClear("Contact No.");
     end;
 
     trigger OnInit()

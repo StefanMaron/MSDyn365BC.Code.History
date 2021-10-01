@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1806 "Exchange Setup Wizard"
 {
     Caption = 'Office Add-In Setup';
@@ -8,6 +9,9 @@ page 1806 "Exchange Setup Wizard"
     ShowFilter = false;
     SourceTable = "Office Add-in";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by Outlook Individual Deployment.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -508,4 +512,4 @@ page 1806 "Exchange Setup Wizard"
                 TopBannerVisible := MediaResourcesDone."Media Reference".HasValue;
     end;
 }
-
+#endif

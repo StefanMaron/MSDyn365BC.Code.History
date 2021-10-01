@@ -14,11 +14,9 @@ table 410 "IC G/L Account"
         {
             Caption = 'Name';
         }
-        field(3; "Account Type"; Option)
+        field(3; "Account Type"; Enum "G/L Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'Posting,Heading,Total,Begin-Total,End-Total';
-            OptionMembers = Posting,Heading,Total,"Begin-Total","End-Total";
         }
         field(4; "Income/Balance"; Option)
         {

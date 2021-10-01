@@ -86,7 +86,7 @@ table 8632 "Config. Record For Processing"
         exit(ConfigPackageField.FindSet);
     end;
 
-    local procedure GetFieldValue(FieldId: Integer): Text[250]
+    local procedure GetFieldValue(FieldId: Integer): Text[2048]
     var
         ConfigPackageData: Record "Config. Package Data";
     begin

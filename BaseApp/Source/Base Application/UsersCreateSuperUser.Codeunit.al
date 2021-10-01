@@ -11,8 +11,10 @@ codeunit 9000 "Users - Create Super User"
         SafeCreateUser(UserId, Sid);
     end;
 
+#if not CLEAN18
     var
         SuperPermissonSetDescTxt: Label 'This user has all permissions.';
+#endif
 
     [Scope('OnPrem')]
     procedure SafeCreateUser(UserID: Code[50]; SID: Text[119])
@@ -30,8 +32,10 @@ codeunit 9000 "Users - Create Super User"
     end;
 
     local procedure GetSuperRole(var PermissionSet: Record "Permission Set")
+#if not CLEAN18
     var
         Permission: Record Permission;
+#endif
     begin
 #if CLEAN18
         PermissionSet.Get('SUPER');
@@ -62,6 +66,7 @@ codeunit 9000 "Users - Create Super User"
         User.Insert(true);
     end;
 
+#if not CLEAN18
     local procedure AddPermissionToPermissionSet(var PermissionSet: Record "Permission Set"; ObjectType: Option; ObjectID: Integer)
     var
         Permission: Record Permission;
@@ -82,6 +87,7 @@ codeunit 9000 "Users - Create Super User"
             Insert(true);
         end;
     end;
+#endif
 
     local procedure AssignPermissionSetToUser(var User: Record User; var PermissionSet: Record "Permission Set")
     var

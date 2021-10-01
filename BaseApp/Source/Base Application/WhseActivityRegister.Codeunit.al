@@ -1,4 +1,4 @@
-﻿codeunit 7307 "Whse.-Activity-Register"
+codeunit 7307 "Whse.-Activity-Register"
 {
     Permissions = TableData "Registered Whse. Activity Hdr." = i,
                   TableData "Registered Whse. Activity Line" = i,
@@ -114,7 +114,7 @@
                     if Type <> Type::Movement then
                         UpdateWhseSourceDocLine(TempWhseActivityLineGrouped);
                     UpdateWhseDocHeader(TempWhseActivityLineGrouped);
-                    TempWhseActivityLineGrouped.DeleteBinContent(TempWhseActivityLineGrouped."Action Type"::Take);
+                    TempWhseActivityLineGrouped.DeleteBinContent("Warehouse Action Type"::Take.AsInteger());
                 until TempWhseActivityLineGrouped.Next() = 0;
 
             SyncItemTrackingAndReserveSourceDocument(TempWhseActivLineToReserve);
@@ -286,6 +286,9 @@
                 WhseJnlLine.Quantity := "Qty. to Handle";
                 WhseJnlLine."Unit of Measure Code" := "Unit of Measure Code";
                 WhseJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                WhseJnlLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                WhseJnlLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
+
                 GetItemUnitOfMeasure("Item No.", "Unit of Measure Code");
                 WhseJnlLine.Cubage :=
                   Abs(WhseJnlLine.Quantity) * ItemUnitOfMeasure.Cubage;
@@ -307,13 +310,13 @@
                 "Activity Type"::"Put-away":
                     begin
                         WhseJnlLine."Source Code" := SourceCodeSetup."Whse. Put-away";
-                        WhseJnlLine.SetWhseDoc("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
+                        WhseJnlLine.SetWhseDocument("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
                         WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Put-away";
                     end;
                 "Activity Type"::Pick:
                     begin
                         WhseJnlLine."Source Code" := SourceCodeSetup."Whse. Pick";
-                        WhseJnlLine.SetWhseDoc("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
+                        WhseJnlLine.SetWhseDocument("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
                         WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::Pick;
                     end;
                 "Activity Type"::Movement:
@@ -327,8 +330,7 @@
               "Activity Type"::"Invt. Movement":
                     WhseJnlLine."Whse. Document Type" := WhseJnlLine."Whse. Document Type"::" ";
             end;
-            if "Serial No." <> '' then
-                TestField("Qty. per Unit of Measure", 1);
+            WhseActivLine.ValidateQtyWhenSNDefined();
             WhseJnlLine.CopyTrackingFromWhseActivityLine(WhseActivLine);
             WhseJnlLine."Warranty Date" := "Warranty Date";
             WhseJnlLine."Expiration Date" := "Expiration Date";
@@ -344,7 +346,7 @@
         RecordLinkManagement: Codeunit "Record Link Management";
         TableNameFrom: Option;
         TableNameTo: Option;
-        RegisteredType: Option;
+        RegisteredType: Enum "Warehouse Activity Type";
         RegisteredNo: Code[20];
         IsHandled: Boolean;
     begin
@@ -364,7 +366,7 @@
             OnAfterRegisteredInvtMovementHdrInsert(RegisteredInvtMovementHdr, WhseActivHeader);
 
             TableNameTo := WhseCommentLine."Table Name"::"Registered Invt. Movement";
-            RegisteredType := 0;
+            RegisteredType := RegisteredType::" ";
             RegisteredNo := RegisteredInvtMovementHdr."No.";
         end else begin
             RegisteredWhseActivHeader.Init();
@@ -429,7 +431,7 @@
 
     procedure UpdateWhseSourceDocLine(WhseActivLine: Record "Warehouse Activity Line")
     var
-        WhseDocType2: Option;
+        WhseDocType2: Enum "Warehouse Activity Document Type";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -472,7 +474,7 @@
                 UpdateSourceDocForInvtMovement(WhseActivLine);
         end;
 
-        OnAfterUpdateWhseSourceDocLine(WhseActivLine, WhseDocType2);
+        OnAfterUpdateWhseSourceDocLine(WhseActivLine, WhseDocType2.AsInteger());
     end;
 
     procedure UpdateWhseDocHeader(WhseActivLine: Record "Warehouse Activity Line")
@@ -915,7 +917,7 @@
                 Error(Text003);
     end;
 
-    local procedure CheckWhseItemTrkgLine(var WhseActivLine: Record "Warehouse Activity Line")
+    procedure CheckWhseItemTrkgLine(var WhseActivLine: Record "Warehouse Activity Line")
     var
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
         WhseItemTrackingSetup: Record "Item Tracking Setup";
@@ -1014,7 +1016,7 @@
         QtyToRegisterBase: Decimal;
         DueDate: Date;
         NextEntryNo: Integer;
-        WhseDocType2: Option;
+        WhseDocType2: Enum "Warehouse Activity Document Type";
         NeedRegisterWhseItemTrkgLine: Boolean;
     begin
         with WhseActivLine2 do begin
@@ -1154,7 +1156,7 @@
                             QtyToRegisterBase := 0;
                         end;
                         if not UpdateTempTracking(WhseActivLine2, QtyToHandleBase, TempTrackingSpecification) then begin
-                            TempTrackingSpecification.SetCurrentKey("Lot No.", "Serial No.");
+                            TempTrackingSpecification.SetTrackingKey();
                             TempTrackingSpecification.SetTrackingFilterFromWhseActivityLine(WhseActivLine2);
                             if TempTrackingSpecification.FindFirst then begin
                                 TempTrackingSpecification."Qty. to Handle (Base)" += QtyToHandleBase;
@@ -1191,7 +1193,7 @@
         WhseMovementWksh: Record "Whse. Worksheet Line";
         WhseActivLine2: Record "Warehouse Activity Line";
         QtyBase: Decimal;
-        WhseDocType2: Option;
+        WhseDocType2: Enum "Warehouse Activity Document Type";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1332,7 +1334,7 @@
 
     procedure SetPointer(WhseActivLine: Record "Warehouse Activity Line"; var WhseItemTrkgLine: Record "Whse. Item Tracking Line")
     var
-        WhseDocType2: Option;
+        WhseDocType2: Enum "Warehouse Activity Document Type";
     begin
         with WhseActivLine do begin
             if ("Whse. Document Type" = "Whse. Document Type"::Shipment) and "Assemble to Order" then
@@ -1363,7 +1365,7 @@
                       DATABASE::"Whse. Worksheet Line", 0, "Source No.", "Whse. Document Line No.",
                       CopyStr("Whse. Document No.", 1, MaxStrLen(WhseItemTrkgLine."Source Batch Name")), 0);
             end;
-            OnSetPointerOnAfterWhseDocTypeSetSource(WhseActivLine, WhseDocType2, WhseItemTrkgLine);
+            OnSetPointerOnAfterWhseDocTypeSetSource(WhseActivLine, WhseDocType2.AsInteger(), WhseItemTrkgLine);
             WhseItemTrkgLine."Location Code" := "Location Code";
             if "Activity Type" = "Activity Type"::"Invt. Movement" then begin
                 WhseItemTrkgLine.SetSource("Source Type", "Source Subtype", "Source No.", "Source Line No.", '', 0);
@@ -1393,7 +1395,7 @@
         HideDialog := HideDialog2;
     end;
 
-    local procedure CalcTotalAvailQtyToPick(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
+    procedure CalcTotalAvailQtyToPick(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
     var
         WhseEntry: Record "Warehouse Entry";
         ItemLedgEntry: Record "Item Ledger Entry";

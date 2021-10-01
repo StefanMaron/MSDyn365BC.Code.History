@@ -1,4 +1,4 @@
-﻿table 5406 "Prod. Order Line"
+table 5406 "Prod. Order Line"
 {
     Caption = 'Prod. Order Line';
     DataCaptionFields = "Prod. Order No.";
@@ -95,12 +95,23 @@
                                                        Code = FIELD("Variant Code"));
 
             trigger OnValidate()
+            var
+                ItemVariant: Record "Item Variant";
             begin
                 ProdOrderLineReserve.VerifyChange(Rec, xRec);
                 TestField("Finished Quantity", 0);
                 CalcFields("Reserved Quantity");
                 TestField("Reserved Quantity", 0);
                 WhseValidateSourceLine.ProdOrderLineVerifyChange(Rec, xRec);
+
+                if ItemVariant.Get("Item No.", "Variant Code") then begin
+                    Description := ItemVariant.Description;
+                    "Description 2" := ItemVariant."Description 2";
+                end else begin
+                    GetItem();
+                    Description := Item.Description;
+                    "Description 2" := Item."Description 2";
+                end;
                 GetUpdateFromSKU();
                 GetDefaultBin();
             end;
@@ -206,11 +217,14 @@
                 if IsHandled then
                     exit;
 
-                "Quantity (Base)" := Quantity * "Qty. per Unit of Measure";
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
+
                 "Remaining Quantity" := Quantity - "Finished Quantity";
                 if "Remaining Quantity" < 0 then
                     "Remaining Quantity" := 0;
-                "Remaining Qty. (Base)" := "Remaining Quantity" * "Qty. per Unit of Measure";
+                "Remaining Qty. (Base)" := CalcBaseQty("Remaining Quantity", FieldCaption("Remaining Quantity"), FieldCaption("Remaining Qty. (Base)"));
                 ProdOrderLineReserve.VerifyQuantity(Rec, xRec);
                 WhseValidateSourceLine.ProdOrderLineVerifyChange(Rec, xRec);
 
@@ -473,6 +487,24 @@
             Caption = 'Date Filter';
             FieldClass = FlowFilter;
         }
+        field(73; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(74; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(80; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
@@ -486,6 +518,8 @@
                 "Unit Cost" := Item."Unit Cost";
 
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
 
                 "Unit Cost" :=
                   Round(Item."Unit Cost" * "Qty. per Unit of Measure",
@@ -1051,12 +1085,12 @@
 
     procedure UpdateDatetime()
     begin
-        if ("Starting Date" <> 0D) and ("Starting Time" <> 0T) then
+        if ("Starting Date" <> 0D) then
             "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time")
         else
             "Starting Date-Time" := 0DT;
 
-        if ("Ending Date" <> 0D) and ("Ending Time" <> 0T) then
+        if ("Ending Date" <> 0D) then
             "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time")
         else
             "Ending Date-Time" := 0DT;
@@ -1416,6 +1450,12 @@
         StartingDate := DT2Date("Starting Date-Time");
         EndingTime := DT2Time("Ending Date-Time");
         EndingDate := DT2Date("Ending Date-Time");
+    end;
+
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     procedure IsStatusLessThanReleased(): Boolean

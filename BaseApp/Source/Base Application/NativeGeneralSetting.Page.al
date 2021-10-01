@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 2840 "Native - General Setting"
 {
     Caption = 'nativeInvoicingGeneralSettings', Locked = true;
@@ -330,4 +331,4 @@ page 2840 "Native - General Setting"
             Error(CannotSetUpPaypalErr);
     end;
 }
-
+#endif

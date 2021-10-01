@@ -24,7 +24,7 @@ codeunit 99000855 "Planning-Get Parameters"
                 SetRange("Item No.", ItemNo);
                 SetRange("Variant Code", VariantCode);
                 SetRange("Location Code", LocationCode);
-                if not FindFirst then begin
+                if not FindFirst() then begin
                     GetItem(ItemNo);
                     "Item No." := ItemNo;
                     "Variant Code" := VariantCode;
@@ -91,120 +91,168 @@ codeunit 99000855 "Planning-Get Parameters"
         LotForLot := true;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetPlanningParameters().', '19.0')]
     procedure SetUpPlanningControls(ReorderingPolicy: Option " ","Fixed Reorder Qty.","Maximum Qty.","Order","Lot-for-Lot"; IncludeInventory: Boolean; var TimeBucketEnabled: Boolean; var SafetyLeadTimeEnabled: Boolean; var SafetyStockQtyEnabled: Boolean; var ReorderPointEnabled: Boolean; var ReorderQuantityEnabled: Boolean; var MaximumInventoryEnabled: Boolean; var MinimumOrderQtyEnabled: Boolean; var MaximumOrderQtyEnabled: Boolean; var OrderMultipleEnabled: Boolean; var IncludeInventoryEnabled: Boolean; var ReschedulingPeriodEnabled: Boolean; var LotAccumulationPeriodEnabled: Boolean; var DampenerPeriodEnabled: Boolean; var DampenerQuantityEnabled: Boolean; var OverflowLevelEnabled: Boolean)
     var
-        ParamArray: array[15] of Boolean;
+        PlanningParameters: Record "Planning Parameters";
     begin
-        case ReorderingPolicy of
-            ReorderingPolicy::" ":
-                AssignToArray(ParamArray, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false);
-            ReorderingPolicy::"Fixed Reorder Qty.":
-                AssignToArray(ParamArray, true, true, true, true, true, false, true, true, true, false, false, false, false, true, true);
-            ReorderingPolicy::"Maximum Qty.":
-                AssignToArray(ParamArray, true, true, true, true, false, true, true, true, true, false, false, false, false, true, true);
-            ReorderingPolicy::Order:
-                AssignToArray(ParamArray, false, true, false, false, false, false, false, false, false, false, false, false, true, false, false);
-            ReorderingPolicy::"Lot-for-Lot":
-                AssignToArray(ParamArray, false, true, IncludeInventory, false, false, false, true, true, true, true, true, true, true, true, false);
-        end;
+        PlanningParameters."Include Inventory" := IncludeInventory;
+        PlanningParameters."Time Bucket Enabled" := TimeBucketEnabled;
+        PlanningParameters."Safety Lead Time Enabled" := SafetyLeadTimeEnabled;
+        PlanningParameters."Safety Stock Qty Enabled" := SafetyStockQtyEnabled;
+        PlanningParameters."Reorder Point Enabled" := ReorderPointEnabled;
+        PlanningParameters."Reorder Quantity Enabled" := ReorderQuantityEnabled;
+        PlanningParameters."Maximum Inventory Enabled" := MaximumInventoryEnabled;
+        PlanningParameters."Minimum Order Qty Enabled" := MinimumOrderQtyEnabled;
+        PlanningParameters."Maximum Order Qty Enabled" := MaximumOrderQtyEnabled;
+        PlanningParameters."Order Multiple Enabled" := OrderMultipleEnabled;
+        PlanningParameters."Include Inventory Enabled" := IncludeInventoryEnabled;
+        PlanningParameters."Rescheduling Period Enabled" := ReschedulingPeriodEnabled;
+        PlanningParameters."Lot Accum. Period Enabled" := LotAccumulationPeriodEnabled;
+        PlanningParameters."Dampener Period Enabled" := DampenerPeriodEnabled;
+        PlanningParameters."Dampener Quantity Enabled" := DampenerQuantityEnabled;
+        PlanningParameters."Overflow Level Enabled" := OverflowLevelEnabled;
 
-        TimeBucketEnabled := ParamArray[1];
-        SafetyLeadTimeEnabled := ParamArray[2];
-        SafetyStockQtyEnabled := ParamArray[3];
-        ReorderPointEnabled := ParamArray[4];
-        ReorderQuantityEnabled := ParamArray[5];
-        MaximumInventoryEnabled := ParamArray[6];
-        MinimumOrderQtyEnabled := ParamArray[7];
-        MaximumOrderQtyEnabled := ParamArray[8];
-        OrderMultipleEnabled := ParamArray[9];
-        IncludeInventoryEnabled := ParamArray[10];
-        ReschedulingPeriodEnabled := ParamArray[11];
-        LotAccumulationPeriodEnabled := ParamArray[12];
-        DampenerPeriodEnabled := ParamArray[13];
-        DampenerQuantityEnabled := ParamArray[14];
-        OverflowLevelEnabled := ParamArray[15];
-
-        OnAfterSetUpPlanningControls(ReorderingPolicy, IncludeInventory, TimebucketEnabled, SafetyLeadTimeEnabled, SafetyStockQtyEnabled,
+        OnAfterSetUpPlanningControls(
+            ReorderingPolicy, IncludeInventory, TimebucketEnabled, SafetyLeadTimeEnabled, SafetyStockQtyEnabled,
             ReorderPointEnabled, ReorderQuantityEnabled, MaximumInventoryEnabled,
             MinimumOrderQtyEnabled, MaximumOrderQtyEnabled, OrderMultipleEnabled, IncludeInventoryEnabled,
             ReschedulingPeriodEnabled, LotAccumulationPeriodEnabled,
             DampenerPeriodEnabled, DampenerQuantityEnabled, OverflowLevelEnabled);
     end;
+#endif
 
-    local procedure AssignToArray(var ParamArray: array[15] of Boolean; Bool1: Boolean; Bool2: Boolean; Bool3: Boolean; Bool4: Boolean; Bool5: Boolean; Bool6: Boolean; Bool7: Boolean; Bool8: Boolean; Bool9: Boolean; Bool10: Boolean; Bool11: Boolean; Bool12: Boolean; Bool13: Boolean; Bool14: Boolean; Bool15: Boolean)
+    procedure SetPlanningParameters(var PlanningParameters: Record "Planning Parameters")
+    var
+        xPlanningParameters: Record "Planning Parameters";
     begin
-        ParamArray[1] := Bool1;
-        ParamArray[2] := Bool2;
-        ParamArray[3] := Bool3;
-        ParamArray[4] := Bool4;
-        ParamArray[5] := Bool5;
-        ParamArray[6] := Bool6;
-        ParamArray[7] := Bool7;
-        ParamArray[8] := Bool8;
-        ParamArray[9] := Bool9;
-        ParamArray[10] := Bool10;
-        ParamArray[11] := Bool11;
-        ParamArray[12] := Bool12;
-        ParamArray[13] := Bool13;
-        ParamArray[14] := Bool14;
-        ParamArray[15] := Bool15;
+        xPlanningParameters := PlanningParameters;
+        Clear(PlanningParameters);
+        PlanningParameters."Reordering Policy" := xPlanningParameters."Reordering Policy";
+        PlanningParameters."Include Inventory" := xPlanningParameters."Include Inventory";
+
+        case PlanningParameters."Reordering Policy" of
+            "Reordering Policy"::" ":
+                PlanningParameters."Safety Lead Time Enabled" := true;
+            "Reordering Policy"::"Fixed Reorder Qty.":
+                begin
+                    PlanningParameters."Time Bucket Enabled" := true;
+                    PlanningParameters."Safety Lead Time Enabled" := true;
+                    PlanningParameters."Safety Stock Qty Enabled" := true;
+                    PlanningParameters."Reorder Point Enabled" := true;
+                    PlanningParameters."Reorder Quantity Enabled" := true;
+                    PlanningParameters."Maximum Inventory Enabled" := false;
+                    PlanningParameters."Minimum Order Qty Enabled" := true;
+                    PlanningParameters."Maximum Order Qty Enabled" := true;
+                    PlanningParameters."Order Multiple Enabled" := true;
+                    PlanningParameters."Include Inventory Enabled" := false;
+                    PlanningParameters."Rescheduling Period Enabled" := false;
+                    PlanningParameters."Lot Accum. Period Enabled" := false;
+                    PlanningParameters."Dampener Period Enabled" := false;
+                    PlanningParameters."Dampener Quantity Enabled" := true;
+                    PlanningParameters."Overflow Level Enabled" := true;
+                end;
+            "Reordering Policy"::"Maximum Qty.":
+                begin
+                    PlanningParameters."Time Bucket Enabled" := true;
+                    PlanningParameters."Safety Lead Time Enabled" := true;
+                    PlanningParameters."Safety Stock Qty Enabled" := true;
+                    PlanningParameters."Reorder Point Enabled" := true;
+                    PlanningParameters."Reorder Quantity Enabled" := false;
+                    PlanningParameters."Maximum Inventory Enabled" := true;
+                    PlanningParameters."Minimum Order Qty Enabled" := true;
+                    PlanningParameters."Maximum Order Qty Enabled" := true;
+                    PlanningParameters."Order Multiple Enabled" := true;
+                    PlanningParameters."Include Inventory Enabled" := false;
+                    PlanningParameters."Rescheduling Period Enabled" := false;
+                    PlanningParameters."Lot Accum. Period Enabled" := false;
+                    PlanningParameters."Dampener Period Enabled" := false;
+                    PlanningParameters."Dampener Quantity Enabled" := true;
+                    PlanningParameters."Overflow Level Enabled" := true;
+                end;
+            "Reordering Policy"::Order:
+                begin
+                    PlanningParameters."Time Bucket Enabled" := false;
+                    PlanningParameters."Safety Lead Time Enabled" := true;
+                    PlanningParameters."Safety Stock Qty Enabled" := false;
+                    PlanningParameters."Reorder Point Enabled" := false;
+                    PlanningParameters."Reorder Quantity Enabled" := false;
+                    PlanningParameters."Maximum Inventory Enabled" := false;
+                    PlanningParameters."Minimum Order Qty Enabled" := false;
+                    PlanningParameters."Maximum Order Qty Enabled" := false;
+                    PlanningParameters."Order Multiple Enabled" := false;
+                    PlanningParameters."Include Inventory Enabled" := false;
+                    PlanningParameters."Rescheduling Period Enabled" := false;
+                    PlanningParameters."Lot Accum. Period Enabled" := false;
+                    PlanningParameters."Dampener Period Enabled" := true;
+                    PlanningParameters."Dampener Quantity Enabled" := false;
+                    PlanningParameters."Overflow Level Enabled" := false;
+                end;
+            "Reordering Policy"::"Lot-for-Lot":
+                begin
+                    PlanningParameters."Time Bucket Enabled" := false;
+                    PlanningParameters."Safety Lead Time Enabled" := true;
+                    PlanningParameters."Safety Stock Qty Enabled" := xPlanningParameters."Include Inventory";
+                    PlanningParameters."Reorder Point Enabled" := false;
+                    PlanningParameters."Reorder Quantity Enabled" := false;
+                    PlanningParameters."Maximum Inventory Enabled" := false;
+                    PlanningParameters."Minimum Order Qty Enabled" := true;
+                    PlanningParameters."Maximum Order Qty Enabled" := true;
+                    PlanningParameters."Order Multiple Enabled" := true;
+                    PlanningParameters."Include Inventory Enabled" := true;
+                    PlanningParameters."Rescheduling Period Enabled" := true;
+                    PlanningParameters."Lot Accum. Period Enabled" := true;
+                    PlanningParameters."Dampener Period Enabled" := true;
+                    PlanningParameters."Dampener Quantity Enabled" := true;
+                    PlanningParameters."Overflow Level Enabled" := false;
+                end;
+            else
+                OnSetPlanningParametersOnReorderingPolicyElseCase(PlanningParameters);
+        end;
+
+        OnAfterSetPlanningParameters(PlanningParameters, xPlanningParameters);
     end;
 
     procedure AdjustInvalidSettings(var SKU: Record "Stockkeeping Unit")
     var
-        TimebucketEnabled: Boolean;
-        SafetyLeadTimeEnabled: Boolean;
-        SafetyStockQtyEnabled: Boolean;
-        ReorderPointEnabled: Boolean;
-        ReorderQuantityEnabled: Boolean;
-        MaximumInventoryEnabled: Boolean;
-        MinimumOrderQtyEnabled: Boolean;
-        MaximumOrderQtyEnabled: Boolean;
-        OrderMultipleEnabled: Boolean;
-        IncludeInventoryEnabled: Boolean;
-        ReschedulingPeriodEnabled: Boolean;
-        LotAccumulationPeriodEnabled: Boolean;
-        DampenerPeriodEnabled: Boolean;
-        DampenerQuantityEnabled: Boolean;
-        OverflowLevelEnabled: Boolean;
+        PlanningParameters: Record "Planning Parameters";
     begin
-        SetUpPlanningControls(SKU."Reordering Policy".AsInteger(), SKU."Include Inventory",
-          TimebucketEnabled, SafetyLeadTimeEnabled, SafetyStockQtyEnabled,
-          ReorderPointEnabled, ReorderQuantityEnabled, MaximumInventoryEnabled,
-          MinimumOrderQtyEnabled, MaximumOrderQtyEnabled, OrderMultipleEnabled, IncludeInventoryEnabled,
-          ReschedulingPeriodEnabled, LotAccumulationPeriodEnabled,
-          DampenerPeriodEnabled, DampenerQuantityEnabled, OverflowLevelEnabled);
+        PlanningParameters."Reordering Policy" := SKU."Reordering Policy";
+        PlanningParameters."Include Inventory" := SKU."Include Inventory";
 
-        if not TimebucketEnabled then
+        SetPlanningParameters(PlanningParameters);
+
+        if not PlanningParameters."Time Bucket Enabled" then
             Evaluate(SKU."Time Bucket", '<0D>');
-        if not SafetyLeadTimeEnabled then
+        if not PlanningParameters."Safety Lead Time Enabled" then
             Evaluate(SKU."Safety Lead Time", '<0D>');
-        if not SafetyStockQtyEnabled then
+        if not PlanningParameters."Safety Stock Qty Enabled" then
             SKU."Safety Stock Quantity" := 0;
-        if not ReorderPointEnabled then
+        if not PlanningParameters."Reorder Point Enabled" then
             SKU."Reorder Point" := 0;
-        if not ReorderQuantityEnabled then
+        if not PlanningParameters."Reorder Quantity Enabled" then
             SKU."Reorder Quantity" := 0;
-        if not MaximumInventoryEnabled then
+        if not PlanningParameters."Maximum Inventory Enabled" then
             SKU."Maximum Inventory" := 0;
-        if not MinimumOrderQtyEnabled then
+        if not PlanningParameters."Minimum Order Qty Enabled" then
             SKU."Minimum Order Quantity" := 0;
-        if not MaximumOrderQtyEnabled then
+        if not PlanningParameters."Maximum Order Qty Enabled" then
             SKU."Maximum Order Quantity" := 0;
-        if not OrderMultipleEnabled then
+        if not PlanningParameters."Order Multiple Enabled" then
             SKU."Order Multiple" := 0;
-        if not ReschedulingPeriodEnabled then
+        if not PlanningParameters."Rescheduling Period Enabled" then
             Evaluate(SKU."Rescheduling Period", '<0D>');
-        if not LotAccumulationPeriodEnabled then
+        if not PlanningParameters."Lot Accum. Period Enabled" then
             Evaluate(SKU."Lot Accumulation Period", '<0D>');
-        if not DampenerPeriodEnabled then
+        if not PlanningParameters."Dampener Period Enabled" then
             Evaluate(SKU."Dampener Period", '<0D>');
-        if not DampenerQuantityEnabled then
+        if not PlanningParameters."Dampener Quantity Enabled" then
             SKU."Dampener Quantity" := 0;
-        if not OverflowLevelEnabled then
+        if not PlanningParameters."Overflow Level Enabled" then
             SKU."Overflow Level" := 0;
 
-        AdjustInvalidValues(SKU, ReorderPointEnabled);
+        AdjustInvalidValues(SKU, PlanningParameters."Reorder Point Enabled");
     end;
 
     local procedure AdjustInvalidValues(var SKU: Record "Stockkeeping Unit"; ReorderPointEnabled: Boolean)
@@ -306,8 +354,20 @@ codeunit 99000855 "Planning-Get Parameters"
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpPlanningControls(ReorderingPolicy: Option " ","Fixed Reorder Qty.","Maximum Qty.","Order","Lot-for-Lot"; IncludeInventory: Boolean; var TimeBucketEnabled: Boolean; var SafetyLeadTimeEnabled: Boolean; var SafetyStockQtyEnabled: Boolean; var ReorderPointEnabled: Boolean; var ReorderQuantityEnabled: Boolean; var MaximumInventoryEnabled: Boolean; var MinimumOrderQtyEnabled: Boolean; var MaximumOrderQtyEnabled: Boolean; var OrderMultipleEnabled: Boolean; var IncludeInventoryEnabled: Boolean; var ReschedulingPeriodEnabled: Boolean; var LotAccumulationPeriodEnabled: Boolean; var DampenerPeriodEnabled: Boolean; var DampenerQuantityEnabled: Boolean; var OverflowLevelEnabled: Boolean);
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPlanningParameters(PlanningParameters: Record "Planning Parameters"; xPlanningParameters: Record "Planning Parameters");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetPlanningParametersOnReorderingPolicyElseCase(var PlanningParameters: Record "Planning Parameters")
     begin
     end;
 }

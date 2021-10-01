@@ -27,6 +27,7 @@ codeunit 137400 "SCM Inventory - Orders"
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTemplates: Codeunit "Library - Templates";
         VendorNo: Code[20];
         GetShipmentLines: Boolean;
         IsInitialized: Boolean;
@@ -125,14 +126,12 @@ codeunit 137400 "SCM Inventory - Orders"
     end;
 
     [Test]
-    [HandlerFunctions('MiniConfigTemplatesPageHandler')]
+    [HandlerFunctions('SelectItemTemplListHandler')]
     [Scope('OnPrem')]
     procedure ItemByPage()
     var
         TempItem: Record Item temporary;
-        LibraryTemplates: Codeunit "Library - Templates";
     begin
-        LibraryTemplates.DisableTemplatesFeature();
         // Verify creation of Item by page.
 
         // Setup: Create Item in Temporary record.
@@ -674,56 +673,6 @@ codeunit 137400 "SCM Inventory - Orders"
         VerifyPurchaseLineDescription(PurchaseLine, ItemTranslation.Description, ItemTranslation."Description 2")
     end;
 
-#if not CLEAN16
-    [Test]
-    [HandlerFunctions('SalesListHandler')]
-    [Scope('OnPrem')]
-    procedure DropShipmentDescriptionfromItemCrossReference()
-    var
-        Customer: Record Customer;
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        ItemVariant: Record "Item Variant";
-        ItemVendor: Record "Item Vendor";
-        ItemTranslation: Record "Item Translation";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        Vendor: Record Vendor;
-    begin
-        // [FEATURE] [Purchase] [Drop Shipment]
-        // [SCENARIO 378247] Descriptions should be getting from Item Cross Reference when getting Drop Shipment Lines if Item Cross Reference exist.
-        Initialize(false);
-
-        // [GIVEN] Create Item and Item Variant.
-        // [GIVEN] Sales Order with Drop Shipment Line, "Variant Code" and descriptions.
-        CreateItemWithVariant(Item, ItemVariant);
-        CreateSalesOrderWithItemVariantPurchDesc(
-          SalesHeader, SalesLine, Customer, Item."No.", ItemVariant.Code, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
-
-        // [GIVEN] Create Purchase Order associated with Sales Order.
-        CreatePurchOrder(PurchaseHeader, Vendor, SalesHeader."Sell-to Customer No.");
-
-        // [GIVEN] Create Item Translation.
-        CreateItemTranslation(ItemTranslation, Item."No.", Vendor."Language Code", ItemVariant.Code);
-
-        // [GIVEN] Create Item Vendor and Item Cross Reference with "Description" = "D1".
-        CreateItemVendorWithVariantCode(ItemVendor, Vendor."No.", Item."No.", ItemVariant.Code);
-        CreateItemCrossReference(
-          ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.", ItemVariant.Code,
-          SalesLine."Unit of Measure Code", Item."No.");
-        ItemCrossReference.Validate(Description, LibraryUtility.GenerateGUID);
-        ItemCrossReference.Modify(true);
-
-        // [WHEN] Getting Drop Shipment Line from Sales Lines.
-        GetDropShipmentLine(PurchaseLine, PurchaseHeader);
-
-        // [THEN] "Description" in purchase line is "D1", "Description 2" in purchase line is empty.
-        VerifyPurchaseLineDescription(PurchaseLine, ItemCrossReference.Description, '')
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('SalesListHandler')]
     [Scope('OnPrem')]
@@ -1158,6 +1107,7 @@ codeunit 137400 "SCM Inventory - Orders"
         VerifyPostedReturnReceipt(SalesLine);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SalesUnitPriceFromItemUnitPrice()
@@ -1338,6 +1288,7 @@ codeunit 137400 "SCM Inventory - Orders"
         // Verify: Verify Unit Price on Sales Line.
         VerifyUnitPriceOnSalesLine(SalesLine, SalesPrice2."Unit Price");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2463,6 +2414,7 @@ codeunit 137400 "SCM Inventory - Orders"
         NoSeriesSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibraryTemplates.EnableTemplatesFeature();
 
         IsInitialized := true;
         Commit();
@@ -2624,18 +2576,6 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemCard."Inventory Posting Group".SetValue(Item."Inventory Posting Group");
         ItemCard.OK.Invoke;
     end;
-
-#if not CLEAN16
-    local procedure CreateItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; CrossReferenceType: Option; CrossReferenceTypeNo: Code[30]; VariantCode: Code[10]; UnitofMeasure: Code[10]; CrossReferenceNo: Code[20])
-    begin
-        LibraryInventory.CreateItemCrossReference(ItemCrossReference, ItemNo, CrossReferenceType, CrossReferenceTypeNo);
-        ItemCrossReference.Validate("Variant Code", VariantCode);
-        ItemCrossReference.Validate("Unit of Measure", UnitofMeasure);
-        ItemCrossReference.Validate("Cross-Reference No.", CrossReferenceNo);
-        ItemCrossReference.Validate(Description, LibraryUtility.GenerateGUID);
-        ItemCrossReference.Modify(true);
-    end;
-#endif
 
     local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[30]; VariantCode: Code[10]; UnitofMeasure: Code[10]; ReferenceNo: Code[20])
     begin
@@ -2843,6 +2783,7 @@ codeunit 137400 "SCM Inventory - Orders"
         end;
     end;
 
+#if not CLEAN19
     local procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal; StartingDate: Date)
     begin
         // Create Sales Price with random Unit Price.
@@ -2850,6 +2791,7 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesPrice.Modify(true);
     end;
+#endif
 
     local procedure CreateSalesReturnOrder(var SalesLine: Record "Sales Line")
     var
@@ -3063,6 +3005,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySales.GetShipmentLines(SalesLine);
     end;
 
+#if not CLEAN19
     local procedure GetSalesPrice(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
@@ -3071,6 +3014,7 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.SalesLines.GetPrice.Invoke;
     end;
+#endif
 
     local procedure InvokeShowMatrixOnSalesAnalysisByDimensions(AnalysisViewListSales: TestPage "Analysis View List Sales"; ItemNo: Code[20])
     var
@@ -3746,12 +3690,14 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesList.OK.Invoke;
     end;
 
+#if not CLEAN19
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPriceHandler(var GetSalesPrice: TestPage "Get Sales Price") // V15
     begin
         GetSalesPrice.OK.Invoke;
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -3800,10 +3746,10 @@ codeunit 137400 "SCM Inventory - Orders"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure MiniConfigTemplatesPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectItemTemplListHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
     end;
 }
 

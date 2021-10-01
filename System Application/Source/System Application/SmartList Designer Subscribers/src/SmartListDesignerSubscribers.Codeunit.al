@@ -1,3 +1,4 @@
+#if not CLEAN19
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -9,6 +10,9 @@
 codeunit 2888 "SmartList Designer Subscribers"
 {
     Access = Public;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     /// <summary>
     /// Notifies that the Default Get Enabled procedure has been invoked.
@@ -75,3 +79,4 @@ codeunit 2888 "SmartList Designer Subscribers"
     begin
     end;
 }
+#endif

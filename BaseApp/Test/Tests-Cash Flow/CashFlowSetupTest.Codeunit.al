@@ -6,7 +6,6 @@ codeunit 134560 "Cash Flow Setup Test"
     trigger OnRun()
     begin
         // [FEATURE] [Cash Flow] [Payment Date] [UT]
-        InitializeAccountingPeriods;
     end;
 
     var
@@ -17,6 +16,7 @@ codeunit 134560 "Cash Flow Setup Test"
         UnexpectedLimitTxt: Label 'Unexpected Limit Value is retrieved.';
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         InvalidURIErr: Label 'Provided API URL (%1) is not a valid AzureML URL.', Comment = '%1 = custom URL', Locked = true;
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -24,6 +24,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::Monthly, '<5D>', DMY2Date(10, 8, 2016), DMY2Date(5, 9, 2016));
     end;
 
@@ -33,6 +34,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::Monthly, '<>', DMY2Date(10, 8, 2016), DMY2Date(31, 8, 2016));
     end;
 
@@ -42,6 +44,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::Monthly, '<1M+10D>', DMY2Date(10, 12, 2016), DMY2Date(10, 2, 2017));
     end;
 
@@ -51,6 +54,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::Monthly, '<-5D>', DMY2Date(10, 9, 2016), DMY2Date(25, 9, 2016));
     end;
 
@@ -62,6 +66,7 @@ codeunit 134560 "Cash Flow Setup Test"
     begin
         // NAV calculates 30 Sep + 1M = 30 Oct
         // Therefore 30 Oct + 2D = 1 Nov
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::Quarterly, '<1M+2D>', DMY2Date(10, 8, 2016), DMY2Date(1, 11, 2016));
     end;
 
@@ -71,6 +76,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::Quarterly, '<>', DMY2Date(1, 1, 2016), DMY2Date(31, 3, 2016));
     end;
 
@@ -80,6 +86,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::Quarterly, '<-1M-5D>', DMY2Date(1, 1, 2016), DMY2Date(24, 2, 2016));
     end;
 
@@ -89,6 +96,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::Yearly, '<5D>', DMY2Date(10, 8, 2016), DMY2Date(5, 1, 2017));
     end;
 
@@ -98,6 +106,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::Yearly, '', DMY2Date(10, 8, 2016), DMY2Date(31, 12, 2016));
     end;
 
@@ -107,6 +116,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::Yearly, '<1M>', DMY2Date(10, 8, 2016), DMY2Date(31, 1, 2017));
     end;
 
@@ -116,6 +126,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::Yearly, '<-5D>', DMY2Date(10, 9, 2016), DMY2Date(26, 12, 2016));
     end;
 
@@ -125,6 +136,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::"Accounting Period", '<5D>', DMY2Date(10, 8, 2016), DMY2Date(5, 9, 2016));
     end;
 
@@ -134,6 +146,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetNextTaxPaymentDate(CashFlowSetup."Taxable Period"::"Accounting Period", '<-5D>', DMY2Date(10, 9, 2016), DMY2Date(25, 9, 2016));
     end;
 
@@ -143,6 +156,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
+        Initialize();
         TestGetStartEndTaxPeriodDate(CashFlowSetup."Taxable Period"::Quarterly, '',
           DMY2Date(31, 3, 2016), DMY2Date(1, 1, 2016), DMY2Date(31, 3, 2016));
         TestGetStartEndTaxPeriodDate(CashFlowSetup."Taxable Period"::Quarterly, '<2D>',
@@ -207,6 +221,7 @@ codeunit 134560 "Cash Flow Setup Test"
         LimitValue: Decimal;
         UsingStdCreds: Boolean;
     begin
+        Initialize();
         // [SCENARIO] Setting an invalid URL on the cash flow setup throws an error
 
         // [GIVEN] Not SaaS environment
@@ -231,6 +246,7 @@ codeunit 134560 "Cash Flow Setup Test"
         LimitValue: Decimal;
         UsingStdCreds: Boolean;
     begin
+        Initialize();
         // [SCENARIO] Get AzureML credentials from Cach Flow Setup, when not SaaS instance and no user defined credentials
 
         // [GIVEN] Not SaaS environment
@@ -257,6 +273,7 @@ codeunit 134560 "Cash Flow Setup Test"
         APIKeyInput: Text[200];
         UsingStdCreds: Boolean;
     begin
+        Initialize();
         // [SCENARIO] Get AzureML credentials from Cach Flow Setup, when not SaaS instance and user defined credentials
         // [GIVEN] Not SaaS environment, with API URL and API Key defined
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
@@ -279,6 +296,7 @@ codeunit 134560 "Cash Flow Setup Test"
         LimitValue: Decimal;
         UsingStdCreds: Boolean;
     begin
+        Initialize();
         // [SCENARIO] Get AzureML credentials from Azure Key Vault, when SaaS instance and no user defined credentials
         // [GIVEN] Not SaaS environment, with API URL and API Key not defined
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -305,6 +323,7 @@ codeunit 134560 "Cash Flow Setup Test"
         LimitValue: Decimal;
         UsingStdCreds: Boolean;
     begin
+        Initialize();
         // [SCENARIO] Get AzureML credentials from Cach Flow Setup, when SaaS instance and user defined credentials
         // [GIVEN] SaaS environment, with API URL and API Key defined
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -335,6 +354,16 @@ codeunit 134560 "Cash Flow Setup Test"
         Assert.AreEqual(APIURLInput, APIURL, UnexpectedAPIURLTxt);
         Assert.AreEqual(APIKeyInput, APIKey, UnexpectedAPIKeyTxt);
         Assert.AreEqual(LimitInput, LimitValue, UnexpectedLimitTxt);
+    end;
+
+    local procedure Initialize()
+    begin
+        if IsInitialized then
+            exit;
+
+        InitializeAccountingPeriods();
+
+        IsInitialized := true;
     end;
 }
 

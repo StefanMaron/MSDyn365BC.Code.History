@@ -129,6 +129,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
           TestIntegrationTable."Integration Uid", UnitOfMeasure.RecordId);
         // Ensure it looks new
         Sleep(200);
+        UnitOfMeasure.Find();
         UnitOfMeasure.Description := 'abc';
         UnitOfMeasure.Modify();
 
@@ -603,12 +604,13 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
         JobQueueEntry.FindFirst;
-        CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
+        asserterror LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
+        LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
 
         // [THEN] Job queue entry in status Ready
         JobQueueEntry.Find;
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
-        // [THEN] Job queue entry "No. Attempts to Run" = 1
+        // [THEN] Job queue entry "No. of Attempts to Run" = 1
         JobQueueEntry.TestField("No. of Attempts to Run", 1);
     end;
 

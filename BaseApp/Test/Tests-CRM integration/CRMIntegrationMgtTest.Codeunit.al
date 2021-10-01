@@ -2,6 +2,7 @@ codeunit 139162 "CRM Integration Mgt Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -22,14 +23,15 @@ codeunit 139162 "CRM Integration Mgt Test"
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         IdentityManagement: Codeunit "Identity Management";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        SynchDirection: Option Cancel,ToCRM,ToNAV;
         ConfirmStartCouplingReply: Boolean;
         CRMCouplingPageDoCancel: Boolean;
         IsInitialized: Boolean;
         StatusMustBeActiveErr: Label 'Status must be equal to ''Active''';
         BlockedMustBeNoErr: Label 'Blocked must be equal to ''No''';
         SyncNowScheduledMsg: Label 'The synchronization has been scheduled.';
-        SyncNowSkippedMsg: Label 'The synchronization has been skipped. The Customer record is already coupled.';
-        MultipleSyncStartedMsg: Label 'The synchronization has been scheduled for 2 of 2 records. 0 records failed. 0 records were skipped.';
+        SyncNowSkippedMsg: Label 'The synchronization has been skipped. The record is already coupled.';
+        MultipleSyncStartedMsg: Label 'The synchronization has been scheduled for %1 of %2 records. %3 records failed. %4 records were skipped.';
         CurrencyPriceListNameTxt: Label 'Price List in %1', Comment = '%1 - currency code';
         RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a %3 record.', Comment = '%1 = table caption, %2 = primary key value, %3 = CRM Table caption';
 
@@ -171,7 +173,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryVariableStorage.Enqueue(SyncNowScheduledMsg);
         CRMIntegrationManagement.CreateNewRecordsInCRM(Customer.RecordId);
         // Executing the Sync Job
-        FilteredCustomer.SetRange("No.", Customer."No.");
+        FilteredCustomer.SetRange(SystemId, Customer.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::Customer, FilteredCustomer.GetView, IntegrationTableMapping);
@@ -205,6 +207,652 @@ codeunit 139162 "CRM Integration Mgt Test"
         Assert.IsTrue(
           CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId, CoupledCRMIDBefore),
           'When creating a CRM Account using an already coupled Customer, an integration record should not be chnaged.');
+    end;
+
+    [Test]
+    [HandlerFunctions('MultipleSyncStartedNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure CreateNewRecordsInCRMForMany()
+    var
+        Customer: array[5] of Record Customer;
+        CRMAccount: Record "CRM Account";
+        FilteredCustomer: Record Customer;
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        CRMIntegrationMgtTest: Codeunit "CRM Integration Mgt Test";
+        CouplingCount: Integer;
+        AccountCount: Integer;
+        JobQueueEntryID: Guid;
+        IdFilter: Text;
+        I: Integer;
+        N: Integer;
+    begin
+        // [FEATURE] [CRM Integration Management] [CreateNewRecordsInCRM for many]
+        // [SCENARIO] CreateNewRecordsInCRM() creates new records in CRM for many selected BC records.
+        Initialize();
+        LibraryVariableStorage.Clear();
+        SetupCRM();
+
+        // [GIVEN] A valid CRM integration setup
+        // [GIVEN] Many not coupled customers
+        N := 5;
+        for I := 1 to N do begin
+            LibrarySales.CreateCustomer(Customer[I]);
+            IdFilter += '|' + Customer[I].SystemId;
+        end;
+        IdFilter := IdFilter.TrimStart('|');
+        CouplingCount := CRMIntegrationRecord.Count();
+        AccountCount := CRMAccount.Count();
+        // [GIVEN] Only base integration table mappings, no child mappings
+        IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        IntegrationTableMapping.DeleteAll();
+
+        // [WHEN] Calling CreateNewRecordsInCRM for many customers
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        LibraryVariableStorage.Enqueue(N);
+        FilteredCustomer.SetFilter(SystemId, IdFilter);
+        CRMIntegrationManagement.CreateNewRecordsInCRM(FilteredCustomer);
+
+        // [THEN] Only one table mapping for all of the selected customers is created
+        Assert.AreEqual(1, IntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N, IntegrationTableMapping.GetTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+
+        // [WHEN] Executing the sync job when allowed max 3 conditions in the filter
+        BindSubscription(CRMIntegrationMgtTest);
+        JobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
+        UnbindSubscription(CRMIntegrationMgtTest);
+
+        // [THEN] Synch Job is created, where Inserted = N
+        IntegrationSynchJob.Inserted := N;
+        LibraryCRMIntegration.VerifySyncJob(JobQueueEntryID, IntegrationTableMapping, IntegrationSynchJob);
+
+        // [THEN] Coupling is created for all of the selected customers
+        Assert.AreEqual(CouplingCount + N, CRMIntegrationRecord.Count(), 'CRMIntegrationRecord.Count()');
+        // [THEN] Accounts are created for all of the selected customers
+        Assert.AreEqual(AccountCount + N, CRMAccount.Count(), 'CRMAccount.Count()');
+        // [THEN] Variable storage is empty
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('MultipleSyncStartedNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure CreateNewRecordsFromCRMForMany()
+    var
+        CRMAccount: array[5] of Record "CRM Account";
+        Customer: Record Customer;
+        FilteredCRMAccount: Record "CRM Account";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        CRMIntegrationMgtTest: Codeunit "CRM Integration Mgt Test";
+        CouplingCount: Integer;
+        CustomerCount: Integer;
+        JobQueueEntryID: Guid;
+        IdFilter: Text;
+        I: Integer;
+        N: Integer;
+    begin
+        // [FEATURE] [CRM Integration Management] [CreateNewRecordsFromCRM for many]
+        // [SCENARIO] CreateNewRecordsFromCRM() creates new records in BC for many selected CRM records.
+        Initialize();
+        LibraryVariableStorage.Clear();
+        SetupCRM();
+
+        // [GIVEN] A valid CRM integration setup
+        // [GIVEN] Many not coupled accounts
+        N := 5;
+        for I := 1 to N do begin
+            LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount[I]);
+            IdFilter += '|' + CRMAccount[I].AccountId;
+        end;
+        IdFilter := IdFilter.TrimStart('|');
+        CouplingCount := CRMIntegrationRecord.Count();
+        CustomerCount := Customer.Count();
+        // [GIVEN] Only base integration table mappings, no child mappings
+        IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        IntegrationTableMapping.DeleteAll();
+
+        // [WHEN] Calling CreateNewRecordsInCRM for many accounts
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        LibraryVariableStorage.Enqueue(N);
+        FilteredCRMAccount.SetFilter(AccountId, IdFilter);
+        CRMIntegrationManagement.CreateNewRecordsFromCRM(FilteredCRMAccount);
+
+        // [THEN] Only one table mapping for all of the selected accounts is created
+        Assert.AreEqual(1, IntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N, IntegrationTableMapping.GetIntegrationTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+
+        // [WHEN] Executing the sync job when allowed max 3 conditions in the filter
+        BindSubscription(CRMIntegrationMgtTest);
+        JobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
+        UnbindSubscription(CRMIntegrationMgtTest);
+
+        // [THEN] Synch Job is created, where Inserted = N
+        IntegrationSynchJob.Inserted := N;
+        LibraryCRMIntegration.VerifySyncJob(JobQueueEntryID, IntegrationTableMapping, IntegrationSynchJob);
+
+        // [THEN] Coupling is created for all of the selected accounts
+        Assert.AreEqual(CouplingCount + N, CRMIntegrationRecord.Count(), 'CRMIntegrationRecord.Count()');
+        // [THEN] Customers are created for all of the selected accounts
+        Assert.AreEqual(CustomerCount + N, Customer.Count(), 'Customer.Count()');
+        // [THEN] Variable storage is empty
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('MultipleSyncStartedNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure CreateNewRecordsInCRMMixedForMany()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMOrganization: Record "CRM Organization";
+        Customer: array[5] of Record Customer;
+        Currency: array[5] of Record Currency;
+        CRMAccount: Record "CRM Account";
+        CRMTransactioncurrency: Record "CRM Transactioncurrency";
+        CustomerIntegrationTableMapping: Record "Integration Table Mapping";
+        CurrencyIntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
+        CurrencyIntegrationSynchJob: Record "Integration Synch. Job";
+        CRMIntegrationMgtTest: Codeunit "CRM Integration Mgt Test";
+        LocalIdListDictionary: Dictionary of [Code[20], List of [Guid]];
+        CustomerIdList: List of [Guid];
+        CurrencyIdList: List of [Guid];
+        CouplingCount: Integer;
+        AccountCount: Integer;
+        TransactioncurrencyCount: Integer;
+        CustomerJobQueueEntryID: Guid;
+        CurrencyJobQueueEntryID: Guid;
+        I: Integer;
+        N: Integer;
+        CurrExchRateAmount: Decimal;
+    begin
+        // [FEATURE] [CRM Integration Management] [CreateNewRecordsInCRM for many]
+        // [SCENARIO] CreateNewRecordsInCRM() creates new records in CRM for many selected BC records from different tables.
+        Initialize();
+        LibraryVariableStorage.Clear();
+        SetupCRM();
+        LibraryCRMIntegration.CreateCRMOrganization();
+        CRMOrganization.FindFirst();
+        CRMConnectionSetup.Get();
+        CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
+        CRMConnectionSetup.Modify();
+
+        // [GIVEN] A valid CRM integration setup
+        // [GIVEN] Many not coupled customers and currencies
+        N := 5;
+        CustomerIntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        CustomerIntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        CustomerIntegrationTableMapping.FindFirst();
+        CurrencyIntegrationTableMapping.SetRange("Table ID", Database::Currency);
+        CurrencyIntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        CurrencyIntegrationTableMapping.FindFirst();
+        LocalIdListDictionary.Add(CustomerIntegrationTableMapping.Name, CustomerIdList);
+        LocalIdListDictionary.Add(CurrencyIntegrationTableMapping.Name, CurrencyIdList);
+        for I := 1 to N do begin
+            LibrarySales.CreateCustomer(Customer[I]);
+            LibraryCRMIntegration.CreateCurrency(Currency[I]);
+            CurrExchRateAmount := LibraryRandom.RandDec(100, 2);
+            LibraryERM.CreateExchangeRate(Currency[I].Code, WorkDate(), CurrExchRateAmount, CurrExchRateAmount);
+            CustomerIdList.Add(Customer[I].SystemId);
+            CurrencyIdList.Add(Currency[I].SystemId);
+        end;
+        CustomerIdList.Add(CreateGuid()); // customer with this id does not exist
+        CurrencyIdList.Add(CreateGuid()); // currency with this id does not exist
+        CouplingCount := CRMIntegrationRecord.Count();
+        AccountCount := CRMAccount.Count();
+        TransactioncurrencyCount := CRMTransactioncurrency.Count();
+
+        // [GIVEN] Only base integration table mappings, no child mappings
+        CustomerIntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        CurrencyIntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        CustomerIntegrationTableMapping.DeleteAll();
+        CurrencyIntegrationTableMapping.DeleteAll();
+
+        // [WHEN] Calling CreateNewRecordsInCRM for many records from different tables
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        LibraryVariableStorage.Enqueue(2 * N + 2);
+        CRMIntegrationManagement.CreateNewRecordsInCRM(LocalIdListDictionary);
+
+        // [THEN] Only one table mapping for all of the selected customers is created
+        Assert.AreEqual(1, CustomerIntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(CustomerIntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N + 1, CustomerIntegrationTableMapping.GetTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+        // [THEN] Only one table mapping for all of the selected currencies is created
+        Assert.AreEqual(1, CurrencyIntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(CurrencyIntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N + 1, CurrencyIntegrationTableMapping.GetTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+
+        // [WHEN] Executing the sync jobs when allowed max 3 conditions in the filter
+        BindSubscription(CRMIntegrationMgtTest);
+        CustomerJobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(CustomerIntegrationTableMapping);
+        CurrencyJobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(CurrencyIntegrationTableMapping);
+        UnbindSubscription(CRMIntegrationMgtTest);
+        // [THEN] Synch Jobs are created, where Inserted = N in each
+        CustomerIntegrationSynchJob.Inserted := N;
+        CurrencyIntegrationSynchJob.Inserted := N;
+        LibraryCRMIntegration.VerifySyncJob(CustomerJobQueueEntryID, CustomerIntegrationTableMapping, CustomerIntegrationSynchJob);
+        LibraryCRMIntegration.VerifySyncJob(CurrencyJobQueueEntryID, CurrencyIntegrationTableMapping, CurrencyIntegrationSynchJob);
+
+        // [THEN] Coupling is created for all of the selected customers and currencies
+        Assert.AreEqual(CouplingCount + 2 * N, CRMIntegrationRecord.Count(), 'CRMIntegrationRecord.Count()');
+        // [THEN] Accounts are created for all of the selected customers
+        Assert.AreEqual(AccountCount + N, CRMAccount.Count(), 'CRMAccount.Count()');
+        // [THEN] Accounts are created for all of the selected currencies
+        Assert.AreEqual(TransactioncurrencyCount + N, CRMTransactioncurrency.Count(), 'CRMTransactioncurrency.Count()');
+        // [THEN] Variable storage is empty
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('MultipleSyncStartedNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure CreateNewRecordsFromCRMMixedForMany()
+    var
+        CRMAccount: array[5] of Record "CRM Account";
+        CRMSystemuser: array[5] of Record "CRM Systemuser";
+        Customer: Record Customer;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        AccountIntegrationTableMapping: Record "Integration Table Mapping";
+        SystemuserIntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        AccountIntegrationSynchJob: Record "Integration Synch. Job";
+        SystemuserIntegrationSynchJob: Record "Integration Synch. Job";
+        CRMIntegrationMgtTest: Codeunit "CRM Integration Mgt Test";
+        CRMIdListDictionary: Dictionary of [Code[20], List of [Guid]];
+        AccountIdList: List of [Guid];
+        SystemuserIdList: List of [Guid];
+        CouplingCount: Integer;
+        CustomerCount: Integer;
+        SalespersonCount: Integer;
+        AccountJobQueueEntryID: Guid;
+        SystemuserJobQueueEntryID: Guid;
+        I: Integer;
+        N: Integer;
+    begin
+        // [FEATURE] [CRM Integration Management] [CreateNewRecordsInCRM for many]
+        // [SCENARIO] CreateNewRecordsInCRM() creates new records in CRM for many selected CRM records from different tables.
+        Initialize();
+        LibraryVariableStorage.Clear();
+        SetupCRM();
+
+        // [GIVEN] A valid CRM integration setup
+        // [GIVEN] Many not coupled accounts and systemusers
+        N := 5;
+        AccountIntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Account");
+        AccountIntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        AccountIntegrationTableMapping.FindFirst();
+        SystemuserIntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Systemuser");
+        SystemuserIntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        SystemuserIntegrationTableMapping.FindFirst();
+        CRMIdListDictionary.Add(AccountIntegrationTableMapping.Name, AccountIdList);
+        CRMIdListDictionary.Add(SystemuserIntegrationTableMapping.Name, SystemuserIdList);
+        for I := 1 to N do begin
+            LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount[I]);
+            LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser[I]);
+            AccountIdList.Add(CRMAccount[I].AccountId);
+            SystemuserIdList.Add(CRMSystemuser[I].SystemUserId);
+        end;
+        AccountIdList.Add(CreateGuid()); // account with this id does not exist
+        SystemuserIdList.Add(CreateGuid()); // systemuser with this id does not exist
+        CouplingCount := CRMIntegrationRecord.Count();
+        CustomerCount := Customer.Count();
+        SalespersonCount := SalespersonPurchaser.Count();
+
+        // [GIVEN] Only base integration table mappings, no child mappings
+        AccountIntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        SystemuserIntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        AccountIntegrationTableMapping.DeleteAll();
+        SystemuserIntegrationTableMapping.DeleteAll();
+
+        // [WHEN] Calling CreateNewRecordsfromCRM for many records from different tables
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        LibraryVariableStorage.Enqueue(2 * N + 2);
+        CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMIdListDictionary);
+
+        // [THEN] Only one table mapping for all of the selected accounts is created
+        Assert.AreEqual(1, AccountIntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(AccountIntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N + 1, AccountIntegrationTableMapping.GetIntegrationTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+        // [THEN] Only one table mapping for all of the selected systemusers is created
+        Assert.AreEqual(1, SystemuserIntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(SystemuserIntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N + 1, SystemuserIntegrationTableMapping.GetIntegrationTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+
+        // [WHEN] Executing the sync jobs when allowed max 3 conditions in the filter
+        BindSubscription(CRMIntegrationMgtTest);
+        AccountJobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(AccountIntegrationTableMapping);
+        SystemuserJobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(SystemuserIntegrationTableMapping);
+        UnbindSubscription(CRMIntegrationMgtTest);
+        // [THEN] Synch Jobs are created, where Inserted = N in each
+        AccountIntegrationSynchJob.Inserted := N;
+        SystemuserIntegrationSynchJob.Inserted := N;
+        LibraryCRMIntegration.VerifySyncJob(AccountJobQueueEntryID, AccountIntegrationTableMapping, AccountIntegrationSynchJob);
+        LibraryCRMIntegration.VerifySyncJob(SystemuserJobQueueEntryID, systemuserIntegrationTableMapping, SystemuserIntegrationSynchJob);
+
+        // [THEN] Coupling is created for all of the selected customers and currencies
+        Assert.AreEqual(CouplingCount + 2 * N, CRMIntegrationRecord.Count(), 'CRMIntegrationRecord.Count()');
+        // [THEN] Accounts are created for all of the selected customers
+        Assert.AreEqual(CustomerCount + N, Customer.Count(), 'Customer.Count()');
+        // [THEN] Accounts are created for all of the selected currencies
+        Assert.AreEqual(SalespersonCount + N, SalespersonPurchaser.Count(), 'SalespersonPurchaser.Count()');
+        // [THEN] Variable storage is empty
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SynchDirectionStrMenuHandler,MultipleSyncStartedNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateMultipleNowToCRMForMany()
+    var
+        Customer: array[5] of Record Customer;
+        CRMAccount: array[5] of Record "CRM Account";
+        FilteredCustomer: Record Customer;
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        CRMIntegrationMgtTest: Codeunit "CRM Integration Mgt Test";
+        JobQueueEntryID: Guid;
+        IdFilter: Text;
+        I: Integer;
+        N: Integer;
+    begin
+        // [FEATURE] [CRM Integration Management] [UpdateMultipleNow for many]
+        // [SCENARIO] UpdateMultipleNow() updates records in CRM for many selected records.
+        Initialize();
+        LibraryVariableStorage.Clear();
+        SetupCRM();
+
+        // [GIVEN] A valid CRM integration setup
+        // [GIVEN] Many coupled and synched customers and accounts
+        IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.FindFirst();
+        N := 5;
+        for I := 1 to N do begin
+            LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[I], CRMAccount[I]);
+            CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer[I].RecordId(), true, false);
+            IdFilter += '|' + Customer[I].SystemId;
+        end;
+        IdFilter := IdFilter.TrimStart('|');
+
+        // [GIVEN] Only base integration table mappings, no child mappings
+        IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        IntegrationTableMapping.DeleteAll();
+
+        // [WHEN] Calling UpdateMultipleNow for many customers with direction to CRM
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        LibraryVariableStorage.Enqueue(SynchDirection::ToCRM);
+        LibraryVariableStorage.Enqueue(N);
+        FilteredCustomer.SetFilter(SystemId, IdFilter);
+        CRMIntegrationManagement.UpdateMultipleNow(FilteredCustomer);
+
+        // [THEN] Only one table mapping for all of the selected customers is created
+        Assert.AreEqual(1, IntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N, IntegrationTableMapping.GetTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+
+        // [WHEN] Executing the sync job when allowed max 3 conditions in the filter
+        BindSubscription(CRMIntegrationMgtTest);
+        JobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
+        UnbindSubscription(CRMIntegrationMgtTest);
+
+        // [THEN] Synch Job is created, where Modified = N
+        IntegrationSynchJob.Modified := N;
+        LibraryCRMIntegration.VerifySyncJob(JobQueueEntryID, IntegrationTableMapping, IntegrationSynchJob);
+        // [THEN] Variable storage is empty
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SynchDirectionStrMenuHandler,MultipleSyncStartedNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateMultipleNowFromCRMForMany()
+    var
+        Customer: array[5] of Record Customer;
+        CRMAccount: array[5] of Record "CRM Account";
+        FilteredCustomer: Record Customer;
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        CRMIntegrationMgtTest: Codeunit "CRM Integration Mgt Test";
+        JobQueueEntryID: Guid;
+        IdFilter: Text;
+        I: Integer;
+        N: Integer;
+    begin
+        // [FEATURE] [CRM Integration Management] [UpdateMultipleNow for many]
+        // [SCENARIO] UpdateMultipleNow() updates records in BC for many selected records.
+        Initialize();
+        LibraryVariableStorage.Clear();
+        SetupCRM();
+
+        // [GIVEN] A valid CRM integration setup
+        // [GIVEN] Many coupled and synched customers and accounts
+        IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.FindFirst();
+        N := 5;
+        for I := 1 to N do begin
+            LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[I], CRMAccount[I]);
+            CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer[I].RecordId(), true, false);
+            IdFilter += '|' + Customer[I].SystemId;
+        end;
+        IdFilter := IdFilter.TrimStart('|');
+
+        // [GIVEN] Only base integration table mappings, no child mappings
+        IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        IntegrationTableMapping.DeleteAll();
+
+        // [WHEN] Calling UpdateMultipleNow for many customers with direction from CRM
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        LibraryVariableStorage.Enqueue(SynchDirection::ToNAV);
+        LibraryVariableStorage.Enqueue(N);
+        FilteredCustomer.SetFilter(SystemId, IdFilter);
+        CRMIntegrationManagement.UpdateMultipleNow(FilteredCustomer);
+
+        // [THEN] Only one table mapping for all of the selected customer is created
+        Assert.AreEqual(1, IntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N, IntegrationTableMapping.GetIntegrationTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+
+        // [WHEN] Executing the sync job when allowed max 3 conditions in the filter
+        BindSubscription(CRMIntegrationMgtTest);
+        JobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
+        UnbindSubscription(CRMIntegrationMgtTest);
+
+        // [THEN] Synch Job is created, where Modified = N
+        IntegrationSynchJob.Modified := N;
+        LibraryCRMIntegration.VerifySyncJob(JobQueueEntryID, IntegrationTableMapping, IntegrationSynchJob);
+        // [THEN] Variable storage is empty
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SynchDirectionStrMenuHandler,MultipleSyncStartedNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateMultipleNowMixedToCRMForMany()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMOrganization: Record "CRM Organization";
+        Customer: array[5] of Record Customer;
+        CRMAccount: array[5] of Record "CRM Account";
+        Currency: array[5] of Record Currency;
+        CRMTransactioncurrency: array[5] of Record "CRM Transactioncurrency";
+        FilteredCustomer: Record Customer;
+        FilteredCurrency: Record Currency;
+        CustomerIntegrationTableMapping: Record "Integration Table Mapping";
+        CurrencyIntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
+        CurrencyIntegrationSynchJob: Record "Integration Synch. Job";
+        CRMIntegrationMgtTest: Codeunit "CRM Integration Mgt Test";
+        CustomerJobQueueEntryID: Guid;
+        CurrencyJobQueueEntryID: Guid;
+        IdFilter: Text;
+        I: Integer;
+        N: Integer;
+    begin
+        // [FEATURE] [CRM Integration Management] [UpdateMultipleNow for many]
+        // [SCENARIO] UpdateMultipleNow() updates records in CRM for many selected records.
+        Initialize();
+        LibraryVariableStorage.Clear();
+        SetupCRM();
+        LibraryCRMIntegration.CreateCRMOrganization();
+        CRMOrganization.FindFirst();
+        CRMConnectionSetup.Get();
+        CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
+        CRMConnectionSetup.Modify();
+        // [GIVEN] A valid CRM integration setup
+
+        // [GIVEN] Many coupled and synched customers and accounts
+        // [GIVEN] Many coupled and synched currencies and transactioncurrencies
+        CustomerIntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        CustomerIntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        CustomerIntegrationTableMapping.FindFirst();
+        CurrencyIntegrationTableMapping.SetRange("Table ID", Database::Currency);
+        CurrencyIntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        CurrencyIntegrationTableMapping.FindFirst();
+        N := 5;
+        for I := 1 to N do begin
+            LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[I], CRMAccount[I]);
+            CreateCoupledAndTransactionCurrencies(Currency[I], CRMTransactioncurrency[I]);
+            CRMIntegrationTableSynch.SynchRecord(CustomerIntegrationTableMapping, Customer[I].RecordId(), true, false);
+            CRMIntegrationTableSynch.SynchRecord(CurrencyIntegrationTableMapping, Currency[I].RecordId(), true, false);
+            IdFilter += '|' + Customer[I].SystemId;
+            IdFilter += '|' + Currency[I].SystemId;
+        end;
+        IdFilter := IdFilter.TrimStart('|');
+
+        // [GIVEN] Only base integration table mappings, no child mappings
+        CustomerIntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        CurrencyIntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        CustomerIntegrationTableMapping.DeleteAll();
+        CurrencyIntegrationTableMapping.DeleteAll();
+
+        // [WHEN] Calling UpdateMultipleNow for many records from different tables with direction to CRM
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        LibraryVariableStorage.Enqueue(SynchDirection::ToCRM);
+        LibraryVariableStorage.Enqueue(2 * N);
+        CRMIntegrationRecord.SetFilter("Integration ID", IdFilter);
+        CRMIntegrationManagement.UpdateMultipleNow(CRMIntegrationRecord);
+
+        // [THEN] Only one table mapping for all of the selected customers is created
+        Assert.AreEqual(1, CustomerIntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(CustomerIntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N, CustomerIntegrationTableMapping.GetTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+        // [THEN] Only one table mapping for all of the selected currencies is created
+        Assert.AreEqual(1, CurrencyIntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(CurrencyIntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N, CurrencyIntegrationTableMapping.GetTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+
+        // [WHEN] Executing the sync jobs when allowed max 3 conditions in the filter
+        BindSubscription(CRMIntegrationMgtTest);
+        CustomerJobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(CustomerIntegrationTableMapping);
+        CurrencyJobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(CurrencyIntegrationTableMapping);
+        UnbindSubscription(CRMIntegrationMgtTest);
+        // [THEN] Synch Jobs are created, where Modified = N in each
+        CustomerIntegrationSynchJob.Modified := N;
+        CurrencyIntegrationSynchJob.Modified := N;
+        LibraryCRMIntegration.VerifySyncJob(CustomerJobQueueEntryID, CustomerIntegrationTableMapping, CustomerIntegrationSynchJob);
+        LibraryCRMIntegration.VerifySyncJob(CurrencyJobQueueEntryID, CurrencyIntegrationTableMapping, CurrencyIntegrationSynchJob);
+
+        // [THEN] Variable storage is empty
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SynchDirectionStrMenuHandler,MultipleSyncStartedNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateMultipleNowNixedFromCRMForMany()
+    var
+        Customer: array[5] of Record Customer;
+        CRMAccount: array[5] of Record "CRM Account";
+        SalespersonPurchaser: array[5] of Record "Salesperson/Purchaser";
+        CRMSystemuser: array[5] of Record "CRM Systemuser";
+        FilteredCustomer: Record Customer;
+        FilteredSalespersonPurchaser: Record "Salesperson/Purchaser";
+        CustomerIntegrationTableMapping: Record "Integration Table Mapping";
+        SalespersonIntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CustomerIntegrationSynchJob: Record "Integration Synch. Job";
+        SalespersonIntegrationSynchJob: Record "Integration Synch. Job";
+        CRMIntegrationMgtTest: Codeunit "CRM Integration Mgt Test";
+        CustomerJobQueueEntryID: Guid;
+        SalespersonJobQueueEntryID: Guid;
+        IdFilter: Text;
+        I: Integer;
+        N: Integer;
+    begin
+        // [FEATURE] [CRM Integration Management] [UpdateMultipleNow for many]
+        // [SCENARIO] UpdateMultipleNow() updates records in BC for many selected records.
+        Initialize();
+        LibraryVariableStorage.Clear();
+        SetupCRM();
+
+        // [GIVEN] A valid CRM integration setup
+
+        // [GIVEN] Many coupled and synched customers and accounts
+        // [GIVEN] Many coupled and synched salespersons and users
+        CustomerIntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        CustomerIntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        CustomerIntegrationTableMapping.FindFirst();
+        SalespersonIntegrationTableMapping.SetRange("Table ID", Database::"Salesperson/Purchaser");
+        SalespersonIntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        SalespersonIntegrationTableMapping.FindFirst();
+        N := 5;
+        for I := 1 to N do begin
+            LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[I], CRMAccount[I]);
+            LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser[I], CRMSystemuser[I]);
+            CRMIntegrationTableSynch.SynchRecord(CustomerIntegrationTableMapping, Customer[I].RecordId(), true, false);
+            CRMIntegrationTableSynch.SynchRecord(SalespersonIntegrationTableMapping, SalespersonPurchaser[I].RecordId(), true, false);
+            IdFilter += '|' + Customer[I].SystemId;
+            IdFilter += '|' + SalespersonPurchaser[I].SystemId;
+        end;
+        IdFilter := IdFilter.TrimStart('|');
+
+        // [GIVEN] Only base integration table mappings, no child mappings
+        CustomerIntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        SalespersonIntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        CustomerIntegrationTableMapping.DeleteAll();
+        SalespersonIntegrationTableMapping.DeleteAll();
+
+        // [WHEN] Calling UpdateMultipleNow for many records from different tables with direction to CRM
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        LibraryVariableStorage.Enqueue(SynchDirection::ToNAV);
+        LibraryVariableStorage.Enqueue(2 * N);
+        CRMIntegrationRecord.SetFilter("Integration ID", IdFilter);
+        CRMIntegrationManagement.UpdateMultipleNow(CRMIntegrationRecord);
+
+        // [THEN] Only one table mapping for all of the selected customers is created
+        Assert.AreEqual(1, CustomerIntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(CustomerIntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N, CustomerIntegrationTableMapping.GetIntegrationTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+        // [THEN] Only one table mapping for all of the selected salesperson is created
+        Assert.AreEqual(1, SalespersonIntegrationTableMapping.Count(), 'Only one table mapping should be created for all records');
+        Assert.IsTrue(SalespersonIntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(N, SalespersonIntegrationTableMapping.GetIntegrationTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+
+        // [WHEN] Executing the sync jobs when allowed max 3 conditions in the filter
+        BindSubscription(CRMIntegrationMgtTest);
+        CustomerJobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(CustomerIntegrationTableMapping);
+        SalespersonJobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(SalespersonIntegrationTableMapping);
+        UnbindSubscription(CRMIntegrationMgtTest);
+        // [THEN] Synch Jobs are created, where Modified = N in each
+        CustomerIntegrationSynchJob.Modified := N;
+        SalespersonIntegrationSynchJob.Modified := N;
+        LibraryCRMIntegration.VerifySyncJob(CustomerJobQueueEntryID, CustomerIntegrationTableMapping, CustomerIntegrationSynchJob);
+        LibraryCRMIntegration.VerifySyncJob(SalespersonJobQueueEntryID, SalespersonIntegrationTableMapping, SalespersonIntegrationSynchJob);
+
+        // [THEN] Variable storage is empty
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -398,6 +1046,7 @@ codeunit 139162 "CRM Integration Mgt Test"
           'VERSION(1) SORTING(Field1) WHERE(Field38=1(0))', ExpectedIntTableFilter, true);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure DefaultTableMappingCustPriceGroup()
@@ -436,6 +1085,7 @@ codeunit 139162 "CRM Integration Mgt Test"
           DATABASE::"Sales Price", DATABASE::"CRM Productpricelevel", IntegrationTableMapping.Direction::ToIntegrationTable,
           'VERSION(1) SORTING(Field1,Field13,Field2,Field4,Field3,Field5700,Field5400,Field14) WHERE(Field13=1(1),Field2=1(<>''''))', '', false);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -446,7 +1096,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         ExpectedIntTableFilter: Text;
     begin
         // [FEATURE] [Table Mapping] [Price List] [Direction]
-        Initialize(true);
+        Initialize(true, false);
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Price List Header"
         // [THEN] Mapped to "CRM Pricelevel", Direction is "To Integration Table",
@@ -466,7 +1116,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Table Mapping] [Price List] [Direction]
-        Initialize(true);
+        Initialize(true, false);
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Price List Line"
         // [THEN] Mapped to "CRM Productpricelevel", Direction is "To Integration Table",
@@ -475,6 +1125,60 @@ codeunit 139162 "CRM Integration Mgt Test"
         VerifyTableMapping(
           DATABASE::"Price List Line", DATABASE::"CRM Productpricelevel", IntegrationTableMapping.Direction::ToIntegrationTable,
           'VERSION(1) SORTING(Field1,Field2) WHERE(Field7=1(10|30),Field14=1(0),Field16=1(17),Field28=1(1))', '', false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultTableMappingUnitGroup()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Table Mapping] [Unit Group] [Direction]
+        Initialize(false, true);
+        ResetDefaultCRMSetupConfiguration;
+        // [WHEN] Find Integration Table Mapping for "Unit Group"
+        // [THEN] Mapped to "CRM Uomschedule", Direction is "To Integration Table",
+        // [THEN] no "Table Filter"
+        // [THEN] no "Integration Table Filter", "Synch. Only Coupled Records" is Yes
+        VerifyTableMapping(
+          DATABASE::"Unit Group", DATABASE::"CRM Uomschedule", IntegrationTableMapping.Direction::ToIntegrationTable,
+          '', '', true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultTableMappingItemUnitOfMeasure()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Table Mapping] [Item Unit of Measure] [Direction]
+        Initialize(false, true);
+        ResetDefaultCRMSetupConfiguration;
+        // [WHEN] Find Integration Table Mapping for "Item Unit of Measure"
+        // [THEN] Mapped to "CRM Uom", Direction is "To Integration Table",
+        // [THEN] no "Table Filter"
+        // [THEN] no "Integration Table Filter", "Synch. Only Coupled Records" is Yes
+        VerifyTableMapping(
+          DATABASE::"Item Unit of Measure", DATABASE::"CRM Uom", IntegrationTableMapping.Direction::ToIntegrationTable,
+          '', '', true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultTableMappingResourceUnitOfMeasure()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Table Mapping] [Resource Unit of Measure] [Direction]
+        Initialize(false, true);
+        ResetDefaultCRMSetupConfiguration;
+        // [WHEN] Find Integration Table Mapping for "Resource Unit of Measure"
+        // [THEN] Mapped to "CRM Uom", Direction is "To Integration Table",
+        // [THEN] no "Table Filter"
+        // [THEN] no "Integration Table Filter", "Synch. Only Coupled Records" is Yes
+        VerifyTableMapping(
+          DATABASE::"Resource Unit of Measure", DATABASE::"CRM Uom", IntegrationTableMapping.Direction::ToIntegrationTable,
+          '', '', true);
     end;
 
     [Test]
@@ -827,7 +1531,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.CreateNewRecordsInCRM(SalesInvHeader.RecordId);
         // Executing the Sync Job
-        FilteredSalesInvHeader.SetRange("No.", SalesInvHeader."No.");
+        FilteredSalesInvHeader.SetRange(SystemId, SalesInvHeader.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Sales Invoice Header", FilteredSalesInvHeader.GetView, IntegrationTableMapping);
@@ -911,7 +1615,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.CreateNewRecordsInCRM(SalesInvHeader.RecordId);
         // Executing the Sync Job
-        FilteredSalesInvHeader.SetRange("No.", SalesInvHeader."No.");
+        FilteredSalesInvHeader.SetRange(SystemId, SalesInvHeader.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Sales Invoice Header", FilteredSalesInvHeader.GetView, IntegrationTableMapping);
@@ -1301,7 +2005,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.CreateNewRecordsInCRM(SalesInvHeader.RecordId);
         // Executing the Sync Job
-        FilteredSalesInvHeader.SetRange("No.", SalesInvHeader."No.");
+        FilteredSalesInvHeader.SetRange(SystemId, SalesInvHeader.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Sales Invoice Header", FilteredSalesInvHeader.GetView, IntegrationTableMapping);
@@ -1345,7 +2049,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.CreateNewRecordsInCRM(SalesInvHeader.RecordId);
         // Executing the Sync Job
-        FilteredSalesInvHeader.SetRange("No.", SalesInvHeader."No.");
+        FilteredSalesInvHeader.SetRange(SystemId, SalesInvHeader.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Sales Invoice Header", FilteredSalesInvHeader.GetView, IntegrationTableMapping);
@@ -1390,7 +2094,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         PostedSalesInvoice.CreateInCRM.Invoke;
         // Executing the Sync Job
-        FilteredSalesInvHeader.SetRange("No.", SalesInvHeader."No.");
+        FilteredSalesInvHeader.SetRange(SystemId, SalesInvHeader.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Sales Invoice Header", FilteredSalesInvHeader.GetView, IntegrationTableMapping);
@@ -1440,20 +2144,21 @@ codeunit 139162 "CRM Integration Mgt Test"
         SalesInvHeader.SetRange("Sell-to Customer No.");
         SalesInvHeader.MarkedOnly(true);
 
+        // [GIVEN] Only base integration table mappings, not child mappings
+        IntegrationTableMapping.SetRange("Table ID", Database::"Sales Invoice Header");
+        IntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        IntegrationTableMapping.DeleteAll();
+
         // [WHEN] "Create New Account In CRM" for two invoices: second and third.
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryVariableStorage.Enqueue(2);
         CRMIntegrationManagement.CreateNewRecordsInCRM(SalesInvHeader);
 
         // [THEN] Notification: '2 of 2 records are scheduled'
         // handled by MultipleSyncStartedNotificationHandler
-        // Executing the Sync Jobs
-        SalesInvHeader.FindSet();
-        repeat
-            FilteredSalesInvHeader.SetRange("No.", SalesInvHeader."No.");
-            JobQueueEntryID :=
-              LibraryCRMIntegration.RunJobQueueEntry(
-                DATABASE::"Sales Invoice Header", FilteredSalesInvHeader.GetView, IntegrationTableMapping);
-        until SalesInvHeader.Next = 0;
+        // Executing the Sync Job
+        Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Job is not found');
+        JobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
 
         // [THEN] 2nd and 3rd Posted Sales invoices are coupled, the 1st one is not.
         SalesInvHeader.Reset();
@@ -1467,7 +2172,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('ConfirmNo')]
     [Scope('OnPrem')]
     procedure CheckOrEnableCRMConnectionNotEnabled()
     begin
@@ -1522,7 +2227,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.CreateNewRecordsInCRM(SalesInvHeader.RecordId);
         // Executing the Sync Job
-        FilteredSalesInvHeader.SetRange("No.", SalesInvHeader."No.");
+        FilteredSalesInvHeader.SetRange(SystemId, SalesInvHeader.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
           DATABASE::"Sales Invoice Header", FilteredSalesInvHeader.GetView, IntegrationTableMapping);
 
@@ -1620,20 +2325,22 @@ codeunit 139162 "CRM Integration Mgt Test"
           ' SALESPEOPLE - Dataverse synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
           ' ITEM-PRODUCT - Dynamics 365 Sales synchronization job.');
+#if not CLEAN19
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
           ' CUSTPRCGRP-PRICE - Dynamics 365 Sales synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
           ' SALESPRC-PRODPRICE - Dynamics 365 Sales synchronization job.');
+#endif
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
           ' POSTEDSALESINV-INV - Dynamics 365 Sales synchronization job.');
     end;
 
     local procedure Initialize()
     begin
-        Initialize(false);
+        Initialize(false, false);
     end;
 
-    local procedure Initialize(EnableExtendedPrice: Boolean)
+    local procedure Initialize(EnableExtendedPrice: Boolean; EnableUnitGroupMapping: Boolean)
     var
         MyNotifications: Record "My Notifications";
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
@@ -1646,6 +2353,10 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryPriceCalculation.DisableExtendedPriceCalculation();
         if EnableExtendedPrice then
             LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        LibraryCRMIntegration.DisableUnitGroupMapping();
+        if EnableUnitGroupMapping then
+            LibraryCRMIntegration.EnableUnitGroupMapping();
 
         LibraryApplicationArea.EnableFoundationSetup;
         LibraryCRMIntegration.ResetEnvironment;
@@ -1914,6 +2625,21 @@ codeunit 139162 "CRM Integration Mgt Test"
           'Inactivity time out period different from default.');
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Table Synch.", 'OnGetMaxNumberOfConditions', '', false, false)]
+    local procedure UpdateMaxNumberOfConditions(var Handled: Boolean; var Value: Integer)
+    begin
+        Value := 3;
+        Handled := true;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure SynchDirectionStrMenuHandler(Options: Text; var Choice: Integer; Instruction: Text)
+    begin
+        Assert.ExpectedMessage('Synchronize data for the selected records', Instruction);
+        Choice := LibraryVariableStorage.DequeueInteger();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text)
@@ -1966,14 +2692,24 @@ codeunit 139162 "CRM Integration Mgt Test"
     [SendNotificationHandler]
     [Scope('OnPrem')]
     procedure MultipleSyncStartedNotificationHandler(var SyncCompleteNotification: Notification): Boolean
+    var
+        Count: Integer;
     begin
-        Assert.AreEqual(MultipleSyncStartedMsg, SyncCompleteNotification.Message, 'Unexpected notification.');
+        Count := LibraryVariableStorage.DequeueInteger();
+        Assert.AreEqual(StrSubstNo(MultipleSyncStartedMsg, Count, Count, 0, 0), SyncCompleteNotification.Message, 'Unexpected notification.');
     end;
 
     [RecallNotificationHandler]
     [Scope('OnPrem')]
     procedure RecallNotificationHandler(var Notification: Notification): Boolean
     begin
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmNo(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

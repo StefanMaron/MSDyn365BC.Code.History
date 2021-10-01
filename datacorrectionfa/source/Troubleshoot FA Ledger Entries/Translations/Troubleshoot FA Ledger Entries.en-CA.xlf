@@ -1,0 +1,233 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-CA" original="Troubleshoot FA Ledger Entries">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 591152385 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FA Ledger Entry</source>
+          <target state="translated">FA Ledger Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 2461167233 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Corrected</source>
+          <target state="translated">Corrected</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field Corrected - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 580412389 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Date</source>
+          <target state="translated">Document Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field Document Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 486908828 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document No.</source>
+          <target state="translated">Document No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field Document No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 2363328873 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Type</source>
+          <target state="translated">Document Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field Document Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 883711285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <target state="translated">Entry No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 1991001892 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FA No.</source>
+          <target state="translated">FA No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field FA No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 3942279885 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FA Posting Date</source>
+          <target state="translated">FA Posting Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field FA Posting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 1877866625 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FA Posting Type</source>
+          <target state="translated">FA Posting Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field FA Posting Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 1411740825 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Entry No.</source>
+          <target state="translated">G/L Entry No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field G/L Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 591152385 - Field 3710982960 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posting Date</source>
+          <target state="translated">Posting Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table FA Ledg. Entry w. Issue - Field Posting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4089383439 - NamedType 2028798418" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There are Fixed Asset Entries with potential rounding issues.</source>
+          <target state="translated">There are Fixed Asset Entries with potential rounding issues.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit FA Card Notifications - NamedType NotificationForFAEntriesThatCouldByCorrectedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4089383439 - NamedType 2184577305" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>See more</source>
+          <target state="translated">See more</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit FA Card Notifications - NamedType SeeMoreMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FA Ledger Entries with rounding issues</source>
+          <target state="translated">FA Ledger Entries with rounding issues</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - NamedType 3487284936" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entries have been corrected.</source>
+          <target state="translated">Entries have been corrected.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - NamedType EntryHaveBeenCorrectedMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the entry amount in currency.</source>
+          <target state="translated">Specifies the entry amount in currency.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a description of the entry.</source>
+          <target state="translated">Specifies a description of the entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 486908828 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the document number on the entry.</source>
+          <target state="translated">Specifies the document number on the entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Document No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 2363328873 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the entry document type.</source>
+          <target state="translated">Specifies the entry document type.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Document Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 883711285 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the entry, as assigned from the specified number series when the entry was created.</source>
+          <target state="translated">Specifies the number of the entry, as assigned from the specified number series when the entry was created.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 1991001892 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the related fixed asset. </source>
+          <target state="translated">Specifies the number of the related fixed asset. </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control FA No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 3942279885 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the posting date of the related fixed asset transaction, such as a depreciation.</source>
+          <target state="translated">Specifies the posting date of the related fixed asset transaction, such as a depreciation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control FA Posting Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 1877866625 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the posting type, if Account Type field contains Fixed Asset.</source>
+          <target state="translated">Specifies the posting type, if Account Type field contains Fixed Asset.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control FA Posting Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 1411740825 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the G/L number for the entry that was created in the general ledger for this fixed asset transaction.</source>
+          <target state="translated">Specifies the G/L number for the entry that was created in the general ledger for this fixed asset transaction.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control G/L Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 798748183 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the entry amount in currency.</source>
+          <target state="translated">Specifies the entry amount in currency.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control OriginalAmount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 798748183 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Original Amount</source>
+          <target state="translated">Original Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control OriginalAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 3710982960 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the entry's posting date.</source>
+          <target state="translated">Specifies the entry's posting date.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Posting Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 894302254 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the entry rounding</source>
+          <target state="translated">Specifies the entry rounding</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Rounding - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Control 894302254 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rounding</source>
+          <target state="translated">Rounding</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Control Rounding - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Action 1051844233 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Find Entries with issues</source>
+          <target state="translated">Find Entries with issues</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Action &amp;Prepare - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Action 1051844233 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>&amp;Find Entries with issues</source>
+          <target state="translated">&amp;Find Entries with issues</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Action &amp;Prepare - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Action 853027711 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Acctept correction for selected lines</source>
+          <target state="translated">Acctept correction for selected lines</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Action &amp;Procces - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3814451366 - Action 853027711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>&amp;Accept Selected</source>
+          <target state="translated">&amp;Accept Selected</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page FA Ledger Entries Issues - Action &amp;Procces - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 337178022 - Field 2364445209 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last time scanned</source>
+          <target state="translated">Last time scanned</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3400326196</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 337178022 - Field 1768199729 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Entry No. Checked</source>
+          <target state="translated">Last Entry No. Checked</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3400326196</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

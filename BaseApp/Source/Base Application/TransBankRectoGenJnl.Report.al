@@ -19,6 +19,13 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                 begin
                     if (Difference = 0) or (Type > Type::"Bank Account Ledger Entry") then
                         CurrReport.Skip();
+                    if not TempBankAccReconciliationLine.IsEmpty then
+                        if not TempBankAccReconciliationLine.get(
+                            "Bank Acc. Reconciliation Line"."Statement Type",
+                            "Bank Acc. Reconciliation Line"."Bank Account No.",
+                            "Bank Acc. Reconciliation Line"."Statement No.",
+                            "Bank Acc. Reconciliation Line"."Statement Line No.") then
+                            CurrReport.Skip();
 
                     GenJnlLine.Init();
                     GenJnlLine."Line No." := GenJnlLine."Line No." + 10000;
@@ -47,7 +54,10 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                     end;
 
                     GenJnlLine.Description := Description;
+                    GenJnlLine."Keep Description" := true;
                     OnBeforeGenJnlLineInsert(GenJnlLine, "Bank Acc. Reconciliation Line");
+                    GenJnlLine."Linked Table ID" := Database::"Bank Acc. Reconciliation Line";
+                    GenJnlLine."Linked System ID" := "Bank Acc. Reconciliation Line".SystemId;
                     GenJnlLine.Insert();
                 end;
 
@@ -135,6 +145,8 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
     labels
     {
     }
+    var
+        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
 
     trigger OnPostReport()
     begin
@@ -152,6 +164,15 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
     procedure SetBankAccRecon(var UseBankAccRecon: Record "Bank Acc. Reconciliation")
     begin
         BankAccRecon := UseBankAccRecon;
+    end;
+
+    procedure SetBankAccReconLine(var UsetempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary)
+    begin
+        if UsetempBankAccReconciliationLine.FindSet() then
+            repeat
+                TempBankAccReconciliationLine := UseTempBankAccReconciliationLine;
+                TempBankAccReconciliationLine.Insert();
+            until UsetempBankAccReconciliationLine.Next() = 0;
     end;
 
     procedure InitializeRequest(GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10])

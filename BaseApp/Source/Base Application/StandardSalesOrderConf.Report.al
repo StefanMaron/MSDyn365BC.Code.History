@@ -500,7 +500,7 @@ report 1305 "Standard Sales - Order Conf."
                     AutoFormatExpression = "Currency Code";
                     AutoFormatType = 1;
                 }
-#if not CLEAN16
+#if not CLEAN17
                 column(CrossReferenceNo; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;

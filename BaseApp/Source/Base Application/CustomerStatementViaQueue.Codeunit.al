@@ -17,12 +17,13 @@ codeunit 8811 "Customer Statement via Queue"
 
         XmlContent := GetXmlContent;
         if XmlContent = '' then
-            ErrorMessageManagement.LogErrorMessage(0,RequestParametersHasNotBeenSetErr, Rec, FieldNo(XML), '')
+            ErrorMessageManagement.LogErrorMessage(0, RequestParametersHasNotBeenSetErr, Rec, FieldNo(XML), '')
         else
             CustomerLayoutStatement.RunReportWithParameters(XmlContent);
 
         ErrorMessageHandler.AppendTo(TempErrorMessage);
         LogErrors(TempErrorMessage, Rec);
+        ErrorMessageManagement.PopContext(ErrorContextElement);
     end;
 
     var
@@ -39,7 +40,7 @@ codeunit 8811 "Customer Statement via Queue"
 
     local procedure LogErrors(var TempErrorMessage: Record "Error Message" temporary; var JobQueueEntry: Record "Job Queue Entry")
     begin
-        if  TempErrorMessage.FindSet then
+        if TempErrorMessage.FindSet then
             repeat
                 LogActivityFailed(JobQueueEntry.RecordID, JobQueueEntry."Object Caption to Run", TempErrorMessage.Description);
             until TempErrorMessage.Next() = 0;

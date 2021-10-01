@@ -1,4 +1,4 @@
-﻿report 950 "Create Time Sheets"
+report 950 "Create Time Sheets"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Create Time Sheets';
@@ -31,6 +31,7 @@
                         TimeSheetHeader."Starting Date" := StartingDate;
                         TimeSheetHeader."Ending Date" := EndingDate;
                         TimeSheetHeader.Validate("Resource No.", "No.");
+                        TimeSheetHeader.Description := StrSubstNo(DescriptionTxt, GetWeekNumber(StartingDate));
                         TimeSheetHeader.Insert(true);
                         TimeSheetCounter += 1;
 
@@ -88,9 +89,9 @@
                     field(NoOfPeriods; NoOfPeriods)
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'No. of Periods';
+                        Caption = 'No. of Weeks';
                         MinValue = 1;
-                        ToolTip = 'Specifies the number of periods that the time sheet covers, such as 1 or 4.';
+                        ToolTip = 'Specifies the number of weeks that the time sheet covers, such as 1 or 4.';
                     }
                     field(CreateLinesFromJobPlanning; CreateLinesFromJobPlanning)
                     {
@@ -193,10 +194,11 @@
         Text003: Label '%1 time sheets have been created.';
         Text004: Label '%1 must be filled in.';
         Text005: Label 'Starting Date';
-        Text006: Label 'No. of Periods';
+        Text006: Label 'No. of Weeks';
         Text010: Label 'Starting Date must be %1.';
         HideDialog: Boolean;
         OpenUserSetupQst: Label 'You aren''t allowed to run this report. If you want, you can give yourself the Time Sheet Admin. rights, and then try again.\\ Do you want to do that now?';
+        DescriptionTxt: Label 'Week %1', Comment = '%1 - week number';
 
     procedure InitParameters(NewStartingDate: Date; NewNoOfPeriods: Integer; NewResourceFilter: Code[250]; NewCreateLinesFromJobPlanning: Boolean; NewHideDialog: Boolean)
     begin
@@ -236,6 +238,16 @@
             exit(false);
 
         exit(true);
+    end;
+
+    local procedure GetWeekNumber(StartingDate: Date): Integer
+    var
+        DateRec: Record Date;
+    begin
+        DateRec.SetRange("Period Type", DateRec."Period Type"::Week);
+        DateRec.SetFilter("Period Start", '%1..', StartingDate);
+        if DateRec.FindFirst() then
+            exit(DateRec."Period No.");
     end;
 
     local procedure ValidateStartingDate()

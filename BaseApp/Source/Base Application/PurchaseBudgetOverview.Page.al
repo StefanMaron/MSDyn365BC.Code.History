@@ -25,21 +25,21 @@ page 7138 "Purchase Budget Overview"
                         ItemBudgetManagement.LookupItemBudgetName(
                           CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
                           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
-                        ItemBudgetManagement.ValidateLineDimCode(
-                          ItemBudgetName, LineDimCode, LineDimOption, ColumnDimOption,
+                        ItemBudgetManagement.ValidateLineDimTypeAndCode(
+                          ItemBudgetName, LineDimCode, LineDimType, ColumnDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-                        ItemBudgetManagement.ValidateColumnDimCode(
-                          ItemBudgetName, ColumnDimCode, ColumnDimOption, LineDimOption,
+                        ItemBudgetManagement.ValidateColumnDimTypeAndCode(
+                          ItemBudgetName, ColumnDimCode, ColumnDimType, LineDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
                         UpdateDimCtrls;
-                        UpdateMatrixSubForm;
+                        UpdateMatrixSubForm();
                         CurrPage.Update(false);
                     end;
 
                     trigger OnValidate()
                     begin
                         ItemBudgetManagement.CheckBudgetName(CurrentAnalysisArea.AsInteger(), CurrentBudgetName, ItemBudgetName);
-                        UpdateMatrixSubForm;
+                        UpdateMatrixSubForm();
                         CurrentBudgetNameOnAfterValida;
                     end;
                 }
@@ -64,12 +64,12 @@ page 7138 "Purchase Budget Overview"
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             ColumnDimCode := '';
-                            ItemBudgetManagement.ValidateColumnDimCode(
-                              ItemBudgetName, ColumnDimCode, ColumnDimOption, LineDimOption,
+                            ItemBudgetManagement.ValidateColumnDimTypeAndCode(
+                              ItemBudgetName, ColumnDimCode, ColumnDimType, LineDimType,
                               InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
                         end;
-                        ItemBudgetManagement.ValidateLineDimCode(
-                          ItemBudgetName, LineDimCode, LineDimOption, ColumnDimOption,
+                        ItemBudgetManagement.ValidateLineDimTypeAndCode(
+                          ItemBudgetName, LineDimCode, LineDimType, ColumnDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
                         LineDimCodeOnAfterValidate;
                     end;
@@ -95,23 +95,22 @@ page 7138 "Purchase Budget Overview"
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             LineDimCode := '';
-                            ItemBudgetManagement.ValidateLineDimCode(
-                              ItemBudgetName, LineDimCode, LineDimOption, ColumnDimOption,
+                            ItemBudgetManagement.ValidateLineDimTypeAndCode(
+                              ItemBudgetName, LineDimCode, LineDimType, ColumnDimType,
                               InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
                         end;
-                        ItemBudgetManagement.ValidateColumnDimCode(
-                          ItemBudgetName, ColumnDimCode, ColumnDimOption, LineDimOption,
+                        ItemBudgetManagement.ValidateColumnDimTypeAndCode(
+                          ItemBudgetName, ColumnDimCode, ColumnDimType, LineDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
 
-                        MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-                        ColumnDimCodeOnAfterValidate;
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+                        ColumnDimCodeOnAfterValidate();
                     end;
                 }
                 field(ValueType; ValueType)
                 {
                     ApplicationArea = PurchaseBudget;
                     Caption = 'Show Value as';
-                    OptionCaption = ',Cost Amount,Quantity';
                     ToolTip = 'Specifies if you want to view the item values by cost amount or by quantity.';
 
                     trigger OnValidate()
@@ -123,25 +122,23 @@ page 7138 "Purchase Budget Overview"
                 {
                     ApplicationArea = PurchaseBudget;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        PeriodTypeOnAfterValidate;
+                        PeriodTypeOnAfterValidate();
                     end;
                 }
                 field(RoundingFactor; RoundingFactor)
                 {
                     ApplicationArea = PurchaseBudget;
                     Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the factor that is used to round the amounts in the columns.';
 
                     trigger OnValidate()
                     begin
-                        RoundingFactorOnAfterValidate;
+                        RoundingFactorOnAfterValidate();
                     end;
                 }
                 field(ShowColumnName; ShowColumnName)
@@ -152,7 +149,7 @@ page 7138 "Purchase Budget Overview"
 
                     trigger OnValidate()
                     begin
-                        ShowColumnNameOnAfterValidate;
+                        ShowColumnNameOnAfterValidate();
                     end;
                 }
             }
@@ -196,7 +193,7 @@ page 7138 "Purchase Budget Overview"
                                 begin
                                     CustList.LookupMode := true;
                                     if CustList.RunModal = ACTION::LookupOK then
-                                        Text := CustList.GetSelectionFilter
+                                        Text := CustList.GetSelectionFilter()
                                     else
                                         exit(false);
                                 end;
@@ -204,7 +201,7 @@ page 7138 "Purchase Budget Overview"
                                 begin
                                     VendList.LookupMode := true;
                                     if VendList.RunModal = ACTION::LookupOK then
-                                        Text := VendList.GetSelectionFilter
+                                        Text := VendList.GetSelectionFilter()
                                     else
                                         exit(false);
                                 end;
@@ -215,7 +212,7 @@ page 7138 "Purchase Budget Overview"
 
                     trigger OnValidate()
                     begin
-                        SourceNoFilterOnAfterValidate;
+                        SourceNoFilterOnAfterValidate();
                     end;
                 }
                 field(ItemFilter; ItemFilter)
@@ -230,7 +227,7 @@ page 7138 "Purchase Budget Overview"
                     begin
                         ItemList.LookupMode(true);
                         if ItemList.RunModal = ACTION::LookupOK then begin
-                            Text := ItemList.GetSelectionFilter;
+                            Text := ItemList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
@@ -273,7 +270,7 @@ page 7138 "Purchase Budget Overview"
 
                     trigger OnValidate()
                     begin
-                        BudgetDim2FilterOnAfterValidat;
+                        BudgetDim2FilterOnAfterValidat();
                     end;
                 }
                 field(BudgetDim3Filter; BudgetDim3Filter)
@@ -291,7 +288,7 @@ page 7138 "Purchase Budget Overview"
 
                     trigger OnValidate()
                     begin
-                        BudgetDim3FilterOnAfterValidat;
+                        BudgetDim3FilterOnAfterValidat();
                     end;
                 }
                 field(GlobalDim1Filter; GlobalDim1Filter)
@@ -308,7 +305,7 @@ page 7138 "Purchase Budget Overview"
 
                     trigger OnValidate()
                     begin
-                        GlobalDim1FilterOnAfterValidat;
+                        GlobalDim1FilterOnAfterValidat();
                     end;
                 }
                 field(GlobalDim2Filter; GlobalDim2Filter)
@@ -325,7 +322,7 @@ page 7138 "Purchase Budget Overview"
 
                     trigger OnValidate()
                     begin
-                        GlobalDim2FilterOnAfterValidat;
+                        GlobalDim2FilterOnAfterValidat();
                     end;
                 }
             }
@@ -354,14 +351,14 @@ page 7138 "Purchase Budget Overview"
                         TempDimCode := ColumnDimCode;
                         ColumnDimCode := LineDimCode;
                         LineDimCode := TempDimCode;
-                        ItemBudgetManagement.ValidateLineDimCode(
-                          ItemBudgetName, LineDimCode, LineDimOption, ColumnDimOption,
+                        ItemBudgetManagement.ValidateLineDimTypeAndCode(
+                          ItemBudgetName, LineDimCode, LineDimType, ColumnDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-                        ItemBudgetManagement.ValidateColumnDimCode(
-                          ItemBudgetName, ColumnDimCode, ColumnDimOption, LineDimOption,
+                        ItemBudgetManagement.ValidateColumnDimTypeAndCode(
+                          ItemBudgetName, ColumnDimCode, ColumnDimType, LineDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-                        MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-                        UpdateMatrixSubForm;
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+                        UpdateMatrixSubForm();
                     end;
                 }
                 separator(Action53)
@@ -406,18 +403,13 @@ page 7138 "Purchase Budget Overview"
                         var
                             ExportItemBudgetToExcel: Report "Export Item Budget to Excel";
                         begin
-                            ExportItemBudgetToExcel.SetOptions(
-                              CurrentAnalysisArea.AsInteger(),
-                              CurrentBudgetName,
-                              ValueType,
-                              GlobalDim1Filter, GlobalDim2Filter,
-                              BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
-                              DateFilter,
-                              SourceTypeFilter.AsInteger(), SourceNoFilter,
-                              ItemFilter,
+                            ExportItemBudgetToExcel.SetParameters(
+                              CurrentAnalysisArea, CurrentBudgetName, ValueType,
+                              GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
+                              DateFilter, SourceTypeFilter, SourceNoFilter, ItemFilter,
                               InternalDateFilter, PeriodInitialized, PeriodType,
-                              LineDimOption, ColumnDimOption, LineDimCode, ColumnDimCode, RoundingFactor);
-                            ExportItemBudgetToExcel.Run;
+                              LineDimType, ColumnDimType, LineDimCode, ColumnDimCode, RoundingFactor);
+                            ExportItemBudgetToExcel.Run();
                         end;
                     }
                     action("Update Existing Document")
@@ -431,19 +423,14 @@ page 7138 "Purchase Budget Overview"
                         var
                             ExportItemBudgetToExcel: Report "Export Item Budget to Excel";
                         begin
-                            ExportItemBudgetToExcel.SetOptions(
-                              CurrentAnalysisArea.AsInteger(),
-                              CurrentBudgetName,
-                              ValueType,
-                              GlobalDim1Filter, GlobalDim2Filter,
-                              BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
-                              DateFilter,
-                              SourceTypeFilter.AsInteger(), SourceNoFilter,
-                              ItemFilter,
+                            ExportItemBudgetToExcel.SetParameters(
+                              CurrentAnalysisArea, CurrentBudgetName, ValueType,
+                              GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
+                              DateFilter, SourceTypeFilter, SourceNoFilter, ItemFilter,
                               InternalDateFilter, PeriodInitialized, PeriodType,
-                              LineDimOption, ColumnDimOption, LineDimCode, ColumnDimCode, RoundingFactor);
+                              LineDimType, ColumnDimType, LineDimCode, ColumnDimCode, RoundingFactor);
                             ExportItemBudgetToExcel.SetUpdateExistingWorksheet(true);
-                            ExportItemBudgetToExcel.Run;
+                            ExportItemBudgetToExcel.Run();
                         end;
                     }
                 }
@@ -459,8 +446,8 @@ page 7138 "Purchase Budget Overview"
                     var
                         ImportItemBudgetFromExcel: Report "Import Item Budget from Excel";
                     begin
-                        ImportItemBudgetFromExcel.SetParameters(CurrentBudgetName, CurrentAnalysisArea.AsInteger(), ValueType);
-                        ImportItemBudgetFromExcel.RunModal;
+                        ImportItemBudgetFromExcel.SetParameters(CurrentBudgetName, CurrentAnalysisArea.AsInteger(), ValueType.AsInteger());
+                        ImportItemBudgetFromExcel.RunModal();
                         Clear(ImportItemBudgetFromExcel);
                     end;
                 }
@@ -477,11 +464,11 @@ page 7138 "Purchase Budget Overview"
 
                 trigger OnAction()
                 begin
-                    if (LineDimOption = LineDimOption::Period) or (ColumnDimOption = ColumnDimOption::Period) then
+                    if (LineDimType = LineDimType::Period) or (ColumnDimType = ColumnDimType::Period) then
                         exit;
                     FindPeriod('>');
                     CurrPage.Update();
-                    UpdateMatrixSubForm;
+                    UpdateMatrixSubForm();
                 end;
             }
             action("Previous Period")
@@ -496,11 +483,11 @@ page 7138 "Purchase Budget Overview"
 
                 trigger OnAction()
                 begin
-                    if (LineDimOption = LineDimOption::Period) or (ColumnDimOption = ColumnDimOption::Period) then
+                    if (LineDimType = LineDimType::Period) or (ColumnDimType = ColumnDimType::Period) then
                         exit;
                     FindPeriod('<');
                     CurrPage.Update();
-                    UpdateMatrixSubForm;
+                    UpdateMatrixSubForm();
                 end;
             }
             action("Previous Set")
@@ -515,11 +502,9 @@ page 7138 "Purchase Budget Overview"
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
-                var
-                    MATRIX_Step: Option Initial,Previous,Same,Next;
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_Step::Previous);
-                    UpdateMatrixSubForm;
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
+                    UpdateMatrixSubForm();
                 end;
             }
             action("Previous Column")
@@ -535,8 +520,8 @@ page 7138 "Purchase Budget Overview"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_Step::PreviousColumn);
-                    UpdateMatrixSubForm;
+                    GenerateColumnCaptions("Matrix Page Step Type"::PreviousColumn);
+                    UpdateMatrixSubForm();
                 end;
             }
             action("Next Column")
@@ -552,8 +537,8 @@ page 7138 "Purchase Budget Overview"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_Step::NextColumn);
-                    UpdateMatrixSubForm;
+                    GenerateColumnCaptions("Matrix Page Step Type"::NextColumn);
+                    UpdateMatrixSubForm();
                 end;
             }
             action("Next Set")
@@ -568,11 +553,9 @@ page 7138 "Purchase Budget Overview"
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
-                var
-                    MATRIX_Step: Option Initial,Previous,Same,Next;
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_Step::Next);
-                    UpdateMatrixSubForm;
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
+                    UpdateMatrixSubForm();
                 end;
             }
         }
@@ -587,7 +570,7 @@ page 7138 "Purchase Budget Overview"
 
     trigger OnOpenPage()
     begin
-        if ValueType = 0 then
+        if ValueType = ValueType::"Sales Amount" then
             ValueType := ValueType::"Cost Amount";
         CurrentAnalysisArea := CurrentAnalysisArea::Purchase;
         ItemBudgetManagement.BudgetNameSelection(
@@ -602,8 +585,8 @@ page 7138 "Purchase Budget Overview"
               BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
         end;
 
-        ItemBudgetManagement.SetLineAndColDim(
-          ItemBudgetName, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
+        ItemBudgetManagement.SetLineAndColumnDim(
+          ItemBudgetName, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
 
         GLSetup.Get();
         SourceTypeFilter := SourceTypeFilter::Vendor;
@@ -611,8 +594,8 @@ page 7138 "Purchase Budget Overview"
         UpdateDimCtrls;
 
         FindPeriod('');
-        MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     var
@@ -632,11 +615,11 @@ page 7138 "Purchase Budget Overview"
         SourceTypeFilter: Enum "Analysis Source Type";
         SourceNoFilter: Text;
         ItemFilter: Text;
-        ValueType: Option ,"Cost Amount",Quantity;
-        RoundingFactor: Option "None","1","1000","1000000";
-        LineDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
-        ColumnDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        ValueType: Enum "Item Analysis Value Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        LineDimType: Enum "Item Budget Dimension Type";
+        ColumnDimType: Enum "Item Budget Dimension Type";
+        PeriodType: Enum "Analysis Period Type";
         GlobalDim1Filter: Text;
         GlobalDim2Filter: Text;
         BudgetDim1Filter: Text;
@@ -653,7 +636,6 @@ page 7138 "Purchase Budget Overview"
         Text005: Label '1,6,,Budget Dimension 3 Filter';
         Text100: Label 'Period';
         NewBudgetName: Code[10];
-        MATRIX_Step: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
         [InDataSet]
         BudgetDim1FilterEnable: Boolean;
         [InDataSet]
@@ -661,7 +643,7 @@ page 7138 "Purchase Budget Overview"
         [InDataSet]
         BudgetDim3FilterEnable: Boolean;
 
-    local procedure MATRIX_GenerateColumnCaptions(MATRIX_SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         Item: Record Item;
         Customer: Record Customer;
@@ -686,7 +668,7 @@ page 7138 "Purchase Budget Overview"
             Text100:  // Period
                 begin
                     MatrixMgt.GeneratePeriodMatrixData(
-                      MATRIX_SetWanted, 12, ShowColumnName,
+                      StepType.AsInteger(), 12, ShowColumnName,
                       PeriodType, DateFilter, MATRIX_PrimKeyFirstCaptionInCu,
                       MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns, MATRIX_PeriodRecords);
                     for i := 1 to 12 do begin
@@ -702,13 +684,13 @@ page 7138 "Purchase Budget Overview"
                     RecRef.GetTable(Location);
                     RecRef.SetTable(Location);
                     MatrixMgt.GenerateMatrixData(
-                      RecRef, MATRIX_SetWanted, 12, 1,
+                      RecRef, StepType.AsInteger(), 12, 1,
                       MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                     for i := 1 to MATRIX_CurrentNoOfColumns do
                         MATRIX_MatrixRecords[i].Code := MATRIX_CaptionSet[i];
                     if ShowColumnName then
                         MatrixMgt.GenerateMatrixData(
-                          RecRef, MATRIX_SetWanted::Same, 12, 2,
+                          RecRef, "Matrix Page Step Type"::Same.AsInteger(), 12, 2,
                           MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                 end;
             Item.TableCaption:
@@ -721,13 +703,13 @@ page 7138 "Purchase Budget Overview"
                         FieldRef.SetFilter(ItemFilter);
                     end;
                     MatrixMgt.GenerateMatrixData(
-                      RecRef, MATRIX_SetWanted, 12, 1,
+                      RecRef, StepType.AsInteger(), 12, 1,
                       MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                     for i := 1 to MATRIX_CurrentNoOfColumns do
                         MATRIX_MatrixRecords[i].Code := MATRIX_CaptionSet[i];
                     if ShowColumnName then
                         MatrixMgt.GenerateMatrixData(
-                          RecRef, MATRIX_SetWanted::Same, 12, 3,
+                          RecRef, "Matrix Page Step Type"::Same.AsInteger(), 12, 3,
                           MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                 end;
             Customer.TableCaption:
@@ -736,13 +718,13 @@ page 7138 "Purchase Budget Overview"
                     RecRef.GetTable(Customer);
                     RecRef.SetTable(Customer);
                     MatrixMgt.GenerateMatrixData(
-                      RecRef, MATRIX_SetWanted, 12, 1,
+                      RecRef, StepType.AsInteger(), 12, 1,
                       MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                     for i := 1 to MATRIX_CurrentNoOfColumns do
                         MATRIX_MatrixRecords[i].Code := MATRIX_CaptionSet[i];
                     if ShowColumnName then
                         MatrixMgt.GenerateMatrixData(
-                          RecRef, MATRIX_SetWanted::Same, 12, 2,
+                          RecRef, "Matrix Page Step Type"::Same.AsInteger(), 12, 2,
                           MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                 end;
             Vendor.TableCaption:
@@ -755,50 +737,50 @@ page 7138 "Purchase Budget Overview"
                         FieldRef.SetFilter(SourceNoFilter);
                     end;
                     MatrixMgt.GenerateMatrixData(
-                      RecRef, MATRIX_SetWanted, 12, 1,
+                      RecRef, StepType.AsInteger(), 12, 1,
                       MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                     for i := 1 to MATRIX_CurrentNoOfColumns do
                         MATRIX_MatrixRecords[i].Code := MATRIX_CaptionSet[i];
                     if ShowColumnName then
                         MatrixMgt.GenerateMatrixData(
-                          RecRef, MATRIX_SetWanted::Same, 12, 2,
+                          RecRef, "Matrix Page Step Type"::Same.AsInteger(), 12, 2,
                           MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                 end;
             GLSetup."Global Dimension 1 Code":
                 MatrixMgt.GenerateDimColumnCaption(
                   GLSetup."Global Dimension 1 Code",
-                  GlobalDim1Filter, MATRIX_SetWanted, MATRIX_PrimKeyFirstCaptionInCu, FirstColumn, LastColumn,
+                  GlobalDim1Filter, StepType.AsInteger(), MATRIX_PrimKeyFirstCaptionInCu, FirstColumn, LastColumn,
                   MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns, ShowColumnName, MATRIX_CaptionRange);
             GLSetup."Global Dimension 2 Code":
                 MatrixMgt.GenerateDimColumnCaption(
                   GLSetup."Global Dimension 2 Code",
-                  GlobalDim2Filter, MATRIX_SetWanted, MATRIX_PrimKeyFirstCaptionInCu, FirstColumn, LastColumn,
+                  GlobalDim2Filter, StepType.AsInteger(), MATRIX_PrimKeyFirstCaptionInCu, FirstColumn, LastColumn,
                   MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns, ShowColumnName, MATRIX_CaptionRange);
             ItemBudgetName."Budget Dimension 1 Code":
                 MatrixMgt.GenerateDimColumnCaption(
                   ItemBudgetName."Budget Dimension 1 Code",
-                  BudgetDim1Filter, MATRIX_SetWanted, MATRIX_PrimKeyFirstCaptionInCu, FirstColumn, LastColumn,
+                  BudgetDim1Filter, StepType.AsInteger(), MATRIX_PrimKeyFirstCaptionInCu, FirstColumn, LastColumn,
                   MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns, ShowColumnName, MATRIX_CaptionRange);
             ItemBudgetName."Budget Dimension 2 Code":
                 MatrixMgt.GenerateDimColumnCaption(
                   ItemBudgetName."Budget Dimension 2 Code",
-                  BudgetDim2Filter, MATRIX_SetWanted, MATRIX_PrimKeyFirstCaptionInCu, FirstColumn, LastColumn,
+                  BudgetDim2Filter, StepType.AsInteger(), MATRIX_PrimKeyFirstCaptionInCu, FirstColumn, LastColumn,
                   MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns, ShowColumnName, MATRIX_CaptionRange);
             ItemBudgetName."Budget Dimension 3 Code":
                 MatrixMgt.GenerateDimColumnCaption(
                   ItemBudgetName."Budget Dimension 3 Code",
-                  BudgetDim3Filter, MATRIX_SetWanted, MATRIX_PrimKeyFirstCaptionInCu, FirstColumn, LastColumn,
+                  BudgetDim3Filter, StepType.AsInteger(), MATRIX_PrimKeyFirstCaptionInCu, FirstColumn, LastColumn,
                   MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns, ShowColumnName, MATRIX_CaptionRange);
         end;
     end;
 
     local procedure FindPeriod(SearchText: Code[3])
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
-        PeriodFormMgt.FindPeriodOnMatrixPage(
+        PeriodPageMgt.FindPeriodOnMatrixPage(
           DateFilter, InternalDateFilter, SearchText, PeriodType,
-          (LineDimOption <> LineDimOption::Period) and (ColumnDimOption <> ColumnDimOption::Period));
+          (LineDimType <> LineDimType::Period) and (ColumnDimType <> ColumnDimType::Period));
     end;
 
     local procedure GetCaptionClass(BudgetDimType: Integer): Text[250]
@@ -862,9 +844,9 @@ page 7138 "Purchase Budget Overview"
           DateFilter, ItemFilter, SourceNoFilter,
           GlobalDim1Filter, GlobalDim2Filter,
           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
-        CurrPage.MATRIX.PAGE.Load(
+        CurrPage.MATRIX.PAGE.LoadMatrix(
           MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns,
-          CurrentBudgetName, LineDimOption, ColumnDimOption, RoundingFactor, ValueType, PeriodType);
+          CurrentBudgetName, LineDimType, ColumnDimType, RoundingFactor, ValueType, PeriodType);
         CurrPage.Update(false);
     end;
 
@@ -873,11 +855,11 @@ page 7138 "Purchase Budget Overview"
         ItemBudgetManagement.SetItemBudgetName(
           CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
-        ItemBudgetManagement.ValidateLineDimCode(
-          ItemBudgetName, LineDimCode, LineDimOption, ColumnDimOption,
+        ItemBudgetManagement.ValidateLineDimTypeAndCode(
+          ItemBudgetName, LineDimCode, LineDimType, ColumnDimType,
           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-        ItemBudgetManagement.ValidateColumnDimCode(
-          ItemBudgetName, ColumnDimCode, ColumnDimOption, LineDimOption,
+        ItemBudgetManagement.ValidateColumnDimTypeAndCode(
+          ItemBudgetName, ColumnDimCode, ColumnDimType, LineDimType,
           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
         UpdateDimCtrls;
         CurrPage.Update(false);
@@ -886,100 +868,96 @@ page 7138 "Purchase Budget Overview"
     local procedure ColumnDimCodeOnAfterValidate()
     begin
         FindPeriod('');
-        MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     local procedure LineDimCodeOnAfterValidate()
     begin
         FindPeriod('');
-        MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     local procedure ValueTypeOnAfterValidate()
     begin
         FindPeriod('');
-        MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     local procedure PeriodTypeOnAfterValidate()
-    var
-        MATRIX_Step: Option First,Previous,Next;
     begin
-        if ColumnDimOption = ColumnDimOption::Period then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
-        UpdateMatrixSubForm;
+        if ColumnDimType = ColumnDimType::Period then
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     local procedure ShowColumnNameOnAfterValidate()
-    var
-        MATRIX_SetWanted: Option First,Previous,Same,Next;
     begin
-        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Same);
-        UpdateMatrixSubForm;
+        GenerateColumnCaptions("Matrix Page Step Type"::Same);
+        UpdateMatrixSubForm();
     end;
 
     local procedure RoundingFactorOnAfterValidate()
     begin
-        UpdateMatrixSubForm;
+        UpdateMatrixSubForm();
     end;
 
     local procedure BudgetDim3FilterOnAfterValidat()
     begin
-        if ColumnDimOption = ColumnDimOption::"Budget Dimension 3" then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        if ColumnDimType = ColumnDimType::"Budget Dimension 3" then
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     local procedure BudgetDim2FilterOnAfterValidat()
     begin
-        if ColumnDimOption = ColumnDimOption::"Budget Dimension 2" then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        if ColumnDimType = ColumnDimType::"Budget Dimension 2" then
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     local procedure BudgetDim1FilterOnAfterValidat()
     begin
-        if ColumnDimOption = ColumnDimOption::"Budget Dimension 1" then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        if ColumnDimType = ColumnDimType::"Budget Dimension 1" then
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     local procedure GlobalDim2FilterOnAfterValidat()
     begin
-        if ColumnDimOption = ColumnDimOption::"Global Dimension 2" then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        if ColumnDimType = ColumnDimType::"Global Dimension 2" then
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     local procedure GlobalDim1FilterOnAfterValidat()
     begin
-        if ColumnDimOption = ColumnDimOption::"Global Dimension 1" then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        if ColumnDimType = ColumnDimType::"Global Dimension 1" then
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     local procedure SourceNoFilterOnAfterValidate()
     begin
-        if ColumnDimOption = ColumnDimOption::Vendor then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        if ColumnDimType = ColumnDimType::Vendor then
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     local procedure ItemFilterOnAfterValidate()
     begin
-        if ColumnDimOption = ColumnDimOption::Item then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        if ColumnDimType = ColumnDimType::Item then
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 
     local procedure DateFilterOnAfterValidate()
     begin
-        if ColumnDimOption = ColumnDimOption::Period then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
-        UpdateMatrixSubForm;
+        if ColumnDimType = ColumnDimType::Period then
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubForm();
     end;
 }
 

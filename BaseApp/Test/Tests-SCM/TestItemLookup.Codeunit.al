@@ -24,6 +24,7 @@ codeunit 134835 "Test Item Lookup"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         ItemDoesNotExistMenuTxt: Label 'This item is not registered. To continue, choose one of the following options';
         ItemDoesNotExistErr: Label 'The Item does not exist. Identification fields and values: No.=''%1''';
@@ -219,7 +220,7 @@ codeunit 134835 "Test Item Lookup"
     end;
 
     [Test]
-    [HandlerFunctions('CreateItemStrMenuHandler,ConfigTemplatesModalPageHandler,ItemCardModalPageHandler')]
+    [HandlerFunctions('CreateItemStrMenuHandler,SelectItemTemplListModalPageHandler,ItemCardModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestAutoCreateItemFromDescriptionOnSalesLine()
     var
@@ -1047,7 +1048,7 @@ codeunit 134835 "Test Item Lookup"
     end;
 
     [Test]
-    [HandlerFunctions('CreateItemStrMenuHandler,ConfigTemplatesModalPageHandler,ItemCardModalPageHandler')]
+    [HandlerFunctions('CreateItemStrMenuHandler,SelectItemTemplListModalPageHandler,ItemCardModalPageHandler')]
     [Scope('OnPrem')]
     procedure Sales_ValidateNo_DifferentNo_CreateItemFromNo_TRUE()
     var
@@ -1166,7 +1167,7 @@ codeunit 134835 "Test Item Lookup"
     end;
 
     [Test]
-    [HandlerFunctions('CreateItemStrMenuHandler,ConfigTemplatesModalPageHandler,ItemCardModalPageHandler')]
+    [HandlerFunctions('CreateItemStrMenuHandler,SelectItemTemplListModalPageHandler,ItemCardModalPageHandler')]
     [Scope('OnPrem')]
     procedure Purchase_ValidateNo_DifferentNo_CreateItemFromNo_TRUE()
     var
@@ -1424,6 +1425,8 @@ codeunit 134835 "Test Item Lookup"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Item Lookup");
         LibraryERMCountryData.CreateVATData();
+        LibraryTemplates.EnableTemplatesFeature();
+        LibraryTemplates.UpdateTemplatesVATGroups();
 
         IsInitialized := true;
 
@@ -1502,9 +1505,10 @@ codeunit 134835 "Test Item Lookup"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectItemTemplListModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
     begin
-        ConfigTemplates.OK.Invoke();
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
     end;
 
     [ModalPageHandler]

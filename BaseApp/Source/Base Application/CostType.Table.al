@@ -26,11 +26,9 @@ table 1103 "Cost Type"
         {
             Caption = 'Search Name';
         }
-        field(4; Type; Option)
+        field(4; Type; Enum "Cost Account Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Cost Type,Heading,Total,Begin-Total,End-Total';
-            OptionMembers = "Cost Type",Heading,Total,"Begin-Total","End-Total";
 
             trigger OnValidate()
             var
@@ -137,7 +135,7 @@ table 1103 "Cost Type"
         field(31; "Balance at Date"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Cost Entry".Amount WHERE("Cost Type No." = FIELD("No."),
+            CalcFormula = Sum("Cost Entry".Amount WHERE("Cost Type No." = FIELD("No."),
                                                          "Cost Type No." = FIELD(FILTER(Totaling)),
                                                          "Cost Center Code" = FIELD("Cost Center Filter"),
                                                          "Cost Object Code" = FIELD("Cost Object Filter"),
@@ -149,7 +147,7 @@ table 1103 "Cost Type"
         field(32; "Net Change"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Cost Entry".Amount WHERE("Cost Type No." = FIELD("No."),
+            CalcFormula = Sum("Cost Entry".Amount WHERE("Cost Type No." = FIELD("No."),
                                                          "Cost Type No." = FIELD(FILTER(Totaling)),
                                                          "Cost Center Code" = FIELD("Cost Center Filter"),
                                                          "Cost Object Code" = FIELD("Cost Object Filter"),
@@ -161,7 +159,7 @@ table 1103 "Cost Type"
         field(33; "Budget Amount"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Cost Budget Entry".Amount WHERE("Cost Type No." = FIELD("No."),
+            CalcFormula = Sum("Cost Budget Entry".Amount WHERE("Cost Type No." = FIELD("No."),
                                                                 "Cost Type No." = FIELD(FILTER(Totaling)),
                                                                 "Cost Center Code" = FIELD("Cost Center Filter"),
                                                                 "Cost Object Code" = FIELD("Cost Object Filter"),
@@ -203,7 +201,7 @@ table 1103 "Cost Type"
         field(36; Balance; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Cost Entry".Amount WHERE("Cost Type No." = FIELD("No."),
+            CalcFormula = Sum("Cost Entry".Amount WHERE("Cost Type No." = FIELD("No."),
                                                          "Cost Type No." = FIELD(FILTER(Totaling)),
                                                          "Cost Center Code" = FIELD("Cost Center Filter"),
                                                          "Cost Object Code" = FIELD("Cost Object Filter")));
@@ -234,7 +232,7 @@ table 1103 "Cost Type"
         }
         field(47; "Debit Amount"; Decimal)
         {
-            CalcFormula = Sum ("Cost Entry"."Debit Amount" WHERE("Cost Type No." = FIELD("No."),
+            CalcFormula = Sum("Cost Entry"."Debit Amount" WHERE("Cost Type No." = FIELD("No."),
                                                                  "Cost Type No." = FIELD(FILTER(Totaling)),
                                                                  "Cost Center Code" = FIELD("Cost Center Filter"),
                                                                  "Cost Object Code" = FIELD("Cost Object Filter"),
@@ -244,7 +242,7 @@ table 1103 "Cost Type"
         }
         field(48; "Credit Amount"; Decimal)
         {
-            CalcFormula = Sum ("Cost Entry"."Credit Amount" WHERE("Cost Type No." = FIELD("No."),
+            CalcFormula = Sum("Cost Entry"."Credit Amount" WHERE("Cost Type No." = FIELD("No."),
                                                                   "Cost Type No." = FIELD(FILTER(Totaling)),
                                                                   "Cost Center Code" = FIELD("Cost Center Filter"),
                                                                   "Cost Object Code" = FIELD("Cost Object Filter"),
@@ -255,7 +253,7 @@ table 1103 "Cost Type"
         field(51; "Balance to Allocate"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Cost Entry".Amount WHERE("Cost Type No." = FIELD("No."),
+            CalcFormula = Sum("Cost Entry".Amount WHERE("Cost Type No." = FIELD("No."),
                                                          "Cost Center Code" = FIELD("Cost Center Filter"),
                                                          "Cost Object Code" = FIELD("Cost Object Filter"),
                                                          Allocated = CONST(false),
@@ -267,7 +265,7 @@ table 1103 "Cost Type"
         field(60; "Budget Debit Amount"; Decimal)
         {
             BlankNumbers = BlankNegAndZero;
-            CalcFormula = Sum ("Cost Budget Entry".Amount WHERE("Cost Type No." = FIELD("No."),
+            CalcFormula = Sum("Cost Budget Entry".Amount WHERE("Cost Type No." = FIELD("No."),
                                                                 "Cost Type No." = FIELD(FILTER(Totaling)),
                                                                 "Cost Center Code" = FIELD("Cost Center Filter"),
                                                                 "Cost Object Code" = FIELD("Cost Object Filter"),
@@ -279,7 +277,7 @@ table 1103 "Cost Type"
         field(72; "Budget Credit Amount"; Decimal)
         {
             BlankNumbers = BlankNegAndZero;
-            CalcFormula = - Sum ("Cost Budget Entry".Amount WHERE("Cost Type No." = FIELD("No."),
+            CalcFormula = - Sum("Cost Budget Entry".Amount WHERE("Cost Type No." = FIELD("No."),
                                                                  "Cost Type No." = FIELD(FILTER(Totaling)),
                                                                  "Cost Center Code" = FIELD("Cost Center Filter"),
                                                                  "Cost Object Code" = FIELD("Cost Object Filter"),
@@ -291,7 +289,7 @@ table 1103 "Cost Type"
         field(73; "Add. Currency Net Change"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Cost Entry"."Additional-Currency Amount" WHERE("Cost Type No." = FIELD("No."),
+            CalcFormula = Sum("Cost Entry"."Additional-Currency Amount" WHERE("Cost Type No." = FIELD("No."),
                                                                                "Cost Type No." = FIELD(FILTER(Totaling)),
                                                                                "Cost Center Code" = FIELD("Cost Center Filter"),
                                                                                "Cost Object Code" = FIELD("Cost Object Filter"),
@@ -302,7 +300,7 @@ table 1103 "Cost Type"
         }
         field(74; "Add. Currency Balance at Date"; Decimal)
         {
-            CalcFormula = Sum ("Cost Entry"."Additional-Currency Amount" WHERE("Cost Type No." = FIELD("No."),
+            CalcFormula = Sum("Cost Entry"."Additional-Currency Amount" WHERE("Cost Type No." = FIELD("No."),
                                                                                "Cost Type No." = FIELD(FILTER(Totaling)),
                                                                                "Cost Center Code" = FIELD("Cost Center Filter"),
                                                                                "Cost Object Code" = FIELD("Cost Object Filter"),

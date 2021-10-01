@@ -6,24 +6,27 @@ codeunit 6301 "Power BI Service Mgt."
         AzureAdMgt: Codeunit "Azure AD Mgt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         PowerBISessionManager: Codeunit "Power BI Session Manager";
+#if not CLEAN19
+        PowerBIWorkspaceMgt: Codeunit "Power BI Workspace Mgt.";
+#endif
         GenericErr: Label 'An error occurred while trying to get reports from the Power BI service. Please try again or contact your system administrator if the error persists.';
         PowerBiResourceNameTxt: Label 'Power BI Services';
         ReportPageSizeTxt: Label '16:9', Locked = true;
-        PowerBIHomePageUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2150161', Locked = true;
         UnauthorizedErr: Label 'You do not have a Power BI account. If you have just activated a license, it might take several minutes for the changes to be effective in Power BI.';
         DataNotFoundErr: Label 'The report(s) you are trying to load do not exist.';
         NavAppSourceUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862351', Locked = true;
         Dyn365AppSourceUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862352', Locked = true;
         PowerBIMyOrgUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862353', Locked = true;
+#if not CLEAN19
         ItemTxt: Label 'Items', Locked = true;
         VendorTxt: Label 'Vendors', Locked = true;
         CustomerTxt: Label 'Customers', Locked = true;
         SalesTxt: Label 'Sales Orders', Locked = true;
         InvoicesTxt: Label 'Purchase Invoices', Locked = true;
+#endif
         HackPowerBIGuidTxt: Label '06D251CE-A824-44B2-A5F9-318A0674C3FB', Locked = true;
         JobQueueCategoryCodeTxt: Label 'PBI EMBED', Locked = true;
         JobQueueCategoryDescriptionTxt: Label 'Synchronize Power BI reports', Comment = 'At most 30 characters long';
-        UpdateEmbedCache: Boolean;
         // Telemetry constants
         PowerBiTelemetryCategoryLbl: Label 'PowerBI', Locked = true;
         GetReportsForContextTelemetryMsg: Label 'Empty report URL when loading Power BI reports. Context: %1, ReportId: %2.', Locked = true;
@@ -31,12 +34,17 @@ codeunit 6301 "Power BI Service Mgt."
         OngoingDeploymentTelemetryMsg: Label 'Setting Power BI Ongoing Deployment record for user. Field: %1; Value: %2.', Locked = true;
         ErrorWebResponseTelemetryMsg: Label 'Getting data failed with status code: %1. Exception Message: %2. Exception Details: %3.', Locked = true;
         RetryAfterNotSatisfiedTelemetryMsg: Label 'PowerBI service not ready. Will retry after: %1.', Locked = true;
+#if not CLEAN19
         ParseReportsWarningTelemetryMsg: Label 'Parse reports encountered an unexpected token.', Locked = true;
         UrlTooLongTelemetryMsg: Label 'Parsing reports encountered a URL that is too long to be saved to ReportEmbedUrl. Json message: %1.', Locked = true;
+#endif
         DeploymentDisabledTelemetryMsg: Label 'Report deployment is disabled (tenant: %1, app service: %2)', Locked = true;
         ServiceCallsDisabledTelemetryMsg: Label 'Service calls are disabled for the tenant.', Locked = true;
+        ScheduleSyncTelemetryMsg: Label 'Scheduling sync for datetime: %1.', Locked = true;
 
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Use GetReportsAndWorkspaces in codeunit "Power BI Workspace Mgt." instead.', '19.0')]
     procedure GetReports(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; var ExceptionMessage: Text; var ExceptionDetails: Text; EnglishContext: Text[30])
     var
         JObj: JsonObject;
@@ -62,12 +70,21 @@ codeunit 6301 "Power BI Service Mgt."
         ParseReports(TempPowerBIReportBuffer, JObj, EnglishContext);
     end;
 
+    [Obsolete('Use the GetReportsForUserContext without the ExceptionMessage and ExceptionDetails parameters.', '19.0')]
     [Scope('OnPrem')]
     procedure GetReportsForUserContext(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; var ExceptionMessage: Text; var ExceptionDetails: Text; EnglishContext: Text[30])
+    begin
+        GetReportsForUserContext(TempPowerBIReportBuffer, EnglishContext);
+
+        Clear(ExceptionDetails);
+        Clear(ExceptionMessage);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetReportsForUserContext(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; EnglishContext: Text[30])
     var
         PowerBIReportConfiguration: Record "Power BI Report Configuration";
-        JObj: JsonObject;
-        ResponseText: Text;
     begin
         // Populates a buffer of reports to show to the user for the current context.
         // Some rows of "Power BI Report Configuration" might be old and not contain a cached ReportEmbedUrl, in which
@@ -85,16 +102,14 @@ codeunit 6301 "Power BI Service Mgt."
                 if PowerBIReportConfiguration.ReportEmbedUrl <> '' then begin
                     TempPowerBIReportBuffer.ReportID := PowerBIReportConfiguration."Report ID";
                     TempPowerBIReportBuffer.Validate(ReportEmbedUrl, PowerBIReportConfiguration.ReportEmbedUrl);
+                    TempPowerBIReportBuffer."Workspace Name" := PowerBIReportConfiguration."Workspace Name";
+                    TempPowerBIReportBuffer."Workspace ID" := PowerBIReportConfiguration."Workspace ID";
                     TempPowerBIReportBuffer.Enabled := true;
                     if TempPowerBIReportBuffer.Insert() then;
                 end else
-                    // This is OK and will be cleaned up next time they select some report for this context
-                    if not IsNullGuid(PowerBIReportConfiguration."Report ID") then begin
-                        Session.LogMessage('0000B6Z', StrSubstNo(GetReportsForContextTelemetryMsg, EnglishContext, Format(PowerBIReportConfiguration."Report ID")), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
-                        ResponseText := GetData(ExceptionMessage, ExceptionDetails, GetReportsUrl() + '/' + Format(PowerBIReportConfiguration."Report ID"));
-                        JObj.ReadFrom(ResponseText);
-                        ParseReport(TempPowerBIReportBuffer, JObj, EnglishContext);
-                    end else
+                    if not IsNullGuid(PowerBIReportConfiguration."Report ID") then
+                        Session.LogMessage('0000B6Z', StrSubstNo(GetReportsForContextTelemetryMsg, EnglishContext, Format(PowerBIReportConfiguration."Report ID")), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl)
+                    else
                         Session.LogMessage('0000EDL', GhostReportTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
             until PowerBIReportConfiguration.Next() = 0;
     end;
@@ -141,9 +156,9 @@ codeunit 6301 "Power BI Service Mgt."
 
     procedure GetPowerBIResourceUrl(): Text
     var
-        UrlHelper: Codeunit "Url Helper";
+        PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
     begin
-        exit(UrlHelper.GetPowerBIResourceUrl);
+        exit(PowerBIUrlMgt.GetPowerBIResourceUrl);
     end;
 
     procedure GetPowerBiResourceName(): Text
@@ -166,10 +181,15 @@ codeunit 6301 "Power BI Service Mgt."
         exit(UnauthorizedErr);
     end;
 
+#if not CLEAN19
+    [Obsolete('Use the function GetLicenseUrl of codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIUrl(): Text
+    var
+        PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
     begin
-        exit(PowerBIHomePageUrlTxt);
+        exit(PowerBIUrlMgt.GetLicenseUrl());
     end;
+#endif
 
     procedure GetContentPacksServicesUrl(): Text
     var
@@ -192,6 +212,8 @@ codeunit 6301 "Power BI Service Mgt."
     procedure SynchronizeReportsInBackground()
     var
         JobQueueEntry: Record "Job Queue Entry";
+        PowerBIServiceStatusSetup: Record "Power BI Service Status Setup";
+        ScheduledDateTime: DateTime;
     begin
         // Schedules a background task to do default report deletion
         if not CanHandleServiceCalls() then begin
@@ -199,7 +221,13 @@ codeunit 6301 "Power BI Service Mgt."
             exit;
         end;
 
-        JobQueueEntry.ScheduleJobQueueEntryForLater(Codeunit::"Power BI Report Synchronizer", CurrentDateTime(), GetJobQueueCategoryCode(), '');
+        if PowerBIServiceStatusSetup.FindFirst() and (PowerBIServiceStatusSetup."Retry After" > CurrentDateTime()) then
+            ScheduledDateTime := PowerBIServiceStatusSetup."Retry After"
+        else
+            ScheduledDateTime := CurrentDateTime();
+
+        Session.LogMessage('0000FB2', StrSubstNo(ScheduleSyncTelemetryMsg, ScheduledDateTime), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
+        JobQueueEntry.ScheduleJobQueueEntryForLater(Codeunit::"Power BI Report Synchronizer", ScheduledDateTime, GetJobQueueCategoryCode(), '')
     end;
 
     [Scope('OnPrem')]
@@ -273,19 +301,6 @@ codeunit 6301 "Power BI Service Mgt."
         exit(true);
     end;
 
-#if not CLEAN16
-    [Scope('OnPrem')]
-    [Obsolete('Use more specific tags to make data classification and filtering easier.', '16.0')]
-    procedure LogException(var ExceptionMessage: Text; var ExceptionDetails: Text)
-    begin
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Use more specific tags to make data classification and filtering easier.', '16.0')]
-    procedure LogMessage(Message: Text)
-    begin
-    end;
-#endif
 
     procedure CanHandleServiceCalls() CanHandle: Boolean
     var
@@ -326,6 +341,8 @@ codeunit 6301 "Power BI Service Mgt."
         exit(not PowerBIReportUploads.IsEmpty);
     end;
 
+#if not CLEAN19
+    [Obsolete('Hardcoded name filtering for reports is deprecated. The user can search reports with the builtin search function in the page.', '19.0')]
     [Scope('OnPrem')]
     procedure GetFactboxFilterFromID(PageId: Text): Text
     begin
@@ -343,6 +360,7 @@ codeunit 6301 "Power BI Service Mgt."
                 exit(InvoicesTxt);
         end;
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure GetData(var ExceptionMessage: Text; var ExceptionDetails: Text; Url: Text) ResponseText: Text
@@ -400,6 +418,7 @@ codeunit 6301 "Power BI Service Mgt."
         exit(ResponseText);
     end;
 
+#if not CLEAN19
     local procedure ParseReport(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; JObj: JsonObject; EnglishContext: Text[30])
     var
         PowerBIReportConfiguration: Record "Power BI Report Configuration";
@@ -424,15 +443,13 @@ codeunit 6301 "Power BI Service Mgt."
             CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(TempPowerBIReportBuffer.ReportEmbedUrl)));
 
         PowerBIReportConfiguration.Reset();
-        if PowerBIReportConfiguration.Get(UserSecurityId(), TempPowerBIReportBuffer.ReportID, EnglishContext) then begin
+        if PowerBIReportConfiguration.Get(UserSecurityId(), TempPowerBIReportBuffer.ReportID, EnglishContext) then
             // report enabled
             TempPowerBIReportBuffer.Enabled := true;
 
-            if PowerBIReportConfiguration.ReportEmbedUrl = '' then
-                UpdateEmbedCache := true;
-        end;
+        TempPowerBIReportBuffer."Workspace Name" := PowerBIWorkspaceMgt.GetMyWorkspaceLabel();
 
-        TempPowerBIReportBuffer.Insert();
+        TempPowerBIReportBuffer.Insert()
     end;
 
     local procedure ParseReports(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; JObj: JsonObject; EnglishContext: Text[30])
@@ -451,13 +468,14 @@ codeunit 6301 "Power BI Service Mgt."
 
         Session.LogMessage('0000B71', ParseReportsWarningTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure GetReportsUrl(): Text
     var
-        UrlHelper: Codeunit "Url Helper";
+        PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
     begin
-        exit(UrlHelper.GetPowerBIReportsUrl);
+        exit(PowerBIUrlMgt.GetPowerBIReportsUrl);
     end;
 
 #if not CLEAN18
@@ -498,25 +516,24 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 #endif
 
+#if not CLEAN19
+    [Obsolete('This function was used to update old records just-in-time, and is no longer needed.', '19.0')]
     [Scope('OnPrem')]
     procedure UpdateEmbedUrlCache(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; EnglishContext: Text)
     var
         PowerBIReportConfiguration: Record "Power BI Report Configuration";
     begin
-        if UpdateEmbedCache then begin
-            TempPowerBIReportBuffer.Reset();
-            if TempPowerBIReportBuffer.Find('-') then
-                repeat
-                    if TempPowerBIReportBuffer.ReportEmbedUrl <> '' then
-                        if PowerBIReportConfiguration.Get(UserSecurityId(), TempPowerBIReportBuffer.ReportID, EnglishContext) then begin
-                            PowerBIReportConfiguration.Validate(ReportEmbedUrl, TempPowerBIReportBuffer.ReportEmbedUrl);
-                            if PowerBIReportConfiguration.Modify() then;
-                        end;
-                until TempPowerBIReportBuffer.Next() = 0;
-
-            UpdateEmbedCache := false;
-        end;
+        TempPowerBIReportBuffer.Reset();
+        if TempPowerBIReportBuffer.Find('-') then
+            repeat
+                if TempPowerBIReportBuffer.ReportEmbedUrl <> '' then
+                    if PowerBIReportConfiguration.Get(UserSecurityId(), TempPowerBIReportBuffer.ReportID, EnglishContext) then begin
+                        PowerBIReportConfiguration.Validate(ReportEmbedUrl, TempPowerBIReportBuffer.ReportEmbedUrl);
+                        if PowerBIReportConfiguration.Modify() then;
+                    end;
+            until TempPowerBIReportBuffer.Next() = 0;
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure GetEnglishContext(): Code[30]

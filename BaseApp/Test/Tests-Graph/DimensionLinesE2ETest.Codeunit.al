@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135532 "Dimension Lines E2E Test"
 {
     Subtype = Test;
@@ -580,4 +581,4 @@ codeunit 135532 "Dimension Lines E2E Test"
         exit(DimensionSetEntry.FindFirst);
     end;
 }
-
+#endif

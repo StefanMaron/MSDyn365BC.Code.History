@@ -521,7 +521,7 @@ codeunit 137916 "SCM Assembly Reservation I"
     local procedure CreateAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; ParentItemNo: Code[20]; ChildItemNo: Code[20]; DueDate: Date; Qty: Decimal; LocationCode: Code[10])
     begin
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, DueDate, ParentItemNo, '', Qty, '');
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, ChildItemNo, '', Qty, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItemNo, '', Qty, 1, '');
         AssemblyLine.Validate("Location Code", LocationCode);
         AssemblyLine.Modify(true);
     end;
@@ -557,7 +557,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
     end;
 
-    local procedure VerifyReservationEntry(ItemNo: Code[20]; SerialNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    local procedure VerifyReservationEntry(ItemNo: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; Qty: Decimal)
     var
         ReservationEntry: Record "Reservation Entry";
     begin

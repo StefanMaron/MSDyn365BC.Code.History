@@ -1,4 +1,4 @@
-﻿table 5409 "Prod. Order Routing Line"
+table 5409 "Prod. Order Routing Line"
 {
     Caption = 'Prod. Order Routing Line';
     DrillDownPageID = "Prod. Order Routing";
@@ -42,7 +42,7 @@
                 IsHandled: Boolean;
             begin
                 GetProdOrderLine();
-                OnBeforeTerminationProcessesErr(IsHandled);
+                OnBeforeTerminationProcessesErr(IsHandled, Rec, xRec);
                 if not IsHandled then
                     if (xRec."Next Operation No." = '') and ("Next Operation No." <> '') and NoTerminationProcessesExist then
                         Error(NoTerminationProcessesErr);
@@ -1632,7 +1632,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTerminationProcessesErr(var IsHandled: Boolean)
+    local procedure OnBeforeTerminationProcessesErr(var IsHandled: Boolean; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; xProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 

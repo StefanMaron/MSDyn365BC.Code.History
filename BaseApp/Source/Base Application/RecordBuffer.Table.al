@@ -24,7 +24,7 @@ table 6529 "Record Buffer"
         field(5; "Record Identifier"; RecordID)
         {
             Caption = 'Record Identifier';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(6; "Search Record ID"; Code[100])

@@ -1,4 +1,4 @@
-﻿report 7306 "Get Inbound Source Documents"
+report 7306 "Get Inbound Source Documents"
 {
     Caption = 'Get Inbound Source Documents';
     ProcessingOnly = true;
@@ -125,7 +125,7 @@
         LocationCode := LocationCode2;
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeWhsePutAwayRequestOnAfterGetRecord(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line");
     begin
     end;

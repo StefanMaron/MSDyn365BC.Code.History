@@ -1,4 +1,4 @@
-﻿table 5740 "Transfer Header"
+table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -306,7 +306,7 @@
                 TestStatusOpen;
 
                 IsHandled := false;
-                OnValidateShipmentDateOnBeforeCalcReceiptDate(IsHandled);
+                OnValidateShipmentDateOnBeforeCalcReceiptDate(IsHandled, Rec);
                 if not IsHandled then
                     CalcReceiptDate();
 
@@ -324,7 +324,7 @@
                 TestStatusOpen;
 
                 IsHandled := false;
-                OnValidateReceiptDateOnBeforeCalcShipmentDate(IsHandled);
+                OnValidateReceiptDateOnBeforeCalcShipmentDate(IsHandled, Rec);
                 if not IsHandled then
                     CalcShipmentDate();
 
@@ -773,7 +773,7 @@
         TransLine: Record "Transfer Line";
         IsHandled: Boolean;
     begin
-        OnBeforeDeleteTransferLines(IsHandled);
+        OnBeforeDeleteTransferLines(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -1357,7 +1357,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeDeleteTransferLines(var IsHandled: Boolean)
+    local procedure OnBeforeDeleteTransferLines(var IsHandled: Boolean; var TransferHeader: Record "Transfer Header")
     begin
     end;
 
@@ -1417,12 +1417,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateReceiptDateOnBeforeCalcShipmentDate(var IsHandled: Boolean)
+    local procedure OnValidateReceiptDateOnBeforeCalcShipmentDate(var IsHandled: Boolean; var TransferHeader: Record "Transfer Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateShipmentDateOnBeforeCalcReceiptDate(var IsHandled: Boolean)
+    local procedure OnValidateShipmentDateOnBeforeCalcReceiptDate(var IsHandled: Boolean; var TransferHeader: Record "Transfer Header")
     begin
     end;
 

@@ -5,13 +5,13 @@ codeunit 5981 "Service-Post (Yes/No)"
 
     trigger OnRun()
     begin
-        Code(Rec, ServiceHeaderPreviewContext);
+        Code(Rec, GlobalServiceHeader);
     end;
 
     var
         ShipInvoiceConsumeQst: Label '&Ship,&Invoice,Ship &and Invoice,Ship and &Consume';
         PostConfirmQst: Label 'Do you want to post the %1?', Comment = '%1 = Document Type';
-        ServiceHeaderPreviewContext: Record "Service Header";
+        GlobalServiceHeader: Record "Service Header";
         Selection: Integer;
         PreviewMode: Boolean;
         CancelErr: Label 'The preview has been canceled.';
@@ -63,6 +63,7 @@ codeunit 5981 "Service-Post (Yes/No)"
 
             ServicePost.SetPreviewMode(PreviewMode);
             ServicePost.PostWithLines(PassedServiceHeader, PassedServLine, Ship, Consume, Invoice);
+            GlobalServiceHeader.Copy(PassedServiceHeader);
         end;
 
         OnAfterPost(PassedServiceHeader);
@@ -99,7 +100,7 @@ codeunit 5981 "Service-Post (Yes/No)"
             exit;
 
         BindSubscription(ServicePostYesNo);
-        ServicePostYesNo.SetPreviewContext(ServHeader);
+        ServicePostYesNo.SetGlobalServiceHeader(ServHeader);
         GenJnlPostPreview.Preview(ServicePostYesNo, TempServLine);
     end;
 
@@ -109,13 +110,24 @@ codeunit 5981 "Service-Post (Yes/No)"
         ServicePostYesNo: Codeunit "Service-Post (Yes/No)";
     begin
         BindSubscription(ServicePostYesNo);
-        ServicePostYesNo.SetPreviewContext(ServHeader);
+        ServicePostYesNo.SetGlobalServiceHeader(ServHeader);
         GenJnlPostPreview.Preview(ServicePostYesNo, PassedServLine);
     end;
-
+#if not CLEAN19
+    [Obsolete('Replaced by SetGlobalServiceHeader', '19.0')]
     procedure SetPreviewContext(var ServiceHeader: Record "Service Header")
     begin
-        ServiceHeaderPreviewContext.Copy(ServiceHeader);
+        GlobalServiceHeader.Copy(ServiceHeader);
+    end;
+#endif
+    procedure SetGlobalServiceHeader(var ServiceHeader: Record "Service Header")
+    begin
+        GlobalServiceHeader.Copy(ServiceHeader);
+    end;
+
+    procedure GetGlobalServiceHeader(var ServiceHeader: Record "Service Header")
+    begin
+        ServiceHeader.Copy(GlobalServiceHeader);
     end;
 
     [IntegrationEvent(false, false)]

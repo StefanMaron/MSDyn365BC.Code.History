@@ -276,7 +276,18 @@ table 133 "Incoming Document Attachment"
 
     procedure Import(): Boolean
     begin
-        exit(CODEUNIT.Run(CODEUNIT::"Import Attachment - Inc. Doc.", Rec));
+        exit(Import(false));
+    end;
+
+    procedure Import(RethrowError: Boolean): Boolean
+    begin
+        if CODEUNIT.Run(CODEUNIT::"Import Attachment - Inc. Doc.", Rec) then
+            exit(true);
+
+        if not RethrowError then
+            exit(false);
+
+        Error(GetLastErrorText());
     end;
 
     [Scope('OnPrem')]

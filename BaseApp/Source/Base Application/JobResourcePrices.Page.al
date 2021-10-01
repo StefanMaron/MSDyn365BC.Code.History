@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1011 "Job Resource Prices"
 {
     Caption = 'Job Resource Prices';
@@ -104,4 +105,4 @@ page 1011 "Job Resource Prices"
         FeaturePriceCalculation.FailIfFeatureEnabled();
     end;
 }
-
+#endif

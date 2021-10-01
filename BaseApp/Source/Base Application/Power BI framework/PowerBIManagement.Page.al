@@ -22,10 +22,10 @@ page 6319 "Power BI Management"
 
                     trigger AddInReady()
                     var
-                        UrlHelper: Codeunit "Url Helper";
+                        PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
                         Url: Text;
                     begin
-                        Url := UrlHelper.GetPowerBIEmbedReportsUrl;
+                        Url := PowerBIUrlMgt.GetPowerBIEmbedReportsUrl;
 
                         if not IsNullGuid(TargetReportId) and (TargetReportUrl <> '') then begin
                             CurrPage.PowerBIManagement.InitializeReport(TargetReportUrl, TargetReportId,

@@ -16,6 +16,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+        LibraryTemplates: Codeunit "Library - Templates";
         Assert: Codeunit Assert;
         ContactMissingCompanyErr: Label 'The contact cannot be synchronized because the company does not exist';
 
@@ -231,6 +232,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
+        Contact.Find();
 
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.Get('CONTACT');
@@ -522,6 +524,7 @@ codeunit 139181 "CRM Synch. Rules Test"
     begin
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
+        LibraryTemplates.EnableTemplatesFeature();
     end;
 
     local procedure InitCRMBaseCurrency()
@@ -559,7 +562,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
         CompanyContact.Get(Contact."Company No.");
         CompanyContact.SetHideValidationDialog(true);
-        CustomerNo := CompanyContact.CreateCustomer('');
+        CustomerNo := CompanyContact.CreateCustomerFromTemplate('');
         Customer.Get(CustomerNo);
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId(), CRMAccount.AccountId);

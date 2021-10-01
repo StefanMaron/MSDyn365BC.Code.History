@@ -499,7 +499,7 @@ page 5124 "Opportunity Card"
         if CRMIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
 
-        if GlobalContact.Get("Contact No.") then;
+        GlobalContact.GetOrClear("Contact No.");
     end;
 
     trigger OnInit()
@@ -567,14 +567,19 @@ page 5124 "Opportunity Card"
 
     local procedure UpdateEditable()
     begin
-        Started := (Status <> Status::"Not Started");
-        SalesCycleCodeEditable := Status = Status::"Not Started";
-        SalespersonCodeEditable := Status < Status::Won;
-        CampaignNoEditable := Status < Status::Won;
-        PriorityEditable := Status < Status::Won;
-        ContactNoEditable := Status < Status::Won;
-        SalesDocumentNoEditable := Status = Status::"In Progress";
-        SalesDocumentTypeEditable := Status = Status::"In Progress";
+        Started := (Rec.Status <> "Opportunity Status"::"Not Started");
+        SalesCycleCodeEditable := Rec.Status = "Opportunity Status"::"Not Started";
+        SalespersonCodeEditable := IsStatusLessThanWon();
+        CampaignNoEditable := IsStatusLessThanWon();
+        PriorityEditable := IsStatusLessThanWon();
+        ContactNoEditable := IsStatusLessThanWon();
+        SalesDocumentNoEditable := Rec.Status = "Opportunity Status"::"In Progress";
+        SalesDocumentTypeEditable := Rec.Status = "Opportunity Status"::"In Progress";
+    end;
+
+    local procedure IsStatusLessThanWon(): Boolean
+    begin
+        exit(Rec.Status.AsInteger() < "Opportunity Status"::Won.AsInteger());
     end;
 
     local procedure ContactNoOnAfterValidate()

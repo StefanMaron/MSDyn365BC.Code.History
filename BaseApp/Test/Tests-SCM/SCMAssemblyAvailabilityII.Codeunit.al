@@ -1192,7 +1192,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmHeader.Validate("Location Code", Location.Code);
         AsmHeader.Modify(true);
         // edit the production lead time on the asm line to 5D
-        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, AsmLine.Type::Item, ChildItem."No.", '', 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, ChildItem."No.", '', 1, 1, '');
         AsmLine.Validate("Location Code", Location.Code);
         Evaluate(LeadTime, '5D');
         AsmLine.Validate("Lead-Time Offset", LeadTime);
@@ -1332,7 +1332,7 @@ codeunit 137912 "SCM Assembly Availability II"
         ParentItem.Modify(true);
         if DemandDate <> 0D then begin
             LibraryAssembly.CreateAssemblyHeader(AsmHeader2, DemandDate, ParentItem."No.", '', DemandQty, '');
-            LibraryAssembly.CreateAssemblyLine(AsmHeader2, AsmLine2, AsmLine2.Type::Item, ChildItem."No.", '', DemandQty, 1, '');
+            LibraryAssembly.CreateAssemblyLine(AsmHeader2, AsmLine2, "BOM Component Type"::Item, ChildItem."No.", '', DemandQty, 1, '');
         end;
 
         // make the Assembly list- the reason it wasnt above because it throws up availability warning.

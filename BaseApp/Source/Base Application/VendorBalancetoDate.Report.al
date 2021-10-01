@@ -404,7 +404,8 @@ report 321 "Vendor - Balance to Date"
         with VendorLedgerEntry do begin
             SetCurrentKey("Vendor No.", Open);
             SetRange("Vendor No.", Vendor."No.");
-            SetRange(Open, true);
+            if not ShowEntriesWithZeroBalance then
+                SetRange(Open, true);
             SetRange("Posting Date", 0D, MaxDate);
         end;
     end;
@@ -463,7 +464,7 @@ report 321 "Vendor - Balance to Date"
                         CurrencyCode := "Currency Code";
                     end;
 
-                    if RemainingAmt <> 0 then
+                    if (RemainingAmt <> 0) or ShowEntriesWithZeroBalance then
                         CurrencyTotalBuffer.UpdateTotal(
                           CurrencyCode,
                           RemainingAmt,
@@ -481,6 +482,8 @@ report 321 "Vendor - Balance to Date"
             VendorLedgerEntry.SetRange("Date Filter", 0D, MaxDate);
             VendorLedgerEntry.CalcFields("Remaining Amount");
             if VendorLedgerEntry."Remaining Amount" <> 0 then
+                exit(true);
+            if ShowEntriesWithZeroBalance then
                 exit(true);
             if PrintUnappliedEntries then
                 exit(CheckUnappliedEntryExists(EntryNo));

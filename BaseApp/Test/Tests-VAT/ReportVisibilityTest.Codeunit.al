@@ -29,7 +29,7 @@ codeunit 134095 "Report Visibility Test"
     [Scope('OnPrem')]
     procedure TestECSLCardControllerVisibility()
     var
-        ReportType: Option;
+        ReportType: Enum "VAT Report Configuration";
     begin
         // [SCENARIO] For each status of the report, certain controllers is visible.
         // [GIVEN] Empty Vat report header table, ECSL report card and list page.
@@ -55,7 +55,7 @@ codeunit 134095 "Report Visibility Test"
     [Scope('OnPrem')]
     procedure TestVATReportCardControllerVisibility()
     var
-        ReportType: Option;
+        ReportType: Enum "VAT Report Configuration";
     begin
         // [SCENARIO] For each status of the report, certain controllers is visible.
         // [GIVEN] Empty Vat report header table, VAT report card and list page and VAT report configration with VAT report
@@ -243,7 +243,7 @@ codeunit 134095 "Report Visibility Test"
     end;
 
     [Scope('OnPrem')]
-    procedure InsertVATReportHeader(ReportType: Option)
+    procedure InsertVATReportHeader(ReportType: Enum "VAT Report Configuration")
     begin
         VATReportHeader.Init();
         VATReportHeader.Validate("VAT Report Config. Code", ReportType);
@@ -275,7 +275,7 @@ codeunit 134095 "Report Visibility Test"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateVATReportConfiguration(ReportType: Option)
+    procedure CreateVATReportConfiguration(ReportType: Enum "VAT Report Configuration")
     var
         VATReportsConfiguration: Record "VAT Reports Configuration";
     begin

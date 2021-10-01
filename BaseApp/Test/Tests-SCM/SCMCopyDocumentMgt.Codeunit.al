@@ -1487,8 +1487,10 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         CreateEmptySalesHeader(SalesHeader, SalesHeader."Document Type"::Quote);
         SalesHeader."Document Date" := WorkDate;
+#if not CLEAN18
         SalesHeader."Sell-to Customer Template Code" := FindCustomerTemplate;
         SalesHeader."Bill-to Customer Template Code" := SalesHeader."Sell-to Customer Template Code";
+#endif
         SalesHeader.Modify();
         CreateBlankSalesLine(SalesHeader, SalesLine, SalesHeader."Document Type");
     end;
@@ -1704,6 +1706,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
+#if not CLEAN18
     local procedure FindCustomerTemplate(): Code[10]
     var
         CustomerTemplate: Record "Customer Template";
@@ -1711,7 +1714,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         CustomerTemplate.FindFirst;
         exit(CustomerTemplate.Code);
     end;
-
+#endif
     local procedure CreateVendor(): Code[20]
     var
         Vendor: Record Vendor;
@@ -2214,7 +2217,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         ReservationEntry: Record "Reservation Entry";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
     begin
-        SalesLineReserve.FilterReservFor(ReservationEntry, SalesLine);
+        SalesLine.SetReservationFilters(ReservationEntry);
         ReservationEntry.SetRange("Item Tracking", ReservationEntry."Item Tracking"::"Serial No.");
         Assert.RecordCount(ReservationEntry, Qty);
     end;

@@ -44,7 +44,7 @@ table 5531 "Inventory Page Data"
         field(9; "Source Line ID"; RecordID)
         {
             Caption = 'Source Line ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(10; "Item No."; Code[20])
@@ -145,7 +145,7 @@ table 5531 "Inventory Page Data"
         field(30; "Source Document ID"; RecordID)
         {
             Caption = 'Source Document ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(31; "Attached to Line No."; Integer)

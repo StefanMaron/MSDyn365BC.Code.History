@@ -3,7 +3,7 @@ page 1173 "Document Attachment Details"
     Caption = 'Attached Documents';
     DelayedInsert = true;
     Editable = true;
-    PageType = Worksheet;
+    PageType = List;
     SourceTable = "Document Attachment";
     SourceTableView = SORTING(ID, "Table ID");
 
@@ -81,16 +81,43 @@ page 1173 "Document Attachment Details"
     {
         area(processing)
         {
-            action(Preview)
+            action(OpenInOneDrive)
             {
-                ApplicationArea = All;
-                Caption = 'Preview';
-                Image = Export;
+                ApplicationArea = Basic, Suite;
+                Caption = 'Open in OneDrive';
+                ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
+                Image = Cloud;
+                Enabled = ShareOprionsEnabled;
                 Promoted = true;
+                PromotedOnly = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 Scope = Repeater;
-                ToolTip = 'Get a preview of the attachment.';
+                trigger OnAction()
+                var
+                    FileManagement: Codeunit "File Management";
+                    DocumentServiceMgt: Codeunit "Document Service Management";
+                    FileName: Text;
+                    FileExtension: Text;
+                begin
+                    FileName := FileManagement.StripNotsupportChrInFileName(Rec."File Name");
+                    FileExtension := StrSubstNo(FileExtensionLbl, Rec."File Extension");
+
+                    DocumentServiceMgt.OpenInOneDriveFromMedia(FileName, FileExtension, "Document Reference ID".MediaId());
+                end;
+            }
+            action(Preview)
+            {
+                ApplicationArea = All;
+                Caption = 'Download';
+                Image = Download;
+                Enabled = DowbloadEnabled;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                Scope = Repeater;
+                ToolTip = 'Download the file to your device. Depending on the file, you will need an app to view or edit the file.';
 
                 trigger OnAction()
                 begin
@@ -106,22 +133,35 @@ page 1173 "Document Attachment Details"
         FlowFieldsEditable := true;
     end;
 
+    trigger OnAfterGetCurrRecord()
+    var
+        DocumentSharing: Codeunit "Document Sharing";
+    begin
+        ShareOprionsEnabled := (Rec."Document Reference ID".HasValue()) and (DocumentSharing.ShareEnabled());
+        DowbloadEnabled := Rec."Document Reference ID".HasValue();
+    end;
+
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         "File Name" := SelectFileTxt;
     end;
 
     var
-        FromRecRef: RecordRef;
         SalesDocumentFlow: Boolean;
+        FileExtensionLbl: Label '.%1', Locked = true;
         FileDialogTxt: Label 'Attachments (%1)|%1', Comment = '%1=file types, such as *.txt or *.docx';
         FilterTxt: Label '*.jpg;*.jpeg;*.bmp;*.png;*.gif;*.tiff;*.tif;*.pdf;*.docx;*.doc;*.xlsx;*.xls;*.pptx;*.ppt;*.msg;*.xml;*.*', Locked = true;
         ImportTxt: Label 'Attach a document.';
         SelectFileTxt: Label 'Select File...';
         PurchaseDocumentFlow: Boolean;
+        ShareOprionsEnabled: Boolean;
+        DowbloadEnabled: Boolean;
         FlowToPurchTxt: Label 'Flow to Purch. Trx';
         FlowToSalesTxt: Label 'Flow to Sales Trx';
         FlowFieldsEditable: Boolean;
+
+    protected var
+        FromRecRef: RecordRef;
 
     local procedure GetCaptionClass(FieldNo: Integer): Text
     begin

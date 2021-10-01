@@ -1,4 +1,4 @@
-﻿codeunit 5510 "Production Journal Mgt"
+codeunit 5510 "Production Journal Mgt"
 {
 
     trigger OnRun()
@@ -357,8 +357,15 @@
             OnInsertOutputItemJnlLineOnBeforeSubcontractingWorkCenterUsed(ItemJnlLine, ProdOrderLine);
             if ItemJnlLine.SubcontractingWorkCenterUsed then
                 ItemJnlLine.Validate("Output Quantity", 0)
-            else
+            else begin
+                if not IsLastOperation(ProdOrderRtngLine) then begin
+                    ItemJnlLine."Qty. Rounding Precision" := 0;
+                    ItemJnlLine."Qty. Rounding Precision (Base)" := 0;
+                end;
+                QtyToPost := UOMMgt.RoundQty(QtyToPost, ItemJnlLine."Qty. Rounding Precision (Base)");
                 ItemJnlLine.Validate("Output Quantity", QtyToPost);
+            end;
+
 
             if ProdOrderRtngLine."Routing Status" = ProdOrderRtngLine."Routing Status"::Finished then
                 ItemJnlLine.Finished := true;

@@ -4438,6 +4438,42 @@ End Function
         <Field Name="Qty_Lbl">
           <DataField>Qty_Lbl</DataField>
         </Field>
+        <Field Name="Unit_Gross_Weight_Lbl">
+          <DataField>Unit_Gross_Weight_Lbl</DataField>
+        </Field>
+        <Field Name="Unit_Gross_Weight">
+          <DataField>Unit_Gross_Weight</DataField>
+        </Field>
+        <Field Name="Unit_Gross_WeightFormat">
+          <DataField>Unit_Gross_WeightFormat</DataField>
+        </Field>
+        <Field Name="Unit_Net_Weight_Lbl">
+          <DataField>Unit_Net_Weight_Lbl</DataField>
+        </Field>
+        <Field Name="Unit_Net_Weight">
+          <DataField>Unit_Net_Weight</DataField>
+        </Field>
+        <Field Name="Unit_Net_WeightFormat">
+          <DataField>Unit_Net_WeightFormat</DataField>
+        </Field>
+        <Field Name="Unit_Volume_Lbl">
+          <DataField>Unit_Volume_Lbl</DataField>
+        </Field>
+        <Field Name="Unit_Volume">
+          <DataField>Unit_Volume</DataField>
+        </Field>
+        <Field Name="Unit_VolumeFormat">
+          <DataField>Unit_VolumeFormat</DataField>
+        </Field>
+        <Field Name="Units_per_Parcel_Lbl">
+          <DataField>Units_per_Parcel_Lbl</DataField>
+        </Field>
+        <Field Name="Units_per_Parcel">
+          <DataField>Units_per_Parcel</DataField>
+        </Field>
+        <Field Name="Units_per_ParcelFormat">
+          <DataField>Units_per_ParcelFormat</DataField>
+        </Field>
         <Field Name="LineNo_AssemblyLine">
           <DataField>LineNo_AssemblyLine</DataField>
         </Field>

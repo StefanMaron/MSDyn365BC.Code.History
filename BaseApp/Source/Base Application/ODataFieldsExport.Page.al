@@ -34,6 +34,7 @@ page 6713 "OData Fields Export"
         TenantWebServiceOData: Record "Tenant Web Service OData";
         WebServiceManagement: Codeunit "Web Service Management";
         ODataUtility: Codeunit ODataUtility;
+        EditinExcel: Codeunit "Edit in Excel";
         SelectText: Text;
         ODataV3FilterText: Text;
         ODataV4FilterText: Text;
@@ -53,7 +54,7 @@ page 6713 "OData Fields Export"
             WebServiceManagement.SetODataV4FilterClause(TenantWebServiceOData, ODataV4FilterText);
             TenantWebServiceOData.Modify(true);
 
-            ODataUtility.GenerateExcelWorkBook(TenantWebService."Object Type", TenantWebService."Service Name", true, '');
+            EditinExcel.GenerateExcelWorkBook(TenantWebService, '');
         end;
     end;
 

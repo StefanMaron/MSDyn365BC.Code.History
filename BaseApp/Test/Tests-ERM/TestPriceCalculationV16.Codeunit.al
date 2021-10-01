@@ -926,6 +926,7 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceCalculationBuffer.TestField("Document Date", ResJournalLine."Time Sheet Date");
     end;
 
+#if not CLEAN19
     [Test]
     procedure T050_ApplyDiscountSalesLineCalculateDiscIfAllowLineDiscFalseV15()
     var
@@ -981,6 +982,7 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesLine.TestField("Allow Line Disc.", false);
         SalesLine.TestField("Line Discount %", ExpectedDiscount);
     end;
+#endif
 
     [Test]
     procedure T051_ApplyDiscountSalesLineCalculateDiscIfAllowLineDiscFalseV16()
@@ -991,7 +993,6 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine: Record "Price List Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        SalesLineDiscount: Record "Sales Line Discount";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculation: interface "Price Calculation";
@@ -1006,8 +1007,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
         ExpectedDiscount := LibraryRandom.RandInt(50);
-        CreateCustomerItemDiscount(SalesLineDiscount, Customer."No.", Item, ExpectedDiscount);
-        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
+        CreateCustomerItemDiscount(PriceListLine, "Price Source Type"::Customer, Customer."No.", Item, ExpectedDiscount);
 
         // [GIVEN] Invoice, where "Price Calculation Method" is "Lowest Price" 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
@@ -1605,7 +1605,6 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        SalesLineDiscount: Record "Sales Line Discount";
         SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         PriceCalculation: interface "Price Calculation";
@@ -1616,21 +1615,19 @@ codeunit 134159 "Test Price Calculation - V16"
         // [FEATURE] [Sales] [Discount]
         // [SCENARIO] ApplyDiscount() updates 'Line Discount %' in sales line.
         Initialize();
-        // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default
+        // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'B' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         end;
         // [GIVEN] Two "Sales Line discount" records for Item 'X': 15% and 14.99%
-        SalesLineDiscount.DeleteAll();
+        PriceListLine.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
         ExpectedDiscount := LibraryRandom.RandInt(50);
-        CreateCustomerItemDiscount(SalesLineDiscount, Customer."No.", Item, ExpectedDiscount - 0.01);
-        CreateAllCustomerItemDiscount(SalesLineDiscount, Item, ExpectedDiscount);
-
-        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
+        CreateCustomerItemDiscount(PriceListLine, "Price Source Type"::Customer, Customer."No.", Item, ExpectedDiscount - 0.01);
+        CreateCustomerItemDiscount(PriceListLine, "Price Source Type"::"All Customers", '', Item, ExpectedDiscount);
 
         // [GIVEN] Invoice, where "Price Calculation Method" is "Lowest Price" 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
@@ -1661,7 +1658,6 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine: Record "Price List Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        SalesPrice: Record "Sales Price";
         PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
         SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
@@ -1671,11 +1667,11 @@ codeunit 134159 "Test Price Calculation - V16"
         // [FEATURE] [Sales] [Price]
         // [SCENARIO] ApplyPrice() updates 'Unit Price' in sales line.
         Initialize();
-        // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default
+        // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'B' - default
         with PriceCalculationSetup[5] do begin
             DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 15.0)", true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, false);
+            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         end;
 
         // [GIVEN] Item 'X', where "Unit Price" is 100
@@ -1685,15 +1681,9 @@ codeunit 134159 "Test Price Calculation - V16"
         Item.Modify();
         // [GIVEN] Sales prices for Item 'X': 99.99 and 99.98
         LibrarySales.CreateCustomer(Customer);
-        SalesPrice.DeleteAll();
-        LibrarySales.CreateSalesPrice(
-            SalesPrice, Item."No.", "Sales Price Type"::Customer, Customer."No.",
-            WorkDate, '', '', Item."Base Unit of Measure", 0, ExpectedPrice);
-        LibrarySales.CreateSalesPrice(
-            SalesPrice, Item."No.", "Sales Price Type"::"All Customers", '',
-            WorkDate, '', '', Item."Base Unit of Measure", 0, ExpectedPrice + 0.01);
-        //if TestPriceCalculationSwitch.IsNativeDisabled() then
-        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+        PriceListLine.DeleteAll();
+        CreateCustomerItemPrice(PriceListLine, "Price Source Type"::Customer, Customer."No.", Item, ExpectedPrice);
+        CreateCustomerItemPrice(PriceListLine, "Price Source Type"::"All Customers", '', Item, ExpectedPrice + 0.01);
 
         // [GIVEN] Invoice, where "Price Calculation Method" is not defined 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
@@ -3992,12 +3982,13 @@ codeunit 134159 "Test Price Calculation - V16"
     begin
         LibraryVariableStorage.Clear();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Price Calculation - V16");
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
         if isInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test Price Calculation - V16");
         LibraryERMCountryData.CreateVATData();
-        LibraryPriceCalculation.EnableExtendedPriceCalculation();
         isInitialized := true;
         Commit;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Price Calculation - V16");
@@ -4120,6 +4111,29 @@ codeunit 134159 "Test Price Calculation - V16"
         Customer.Modify();
     end;
 
+    local procedure CreateCustomerItemDiscount(var PriceListLine: Record "Price List Line"; SourceType: Enum "Price Source Type"; CustomerCode: Code[20]; Item: Record Item; Discount: Decimal)
+    begin
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine, '', SourceType, CustomerCode, "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        PriceListLine.Validate("Line Discount %", Discount);
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify(true);
+    end;
+
+    local procedure CreateCustomerItemPrice(var PriceListLine: Record "Price List Line"; SourceType: Enum "Price Source Type"; CustomerCode: Code[20]; Item: Record Item; Price: Decimal)
+    begin
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', SourceType, CustomerCode, "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Validate("Starting Date", WorkDate);
+        PriceListLine.Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        PriceListLine.Validate("Unit Price", Price);
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify(true);
+    end;
+
+#if not CLEAN19
     local procedure CreateCustomerItemDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerCode: Code[20]; Item: Record Item; Discount: Decimal)
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -4143,6 +4157,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibrarySales.CreateSalesPrice(
             SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, CustomerCode, WorkDate, '', '', Item."Base Unit of Measure", 0, Price);
     end;
+#endif
 
     local procedure CreateDiscountLine(var PriceListLine: Record "Price List Line"; Customer: Record Customer; Item: Record Item)
     begin

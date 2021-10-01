@@ -180,8 +180,6 @@ codeunit 87 "Blanket Sales Order to Order"
         QuantityOnOrders: Decimal;
         Text002: Label 'There is nothing to create.';
         Text003: Label 'Full automatic reservation was not possible.\Reserve items manually?';
-
-    protected var
         HideValidationDialog: Boolean;
 
     local procedure SalesOrderLineValidateQuantity(var SalesOrderLine: Record "Sales Line"; BlanketOrderSalesLine: Record "Sales Line")

@@ -46,7 +46,6 @@ codeunit 5407 "Prod. Order Status Management"
         ACYMgt: Codeunit "Additional-Currency Management";
         WhseProdRelease: Codeunit "Whse.-Production Release";
         WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
         UOMMgt: Codeunit "Unit of Measure Management";
         NewStatus: Enum "Production Order Status";
         NewPostingDate: Date;
@@ -96,12 +95,11 @@ codeunit 5407 "Prod. Order Status Management"
 
         if not SuppressCommit then
             Commit();
-
-        Clear(InvtAdjmt);
     end;
 
     local procedure MakeMultiLevelAdjmt(ProdOrder: Record "Production Order")
     var
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -110,12 +108,8 @@ codeunit 5407 "Prod. Order Status Management"
             exit;
 
         InvtSetup.Get();
-        if InvtSetup."Automatic Cost Adjustment" <>
-           InvtSetup."Automatic Cost Adjustment"::Never
-        then begin
-            InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-            InvtAdjmt.MakeMultiLevelAdjmt;
-        end;
+        if InvtSetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
     end;
 
     local procedure TransProdOrder(var FromProdOrder: Record "Production Order")

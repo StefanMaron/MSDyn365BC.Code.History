@@ -1,3 +1,4 @@
+#if not CLEAN19
 report 7053 "Implement Price Change"
 {
     Caption = 'Implement Price Change';
@@ -106,4 +107,4 @@ report 7053 "Implement Price Change"
     begin
     end;
 }
-
+#endif

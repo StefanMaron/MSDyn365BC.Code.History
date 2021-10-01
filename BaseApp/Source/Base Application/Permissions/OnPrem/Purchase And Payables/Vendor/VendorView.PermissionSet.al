@@ -9,7 +9,9 @@ permissionset 5600 "Vendor - View"
                   tabledata "Default Dimension" = R,
                   tabledata "Detailed Vendor Ledg. Entry" = R,
                   tabledata "Employee Ledger Entry" = R,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = R,
+#endif
                   tabledata "Item Reference" = R,
                   tabledata Location = R,
                   tabledata "My Vendor" = Rimd,

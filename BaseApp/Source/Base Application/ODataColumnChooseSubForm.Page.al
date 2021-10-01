@@ -159,7 +159,7 @@ page 6710 "OData Column Choose SubForm"
                 if not Evaluate(ColumnVisible, PageControlField.Visible) then
                     ColumnVisible := false;
                 // Convert to OData compatible name.
-                FieldNameText := ODataUtility.ConvertNavFieldNameToOdataName(PageControlField.ControlName);
+                FieldNameText := ODataUtility.ExternalizeName(PageControlField.ControlName);
                 if FieldsTable.Get(PageControlField.TableNo, PageControlField.FieldNo) then
                     // Page field is based on table (fieldsTable)
                     InsertRecord(FieldsTable.TableNo, FieldsTable."No.", FieldNameText, ColumnVisible)

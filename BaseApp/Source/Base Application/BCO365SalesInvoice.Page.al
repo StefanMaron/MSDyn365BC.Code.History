@@ -302,6 +302,7 @@ page 2310 "BC O365 Sales Invoice"
                     Editable = false;
                     Enabled = CustomerName <> '';
 
+#if not CLEAN19
                     trigger OnAssistEdit()
                     var
                         O365PaymentInstructions: Record "O365 Payment Instructions";
@@ -314,6 +315,7 @@ page 2310 "BC O365 Sales Invoice"
                             O365SalesInvoiceMgmt.GetPaymentInstructionsName("Payment Instructions Id", PaymentInstructionsName);
                         end;
                     end;
+#endif
                 }
                 field("Due Date"; "Due Date")
                 {
@@ -667,8 +669,9 @@ page 2310 "BC O365 Sales Invoice"
             if SalesReceivablesSetup.Get then
                 if SalesReceivablesSetup."Posted Invoice Nos." <> '' then
                     NextInvoiceNo := NoSeriesManagement.ClearStateAndGetNextNo(SalesReceivablesSetup."Posted Invoice Nos.");
-
+#if not CLEAN19
         O365SalesInvoiceMgmt.GetPaymentInstructionsName("Payment Instructions Id", PaymentInstructionsName);
+#endif
     end;
 
     trigger OnDeleteRecord(): Boolean

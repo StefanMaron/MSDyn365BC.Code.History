@@ -1,19 +1,23 @@
 page 5500 "Aged AP Entity"
 {
     Caption = 'agedAccountsPayable', Locked = true;
-    DelayedInsert = true;
     DeleteAllowed = false;
     Editable = false;
-    EntityName = 'agedAccountsPayable';
-    EntitySetName = 'agedAccountsPayable';
     InsertAllowed = false;
     ModifyAllowed = false;
-    PageType = API;
     SourceTable = "Aged Report Entity";
-    SourceTableTemporary = true;
+#if not CLEAN18
+    PageType = API;
+    EntityName = 'agedAccountsPayable';
+    EntitySetName = 'agedAccountsPayable';
+    DelayedInsert = true;
+#else
     ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteReason = 'API version beta will be deprecated. This page will be changed to List type.';
     ObsoleteTag = '18.0';
+    PageType = List;
+#endif
+    SourceTableTemporary = true;
 
     layout
     {
@@ -94,4 +98,3 @@ page 5500 "Aged AP Entity"
         GraphMgtReports.SetUpAgedReportAPIData(RecVariant, ReportAPIType::"Aged Accounts Payable");
     end;
 }
-

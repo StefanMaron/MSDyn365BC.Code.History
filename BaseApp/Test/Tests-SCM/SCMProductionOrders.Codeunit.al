@@ -1769,7 +1769,7 @@ codeunit 137069 "SCM Production Orders"
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderComponent: Record "Prod. Order Component";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Quantity: Decimal;
         PartQuantity: Decimal;
     begin
@@ -2159,7 +2159,7 @@ codeunit 137069 "SCM Production Orders"
         ProdItem: Record Item;
         ProductionOrder: Record "Production Order";
         CompItemNo: Code[20];
-        ProdLotNo: Code[20];
+        ProdLotNo: Code[50];
     begin
         // [FEATURE] [Flushing] [Item Tracking]
         // [SCENARIO 381952] Component without item tracking is flushed when output of tracked item is posted.
@@ -2197,8 +2197,8 @@ codeunit 137069 "SCM Production Orders"
         ProdItem: Record Item;
         CompItem: Record Item;
         ProductionOrder: Record "Production Order";
-        ProdLotNo: Code[20];
-        CompLotNo: Code[20];
+        ProdLotNo: Code[50];
+        CompLotNo: Code[50];
     begin
         // [FEATURE] [Flushing] [Item Tracking]
         // [SCENARIO 381952] Flushed component and production item are posted with their own item tracking when the production journal is posted.
@@ -2454,10 +2454,10 @@ codeunit 137069 "SCM Production Orders"
         Initialize;
 
         // [GIVEN] Production item "P" with a component "C".
-        // [GIVEN] In order to produce 1 kg of "P", it is required to consume 0.6666666 kg of "C" (7-digit precision).
-        // [GIVEN] Set "Rounding Precision" on the item "C" = 0.00001 (5 digits).
+        // [GIVEN] In order to produce 1 kg of "P", it is required to consume 0.66666 kg of "C" (5-digit precision).
+        // [GIVEN] Set "Rounding Precision" on the item "C" = 0.001 (3 digits).
         // [GIVEN] Item "C" is on stock.
-        CreateProductionItemWithComponentAndRouting(ProdItem, CompItem, 0.6666666, 0.00001);
+        CreateProductionItemWithComponentAndRouting(ProdItem, CompItem, 0.66666, 0.001);
         MakeItemStock(CompItem."No.", LibraryRandom.RandIntInRange(100, 200));
 
         // [GIVEN] Released production order for 100 kg of item "P".
@@ -2469,27 +2469,27 @@ codeunit 137069 "SCM Production Orders"
         CreateOutputJournalLine(ItemJournalLine, ProdOrderLine, 0, 0, 10);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
-        // [WHEN] Post one more output. Quantity = 89.99997 kg, thus total posted output quantity = 99.99997 kg.
-        CreateOutputJournalLine(ItemJournalLine, ProdOrderLine, 0, 0, 89.99997);
+        // [WHEN] Post one more output. Quantity = 89.997 kg, thus total posted output quantity = 99.997 kg.
+        CreateOutputJournalLine(ItemJournalLine, ProdOrderLine, 0, 0, 89.997);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
-        // [THEN] The overall flushed quantity of the component item = 66.66664 kg.
-        // [THEN] That includes 10 * 0.6666666 kg = 6.666666 kg -> rounded up to 6.66667 kg according to the precision setting, and
-        // [THEN] 89.99997 * 0.6666666 kg = 59.999974 kg -> rounded first to default quantity precision of 0.00001 and then to the rounding precision on the item card -> 59.99997 kg.
-        VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -66.66664);
+        // [THEN] The overall flushed quantity of the component item = 66.665 kg.
+        // [THEN] That includes 10 * 0.66666 kg = 6.6666 kg -> rounded up to 6.667 kg according to the precision setting, and
+        // [THEN] 89.997 * 0.66666 kg = 59.9974002 kg -> rounded first to default quantity precision of 0.001 and then to the rounding precision on the item card -> 59.998 kg.
+        VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -66.665);
 
-        // [THEN] Remaining quantity to be flushed is equal to 0.00002.
+        // [THEN] Remaining quantity to be flushed is equal to 0.002.
         CompItem.CalcFields("Qty. on Component Lines");
-        CompItem.TestField("Qty. on Component Lines", 0.00002);
+        CompItem.TestField("Qty. on Component Lines", 0.001);
 
-        // [WHEN] Finish the output by posting remaining 0.00003 kg of "P".
-        CreateOutputJournalLine(ItemJournalLine, ProdOrderLine, 0, 0, 0.00003);
+        // [WHEN] Finish the output by posting remaining 0.003 kg of "P".
+        CreateOutputJournalLine(ItemJournalLine, ProdOrderLine, 0, 0, 0.003);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
-        // [THEN] The overall flushed quantity of "C" = 66.66666 kg.
-        // [THEN] That includes 59.99998 kg flushed earlier and the remaining quantity 0.00002 kg.
-        // [THEN] The formula 0.00003 * 0.6666666 kg = 0.0000199 kg -> rounded up to 0.00002 kg, was not applied.
-        VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -66.66666);
+        // [THEN] The overall flushed quantity of "C" = 66.667 kg.
+        // [THEN] That includes 66.66698 kg flushed earlier and the remaining quantity 0.00002 kg.
+        // [THEN] The formula 0.003 * 0.66666 kg = 0.00199 kg -> rounded up to 0.002 kg, was not applied.
+        VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -66.666);
 
         // [THEN] All quantity is thus flushed.
         CompItem.CalcFields("Qty. on Component Lines");
@@ -2513,10 +2513,10 @@ codeunit 137069 "SCM Production Orders"
         Initialize;
 
         // [GIVEN] Production item "P" with a component "C".
-        // [GIVEN] In order to produce 1 kg of "P", it is required to consume 0.6666666 kg of "C" (7-digit precision).
+        // [GIVEN] In order to produce 1 kg of "P", it is required to consume 0.66666 kg of "C" (7-digit precision).
         // [GIVEN] Set "Rounding Precision" on the item "C" = 0.00001 (5 digits).
         // [GIVEN] Item "C" is on stock.
-        CreateProductionItemWithComponentAndRouting(ProdItem, CompItem, 0.6666666, 0.00001);
+        CreateProductionItemWithComponentAndRouting(ProdItem, CompItem, 0.66666, 0.00001);
 
         // [GIVEN] Released production order for 100 kg of item "P".
         // [GIVEN] The component "C" is set up for backward flushing.
@@ -2528,8 +2528,8 @@ codeunit 137069 "SCM Production Orders"
         CreateOutputJournalLine(ItemJournalLine, ProdOrderLine, 0, 0, 10);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
-        // [GIVEN] Increase "Quantity per" on the component line from 0.6666666 kg to 1 kg.
-        // [GIVEN] "Remaining quantity" is therefore updated to 100 - 6.66667 = 93.33333 kg.
+        // [GIVEN] Increase "Quantity per" on the component line from 0.66666 kg to 1 kg.
+        // [GIVEN] "Remaining quantity" is therefore updated to 100 - 6.6666 = 93.3334 kg.
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem."No.");
         ProdOrderComponent.Validate("Quantity per", 1);
         ProdOrderComponent.Modify(true);
@@ -2539,13 +2539,13 @@ codeunit 137069 "SCM Production Orders"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [THEN] The overall flushed quantity = 96.66667 kg.
-        // [THEN] That includes 10 * 0.6666666 kg = 6.666666 kg -> rounded up to 6.66667 kg according to the precision setting on the first output, and
+        // [THEN] That includes 10 * 0.66666 kg = 6.6666 kg -> rounded up to 6.6666 kg according to the precision setting on the first output, and
         // [THEN] 90 * 1 kg = 90 kg flushed on the second output.
-        VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -96.66667);
+        VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -96.6666);
 
-        // [THEN] The component is not flushed in full, because the difference between calculated flushing (90 kg) and remaining quantity (93.33333) is greater than the rounding precision.
+        // [THEN] The component is not flushed in full, because the difference between calculated flushing (90 kg) and remaining quantity (93.3334) is greater than the rounding precision.
         CompItem.CalcFields("Qty. on Component Lines");
-        CompItem.TestField("Qty. on Component Lines", 3.33333);
+        CompItem.TestField("Qty. on Component Lines", 3.3334);
     end;
 
     [Test]
@@ -3788,7 +3788,7 @@ codeunit 137069 "SCM Production Orders"
         ProdOrderComponent.Modify(true);
     end;
 
-    local procedure CreateAndPostConsumptionJournalWithItemTracking(ProdOrderNo: Code[20]; ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    local procedure CreateAndPostConsumptionJournalWithItemTracking(ProdOrderNo: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -4043,7 +4043,7 @@ codeunit 137069 "SCM Production Orders"
         ProdOrderComponent.OpenItemTrackingLines();
     end;
 
-    local procedure SetLotNoOnProdOrderComponent(ProdOrderComponent: Record "Prod. Order Component"; LotNo: Code[20])
+    local procedure SetLotNoOnProdOrderComponent(ProdOrderComponent: Record "Prod. Order Component"; LotNo: Code[50])
     begin
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Set Lot No.");  // Enqueue for Page Handler.
         LibraryVariableStorage.Enqueue(LotNo);
@@ -4957,7 +4957,7 @@ codeunit 137069 "SCM Production Orders"
         end;
     end;
 
-    local procedure SetupPostProductionJournal(ProductionOrder: Record "Production Order"; LineNo: Integer; LotNo: Code[20]; QuantityToPost: Decimal)
+    local procedure SetupPostProductionJournal(ProductionOrder: Record "Production Order"; LineNo: Integer; LotNo: Code[50]; QuantityToPost: Decimal)
     begin
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Set Quantity & Lot No."); // Enqueued for ItemJournalLinesPageHandler.
         LibraryVariableStorage.Enqueue(LotNo);
@@ -4984,7 +4984,7 @@ codeunit 137069 "SCM Production Orders"
         ProdOrderComponent.OpenItemTrackingLines();
     end;
 
-    local procedure UpdateItemTrackingOnProdOrderLine(ProductionOrder: Record "Production Order"; LotNo: Code[20])
+    local procedure UpdateItemTrackingOnProdOrderLine(ProductionOrder: Record "Production Order"; LotNo: Code[50])
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
@@ -5045,7 +5045,7 @@ codeunit 137069 "SCM Production Orders"
         RequisitionLine.OpenItemTrackingLines();
     end;
 
-    local procedure VerifyItemTrackingOnItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; LotNo: Code[20]; Qty: Decimal)
+    local procedure VerifyItemTrackingOnItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; LotNo: Code[50]; Qty: Decimal)
     begin
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Get Lot Quantity");
         LibraryVariableStorage.Enqueue(LotNo);
@@ -5114,7 +5114,7 @@ codeunit 137069 "SCM Production Orders"
         VerifyDimensionSetEntry(ItemJournalLine."Dimension Set ID", DimensionValue2."Dimension Code", DimensionValue2.Code);
     end;
 
-    local procedure VerifyItemLedgerEntryPosted(ProdOrderNo: Code[20]; ItemNo: Code[20]; LotNo: Code[20])
+    local procedure VerifyItemLedgerEntryPosted(ProdOrderNo: Code[20]; ItemNo: Code[20]; LotNo: Code[50])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

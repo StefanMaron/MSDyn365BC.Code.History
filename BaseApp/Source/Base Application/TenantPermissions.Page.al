@@ -3,7 +3,7 @@ page 9850 "Tenant Permissions"
     Caption = 'Permissions';
     DataCaptionFields = "Object Type", "Object Name";
     DelayedInsert = true;
-    PageType = List;
+    PageType = Worksheet;
     PopulateAllFields = true;
     PromotedActionCategories = 'New,Process,Report,Read,Insert,Modify,Delete,Execute';
     ShowFilter = false;
@@ -33,6 +33,11 @@ page 9850 "Tenant Permissions"
                         trigger OnValidate()
                         begin
                             FillTempPermissions;
+                        end;
+
+                        trigger OnAssistEdit()
+                        begin
+                            SelectFilterSet();
                         end;
                     }
                     field(Show; Show)
@@ -217,6 +222,7 @@ page 9850 "Tenant Permissions"
 
     actions
     {
+#if not CLEAN19
         area(navigation)
         {
             group(DQPermissions)
@@ -233,6 +239,10 @@ page 9850 "Tenant Permissions"
                     Promoted = true;
                     PromotedCategory = Process;
                     ToolTip = 'View or edit which query objects created by SmartList Designer users need to access, and setup the related permissions in permission sets that you can assign to the users of the database.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The SmartList Designer is no longer available in Business Central.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     var
@@ -246,6 +256,7 @@ page 9850 "Tenant Permissions"
                 }
             }
         }
+#endif
 
         area(processing)
         {
@@ -588,31 +599,23 @@ page 9850 "Tenant Permissions"
                         FillTempPermissions;
                     end;
                 }
+#if not CLEAN19
                 action(FilterPermissionSet)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by AssistEdit trigger on the Permission Set field';
+                    ObsoleteTag = '19.0';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Select Permission Set';
                     Image = Filter;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Specifies the filter of the permission sets that the object applies to.';
 
                     trigger OnAction()
-                    var
-                        AggregatePermissionSet: Record "Aggregate Permission Set";
-                        SelectionFilterManagement: Codeunit SelectionFilterManagement;
-                        PermissionSetList: Page "Permission Set List";
                     begin
-                        PermissionSetList.LookupMode(true);
-                        if PermissionSetList.RunModal() = Action::LookupOK then begin
-                            PermissionSetList.GetSelectionFilter(AggregatePermissionSet);
-                            AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
-                            CurrentRoleID := SelectionFilterManagement.GetSelectionFilterForAggregatePermissionSetRoleId(AggregatePermissionSet);
-                            Reset();
-                            FillTempPermissions();
-                        end;
+                        SelectFilterSet();
                     end;
                 }
+#endif
             }
             group("Code Coverage Actions")
             {
@@ -893,6 +896,22 @@ page 9850 "Tenant Permissions"
                 SetObjectZeroName(TempTenantPermission);
                 if TempTenantPermission.Insert() then;
             until AllObj.Next() = 0;
+    end;
+
+    local procedure SelectFilterSet()
+    var
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        PermissionSetList: Page "Permission Set List";
+    begin
+        PermissionSetList.LookupMode(true);
+        if PermissionSetList.RunModal() = Action::LookupOK then begin
+            PermissionSetList.GetSelectionFilter(AggregatePermissionSet);
+            AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
+            CurrentRoleID := SelectionFilterManagement.GetSelectionFilterForAggregatePermissionSetRoleId(AggregatePermissionSet);
+            Reset();
+            FillTempPermissions();
+        end;
     end;
 
     local procedure ActivateControls()

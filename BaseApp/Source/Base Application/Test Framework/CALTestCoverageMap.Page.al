@@ -117,6 +117,8 @@ page 130408 "CAL Test Coverage Map"
     var
         ObjectVisible: Boolean;
         TestCodeunitVisible: Boolean;
+#if not CLEAN17
         ImportFromFolderLbl: Label 'Select folder to import TestMaps from';
+#endif
 }
 

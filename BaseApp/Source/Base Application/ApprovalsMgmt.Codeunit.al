@@ -1,4 +1,4 @@
-﻿codeunit 1535 "Approvals Mgmt."
+codeunit 1535 "Approvals Mgmt."
 {
     Permissions = TableData "Approval Entry" = imd,
                   TableData "Approval Comment Line" = imd,
@@ -725,12 +725,12 @@
         OnAfterCreateApprReqForApprTypeWorkflowUserGroup(WorkflowStepArgument, ApprovalEntryArgument);
     end;
 
-    local procedure CreateApprovalRequestForChainOfApprovers(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    procedure CreateApprovalRequestForChainOfApprovers(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
     begin
         CreateApprovalRequestForApproverChain(WorkflowStepArgument, ApprovalEntryArgument, false);
     end;
 
-    local procedure CreateApprovalRequestForApproverWithSufficientLimit(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    procedure CreateApprovalRequestForApproverWithSufficientLimit(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
     begin
         CreateApprovalRequestForApproverChain(WorkflowStepArgument, ApprovalEntryArgument, true);
     end;
@@ -1967,6 +1967,57 @@
         ApprovalEntry.SetRange("Record ID to Approve", RecId);
         ApprovalEntry.SetRange("Related to Change", false);
         PAGE.RunModal(PAGE::"Approval Entries", ApprovalEntry);
+    end;
+
+    procedure OpenApprovalsSales(SalesHeader: Record "Sales Header")
+    begin
+        RunWorkflowEntriesPage(
+            SalesHeader.RecordId(), DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.");
+    end;
+
+    procedure OpenApprovalsPurchase(PurchHeader: Record "Purchase Header")
+    begin
+        RunWorkflowEntriesPage(
+            PurchHeader.RecordId(), DATABASE::"Purchase Header", PurchHeader."Document Type", PurchHeader."No.");
+    end;
+
+    procedure RunWorkflowEntriesPage(RecordIDInput: RecordID; TableId: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
+    var
+        ApprovalEntry: Record "Approval Entry";
+        WorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        Approvals: Page Approvals;
+        WorkflowWebhookEntries: Page "Workflow Webhook Entries";
+        ApprovalEntries: Page "Approval Entries";
+    begin
+        // if we are looking at a particular record, we want to see only record related workflow entries
+        if DocumentNo <> '' then begin
+            ApprovalEntry.SetRange("Record ID to Approve", RecordIDInput);
+            WorkflowWebhookEntry.SetRange("Record ID", RecordIDInput);
+            // if we have flows created by multiple applications, start generic page filtered for this RecordID
+            if not ApprovalEntry.IsEmpty() and not WorkflowWebhookEntry.IsEmpty() then begin
+                Approvals.Setfilters(RecordIDInput);
+                Approvals.Run();
+            end else begin
+                // otherwise, open the page filtered for this record that corresponds to the type of the flow
+                if not WorkflowWebhookEntry.IsEmpty() then begin
+                    WorkflowWebhookEntries.Setfilters(RecordIDInput);
+                    WorkflowWebhookEntries.Run();
+                    exit;
+                end;
+
+                if not ApprovalEntry.IsEmpty() then begin
+                    ApprovalEntries.SetRecordFilters(TableId, DocumentType, DocumentNo);
+                    ApprovalEntries.Run();
+                    exit;
+                end;
+
+                // if no workflow exist, show (empty) joint workflows page
+                Approvals.Setfilters(RecordIDInput);
+                Approvals.Run();
+            end
+        end else
+            // otherwise, open the page with all workflow entries
+            Approvals.Run();
     end;
 
     procedure CanCancelApprovalForRecord(RecID: RecordID) Result: Boolean

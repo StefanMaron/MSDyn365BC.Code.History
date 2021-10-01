@@ -5,11 +5,9 @@ table 7324 "Whse. Put-away Request"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Warehouse Put-away Request Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Receipt,Internal Put-away';
-            OptionMembers = Receipt,"Internal Put-away";
         }
         field(2; "Document No."; Code[20])
         {

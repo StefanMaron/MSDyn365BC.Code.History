@@ -59,7 +59,7 @@ codeunit 312 "Cust-Check Cr. Limit"
         end;
     end;
 
-    procedure SalesLineCheck(SalesLine: Record "Sales Line")
+    procedure SalesLineCheck(SalesLine: Record "Sales Line") CreditLimitExceeded: Boolean
     var
         SalesHeader: Record "Sales Header";
         AdditionalContextId: Guid;
@@ -79,6 +79,8 @@ codeunit 312 "Cust-Check Cr. Limit"
         if not CustCheckCreditLimit.SalesLineShowWarningAndGetCause(SalesLine, AdditionalContextId) then
             SalesHeader.CustomerCreditLimitNotExceeded()
         else begin
+            CreditLimitExceeded := true;
+
             if GuiAllowed then
                 if InstructionMgt.IsEnabled(GetInstructionType(Format(SalesLine."Document Type"), SalesLine."Document No.")) then
                     CreateAndSendNotification(SalesHeader.RecordId, AdditionalContextId, '');

@@ -122,7 +122,6 @@ page 463 "Jobs Setup"
     trigger OnOpenPage()
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        PriceUXManagement: Codeunit "Price UX Management";
     begin
         Reset;
         if not Get then begin
@@ -130,7 +129,6 @@ page 463 "Jobs Setup"
             Insert;
         end;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-        PriceUXManagement.InitSmartListDesigner();
     end;
 
     var

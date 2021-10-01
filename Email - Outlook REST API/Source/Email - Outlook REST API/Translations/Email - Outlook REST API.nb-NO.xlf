@@ -142,9 +142,9 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType ThisWillClearTheFieldsTxt</note>
         </trans-unit>
         <trans-unit id="Page 3074962881 - NamedType 143307884" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>We could not get access token with the current setup.\\Please verify the values on the page and try again.</source>
-          <target state="translated">Kan ikke hente tilgangstoken med gjeldende oppsett.\\Kontroller verdiene på siden, og prøv på nytt.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>We could not get access token with the current setup. Error: "%1".\\Please verify the values on the page as well as settings of your app registration and try again.</source>
+          <target state="translated">Vi kan ikke hente tilgangstoken med gjeldende oppsett. Feil: %1.\\Kontroller verdiene på siden samt innstillingene for appregistreringen, og prøv på nytt.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = error message</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType UnsuccessfulTestMsg</note>
         </trans-unit>
         <trans-unit id="Page 3074962881 - NamedType 2108276406" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
@@ -161,11 +161,13 @@
         </trans-unit>
         <trans-unit id="Page 3074962881 - Control 2425676828 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control Doc - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3074962881 - Control 70122822 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control Doc2 - Property ToolTip</note>
         </trans-unit>
@@ -213,11 +215,13 @@
         </trans-unit>
         <trans-unit id="Page 3074962881 - Control 2141615146 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control NotDoneIcon - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3074962881 - Control 2141615146 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control NotDoneIcon - Property Caption</note>
         </trans-unit>
@@ -235,6 +239,7 @@
         </trans-unit>
         <trans-unit id="Page 3074962881 - Action 1010501080 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action Ok - Property ToolTip</note>
         </trans-unit>

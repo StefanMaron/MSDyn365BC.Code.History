@@ -83,8 +83,6 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         SortingMethod: Option " ",Item,Bin;
         Text001: Label 'Do you want to update the Next Counting Period of the %1?';
         Text002: Label 'Cancelled.';
-
-    protected var
         HideValidationDialog: Boolean;
 
     local procedure InsertTempPhysCountBuffer(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; ShelfBin: Code[10]; PhysInvtCountCode: Code[10]; Description: Text[100]; CountingPeriodStartDate: Date; CountingPeriodEndDate: Date; LastCountDate: Date; SourceType: Option Item,SKU)

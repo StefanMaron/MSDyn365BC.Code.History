@@ -921,6 +921,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] There are 15 fields defined for the mapping "Customer" - "CRM Account"
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         IntegrationTableMapping.FindFirst;
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
         IntegrationFieldMapping.FindFirst;

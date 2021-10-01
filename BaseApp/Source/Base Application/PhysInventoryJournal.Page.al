@@ -50,10 +50,18 @@ page 392 "Phys. Inventory Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Entry Type"; Rec."Entry Type")
+                field("Entry Type"; EntryType)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Entry Type';
                     ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
+
+                    trigger OnValidate()
+                    begin
+                        CheckEntryType();
+
+                        Rec.Validate("Entry Type", EntryType);
+                    end;
                 }
                 field("Document No."; Rec."Document No.")
                 {
@@ -621,11 +629,13 @@ page 392 "Phys. Inventory Journal"
     trigger OnAfterGetCurrRecord()
     begin
         ItemJnlMgt.GetItem(Rec."Item No.", ItemDescription);
+        EntryType := Rec."Entry Type";
     end;
 
     trigger OnAfterGetRecord()
     begin
         Rec.ShowShortcutDimCode(ShortcutDimCode);
+        EntryType := Rec."Entry Type";
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -636,6 +646,11 @@ page 392 "Phys. Inventory Journal"
         if not ItemJnlLineReserve.DeleteLineConfirm(Rec) then
             exit(false);
         ItemJnlLineReserve.DeleteLine(Rec);
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        CheckEntryType();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -667,10 +682,12 @@ page 392 "Phys. Inventory Journal"
         ItemJnlMgt: Codeunit ItemJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
+        EntryTypeErr: Label 'You cannot use entry type %1 in this journal.', Comment = '%1 - Entry Type';
 
     protected var
+        CurrentJnlBatchName: Code[10];
+        EntryType: Enum "Item Journal Entry Type";
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -711,6 +728,12 @@ page 392 "Phys. Inventory Journal"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    local procedure CheckEntryType()
+    begin
+        if "Entry Type".AsInteger() > "Entry Type"::"Negative Adjmt.".AsInteger() then
+            Error(EntryTypeErr, "Entry Type");
     end;
 
     [IntegrationEvent(false, false)]

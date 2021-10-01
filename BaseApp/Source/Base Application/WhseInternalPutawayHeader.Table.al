@@ -83,7 +83,7 @@ table 7331 "Whse. Internal Put-away Header"
         }
         field(7; Comment; Boolean)
         {
-            CalcFormula = Exist ("Warehouse Comment Line" WHERE("Table Name" = CONST("Internal Put-away"),
+            CalcFormula = Exist("Warehouse Comment Line" WHERE("Table Name" = CONST("Internal Put-away"),
                                                                 Type = CONST(" "),
                                                                 "No." = FIELD("No.")));
             Caption = 'Comment';
@@ -348,7 +348,8 @@ table 7331 "Whse. Internal Put-away Header"
             FilterGroup := 0;
         end;
     end;
-
+#if not CLEAN19
+    [Obsolete('Replaced by platform capabilities.','19.0')]
     procedure LookupInternalPutAwayHeader(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header")
     begin
         Commit();
@@ -363,6 +364,7 @@ table 7331 "Whse. Internal Put-away Header"
             WhseInternalPutAwayHeader.FilterGroup := 0;
         end;
     end;
+#endif
 
     procedure LookupLocation(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header")
     var

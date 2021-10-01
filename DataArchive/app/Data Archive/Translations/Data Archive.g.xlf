@@ -1,0 +1,384 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="Data Archive">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 2184183430 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Archive</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2184183430 - Field 2838451934 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created by User</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive - Field Created by User - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2184183430 - Field 3461834954 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2184183430 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2184183430 - Field 2065755396 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No. of Records</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive - Field No. of Records - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2184183430 - Field 666729213 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No. of Tables</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive - Field No. of Tables - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4155097608 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Archive Media Field</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Media Field - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4155097608 - Field 2866082027 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Archive Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Media Field - Field Data Archive Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4155097608 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Media Field - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4155097608 - Field 1608730365 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Content</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Media Field - Field Field Content - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4155097608 - Field 3017471043 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Media Field - Field Table No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3141784384 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Archive</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Table - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3141784384 - Field 2389018819 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created On</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Table - Field Created On - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3141784384 - Field 2866082027 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Archive Entry No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Table - Field Data Archive Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3141784384 - Field 3461834954 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Table - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3141784384 - Field 883711285 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Table - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3141784384 - Field 2065755396 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No. of Records</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Table - Field No. of Records - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3141784384 - Field 3683865729 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Data (json)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Table - Field Table Data (json) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3141784384 - Field 2930633370 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Fields (json)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Table - Field Table Fields (json) - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3141784384 - Field 3808951907 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Table - Field Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3141784384 - Field 3017471043 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Data Archive Table - Field Table No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 723204053 - NamedType 1531077278" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There are no archived records.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Archive Export to CSV - NamedType ArchiveEmptyErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 723204053 - NamedType 4210430314" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Archive Export to CSV - NamedType DownloadLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 723204053 - NamedType 2809467027" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Creating file @1@@@</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Archive Export to CSV - NamedType GeneratingFileMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 723204053 - NamedType 4072122335" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No files were created.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Archive Export to CSV - NamedType NoFilesAddedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 723204053 - NamedType 1722474783" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have the Read permission for some of the selected tables. Only the tables you have the Read permission for have been exported.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Archive Export to CSV - NamedType NotAllTablesExportedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1652297678 - NamedType 1531077278" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There are no archived records.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Archive Export To Excel - NamedType ArchiveEmptyErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1652297678 - NamedType 2809467027" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Creating file @1@@</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Archive Export To Excel - NamedType GeneratingFileMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1652297678 - NamedType 1722474783" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have the Read permission for some of the selected tables. Only the tables you have the Read permission for have been exported.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Archive Export To Excel - NamedType NotAllTablesExportedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 937646157 - NamedType 3628631280" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The function only accepts a record as parameter.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Archive Provider - NamedType NotArecordErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1358081299 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New Data Archive</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive - New Archive - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1358081299 - Control 4156942903 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enter a name or description in this field.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive - New Archive - Control ArchiveName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1358081299 - Control 4156942903 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name of new archive</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive - New Archive - Control ArchiveName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1358081299 - Action 620325036 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start logging deletions. All deletions will be added to the new archive.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive - New Archive - Action Start - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1358081299 - Action 620325036 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Logging</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive - New Archive - Action Start - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1358081299 - Action 915332364 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Stop logging deletions and add the data to the new archive.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive - New Archive - Action Stop - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1358081299 - Action 915332364 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Stop Logging</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive - New Archive - Action Stop - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Archive List</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Property 3863440606" size-unit="char" translate="yes" xml:space="preserve">
+          <source>archive, saved, stored</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Property AdditionalSearchTerms</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Control 3425251533 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This field specifies which user created the data archive.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Control CreatedBy - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Control 3461834954 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This field specifies a description for this data archive.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Control 883711285 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This field specifies the entry number for the data archive.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Control Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Control 2065755396 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This field specifies the tota number of records archived in this data archive.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Control No. of Records - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Control 666729213 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This field specifies the number of tables archived in this data archive.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Control No. of Tables - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Control 577209412 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This field specifies when the data archive was created.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Control SystemCreatedAt - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Control 577209412 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created On</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Control SystemCreatedAt - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Action 2474258504 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Saves this Data Archive to Excel with one sheet per table.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Action SaveAsExcel - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Action 2474258504 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Save as Excel</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Action SaveAsExcel - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Action 3035013920 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Saves this Data Archive to a zip file with one csv file per table.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Action SaveToCSV - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Action 3035013920 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Save as CSV</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Action SaveToCSV - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Action 1064721090 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens the Data Archive - New Archive page that allows you to do a recording of all subsequent deletions in this session.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Action NewArchive - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2772216772 - Action 1064721090 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create new archive</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive List - Action NewArchive - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Archive Tables</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Control 2389018819 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies when this data archive table record was created.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Control Created On - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Control 2389018819 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created On</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Control Created On - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Control 3461834954 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the description for this data archive table record.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Control 883711285 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the entry number for the data archive table.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Control Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Control 4112828461 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether you have read permission to this data.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Control HasReadPermission - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Control 4112828461 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Read Permission</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Control HasReadPermission - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Control 2065755396 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of records stored in this data archive table record.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Control No. of Records - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Control 3808951907 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the table name in the data archive table record.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Control Table Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Control 3017471043 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the table number in the data archive table record.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Control Table No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Action 2474258504 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Saves the contents of this data archive record as Excel.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Action SaveAsExcel - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Action 2474258504 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Save as Excel</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Action SaveAsExcel - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Action 3035013920 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Saves the contents of this data archive record in a CSV format.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Action SaveToCSV - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1566433842 - Action 3035013920 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Save as CSV</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table List - Action SaveToCSV - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2914753195 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Archive Tables</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table ListPart - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2914753195 - Control 2065755396 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of records stored in this record.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table ListPart - Control No. of Records - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2914753195 - Control 3808951907 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the table that is stored in this record.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table ListPart - Control Table Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2914753195 - Action 2474258504 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Saves the contents of this data archive record as Excel.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table ListPart - Action SaveAsExcel - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2914753195 - Action 2474258504 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Save as Excel</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table ListPart - Action SaveAsExcel - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2914753195 - Action 3035013920 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Saves the contents of this data archive record in a CSV format.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table ListPart - Action SaveToCSV - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2914753195 - Action 3035013920 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Save as CSV</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Archive Table ListPart - Action SaveToCSV - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 2219481149 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Archive - Edit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Data Archive - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 1096718174 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Archive Read - View</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Data Archive - View - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

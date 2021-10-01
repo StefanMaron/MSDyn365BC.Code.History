@@ -28,7 +28,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         TransferLineNotExistsErrorTxt: Label 'Transfer lines does not exists after change of Transfer-From location. ', Locked = true;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,ShipOrReceiveTransferOrderStrMenuHandler,MessageHandler,PostedSalesInvoicePageHandler,PostedTransferShipmentPageHandler,PostedTransferReceiptPageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,ShipOrReceiveTransferOrderStrMenuHandler,MessageHandler,PostedSalesInvoicePageHandler,PostedTransferShipmentPageHandler,PostedTransferReceiptPageHandler')]
     [Scope('OnPrem')]
     procedure SusanSellsAnItemExistingInSpecificLocationAfterTransferringItToAnotherLocation()
     var
@@ -60,7 +60,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,ShipOrReceiveTransferOrderStrMenuHandler,MessageHandler,PostedSalesInvoicePageHandler,PostedTransferShipmentPageHandler,PostedTransferReceiptPageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,ShipOrReceiveTransferOrderStrMenuHandler,MessageHandler,PostedSalesInvoicePageHandler,PostedTransferShipmentPageHandler,PostedTransferReceiptPageHandler')]
     [Scope('OnPrem')]
     procedure CassieSellsAnItemExistingInSpecificLocationAfterTransferringItToAnotherLocation()
     var
@@ -137,7 +137,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,ShipOrReceiveTransferOrderStrMenuHandler,MessageHandler,PostedSalesInvoicePageHandler,PostedTransferShipmentPageHandler,PostedTransferReceiptPageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,ShipOrReceiveTransferOrderStrMenuHandler,MessageHandler,PostedSalesInvoicePageHandler,PostedTransferShipmentPageHandler,PostedTransferReceiptPageHandler')]
     [Scope('OnPrem')]
     procedure SusanSellsAnItemExistingInSpecificLocationAfterTransferringItToAnotherLocationAsEssentialISVEmbUser()
     var
@@ -215,7 +215,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,ShipOrReceiveTransferOrderStrMenuHandler,MessageHandler,PostedSalesInvoicePageHandler,PostedTransferShipmentPageHandler,PostedTransferReceiptPageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,ShipOrReceiveTransferOrderStrMenuHandler,MessageHandler,PostedSalesInvoicePageHandler,PostedTransferShipmentPageHandler,PostedTransferReceiptPageHandler')]
     [Scope('OnPrem')]
     procedure SusanSellsAnItemExistingInSpecificLocationAfterTransferringItToAnotherLocationAsDeviceISVEmbUser()
     var
@@ -247,7 +247,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TestTransferOneItemFromLocationToAnotherWithLines()
     var
@@ -314,29 +314,15 @@ codeunit 135402 "Location Trans. Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        InitializeAvailabilityCheckSettingsOnCompanyInformation;
 
         IsInitialized := true;
         Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Location Trans. Plan-based E2E");
-    end;
-
-    local procedure InitializeAvailabilityCheckSettingsOnCompanyInformation()
-    var
-        CompanyInformation: Record "Company Information";
-        BlankDateFormula: DateFormula;
-    begin
-        with CompanyInformation do begin
-            Get;
-            Validate("Check-Avail. Period Calc.", BlankDateFormula);
-            Validate("Check-Avail. Time Bucket", "Check-Avail. Time Bucket"::Day);
-            Modify(true);
-        end;
     end;
 
     local procedure InitializePreExistingMasterDataForTeamMember(var Item: Record Item; var Vendor: Record Vendor; var Customer: Record Customer)
@@ -561,10 +547,26 @@ codeunit 135402 "Location Trans. Plan-based E2E"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectCustomerTemplListModalPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
-        ConfigTemplates.Last;
-        ConfigTemplates.OK.Invoke;
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectVendorTemplListModalPageHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
+    begin
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectItemTemplListModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
+    begin
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
     end;
 
     local procedure ConfigureInventoryPostingSetup(LocationCode: Code[10]; InventoryPostingGroup: Code[20])

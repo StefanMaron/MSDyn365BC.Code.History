@@ -5,7 +5,9 @@ permissionset 312 "Recievables Documents - View"
     Caption = 'Read posted shipments, etc.';
 
     Permissions = tabledata "General Posting Setup" = r,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = R,
+#endif
                   tabledata "Item Reference" = R,
                   tabledata "Item Tracking Code" = R,
                   tabledata "Report Selections" = R,

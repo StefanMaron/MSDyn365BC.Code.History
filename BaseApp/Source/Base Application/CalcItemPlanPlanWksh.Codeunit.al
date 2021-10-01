@@ -28,7 +28,6 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         Text001: Label 'Enter a starting date.';
         Text002: Label 'Enter an ending date.';
         Text003: Label 'The ending date must not be before the order date.';
-        Text004: Label 'You must not use a variant filter when calculating MPS from a forecast.';
         ExcludeForecastBefore: Date;
         RespectPlanningParm: Boolean;
 
@@ -166,7 +165,6 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
 
     local procedure CheckPreconditions()
     var
-        ForecastEntry: Record "Production Forecast Entry";
         IsHandled: Boolean;
     begin
         OnBeforeCheckPreconditions(Item, MPS, MRP, FromDate, ToDate, IsHandled);
@@ -183,19 +181,6 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         PeriodLength := ToDate - FromDate + 1;
         if PeriodLength <= 0 then
             Error(Text003);
-
-        if MPS and
-           (Item.GetFilter("Variant Filter") <> '') and
-           (UseForecast <> '')
-        then begin
-            ForecastEntry.SetCurrentKey("Production Forecast Name", "Item No.", "Location Code", "Forecast Date", "Component Forecast");
-            ForecastEntry.SetRange("Production Forecast Name", UseForecast);
-            Item.CopyFilter("No.", ForecastEntry."Item No.");
-            if MfgSetup."Use Forecast on Locations" then
-                Item.CopyFilter("Location Filter", ForecastEntry."Location Code");
-            if not ForecastEntry.IsEmpty() then
-                Error(Text004);
-        end;
     end;
 
     procedure SetTemplAndWorksheet(TemplateName: Code[10]; WorksheetName: Code[10]; NetChange2: Boolean)
@@ -254,6 +239,8 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         ForecastEntry.SetRange("Production Forecast Name", UseForecast);
         if MfgSetup."Use Forecast on Locations" then
             Item.CopyFilter("Location Filter", ForecastEntry."Location Code");
+        if MfgSetup."Use Forecast on Variants" then
+            Item.CopyFilter("Variant Filter", ForecastEntry."Variant Code");
         ForecastEntry.SetRange("Item No.", Item."No.");
         if ForecastEntry.FindFirst then begin
             ForecastEntry.CalcSums("Forecast Quantity (Base)");

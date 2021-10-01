@@ -1799,7 +1799,7 @@ codeunit 6516 "Package Management"
     local procedure CreatePickOnItemTrackedQuantityOnAfterCheckIfEmpty(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean)
     begin
         if WhseItemTrackingSetup."Package No." <> '' then begin
-            TempWhseItemTrackingLine.SetCurrentKey("Serial No.", "Lot No.");
+            TempWhseItemTrackingLine.SetTrackingKey();
             TempWhseItemTrackingLine.SetRange("Package No.", WhseItemTrackingSetup."Package No.");
             IsHandled := TempWhseItemTrackingLine.IsEmpty();
         end;
@@ -1818,7 +1818,7 @@ codeunit 6516 "Package Management"
     local procedure OnItemTrackedQuantityOnAfterCheckTracking(var TempHandlingSpecification: Record "Tracking Specification"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var IsTrackingEmpty: Boolean)
     begin
         if WhseItemTrackingSetup."Package No." <> '' then begin
-            TempHandlingSpecification.SetCurrentKey("Lot No.", "Serial No.");
+            TempHandlingSpecification.SetTrackingKey();
             TempHandlingSpecification.SetRange("Package No.", WhseItemTrackingSetup."Package No.");
             IsTrackingEmpty := TempHandlingSpecification.IsEmpty();
         end;

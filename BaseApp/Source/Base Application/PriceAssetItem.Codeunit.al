@@ -49,7 +49,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
         OnBeforeIsLookupOK(PriceAsset, Item);
         xPriceAsset := PriceAsset;
         if Item.Get(xPriceAsset."Asset No.") then;
-        if Page.RunModal(Page::"Item List", Item) = ACTION::LookupOK then begin
+        if Page.RunModal(Page::"Item Lookup", Item) = ACTION::LookupOK then begin
             xPriceAsset.Validate("Asset No.", Item."No.");
             PriceAsset := xPriceAsset;
             exit(true);

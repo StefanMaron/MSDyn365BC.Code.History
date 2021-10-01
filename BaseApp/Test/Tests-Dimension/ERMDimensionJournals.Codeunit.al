@@ -1,4 +1,4 @@
-﻿codeunit 134382 "ERM Dimension Journals"
+codeunit 134382 "ERM Dimension Journals"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd,
                   TableData "Vendor Ledger Entry" = rimd;

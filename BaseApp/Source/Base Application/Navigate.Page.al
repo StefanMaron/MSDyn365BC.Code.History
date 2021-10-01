@@ -540,7 +540,6 @@
         FilterTokens: Codeunit "Filter Tokens";
         ItemTrackingNavigateMgt: Codeunit "Item Tracking Navigate Mgt.";
         Window: Dialog;
-        ContactNo: Code[250];
         DocType: Text[100];
         SourceType: Text[30];
         SourceNo: Code[20];
@@ -584,6 +583,7 @@
         SCMServHeader: Record "Service Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
+        ContactNo: Code[250];
         ContactType: Enum "Navigate Contact Type";
         DocNoFilter: Text;
         PostingDateFilter: Text;
@@ -1789,14 +1789,14 @@
         PAGE.Run(PAGE::"Detailed Empl. Ledger Entries", DtldEmplLedgEntry);
     end;
 
-    local procedure SetPostingDate(PostingDate: Text)
+    protected procedure SetPostingDate(PostingDate: Text)
     begin
         FilterTokens.MakeDateFilter(PostingDate);
         Rec.SetFilter("Posting Date", PostingDate);
         PostingDateFilter := Rec.GetFilter("Posting Date");
     end;
 
-    local procedure SetDocNo(DocNo: Text)
+    protected procedure SetDocNo(DocNo: Text)
     begin
         Rec.SetFilter("Document No.", DocNo);
         DocNoFilter := Rec.GetFilter("Document No.");

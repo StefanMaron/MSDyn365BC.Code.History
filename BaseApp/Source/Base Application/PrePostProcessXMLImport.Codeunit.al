@@ -93,6 +93,8 @@ codeunit 1262 "Pre & Post Process XML Import"
         DataExchFieldDetails: Query "Data Exch. Field Details";
         FileHasIBAN: Boolean;
         FileHasBankAccID: Boolean;
+        Handled: Boolean;
+        CheckedResult: Boolean;
     begin
         if BankAccount.GetBankAccountNo = '' then begin
             if not Confirm(StrSubstNo(MissingBankAccNoQst, BankAccount."No.")) then
@@ -106,6 +108,11 @@ codeunit 1262 "Pre & Post Process XML Import"
 
         if not FileHasIBAN and not FileHasBankAccID then
             Error(MissingBankAccNoInDataErr);
+
+        OnCheckBankAccNo(Handled, CheckedResult, DataExchFieldDetails, BankAccount);
+
+        if Handled and not CheckedResult then
+            exit;
 
         if (DelChr(DataExchFieldDetails.FieldValue, '=', '- ') <> DelChr(BankAccount."Bank Account No.", '=', '- ')) and
            (DelChr(DataExchFieldDetails.FieldValue, '=', '- ') <> DelChr(BankAccount.IBAN, '=', '- '))
@@ -179,6 +186,11 @@ codeunit 1262 "Pre & Post Process XML Import"
 
         RecRef.Modify(true);
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBankAccNo(var Handled: Boolean; var CheckedResult: Boolean; DataExchFieldDetails: Query "Data Exch. Field Details"; BankAccount: Record "Bank Account")
+    begin
     end;
 }
 

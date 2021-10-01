@@ -97,9 +97,9 @@ table 5342 "CRM Contact"
             OptionCaption = ' ,Net 30,2% 10; Net 30,Net 45,Net 60';
             OptionOrdinalValues = -1, 1, 2, 3, 4;
             OptionMembers = " ",Net30,"2%10Net30",Net45,Net60;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'This field is replaced by field 193 PaymentTermsCodeEnum';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(10; ShippingMethodCode; Option)
         {
@@ -765,9 +765,9 @@ table 5342 "CRM Contact"
             OptionCaption = ' ,FOB,No Charge';
             OptionOrdinalValues = -1, 1, 2;
             OptionMembers = " ",FOB,NoCharge;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'This field is replaced by field 194 Address1_FreightTermsCodeEnum';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(94; Address1_UPSZone; Text[4])
         {
@@ -807,9 +807,9 @@ table 5342 "CRM Contact"
             OptionCaption = ' ,Airborne,DHL,FedEx,UPS,Postal Mail,Full Load,Will Call';
             OptionOrdinalValues = -1, 1, 2, 3, 4, 5, 6, 7;
             OptionMembers = " ",Airborne,DHL,FedEx,UPS,PostalMail,FullLoad,WillCall;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'This field is replaced by field 194 Address1_ShippingMethodCodeEnum';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(99; Address1_Telephone2; Text[50])
         {

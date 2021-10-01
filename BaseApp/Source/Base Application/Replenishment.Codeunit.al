@@ -40,7 +40,7 @@ codeunit 7308 Replenishment
         end;
     end;
 
-    local procedure FindReplenishmtBin(ToBinContent: Record "Bin Content"; AllowBreakBulk: Boolean)
+    procedure FindReplenishmtBin(ToBinContent: Record "Bin Content"; AllowBreakBulk: Boolean)
     var
         FromBinContent: Record "Bin Content";
         WhseWkshLine2: Record "Whse. Worksheet Line";
@@ -300,7 +300,7 @@ codeunit 7308 Replenishment
         if not ItemTrackingMgt.GetWhseItemTrkgSetup(ItemNo) then
             exit(false);
 
-        if ItemTrackingMgt.ExistingExpirationDate(ItemNo, VariantCode, '', '', false, EntriesExist) <> 0D then
+        if ItemTrackingMgt.ExistingExpirationDate(ItemNo, VariantCode, DummyItemTrackingSetup, false, EntriesExist) <> 0D then
             exit(true);
 
         if ItemTrackingMgt.WhseExistingExpirationDate(ItemNo, VariantCode, Location, DummyItemTrackingSetup, EntriesExist) <> 0D then
@@ -340,7 +340,7 @@ codeunit 7308 Replenishment
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindReplenishmtBin(var TempWhseWkshLine: Record "Whse. Worksheet Line" temporary; ToBinContent: Record "Bin Content"; AllowBreakBulk: Boolean; var  NextLineNo: Integer; WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; DoNotFillQtytoHandle: Boolean; RemainQtyToReplenishBase: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeFindReplenishmtBin(var TempWhseWkshLine: Record "Whse. Worksheet Line" temporary; ToBinContent: Record "Bin Content"; AllowBreakBulk: Boolean; var NextLineNo: Integer; WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; DoNotFillQtytoHandle: Boolean; RemainQtyToReplenishBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

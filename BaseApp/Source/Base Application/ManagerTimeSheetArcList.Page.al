@@ -105,8 +105,12 @@ page 962 "Manager Time Sheet Arc. List"
     var
         TimeSheetLineArchive: Record "Time Sheet Line Archive";
     begin
-        TimeSheetMgt.SetTimeSheetArchiveNo("No.", TimeSheetLineArchive);
-        PAGE.Run(PAGE::"Manager Time Sheet Archive", TimeSheetLineArchive);
+        if TimeSheetMgt.TimeSheetV2Enabled() then
+            Page.Run(Page::"Time Sheet Archive Card", Rec)
+        else begin
+            TimeSheetMgt.SetTimeSheetArchiveNo("No.", TimeSheetLineArchive);
+            Page.Run(Page::"Manager Time Sheet Archive", TimeSheetLineArchive);
+        end;
     end;
 }
 

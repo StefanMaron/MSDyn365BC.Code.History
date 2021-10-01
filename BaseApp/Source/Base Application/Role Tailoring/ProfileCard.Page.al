@@ -272,7 +272,7 @@ page 9170 "Profile Card"
     begin
         AppName := "App Name";
         if "App ID" = EmptyGuid then
-            AppName := ConfPersonalizationMgt.ResolveAppNameFromAppId("App ID");
+            AppName := UserCreatedAppNameTxt;
 
         UpdateHasCustomizedPages();
 
@@ -384,6 +384,7 @@ page 9170 "Profile Card"
         ProfileIdAlreadyExistErr: Label 'A profile with Profile ID "%1" already exist, please provide another Profile ID.';
         ProfileMustBeEnabledInOrderToSetItAsDefaultErr: Label 'The profile must be enabled in order to set it as the default profile.';
         ThereAreProfilesWithDuplicateIdMsg: Label 'Another profile has the same ID as this one. This can cause ambiguity in the system. Give this or the other profile another ID before you customize them. Contact your Microsoft partner for further assistance.';
+        UserCreatedAppNameTxt: Label '(User-created)';
         IsUserCreatedProfile: Boolean;
         IsProfileEditable: Boolean;
         IsWebClient: Boolean;

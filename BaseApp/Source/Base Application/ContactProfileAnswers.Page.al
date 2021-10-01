@@ -197,7 +197,6 @@ page 5114 "Contact Profile Answers"
         CurrentQuestionsChecklistCode: Code[20];
         ContactProfileAnswerCode: Code[20];
         ContactProfileAnswerLine: Integer;
-        Set: Boolean;
         GoNext: Boolean;
         OK: Boolean;
         CaptionStr: Text;
@@ -206,6 +205,9 @@ page 5114 "Contact Profile Answers"
         StyleIsStrong: Boolean;
         [InDataSet]
         DescriptionIndent: Integer;
+
+    protected var
+        Set: Boolean;
 
     procedure SetParameters(var SetCont: Record Contact; SetProfileQuestionnaireCode: Code[20]; SetContProfileAnswerCode: Code[20]; SetContProfileAnswerLine: Integer)
     begin

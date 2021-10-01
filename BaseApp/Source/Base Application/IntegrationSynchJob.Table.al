@@ -64,12 +64,16 @@ table 5338 "Integration Synch. Job"
         field(14; Type; Option)
         {
             Caption = 'Type';
-            OptionCaption = 'Synchronization,Uncoupling';
-            OptionMembers = Synchronization,Uncoupling;
+            OptionCaption = 'Synchronization,Uncoupling,Coupling';
+            OptionMembers = Synchronization,Uncoupling,Coupling;
         }
         field(15; Uncoupled; Integer)
         {
             Caption = 'Uncoupled';
+        }
+        field(16; Coupled; Integer)
+        {
+            Caption = 'Coupled';
         }
     }
     keys

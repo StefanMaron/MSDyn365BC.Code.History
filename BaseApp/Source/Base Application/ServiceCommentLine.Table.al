@@ -39,11 +39,9 @@ table 5906 "Service Comment Line"
         {
             Caption = 'Date';
         }
-        field(8; "Table Subtype"; Option)
+        field(8; "Table Subtype"; Enum "Service Comment Table Subtype")
         {
             Caption = 'Table Subtype';
-            OptionCaption = '0,1,2,3';
-            OptionMembers = "0","1","2","3";
         }
         field(9; "Table Name"; Enum "Service Comment Table Name")
         {

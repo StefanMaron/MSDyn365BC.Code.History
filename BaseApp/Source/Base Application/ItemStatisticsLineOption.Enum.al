@@ -1,6 +1,7 @@
 enum 5821 "Item Statistics Line Option"
 {
     Extensible = true;
+    AssignmentCompatibility = true;
 
     value(0; "Profit Calculation")
     {
@@ -18,11 +19,11 @@ enum 5821 "Item Statistics Line Option"
     {
         Caption = 'Sales Item Charge Spec.';
     }
-    value(4; Period)
+    value(4; "Period")
     {
         Caption = 'Period';
     }
-    value(5; Location)
+    value(5; "Location")
     {
         Caption = 'Location';
     }

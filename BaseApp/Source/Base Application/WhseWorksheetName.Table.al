@@ -25,14 +25,12 @@ table 7327 "Whse. Worksheet Name"
         {
             Caption = 'Description';
         }
-        field(21; "Template Type"; Option)
+        field(21; "Template Type"; Enum "Warehouse Worksheet Template Type")
         {
-            CalcFormula = Lookup ("Whse. Worksheet Template".Type WHERE(Name = FIELD("Worksheet Template Name")));
+            CalcFormula = Lookup("Whse. Worksheet Template".Type WHERE(Name = FIELD("Worksheet Template Name")));
             Caption = 'Template Type';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = 'Put-away,Pick,Movement';
-            OptionMembers = "Put-away",Pick,Movement;
         }
     }
 

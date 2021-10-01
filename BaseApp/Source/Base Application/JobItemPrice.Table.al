@@ -1,11 +1,16 @@
 table 1013 "Job Item Price"
 {
     Caption = 'Job Item Price';
+#if not CLEAN19
     DrillDownPageID = "Job Item Prices";
     LookupPageID = "Job Item Prices";
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
     ObsoleteTag = '16.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif    
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
 
     fields
     {
@@ -15,17 +20,20 @@ table 1013 "Job Item Price"
             NotBlank = true;
             TableRelation = Job;
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 GetJob;
                 "Currency Code" := Job."Currency Code";
             end;
+#endif
         }
         field(2; "Job Task No."; Code[20])
         {
             Caption = 'Job Task No.';
             TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 if "Job Task No." <> '' then begin
@@ -33,17 +41,20 @@ table 1013 "Job Item Price"
                     JT.TestField("Job Task Type", JT."Job Task Type"::Posting);
                 end;
             end;
+#endif
         }
         field(3; "Item No."; Code[20])
         {
             Caption = 'Item No.';
             TableRelation = Item;
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 Item.Get("Item No.");
                 Validate("Unit of Measure Code", Item."Sales Unit of Measure");
             end;
+#endif
         }
         field(4; "Unit of Measure Code"; Code[10])
         {
@@ -124,6 +135,7 @@ table 1013 "Job Item Price"
     {
     }
 
+#if not CLEAN19
     trigger OnInsert()
     begin
         LockTable();
@@ -158,5 +170,6 @@ table 1013 "Job Item Price"
     local procedure OnBeforeCheckItemNoNotEmpty(var JobItemPrice: Record "Job Item Price"; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

@@ -44,7 +44,9 @@ codeunit 8800 "Custom Layout Reporting"
         ZipFile: File;
         ZipFileOutStream: OutStream;
         OutputType: Option Print,Preview,PDF,Email,Excel,Word,XML;
+#if not CLEAN17
         SaveFolderMsg: Label 'Select a folder to save reports to.';
+#endif
         NotInitializedErr: Label 'Report data not initialized.';
         OutputNotSupportedErr: Label 'The chosen output method is not supported.';
         SMTPNotSetupErr: Label 'To send as email, you must set up SMTP.';
@@ -336,7 +338,7 @@ codeunit 8800 "Custom Layout Reporting"
 
         // Only run the report if we still have something to report on
         if TempRecordRef.FindFirst() then
-            RunReport(TempRecordRef, ReportSelections."Report ID", PrintIfEmailIsMissing);
+            RunReport(TempRecordRef, ReportSelections, PrintIfEmailIsMissing);
     end;
 
     local procedure ProcessReportPerObject()
@@ -376,7 +378,7 @@ codeunit 8800 "Custom Layout Reporting"
                         RunReportWithCustomReportSelection(ReportDataRecordRef, ReportID, CustomReportSelection, PrintIfEmailIsMissing);
                     until CustomReportSelection.Next() = 0
                 else
-                    RunReport(ReportDataRecordRef, ReportID, PrintIfEmailIsMissing);
+                    RunReport(ReportDataRecordRef, ReportSelections, PrintIfEmailIsMissing);
 
                 // Clear out the filter and reset:
                 SetGroupFilter(ReportDataRecordRef, ReportDataIteratorFieldRef, '', IteratorFilterGroup);
@@ -438,13 +440,14 @@ codeunit 8800 "Custom Layout Reporting"
         LogAndClearLastError(CustomReportSelection."Report Caption", DataRecRef.RecordId);
     end;
 
-    local procedure RunReport(var DataRecRef: RecordRef; ReportID: Integer; EmailPrintRemaining: Boolean)
+    local procedure RunReport(var DataRecRef: RecordRef; ReportSelections: Record "Report Selections"; EmailPrintRemaining: Boolean)
     var
         NullCustomReportSelection: Record "Custom Report Selection";
     begin
         // If we know we don't need a custom report selection, e.g. we don't need layouts or won't be sending email
         NullCustomReportSelection.Init();
-        RunReportWithCustomReportSelection(DataRecRef, ReportID, NullCustomReportSelection, EmailPrintRemaining);
+        NullCustomReportSelection.Usage := ReportSelections.Usage;
+        RunReportWithCustomReportSelection(DataRecRef, ReportSelections."Report ID", NullCustomReportSelection, EmailPrintRemaining);
     end;
 
     procedure SetOutputOption(OutputOption: Integer)

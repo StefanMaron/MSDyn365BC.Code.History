@@ -40,11 +40,9 @@ codeunit 5818 "Undo Service Shipment Line"
     end;
 
     var
-        ServShptHeader: Record "Service Shipment Header";
         ServShptLine: Record "Service Shipment Line";
         TempGlobalItemLedgEntry: Record "Item Ledger Entry" temporary;
         TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary;
-        InvtSetup: Record "Inventory Setup";
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         WhseUndoQty: Codeunit "Whse. Undo Quantity";
         UndoPostingMgt: Codeunit "Undo Posting Management";
@@ -52,7 +50,6 @@ codeunit 5818 "Undo Service Shipment Line"
         Text000: Label 'Do you want to undo the selected shipment line(s)?';
         Text001: Label 'Undo quantity posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
-        InvtAdjmt: Codeunit "Inventory Adjustment";
         Text003: Label 'Checking lines...';
         NextLineNo: Integer;
         HideDialog: Boolean;
@@ -167,15 +164,8 @@ codeunit 5818 "Undo Service Shipment Line"
             until Next() = 0;
             ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
 
-            InvtSetup.Get();
-            if InvtSetup."Automatic Cost Adjustment" <>
-               InvtSetup."Automatic Cost Adjustment"::Never
-            then begin
-                ServShptHeader.Get("Document No.");
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.SetJobUpdateProperties(true);
-                InvtAdjmt.MakeMultiLevelAdjmt;
-            end;
+            MakeInventoryAdjustment();
+
             WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
         end;
 
@@ -392,6 +382,18 @@ codeunit 5818 "Undo Service Shipment Line"
                 if ServItem.CheckIfCanBeDeleted = '' then
                     if ServItem.Delete(true) then;
             until ServItem.Next() = 0;
+    end;
+
+    local procedure MakeInventoryAdjustment()
+    var
+        InvtSetup: Record "Inventory Setup";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        InvtSetup.Get();
+        if InvtSetup.AutomaticCostAdjmtRequired() then begin
+            InvtAdjmtHandler.SetJobUpdateProperties(true);
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        end;
     end;
 
     [IntegrationEvent(false, false)]

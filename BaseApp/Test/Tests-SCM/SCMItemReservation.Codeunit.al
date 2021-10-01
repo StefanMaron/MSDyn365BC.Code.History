@@ -584,7 +584,8 @@ codeunit 137406 "SCM Item Reservation"
     begin
         LibraryInventory.CreateItem(Item);
         FindBin(Bin, LocationCode);
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, LocationCode);
+        LibraryWarehouse.CreateWarehouseJournalBatch(
+            WarehouseJournalBatch, "Warehouse Journal Template Type"::Item, LocationCode);
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name",
           WarehouseJournalBatch.Name, LocationCode, Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
@@ -773,14 +774,6 @@ codeunit 137406 "SCM Item Reservation"
         LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
         LibraryInventory.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, InTransitLocation.Code);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Qty);
-    end;
-
-    local procedure CreateWarehouseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; LocationCode: Code[10])
-    var
-        WarehouseJournalTemplate: Record "Warehouse Journal Template";
-    begin
-        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
-        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode);
     end;
 
     local procedure CreateItemWithLotAndTracking(var Item: Record Item; LotNos: Code[20])

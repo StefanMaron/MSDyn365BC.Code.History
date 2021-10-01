@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 139089 "PowerBI Select Reports Tests"
 {
     Subtype = Test;
@@ -337,4 +338,4 @@ codeunit 139089 "PowerBI Select Reports Tests"
                 AddReportToList(CreateGuid, 'Report ' + Format(i), Enabled);
     end;
 }
-
+#endif

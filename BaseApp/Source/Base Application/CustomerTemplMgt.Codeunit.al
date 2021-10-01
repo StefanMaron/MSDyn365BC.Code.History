@@ -4,18 +4,22 @@ codeunit 1381 "Customer Templ. Mgt."
     begin
     end;
 
+#if not CLEAN19
     var
         TemplatesDisabledTxt: Label 'Contact conversion templates are being replaced by customer templates to avoid duplication. We have migrated your existing contact conversion templates to customer templates. Going forward, use only customer templates. Contact conversion templates are no longer used.';
         LearnMoreTxt: Label 'Learn more';
         LearnMoreUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2171036', Locked = true;
         OpenPageTxt: Label 'Open the %1 page', Comment = '%1 = page caption';
+#endif
 
-    procedure CreateCustomerFromTemplate(var Customer: Record Customer; var IsHandled: Boolean): Boolean
+    procedure CreateCustomerFromTemplate(var Customer: Record Customer; var IsHandled: Boolean) Result: Boolean
     var
         CustomerTempl: Record "Customer Templ.";
     begin
-        if not IsEnabled() then
-            exit(false);
+        IsHandled := false;
+        OnBeforeCreateCustomerFromTemplate(Customer, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         IsHandled := true;
 
@@ -35,6 +39,7 @@ codeunit 1381 "Customer Templ. Mgt."
         exit(true);
     end;
 
+#if not CLEAN18
     [Obsolete('Function is not used and not required.', '18.0')]
     procedure InsertCustomerFromContact(var Customer: Record Customer; Contact: Record Contact): Boolean
     var
@@ -57,6 +62,7 @@ codeunit 1381 "Customer Templ. Mgt."
 
         exit(true);
     end;
+#endif
 
     procedure ApplyCustomerTemplate(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
     begin
@@ -210,6 +216,11 @@ codeunit 1381 "Customer Templ. Mgt."
     var
         CustomerTempl: Record "Customer Templ.";
     begin
+        IsHandled := false;
+        OnBeforeUpdateFromTemplate(Customer, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CanBeUpdatedFromTemplate(CustomerTempl, IsHandled) then
             exit;
 
@@ -227,6 +238,11 @@ codeunit 1381 "Customer Templ. Mgt."
     var
         CustomerTempl: Record "Customer Templ.";
     begin
+        IsHandled := false;
+        OnBeforeUpdateMultipleFromTemplate(Customer, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CanBeUpdatedFromTemplate(CustomerTempl, IsHandled) then
             exit;
 
@@ -238,9 +254,6 @@ codeunit 1381 "Customer Templ. Mgt."
 
     local procedure CanBeUpdatedFromTemplate(var CustomerTempl: Record "Customer Templ."; var IsHandled: Boolean): Boolean
     begin
-        if not IsEnabled() then
-            exit(false);
-
         IsHandled := true;
 
         if not SelectCustomerTemplate(CustomerTempl) then
@@ -260,7 +273,9 @@ codeunit 1381 "Customer Templ. Mgt."
     var
         CustomerTempl: Record "Customer Templ.";
     begin
-        if not IsEnabled() then
+        IsHandled := false;
+        OnBeforeCreateTemplateFromCustomer(Customer, IsHandled);
+        if IsHandled then
             exit;
 
         IsHandled := true;
@@ -323,9 +338,6 @@ codeunit 1381 "Customer Templ. Mgt."
 
     local procedure ShowCustomerTemplList(var IsHandled: Boolean)
     begin
-        if not IsEnabled() then
-            exit;
-
         IsHandled := true;
         Page.Run(Page::"Customer Templ. List");
     end;
@@ -420,6 +432,26 @@ codeunit 1381 "Customer Templ. Mgt."
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCustomerFromTemplate(var Customer: Record Customer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateFromTemplate(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateMultipleFromTemplate(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTemplateFromCustomer(Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnInsertCustomerFromTemplate', '', false, false)]
     local procedure OnInsertCustomerFromTemplateHandler(var Customer: Record Customer; var Result: Boolean; var IsHandled: Boolean)
     begin
@@ -474,26 +506,26 @@ codeunit 1381 "Customer Templ. Mgt."
         ShowCustomerTemplList(IsHandled);
     end;
 
+#if not CLEAN19
+    [Obsolete('Will not be needed after customer template table will be removed.', '19.0')]
     procedure ShowContactConversionTemplatesNotification()
     var
-        TemplateFeatureMgt: Codeunit "Template Feature Mgt.";
         CustomerTemplList: Page "Customer Templ. List";
         Notification: Notification;
     begin
-        if not TemplateFeatureMgt.IsEnabled() then
-            exit;
-
         Notification.Message(TemplatesDisabledTxt);
         Notification.AddAction(LearnMoreTxt, Codeunit::"Customer Templ. Mgt.", 'OpenLearnMore');
         Notification.AddAction(StrSubstNo(OpenPageTxt, CustomerTemplList.Caption), Codeunit::"Customer Templ. Mgt.", 'OpenCustomerTemplListPage');
         Notification.Send();
     end;
 
+    [Obsolete('Will not be needed after customer template table will be removed.', '19.0')]
     procedure OpenLearnMore(Notification: Notification)
     begin
         Hyperlink(LearnMoreUrlTxt);
     end;
 
+    [Obsolete('Will not be needed after customer template table will be removed.', '19.0')]
     procedure OpenCustomerTemplListPage(Notification: Notification)
     begin
         Page.Run(Page::"Customer Templ. List");
@@ -510,4 +542,5 @@ codeunit 1381 "Customer Templ. Mgt."
     begin
         ShowContactConversionTemplatesNotification();
     end;
+#endif
 }

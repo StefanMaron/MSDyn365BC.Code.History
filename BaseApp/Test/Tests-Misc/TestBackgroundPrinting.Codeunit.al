@@ -246,39 +246,13 @@ codeunit 139030 "Test Background Printing"
         JobQueueEntry.Validate("Object ID to Run", REPORT::"Detail Trial Balance");
         JobQueueEntry.Validate("Report Output Type", JobQueueEntry."Report Output Type"::Excel);
         JobQueueEntry.Insert(true);
+        Commit();
         CODEUNIT.Run(CODEUNIT::"Job Queue Start Codeunit", JobQueueEntry);
 
         ReportInbox.FindLast;
         Assert.AreEqual(NoOfReports + 1, ReportInbox.Count, '');
         Assert.AreEqual(REPORT::"Detail Trial Balance", ReportInbox."Report ID", '');
         Assert.AreEqual(ReportInbox."Output Type"::Excel, ReportInbox."Output Type", '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestReportExecutionRunOnRecord()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        JobQueueEntry: Record "Job Queue Entry";
-        ReportInbox: Record "Report Inbox";
-        RecRef: RecordRef;
-    begin
-        if not SalesInvoiceHeader.FindLast then
-            exit;
-        RecRef.GetTable(SalesInvoiceHeader);
-
-        JobQueueEntry.Init();
-        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
-        JobQueueEntry.Validate("Object Type to Run", JobQueueEntry."Object Type to Run"::Report);
-        JobQueueEntry.Validate("Object ID to Run", REPORT::"Sales - Invoice");
-        JobQueueEntry.Validate("Report Output Type", JobQueueEntry."Report Output Type"::PDF);
-        JobQueueEntry.Validate("Record ID to Process", RecRef.RecordId);
-        JobQueueEntry.Insert(true);
-        CODEUNIT.Run(CODEUNIT::"Job Queue Start Codeunit", JobQueueEntry);
-
-        ReportInbox.FindLast;
-        Assert.AreEqual(REPORT::"Sales - Invoice", ReportInbox."Report ID", '');
-        Assert.AreEqual(ReportInbox."Output Type"::PDF, ReportInbox."Output Type", '');
     end;
 
     [RequestPageHandler]

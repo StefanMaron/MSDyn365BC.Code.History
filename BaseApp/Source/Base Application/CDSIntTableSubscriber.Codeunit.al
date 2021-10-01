@@ -428,13 +428,14 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
     local procedure RemoveChildCouplings(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef)
     var
-        TempContact: Record Contact temporary;
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        ChildContactList: List of [Guid];
     begin
-        if GetCoupledChildContacts(LocalRecordRef, IntegrationRecordRef, TempContact) then
-            RemoveCouplingForChildContacts(TempContact);
+        if GetCoupledChildContacts(LocalRecordRef, IntegrationRecordRef, ChildContactList) then
+            CRMIntegrationManagement.RemoveCoupling(Database::Contact, ChildContactList, false);
     end;
 
-    local procedure GetCoupledChildContacts(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef; var TempContact: Record Contact temporary): Boolean
+    local procedure GetCoupledChildContacts(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef; var ChildContactList: List of [Guid]): Boolean
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -444,7 +445,6 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         CRMContact: Record "CRM Contact";
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMID: Guid;
-        Found: Boolean;
     begin
         if IntegrationRecordRef.Number() <> Database::"CRM Account" then
             exit(false);
@@ -486,41 +486,12 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                 repeat
                     if CRMIntegrationRecord.FindIDFromRecordID(Contact.RecordId(), CRMID) then begin
                         CRMContact.Get(CRMID);
-                        if CRMContact.ParentCustomerId = CRMAccount.AccountId then begin
-                            TempContact.Copy(Contact);
-                            TempContact.Insert();
-                            Found := true;
-                        end;
+                        if CRMContact.ParentCustomerId = CRMAccount.AccountId then
+                            ChildContactList.Add(Contact.SystemId);
                     end;
                 until Contact.Next() = 0;
         end;
-        exit(Found);
-    end;
-
-    local procedure RemoveCouplingForChildContacts(var TempContact: Record Contact temporary)
-    var
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        ContactRecordRef: RecordRef;
-        SystemIdFieldRef: Fieldref;
-        SystemIdFilter: Text;
-    begin
-        if not TempContact.FindSet() then
-            exit;
-
-        repeat
-            SystemIdFilter += TempContact.SystemId + '|';
-        until TempContact.Next() = 0;
-        SystemIdFilter := SystemIdFilter.TrimEnd('|');
-        if SystemIdFilter = '' then
-            exit;
-
-        ContactRecordRef.Open(Database::Contact);
-        SystemIdFieldRef := ContactRecordRef.Field(ContactRecordRef.SystemIdNo());
-        SystemIdFieldRef.SetFilter(SystemIdFilter);
-        if not ContactRecordRef.FindSet() then
-            exit;
-
-        CRMIntegrationManagement.RemoveCoupling(ContactRecordRef, false);
+        exit(ChildContactList.Count > 0);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnIsCDSIntegrationEnabled', '', false, false)]

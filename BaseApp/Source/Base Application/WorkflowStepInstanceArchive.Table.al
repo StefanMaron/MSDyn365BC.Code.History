@@ -29,7 +29,7 @@ table 1530 "Workflow Step Instance Archive"
         field(11; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(12; "Created Date-Time"; DateTime)
         {

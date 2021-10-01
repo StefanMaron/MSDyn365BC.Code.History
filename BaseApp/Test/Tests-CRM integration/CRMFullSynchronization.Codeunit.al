@@ -77,10 +77,12 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('ITEM-PRODUCT', 'UNIT OF MEASURE');
         // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
         VerifyDependencyFilter('RESOURCE-PRODUCT', 'UNIT OF MEASURE');
+#if not CLEAN19
         // [THEN] 'CUSTPRCGRP-PRICE' line, where "Dependency Filter" = 'CURRENCY|ITEM-PRODUCT'
         VerifyDependencyFilter('CUSTPRCGRP-PRICE', 'CURRENCY|ITEM-PRODUCT');
         // [THEN] 'SALESPRC-PRODPRICE' line, where "Dependency Filter" = 'CUSTPRCGRP-PRICE|ITEM-PRODUCT'
         VerifyDependencyFilter('SALESPRC-PRODPRICE', 'CUSTPRCGRP-PRICE|ITEM-PRODUCT');
+#endif
     end;
 
     [Test]
@@ -91,7 +93,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Processing Order]
         // [GIVEN] Extended Prices are on.
-        Initialize(true);
+        Initialize(true, false);
         LibraryLowerPermissions.SetO365Full;
 
         // [WHEN] Generate CRM Full Synch Review Lines
@@ -113,6 +115,44 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('PLHEADER-PRICE', 'CURRENCY|ITEM-PRODUCT');
         // [THEN] 'PLLINE-PRODPRICE' line, where "Dependency Filter" = 'PLHEADER-PRICE|ITEM-PRODUCT'
         VerifyDependencyFilter('PLLINE-PRODPRICE', 'PLHEADER-PRICE|ITEM-PRODUCT');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure T103_Wave1PlusHaveNotBlankDependencyFilterUnitGroup()
+    var
+        CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
+    begin
+        // [FEATURE] [Processing Order]
+        // [GIVEN] Unit group mapping is on
+        Initialize(false, true);
+        LibraryLowerPermissions.SetO365Full();
+
+        // [WHEN] Generate CRM Full Synch Review Lines
+        CRMFullSynchReviewLine.Generate();
+
+        // [THEN] 'CUSTOMER' line, where "Dependency Filter" = 'SALESPEOPLE|CURRENCY'
+        VerifyDependencyFilter('CUSTOMER', 'SALESPEOPLE|CURRENCY');
+        // [THEN] 'CONTACT' line, where "Dependency Filter" = 'CUSTOMER'
+        VerifyDependencyFilter('CONTACT', 'CUSTOMER|VENDOR');
+        // [THEN] 'OPPORTUNITY' line, where "Dependency Filter" = 'CONTACT'
+        VerifyDependencyFilter('OPPORTUNITY', 'CONTACT');
+        // [THEN] 'POSTEDSALESINV-INV' line, where "Dependency Filter" = 'ITEM-PRODUCT|RESOURCE-PRODUCT|OPPORTUNITY'
+        VerifyDependencyFilter('POSTEDSALESINV-INV', 'ITEM-PRODUCT|RESOURCE-PRODUCT|OPPORTUNITY');
+        // [THEN] 'ITEM-PRODUCT' line, where "Dependency Filter" = 'ITEM UOM'
+        VerifyDependencyFilter('ITEM-PRODUCT', 'ITEM UOM');
+        // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'RESOURCE UOM'
+        VerifyDependencyFilter('RESOURCE-PRODUCT', 'RESOURCE UOM');
+#if not CLEAN19
+        // [THEN] 'CUSTPRCGRP-PRICE' line, where "Dependency Filter" = 'CURRENCY|ITEM-PRODUCT'
+        VerifyDependencyFilter('CUSTPRCGRP-PRICE', 'CURRENCY|ITEM-PRODUCT');
+        // [THEN] 'SALESPRC-PRODPRICE' line, where "Dependency Filter" = 'CUSTPRCGRP-PRICE|ITEM-PRODUCT'
+        VerifyDependencyFilter('SALESPRC-PRODPRICE', 'CUSTPRCGRP-PRICE|ITEM-PRODUCT');
+#endif
+        // [THEN] 'ITEM UOM' line, where "Dependency Filter" = 'UNIT GROUP'
+        VerifyDependencyFilter('ITEM UOM', 'UNIT GROUP');
+        // [THEN] 'RESOURCE UOM' line, where "Dependency Filter" = 'UNIT GROUP'
+        VerifyDependencyFilter('RESOURCE UOM', 'UNIT GROUP');
     end;
 
     [Test]
@@ -358,7 +398,7 @@ codeunit 139187 "CRM Full Synchronization"
         Assert.IsTrue(FindFullSyncIntTableMapping('CUSTOMER', IntegrationTableMapping), 'Full Synch. mapping is not created');
         BindSubscription(CRMFullSynchronization); // to catch "In Process" Status
         JobQueueEntryID :=
-          LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
+          LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping, true);
 
         CRMFullSynchReviewLine.Get('CUSTOMER');
         CRMFullSynchReviewLine.TestField("Session ID", 0);
@@ -653,7 +693,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Status] [UT]
         // [GIVEN] Extended Prices are on
-        Initialize(true);
+        Initialize(true, false);
         LibraryLowerPermissions.SetO365Full;
         // [GIVEN] 'UNIT OF MEASURE','CURRENCY','ITEM-PRODUCT','PLHEADER-PRICE' are 'Finished'
         CRMFullSynchReviewLine.Generate;
@@ -669,13 +709,13 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.SetFilter(Name, 'PLLINE-PRODPRICE|RESOURCE-PRODUCT|SALESPEOPLE');
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::"On Hold");
-        Assert.RecordCount(CRMFullSynchReviewLine, 3);
+        Assert.RecordCount(CRMFullSynchReviewLine, 2);
         // [THEN] Other lines, where "Job Queue Entry Status" is ' '
         CRMFullSynchReviewLine.Reset();
         Counter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
-        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 7); // 4 - Finished, 3 - Ready
+        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 6); // 4 - Finished, 4 - Ready
     end;
 
     [Test]
@@ -731,17 +771,13 @@ codeunit 139187 "CRM Full Synchronization"
         // [WHEN] Run "Start"
         CRMFullSynchReviewLine.Start;
 
-        // [THEN] Line 'CUSTPRCGRP-PRICE' gets "Job Queue Entry Status" = 'On Hold'
-        CRMFullSynchReviewLine.Get('CUSTPRCGRP-PRICE');
-        CRMFullSynchReviewLine.TestField(
-          "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::"On Hold");
         // [THEN] Other lines, where "Job Queue Entry Status" is ' '
         CRMFullSynchReviewLine.Reset();
         CRMFullSynchReviewLine.SetFilter("Dependency Filter", '<>%1', '');
         Counter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
-        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 2);
+        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 1);
     end;
 
     [Test]
@@ -750,6 +786,8 @@ codeunit 139187 "CRM Full Synchronization"
     var
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
         Counter: Integer;
+        Finished: Integer;
+        OnHold: Integer;
     begin
         // [FEATURE] [Status] [UT]
         Initialize;
@@ -760,22 +798,30 @@ codeunit 139187 "CRM Full Synchronization"
         SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('SALESPEOPLE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::"In Process");
+        Finished := 1; // Item-product
 
         // [WHEN] Run "Start"
         CRMFullSynchReviewLine.Start;
 
+#if not CLEAN19
         // [THEN] Lines 'CUSTPRCGRP-PRICE' and 'CUSTOMER' get "Status" = 'On Hold'
+        OnHold := 3;
         CRMFullSynchReviewLine.SetFilter(Name, 'CUSTPRCGRP-PRICE|CUSTOMER|VENDOR');
+#else
+        // [THEN] Lines 'VENDOR' and 'CUSTOMER' get "Status" = 'On Hold'
+        OnHold := 2;
+        CRMFullSynchReviewLine.SetFilter(Name, 'CUSTOMER|VENDOR');
+#endif
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::"On Hold");
-        Assert.RecordCount(CRMFullSynchReviewLine, 3);
+        Assert.RecordCount(CRMFullSynchReviewLine, OnHold);
         // [THEN] Other lines, where "Job Queue Entry Status" is ' '
         CRMFullSynchReviewLine.Reset();
         CRMFullSynchReviewLine.SetFilter("Dependency Filter", '<>%1', '');
         Counter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
-        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 4);
+        Assert.RecordCount(CRMFullSynchReviewLine, Counter - Finished - OnHold);
     end;
 
     [Test]
@@ -784,6 +830,8 @@ codeunit 139187 "CRM Full Synchronization"
     var
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
         Counter: Integer;
+        Finished: Integer;
+        OnHold: Integer;
     begin
         // [FEATURE] [Status] [UT]
         Initialize;
@@ -791,24 +839,36 @@ codeunit 139187 "CRM Full Synchronization"
         // [GIVEN] 'UNIT OF MEASURE','CURRENCY','ITEM-PRODUCT','CUSTPRCGRP-PRICE' are 'Finished'
         CRMFullSynchReviewLine.Generate;
         SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
-        SetStatus('CUSTPRCGRP-PRICE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+#if not CLEAN19
+        SetStatus('CUSTPRCGRP-PRICE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        Finished := 4;
+#else
+        Finished := 3;
+#endif
 
         // [WHEN] Run "Start"
         CRMFullSynchReviewLine.Start;
 
+#if not CLEAN19
         // [THEN] Lines 'CUSTPRCGRP-PRICE','RESOURCE-PRODUCT','SALESPEOPLE' get "Job Queue Entry Status" = 'On Hold'
+        OnHold := 3;
         CRMFullSynchReviewLine.SetFilter(Name, 'SALESPRC-PRODPRICE|RESOURCE-PRODUCT|SALESPEOPLE');
+#else
+        // [THEN] Lines 'RESOURCE-PRODUCT','SALESPEOPLE' get "Job Queue Entry Status" = 'On Hold'
+        OnHold := 2;
+        CRMFullSynchReviewLine.SetFilter(Name, 'RESOURCE-PRODUCT|SALESPEOPLE');
+#endif
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::"On Hold");
-        Assert.RecordCount(CRMFullSynchReviewLine, 3);
+        Assert.RecordCount(CRMFullSynchReviewLine, OnHold);
         // [THEN] Other lines, where "Job Queue Entry Status" is ' '
         CRMFullSynchReviewLine.Reset();
         Counter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
-        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 7); // 4 - Finished, 3 - Ready
+        Assert.RecordCount(CRMFullSynchReviewLine, Counter - Finished - OnHold);
     end;
 
     [Test]
@@ -1086,10 +1146,10 @@ codeunit 139187 "CRM Full Synchronization"
 
     local procedure Initialize()
     begin
-        Initialize(false);
+        Initialize(false, false);
     end;
 
-    local procedure Initialize(EnableExtendedPrice: Boolean)
+    local procedure Initialize(EnableExtendedPrice: Boolean; EnableUnitGroupMapping: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CDSConnectionSetup: Record "CDS Connection Setup";
@@ -1101,6 +1161,10 @@ codeunit 139187 "CRM Full Synchronization"
         LibraryPriceCalculation.DisableExtendedPriceCalculation();
         if EnableExtendedPrice then
             LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        LibraryCRMIntegration.DisableUnitGroupMapping();
+        if EnableUnitGroupMapping then
+            LibraryCRMIntegration.EnableUnitGroupMapping();
 
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;

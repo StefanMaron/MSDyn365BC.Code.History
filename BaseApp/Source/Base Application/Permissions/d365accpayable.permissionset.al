@@ -11,6 +11,7 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Analysis View Filter" = r,
                   tabledata "Applied Payment Entry" = RIMD,
                   tabledata "Bank Acc. Reconciliation" = RIMD,
+                  tabledata "Bank Acc. Rec. Match Buffer" = RIMD,
                   tabledata "Bank Account" = M,
                   tabledata "Bank Account Ledger Entry" = d,
                   tabledata "Bank Account Statement" = RimD,
@@ -27,7 +28,9 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Item Analysis View Entry" = RIM,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = Rm,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = R,
+#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Journal Line" = RIMD,
                   tabledata "Item Ledger Entry" = Rimd,
@@ -68,13 +71,17 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Purchase Header Archive" = RIMD,
                   tabledata "Purchase Line" = RIMD,
                   tabledata "Purchase Line Archive" = RIMD,
+#if not CLEAN19
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
+#endif
                   tabledata "Purchase Price Access" = RIMD,
                   tabledata "Record Buffer" = Rimd,
                   tabledata "Requisition Line" = RIMD,
+#if not CLEAN19
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
+#endif
                   tabledata "Resource Unit of Measure" = R,
                   tabledata "Sales Header" = RmD,
                   tabledata "Sales Invoice Line" = Rimd,

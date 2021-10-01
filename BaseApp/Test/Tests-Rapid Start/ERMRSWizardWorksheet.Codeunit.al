@@ -407,7 +407,9 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         CheckPage(DATABASE::"Profile Questionnaire Header", PAGE::"Profile Questionnaires");
         CheckPage(DATABASE::"Sales Cycle", PAGE::"Sales Cycles");
         CheckPage(DATABASE::"Close Opportunity Code", PAGE::"Close Opportunity Codes");
+#if not CLEAN18
         CheckPage(DATABASE::"Customer Template", PAGE::"Customer Template List");
+#endif
         CheckPage(DATABASE::"Service Mgt. Setup", PAGE::"Service Mgt. Setup");
         CheckPage(DATABASE::"Service Item", PAGE::"Service Item List");
         CheckPage(DATABASE::"Service Hour", PAGE::"Default Service Hours");
@@ -556,8 +558,10 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         CheckPage(DATABASE::"Purch. Rcpt. Header", PAGE::"Posted Purchase Receipts");
         CheckPage(DATABASE::"Purch. Inv. Header", PAGE::"Posted Purchase Invoices");
         CheckPage(DATABASE::"Purch. Cr. Memo Hdr.", PAGE::"Posted Purchase Credit Memos");
+#if not CLEAN19
         CheckPage(DATABASE::"Sales Price", PAGE::"Sales Prices");
         CheckPage(DATABASE::"Purchase Price", PAGE::"Purchase Prices");
+#endif
         CheckPage(DATABASE::"VAT Entry", PAGE::"VAT Entries");
         CheckPage(DATABASE::"FA Ledger Entry", PAGE::"FA Ledger Entries");
         CheckPage(DATABASE::"Value Entry", PAGE::"Value Entries");

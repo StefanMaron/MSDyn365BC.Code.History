@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 138019 "O365 Item Prices"
 {
     Subtype = Test;
@@ -1580,4 +1581,4 @@ codeunit 138019 "O365 Item Prices"
         SalesLineDiscounts.OK.Invoke;
     end;
 }
-
+#endif

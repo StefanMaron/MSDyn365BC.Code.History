@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5440 "Automation Company Entity"
 {
     APIGroup = 'automation';
@@ -70,4 +71,4 @@ page 5440 "Automation Company Entity"
     var
         AutomationAPIManagement: Codeunit "Automation - API Management";
 }
-
+#endif

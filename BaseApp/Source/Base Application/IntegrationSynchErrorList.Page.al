@@ -135,14 +135,35 @@ page 5339 "Integration Synch. Error List"
 
                     trigger OnAction()
                     var
+                        IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
                         LocalRecordID: RecordID;
                         SynchronizeHandled: Boolean;
+                        RecordIdDictionary: Dictionary of [RecordId, Boolean];
+                        RecordIdList: List of [RecordId];
                     begin
                         if IsEmpty() then
                             exit;
 
-                        GetRecordID(LocalRecordID);
-                        ForceSynchronizeDataIntegration(LocalRecordID, SynchronizeHandled);
+                        CurrPage.SetSelectionFilter(IntegrationSynchJobErrors);
+                        IntegrationSynchJobErrors.Next();
+
+                        if IntegrationSynchJobErrors.Count() = 1 then begin
+                            GetRecordID(IntegrationSynchJobErrors, LocalRecordID);
+                            ForceSynchronizeDataIntegration(LocalRecordID, SynchronizeHandled);
+                            exit;
+                        end;
+
+                        if not IntegrationSynchJobErrors.FindSet() then
+                            exit;
+
+                        repeat
+                            GetRecordID(IntegrationSynchJobErrors, LocalRecordID);
+                            if not RecordIdDictionary.ContainsKey(LocalRecordID) then
+                                RecordIdDictionary.Add(LocalRecordID, true);
+                        until IntegrationSynchJobErrors.Next() = 0;
+
+                        RecordIdList := RecordIdDictionary.Keys();
+                        ForceSynchronizeDataIntegration(RecordIdList, SynchronizeHandled);
                     end;
                 }
                 action(DataIntegrationExceptionDetails)

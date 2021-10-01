@@ -123,7 +123,7 @@ table 454 "Approval Entry"
         field(22; "Record ID to Approve"; RecordID)
         {
             Caption = 'Record ID to Approve';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(23; "Delegation Date Formula"; DateFormula)
         {

@@ -122,28 +122,172 @@ codeunit 5340 "CRM Integration Table Synch."
         Clear(CRMIntTableSubscriber);
     end;
 
-    local procedure FindModifiedCRMRecords(var CRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
+    internal procedure SplitLocalTableFilter(var IntegrationTableMapping: Record "Integration Table Mapping"; var TableFilterList: List of [Text]): Boolean
     var
-        ModifyByFieldRef: FieldRef;
-        ForceModify: Boolean;
-        ModifiedByFilterNeeded: Boolean;
+        RecordRef: RecordRef;
     begin
-        CRMRecordRef.Open(IntegrationTableMapping."Integration Table ID");
-        IntegrationTableMapping.SetIntRecordRefFilter(CRMRecordRef);
-        // Exclude modifications by background job
-        ForceModify := IntegrationTableMapping."Delete After Synchronization";
-        if not ForceModify then
-            if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::Bidirectional then
-                ModifiedByFilterNeeded := not HasUnidirectionalFieldMappingFromIntegrationTable(IntegrationTableMapping)
-            else
-                ModifiedByFilterNeeded := true;
-        if ModifiedByFilterNeeded then begin
-            ModifyByFieldRef := CRMRecordRef.Field(GetModifyByFieldNo(IntegrationTableMapping."Integration Table ID"));
-            if ModifyByFieldRef.Type <> FieldType::GUID then
-                Error(ModifiedByFieldMustBeGUIDErr, ModifyByFieldRef.Name, CRMRecordRef.Name);
-            ModifyByFieldRef.SetFilter('<>%1', GetIntegrationUserId());
+        RecordRef.Open(IntegrationTableMapping."Table ID", true);
+        exit(SplitTableFilter(IntegrationTableMapping."Table ID", RecordRef.SystemIdNo(), IntegrationTableMapping.GetTableFilter(), TableFilterList));
+    end;
+
+    internal procedure SplitIntegrationTableFilter(var IntegrationTableMapping: Record "Integration Table Mapping"; var TableFilterList: List of [Text]): Boolean
+    begin
+        exit(SplitTableFilter(IntegrationTableMapping."Integration Table ID", IntegrationTableMapping."Integration Table UID Fld. No.", IntegrationTableMapping.GetIntegrationTableFilter(), TableFilterList));
+    end;
+
+    internal procedure SplitTableFilter(TableId: Integer; FieldNo: Integer; TableFilter: Text; var TableFilterList: List of [Text]): Boolean
+    var
+        RecordRef: RecordRef;
+        FieldRef: FieldRef;
+        FieldFilter: Text;
+        FieldFilterList: List of [Text];
+    begin
+        RecordRef.Open(TableId, true);
+        RecordRef.SetView(TableFilter);
+        FieldRef := RecordRef.Field(FieldNo);
+        FieldFilter := FieldRef.GetFilter();
+        if not SplitFieldFilter(FieldFilter, FieldFilterList) then begin
+            TableFilterList.Add(TableFilter);
+            exit(false);
         end;
-        exit(CRMRecordRef.FindSet());
+        foreach FieldFilter in FieldFilterList do begin
+            FieldRef.SetFilter(FieldFilter);
+            TableFilter := RecordRef.GetView();
+            TableFilterList.Add(TableFilter);
+        end;
+        exit(true);
+    end;
+
+    local procedure SplitFieldFilter(FieldFilter: Text; var FilterList: List of [Text]): Boolean
+    var
+        ConditionList: List of [Text];
+        Condition: Text;
+        PartFilter: Text;
+        Length: Integer;
+        Id: Guid;
+        MaxCount: Integer;
+        I: Integer;
+        CannotSplit: Boolean;
+    begin
+        MaxCount := GetMaxNumberOfConditions();
+        ConditionList := FieldFilter.Split('|');
+        if ConditionList.Count() > MaxCount then begin
+            foreach Condition in ConditionList do begin
+                I += 1;
+                if I = 1 then
+                    Length := StrLen(Condition)
+                else
+                    if Length <> StrLen(Condition) then begin
+                        CannotSplit := true;
+                        break;
+                    end;
+                if not Evaluate(Id, Condition) then begin
+                    CannotSplit := true;
+                    break;
+                end;
+                if PartFilter <> '' then
+                    PartFilter += '|' + Condition
+                else
+                    PartFilter := Condition;
+                if I = MaxCount then begin
+                    FilterList.Add(PartFilter);
+                    PartFilter := '';
+                    I := 0;
+                end;
+            end;
+            if PartFilter <> '' then
+                FilterList.Add(PartFilter);
+        end else
+            FilterList.Add(FieldFilter);
+
+        if not CannotSplit then
+            exit(true);
+
+        Clear(FilterList);
+        FilterList.Add(FieldFilter);
+        exit(false);
+    end;
+
+    local procedure IsModifiedByFilterNeeded(IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
+    begin
+        if IntegrationTableMapping."Delete After Synchronization" then
+            exit(false);
+        if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::Bidirectional then
+            exit(not HasUnidirectionalFieldMappingFromIntegrationTable(IntegrationTableMapping));
+        exit(true);
+    end;
+
+    local procedure FindModifiedCRMRecords(var TempCRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var FailedNotSkippedIdDictionary: Dictionary of [Guid, Boolean])
+    var
+        CRMRecordRef: RecordRef;
+        CRMID: Guid;
+        ModifiedByFilterNeeded: Boolean;
+        TableFilter: Text;
+        FilterList: List of [Text];
+    begin
+        ModifiedByFilterNeeded := IsModifiedByFilterNeeded(IntegrationTableMapping);
+        SplitIntegrationTableFilter(IntegrationTableMapping, FilterList);
+        CRMRecordRef.Open(IntegrationTableMapping."Integration Table ID");
+        foreach TableFilter in FilterList do begin
+            SetIntRecordRefFilter(CRMRecordRef, TableFilter, ModifiedByFilterNeeded, IntegrationTableMapping);
+            if CRMRecordRef.FindSet() then
+                repeat
+                    CRMID := CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value();
+                    if not FailedNotSkippedIdDictionary.ContainsKey(CRMID) then
+                        if not TryCopyRecordReference(CRMRecordRef, TempCRMRecordRef, false) then
+                            Session.LogMessage('0000ECC', StrSubstNo(CopyRecordRefFailedTxt, CRMID), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                until CRMRecordRef.Next() = 0;
+        end;
+        CRMRecordRef.Close();
+    end;
+
+    [TryFunction]
+    local procedure TryCopyRecordReference(FromRec: RecordRef; var ToRec: RecordRef; ValidateOnInsert: Boolean)
+    begin
+        CopyRecordReference(FromRec, ToRec, ValidateOnInsert);
+    end;
+
+    local procedure CopyRecordReference(FromRec: RecordRef; var ToRec: RecordRef; ValidateOnInsert: Boolean)
+    var
+        FromField: FieldRef;
+        ToField: FieldRef;
+        Counter: Integer;
+    begin
+        if FromRec.Number <> ToRec.Number then
+            exit;
+
+        ToRec.Init();
+        for Counter := 1 to FromRec.FieldCount do begin
+            FromField := FromRec.FieldIndex(Counter);
+            if not (FromField.Type in [FieldType::BLOB, FieldType::TableFilter]) then begin
+                ToField := ToRec.Field(FromField.Number);
+                ToField.Value := FromField.Value;
+            end;
+        end;
+        ToRec.Insert(ValidateOnInsert);
+    end;
+
+    local procedure SetIntRecordRefFilter(var IntRecordRef: RecordRef; TableFilter: Text; ModifiedByFilterNeeded: Boolean; IntegrationTableMapping: Record "Integration Table Mapping")
+    var
+        ModifiedOnFieldRef: FieldRef;
+        ModifyByFieldRef: FieldRef;
+        ModifyByFieldNo: Integer;
+    begin
+        if TableFilter <> '' then
+            IntRecordRef.SetView(TableFilter);
+
+        if IntegrationTableMapping."Synch. Modified On Filter" <> 0DT then begin
+            ModifiedOnFieldRef := IntRecordRef.Field(IntegrationTableMapping."Int. Tbl. Modified On Fld. No.");
+            ModifiedOnFieldRef.SetFilter('>%1', IntegrationTableMapping."Synch. Modified On Filter" - 999);
+        end;
+
+        if ModifiedByFilterNeeded then begin
+            ModifyByFieldNo := GetModifyByFieldNo(IntegrationTableMapping."Integration Table ID");
+            ModifyByFieldRef := IntRecordRef.Field(ModifyByFieldNo);
+            if ModifyByFieldRef.Type <> FieldType::GUID then
+                Error(ModifiedByFieldMustBeGUIDErr, ModifyByFieldRef.Name, IntRecordRef.Name);
+            ModifyByFieldRef.SetFilter('<>%1', GetIntegrationUserId())
+        end;
     end;
 
     local procedure FindFailedNotSkippedCRMRecords(var TempCRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary; var CRMIDDictionary: Dictionary of [Guid, Boolean]): Boolean
@@ -181,7 +325,6 @@ codeunit 5340 "CRM Integration Table Synch."
 
     local procedure CacheFilteredCRMRecords(var CRMIDFilterList: List of [Text]; IntegrationTableMapping: Record "Integration Table Mapping"; var TempCRMRecordRef: RecordRef): Boolean
     var
-        OutlookSynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
         CRMRecordRef: RecordRef;
         CRMIDFilter: Text;
         Cached: Boolean;
@@ -192,7 +335,7 @@ codeunit 5340 "CRM Integration Table Synch."
                 CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").SetFilter(CRMIDFilter);
                 if CRMRecordRef.FindSet() then
                     repeat
-                        OutlookSynchNAVMgt.CopyRecordReference(CRMRecordRef, TempCRMRecordRef, false);
+                        CopyRecordReference(CRMRecordRef, TempCRMRecordRef, false);
                         Cached := true;
                     until CRMRecordRef.Next() = 0;
                 CRMRecordRef.Close();
@@ -200,7 +343,15 @@ codeunit 5340 "CRM Integration Table Synch."
         exit(Cached);
     end;
 
-    local procedure GetIdFilterList(var IdDictionary: Dictionary of [Guid, Boolean]; var IdFilterList: List of [Text]): Boolean
+    local procedure GetIdFilterList(var IdDictionary: Dictionary of [Guid, Boolean]; var IdFilterList: List of [Text])
+    var
+        IdList: List of [Guid];
+    begin
+        IdList := IdDictionary.Keys();
+        GetIdFilterList(IdList, IdFilterList);
+    end;
+
+    internal procedure GetIdFilterList(var IdList: List of [Guid]; var IdFilterList: List of [Text])
     var
         IdFilter: Text;
         I: Integer;
@@ -208,7 +359,7 @@ codeunit 5340 "CRM Integration Table Synch."
         MaxCount: Integer;
     begin
         MaxCount := GetMaxNumberOfConditions();
-        foreach Id in IdDictionary.Keys() do begin
+        foreach Id in IdList do begin
             IdFilter += '|' + Id;
             I += 1;
             if I = MaxCount then begin
@@ -226,21 +377,11 @@ codeunit 5340 "CRM Integration Table Synch."
 
     local procedure CacheFilteredCRMTable(var TempCRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary)
     var
-        OutlookSynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
-        CRMRecordRef: RecordRef;
-        CRMID: Guid;
         FailedNotSkippedIdDictionary: Dictionary of [Guid, Boolean];
     begin
         TempCRMRecordRef.Open(IntegrationTableMapping."Integration Table ID", true);
         FindFailedNotSkippedCRMRecords(TempCRMRecordRef, IntegrationTableMapping, TempCRMIntegrationRecord, FailedNotSkippedIdDictionary);
-        if FindModifiedCRMRecords(CRMRecordRef, IntegrationTableMapping) then
-            repeat
-                CRMID := CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value();
-                if not FailedNotSkippedIdDictionary.ContainsKey(CRMID) then
-                    if not OutlookSynchNAVMgt.TryCopyRecordReference(CRMRecordRef, TempCRMRecordRef, false) then
-                        Session.LogMessage('0000ECC', StrSubstNo(CopyRecordRefFailedTxt, CRMID), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            until CRMRecordRef.Next() = 0;
-        CRMRecordRef.Close();
+        FindModifiedCRMRecords(TempCRMRecordRef, IntegrationTableMapping, FailedNotSkippedIdDictionary);
     end;
 
     local procedure HasUnidirectionalFieldMappingFromIntegrationTable(var IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
@@ -325,12 +466,12 @@ codeunit 5340 "CRM Integration Table Synch."
         end;
     end;
 
-    local procedure FindModifiedLocalRecords(var RecRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
+    local procedure FindModifiedLocalRecords(var RecRef: RecordRef; TableFilter: Text; IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
     var
         SystemModifiedAtFieldRef: FieldRef;
     begin
-        RecRef.Open(IntegrationTableMapping."Table ID");
-        IntegrationTableMapping.SetRecordRefFilter(RecRef);
+        if TableFilter <> '' then
+            RecRef.SetView(TableFilter);
         if IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." <> 0DT then begin
             SystemModifiedAtFieldRef := RecRef.Field(RecRef.SystemModifiedAtNo());
             SystemModifiedAtFieldRef.SetFilter('>%1', IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr.");
@@ -468,8 +609,11 @@ codeunit 5340 "CRM Integration Table Synch."
         SourceRecordRef: RecordRef;
         RecordSystemId: Guid;
         FailedNotSkippedIdDictionary: Dictionary of [Guid, Boolean];
+        FilterList: List of [Text];
+        TableFilter: Text;
     begin
         LatestLocalModifiedOn := 0DT;
+        SplitLocalTableFilter(IntegrationTableMapping, FilterList);
         CreateCRMIntegrationRecordClone(IntegrationTableMapping."Table ID", TempCRMIntegrationRecord);
 
         SourceRecordRef.Open(IntegrationTableMapping."Table ID");
@@ -477,16 +621,17 @@ codeunit 5340 "CRM Integration Table Synch."
             foreach RecordSystemId in FailedNotSkippedIdDictionary.Keys() do
                 if SourceRecordRef.GetBySystemId(RecordSystemId) then
                     SyncNAVRecordToCRM(SourceRecordRef, IntegrationTableMapping, IntegrationTableSynch, TempCRMIntegrationRecord, LatestLocalModifiedOn);
-        SourceRecordRef.Close();
 
-        if FindModifiedLocalRecords(SourceRecordRef, IntegrationTableMapping) then
-            repeat
-                RecordSystemId := SourceRecordRef.Field(SourceRecordRef.SystemIdNo()).Value();
-                if not FailedNotSkippedIdDictionary.ContainsKey(RecordSystemId) then
-                    SyncNAVRecordToCRM(SourceRecordRef, IntegrationTableMapping, IntegrationTableSynch, TempCRMIntegrationRecord, LatestLocalModifiedOn);
-            until SourceRecordRef.Next() = 0;
+        foreach TableFilter in FilterList do
+            if FindModifiedLocalRecords(SourceRecordRef, TableFilter, IntegrationTableMapping) then
+                repeat
+                    RecordSystemId := SourceRecordRef.Field(SourceRecordRef.SystemIdNo()).Value();
+                    if not FailedNotSkippedIdDictionary.ContainsKey(RecordSystemId) then
+                        SyncNAVRecordToCRM(SourceRecordRef, IntegrationTableMapping, IntegrationTableSynch, TempCRMIntegrationRecord, LatestLocalModifiedOn);
+                until SourceRecordRef.Next() = 0;
 
         OnSynchNAVTableToCRMOnBeforeCheckLatestModifiedOn(SourceRecordRef, IntegrationTableMapping);
+        SourceRecordRef.Close();
     end;
 
     procedure SyncNAVRecordToCRM(var SourceRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch."; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary; var LatestLocalModifiedOn: DateTime)
@@ -516,7 +661,6 @@ codeunit 5340 "CRM Integration Table Synch."
     local procedure SynchCRMTableToNAV(IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch."; var SourceRecordRef: RecordRef) LatestIntegrationModifiedOn: DateTime
     var
         TempCRMIntegrationRecord: Record "CRM Integration Record" temporary;
-        OutlookSynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
         DestinationRecordRef: RecordRef;
         CloneSourceRecordRef: RecordRef;
         IntegrationModifiedOn: DateTime;
@@ -530,7 +674,7 @@ codeunit 5340 "CRM Integration Table Synch."
         if SourceRecordRef.FindSet() then
             repeat
                 CloneSourceRecordRef.Open(IntegrationTableMapping."Integration Table ID", true);
-                OutlookSynchNAVMgt.CopyRecordReference(SourceRecordRef, CloneSourceRecordRef, false);
+                CopyRecordReference(SourceRecordRef, CloneSourceRecordRef, false);
                 IgnoreRecord := false;
                 OnQueryPostFilterIgnoreRecord(CloneSourceRecordRef, IgnoreRecord);
                 if not IgnoreRecord then begin
@@ -592,13 +736,6 @@ codeunit 5340 "CRM Integration Table Synch."
             IntegrationTableSynch.EndIntegrationSynchJob;
             CRMFullSynchReviewLine.FullSynchFinished(IntegrationTableMapping, IntegrationTableMapping.Direction::FromIntegrationTable);
         end;
-    end;
-
-    internal procedure SetOriginalCRMJobQueueEntryOnHold(IntegrationTableMapping: Record "Integration Table Mapping"; var JobQueueEntry: Record "Job Queue Entry")
-    var
-        PrevStatus: Option;
-    begin
-        SetOriginalCRMJobQueueEntryOnHold(IntegrationTableMapping, JobQueueEntry, PrevStatus);
     end;
 
     local procedure SetOriginalCRMJobQueueEntryOnHold(IntegrationTableMapping: Record "Integration Table Mapping"; var JobQueueEntry: Record "Job Queue Entry"; var PrevStatus: Option)
@@ -670,9 +807,16 @@ codeunit 5340 "CRM Integration Table Synch."
 
     [Scope('OnPrem')]
     procedure GetMaxNumberOfConditions(): Integer
+    var
+        Handled: Boolean;
+        MaxNumberOfConditions: Integer;
     begin
-        // CRM SDK allows max 499 conditions. A twice smaller limit is used to be on the safe side.
-        exit(499 DIV 2);
+        OnGetMaxNumberOfConditions(Handled, MaxNumberOfConditions);
+        if Handled then
+            exit(MaxNumberOfConditions);
+
+        // CRM SDK allows max 499 conditions. A smaller limit is used to be on the safe side.
+        exit(400);
     end;
 
     [IntegrationEvent(false, false)]
@@ -692,6 +836,11 @@ codeunit 5340 "CRM Integration Table Synch."
 
     [IntegrationEvent(false, false)]
     local procedure OnSynchNAVTableToCRMOnBeforeCheckLatestModifiedOn(var SourceRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetMaxNumberOfConditions(var Handled: Boolean; var Value: Integer)
     begin
     end;
 

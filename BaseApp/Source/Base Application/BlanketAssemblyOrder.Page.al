@@ -145,6 +145,16 @@ page 940 "Blanket Assembly Order"
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                     Visible = false;
                 }
+                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                {
+                    ApplicationArea = Assembly;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
+                }
+                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                {
+                    ApplicationArea = Assembly;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
+                }
             }
         }
         area(factboxes)

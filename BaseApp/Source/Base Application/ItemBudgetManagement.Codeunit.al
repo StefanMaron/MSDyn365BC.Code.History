@@ -17,7 +17,7 @@ codeunit 7130 "Item Budget Management"
         GLSetupRead: Boolean;
         Text006: Label 'Do you want to delete the budget entries shown?';
         Text007: Label '<Sign><Integer Thousand><Decimals,2>, Locked = true';
-        GlobalDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
+        GlobalDimType: Enum "Item Budget Dimension Type";
 
     procedure BudgetNameSelection(CurrentAnalysisArea: Option; var CurrentItemBudgetName: Code[10]; var ItemBudgetName: Record "Item Budget Name"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var BudgetDim1Filter: Text; var BudgetDim2Filter: Text; var BudgetDim3Filter: Text)
     begin
@@ -83,31 +83,51 @@ codeunit 7130 "Item Budget Management"
               BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
     end;
 
+#if not CLEAN19
+    [Obsolete('SetLineAndColumnDim()', '19.0')]
     procedure SetLineAndColDim(ItemBudgetName: Record "Item Budget Name"; var LineDimCode: Text[30]; var LineDimOption: Option; var ColumnDimCode: Text[30]; var ColumnDimOption: Option)
+    begin
+        SetLineAndColumnDim(ItemBudgetName, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
+    end;
+#endif
+
+    procedure SetLineAndColumnDim(ItemBudgetName: Record "Item Budget Name"; var LineDimCode: Text[30]; var LineDimType: Enum "Item Budget Dimension Type"; var ColumnDimCode: Text[30]; var ColumnDimType: Enum "Item Budget Dimension Type")
     var
         Item: Record Item;
     begin
         if (LineDimCode = '') and (ColumnDimCode = '') then begin
-            LineDimCode := Item.TableCaption;
+            LineDimCode := Item.TableCaption();
             ColumnDimCode := Text003;
         end;
-        LineDimOption := DimCodeToOption(LineDimCode, ItemBudgetName);
-        ColumnDimOption := DimCodeToOption(ColumnDimCode, ItemBudgetName);
+
+        LineDimType := DimCodeToType(LineDimCode, ItemBudgetName);
+        ColumnDimType := DimCodeToType(ColumnDimCode, ItemBudgetName);
     end;
 
-    procedure FindRec(ItemBudgetName: Record "Item Budget Name"; DimOption: Option; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]; ItemFilter: Text; SourceNoFilter: Text; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; DateFilter: Text; var PeriodInitialized: Boolean; InternalDateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text): Boolean
+#if not CLEAN19
+    [Obsolete('Replaced by FindRecord()', '19.0')]
+    procedure FindRec(ItemBudgetName: Record "Item Budget Name"; DimOption: Option; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]; ItemFilter: Text; SourceNoFilter: Text; PeriodType: Option; DateFilter: Text; var PeriodInitialized: Boolean; InternalDateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text): Boolean
+    begin
+        FindRecord(
+            ItemBudgetName, "Item Budget Dimension Type".FromInteger(DimOption), DimCodeBuf, Which,
+            ItemFilter, SourceNoFilter, "Analysis Period Type".FromInteger(PeriodType), DateFilter, PeriodInitialized, InternalDateFilter,
+            GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
+    end;
+#endif
+
+    procedure FindRecord(ItemBudgetName: Record "Item Budget Name"; DimType: Enum "Item Budget Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]; ItemFilter: Text; SourceNoFilter: Text; PeriodType: Enum "Analysis Period Type"; DateFilter: Text; var PeriodInitialized: Boolean; InternalDateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text): Boolean
     var
         Item: Record Item;
         Cust: Record Customer;
         Vend: Record Vendor;
         Location: Record Location;
         Period: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         Found: Boolean;
     begin
-        GetGLSetup;
-        case DimOption of
-            GlobalDimOption::Item:
+        GetGLSetup();
+        case DimType of
+            GlobalDimType::Item:
                 begin
                     Item."No." := DimCodeBuf.Code;
                     if ItemFilter <> '' then
@@ -117,7 +137,7 @@ codeunit 7130 "Item Budget Management"
                     if Found then
                         CopyItemToBuf(Item, DimCodeBuf);
                 end;
-            GlobalDimOption::Customer:
+            GlobalDimType::Customer:
                 begin
                     Cust."No." := DimCodeBuf.Code;
                     if SourceNoFilter <> '' then
@@ -126,7 +146,7 @@ codeunit 7130 "Item Budget Management"
                     if Found then
                         CopyCustToBuf(Cust, DimCodeBuf);
                 end;
-            GlobalDimOption::Vendor:
+            GlobalDimType::Vendor:
                 begin
                     Vend."No." := DimCodeBuf.Code;
                     if SourceNoFilter <> '' then
@@ -135,7 +155,7 @@ codeunit 7130 "Item Budget Management"
                     if Found then
                         CopyVendToBuf(Vend, DimCodeBuf);
                 end;
-            GlobalDimOption::Period:
+            GlobalDimType::Period:
                 begin
                     Period."Period Start" := DimCodeBuf."Period Start";
                     if DateFilter <> '' then
@@ -143,12 +163,12 @@ codeunit 7130 "Item Budget Management"
                     else
                         if not PeriodInitialized and (InternalDateFilter <> '') then
                             Period.SetFilter("Period Start", InternalDateFilter);
-                    Found := PeriodFormMgt.FindDate(Which, Period, PeriodType);
+                    Found := PeriodPageMgt.FindDate(Which, Period, PeriodType);
                     if Found then
                         CopyPeriodToBuf(Period, DimCodeBuf, DateFilter);
                     PeriodInitialized := true;
                 end;
-            GlobalDimOption::Location:
+            GlobalDimType::Location:
                 begin
                     Location.Code := DimCodeBuf.Code;
                     if SourceNoFilter <> '' then
@@ -157,15 +177,15 @@ codeunit 7130 "Item Budget Management"
                     if Found then
                         CopyLocationToBuf(Location, DimCodeBuf);
                 end;
-            GlobalDimOption::"Global Dimension 1":
+            GlobalDimType::"Global Dimension 1":
                 Found := FindDim(DimCodeBuf, Which, GlobalDim1Filter, GLSetup."Global Dimension 1 Code");
-            GlobalDimOption::"Global Dimension 2":
+            GlobalDimType::"Global Dimension 2":
                 Found := FindDim(DimCodeBuf, Which, GlobalDim2Filter, GLSetup."Global Dimension 2 Code");
-            GlobalDimOption::"Budget Dimension 1":
+            GlobalDimType::"Budget Dimension 1":
                 Found := FindDim(DimCodeBuf, Which, BudgetDim1Filter, ItemBudgetName."Budget Dimension 1 Code");
-            GlobalDimOption::"Budget Dimension 2":
+            GlobalDimType::"Budget Dimension 2":
                 Found := FindDim(DimCodeBuf, Which, BudgetDim2Filter, ItemBudgetName."Budget Dimension 2 Code");
-            GlobalDimOption::"Budget Dimension 3":
+            GlobalDimType::"Budget Dimension 3":
                 Found := FindDim(DimCodeBuf, Which, BudgetDim3Filter, ItemBudgetName."Budget Dimension 3 Code");
         end;
         exit(Found);
@@ -186,19 +206,30 @@ codeunit 7130 "Item Budget Management"
         end
     end;
 
-    procedure NextRec(ItemBudgetName: Record "Item Budget Name"; DimOption: Option; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; ItemFilter: Text; SourceNoFilter: Text; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text): Integer
+#if not CLEAN19
+    [Obsolete('Replaced by NextRecord()', '19.0')]
+    procedure NextRec(ItemBudgetName: Record "Item Budget Name"; DimOption: Option; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; ItemFilter: Text; SourceNoFilter: Text; PeriodType: Option; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text): Integer
+    begin
+        NextRecord(
+            ItemBudgetName, "Item Budget Dimension Type".FromInteger(DimOption), DimCodeBuf, Steps,
+            ItemFilter, SourceNoFilter, "Analysis Period Type".FromInteger(PeriodType), DateFilter,
+            GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
+    end;
+#endif
+
+    procedure NextRecord(ItemBudgetName: Record "Item Budget Name"; DimType: Enum "Item Budget Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; ItemFilter: Text; SourceNoFilter: Text; PeriodType: Enum "Analysis Period Type"; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text): Integer
     var
         Item: Record Item;
         Cust: Record Customer;
         Vend: Record Vendor;
         Location: Record Location;
         Period: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         ResultSteps: Integer;
     begin
-        GetGLSetup;
-        case DimOption of
-            GlobalDimOption::Item:
+        GetGLSetup();
+        case DimType of
+            GlobalDimType::Item:
                 begin
                     Item."No." := DimCodeBuf.Code;
                     if ItemFilter <> '' then
@@ -208,7 +239,7 @@ codeunit 7130 "Item Budget Management"
                     if ResultSteps <> 0 then
                         CopyItemToBuf(Item, DimCodeBuf);
                 end;
-            GlobalDimOption::Customer:
+            GlobalDimType::Customer:
                 begin
                     Cust."No." := DimCodeBuf.Code;
                     if SourceNoFilter <> '' then
@@ -217,7 +248,7 @@ codeunit 7130 "Item Budget Management"
                     if ResultSteps <> 0 then
                         CopyCustToBuf(Cust, DimCodeBuf);
                 end;
-            GlobalDimOption::Vendor:
+            GlobalDimType::Vendor:
                 begin
                     Vend."No." := DimCodeBuf.Code;
                     if SourceNoFilter <> '' then
@@ -226,16 +257,16 @@ codeunit 7130 "Item Budget Management"
                     if ResultSteps <> 0 then
                         CopyVendToBuf(Vend, DimCodeBuf);
                 end;
-            GlobalDimOption::Period:
+            GlobalDimType::Period:
                 begin
                     if DateFilter <> '' then
                         Period.SetFilter("Period Start", DateFilter);
                     Period."Period Start" := DimCodeBuf."Period Start";
-                    ResultSteps := PeriodFormMgt.NextDate(Steps, Period, PeriodType);
+                    ResultSteps := PeriodPageMgt.NextDate(Steps, Period, PeriodType);
                     if ResultSteps <> 0 then
                         CopyPeriodToBuf(Period, DimCodeBuf, DateFilter);
                 end;
-            GlobalDimOption::Location:
+            GlobalDimType::Location:
                 begin
                     Location.Code := DimCodeBuf.Code;
                     if SourceNoFilter <> '' then
@@ -244,15 +275,15 @@ codeunit 7130 "Item Budget Management"
                     if ResultSteps <> 0 then
                         CopyLocationToBuf(Location, DimCodeBuf);
                 end;
-            GlobalDimOption::"Global Dimension 1":
+            GlobalDimType::"Global Dimension 1":
                 ResultSteps := NextDim(DimCodeBuf, Steps, GlobalDim1Filter, GLSetup."Global Dimension 1 Code");
-            GlobalDimOption::"Global Dimension 2":
+            GlobalDimType::"Global Dimension 2":
                 ResultSteps := NextDim(DimCodeBuf, Steps, GlobalDim2Filter, GLSetup."Global Dimension 2 Code");
-            GlobalDimOption::"Budget Dimension 1":
+            GlobalDimType::"Budget Dimension 1":
                 ResultSteps := NextDim(DimCodeBuf, Steps, BudgetDim1Filter, ItemBudgetName."Budget Dimension 1 Code");
-            GlobalDimOption::"Budget Dimension 2":
+            GlobalDimType::"Budget Dimension 2":
                 ResultSteps := NextDim(DimCodeBuf, Steps, BudgetDim2Filter, ItemBudgetName."Budget Dimension 2 Code");
-            GlobalDimOption::"Budget Dimension 3":
+            GlobalDimType::"Budget Dimension 3":
                 ResultSteps := NextDim(DimCodeBuf, Steps, BudgetDim3Filter, ItemBudgetName."Budget Dimension 3 Code");
         end;
         exit(ResultSteps);
@@ -274,10 +305,20 @@ codeunit 7130 "Item Budget Management"
         exit(ActualSteps);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetBufferFilters()', '19.0')]
     procedure SetCommonFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Option; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text)
     begin
+        SetBufferFilters(
+            ItemStatisticsBuf, ItemBudgetName, ItemFilter, "Analysis Source Type".FromInteger(SourceTypeFilter), SourceNoFilter,
+            DateFilter, GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
+    end;
+#endif
+
+    procedure SetBufferFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Enum "Analysis Source Type"; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text)
+    begin
         with ItemStatisticsBuf do begin
-            Reset;
+            Reset();
             SetRange("Analysis Area Filter", ItemBudgetName."Analysis Area");
             SetRange("Budget Filter", ItemBudgetName.Name);
             if ItemFilter <> '' then
@@ -301,47 +342,55 @@ codeunit 7130 "Item Budget Management"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetDimensionFilters()', '19.0')]
     procedure SetDimFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; DimOption: Option; DimCodeBuf: Record "Dimension Code Buffer")
     begin
+        SetDimensionFilters(ItemStatisticsBuf, "Item Budget Dimension Type".FromInteger(DimOption), DimCodeBuf);
+    end;
+#endif
+
+    procedure SetDimensionFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; DimType: Enum "Item Budget Dimension Type"; DimCodeBuf: Record "Dimension Code Buffer")
+    begin
         with ItemStatisticsBuf do
-            case DimOption of
-                GlobalDimOption::Item:
+            case DimType of
+                GlobalDimType::Item:
                     SetRange("Item Filter", DimCodeBuf.Code);
-                GlobalDimOption::Customer:
+                GlobalDimType::Customer:
                     begin
                         SetRange("Source Type Filter", "Source Type Filter"::Customer);
                         SetRange("Source No. Filter", DimCodeBuf.Code);
                     end;
-                GlobalDimOption::Vendor:
+                GlobalDimType::Vendor:
                     begin
                         SetRange("Source Type Filter", "Source Type Filter"::Vendor);
                         SetRange("Source No. Filter", DimCodeBuf.Code);
                     end;
-                GlobalDimOption::Location:
+                GlobalDimType::Location:
                     SetRange("Location Filter", DimCodeBuf.Code);
-                GlobalDimOption::Period:
+                GlobalDimType::Period:
                     SetRange("Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End");
-                GlobalDimOption::"Global Dimension 1":
+                GlobalDimType::"Global Dimension 1":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Global Dimension 1 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Global Dimension 1 Filter", DimCodeBuf.Code);
-                GlobalDimOption::"Global Dimension 2":
+                GlobalDimType::"Global Dimension 2":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Global Dimension 2 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Global Dimension 2 Filter", DimCodeBuf.Code);
-                GlobalDimOption::"Budget Dimension 1":
+                GlobalDimType::"Budget Dimension 1":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Dimension 1 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Dimension 1 Filter", DimCodeBuf.Code);
-                GlobalDimOption::"Budget Dimension 2":
+                GlobalDimType::"Budget Dimension 2":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Dimension 2 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Dimension 2 Filter", DimCodeBuf.Code);
-                GlobalDimOption::"Budget Dimension 3":
+                GlobalDimType::"Budget Dimension 3":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Dimension 3 Filter", DimCodeBuf.Totaling)
                     else
@@ -349,7 +398,7 @@ codeunit 7130 "Item Budget Management"
             end;
     end;
 
-    local procedure DimCodeToOption(DimCode: Code[20]; ItemBudgetName: Record "Item Budget Name"): Integer
+    local procedure DimCodeToType(DimCode: Code[20]; ItemBudgetName: Record "Item Budget Name"): Enum "Item Budget Dimension Type"
     var
         Location: Record Location;
         Item: Record Item;
@@ -359,29 +408,29 @@ codeunit 7130 "Item Budget Management"
         GetGLSetup;
         case DimCode of
             '':
-                exit(-1);
+                exit("Item Budget Dimension Type"::Undefined);
             UpperCase(Item.TableCaption):
-                exit(0);
+                exit("Item Budget Dimension Type"::Item);
             UpperCase(Cust.TableCaption):
-                exit(1);
+                exit("Item Budget Dimension Type"::Customer);
             UpperCase(Vend.TableCaption):
-                exit(2);
+                exit("Item Budget Dimension Type"::Vendor);
             UpperCase(Text003):
-                exit(3);
+                exit("Item Budget Dimension Type"::Period);
             UpperCase(Location.TableCaption):
-                exit(4);
+                exit("Item Budget Dimension Type"::Location);
             GLSetup."Global Dimension 1 Code":
-                exit(5);
+                exit("Item Budget Dimension Type"::"Global Dimension 1");
             GLSetup."Global Dimension 2 Code":
-                exit(6);
+                exit("Item Budget Dimension Type"::"Global Dimension 2");
             ItemBudgetName."Budget Dimension 1 Code":
-                exit(7);
+                exit("Item Budget Dimension Type"::"Budget Dimension 1");
             ItemBudgetName."Budget Dimension 2 Code":
-                exit(8);
+                exit("Item Budget Dimension Type"::"Budget Dimension 2");
             ItemBudgetName."Budget Dimension 3 Code":
-                exit(9);
+                exit("Item Budget Dimension Type"::"Budget Dimension 3");
             else
-                exit(-1);
+                exit("Item Budget Dimension Type"::Undefined);
         end;
     end;
 
@@ -416,15 +465,25 @@ codeunit 7130 "Item Budget Management"
         exit(OldDimSelCode);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by ValidateLineDimTypeAndCode()', '19.0')]
     procedure ValidateLineDimCode(ItemBudgetName: Record "Item Budget Name"; var LineDimCode: Text[30]; var LineDimOption: Option; ColumnDimOption: Option; var InternalDateFilter: Text; var DateFilter: Text; var ItemStatisticsBuf: Record "Item Statistics Buffer"; var PeriodInitialized: Boolean)
+    begin
+        ValidateLineDimTypeAndCode(
+            ItemBudgetName, LineDimCode, LineDimOption, "Item Budget Dimension Type".FromInteger(ColumnDimOption),
+            InternalDateFilter, DateFilter, ItemStatisticsBuf, PeriodInitialized);
+    end;
+#endif
+
+    procedure ValidateLineDimTypeAndCode(ItemBudgetName: Record "Item Budget Name"; var LineDimCode: Text[30]; var LineDimType: Enum "Item Budget Dimension Type"; ColumnDimType: Enum "Item Budget Dimension Type"; var InternalDateFilter: Text; var DateFilter: Text; var ItemStatisticsBuf: Record "Item Statistics Buffer"; var PeriodInitialized: Boolean)
     begin
         if DimCodeNotAllowed(LineDimCode, ItemBudgetName) then begin
             Message(Text004, LineDimCode);
             LineDimCode := '';
         end;
-        LineDimOption := DimCodeToOption(LineDimCode, ItemBudgetName);
+        LineDimType := DimCodeToType(LineDimCode, ItemBudgetName);
         InternalDateFilter := ItemStatisticsBuf.GetFilter("Date Filter");
-        if (not OptionIsPeriod(LineDimOption)) and (not OptionIsPeriod(ColumnDimOption)) then begin
+        if (not OptionIsPeriod(LineDimType)) and (not OptionIsPeriod(ColumnDimType)) then begin
             DateFilter := InternalDateFilter;
             if StrPos(DateFilter, '&') > 1 then
                 DateFilter := CopyStr(DateFilter, 1, StrPos(DateFilter, '&') - 1);
@@ -432,15 +491,25 @@ codeunit 7130 "Item Budget Management"
             PeriodInitialized := false;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by ValidateColumnDimTypeAndCode()', '19.0')]
     procedure ValidateColumnDimCode(ItemBudgetName: Record "Item Budget Name"; var ColumnDimCode: Text[30]; var ColumnDimOption: Option; LineDimOption: Option; var InternalDateFilter: Text; var DateFilter: Text; var ItemStatisticsBuf: Record "Item Statistics Buffer"; var PeriodInitialized: Boolean)
+    begin
+        ValidateColumnDimTypeAndCode(
+            ItemBudgetName, ColumnDimCode, ColumnDimOption, "Item Budget Dimension Type".FromInteger(LineDimOption),
+            InternalDateFilter, DateFilter, ItemStatisticsBuf, PeriodInitialized);
+    end;
+#endif
+
+    procedure ValidateColumnDimTypeAndCode(ItemBudgetName: Record "Item Budget Name"; var ColumnDimCode: Text[30]; var ColumnDimType: Enum "Item Budget Dimension Type"; LineDimType: Enum "Item Budget Dimension Type"; var InternalDateFilter: Text; var DateFilter: Text; var ItemStatisticsBuf: Record "Item Statistics Buffer"; var PeriodInitialized: Boolean)
     begin
         if DimCodeNotAllowed(ColumnDimCode, ItemBudgetName) then begin
             Message(Text005, ColumnDimCode);
             ColumnDimCode := '';
         end;
-        ColumnDimOption := DimCodeToOption(ColumnDimCode, ItemBudgetName);
+        ColumnDimType := DimCodeToType(ColumnDimCode, ItemBudgetName);
         InternalDateFilter := ItemStatisticsBuf.GetFilter("Date Filter");
-        if (not OptionIsPeriod(ColumnDimOption)) and (not OptionIsPeriod(LineDimOption)) then begin
+        if (not OptionIsPeriod(ColumnDimType)) and (not OptionIsPeriod(LineDimType)) then begin
             DateFilter := InternalDateFilter;
             if StrPos(DateFilter, '&') > 1 then
                 DateFilter := CopyStr(DateFilter, 1, StrPos(DateFilter, '&') - 1);
@@ -471,37 +540,59 @@ codeunit 7130 "Item Budget Management"
                 '']));
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by FormatToAmount()', '19.0')]
     procedure FormatAmount(var Text: Text[250]; RoundingFactor: Option "None","1","1000","1000000")
+    begin
+        FormatToAmount(Text, "Analysis Rounding Factor".FromInteger(RoundingFactor));
+    end;
+#endif
+
+    procedure FormatToAmount(var AmountAsText: Text[250]; RoundingFactor: Enum "Analysis Rounding Factor")
     var
         Amount: Decimal;
     begin
-        if (Text = '') or (RoundingFactor = RoundingFactor::None) then
+        if (AmountAsText = '') or (RoundingFactor = RoundingFactor::None) then
             exit;
-        Evaluate(Amount, Text);
-        Amount := MatrixMgt.RoundValue(Amount, RoundingFactor);
+        Evaluate(Amount, AmountAsText);
+        Amount := MatrixMgt.RoundAmount(Amount, RoundingFactor);
         if Amount = 0 then
-            Text := ''
+            AmountAsText := ''
         else
             case RoundingFactor of
                 RoundingFactor::"1":
-                    Text := Format(Amount);
+                    AmountAsText := Format(Amount);
                 RoundingFactor::"1000", RoundingFactor::"1000000":
-                    Text := Format(Amount, 0, Text007);
+                    AmountAsText := Format(Amount, 0, Text007);
             end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by DrillDownBudgetAmount()', '19.0')]
     procedure BudgetDrillDown(ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Option; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text; RowDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3"; RowDimCodeBuf: Record "Dimension Code Buffer"; ColDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3"; ColDimCodeBuf: Record "Dimension Code Buffer"; ValueType: Option "Sales Amount","Cost Amount",Quantity; LinesOnly: Boolean)
+    begin
+        DrillDownBudgetAmount(
+            ItemBudgetName, ItemFilter,
+            "Analysis Source Type".FromInteger(SourceTypeFilter), SourceNoFilter, DateFilter,
+            GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
+            "Item Analysis Dimension Type".FromInteger(RowDimOption), RowDimCodeBuf,
+            "Item Analysis Dimension Type".FromInteger(ColDimOption), ColDimCodeBuf,
+            "Item Analysis Value Type".FromInteger(ValueType), LinesOnly)
+    end;
+#endif
+
+    procedure DrillDownBudgetAmount(ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Enum "Analysis Source Type"; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text; RowDimType: Enum "Item Budget Dimension Type"; RowDimCodeBuf: Record "Dimension Code Buffer"; ColDimType: Enum "Item Budget Dimension Type"; ColDimCodeBuf: Record "Dimension Code Buffer"; ValueType: Enum "Item Analysis Value Type"; LinesOnly: Boolean)
     var
         ItemStatisticsBuf: Record "Item Statistics Buffer";
         ItemBudgetEntry: Record "Item Budget Entry";
     begin
-        SetCommonFilters(
+        SetBufferFilters(
           ItemStatisticsBuf, ItemBudgetName,
           ItemFilter, SourceTypeFilter, SourceNoFilter, DateFilter,
           GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
-        SetDimFilters(ItemStatisticsBuf, RowDimOption, RowDimCodeBuf);
+        SetDimensionFilters(ItemStatisticsBuf, RowDimType, RowDimCodeBuf);
         if not LinesOnly then
-            SetDimFilters(ItemStatisticsBuf, ColDimOption, ColDimCodeBuf);
+            SetDimensionFilters(ItemStatisticsBuf, ColDimType, ColDimCodeBuf);
 
         ItemBudgetEntry.SetRange("Analysis Area", ItemBudgetName."Analysis Area");
         ItemBudgetEntry.SetRange("Budget Name", ItemBudgetName.Name);
@@ -642,14 +733,28 @@ codeunit 7130 "Item Budget Management"
         DimCodeBuf."Show in Bold" := DimVal."Dimension Value Type" <> DimVal."Dimension Value Type"::Standard;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by CalculateAmount()', '19.0')]
     procedure CalcAmount(ValueType: Option "Sales Amount","Cost Amount",Quantity; SetColumnFilter: Boolean; var ItemStatisticsBuf: Record "Item Statistics Buffer"; ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Option " ",Customer,Vendor,Item; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text; RowDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4"; RowDimCodeBuf: Record "Dimension Code Buffer"; ColDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4"; ColDimCodeBuf: Record "Dimension Code Buffer"): Decimal
     begin
-        SetCommonFilters(
+        exit(
+            CalculateAmount(
+                "Item Analysis Value Type".FromInteger(ValueType), SetColumnFilter, ItemStatisticsBuf, ItemBudgetName, ItemFilter,
+                "Analysis Source Type".FromInteger(SourceTypeFilter), SourceNoFilter,
+                DateFilter, GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
+                "Item Budget Dimension Type".FromInteger(RowDimOption), RowDimCodeBuf,
+                "Item Budget Dimension Type".FromInteger(ColDimOption), ColDimCodeBuf));
+    end;
+#endif
+
+    procedure CalculateAmount(ValueType: Enum "Item Analysis Value Type"; SetColumnFilter: Boolean; var ItemStatisticsBuf: Record "Item Statistics Buffer"; ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Enum "Analysis Source Type"; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text; RowDimType: Enum "Item Budget Dimension Type"; RowDimCodeBuf: Record "Dimension Code Buffer"; ColDimType: Enum "Item Budget Dimension Type"; ColDimCodeBuf: Record "Dimension Code Buffer"): Decimal
+    begin
+        SetBufferFilters(
           ItemStatisticsBuf, ItemBudgetName, ItemFilter, SourceTypeFilter, SourceNoFilter,
           DateFilter, GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
-        SetDimFilters(ItemStatisticsBuf, RowDimOption, RowDimCodeBuf);
+        SetDimensionFilters(ItemStatisticsBuf, RowDimType, RowDimCodeBuf);
         if SetColumnFilter then
-            SetDimFilters(ItemStatisticsBuf, ColDimOption, ColDimCodeBuf);
+            SetDimensionFilters(ItemStatisticsBuf, ColDimType, ColDimCodeBuf);
 
         case ValueType of
             ValueType::"Sales Amount":
@@ -670,14 +775,27 @@ codeunit 7130 "Item Budget Management"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetAmount()', '19.0')]
     procedure UpdateAmount(ValueType: Option "Sales Amount","Cost Amount",Quantity; SetColumnFilter: Boolean; var ItemStatisticsBuf: Record "Item Statistics Buffer"; ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Option " ",Customer,Vendor,Item; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text; RowDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4"; RowDimCodeBuf: Record "Dimension Code Buffer"; ColDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4"; ColDimCodeBuf: Record "Dimension Code Buffer"; NewAmount: Decimal)
     begin
-        SetCommonFilters(
+        SetAmount(
+            "Item Analysis Value Type".FromInteger(ValueType), SetColumnFilter, ItemStatisticsBuf, ItemBudgetName, ItemFilter,
+            "Analysis Source Type".FromInteger(SourceTypeFilter), SourceNoFilter,
+            DateFilter, GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
+            "Item Budget Dimension Type".FromInteger(RowDimOption), RowDimCodeBuf,
+            "Item Budget Dimension Type".FromInteger(ColDimOption), ColDimCodeBuf, NewAmount);
+    end;
+#endif
+
+    procedure SetAmount(ValueType: Enum "Item Analysis Value Type"; SetColumnFilter: Boolean; var ItemStatisticsBuf: Record "Item Statistics Buffer"; ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Enum "Analysis Source Type"; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text; RowDimType: Enum "Item Budget Dimension Type"; RowDimCodeBuf: Record "Dimension Code Buffer"; ColDimType: Enum "Item Budget Dimension Type"; ColDimCodeBuf: Record "Dimension Code Buffer"; NewAmount: Decimal)
+    begin
+        SetBufferFilters(
           ItemStatisticsBuf, ItemBudgetName, ItemFilter, SourceTypeFilter, SourceNoFilter,
           DateFilter, GlobalDim1Filter, GlobalDim2Filter, BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
-        SetDimFilters(ItemStatisticsBuf, RowDimOption, RowDimCodeBuf);
+        SetDimensionFilters(ItemStatisticsBuf, RowDimType, RowDimCodeBuf);
         if SetColumnFilter then
-            SetDimFilters(ItemStatisticsBuf, ColDimOption, ColDimCodeBuf);
+            SetDimensionFilters(ItemStatisticsBuf, ColDimType, ColDimCodeBuf);
 
         case ValueType of
             ValueType::"Sales Amount":
@@ -698,9 +816,9 @@ codeunit 7130 "Item Budget Management"
         end;
     end;
 
-    local procedure OptionIsPeriod(DimOption: Option): Boolean
+    local procedure OptionIsPeriod(DimOption: Enum "Item Budget Dimension Type"): Boolean
     begin
-        exit(DimOption = GlobalDimOption::Period);
+        exit(DimOption = GlobalDimType::Period);
     end;
 
     [IntegrationEvent(false, false)]

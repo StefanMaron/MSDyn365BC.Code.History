@@ -290,7 +290,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UOMCode, QtyPerUOM);
     end;
 
-    local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Option; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QuantityPer: Decimal)
+    local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QuantityPer: Decimal)
     begin
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
         if ComponentType = BOMComponent.Type::Resource then
@@ -501,6 +501,7 @@ codeunit 137096 "SCM Kitting - ATO"
         exit(UnitCost);
     end;
 
+#if not CLEAN19
     local procedure GetRollupPrice(AssemblyHeader: Record "Assembly Header") Price: Decimal
     var
         AssemblyLine: Record "Assembly Line";
@@ -522,6 +523,7 @@ codeunit 137096 "SCM Kitting - ATO"
             until Next = 0;
         end;
     end;
+#endif
 
     local procedure FindSOL(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SOLIndex: Integer)
     begin
@@ -620,14 +622,14 @@ codeunit 137096 "SCM Kitting - ATO"
         end;
     end;
 
-    local procedure SelectAssemblyLines(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; LineType: Option; ItemNo: Code[20]; LocationCode: Code[20]; VariantCode: Code[10])
+    local procedure SelectAssemblyLines(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; LineType: Enum "BOM Component Type"; ItemNo: Code[20]; LocationCode: Code[20]; VariantCode: Code[10])
     begin
         Clear(AssemblyLine);
 
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange("No.", ItemNo);
-        if LineType = AssemblyLine.Type::Item then begin
+        if LineType = "BOM Component Type"::Item then begin
             AssemblyLine.SetFilter("Variant Code", '%1', VariantCode);
             AssemblyLine.SetFilter("Location Code", '%1', LocationCode);
         end;
@@ -2573,7 +2575,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [GIVEN] Assembly Order for Parent Item
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, ParentItem."No.", Location.Code, LibraryRandom.RandInt(9), '');
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, ComponentItem."No.",
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ComponentItem."No.",
           ComponentItem."Base Unit of Measure", LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), '');
 
         // [WHEN] Post Assembly Order
@@ -3567,6 +3569,7 @@ codeunit 137096 "SCM Kitting - ATO"
           StrSubstNo(WrongUnitValueMsg, SalesLine.FieldCaption("Unit Cost")));
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -3599,6 +3602,7 @@ codeunit 137096 "SCM Kitting - ATO"
           SalesLine."Unit Price", GetRollupPrice(AssemblyHeader) / AssemblyHeader.Quantity, GLSetup."Unit-Amount Rounding Precision",
           StrSubstNo(WrongUnitValueMsg, SalesLine.FieldCaption("Unit Price")));
     end;
+#endif
 
     local procedure TCRollupCost(var Item: Record Item; var SalesLine: Record "Sales Line"; var AssemblyHeader: Record "Assembly Header"; LocationCode: Code[10]; SalesDocumentType: Enum "Sales Document Type"; QtyToAssembleToOrder: Integer; OrderQty: Integer)
     var
@@ -4903,6 +4907,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ChangeCostAndPriceOnCompList(Item."No.");
     end;
 
+#if not CLEAN19
     local procedure CreateSalesAndResourcePricesOnCompList(ItemNo: Code[20])
     var
         BOMComponent: Record "BOM Component";
@@ -4963,6 +4968,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ResourcePrice.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         ResourcePrice.Modify(true);
     end;
+#endif
 
     local procedure CheckGetAsmOrdersFromSalesHeader(SalesHeader: Record "Sales Header"; NoOfAsmOrders: Integer)
     var

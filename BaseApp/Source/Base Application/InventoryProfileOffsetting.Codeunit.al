@@ -635,7 +635,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         ForecastEntry.SetRange("Item No.", Item."No.");
         ForecastEntry2.Copy(ForecastEntry);
         Item.CopyFilter("Location Filter", ForecastEntry2."Location Code");
-
+        
         for ComponentForecast := ComponentForecastFrom to true do begin
             if ComponentForecast then begin
                 ReplenishmentLocation := ManufacturingSetup."Components at Location";
@@ -655,9 +655,22 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         Item.CopyFilter("Location Filter", ItemLedgEntry."Location Code");
                         Item.CopyFilter("Location Filter", DemandInvtProfile."Location Code");
                     end;
+
+                    if ManufacturingSetup."Use Forecast on Variants" then begin
+                        ForecastEntry2.SetRange("Variant Code", ForecastEntry2."Variant Code");
+                        ItemLedgEntry.SetRange("Variant Code", ForecastEntry2."Variant Code");
+                        DemandInvtProfile.SetRange("Variant Code", ForecastEntry2."Variant Code");
+                    end else begin
+                        Item.CopyFilter("Variant Filter", ForecastEntry2."Variant Code");
+                        Item.CopyFilter("Variant Filter", ItemLedgEntry."Variant Code");
+                        Item.CopyFilter("Variant Filter", DemandInvtProfile."Variant Code");
+                    end;
+
                     ForecastEntry2.Find('+');
                     ForecastEntry2.CopyFilter("Location Code", ForecastEntry."Location Code");
                     Item.CopyFilter("Location Filter", ForecastEntry2."Location Code");
+                    ForecastEntry2.CopyFilter("Variant Code", ForecastEntry."Variant Code");
+                    Item.CopyFilter("Variant Filter", ForecastEntry2."Variant Code");
 
                     ForecastExist := CheckForecastExist(ForecastEntry, OrderDate, ToDate);
 
@@ -4691,6 +4704,10 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 "Location Code" := ProductionForecastEntry."Location Code"
             else
                 "Location Code" := LocationCode;
+            if ManufacturingSetup."Use Forecast on Variants" then
+                "Variant Code" := ProductionForecastEntry."Variant Code"
+            else
+                "Variant Code" := '';
             "Remaining Quantity (Base)" := TotalForecastQty;
             "Untracked Quantity" := TotalForecastQty;
         end;

@@ -1,4 +1,4 @@
-﻿codeunit 311 "Item-Check Avail."
+codeunit 311 "Item-Check Avail."
 {
     Permissions = TableData "My Notifications" = rimd;
 
@@ -34,8 +34,6 @@
         ItemAvailabilityNotificationTxt: Label 'Item availability is low.';
         ItemAvailabilityNotificationDescriptionTxt: Label 'Show a warning when someone creates a sales order or sales invoice for an item that is out of stock.';
         DontShowAgainTxt: Label 'Don''t show again';
-
-    protected var
         ContextInfo: Dictionary of [Text, Text];
 
     procedure ItemJnlCheckLine(ItemJnlLine: Record "Item Journal Line") Rollback: Boolean
@@ -690,6 +688,11 @@
         MyNotifications: Record "My Notifications";
     begin
         exit(MyNotifications.IsEnabledForRecord(GetItemAvailabilityNotificationId(), Item));
+    end;
+
+    procedure SetUseOrderPromise(NewUseOrderPromise: Boolean)
+    begin
+        UseOrderPromise := NewUseOrderPromise;
     end;
 
     [IntegrationEvent(false, false)]

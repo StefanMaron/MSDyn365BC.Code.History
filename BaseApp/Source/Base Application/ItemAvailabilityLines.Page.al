@@ -307,7 +307,7 @@ page 353 "Item Availability Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -316,7 +316,7 @@ page 353 "Item Availability Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -329,21 +329,33 @@ page 353 "Item Availability Lines"
         DateRec: Record Date;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     protected var
         Item: Record Item;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetLines().', '19.0')]
     procedure Set(var NewItem: Record Item; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
+        SetLines(
+            NewItem,
+             "Analysis Period Type".FromInteger(NewPeriodType), "Analysis Amount Type".FromInteger(NewAmountType));
+
+        OnAfterSet(Item, PeriodType.AsInteger(), AmountType);
+    end;
+#endif
+
+    procedure SetLines(var NewItem: Record Item; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type")
+    begin
         Item.Copy(NewItem);
-        DeleteAll();
+        Rec.DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
 
-        OnAfterSet(Item, PeriodType, AmountType);
+        OnAfterSet(Item, PeriodType.AsInteger(), AmountType);
     end;
 
     local procedure SetItemFilter()
@@ -394,7 +406,7 @@ page 353 "Item Availability Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSet(var Item: Record Item; PeriodType: Integer; AmountType: Option "Net Change","Balance at Date")
+    local procedure OnAfterSet(var Item: Record Item; PeriodType: Integer; AmountType: Enum "Analysis Amount Type")
     begin
     end;
 

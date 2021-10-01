@@ -204,7 +204,7 @@ page 7331 "Posted Whse. Receipt Subform"
 
     local procedure ShowWhseLine()
     begin
-        WMSMgt.ShowWhseDocLine(0, "Whse. Receipt No.", "Whse Receipt Line No.");
+        WMSMgt.ShowPostedWhseRcptLine("Whse. Receipt No.", "Whse Receipt Line No.");
     end;
 
     procedure PutAwayCreate()

@@ -1,6 +1,6 @@
 page 9011 "Shop Supervisor Mfg Foundation"
 {
-    Caption = 'Shop Supervisor - Manufacturing Foundation', Comment = '{Dependency=Match,"ProfileDescription_SHOPSUPERVISOR-FOUNDATION"}';
+    Caption = 'Shop Supervisor - Manufacturing Foundation';
     PageType = RoleCenter;
 
     layout

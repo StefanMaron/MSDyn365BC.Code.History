@@ -1,3 +1,4 @@
+#if not CLEAN19
 report 1193 "Implement Res. Price Change"
 {
     Caption = 'Implement Res. Price Change';
@@ -79,4 +80,4 @@ report 1193 "Implement Res. Price Change"
         Window: Dialog;
         ConfirmDeletion: Boolean;
 }
-
+#endif

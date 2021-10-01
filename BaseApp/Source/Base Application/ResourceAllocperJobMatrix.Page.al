@@ -480,7 +480,7 @@ page 9211 "Resource Alloc. per Job Matrix"
         MatrixColumnCaptions: array[32] of Text[100];
         MatrixCellData: array[32] of Text[100];
         MatrixCellQuantity: Decimal;
-        AmountType: Option "Net Change","Balance at Date";
+        AmountType: Enum "Analysis Amount Type";
         [InDataSet]
         Col1Visible: Boolean;
         [InDataSet]
@@ -546,9 +546,18 @@ page 9211 "Resource Alloc. per Job Matrix"
         [InDataSet]
         Col32Visible: Boolean;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure LoadMatrix().', '19.0')]
     procedure Load(var NewVerticalRec: Record Job; var NewHorizontalRec: Record "Job Planning Line"; NewMatrixColumnCaptions: array[32] of Text[100]; var NewMatrixDateFilters: array[32] of Record Date; AmountType2: Option "Net Change"," Balance at Date")
     begin
-        Copy(NewVerticalRec);
+        LoadMatrix(
+            NewVerticalRec, NewHorizontalRec, NewMatrixColumnCaptions, NewMatrixDateFilters, "Analysis Amount Type".FromInteger(AmountType2));
+    end;
+#endif
+
+    procedure LoadMatrix(var NewVerticalRec: Record Job; var NewHorizontalRec: Record "Job Planning Line"; NewMatrixColumnCaptions: array[32] of Text[100]; var NewMatrixDateFilters: array[32] of Record Date; AmountType2: Enum "Analysis Amount Type")
+    begin
+        Rec.Copy(NewVerticalRec);
         MatrixRec.Copy(NewHorizontalRec);
         CopyArray(MatrixColumnCaptions, NewMatrixColumnCaptions, 1);
         CopyArray(MatrixColumnDateFilters, NewMatrixDateFilters, 1);

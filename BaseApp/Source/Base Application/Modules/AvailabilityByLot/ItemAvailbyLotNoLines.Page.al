@@ -59,7 +59,7 @@ page 514 "Item Avail. by Lot No. Lines"
                         ItemLedgerEntry: Record "Item Ledger Entry";
                         IsHandled: Boolean;
                     begin
-                        OnBeforeLookupInventory(IsHandled);
+                        OnBeforeLookupInventory(IsHandled, Rec);
                         if IsHandled then
                             exit;
 
@@ -80,7 +80,7 @@ page 514 "Item Avail. by Lot No. Lines"
                         TempReservationEntry: Record "Reservation Entry" temporary;
                         IsHandled: Boolean;
                     begin
-                        OnBeforeLookupGrossRequirement(IsHandled);
+                        OnBeforeLookupGrossRequirement(IsHandled, Rec);
                         if IsHandled then
                             exit;
 
@@ -101,7 +101,7 @@ page 514 "Item Avail. by Lot No. Lines"
                         TempReservationEntry: Record "Reservation Entry" temporary;
                         IsHandled: Boolean;
                     begin
-                        OnBeforeLookupScheduledReceipt(IsHandled);
+                        OnBeforeLookupScheduledReceipt(IsHandled, Rec);
                         if IsHandled then
                             exit;
 
@@ -122,7 +122,7 @@ page 514 "Item Avail. by Lot No. Lines"
                         TempReservationEntry: Record "Reservation Entry" temporary;
                         IsHandled: Boolean;
                     begin
-                        OnBeforeLookupPlannedOrderReceipt(IsHandled);
+                        OnBeforeLookupPlannedOrderReceipt(IsHandled, Rec);
                         if IsHandled then
                             exit;
 
@@ -160,7 +160,7 @@ page 514 "Item Avail. by Lot No. Lines"
         [InDataSet]
         ScheduledRcpt: Decimal;
 
-    procedure SetItem(var NewItem: Record Item; NewAmountType: Option "Net Change","Balance at Date")
+    procedure SetItem(var NewItem: Record Item; NewAmountType: Enum "Analysis Amount Type")
     begin
         Item.Copy(NewItem);
         GenerateLines();
@@ -314,7 +314,7 @@ page 514 "Item Avail. by Lot No. Lines"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterSetItem(var Item: Record Item; NewAmountType: Option "Net Change","Balance at Date")
+    local procedure OnAfterSetItem(var Item: Record Item; NewAmountType: Enum "Analysis Amount Type")
     begin
     end;
 
@@ -329,22 +329,22 @@ page 514 "Item Avail. by Lot No. Lines"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeLookupInventory(var IsHandled: Boolean)
+    local procedure OnBeforeLookupInventory(var IsHandled: Boolean; var AvailabilityInfoBuffer: Record "Availability Info. Buffer")
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeLookupGrossRequirement(var IsHandled: Boolean)
+    local procedure OnBeforeLookupGrossRequirement(var IsHandled: Boolean; var AvailabilityInfoBuffer: Record "Availability Info. Buffer")
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeLookupScheduledReceipt(var IsHandled: Boolean)
+    local procedure OnBeforeLookupScheduledReceipt(var IsHandled: Boolean; var AvailabilityInfoBuffer: Record "Availability Info. Buffer")
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeLookupPlannedOrderReceipt(var IsHandled: Boolean)
+    local procedure OnBeforeLookupPlannedOrderReceipt(var IsHandled: Boolean; var AvailabilityInfoBuffer: Record "Availability Info. Buffer")
     begin
     end;
 }

@@ -215,6 +215,9 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
     var
         CRMPostBuffer: Record "CRM Post Buffer";
     begin
+        if not CRMPostBuffer.WritePermission() then
+            exit;
+
         CRMPostBuffer.ID := CreateGuid;
         CRMPostBuffer."Table ID" := DATABASE::"Sales Header";
         CRMPostBuffer.RecId := RecId;

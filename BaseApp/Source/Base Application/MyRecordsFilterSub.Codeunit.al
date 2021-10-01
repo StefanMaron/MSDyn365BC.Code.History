@@ -43,8 +43,11 @@ codeunit 9150 "My Records Filter Sub."
     begin
         IsHandled := false;
         IsMyTable := MyTableNo in [DATABASE::"My Customer", DATABASE::"My Vendor", DATABASE::"My Item"];
+        OnBeforeGetMyFilterText(TextFilterText, MyTableNo, IsMyTable, IsHandled);
+#if not CLEAN19
         OnGeforeGetMyFilterText(TextFilterText, MyTableNo, IsMyTable, IsHandled);
-        if IsHandled then
+#endif
+        if IsHandled then 
             exit;
 
         if not IsMyTable then
@@ -76,8 +79,16 @@ codeunit 9150 "My Records Filter Sub."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetMyFilterText(var TextFilterText: Text; MyTableNo: Integer; var IsMyTable: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by event OnBeforeGetMyFilterText().', '19.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnGeforeGetMyFilterText(var TextFilterText: Text; MyTableNo: Integer; var IsMyTable: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

@@ -273,13 +273,14 @@ page 7018 "Purchase Price List"
         }
     }
 
+#if not CLEAN19
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
         FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
-
+#endif
     trigger OnOpenPage()
     var
         PriceListManagement: Codeunit "Price List Management";

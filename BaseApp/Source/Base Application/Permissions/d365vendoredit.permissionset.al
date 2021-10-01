@@ -25,8 +25,10 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Item Analysis View Budg. Entry" = r,
                   tabledata "Item Analysis View Entry" = rid,
                   tabledata "Item Budget Entry" = r,
-                  tabledata "Item Cross Reference" = RIMD,
-                  tabledata "Item Reference" = RIMD,
+#if not CLEAN19
+                  tabledata "Item Cross Reference" = IMD,
+#endif
+                  tabledata "Item Reference" = IMD,
                   tabledata "Item Vendor" = Rid,
                   tabledata "Nonstock Item" = rm,
                   tabledata Opportunity = R,
@@ -48,8 +50,10 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Purch. Rcpt. Line" = rm,
                   tabledata "Purchase Discount Access" = RIMD,
                   tabledata "Purchase Header Archive" = r,
+#if not CLEAN19
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
+#endif
                   tabledata "Purchase Price Access" = RIMD,
                   tabledata "Purchases & Payables Setup" = M,
                   tabledata "Registered Whse. Activity Line" = rm,

@@ -23,7 +23,7 @@ codeunit 351 "Intrastat Document Completion"
         if not IntrastatSetup.ReadPermission then
             exit;
 
-        if not IntrastatSetup.Get then
+        if not IntrastatSetup.Get() then
             exit;
 
         if (Rec."Document Type" = Rec."Document Type"::"Credit Memo") or
@@ -52,7 +52,7 @@ codeunit 351 "Intrastat Document Completion"
         if not IntrastatSetup.ReadPermission then
             exit;
 
-        if not IntrastatSetup.Get then
+        if not IntrastatSetup.Get() then
             exit;
 
         if (Rec."Document Type" = Rec."Document Type"::"Credit Memo") or
@@ -81,7 +81,7 @@ codeunit 351 "Intrastat Document Completion"
         if not IntrastatSetup.ReadPermission then
             exit;
 
-        if not IntrastatSetup.Get then
+        if not IntrastatSetup.Get() then
             exit;
 
         if Rec."Document Type" = Rec."Document Type"::"Credit Memo" then

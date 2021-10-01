@@ -30,11 +30,9 @@ table 5969 "Contract Gain/Loss Entry"
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
         }
-        field(6; "Type of Change"; Option)
+        field(6; "Type of Change"; Enum "Service Contract Change Type")
         {
             Caption = 'Type of Change';
-            OptionCaption = 'Line Added,Line Deleted,Contract Signed,Contract Canceled,Manual Update,Price Update';
-            OptionMembers = "Line Added","Line Deleted","Contract Signed","Contract Canceled","Manual Update","Price Update";
         }
         field(8; "Responsibility Center"; Code[10])
         {
@@ -104,14 +102,24 @@ table 5969 "Contract Gain/Loss Entry"
     var
         ContractGainLossEntry: Record "Contract Gain/Loss Entry";
 
+#if not CLEAN19
+    [Obsolete('Replaced by CreateEntry()', '19.0')]
     procedure AddEntry(ChangeStatus: Integer; ContractType: Integer; ContractNo: Code[20]; ChangeAmount: Decimal; ReasonCode: Code[10])
+    begin
+        CreateEntry(
+            "Service Contract Change Type".FromInteger(ChangeStatus),
+            "Service Contract Type".FromInteger(ContractType), ContractNo, ChangeAmount, ReasonCode);
+    end;
+#endif
+
+    procedure CreateEntry(ChangeType: Enum "Service Contract Change Type"; ContractType: Enum "Service Contract Type"; ContractNo: Code[20]; ChangeAmount: Decimal; ReasonCode: Code[10])
     var
         ServContract: Record "Service Contract Header";
         NextLine: Integer;
     begin
         ContractGainLossEntry.Reset();
         ContractGainLossEntry.LockTable();
-        if ContractGainLossEntry.FindLast then
+        if ContractGainLossEntry.FindLast() then
             NextLine := ContractGainLossEntry."Entry No." + 1
         else
             NextLine := 1;
@@ -126,7 +134,7 @@ table 5969 "Contract Gain/Loss Entry"
         ContractGainLossEntry."Contract No." := ContractNo;
         ContractGainLossEntry."Contract Group Code" := ServContract."Contract Group Code";
         ContractGainLossEntry."Change Date" := Today;
-        ContractGainLossEntry."Type of Change" := ChangeStatus;
+        ContractGainLossEntry."Type of Change" := ChangeType;
         ContractGainLossEntry."Responsibility Center" := ServContract."Responsibility Center";
         ContractGainLossEntry."Customer No." := ServContract."Customer No.";
         ContractGainLossEntry."Ship-to Code" := ServContract."Ship-to Code";

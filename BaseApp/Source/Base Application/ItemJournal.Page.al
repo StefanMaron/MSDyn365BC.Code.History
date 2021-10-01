@@ -119,9 +119,9 @@ page 40 "Item Journal"
                         Item: Record Item;
                         WMSManagement: Codeunit "WMS Management";
                     begin
-                        if "Location Code" <> '' then
-                            if Item.Get("Item No.") then
-                                Item.TestField(Type, Item.Type::Inventory);
+                        if Item.Get("Item No.") then
+                            if Item.IsNonInventoriableType() then
+                                exit;
                         WMSManagement.CheckItemJnlLineLocation(Rec, xRec);
                     end;
                 }

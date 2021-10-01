@@ -583,7 +583,7 @@ codeunit 139179 "CRM Statistics Job Test"
         PostSalesInvoice(SalesInvHeader, Customer."No.");
         CRMIntegrationManagement.CreateNewRecordsInCRM(SalesInvHeader.RecordId);
         // Executing the Sync Job
-        SalesInvHeader.SetRecFilter;
+        SalesInvHeader.SetRange(SystemId, SalesInvHeader.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
           DATABASE::"Sales Invoice Header", SalesInvHeader.GetView, IntegrationTableMapping);
 

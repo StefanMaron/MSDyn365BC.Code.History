@@ -430,12 +430,11 @@ page 7376 "Invt. Put-away Subform"
         ExpDate: Date;
         EntriesExist: Boolean;
     begin
-        if "Lot No." <> '' then
-            ExpDate := ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code",
-                "Lot No.", "Serial No.", false, EntriesExist);
+        if Rec."Lot No." <> '' then
+            ExpDate := ItemTrackingMgt.ExistingExpirationDate(Rec, false, EntriesExist);
 
         if ExpDate <> 0D then begin
-            "Expiration Date" := ExpDate;
+            Rec."Expiration Date" := ExpDate;
             ExpDateBlocked := true;
         end;
 

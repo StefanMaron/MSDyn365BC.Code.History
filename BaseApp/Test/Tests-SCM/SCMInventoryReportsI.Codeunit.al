@@ -305,6 +305,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         end;
     end;
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('MessageHandler,NonstockItemSalesRequestPageHandler')]
     [Scope('OnPrem')]
@@ -334,7 +335,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('InvoicedQuantity', -ItemLedgerEntry.Quantity);
     end;
-
+#endif
     [Test]
     [HandlerFunctions('RevalPostingTestItemRequestPageHandler')]
     [Scope('OnPrem')]

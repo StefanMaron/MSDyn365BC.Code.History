@@ -3554,7 +3554,7 @@ codeunit 136140 "Service Order Release"
         ServiceLine.FindSet();
     end;
 
-    local procedure FindWarehouseActivityNo(SourceNo: Code[20]; ActivityType: Option): Code[20]
+    local procedure FindWarehouseActivityNo(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"): Code[20]
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3684,14 +3684,14 @@ codeunit 136140 "Service Order Release"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         WarehouseActivityHeader.SetRange(Type, Type);
         WarehouseActivityHeader.SetRange("No.", FindWarehouseActivityNo(SourceNo, Type));
         WarehouseActivityHeader.FindFirst;
-        if Type = 1 then // Put-away
+        if Type = Type::"Put-away" then
             PlaceInNonPickableZones(WarehouseActivityHeader);
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;

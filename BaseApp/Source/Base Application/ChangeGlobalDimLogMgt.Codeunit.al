@@ -43,6 +43,8 @@ codeunit 484 "Change Global Dim. Log Mgt."
             ClearBuffer;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by FindChildTables()', '19.0')]
     procedure FindChildTable(ParentTableID: Integer): Integer
     var
         TempChildChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry" temporary;
@@ -50,6 +52,7 @@ codeunit 484 "Change Global Dim. Log Mgt."
         if FindChildTables(ParentTableID, TempChildChangeGlobalDimLogEntry) then
             exit(TempChildChangeGlobalDimLogEntry."Table ID");
     end;
+#endif
 
     procedure FindChildTables(ParentTableID: Integer; var TempChildChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry" temporary): Boolean;
     begin

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1881 "Sandbox Environment"
 {
     ApplicationArea = Basic, Suite;
@@ -7,7 +8,7 @@ page 1881 "Sandbox Environment"
     LinksAllowed = false;
     PageType = NavigatePage;
     ShowFilter = false;
-    UsageCategory = Lists;
+    UsageCategory = Administration;
     ObsoleteState = Pending;
     ObsoleteReason = 'This functionality is now available from the Business Central Admin Center.';
     ObsoleteTag = '16.0';
@@ -149,4 +150,4 @@ page 1881 "Sandbox Environment"
         exit('');
     end;
 }
-
+#endif

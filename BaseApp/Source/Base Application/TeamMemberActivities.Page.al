@@ -10,6 +10,33 @@ page 9042 "Team Member Activities"
     {
         area(content)
         {
+            cuegroup("Current Time Sheet")
+            {
+                Caption = 'Current Time Sheet';
+                actions
+                {
+                    action(OpenCurrentTimeSheet)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Open Current Time Sheet';
+                        Image = TileBrickCalendar;
+                        ToolTip = 'Open the time sheet for the current period.';
+                        Visible = TimeSheetV2Enabled;
+
+                        trigger OnAction()
+                        var
+                            TimeSheetHeader: Record "Time Sheet Header";
+                            TimeSheetCard: Page "Time Sheet Card";
+                        begin
+                            TimeSheetManagement.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Owner User ID"));
+                            TimeSheetCard.SetTableView(TimeSheetHeader);
+                            if TimeSheetHeader.Get(TimeSheetHeader.FindCurrentTimeSheetNo(TimeSheetHeader.FieldNo("Owner User ID"))) then
+                                TimeSheetCard.SetRecord(TimeSheetHeader);
+                            TimeSheetCard.Run();
+                        end;
+                    }
+                }
+            }
             cuegroup("Time Sheets")
             {
                 Caption = 'Time Sheets';
@@ -115,6 +142,8 @@ page 9042 "Team Member Activities"
             ShowTimeSheetsToApprove := false;
         end;
 
+        TimeSheetV2Enabled := TimeSheetManagement.TimeSheetV2Enabled();
+
         RoleCenterNotificationMgt.ShowNotifications;
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent;
 
@@ -125,6 +154,8 @@ page 9042 "Team Member Activities"
     end;
 
     var
+        TimeSheetManagement: Codeunit "Time Sheet Management";
+        TimeSheetV2Enabled: Boolean;
         [RunOnClient]
         [WithEvents]
         PageNotifier: DotNet PageNotifier;

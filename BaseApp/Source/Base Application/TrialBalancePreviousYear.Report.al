@@ -162,7 +162,7 @@ report 7 "Trial Balance/Previous Year"
                 LongText1[3] := '';
                 LongText1[4] := '';
 
-                GLAccountType := "Account Type";
+                GLAccountType := "Account Type".AsInteger();
 
                 if IsNewPage then begin
                     PageGroupNo := PageGroupNo + 1;
@@ -213,14 +213,6 @@ report 7 "Trial Balance/Previous Year"
         GLFilter: Text;
         NetChangeIncreasePct: Decimal;
         BalanceIncreasePct: Decimal;
-        LastYearNetChange: Decimal;
-        LastYearBalance: Decimal;
-        LastYearStartDate: Date;
-        LastYearEndDate: Date;
-        FiscalYearNetChange: Decimal;
-        FiscalYearBalance: Decimal;
-        FiscalYearStartDate: Date;
-        FiscalYearEndDate: Date;
         LongText1: array[4] of Text[132];
         ReqFormDateFilter: Text[250];
         PageGroupNo: Integer;
@@ -236,5 +228,15 @@ report 7 "Trial Balance/Previous Year"
         PercentCaptionLbl: Label '% of';
         LastYearCaptionLbl: Label 'Last Year';
         BlankLineNo: Integer;
+
+    protected var
+        LastYearNetChange: Decimal;
+        LastYearBalance: Decimal;
+        LastYearStartDate: Date;
+        LastYearEndDate: Date;
+        FiscalYearNetChange: Decimal;
+        FiscalYearBalance: Decimal;
+        FiscalYearStartDate: Date;
+        FiscalYearEndDate: Date;
 }
 

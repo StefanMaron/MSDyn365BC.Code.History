@@ -22,6 +22,7 @@ permissionset 3668 "D365 FA, SETUP"
                   tabledata "FA Reclass. Journal Template" = RIMD,
                   tabledata "FA Setup" = RIMD,
                   tabledata "FA Subclass" = RIMD,
+                  tabledata "G/L Account" = R,
                   tabledata "Ins. Coverage Ledger Entry" = rm,
                   tabledata "Insurance Journal Batch" = RIMD,
                   tabledata "Insurance Journal Template" = RIMD,
