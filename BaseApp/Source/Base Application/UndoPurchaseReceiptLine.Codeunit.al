@@ -32,11 +32,9 @@ codeunit 5813 "Undo Purchase Receipt Line"
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         TempGlobalItemLedgEntry: Record "Item Ledger Entry" temporary;
         TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary;
-        InvtSetup: Record "Inventory Setup";
         UndoPostingMgt: Codeunit "Undo Posting Management";
         Text002: Label 'There is not enough space to insert correction lines.';
         WhseUndoQty: Codeunit "Whse. Undo Quantity";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
         UOMMgt: Codeunit "Unit of Measure Management";
         HideDialog: Boolean;
         JobItem: Boolean;
@@ -119,14 +117,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
                     JobItem := (Type = Type::Item) and ("Job No." <> '');
             until Next() = 0;
 
-            InvtSetup.Get();
-            if InvtSetup."Automatic Cost Adjustment" <>
-               InvtSetup."Automatic Cost Adjustment"::Never
-            then begin
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.SetJobUpdateProperties(not JobItem);
-                InvtAdjmt.MakeMultiLevelAdjmt;
-            end;
+            MakeInventoryAdjustment();
 
             WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
         end;
@@ -493,6 +484,18 @@ codeunit 5813 "Undo Purchase Receipt Line"
         end;
 
         exit(false);
+    end;
+
+    local procedure MakeInventoryAdjustment()
+    var
+        InvtSetup: Record "Inventory Setup";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        InvtSetup.Get();
+        if InvtSetup.AutomaticCostAdjmtRequired() then begin
+            InvtAdjmtHandler.SetJobUpdateProperties(not JobItem);
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        end;
     end;
 
     [IntegrationEvent(false, false)]

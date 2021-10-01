@@ -68,10 +68,12 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
     begin
         OnBeforePostPrepmtDocument(SalesHeader, PrepmtDocumentType.AsInteger());
 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.PushContext(ErrorContextElement, SalesHeader.RecordId, 0, '');
         SalesPostPrepayments.SetDocumentType(PrepmtDocumentType.AsInteger());
         Commit();
         if not SalesPostPrepayments.Run(SalesHeader) then

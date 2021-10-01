@@ -4,11 +4,9 @@ table 746 "VAT Reports Configuration"
 
     fields
     {
-        field(1; "VAT Report Type"; Option)
+        field(1; "VAT Report Type"; Enum "VAT Report Configuration")
         {
             Caption = 'VAT Report Type';
-            OptionCaption = 'EC Sales List,VAT Return,Intrastat Report';
-            OptionMembers = "EC Sales List","VAT Return","Intrastat Report";
         }
         field(2; "VAT Report Version"; Code[10])
         {
@@ -21,7 +19,7 @@ table 746 "VAT Reports Configuration"
         }
         field(4; "Suggest Lines Codeunit Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Suggest Lines Codeunit ID")));
             Caption = 'Suggest Lines Codeunit Caption';
             Editable = false;
@@ -34,7 +32,7 @@ table 746 "VAT Reports Configuration"
         }
         field(6; "Content Codeunit Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Content Codeunit ID")));
             Caption = 'Content Codeunit Caption';
             Editable = false;
@@ -47,7 +45,7 @@ table 746 "VAT Reports Configuration"
         }
         field(8; "Submission Codeunit Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Submission Codeunit ID")));
             Caption = 'Submission Codeunit Caption';
             Editable = false;
@@ -60,7 +58,7 @@ table 746 "VAT Reports Configuration"
         }
         field(10; "Resp. Handler Codeunit Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Response Handler Codeunit ID")));
             Caption = 'Resp. Handler Codeunit Caption';
             Editable = false;
@@ -73,7 +71,7 @@ table 746 "VAT Reports Configuration"
         }
         field(12; "Validate Codeunit Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Codeunit),
                                                                            "Object ID" = FIELD("Validate Codeunit ID")));
             Caption = 'Validate Codeunit Caption';
             Editable = false;

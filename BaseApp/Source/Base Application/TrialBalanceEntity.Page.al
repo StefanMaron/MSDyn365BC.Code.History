@@ -1,19 +1,24 @@
 page 5502 "Trial Balance Entity"
 {
     Caption = 'trialBalance', Locked = true;
-    DelayedInsert = true;
     DeleteAllowed = false;
     Editable = false;
-    EntityName = 'trialBalance';
-    EntitySetName = 'trialBalance';
     InsertAllowed = false;
     ModifyAllowed = false;
-    PageType = API;
     SourceTable = "Trial Balance Entity Buffer";
-    SourceTableTemporary = true;
+#if not CLEAN18
+    EntityName = 'trialBalance';
+    EntitySetName = 'trialBalance';
+    PageType = API;
+    DelayedInsert = true;
+#else
     ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteReason = 'API version beta will be deprecated. This page will be changed to List type.';
     ObsoleteTag = '18.0';
+    PageType = List;
+#endif
+    SourceTableTemporary = true;
+
 
     layout
     {
@@ -83,4 +88,3 @@ page 5502 "Trial Balance Entity"
         GraphMgtReports.SetUpTrialBalanceAPIData(RecVariant);
     end;
 }
-

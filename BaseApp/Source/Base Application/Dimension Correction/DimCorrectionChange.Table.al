@@ -29,6 +29,7 @@ table 2581 "Dim Correction Change"
             var
                 DimensionValue: Record "Dimension Value";
                 DimensionCorrectionMgt: Codeunit "Dimension Correction Mgt";
+                DimensionManagement: Codeunit DimensionManagement;
             begin
                 if "New Value" = '' then begin
                     Rec.Validate(Rec."Change Type", Rec."Change Type"::"No Change");
@@ -44,8 +45,12 @@ table 2581 "Dim Correction Change"
                 DimensionValue.SetRange(Code, "New Value");
                 DimensionValue.FindFirst();
 
-                if DimensionValue.Blocked then
-                    Error(DimensionValueBlockedErr);
+                if not DimensionManagement.CheckDim(DimensionValue."Dimension Code") then
+                    Error(DimensionManagement.GetDimErr());
+
+                if not DimensionManagement.CheckDimValue(DimensionValue."Dimension Code", DimensionValue.Code) then
+                    Error(DimensionManagement.GetDimErr());
+
                 Rec."New Value ID" := DimensionValue."Dimension Value ID";
                 Rec."New Value" := DimensionValue.Code;
             end;
@@ -127,7 +132,4 @@ table 2581 "Dim Correction Change"
         DimValuesInStream.ReadText(DimSetValueFilter);
         exit(DimSetValueFilter);
     end;
-
-    var
-        DimensionValueBlockedErr: Label 'The dimension value cannot be used because it is blocked.';
 }

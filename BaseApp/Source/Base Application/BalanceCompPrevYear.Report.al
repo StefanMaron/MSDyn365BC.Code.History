@@ -318,7 +318,6 @@ report 37 "Balance Comp. - Prev. Year"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Factor';
-                        OptionCaption = 'None,1,1000,1000000';
                         ToolTip = 'Specifies a rounding factor that will be used in the balance.';
                     }
                     field(Indent; Indent)
@@ -356,7 +355,7 @@ report 37 "Balance Comp. - Prev. Year"
         AccountingPeriod: Record "Accounting Period";
         GLIndent: Record "G/L Account";
         MatrixMgt: Codeunit "Matrix Management";
-        RoundingFactor: Option "None","1","1000","1000000";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         GLFilter: Text;
         ColumnValuesAsText: array[13] of Text[30];
         RoundingText: Text[80];
@@ -439,7 +438,7 @@ report 37 "Balance Comp. - Prev. Year"
 
     procedure RoundAmount(Value: Decimal): Text[30]
     begin
-        exit(MatrixMgt.FormatValue(Value, RoundingFactor, false));
+        exit(MatrixMgt.FormatAmount(Value, RoundingFactor, false));
     end;
 
     procedure InitializeRequest(NewPeriodStartingDate: Date; NewPeriodEndingDate: Date; NewPreviousStartingDate: Date; NewPreviousEndingDate: Date; NewRoundingFactor: Option; NewIndent: Option)
@@ -465,7 +464,7 @@ report 37 "Balance Comp. - Prev. Year"
             CheckDates;
         end;
 
-        RoundingFactor := NewRoundingFactor;
+        RoundingFactor := "Analysis Rounding Factor".FromInteger(NewRoundingFactor);
         if NewIndent <> Indent::None then begin
             Indent := NewIndent;
             CheckIndent;

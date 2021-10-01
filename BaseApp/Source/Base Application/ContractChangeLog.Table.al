@@ -7,11 +7,9 @@ table 5967 "Contract Change Log"
 
     fields
     {
-        field(1; "Contract Type"; Option)
+        field(1; "Contract Type"; Enum "Service Contract Type")
         {
             Caption = 'Contract Type';
-            OptionCaption = 'Quote,Contract';
-            OptionMembers = Quote,Contract;
         }
         field(2; "Contract No."; Code[20])
         {

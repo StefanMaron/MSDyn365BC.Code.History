@@ -107,6 +107,12 @@ page 5123 "Opportunity List"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the current calculated value of the opportunity.';
                 }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the opportunity is coupled to an opportunity in Dynamics 365 Sales.';
+                    Visible = CRMIntegrationEnabled;
+                }
             }
             group(Control45)
             {
@@ -289,6 +295,25 @@ page 5123 "Opportunity List"
                             CRMIntegrationManagement: Codeunit "CRM Integration Management";
                         begin
                             CRMIntegrationManagement.DefineCoupling(RecordId);
+                        end;
+                    }
+                    action(MatchBasedCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledOpportunity;
+                        ToolTip = 'Couple opportunities to opportunities in Dynamics 365 Sales based on criteria.';
+
+                        trigger OnAction()
+                        var
+                            Opportunity: Record Opportunity;
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(Opportunity);
+                            RecRef.GetTable(Opportunity);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
                         end;
                     }
                     action(DeleteCRMCoupling)

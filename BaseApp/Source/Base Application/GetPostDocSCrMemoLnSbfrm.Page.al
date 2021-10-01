@@ -68,7 +68,7 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
                 }
@@ -88,6 +88,13 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the item or general ledger account, or some descriptive text.';
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5432 "Automation - Config. Package"
 {
     APIGroup = 'automation';
@@ -8,6 +9,10 @@ page 5432 "Automation - Config. Package"
     EntitySetName = 'configurationPackages';
     PageType = API;
     SourceTable = "Config. Package";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '19.0';
+
 
     layout
     {
@@ -183,4 +188,4 @@ page 5432 "Automation - Config. Package"
           ("Apply Status" in ["Apply Status"::InProgress, "Apply Status"::Scheduled]));
     end;
 }
-
+#endif

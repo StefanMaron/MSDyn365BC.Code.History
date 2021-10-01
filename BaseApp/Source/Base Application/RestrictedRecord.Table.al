@@ -13,7 +13,7 @@ table 1550 "Restricted Record"
         field(2; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(3; Details; Text[250])
         {

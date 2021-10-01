@@ -292,7 +292,7 @@ page 5786 "Source Document Filter Card"
         WhseReceiptHeader := WhseReceiptHeader2;
     end;
 
-    local procedure EnableControls()
+    protected procedure EnableControls()
     begin
         OnBeforeEnableControls();
         case Rec.Type of
@@ -318,7 +318,7 @@ page 5786 "Source Document Filter Card"
         end;
     end;
 
-    local procedure InitializeControls()
+    protected procedure InitializeControls()
     begin
         ShippingAgentServiceFilterEnable := true;
         ShippingAgentCodeFilterEnable := true;

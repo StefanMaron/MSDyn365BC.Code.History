@@ -41,6 +41,12 @@ table 1610 "Office Add-in"
         {
             Caption = 'Breaking';
         }
+        field(15; Deploy; Boolean)
+        {
+            Caption = 'Deploy';
+            Description = 'Specifies whether to deploy this add-in.';
+            InitValue = true;
+        }
     }
 
     keys
@@ -61,8 +67,7 @@ table 1610 "Office Add-in"
     begin
         if IsEmpty() then
             AddinManifestManagement.CreateDefaultAddins(Rec);
-
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     procedure GetDefaultManifestText() ManifestText: Text
@@ -83,10 +88,13 @@ table 1610 "Office Add-in"
         ManifestOutStream.WriteText(ManifestText);
     end;
 
+#if not CLEAN19
+    [Obsolete('Admins now deploy the add-ins manually.', '19.0')]
     procedure IsAdminDeployed(): Boolean
     begin
         exit(Format("Deployment Date") <> '');
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure IsBreakingChange(UserVersion: Text) IsBreaking: Boolean

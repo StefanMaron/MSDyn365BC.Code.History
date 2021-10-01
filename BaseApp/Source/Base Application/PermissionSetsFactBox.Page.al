@@ -17,6 +17,8 @@ page 9817 "Permission Sets FactBox"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Set';
                     ToolTip = 'Specifies the ID of a security role that has been assigned to this Windows login in the current database.';
+                    Style = Unfavorable;
+                    StyleExpr = PermissionSetNotFound;
                 }
                 field(Description; "Role Name")
                 {
@@ -42,12 +44,20 @@ page 9817 "Permission Sets FactBox"
     }
 
     trigger OnAfterGetRecord()
+    var
+        AggregatePermissionSet: Record "Aggregate Permission Set";
     begin
         if User."User Name" <> '' then
             CurrPage.Caption := User."User Name";
+
+        PermissionSetNotFound := false;
+        if not (Rec."Role ID" in ['SUPER', 'SECURITY']) then
+            PermissionSetNotFound := not AggregatePermissionSet.Get(Rec.Scope, Rec."App ID", Rec."Role ID");
     end;
 
     var
         User: Record User;
+        [InDataSet]
+        PermissionSetNotFound: Boolean;
 }
 

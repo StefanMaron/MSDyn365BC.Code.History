@@ -238,10 +238,12 @@ codeunit 1876 "Business Setup Subscribers"
         VATReportShortTitleTxt: Label 'VAT report setup';
         VATReportDescriptionTxt: Label 'Before you can create and submit VAT reports, you must set up a number series and other information.';
         VATReportKeywordsTxt: Label 'VAT Report, Suggest, Validate, Submission, VAT Return, EC Sales List';
+#if not CLEAN19
         EnvironmentTitleTxt: Label 'Set up a sandbox environment';
         EnvironmentShortTitleTxt: Label 'Sandbox environments';
         EnvironmentDescriptionTxt: Label 'Set up a sandbox environment where you can experiment with new capabilities.';
         EnvironmentKeywordsTxt: Label 'System, Environment, Sandbox';
+#endif
         ICSetupTitleTxt: Label 'Set up intercompany postings';
         ICSetupShortTitleTxt: Label 'Intercompany setup';
         ICSetupDescriptionTxt: Label 'Set up how you want to electronically transfer transactions between the current company and partner companies.';
@@ -262,10 +264,6 @@ codeunit 1876 "Business Setup Subscribers"
         CostAccountingSetupShortTitleTxt: Label 'Cost accounting setup';
         CostAccountingSetupDescriptionTxt: Label 'Set up general ledger transfers to cost accounting, dimension links to cost centers and objects, and how to handle allocation document numbers and IDs.';
         CostAccountingSetupKeywordsTxt: Label 'Cost, Accounting';
-        SmartListDesignerTitleTxt: Label 'Set up SmartList Designer';
-        SmartListDesignerShortTitleTxt: Label 'SmartList Designer setup';
-        SmartListDesignerDescriptionTxt: Label 'Specify how to connect the SmartList Designer to the current company.';
-        SmartListDesignerKeywordsTxt: Label 'SmartList Designer, SmartList, PowerApp App ID';
         WarehouseSetupTitleTxt: Label 'Warehouse setup';
         WarehouseSetupShortTitleTxt: Label 'Set up warehouse management';
         WarehouseSetupDescriptionTxt: Label 'Set up number series for warehouse documents, error policies for posting receipts and shipments, and activity requirements for warehouse functionality.';
@@ -279,7 +277,9 @@ codeunit 1876 "Business Setup Subscribers"
     local procedure InsertSetupOnRegisterManualSetup(var Sender: Codeunit "Guided Experience")
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+#if not CLEAN19
         EnvironmentInfo: Codeunit "Environment Information";
+#endif
         EmailFeature: Codeunit "Email Feature";
         Info: ModuleInfo;
         ManualSetupCategory: Enum "Manual Setup Category";
@@ -289,222 +289,219 @@ codeunit 1876 "Business Setup Subscribers"
         // General
         IF ApplicationAreaMgmtFacade.IsFoundationEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then begin
             Sender.InsertManualSetup(CompanyTitleTxt, CompanyShortTitleTxt, CompanyDescriptionTxt, 3, ObjectType::Page,
-              PAGE::"Company Information", ManualSetupCategory::General, CompanyKeywordsTxt);
+              Page::"Company Information", ManualSetupCategory::General, CompanyKeywordsTxt);
             Sender.InsertManualSetup(CountriesRegionsTitleTxt, CountriesRegionsShortTitleTxt, CountriesRegionsDescriptionTxt, 5, ObjectType::Page,
-              PAGE::"Countries/Regions", ManualSetupCategory::General, CountriesRegionsKeywordsTxt);
+              Page::"Countries/Regions", ManualSetupCategory::General, CountriesRegionsKeywordsTxt);
             Sender.InsertManualSetup(NoSeriesTitleTxt, NoSeriesShortTitleTxt, NoSeriesDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"No. Series", ManualSetupCategory::General, NoSeriesKeywordsTxt);
+              Page::"No. Series", ManualSetupCategory::General, NoSeriesKeywordsTxt);
             Sender.InsertManualSetup(PostCodesTitleTxt, PostCodesShortTitleTxt, PostCodesDescriptionTxt, 2, ObjectType::Page,
-              PAGE::"Post Codes", ManualSetupCategory::General, PostCodesKeywordsTxt);
+              Page::"Post Codes", ManualSetupCategory::General, PostCodesKeywordsTxt);
             Sender.InsertManualSetup(ReasonCodesTitleTxt, ReasonCodesShortTitleTxt, ReasonCodesDescriptionTxt, 3, ObjectType::Page,
-              PAGE::"Reason Codes", ManualSetupCategory::General, ReasonCodesKeywordsTxt);
+              Page::"Reason Codes", ManualSetupCategory::General, ReasonCodesKeywordsTxt);
             Sender.InsertManualSetup(SourceCodesTitleTxt, SourceCodesShortTitleTxt, SourceCodesDescriptionTxt, 3, ObjectType::Page,
-              PAGE::"Source Codes", ManualSetupCategory::General, SourceCodesKeywordsTxt);
+              Page::"Source Codes", ManualSetupCategory::General, SourceCodesKeywordsTxt);
             Sender.InsertManualSetup(UserSettingsTitleTxt, UserSettingsShortTitleTxt, UserSettingsDescriptionTxt, 5, ObjectType::Page,
-              PAGE::"User Personalization List", ManualSetupCategory::General, UserSettingsKeywordsTxt);
+              Page::"User Settings List", ManualSetupCategory::General, UserSettingsKeywordsTxt);
         end;
 
         IF ApplicationAreaMgmtFacade.IsSuiteEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then
             Sender.InsertManualSetup(CurrenciesTitleTxt, CurrenciesShortTitleTxt, CurrenciesDescriptionTxt, 2, ObjectType::Page,
-              PAGE::Currencies, ManualSetupCategory::General, CurrenciesKeywordsTxt);
+              Page::Currencies, ManualSetupCategory::General, CurrenciesKeywordsTxt);
 
         // Finance
         IF ApplicationAreaMgmtFacade.IsFoundationEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then begin
             Sender.InsertManualSetup(GeneralLedgerSetupTitleTxt, GeneralLedgerSetupShortTitleTxt, GeneralLedgerSetupDescriptionTxt, 15, ObjectType::Page,
-              PAGE::"General Ledger Setup", ManualSetupCategory::Finance, GeneralLedgerSetupKeywordsTxt);
+              Page::"General Ledger Setup", ManualSetupCategory::Finance, GeneralLedgerSetupKeywordsTxt);
             Sender.InsertManualSetup(AccountingPeriodsTitleTxt, AccountingPeriodsShortTitleTxt, AccountingPeriodsDescriptionTxt, 7, ObjectType::Page,
-              PAGE::"Accounting Periods", ManualSetupCategory::Finance, AccountingPeriodsKeywordsTxt);
+              Page::"Accounting Periods", ManualSetupCategory::Finance, AccountingPeriodsKeywordsTxt);
             Sender.InsertManualSetup(BankExportImportSetupTitleTxt, BankExportImportSetupShortTitleTxt, BankExportImportSetupDescriptionTxt, 5, ObjectType::Page,
-              PAGE::"Bank Export/Import Setup", ManualSetupCategory::Finance, BankExportImportSetupKeywordsTxt);
+              Page::"Bank Export/Import Setup", ManualSetupCategory::Finance, BankExportImportSetupKeywordsTxt);
             Sender.InsertManualSetup(GeneralPostingSetupTitleTxt, GeneralPostingSetupShortTitleTxt, GeneralPostingSetupDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"General Posting Setup", ManualSetupCategory::Finance, GeneralPostingSetupKeywordsTxt);
+              Page::"General Posting Setup", ManualSetupCategory::Finance, GeneralPostingSetupKeywordsTxt);
             Sender.InsertManualSetup(GenBusinessPostingGroupsTitleTxt, GenBusinessPostingGroupsShortTitleTxt, GenBusinessPostingGroupsDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"Gen. Business Posting Groups", ManualSetupCategory::Finance, GenBusinessPostingGroupsKeywordsTxt);
+              Page::"Gen. Business Posting Groups", ManualSetupCategory::Finance, GenBusinessPostingGroupsKeywordsTxt);
             Sender.InsertManualSetup(GenProductPostingGroupsTitleTxt, GenProductPostingGroupsShortTitleTxt, GenProductPostingGroupsDescriptionTxt, 7, ObjectType::Page,
-              PAGE::"Gen. Product Posting Groups", ManualSetupCategory::Finance, GenProductPostingGroupsKeywordsTxt);
+              Page::"Gen. Product Posting Groups", ManualSetupCategory::Finance, GenProductPostingGroupsKeywordsTxt);
             Sender.InsertManualSetup(VATPostingSetupTitleTxt, VATPostingSetupShortTitleTxt, VATPostingSetupDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"VAT Posting Setup", ManualSetupCategory::Finance, VATPostingSetupKeywordsTxt);
+              Page::"VAT Posting Setup", ManualSetupCategory::Finance, VATPostingSetupKeywordsTxt);
             Sender.InsertManualSetup(VATBusinessPostingGroupsTitleTxt, VATBusinessPostingGroupsShortTitleTxt, VATBusinessPostingGroupsDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"VAT Business Posting Groups", ManualSetupCategory::Finance, VATBusinessPostingGroupsKeywordsTxt);
+              Page::"VAT Business Posting Groups", ManualSetupCategory::Finance, VATBusinessPostingGroupsKeywordsTxt);
             Sender.InsertManualSetup(VATProductPostingGroupsTitleTxt, VATProductPostingGroupsShortTitleTxt, VATProductPostingGroupsDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"VAT Product Posting Groups", ManualSetupCategory::Finance, VATProductPostingGroupsKeywordsTxt);
+              Page::"VAT Product Posting Groups", ManualSetupCategory::Finance, VATProductPostingGroupsKeywordsTxt);
             Sender.InsertManualSetup(VATReportSetupTitleTxt, VATReportSetupShortTitleTxt, VATReportSetupDescriptionTxt, 3, ObjectType::Page,
-              PAGE::"VAT Report Setup", ManualSetupCategory::Finance, VATReportSetupKeywordsTxt);
+              Page::"VAT Report Setup", ManualSetupCategory::Finance, VATReportSetupKeywordsTxt);
             Sender.InsertManualSetup(BankAccountPostingGroupsTitleTxt, BankAccountPostingGroupsShortTitleTxt, BankAccountPostingGroupsDescriptionTxt, 2, ObjectType::Page,
-              PAGE::"Bank Account Posting Groups", ManualSetupCategory::Finance, BankAccountPostingGroupsKeywordsTxt);
+              Page::"Bank Account Posting Groups", ManualSetupCategory::Finance, BankAccountPostingGroupsKeywordsTxt);
             Sender.InsertManualSetup(GeneralJournalTemplatesTitleTxt, GeneralJournalTemplatesShortTitleTxt, GeneralJournalTemplatesDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"General Journal Templates", ManualSetupCategory::Finance, GeneralJournalTemplatesKeywordsTxt);
+              Page::"General Journal Templates", ManualSetupCategory::Finance, GeneralJournalTemplatesKeywordsTxt);
             Sender.InsertManualSetup(VATStatementTemplatesTitleTxt, VATStatementTemplatesShortTitleTxt, VATStatementTemplatesDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"VAT Statement Templates", ManualSetupCategory::Finance, VATStatementTemplatesKeywordsTxt);
+              Page::"VAT Statement Templates", ManualSetupCategory::Finance, VATStatementTemplatesKeywordsTxt);
             Sender.InsertManualSetup(VATClausesTitleTxt, VATClausesShortTitleTxt, VATClausesDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"VAT Clauses", ManualSetupCategory::Finance, VATClausesKeywordsTxt);
+              Page::"VAT Clauses", ManualSetupCategory::Finance, VATClausesKeywordsTxt);
             Sender.InsertManualSetup(VATReportConfigTitleTxt, VATReportConfigShortTitleTxt, VATReportConfigDescriptionTxt, 2, ObjectType::Page,
-              PAGE::"VAT Reports Configuration", ManualSetupCategory::Finance, VATReportConfigKeywordsTxt);
+              Page::"VAT Reports Configuration", ManualSetupCategory::Finance, VATReportConfigKeywordsTxt);
             Sender.InsertManualSetup(VATReportTitleTxt, VATReportShortTitleTxt, VATReportDescriptionTxt, 3, ObjectType::Page,
-              PAGE::"VAT Report Setup", ManualSetupCategory::Finance, VATReportKeywordsTxt);
+              Page::"VAT Report Setup", ManualSetupCategory::Finance, VATReportKeywordsTxt);
             Sender.InsertManualSetup(CashFlowSetupTitleTxt, CashFlowSetupShortTitleTxt, CashFlowSetupDescriptionTxt, 5, ObjectType::Page,
-              PAGE::"Cash Flow Setup", ManualSetupCategory::Finance, CashFlowSetupKeywordsTxt);
+              Page::"Cash Flow Setup", ManualSetupCategory::Finance, CashFlowSetupKeywordsTxt);
         end;
 
         IF ApplicationAreaMgmtFacade.IsSuiteEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then begin
             Sender.InsertManualSetup(DimensionsTitleTxt, DimensionsShortTitleTxt, DimensionsDescriptionTxt, 15, ObjectType::Page,
-              PAGE::Dimensions, ManualSetupCategory::Finance, DimensionsKeywordsTxt);
+              Page::Dimensions, ManualSetupCategory::Finance, DimensionsKeywordsTxt);
             Sender.InsertManualSetup(AnalysisViewsTitleTxt, AnalysisViewsShortTitleTxt, AnalysisViewsDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"Analysis View List", ManualSetupCategory::Finance, AnalysisViewsKeywordsTxt);
+              Page::"Analysis View List", ManualSetupCategory::Finance, AnalysisViewsKeywordsTxt);
             Sender.InsertManualSetup(CostAccountingSetupTitleTxt, CostAccountingSetupShortTitleTxt, CostAccountingSetupDescriptionTxt, 30, ObjectType::Page,
-              PAGE::"Cost Accounting Setup", ManualSetupCategory::Finance, CostAccountingSetupKeywordsTxt);
+              Page::"Cost Accounting Setup", ManualSetupCategory::Finance, CostAccountingSetupKeywordsTxt);
         end;
 
         IF ApplicationAreaMgmtFacade.IsAllDisabled then begin
             Sender.InsertManualSetup(ResponsibilityCentersTitleTxt, ResponsibilityCentersShortTitleTxt, ResponsibilityCentersDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"Responsibility Center List", ManualSetupCategory::Finance, ResponsibilityCentersKeywordsTxt);
+              Page::"Responsibility Center List", ManualSetupCategory::Finance, ResponsibilityCentersKeywordsTxt);
             Sender.InsertManualSetup(IntrastatTemplatesTitleTxt, IntrastatTemplatesShortTitleTxt, IntrastatTemplatesDescriptionTxt, 7, ObjectType::Page,
-              PAGE::"Intrastat Journal Templates", ManualSetupCategory::Finance, IntrastatTemplatesKeywordsTxt);
+              Page::"Intrastat Journal Templates", ManualSetupCategory::Finance, IntrastatTemplatesKeywordsTxt);
         end;
 
         // System
         IF ApplicationAreaMgmtFacade.IsAllDisabled then
             Sender.InsertManualSetup(PermissionSetsTitleTxt, PermissionSetsShortTitleTxt, PermissionSetsDescriptionTxt, 15, ObjectType::Page,
-              PAGE::"Permission Sets", ManualSetupCategory::System, PermissionSetsKeywordsTxt);
+              Page::"Permission Sets", ManualSetupCategory::System, PermissionSetsKeywordsTxt);
 
         IF ApplicationAreaMgmtFacade.IsFoundationEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then begin
             Sender.InsertManualSetup(ReportLayoutsTitleTxt, ReportLayoutsShortTitleTxt, ReportLayoutsDescriptionTxt, 15, ObjectType::Page,
-              PAGE::"Report Layout Selection", ManualSetupCategory::System, ReportLayoutsKeywordsTxt);
+              Page::"Report Layout Selection", ManualSetupCategory::System, ReportLayoutsKeywordsTxt);
             if EmailFeature.IsEnabled() then
                 Sender.InsertManualSetup(EmailAccountMailSetupTitleTxt, EmailAccountMailSetupShortTitleTxt, EmailAccountSetupDescriptionTxt, 7, ObjectType::Page,
                   Page::"Email Accounts", ManualSetupCategory::System, EmailAccountSetupKeywordsTxt)
             else
                 Sender.InsertManualSetup(SMTPMailSetupTitleTxt, SMTPMailSetupShortTitleTxt, SMTPMailSetupDescriptionTxt, 10, ObjectType::Page,
-                  PAGE::"SMTP Mail Setup", ManualSetupCategory::System, SMTPMailSetupKeywordsTxt);
+                  Page::"SMTP Mail Setup", ManualSetupCategory::System, SMTPMailSetupKeywordsTxt);
 
             Sender.InsertManualSetup(UsersTitleTxt, UsersShortTitleTxt, UsersDescriptionTxt, 10, ObjectType::Page,
-              PAGE::Users, ManualSetupCategory::System, UsersKeywordsTxt);
+              Page::Users, ManualSetupCategory::System, UsersKeywordsTxt);
+#if not CLEAN19
             IF EnvironmentInfo.IsSaaS then
                 Sender.InsertManualSetup(
                   EnvironmentTitleTxt, EnvironmentShortTitleTxt, EnvironmentDescriptionTxt, 15, ObjectType::Page,
-                  PAGE::"Sandbox Environment", ManualSetupCategory::System, EnvironmentKeywordsTxt);
+                  Page::"Sandbox Environment", ManualSetupCategory::System, EnvironmentKeywordsTxt);
+#endif
         end;
 
         // Jobs
         IF ApplicationAreaMgmtFacade.IsJobsEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then
             Sender.InsertManualSetup(JobsSetupTitleTxt, JobsSetupShortTitleTxt, JobsSetupDescriptionTxt, 5, ObjectType::Page,
-              PAGE::"Jobs Setup", ManualSetupCategory::Jobs, JobsSetupKeywordsTxt);
+              Page::"Jobs Setup", ManualSetupCategory::Jobs, JobsSetupKeywordsTxt);
 
         // Fixed Assets
         IF ApplicationAreaMgmtFacade.IsFixedAssetEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then
             Sender.InsertManualSetup(FixedAssetSetupTitleTxt, FixedAssetSetupShortTitleTxt, FixedAssetSetupDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"Fixed Asset Setup", ManualSetupCategory::"Fixed Assets", FixedAssetSetupKeywordsTxt);
+              Page::"Fixed Asset Setup", ManualSetupCategory::"Fixed Assets", FixedAssetSetupKeywordsTxt);
 
         // HR
         IF ApplicationAreaMgmtFacade.IsBasicHREnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then
             Sender.InsertManualSetup(HumanResourcesSetupTitleTxt, HumanResourcesSetupShortTitleTxt, HumanResourcesSetupDescriptionTxt, 30, ObjectType::Page,
-              PAGE::"Human Resources Setup", ManualSetupCategory::HR, HumanResourcesSetupKeywordsTxt);
+              Page::"Human Resources Setup", ManualSetupCategory::HR, HumanResourcesSetupKeywordsTxt);
 
         // Inventory
         IF ApplicationAreaMgmtFacade.IsFoundationEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then
             Sender.InsertManualSetup(InventorySetupTitleTxt, InventorySetupShortTitleTxt, InventorySetupDescriptionTxt, 5, ObjectType::Page,
-              PAGE::"Inventory Setup", ManualSetupCategory::Inventory, InventorySetupKeywordsTxt);
+              Page::"Inventory Setup", ManualSetupCategory::Inventory, InventorySetupKeywordsTxt);
 
         if ApplicationAreaMgmtFacade.IsSuiteEnabled() OR ApplicationAreaMgmtFacade.IsAllDisabled() then
             Sender.InsertManualSetup(WarehouseSetupTitleTxt, WarehouseSetupShortTitleTxt, WarehouseSetupDescriptionTxt, 10, ObjectType::Page,
-                  PAGE::"Warehouse Setup", ManualSetupCategory::Inventory, WarehouseSetupKeywordsTxt);
+                  Page::"Warehouse Setup", ManualSetupCategory::Inventory, WarehouseSetupKeywordsTxt);
 
         // Location
         IF ApplicationAreaMgmtFacade.IsLocationEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then begin
             Sender.InsertManualSetup(LocationsTitleTxt, LocationsShortTitleTxt, LocationsDescriptionTxt, 2, ObjectType::Page,
-              PAGE::"Location List", ManualSetupCategory::Inventory, LocationsKeywordsTxt);
+              Page::"Location List", ManualSetupCategory::Inventory, LocationsKeywordsTxt);
 
             Sender.InsertManualSetup(TransferRoutesTitleTxt, TransferRoutesShortTitleTxt, TransferRoutesDescriptionTxt, 5, ObjectType::Page,
-              PAGE::"Transfer Routes", ManualSetupCategory::Inventory, TransferRoutesKeywordsTxt);
+              Page::"Transfer Routes", ManualSetupCategory::Inventory, TransferRoutesKeywordsTxt);
         end;
 
         // Item Charges
         IF ApplicationAreaMgmtFacade.IsItemChargesEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then
             Sender.InsertManualSetup(ItemChargesTitleTxt, ItemChargesShortTitleTxt, ItemChargesDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"Item Charges", ManualSetupCategory::Inventory, ItemChargesKeywordsTxt);
+              Page::"Item Charges", ManualSetupCategory::Inventory, ItemChargesKeywordsTxt);
 
         // Relationship Management
         IF ApplicationAreaMgmtFacade.IsSuiteEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then begin
             Sender.InsertManualSetup(BusinessRelationsTitleTxt, BusinessRelationsShortTitleTxt, BusinessRelationsDescriptionTxt, 3, ObjectType::Page,
-              PAGE::"Business Relations", ManualSetupCategory::"Relationship Mgt", BusinessRelationsKeywordsTxt);
+              Page::"Business Relations", ManualSetupCategory::"Relationship Mgt", BusinessRelationsKeywordsTxt);
 
             Sender.InsertManualSetup(IndustryGroupsTitleTxt, IndustryGroupsShortTitleTxt, IndustryGroupsDescriptionTxt, 3, ObjectType::Page,
-              PAGE::"Industry Groups", ManualSetupCategory::"Relationship Mgt", IndustryGroupsKeywordsTxt);
+              Page::"Industry Groups", ManualSetupCategory::"Relationship Mgt", IndustryGroupsKeywordsTxt);
 
             Sender.InsertManualSetup(WebSourcesTitleTxt, WebSourcesShortTitleTxt, WebSourcesDescriptionTxt, 2, ObjectType::Page,
-              PAGE::"Web Sources", ManualSetupCategory::"Relationship Mgt", WebSourcesKeywordsTxt);
+              Page::"Web Sources", ManualSetupCategory::"Relationship Mgt", WebSourcesKeywordsTxt);
 
             Sender.InsertManualSetup(JobResponsibilitiesTitleTxt, JobResponsibilitiesShortTitleTxt, JobResponsibilitiesDescriptionTxt, 3, ObjectType::Page,
-              PAGE::"Job Responsibilities", ManualSetupCategory::"Relationship Mgt", JobResponsibilitiesKeywordsTxt);
+              Page::"Job Responsibilities", ManualSetupCategory::"Relationship Mgt", JobResponsibilitiesKeywordsTxt);
 
             Sender.InsertManualSetup(OrganizationalLevelsTitleTxt, OrganizationalLevelsShortTitleTxt, OrganizationalLevelsDescriptionTxt, 2, ObjectType::Page,
-              PAGE::"Organizational Levels", ManualSetupCategory::"Relationship Mgt", OrganizationalLevelsKeywordsTxt);
+              Page::"Organizational Levels", ManualSetupCategory::"Relationship Mgt", OrganizationalLevelsKeywordsTxt);
 
             Sender.InsertManualSetup(InteractionGroupsTitleTxt, InteractionGroupsShortTitleTxt, InteractionGroupsDescriptionTxt, 3, ObjectType::Page,
-              PAGE::"Interaction Groups", ManualSetupCategory::"Relationship Mgt", InteractionGroupsKeywordsTxt);
+              Page::"Interaction Groups", ManualSetupCategory::"Relationship Mgt", InteractionGroupsKeywordsTxt);
 
             Sender.InsertManualSetup(InteractionTemplatesTitleTxt, InteractionTemplatesShortTitleTxt, InteractionTemplatesDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"Interaction Templates", ManualSetupCategory::"Relationship Mgt", InteractionTemplatesKeywordsTxt);
+              Page::"Interaction Templates", ManualSetupCategory::"Relationship Mgt", InteractionTemplatesKeywordsTxt);
 
             Sender.InsertManualSetup(SalutationsTitleTxt, SalutationsShortTitleTxt, SalutationsDescriptionTxt, 2, ObjectType::Page,
-              PAGE::Salutations, ManualSetupCategory::"Relationship Mgt", SalutationsKeywordsTxt);
+              Page::Salutations, ManualSetupCategory::"Relationship Mgt", SalutationsKeywordsTxt);
 
             Sender.InsertManualSetup(MailingGroupsTitleTxt, MailingGroupsShortTitleTxt, MailingGroupsDescriptionTxt, 3, ObjectType::Page,
-              PAGE::"Mailing Groups", ManualSetupCategory::"Relationship Mgt", MailingGroupsKeywordsTxt);
+              Page::"Mailing Groups", ManualSetupCategory::"Relationship Mgt", MailingGroupsKeywordsTxt);
 
             Sender.InsertManualSetup(SalesCyclesTitleTxt, SalesCyclesShortTitleTxt, SalesCyclesDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"Sales Cycles", ManualSetupCategory::"Relationship Mgt", SalesCyclesKeywordsTxt);
+              Page::"Sales Cycles", ManualSetupCategory::"Relationship Mgt", SalesCyclesKeywordsTxt);
 
             Sender.InsertManualSetup(CloseOpportunityCodesTitleTxt, CloseOpportunityCodesShortTitleTxt, CloseOpportunityCodesDescriptionTxt, 2, ObjectType::Page,
-              PAGE::"Close Opportunity Codes", ManualSetupCategory::"Relationship Mgt", CloseOpportunityCodesKeywordsTxt);
+              Page::"Close Opportunity Codes", ManualSetupCategory::"Relationship Mgt", CloseOpportunityCodesKeywordsTxt);
 
             Sender.InsertManualSetup(QuestionnaireSetupTitleTxt, QuestionnaireSetupShortTitleTxt, QuestionnaireSetupDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"Profile Questionnaires", ManualSetupCategory::"Relationship Mgt", QuestionnaireSetupKeywordsTxt);
+              Page::"Profile Questionnaires", ManualSetupCategory::"Relationship Mgt", QuestionnaireSetupKeywordsTxt);
 
             Sender.InsertManualSetup(ActivitiesTitleTxt, ActivitiesShortTitleTxt, ActivitiesDescriptionTxt, 2, ObjectType::Page,
-              PAGE::"Activity List", ManualSetupCategory::"Relationship Mgt", ActivitiesKeywordsTxt);
+              Page::"Activity List", ManualSetupCategory::"Relationship Mgt", ActivitiesKeywordsTxt);
 
             Sender.InsertManualSetup(MarketingSetupTitleTxt, MarketingSetupShortTitleTxt, MarketingSetupDescriptionTxt, 5, ObjectType::Page,
-              PAGE::"Marketing Setup", ManualSetupCategory::"Relationship Mgt", MarketingSetupKeywordsTxt);
+              Page::"Marketing Setup", ManualSetupCategory::"Relationship Mgt", MarketingSetupKeywordsTxt);
 
             Sender.InsertManualSetup(InteractionTemplateSetupTitleTxt, InteractionTemplateSetupShortTitleTxt, InteractionTemplateSetupDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"Interaction Template Setup", ManualSetupCategory::"Relationship Mgt", InteractionTemplateSetupKeywordsTxt);
+              Page::"Interaction Template Setup", ManualSetupCategory::"Relationship Mgt", InteractionTemplateSetupKeywordsTxt);
         end;
 
         // Service
         IF ApplicationAreaMgmtFacade.IsFoundationEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then
             Sender.InsertManualSetup(OnlineMapSetupTitleTxt, OnlineMapSetupShortTitleTxt, OnlineMapSetupDescriptionTxt, 2, ObjectType::Page,
-              PAGE::"Online Map Setup", ManualSetupCategory::Service, OnlineMapSetupKeywordsTxt);
+              Page::"Online Map Setup", ManualSetupCategory::Service, OnlineMapSetupKeywordsTxt);
 
         // Sales
         IF ApplicationAreaMgmtFacade.IsFoundationEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then
             Sender.InsertManualSetup(SalesReceivablesSetupTitleTxt, SalesReceivablesSetupShortTitleTxt, SalesReceivablesSetupDescriptionTxt, 15, ObjectType::Page,
-              PAGE::"Sales & Receivables Setup", ManualSetupCategory::Sales, SalesReceivablesSetupKeywordsTxt);
+              Page::"Sales & Receivables Setup", ManualSetupCategory::Sales, SalesReceivablesSetupKeywordsTxt);
 
         // Purchasing
         IF ApplicationAreaMgmtFacade.IsFoundationEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then
             Sender.InsertManualSetup(PurchasePayablesSetupTitleTxt, PurchasePayablesSetupShortTitleTxt, PurchasePayablesSetupDescriptionTxt, 15, ObjectType::Page,
-              PAGE::"Purchases & Payables Setup", ManualSetupCategory::Purchasing, PurchasePayablesSetupKeywordsTxt);
+              Page::"Purchases & Payables Setup", ManualSetupCategory::Purchasing, PurchasePayablesSetupKeywordsTxt);
 
         // Intercompany
         IF ApplicationAreaMgmtFacade.IsIntercompanyEnabled OR ApplicationAreaMgmtFacade.IsAllDisabled then begin
             Sender.InsertManualSetup(ICSetupTitleTxt, ICSetupShortTitleTxt, ICSetupDescriptionTxt, 2, ObjectType::Page,
-              PAGE::"IC Setup", ManualSetupCategory::Intercompany, ICSetupKeywordsTxt);
+              Page::"IC Setup", ManualSetupCategory::Intercompany, ICSetupKeywordsTxt);
 
             Sender.InsertManualSetup(ICPartnersTitleTxt, ICPartnersShortTitleTxt, ICPartnersDescriptionTxt, 5, ObjectType::Page,
-              PAGE::"IC Partner List", ManualSetupCategory::Intercompany, ICPartnersKeywordsTxt);
+              Page::"IC Partner List", ManualSetupCategory::Intercompany, ICPartnersKeywordsTxt);
 
             Sender.InsertManualSetup(ICChartOfAccountsTitleTxt, ICChartOfAccountsShortTitleTxt, ICChartOfAccountsDescriptionTxt, 10, ObjectType::Page,
-              PAGE::"IC Chart of Accounts", ManualSetupCategory::Intercompany, ICChartOfAccountsKeywordsTxt);
+              Page::"IC Chart of Accounts", ManualSetupCategory::Intercompany, ICChartOfAccountsKeywordsTxt);
 
             Sender.InsertManualSetup(ICDimensionsTitleTxt, ICDimensionsShortTitleTxt, ICDimensionsDescriptionTxt, 3, ObjectType::Page,
-              PAGE::"IC Dimension List", ManualSetupCategory::Intercompany, ICDimensionsKeywordsTxt);
+              Page::"IC Dimension List", ManualSetupCategory::Intercompany, ICDimensionsKeywordsTxt);
         end;
-
-        // SmartList Designer
-        IF ApplicationAreaMgmtFacade.IsFoundationEnabled() OR ApplicationAreaMgmtFacade.IsAllDisabled() then
-            Sender.InsertManualSetup(SmartListDesignerTitleTxt, SmartListDesignerShortTitleTxt, SmartListDesignerDescriptionTxt, 5, ObjectType::Page,
-              PAGE::"SmartList Designer Setup", ManualSetupCategory::System, SmartListDesignerKeywordsTxt);
     end;
 }
 

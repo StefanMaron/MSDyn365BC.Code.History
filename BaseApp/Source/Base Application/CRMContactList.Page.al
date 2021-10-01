@@ -122,6 +122,34 @@ page 5342 "CRM Contact List"
                     CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(CRMContact);
                 end;
             }
+            action(ShowOnlyUncoupled)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Hide Coupled Contacts';
+                Image = FilterLines;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Do not show coupled contacts.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(true);
+                end;
+            }
+            action(ShowAll)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Show Coupled Contacts';
+                Image = ClearFilter;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Show coupled contacts.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(false);
+                end;
+            }
         }
     }
 
@@ -134,13 +162,16 @@ page 5342 "CRM Contact List"
             if CurrentlyCoupledCRMContact.ContactId = ContactId then begin
                 Coupled := 'Current';
                 FirstColumnStyle := 'Strong';
+                Mark(true);
             end else begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
+                Mark(false);
             end
         else begin
             Coupled := 'No';
             FirstColumnStyle := 'None';
+            Mark(true);
         end;
     end;
 

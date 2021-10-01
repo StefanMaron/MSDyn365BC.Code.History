@@ -304,7 +304,7 @@ report 7131 "Import Item Budget from Excel"
                             if ItemBudgetManagement.DimCodeNotAllowed(ColumnDimCode, ItemBudgetName) then
                                 Error(Text020, ColumnDimCode);
 
-                            ItemBudgetManagement.SetLineAndColDim(
+                            ItemBudgetManagement.SetLineAndColumnDim(
                               ItemBudgetName,
                               LineDimCode,
                               LineDimOption,

@@ -424,7 +424,7 @@ codeunit 131904 "Library - Time Sheet"
         AssemblyHeader.Validate("Posting Date", CalcDate('<+3D>', Date));
         AssemblyHeader.Modify();
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Resource, Resource."No.", Resource."Base Unit of Measure", 8, 8, 'Working resource');
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Resource, Resource."No.", Resource."Base Unit of Measure", 8, 8, 'Working resource');
     end;
 
     procedure InitBackwayScenario(var TimeSheetHeader: Record "Time Sheet Header"; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")

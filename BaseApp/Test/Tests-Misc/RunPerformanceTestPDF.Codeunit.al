@@ -15,18 +15,6 @@ codeunit 132499 RunPerformanceTestPDF
     end;
 
     [Scope('OnPrem')]
-    procedure GeneratePDFTestT01(): Text[255]
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        SalesInvoiceHeader.Init();
-        SalesInvoiceHeader.SetFilter("No.", '103001');
-        SetPdfFileName;
-        REPORT.SaveAsPdf(REPORT::"Sales - Invoice", fileName, SalesInvoiceHeader);
-        exit(fileName);
-    end;
-
-    [Scope('OnPrem')]
     procedure GeneratePDFTestT02(): Text[255]
     var
         SalesHeader: Record "Sales Header";
@@ -34,7 +22,7 @@ codeunit 132499 RunPerformanceTestPDF
         SalesHeader.Init();
         SalesHeader.SetFilter("No.", '101005');
         SetPdfFileName;
-        REPORT.SaveAsPdf(REPORT::"Order Confirmation", fileName, SalesHeader);
+        REPORT.SaveAsPdf(REPORT::"Standard Sales - Order Conf.", fileName, SalesHeader);
         exit(fileName);
     end;
 

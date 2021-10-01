@@ -112,6 +112,8 @@ report 5696 "Date Compress FA Ledger"
             begin
                 if DateComprReg."No. Records Deleted" > NoOfDeleted then
                     InsertRegisters(FAReg, DateComprReg);
+                if UseDataArchive then
+                    DataArchive.Save();
             end;
 
             trigger OnPreDataItem()
@@ -151,6 +153,9 @@ report 5696 "Date Compress FA Ledger"
                 SetRange("FA Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
                 InitRegisters;
+
+                if UseDataArchive then
+                    DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress FA Ledger"));
             end;
         }
     }
@@ -232,6 +237,13 @@ report 5696 "Date Compress FA Ledger"
                             DimSelectionBuf.SetDimSelectionMultiple(3, REPORT::"Date Compress FA Ledger", RetainDimText);
                         end;
                     }
+                    field(UseDataArchiveCtrl; UseDataArchive)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Archive Deleted Entries';
+                        ToolTip = 'Specifies whether the deleted (compressed) entries will be stored in the data archive for later inspection or export.';
+                        Visible = DataArchiveProviderExists;
+                    }
                 }
             }
         }
@@ -268,6 +280,13 @@ report 5696 "Date Compress FA Ledger"
             end;
 
             RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compress FA Ledger", '');
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+            UseDataArchive := DataArchiveProviderExists;
+        end;
+
+        trigger OnInit()
+        begin
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         end;
     }
 
@@ -331,6 +350,7 @@ report 5696 "Date Compress FA Ledger"
         DimMgt: Codeunit DimensionManagement;
         FACheckConsistency: Codeunit "FA Check Consistency";
         FADimMgt: Codeunit FADimensionManagement;
+        DataArchive: Codeunit "Data Archive";
         Window: Dialog;
         FALedgEntryFilter: Text[250];
         NoOfFields: Integer;
@@ -342,6 +362,9 @@ report 5696 "Date Compress FA Ledger"
         FARegExists: Boolean;
         i: Integer;
         RetainDimText: Text[250];
+        UseDataArchive: Boolean;
+        [InDataSet]
+        DataArchiveProviderExists: Boolean;
         EqualDim: Boolean;
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
@@ -458,6 +481,8 @@ report 5696 "Date Compress FA Ledger"
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;
+        if UseDataArchive then
+            DataArchive.SaveRecord(FALedgEntry);
     end;
 
     local procedure InsertNewEntry(var NewFALedgEntry: Record "FA Ledger Entry")
@@ -476,6 +501,11 @@ report 5696 "Date Compress FA Ledger"
 
     procedure InitializeRequest(StartingDateFrom: Date; EndingDateFrom: Date; PeriodLengthFrom: Option; DescriptionFrom: Text[100]; RetainDimTextFrom: Text[250])
     begin
+        InitializeRequest(StartingDateFrom, EndingDateFrom, PeriodLengthFrom, DescriptionFrom, RetainDimTextFrom, true);
+    end;
+
+    procedure InitializeRequest(StartingDateFrom: Date; EndingDateFrom: Date; PeriodLengthFrom: Option; DescriptionFrom: Text[100]; RetainDimTextFrom: Text[250]; DoUseDataArchive: Boolean)
+    begin
         EntrdDateComprReg."Starting Date" := StartingDateFrom;
         EntrdDateComprReg."Ending Date" := EndingDateFrom;
         EntrdDateComprReg."Period Length" := PeriodLengthFrom;
@@ -485,6 +515,9 @@ report 5696 "Date Compress FA Ledger"
         InsertField("FA Ledger Entry".FieldNo("Reclassification Entry"), "FA Ledger Entry".FieldCaption("Reclassification Entry"));
         InsertField("FA Ledger Entry".FieldNo("Global Dimension 1 Code"), "FA Ledger Entry".FieldCaption("Global Dimension 1 Code"));
         InsertField("FA Ledger Entry".FieldNo("Global Dimension 2 Code"), "FA Ledger Entry".FieldCaption("Global Dimension 2 Code"));
+
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
     end;
 
     procedure SetRetainDocumentNo(RetainValue: Boolean)
@@ -497,16 +530,14 @@ report 5696 "Date Compress FA Ledger"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
         TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
         TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
         TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
-        // TelemetryDimensions.Add('Description', EntrdFALedgEntry.Description);
         TelemetryDimensions.Add('RetainDimensions', RetainDimText);
-        // TelemetryDimensions.Add('Filters', "FA Ledger Entry".GetFilters());
+        TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F4M', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
@@ -515,7 +546,6 @@ report 5696 "Date Compress FA Ledger"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));

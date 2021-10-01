@@ -14,6 +14,7 @@ codeunit 138011 "O365 Demo Templates Test"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         isInitialized: Boolean;
 
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure TestApplyAllCustomerTemplates()
@@ -76,6 +77,7 @@ codeunit 138011 "O365 Demo Templates Test"
                 ValidateRecRefVsConfigTemplate(RecRef, ConfigTemplateHeader.Code);
             until ConfigTemplateHeader.Next = 0;
     end;
+#endif
 
     local procedure ValidateRecRefVsConfigTemplate(RecRef: RecordRef; TemplateCode: Code[10])
     var

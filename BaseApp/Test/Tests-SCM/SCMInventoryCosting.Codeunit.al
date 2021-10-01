@@ -23,7 +23,6 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         CalculatePerValues: Option "Item Ledger Entry",Item;
         CalculationBaseValues: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
@@ -441,7 +440,7 @@ codeunit 137007 "SCM Inventory Costing"
         // [SCENARIO 379224] Cost Amount of Item with Average Costing Method and big Inventory should be equal to what was posted by Revaluation Journal. Average Cost is calculated by Item.
         Initialize;
 
-        LibraryInventory.SetAverageCostSetup(AverageCostCalcType::Item, AverageCostPeriod::Week);
+        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Week);
 
         // [GIVEN] Item with Average Costing Method and big Inventory.
         // [GIVEN] Calculated Inventory Value by Item in Revaluation Journal, "Inventory Value (Revalued)" field is updated to 'R'.
@@ -465,7 +464,7 @@ codeunit 137007 "SCM Inventory Costing"
         // [SCENARIO 379224] Cost Amount of Item with Average Costing Method and big Inventory should be equal to what was posted by Revaluation Journal. Average Cost is calculated by Item & Location & Variant.
         Initialize;
 
-        LibraryInventory.SetAverageCostSetup(AverageCostCalcType::"Item & Location & Variant", AverageCostPeriod::Week);
+        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Week);
 
         // [GIVEN] Item with Average Costing Method and big Inventory.
         // [GIVEN] Calculated Inventory Value by Item & Location & Variant in Revaluation Journal, "Inventory Value (Revalued)" field is updated to 'R'.
@@ -531,7 +530,7 @@ codeunit 137007 "SCM Inventory Costing"
         Initialize;
 
         // [GIVEN] Set "Average Cost Calcultion Type" = "Item"
-        LibraryInventory.SetAverageCostSetup(AverageCostCalcType::Item, AverageCostPeriod::Day);
+        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         // [GIVEN] Item "I" with 2 stockkeeping units on locations "L1" and "L2"
         CreateItemAndLocationSetup(Item, Location);
@@ -560,7 +559,7 @@ codeunit 137007 "SCM Inventory Costing"
         Initialize;
 
         // [GIVEN] Set "Average Cost Calcultion Type" = "Item & Location & Variant"
-        LibraryInventory.SetAverageCostSetup(AverageCostCalcType::"Item & Location & Variant", AverageCostPeriod::Day);
+        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
 
         // [GIVEN] Item "I" with 2 stockkeeping units on locations "L1" and "L2"
         CreateItemAndLocationSetup(Item, Location);
@@ -756,7 +755,7 @@ codeunit 137007 "SCM Inventory Costing"
 
         Initialize;
 
-        LibraryInventory.SetAverageCostSetup(AverageCostCalcType::Item, AverageCostPeriod::Day);
+        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         // [GIVEN] Item "I" with Average costing method, Unit Cost = 100
         UnitCostOriginal := LibraryRandom.RandDec(100, 2);
@@ -1221,7 +1220,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryInventory.SetAutomaticCostPosting(AutomaticCostPosting);
         LibraryInventory.SetExpectedCostPosting(false);
         LibraryInventory.SetAutomaticCostAdjmtNever;
-        LibraryInventory.SetAverageCostSetup(AverageCostCalcType::Item, AverageCostPeriod::Day);
+        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         // Create Items with Costing Method FIFO, False if Cost is different from expected.
         CreateItem(Item, Item."Costing Method"::FIFO, Item."Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Forward, '', '', CostExpected);

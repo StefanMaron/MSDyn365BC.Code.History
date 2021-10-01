@@ -1,6 +1,6 @@
 page 9003 "Acc. Receivables Adm. RC"
 {
-    Caption = 'Accounts Receivable Administrator', Comment = '{Dependency=Match,"ProfileDescription_ARADMINISTRATOR"}';
+    Caption = 'Accounts Receivable Administrator';
     PageType = RoleCenter;
 
     layout

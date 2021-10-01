@@ -170,7 +170,7 @@ page 7338 "Posted Whse. Shipment Subform"
 
     local procedure ShowWhseLine()
     begin
-        WMSMgt.ShowWhseDocLine(2, "Whse. Shipment No.", "Whse Shipment Line No.");
+        WMSMgt.ShowPostedWhseShptLine("Whse. Shipment No.", "Whse Shipment Line No.");
     end;
 }
 

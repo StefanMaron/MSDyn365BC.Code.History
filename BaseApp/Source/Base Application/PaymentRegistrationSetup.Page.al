@@ -43,13 +43,13 @@ page 982 "Payment Registration Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Use this Account as Default';
-                    ToolTip = 'Specifies if the Date Received and the Amount Received fields are automatically filled when you select the Payment Made check box.';
+                    ToolTip = 'Specifies if the account in the Bal. Account No. field is used for all payments.';
                 }
                 field("Auto Fill Date Received"; "Auto Fill Date Received")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Automatically Fill Date Received';
-                    ToolTip = 'Specifies if the account in the Bal. Account No. field is used for all payments.';
+                    ToolTip = 'Specifies if the Date Received and the Amount Received fields are automatically filled when you select the Payment Made check box.';
                 }
             }
         }

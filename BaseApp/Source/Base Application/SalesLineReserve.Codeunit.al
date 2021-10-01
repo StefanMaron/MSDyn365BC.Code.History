@@ -1,4 +1,4 @@
-﻿codeunit 99000832 "Sales Line-Reserve"
+codeunit 99000832 "Sales Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Planning Assignment" = rimd;
@@ -84,19 +84,7 @@
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by CreateReservation(SalesLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
-    procedure CreateReservation(SalesLine: Record "Sales Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
-    var
-        ForReservEntry: Record "Reservation Entry";
-    begin
-        ForReservEntry."Serial No." := ForSerialNo;
-        ForReservEntry."Lot No." := ForLotNo;
-        CreateReservation(SalesLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
-    end;
-#endif
-
-    local procedure CreateBindingReservation(SalesLine: Record "Sales Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
+    procedure CreateBindingReservation(SalesLine: Record "Sales Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
     var
         DummyReservEntry: Record "Reservation Entry";
     begin
@@ -117,14 +105,6 @@
     begin
         CreateReservEntry.SetDisallowCancellation(DisallowCancellation);
     end;
-
-#if not CLEAN16
-    [Obsolete('Replaced by SalesLine.SetReservationFilters(FilterReservEntry)', '16.0')]
-    procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line")
-    begin
-        SalesLine.SetReservationFilters(FilterReservEntry);
-    end;
-#endif
 
     procedure ReservQuantity(SalesLine: Record "Sales Line"; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal)
     begin
@@ -448,9 +428,9 @@
            ((SalesLine."Document Type" = SalesLine."Document Type"::"Credit Memo") and
             (SalesLine."Return Receipt No." <> ''))
         then
-            ItemTrackingLines.SetFormRunMode(2); // Combined shipment/receipt
+            ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Combined Ship/Rcpt");
         if SalesLine."Drop Shipment" then begin
-            ItemTrackingLines.SetFormRunMode(3); // Drop Shipment
+            ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Drop Shipment");
             if SalesLine."Purchase Order No." <> '' then
                 ItemTrackingLines.SetSecondSourceRowID(ItemTrackingMgt.ComposeRowID(DATABASE::"Purchase Line",
                     1, SalesLine."Purchase Order No.", '', 0, SalesLine."Purch. Order Line No."));

@@ -26,15 +26,13 @@ table 841 "Cash Flow Account"
         {
             Caption = 'Search Name';
         }
-        field(4; "Account Type"; Option)
+        field(4; "Account Type"; Enum "Cash Flow Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'Entry,Heading,Total,Begin-Total,End-Total';
-            OptionMembers = Entry,Heading,Total,"Begin-Total","End-Total";
         }
         field(5; Comment; Boolean)
         {
-            CalcFormula = Exist ("Cash Flow Account Comment" WHERE("Table Name" = CONST("Cash Flow Account"),
+            CalcFormula = Exist("Cash Flow Account Comment" WHERE("Table Name" = CONST("Cash Flow Account"),
                                                                    "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -82,7 +80,7 @@ table 841 "Cash Flow Account"
         }
         field(13; Amount; Decimal)
         {
-            CalcFormula = Sum ("Cash Flow Forecast Entry"."Amount (LCY)" WHERE("Cash Flow Account No." = FIELD("No."),
+            CalcFormula = Sum("Cash Flow Forecast Entry"."Amount (LCY)" WHERE("Cash Flow Account No." = FIELD("No."),
                                                                                "Cash Flow Account No." = FIELD(FILTER(Totaling)),
                                                                                "Cash Flow Forecast No." = FIELD("Cash Flow Forecast Filter"),
                                                                                "Cash Flow Date" = FIELD("Date Filter"),

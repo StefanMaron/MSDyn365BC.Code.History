@@ -82,9 +82,6 @@ table 5401 "Item Variant"
         ItemTranslation: Record "Item Translation";
         SKU: Record "Stockkeeping Unit";
         ItemIdent: Record "Item Identifier";
-#if not CLEAN16
-        ItemCrossReference: Record "Item Cross Reference";
-#endif
         ItemReference: Record "Item Reference";
         BOMComp: Record "BOM Component";
         ItemJnlLine: Record "Item Journal Line";
@@ -242,12 +239,6 @@ table 5401 "Item Variant"
         ItemIdent.SetRange("Item No.", "Item No.");
         ItemIdent.SetRange("Variant Code", Code);
         ItemIdent.DeleteAll();
-
-#if not CLEAN16
-        ItemCrossReference.SetRange("Item No.", "Item No.");
-        ItemCrossReference.SetRange("Variant Code", Code);
-        ItemCrossReference.DeleteAll();
-#endif
 
         ItemReference.SetRange("Item No.", "Item No.");
         ItemReference.SetRange("Variant Code", Code);

@@ -2895,17 +2895,17 @@ codeunit 134198 "Price Worksheet Line UT"
     end;
 
     [ModalPageHandler]
-    procedure LookupCustomerModalHandler(var CustomerList: testpage "Customer List")
+    procedure LookupCustomerModalHandler(var CustomerLookup: testpage "Customer Lookup")
     begin
-        CustomerList.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
-        CustomerList.OK().Invoke();
+        CustomerLookup.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        CustomerLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]
-    procedure LookupItemModalHandler(var ItemList: testpage "Item List")
+    procedure LookupItemModalHandler(var ItemLookup: testpage "Item Lookup")
     begin
-        ItemList.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
-        ItemList.OK().Invoke();
+        ItemLookup.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ItemLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]

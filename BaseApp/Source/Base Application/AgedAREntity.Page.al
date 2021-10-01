@@ -1,19 +1,23 @@
 page 5499 "Aged AR Entity"
 {
     Caption = 'agedAccountsReceivable', Locked = true;
-    DelayedInsert = true;
     DeleteAllowed = false;
     Editable = false;
-    EntityName = 'agedAccountsReceivable';
-    EntitySetName = 'agedAccountsReceivable';
     InsertAllowed = false;
     ModifyAllowed = false;
-    PageType = API;
     SourceTable = "Aged Report Entity";
-    SourceTableTemporary = true;
+#if not CLEAN18
+    PageType = API;
+    EntityName = 'agedAccountsReceivable';
+    EntitySetName = 'agedAccountsReceivable';
+    DelayedInsert = true;
+#else
     ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteReason = 'API version beta will be deprecated. This page will be changed to List type.';
     ObsoleteTag = '18.0';
+    PageType = List;
+#endif
+    SourceTableTemporary = true;
 
     layout
     {
@@ -94,4 +98,3 @@ page 5499 "Aged AR Entity"
         GraphMgtReports.SetUpAgedReportAPIData(RecVariant, ReportAPIType::"Aged Accounts Receivable");
     end;
 }
-

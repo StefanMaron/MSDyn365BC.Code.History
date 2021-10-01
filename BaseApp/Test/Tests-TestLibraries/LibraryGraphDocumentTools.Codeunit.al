@@ -916,11 +916,13 @@ codeunit 130619 "Library - Graph Document Tools"
         GraphIntegrationRecord.Insert();
     end;
 
+#if not CLEAN18
     [Scope('OnPrem')]
     procedure CreateCustomerFromContact(var Customer: Record Customer; Contact: Record Contact)
     begin
         LibraryMarketing.CreateCustomerFromContact(Customer, Contact);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure VerifyValidDiscountAmount(ResponseText: Text; ExpectedDiscountAmount: Decimal)

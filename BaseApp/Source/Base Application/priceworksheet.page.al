@@ -416,24 +416,25 @@ page 7022 "Price Worksheet"
 
                     trigger OnAction()
                     var
-                        ODataUtility: Codeunit ODataUtility;
+                        EditinExcel: Codeunit "Edit in Excel";
                         FilterValue: Text;
                     begin
                         FilterValue := StrSubstNo(WorksheetFilterLbl, Rec."Price Type", Rec."Source Group");
-                        ODataUtility.EditWorksheetInExcel(CopyStr(CurrPage.Caption, 1, 240), CurrPage.ObjectId(false), FilterValue);
+                        EditinExcel.EditPageInExcel(CopyStr(CurrPage.Caption, 1, 240), CurrPage.ObjectId(false), FilterValue);
                     end;
                 }
             }
         }
     }
 
+#if not CLEAN19
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
         FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
-
+#endif
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec.SetNewRecord(true);

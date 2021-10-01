@@ -301,7 +301,7 @@ page 99000900 "Avail. - Planning Components"
         OnAfterUpdateReservMgt(ReservEntry);
     end;
 
-    local procedure GetReservedQtyInLine(): Decimal
+    protected procedure GetReservedQtyInLine(): Decimal
     begin
         ReservEntry2.Reset();
         SetReservationFilters(ReservEntry2);

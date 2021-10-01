@@ -68,6 +68,7 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
         PriceListLine."Currency Code" := '';
         PriceListLine."Price Type" := PriceCalculationBuffer."Price Type";
         PriceListLine."Asset Type" := PriceListLine."Asset Type"::Resource;
+        PriceListLine."Asset No." := PriceCalculationBuffer."Asset No.";
         PriceListLine."Work Type Code" := PriceCalculationBuffer."Work Type Code";
         if AmountType <> AmountType::Discount then
             case PriceCalculationBuffer."Price Type" of

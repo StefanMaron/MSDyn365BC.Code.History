@@ -92,10 +92,10 @@ page 9100 "Purchase Line FactBox"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ClearPurchaseHeader();
+        Rec.ClearPurchaseHeader();
     end;
 
-    var
+    protected var
         PurchInfoPaneMgt: Codeunit "Purchases Info-Pane Management";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
 
@@ -103,8 +103,8 @@ page 9100 "Purchase Line FactBox"
     var
         Item: Record Item;
     begin
-        if Type = Type::Item then begin
-            Item.Get("No.");
+        if Rec.Type = Rec.Type::Item then begin
+            Item.Get(Rec."No.");
             PAGE.Run(PAGE::"Item Card", Item);
         end;
     end;

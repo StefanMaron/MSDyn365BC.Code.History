@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 890 "Query Navigation Builder"
 {
     Access = internal;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     internal procedure LookupValidFilteringDataItemMetadataForSourceReference(SourceQueryRecId: BigInteger; TargetPageId: integer; var LinkingDataItemName: Text[120]): Boolean
     var
@@ -72,3 +76,4 @@ codeunit 890 "Query Navigation Builder"
         exit(true);
     end;
 }
+#endif

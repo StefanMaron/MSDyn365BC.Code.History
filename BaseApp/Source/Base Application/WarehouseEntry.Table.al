@@ -123,11 +123,9 @@ table 7312 "Warehouse Entry"
         {
             Caption = 'Whse. Document No.';
         }
-        field(51; "Whse. Document Type"; Option)
+        field(51; "Whse. Document Type"; Enum "Warehouse Journal Document Type")
         {
             Caption = 'Whse. Document Type';
-            OptionCaption = 'Whse. Journal,Receipt,Shipment,Internal Put-away,Internal Pick,Production,Whse. Phys. Inventory, ,Assembly';
-            OptionMembers = "Whse. Journal",Receipt,Shipment,"Internal Put-away","Internal Pick",Production,"Whse. Phys. Inventory"," ",Assembly;
         }
         field(52; "Whse. Document Line No."; Integer)
         {

@@ -151,12 +151,16 @@ report 5979 "Copy Service Document"
     end;
 
     local procedure LookupDocNo()
+    var
+        ContractType: Enum "Service Contract Type";
     begin
+        ContractType := "Service Contract Type".FromInteger(DocType);
+
         FromServContractHeader.FilterGroup := 2;
-        FromServContractHeader.SetRange("Contract Type", CopyDocMgt.ServContractHeaderDocType(DocType));
-        if ServContractHeader."Contract Type" = CopyDocMgt.ServContractHeaderDocType(DocType) then
+        FromServContractHeader.SetRange("Contract Type", ContractType);
+        if ServContractHeader."Contract Type" = ContractType then
             FromServContractHeader.SetFilter("Contract No.", '<>%1', ServContractHeader."Contract No.");
-        FromServContractHeader."Contract Type" := CopyDocMgt.ServContractHeaderDocType(DocType);
+        FromServContractHeader."Contract Type" := ContractType;
         FromServContractHeader."Contract No." := DocNo;
         FromServContractHeader.SetCurrentKey("Customer No.", "Currency Code", "Ship-to Code");
         FromServContractHeader.SetRange("Customer No.", ServContractHeader."Customer No.");

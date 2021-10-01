@@ -55,6 +55,8 @@ codeunit 132501 "Sales Document Posting Errors"
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst;
         TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        // [THEN] Call Stack contains '"Sales-Post"(CodeUnit 80).CheckAndUpdate '
+        Assert.ExpectedMessage('"Sales-Post"(CodeUnit 80).CheckAndUpdate ', TempErrorMessage.GetErrorCallStack());
         // [THEN] "Context" is 'Sales Header: Invoice, 1001', "Field Name" is 'Posting Date',
         TempErrorMessage.TestField("Context Record ID", SalesHeader.RecordId);
         TempErrorMessage.TestField("Context Table Number", DATABASE::"Sales Header");
@@ -256,7 +258,8 @@ codeunit 132501 "Sales Document Posting Errors"
         repeat
             JobQueueEntry.Status := JobQueueEntry.Status::Ready;
             JobQueueEntry.Modify();
-            Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+            asserterror LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
+            LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
         until JobQueueEntry.Next() = 0;
 
         // [THEN] "Error Message" table contains 3 lines:
@@ -318,7 +321,8 @@ codeunit 132501 "Sales Document Posting Errors"
         SalesBatchPostMgt.RunWithUI(SalesHeader[2], 2, '');
         JobQueueEntry.SetRange("Record ID to Process", SalesHeader[1].RecordId);
         JobQueueEntry.FindFirst();
-        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader[1].RecordId);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader[1].RecordId, true);
+        JobQueueEntry.FindFirst();
 
         // [THEN] "Error Message" page contains 2 lines:
         JobQueueEntries.OpenView();

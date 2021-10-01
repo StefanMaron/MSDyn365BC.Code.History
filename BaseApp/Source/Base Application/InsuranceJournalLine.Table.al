@@ -1,4 +1,4 @@
-﻿table 5635 "Insurance Journal Line"
+table 5635 "Insurance Journal Line"
 {
     Caption = 'Insurance Journal Line';
 

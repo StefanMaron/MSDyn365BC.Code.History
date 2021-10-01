@@ -12,6 +12,9 @@ codeunit 139460 "User Access in SaaS Tests"
     var
         Assert: Codeunit Assert;
         PermissionManager: Codeunit "Permission Manager";
+#if not CLEAN19
+        AzureADUserMgtTestLibrary: Codeunit "Azure AD User Mgt Test Library";
+#endif
         UserEuropeDcst1FullTok: Label 'EUROPE\DCST1';
         UserEuropeDcst2ExternalTok: Label 'EUROPE\DCST2';
         ErrorKeyNotSetErr: Label 'WebServiceKey has not been set.';
@@ -24,6 +27,7 @@ codeunit 139460 "User Access in SaaS Tests"
         NewUsersCannotLoginQst: Label 'You have not specified a user group that will be assigned automatically to new users. If users are not assigned a user group, they cannot sign in. \\Do you want to continue?';
         CannotEditForOtherUsersErr: Label 'You can only change your own web service access keys.';
 
+#if not CLEAN19
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -43,6 +47,8 @@ codeunit 139460 "User Access in SaaS Tests"
 
         // [GIVEN] SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
+        AzureADUserMgtTestLibrary.SetIsUserTenantAdmin(true);
+        BindSubscription(AzureADUserMgtTestLibrary);
 
         // [WHEN] Opening the User Personalization Card
         UserPersonalizationCard.OpenView;
@@ -54,7 +60,10 @@ codeunit 139460 "User Access in SaaS Tests"
         // [THEN] The external user is hidden
         Assert.IsFalse(UserPersonalizationCard.GotoRecord(ExternalUserPersonalization),
           'External users should not be visible in SaaS on page User Personalization Card');
+
         UserPersonalizationCard.Close;
+
+        UnbindSubscription(AzureADUserMgtTestLibrary);
     end;
 
     [Test]
@@ -75,6 +84,8 @@ codeunit 139460 "User Access in SaaS Tests"
 
         // [GIVEN] on-prem or PaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+        AzureADUserMgtTestLibrary.SetIsUserTenantAdmin(true);
+        BindSubscription(AzureADUserMgtTestLibrary);
 
         // [WHEN] Opening the User Personalization Card
         UserPersonalizationCard.OpenView;
@@ -86,7 +97,10 @@ codeunit 139460 "User Access in SaaS Tests"
         // [THEN] The external user is visible
         Assert.IsTrue(UserPersonalizationCard.GotoRecord(ExternalUserPersonalization),
           'External users should be visible in PaaS and on-prem on page User Personalization Card');
+
         UserPersonalizationCard.Close;
+
+        UnbindSubscription(AzureADUserMgtTestLibrary);
     end;
 
     [Test]
@@ -107,6 +121,8 @@ codeunit 139460 "User Access in SaaS Tests"
 
         // [GIVEN] SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
+        AzureADUserMgtTestLibrary.SetIsUserTenantAdmin(true);
+        BindSubscription(AzureADUserMgtTestLibrary);
 
         // [WHEN] Opening the User Personalization Card
         UserPersonalizationList.OpenView;
@@ -118,7 +134,10 @@ codeunit 139460 "User Access in SaaS Tests"
         // [THEN] The external user is hidden
         Assert.IsFalse(UserPersonalizationList.GotoRecord(ExternalUserPersonalization),
           'External users should not be visible in SaaS on page User Personalization List');
+
         UserPersonalizationList.Close;
+
+        UnbindSubscription(AzureADUserMgtTestLibrary);
     end;
 
     [Test]
@@ -139,6 +158,8 @@ codeunit 139460 "User Access in SaaS Tests"
 
         // [GIVEN] on-prem or PaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+        AzureADUserMgtTestLibrary.SetIsUserTenantAdmin(true);
+        BindSubscription(AzureADUserMgtTestLibrary);
 
         // [WHEN] Opening the User Personalization Card
         UserPersonalizationList.OpenView;
@@ -150,8 +171,12 @@ codeunit 139460 "User Access in SaaS Tests"
         // [THEN] The external user is visible
         Assert.IsTrue(UserPersonalizationList.GotoRecord(ExternalUserPersonalization),
           'External users should be visible in PaaS and on-prem on page User Personalization List');
+
         UserPersonalizationList.Close;
+
+        UnbindSubscription(AzureADUserMgtTestLibrary);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SetWebServiceAccessConfirmHandler')]

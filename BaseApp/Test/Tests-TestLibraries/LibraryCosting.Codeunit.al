@@ -347,6 +347,7 @@ codeunit 132200 "Library - Costing"
         end;
     end;
 
+#if not CLEAN19
     procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price"; VendorNo: Code[20]; ItemNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
         PurchasePrice.Init();
@@ -359,7 +360,7 @@ codeunit 132200 "Library - Costing"
         PurchasePrice.Validate("Minimum Quantity", MinimumQuantity);
         PurchasePrice.Insert(true);
     end;
-
+#endif
     procedure CreateRevaluationJournal(var ItemJournalBatch: Record "Item Journal Batch"; var Item: Record Item; NewPostingDate: Date; NewDocNo: Code[20]; NewCalculatePer: Option; NewByLocation: Boolean; NewByVariant: Boolean; NewUpdStdCost: Boolean; NewCalcBase: Option; NewShowDialog: Boolean)
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -390,6 +391,7 @@ codeunit 132200 "Library - Costing"
         CalcInvtValue.RunModal;
     end;
 
+#if not CLEAN19
     procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; ItemNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
     begin
         SalesPrice.Init();
@@ -414,6 +416,7 @@ codeunit 132200 "Library - Costing"
         ImplementPriceChange.SetTableView(SalesPriceWorksheet);
         ImplementPriceChange.RunModal;
     end;
+#endif
 
     local procedure FindFirstValueEntry(ItemLedgerEntryNo: Integer; var FirstEntryNo: Integer; var FirstPostingDate: Date)
     var
@@ -533,6 +536,7 @@ codeunit 132200 "Library - Costing"
         SuggestCapacityStandardCost.Run;
     end;
 
+#if not CLEAN19
     procedure SuggestSalesPriceWorksheet(Item: Record Item; SalesCode: Code[20]; SalesType: Enum "Sales Price Type"; PriceLowerLimit: Decimal; UnitPriceFactor: Decimal)
     var
         SalesPrice: Record "Sales Price";
@@ -578,6 +582,7 @@ codeunit 132200 "Library - Costing"
         SuggestItemPriceOnWksh.UseRequestPage(false);
         SuggestItemPriceOnWksh.RunModal;
     end;
+#endif
 
     procedure SuggestItemStandardCost(var Item: Record Item; StandardCostWorksheetName: Code[10]; StandardCostAdjustmentFactor: Integer; StandardCostRoundingMethod: Code[10])
     var

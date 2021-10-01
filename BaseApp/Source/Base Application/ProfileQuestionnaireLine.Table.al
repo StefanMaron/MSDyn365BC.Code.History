@@ -15,11 +15,9 @@ table 5088 "Profile Questionnaire Line"
         {
             Caption = 'Line No.';
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Profile Questionnaire Line Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Question,Answer';
-            OptionMembers = Question,Answer;
 
             trigger OnValidate()
             begin
@@ -81,11 +79,9 @@ table 5088 "Profile Questionnaire Line"
                 end;
             end;
         }
-        field(7; "Customer Class. Field"; Option)
+        field(7; "Customer Class. Field"; Enum "Profile Quest. Cust. Class. Field")
         {
             Caption = 'Customer Class. Field';
-            OptionCaption = ' ,Sales (LCY),Profit (LCY),Sales Frequency (Invoices/Year),Avg. Invoice Amount (LCY),Discount (%),Avg. Overdue (Day)';
-            OptionMembers = " ","Sales (LCY)","Profit (LCY)","Sales Frequency (Invoices/Year)","Avg. Invoice Amount (LCY)","Discount (%)","Avg. Overdue (Day)";
 
             trigger OnValidate()
             begin
@@ -99,11 +95,9 @@ table 5088 "Profile Questionnaire Line"
                     ResetFields;
             end;
         }
-        field(8; "Vendor Class. Field"; Option)
+        field(8; "Vendor Class. Field"; Enum "Profile Quest. Vend. Class. Field")
         {
             Caption = 'Vendor Class. Field';
-            OptionCaption = ' ,Purchase (LCY),Purchase Frequency (Invoices/Year),Avg. Ticket Size (LCY),Discount (%),Avg. Overdue (Day)';
-            OptionMembers = " ","Purchase (LCY)","Purchase Frequency (Invoices/Year)","Avg. Ticket Size (LCY)","Discount (%)","Avg. Overdue (Day)";
 
             trigger OnValidate()
             begin
@@ -117,11 +111,9 @@ table 5088 "Profile Questionnaire Line"
                     ResetFields;
             end;
         }
-        field(9; "Contact Class. Field"; Option)
+        field(9; "Contact Class. Field"; Enum "Profile Quest. Cont. Class. Field")
         {
             Caption = 'Contact Class. Field';
-            OptionCaption = ' ,Interaction Quantity,Interaction Frequency (No./Year),Avg. Interaction Cost (LCY),Avg. Interaction Duration (Min.),Opportunity Won (%),Rating';
-            OptionMembers = " ","Interaction Quantity","Interaction Frequency (No./Year)","Avg. Interaction Cost (LCY)","Avg. Interaction Duration (Min.)","Opportunity Won (%)",Rating;
 
             trigger OnValidate()
             var
@@ -232,18 +224,16 @@ table 5088 "Profile Questionnaire Line"
         field(16; "No. of Contacts"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Count ("Contact Profile Answer" WHERE("Profile Questionnaire Code" = FIELD("Profile Questionnaire Code"),
+            CalcFormula = Count("Contact Profile Answer" WHERE("Profile Questionnaire Code" = FIELD("Profile Questionnaire Code"),
                                                                 "Line No." = FIELD("Line No.")));
             Caption = 'No. of Contacts';
             Editable = false;
             FieldClass = FlowField;
         }
-        field(17; Priority; Option)
+        field(17; Priority; Enum "Profile Answer Priority")
         {
             Caption = 'Priority';
             InitValue = Normal;
-            OptionCaption = 'Very Low (Hidden),Low,Normal,High,Very High';
-            OptionMembers = "Very Low (Hidden)",Low,Normal,High,"Very High";
 
             trigger OnValidate()
             var

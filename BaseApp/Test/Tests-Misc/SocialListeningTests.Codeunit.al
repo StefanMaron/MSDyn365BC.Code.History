@@ -229,6 +229,7 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
+#if not CLEAN19
     [HandlerFunctions('AddSocialListeningTopicHandler')]
     [Scope('OnPrem')]
     procedure TestSocialListeningTopicFactboxAccessCustAdd()
@@ -265,6 +266,7 @@ codeunit 135010 "Social Listening Tests"
             Assert.IsTrue(IsEmpty, '');
         end;
     end;
+#endif
 
     [HandlerFunctions('AddSocialListeningTopicHandler')]
     [Scope('OnPrem')]
@@ -341,6 +343,7 @@ codeunit 135010 "Social Listening Tests"
         end;
     end;
 
+#if not CLEAN19
     [HandlerFunctions('RemoveSocialListeningTopicHandler')]
     [Scope('OnPrem')]
     procedure TestSocialListeningTopicFactboxAccessRemove()
@@ -379,6 +382,7 @@ codeunit 135010 "Social Listening Tests"
 
         Assert.IsFalse(SocialListeningSearchTopic.Find, '');
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

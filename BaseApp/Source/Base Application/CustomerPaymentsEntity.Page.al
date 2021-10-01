@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5479 "Customer Payments Entity"
 {
     Caption = 'customerPayments', Locked = true;
@@ -386,4 +387,4 @@ page 5479 "Customer Payments Entity"
         end;
     end;
 }
-
+#endif

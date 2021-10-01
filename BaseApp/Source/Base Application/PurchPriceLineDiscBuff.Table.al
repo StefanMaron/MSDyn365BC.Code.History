@@ -1,9 +1,14 @@
 table 1315 "Purch. Price Line Disc. Buff."
 {
     Caption = 'Purch. Price Line Disc. Buff.';
+#if not CLEAN19
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
     ObsoleteTag = '16.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif    
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price Worksheet Line';
 
     fields
     {
@@ -90,6 +95,7 @@ table 1315 "Purch. Price Line Disc. Buff."
     {
     }
 
+#if not CLEAN19
     procedure LoadDataForItem(Item: Record Item)
     var
         PurchasePrice: Record "Purchase Price";
@@ -168,5 +174,6 @@ table 1315 "Purch. Price Line Disc. Buff."
 
         exit(false);
     end;
+#endif
 }
 

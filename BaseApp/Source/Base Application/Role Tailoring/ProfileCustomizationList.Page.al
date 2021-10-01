@@ -29,7 +29,7 @@ page 9190 "Profile Customization List"
                     ToolTip = 'Specifies the ID of the app that provided the profile that this page customization applies to.';
                     Visible = false;
                 }
-                field("App Name"; ConfPersonalizationMgt.ResolveAppNameFromAppId("App ID"))
+                field("App Name"; ExtensionManagement.GetAppName("App ID"))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Profile Source';
@@ -314,7 +314,7 @@ page 9190 "Profile Customization List"
 
     var
         DesignerDiagnostics: Record "Designer Diagnostic" temporary;
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+        ExtensionManagement: Codeunit "Extension Management";
         CannotDeleteExtensionProfileErr: Label 'You cannot delete this profile customization because it comes from an extension.';
         PageCaption: Text;
         ValidatePageTxt: Label 'Scanning page customizations for %1\%2 of %3 profiles scanned', Comment = '%1 = profile id, %2 and %3 are all whole numbers';

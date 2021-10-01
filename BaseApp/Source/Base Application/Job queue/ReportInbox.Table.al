@@ -79,6 +79,7 @@ table 477 "Report Inbox"
         FileDownLoadTxt: Label 'Export';
         ReportIsEmptyMsg: Label 'The report is empty.';
         NoReportsToShowErr: Label 'There are no reports in the list.';
+        FileDoesNotExistErr: Label 'The file does not exist.';
 
     procedure ShowReport()
     var
@@ -103,10 +104,7 @@ table 477 "Report Inbox"
             Message(ReportIsEmptyMsg);
             exit;
         end;
-        if "Report Name" <> '' then
-            FileName := DelChr("Report Name", '=', '/:*?"<>|') + Suffix
-        else
-            FileName := DelChr(Description, '=', '/:*?"<>|') + Suffix;
+        FileName := GetFileNameWithExtension();
 
         "Report Output".CreateInStream(Instr);
         Downloaded := DownloadFromStream(Instr, FileDownLoadTxt, '', '', FileName);
@@ -129,6 +127,40 @@ table 477 "Report Inbox"
             "Output Type"::Zip:
                 exit('.zip');
         end;
+    end;
+
+    procedure GetFileNameWithExtension(): Text
+    begin
+        exit(GetFileNameWithoutExtension() + Suffix);
+    end;
+
+    procedure GetFileNameWithoutExtension(): Text
+    var
+        FileName: Text;
+    begin
+        if "Report Name" <> '' then
+            FileName := DelChr("Report Name", '=', '/:*?"<>|')
+        else
+            FileName := DelChr(Description, '=', '/:*?"<>|');
+
+        exit(FileName);
+    end;
+
+    procedure OpenInOneDrive()
+    var
+        DocumentServiceMgt: Codeunit "Document Service Management";
+        FileName: Text;
+        FileExtension: Text;
+        InStream: InStream;
+    begin
+        if "Report Name" = '' then
+            Error(FileDoesNotExistErr);
+
+        CalcFields("Report Output");
+        "Report Output".CreateInStream(InStream);
+        FileName := GetFileNameWithoutExtension();
+        FileExtension := Suffix();
+        DocumentServiceMgt.OpenInOneDrive(FileName, FileExtension, InStream);
     end;
 
     [IntegrationEvent(false, false)]

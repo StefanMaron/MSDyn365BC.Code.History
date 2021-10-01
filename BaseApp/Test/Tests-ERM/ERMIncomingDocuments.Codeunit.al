@@ -1947,6 +1947,31 @@ codeunit 134400 "ERM Incoming Documents"
           PurchaseHeader, PurchaseHeader.FieldNo("Vendor Invoice No."));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FindByDocumentNoAndPostingDateIncomingDocument()
+    var
+        IncomingDocument: Record "Incoming Document";
+        DocumentNo: Text;
+        IncomingDocumentEntryNo: Integer;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 407834] "Incoming Document".FindByDocumentNoAndPostingDate must return record if Document No. filter is max length and contains escape symbols
+
+        // [GIVEN] "Incoming Document" with "Document No." contains special characters
+        CreateIncomingDocumentWithoutAttachments(IncomingDocument);
+        IncomingDocumentEntryNo := IncomingDocument."Entry No.";
+        DocumentNo := 'AAAAAA-AAAAAA(AAAAA)';
+        IncomingDocument.Validate("Document No.", DocumentNo);
+        IncomingDocument.Validate("Posting Date", WorkDate());
+        IncomingDocument.Reset();
+
+        IncomingDocument.FindByDocumentNoAndPostingDate(
+            IncomingDocument, '''' + DocumentNo + '''', Format(WorkDate()));
+
+        IncomingDocument.TestField("Entry No.", IncomingDocumentEntryNo);
+    end;
+
     local procedure TestAutomaticCreationActions(DataExchangeTypeHasValue: Boolean)
     var
         IncomingDocumentRec: Record "Incoming Document";

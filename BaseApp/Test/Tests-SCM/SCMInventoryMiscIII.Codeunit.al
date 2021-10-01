@@ -707,6 +707,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         VerifyGLEntries(DocumentNo, GeneralPostingSetup."Purch. Account", PurchaseLine."Line Amount");
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceForCustomer()
@@ -1159,6 +1160,7 @@ codeunit 137295 "SCM Inventory Misc. III"
           VATPostingSetup, "Sales Price Type"::"Customer Price Group", CustomerPriceGroup,
           CreateAndUpdateCustomer(CustomerPriceGroup, VATPostingSetup."VAT Bus. Posting Group", ''));
     end;
+#endif
 
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesPageHandler')]
@@ -1579,6 +1581,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         CalcPlanAfterCreateSalesReturnOrderWithIT(true, false, true, TrackingOption::AssignSerialNo, CreateReturnOrderMethod::CopyDocument);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CheckSalesLineDiscountPageforCustomerDiscountGroup()
@@ -1598,6 +1601,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         // Verify: Verify Customer Discount Group Code and Type on Sales line discount Page.
         VerifySalesLineDiscountsOnPage(CustomerDiscountGroup, SalesLineDiscount.Type);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -1895,7 +1899,7 @@ codeunit 137295 "SCM Inventory Misc. III"
     var
         ReservationEntry: Record "Reservation Entry";
         PurchaseLine: Record "Purchase Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
         "count": Integer;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -1921,7 +1925,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         SalesHeader: Record "Sales Header";
         ReservationEntry: Record "Reservation Entry";
         SalesLine: Record "Sales Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         SalesHeader.Init();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
@@ -2024,7 +2028,7 @@ codeunit 137295 "SCM Inventory Misc. III"
     begin
         CreateWarehouseLocation(Location);
         LibraryWarehouse.FindBin(Bin, Location.Code, FindZone(Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true)), 1);  // Use 1 for Bin Index.
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Location.Code);
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Location.Code, Bin."Zone Code",
           Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, 5);  // Value Zero Important for test.
@@ -2055,6 +2059,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         exit(Customer."No.");
     end;
 
+#if not CLEAN19
     local procedure CreateAndUpdateSalesPrice(var SalesPrice: Record "Sales Price"; VATBusPostingGrPrice: Code[20]; ItemNo: Code[20]; SalesType: Enum "Sales Price Type"; SalesCode: Code[20])
     begin
         CreateSalesPrice(SalesPrice, ItemNo, SalesType, SalesCode, LibraryRandom.RandDec(10, 2), '');  // Take random for Quantity.
@@ -2062,6 +2067,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         SalesPrice.Validate("VAT Bus. Posting Gr. (Price)", VATBusPostingGrPrice);
         SalesPrice.Modify(true);
     end;
+#endif
 
     local procedure CreateLotWhseTrackingCode(): Code[10]
     var
@@ -2073,6 +2079,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         exit(ItemTrackingCode.Code);
     end;
 
+#if not CLEAN19
     local procedure CreateLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; SalesType: Option; SalesCode: Code[20])
     var
         Item: Record Item;
@@ -2084,6 +2091,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));  // Take random for Line Discount Pct.
         SalesLineDiscount.Modify(true);
     end;
+#endif
 
     local procedure CreateCustomer(): Code[20]
     var
@@ -2158,7 +2166,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseOrderWithItemTracking(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20])
+    local procedure CreatePurchaseOrderWithItemTracking(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[50])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2253,6 +2261,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         GetPostedDocToReverseOnPurchReturnOrder(PurchaseHeader."No.");
     end;
 
+#if not CLEAN19
     local procedure CreateSalesOrderWithSalesPriceOnCustomer(var SalesLine: Record "Sales Line"; PostingDate: Date)
     var
         Item: Record Item;
@@ -2278,8 +2287,9 @@ codeunit 137295 "SCM Inventory Misc. III"
           SalesPrice, CreateAndModifyItem(Item."Replenishment System"::Purchase, Item."Costing Method"::FIFO),
           "Sales Price Type"::"Customer Price Group", CustomerPriceGroup.Code, 0, '');  // 0 for Minimum Quantity.
     end;
+#endif
 
-    local procedure CreateSalesOrderWithItemTracking(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20])
+    local procedure CreateSalesOrderWithItemTracking(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[50])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -2327,6 +2337,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
+#if not CLEAN19
     local procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; Quantity: Decimal; CurrencyCode: Code[10])
     begin
         LibraryCosting.CreateSalesPrice(SalesPrice, SalesType, SalesCode, ItemNo, WorkDate, CurrencyCode, '', '', Quantity);
@@ -2334,6 +2345,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(5, 2));  // Take random value for Unit Price.
         SalesPrice.Modify(true);
     end;
+#endif
 
     local procedure CreateTrackedItemWithReplenishmentSystem(): Code[20]
     var
@@ -2353,14 +2365,6 @@ codeunit 137295 "SCM Inventory Misc. III"
         LibraryWarehouse.CreateFullWMSLocation(Location, 1);
         WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
-    end;
-
-    local procedure CreateWarehouseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; Type: Option; LocationCode: Code[10])
-    var
-        WarehouseJournalTemplate: Record "Warehouse Journal Template";
-    begin
-        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, Type);
-        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode);
     end;
 
     local procedure CreateReservationForBoundPurchaseOrder(var PurchaseLine: Record "Purchase Line")
@@ -2665,6 +2669,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         RollUpStandardCost.Run;
     end;
 
+#if not CLEAN19
     local procedure SalesPriceForPriceInclVAT(VATPostingSetup: Record "VAT Posting Setup"; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CusomerNo: Code[20])
     var
         SalesLine: Record "Sales Line";
@@ -2685,6 +2690,7 @@ codeunit 137295 "SCM Inventory Misc. III"
           UnitPrice, SalesLine."Unit Price", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(ValidationError, SalesLine.FieldCaption("Unit Price"), UnitPrice));
     end;
+#endif
 
     local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type")
     var
@@ -2796,12 +2802,14 @@ codeunit 137295 "SCM Inventory Misc. III"
         exit(CustomerPriceGroup.Code);
     end;
 
+#if not CLEAN19
     local procedure UpdateDiscOnSalesLineDiscount(SalesLineDiscount: Record "Sales Line Discount"): Decimal
     begin
         SalesLineDiscount.Validate("Line Discount %", SalesLineDiscount."Line Discount %" + LibraryRandom.RandDec(10, 2));  // Take random for update Line Discount Pct.
         SalesLineDiscount.Modify(true);
         exit(SalesLineDiscount."Line Discount %");
     end;
+#endif
 
     local procedure UpdatePurchasesPayablesSetup(ExactCostReversingMandatory: Boolean)
     var
@@ -2822,12 +2830,14 @@ codeunit 137295 "SCM Inventory Misc. III"
         SalesReceivablesSetup.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure UpdateUnitPriceOnSalesPrice(SalesPrice: Record "Sales Price"): Decimal
     begin
         SalesPrice.Validate("Unit Price", SalesPrice."Unit Price" + LibraryRandom.RandDec(10, 2));  // Take random fo update Unit Price.
         SalesPrice.Modify(true);
         exit(SalesPrice."Unit Price");
     end;
+#endif
 
     local procedure VerifyGLEntries(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
     var
@@ -2943,6 +2953,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         PurchaseLine.OpenItemTrackingLines(); // Verify Appl.-to Item Entry on ItemTrackingLinesPageHandler.
     end;
 
+#if not CLEAN19
     local procedure VerifySalesLineDiscountsOnPage(CustomerDiscountGroup: Record "Customer Discount Group"; SalesLineDiscountType: Enum "Sales Line Discount Type")
     var
         CustomerDiscGroups: TestPage "Customer Disc. Groups";
@@ -2955,6 +2966,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         SalesLineDiscounts.SalesCodeFilterCtrl.AssertEquals(CustomerDiscountGroup.Code);
         SalesLineDiscounts.Type.AssertEquals(SalesLineDiscountType);
     end;
+#endif
 
     local procedure UpdateInventorySetupCostPosting()
     var

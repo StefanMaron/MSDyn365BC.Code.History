@@ -99,6 +99,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('CRMConnectionSetupPageHandler')]
     procedure VerifyStatusCompletedWhenFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
@@ -439,6 +440,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('CRMConnectionSetupPageHandler')]
     procedure CRMConnectionWizardFinishShouldUpdateRealRecord()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
@@ -588,6 +590,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('CRMConnectionSetupPageHandler')]
     procedure CRMConnectionWizardCheck8SDKVersion()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
@@ -619,6 +622,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('CRMConnectionSetupPageHandler')]
     procedure CRMConnectionWizardCheck9SDKVersion()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
@@ -830,6 +834,12 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Assert.ExpectedError(TheRowDoesNotExistErr);
 
         CRMSystemuserList.OK.Invoke;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure CRMConnectionSetupPageHandler(var CRMConnectionSetup: TestPage "CRM Connection Setup")
+    begin
     end;
 }
 

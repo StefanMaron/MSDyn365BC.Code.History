@@ -73,13 +73,13 @@ codeunit 138698 "AllProfile V2 Test"
     // Page tests
 
     [Test]
-    [HandlerFunctions('HandleAvailableRoleCenters,HandleSessionSettingsChange')]
+    [HandlerFunctions('HandleRoles,HandleSessionSettingsChange')]
     [Scope('OnPrem')]
     procedure TestCanSetAnyProfileInMySettings()
     var
         AllProfile: Record "All Profile";
         UserPersonalization: Record "User Personalization";
-        MySettingsTestPage: TestPage "My Settings";
+        UserSettingsTestPage: TestPage "User Settings";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         PreviousAllProfileCaption: Text;
     begin
@@ -99,18 +99,18 @@ codeunit 138698 "AllProfile V2 Test"
             Assert.AreNotEqual(AllProfile."Profile ID", '', 'Empty profile ID!');
             Assert.AreNotEqual(AllProfile.Caption, '', 'Empty profile Caption!');
 
-            // [WHEN] The user chooses any of those profiles from my settings
-            Clear(MySettingsTestPage);
+            // [WHEN] The user chooses any of those profiles from user settings
+            Clear(UserSettingsTestPage);
 
-            MySettingsTestPage.OpenEdit();
-            Assert.AreEqual(PreviousAllProfileCaption, MySettingsTestPage.UserRoleCenter.Value, 'Unexpected profile set for the user when reopening MySettings.');
+            UserSettingsTestPage.OpenEdit();
+            Assert.AreEqual(PreviousAllProfileCaption, UserSettingsTestPage.UserRoleCenter.Value, 'Unexpected profile set for the user when reopening MySettings.');
             LibraryVariableStorage.Enqueue(AllProfile."Profile ID");
-            MySettingsTestPage.UserRoleCenter.AssistEdit();
+            UserSettingsTestPage.UserRoleCenter.AssistEdit();
             // Handler
 
-            // [THEN] The description is updated on the my settings page
-            Assert.AreEqual(AllProfile.Caption, MySettingsTestPage.UserRoleCenter.Value, 'Unexpected profile caption after changing profile.');
-            MySettingsTestPage.OK.Invoke();
+            // [THEN] The description is updated on the user settings page
+            Assert.AreEqual(AllProfile.Caption, UserSettingsTestPage.UserRoleCenter.Value, 'Unexpected profile caption after changing profile.');
+            UserSettingsTestPage.OK().Invoke();
 
             // [THEN] The record is updated in the database
             UserPersonalization.Get(UserSecurityId());
@@ -1251,14 +1251,14 @@ codeunit 138698 "AllProfile V2 Test"
     end;
 
     [ModalPageHandler]
-    procedure HandleAvailableRoleCenters(var AvailableRoleCentersTestPage: TestPage "Available Roles")
+    procedure HandleRoles(var Roles: TestPage Roles)
     var
         AllProfile: Record "All Profile";
     begin
         AllProfile.SetRange("Profile ID", LibraryVariableStorage.DequeueText());
         AllProfile.FindFirst();
-        AvailableRoleCentersTestPage.GoToRecord(AllProfile);
-        AvailableRoleCentersTestPage.OK.Invoke();
+        Roles.GoToRecord(AllProfile);
+        Roles.OK.Invoke();
     end;
 
     [SessionSettingsHandler]
@@ -1269,7 +1269,7 @@ codeunit 138698 "AllProfile V2 Test"
     [HyperlinkHandler]
     procedure CustomizeHyperlinkHandler(Message: Text[1024])
     begin
-        Assert.IsSubstring(Message, '/?customize&profile=%2F-%2APR0F%C3%8DL%26%2A-%5C');
+        Assert.IsSubstring(Message, '/?profile=%2F-%2APR0F%C3%8DL%26%2A-%5C&customize');
     end;
 
     [HyperlinkHandler]

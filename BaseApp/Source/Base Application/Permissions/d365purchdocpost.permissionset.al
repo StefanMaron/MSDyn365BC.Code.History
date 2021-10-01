@@ -17,14 +17,16 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "Duplicate Price Line" = RIMD,
                   tabledata "Employee Ledger Entry" = imd,
                   tabledata "FA Setup" = R,
-                  tabledata "G/L Account" = IM,
+                  tabledata "G/L Account" = RIM,
                   tabledata "G/L Entry - VAT Entry Link" = Ri,
                   tabledata "G/L Entry" = Rimd,
                   tabledata "G/L Register" = Rimd,
                   tabledata "Interaction Template" = R,
                   tabledata "Interaction Tmpl. Language" = R,
                   tabledata "Item Charge" = R,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = R,
+#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Ledger Entry" = Rimd,
                   tabledata "Item Register" = Rimd,
@@ -46,8 +48,10 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "Purch. Rcpt. Header" = imD,
                   tabledata "Purch. Rcpt. Line" = imd,
                   tabledata "Purchase Discount Access" = RIMD,
+#if not CLEAN19
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
+#endif
                   tabledata "Purchase Price Access" = RIMD,
                   tabledata "Reservation Entry" = I,
                   tabledata "Return Shipment Header" = im,

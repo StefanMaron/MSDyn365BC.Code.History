@@ -16,7 +16,7 @@ codeunit 782 "Opportunity Chart Mgt."
         SalespersonPurchaser.SetRange(Name, SalesPersonName);
         SalespersonPurchaser.FindFirst;
         Opportunity.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Opportunity.Status := OpportunityStatus;
+        Opportunity.Status := "Opportunity Status".FromInteger(OpportunityStatus);
         Opportunity.SetRange(Status, Opportunity.Status);
         case Opportunity.Status of
             Opportunity.Status::"Not Started",
@@ -34,7 +34,7 @@ codeunit 782 "Opportunity Chart Mgt."
         Opportunity: Record Opportunity;
     begin
         Opportunity.SetRange("Salesperson Code", SalesPersonCode);
-        Opportunity.Status := OpportunityStatus;
+        Opportunity.Status := "Opportunity Status".FromInteger(OpportunityStatus);
         Opportunity.SetRange(Status, Opportunity.Status);
         case Opportunity.Status of
             Opportunity.Status::"Not Started",

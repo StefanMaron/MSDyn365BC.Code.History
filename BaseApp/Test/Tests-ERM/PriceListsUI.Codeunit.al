@@ -135,6 +135,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(SalesPriceLists.Next(), 'found 4th');
     end;
 
+#if not CLEAN19
     [Test]
     procedure T003_SalesPriceListsDiscountsFromCustomersList()
     var
@@ -179,7 +180,7 @@ codeunit 134117 "Price Lists UI"
         SalesPriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
         Assert.IsFalse(SalesPriceLists.Next(), 'found third');
     end;
-
+#endif
     [Test]
     procedure T004_SalesPriceLinesFromCustomersCard()
     var
@@ -372,6 +373,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PriceListLineReview.Next(), 'found 2nd');
     end;
 
+#if not CLEAN19
     [Test]
     procedure T008_SalesPriceListsDiscForDiscGroupFromCustomersCard()
     var
@@ -434,7 +436,7 @@ codeunit 134117 "Price Lists UI"
         SalesPriceLists.SourceNo.AssertEquals(PriceListHeader[5]."Source No.");
         Assert.IsFalse(SalesPriceLists.Next(), 'found fourth');
     end;
-
+#endif
     [Test]
     procedure T009_SalesDisounctLinesForDiscGroupFromCustomerDiscountGroups()
     var
@@ -792,11 +794,14 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Sales Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(CustomerCard.PriceLists.Visible(), 'PriceLists. not Visible');
+#if not CLEAN19
         Assert.IsFalse(CustomerCard.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(CustomerCard.Prices.Visible(), 'Prices. Visible');
         Assert.IsFalse(CustomerCard."Line Discounts".Visible(), 'Line Discounts. Visible');
+#endif
     end;
 
+#if not CLEAN19
     [Test]
     procedure T021_CustomerCardPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -814,6 +819,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(CustomerCard.Prices.Visible(), 'Prices. not Visible');
         Assert.IsTrue(CustomerCard."Line Discounts".Visible(), 'Line Discounts. not Visible');
     end;
+#endif
 
     [Test]
     procedure T022_CustomerListPriceListsActionVisibleIfFeatureOn()
@@ -828,11 +834,14 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Sales Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(CustomerList.PriceLists.Visible(), 'PriceLists. not Visible');
+#if not CLEAN19
         Assert.IsFalse(CustomerList.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(CustomerList.Prices_Prices.Visible(), 'Prices_Prices. Visible');
         Assert.IsFalse(CustomerList.Prices_LineDiscounts.Visible(), 'Prices_LineDiscounts. Visible');
+#endif
     end;
 
+#if not CLEAN19
     [Test]
     procedure T023_CustomerListPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -872,6 +881,7 @@ codeunit 134117 "Price Lists UI"
         asserterror Page.Run(Page::"Sales Price List");
         Assert.ExpectedError(FeatureIsOffErr);
     end;
+#endif
 
     [Test]
     procedure T026_SalesPriceListPageAllowDiscountsOn()
@@ -940,6 +950,42 @@ codeunit 134117 "Price Lists UI"
 
         // [GIVEN] Item Discount Group 'IDG' is removed
         ItemDiscountGroup.Delete();
+
+        // [WHEN] Open Item card for 'X'
+        ItemCard.Trap();
+        Page.Run(Page::"Item Card", Item);
+
+        // [THEN] Item card is open, where Purchase section: 'View existing prices...', Sales section: 'Create new...'
+        ItemCard.SpecialPurchPriceListTxt.AssertEquals(ViewExistingTxt);
+        ItemCard.SpecialSalesPriceListTxt.AssertEquals(CreateNewTxt);
+        ItemCard.Close();
+    end;
+
+    [Test]
+    procedure T031_ItemCardSpecialSalesPriceListTxtSkipsInactivePrices()
+    var
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        ItemCard: TestPage "Item Card";
+    begin
+        Initialize(true);
+
+        // [GIVEN] Item 'X'
+        LibraryInventory.CreateItem(Item);
+        Item.Modify();
+
+        // [GIVEN] Draft Purchase Price List Line for Item 'X'
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Status := PriceListLine.Status::Draft;
+        PriceListLine.Modify();
+        // [GIVEN] Inactive Sales Price List Line for Item 'X'
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Status := PriceListLine.Status::Inactive;
+        PriceListLine.Modify();
 
         // [WHEN] Open Item card for 'X'
         ItemCard.Trap();
@@ -1304,6 +1350,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PurchasePriceLists.Next(), 'found 4th');
     end;
 
+#if not CLEAN19
     [Test]
     procedure T053_PurchasePriceListsDiscountsFromVendorsList()
     var
@@ -1348,7 +1395,7 @@ codeunit 134117 "Price Lists UI"
         PurchasePriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
         Assert.IsFalse(PurchasePriceLists.Next(), 'found third');
     end;
-
+#endif
     [Test]
     procedure T054_PurchasePriceLinesFromVendorsCard()
     var
@@ -1694,11 +1741,14 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Purchase Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(VendorCard.PriceLists.Visible(), 'PriceLists. not Visible');
+#if not CLEAN19
         Assert.IsFalse(VendorCard.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(VendorCard.Prices.Visible(), 'Prices. Visible');
         Assert.IsFalse(VendorCard."Line Discounts".Visible(), 'Line Discounts. Visible');
+#endif
     end;
 
+#if not CLEAN19
     [Test]
     procedure T071_VendorCardPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -1716,6 +1766,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(VendorCard.Prices.Visible(), 'Prices. not Visible');
         Assert.IsTrue(VendorCard."Line Discounts".Visible(), 'Line Discounts. not Visible');
     end;
+#endif
 
     [Test]
     procedure T072_VendorListPriceListsActionVisibleIfFeatureOn()
@@ -1730,11 +1781,14 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Purchase Price Lists" action is visible, old actions are not visible
         Assert.IsTrue(VendorList.PriceLists.Visible(), 'PriceLists. not Visible');
+#if not CLEAN19
         Assert.IsFalse(VendorList.PriceListsDiscounts.Visible(), 'PriceListsDiscounts. Visible');
         Assert.IsFalse(VendorList.Prices.Visible(), 'Prices_Prices. Visible');
         Assert.IsFalse(VendorList."Line Discounts".Visible(), 'Prices_LineDiscounts. Visible');
+#endif
     end;
 
+#if not CLEAN19
     [Test]
     procedure T073_VendorListPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -1774,6 +1828,7 @@ codeunit 134117 "Price Lists UI"
         asserterror Page.Run(Page::"Purchase Price List");
         Assert.ExpectedError(FeatureIsOffErr);
     end;
+#endif
 
     [Test]
     procedure T076_PurchPriceListPageAllowDiscountsOn()
@@ -1934,6 +1989,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(SalesJobPriceLists.Next(), 'found 5th');
     end;
 
+#if not CLEAN19
     [Test]
     procedure T103_SalesJobPriceListsDiscountsFromJobsList()
     var
@@ -1978,7 +2034,7 @@ codeunit 134117 "Price Lists UI"
         SalesJobPriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
         Assert.IsFalse(SalesJobPriceLists.Next(), 'found third');
     end;
-
+#endif
     [Test]
     procedure T104_SalesJobPricesFromJobsCard()
     var
@@ -2070,14 +2126,17 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Sales/Purchase Price Lists" actions are visible, old actions are not visible
         Assert.IsTrue(JobCard.SalesPriceLists.Visible(), 'S.PriceLists. not Visible');
-        Assert.IsFalse(JobCard.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsTrue(JobCard.PurchasePriceLists.Visible(), 'P.PriceLists. not Visible');
+#if not CLEAN19
+        Assert.IsFalse(JobCard.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobCard.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobCard."&Resource".Visible(), '"&Resource". Visible');
         Assert.IsFalse(JobCard."&Item".Visible(), '"&Item". Visible');
         Assert.IsFalse(JobCard."&G/L Account".Visible(), '"&G/L Account". Visible');
+#endif
     end;
 
+#if not CLEAN19
     [Test]
     procedure T121_JobCardPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -2098,6 +2157,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(JobCard."&Item".Visible(), '"&Item". not Visible');
         Assert.IsTrue(JobCard."&G/L Account".Visible(), '"&G/L Account". not Visible');
     end;
+#endif
 
     [Test]
     procedure T122_JobListPriceListsActionVisibleIfFeatureOn()
@@ -2112,14 +2172,17 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Sales/Purchase Price Lists" actions are visible, old actions are not visible
         Assert.IsTrue(JobList.SalesPriceLists.Visible(), 'S.PriceLists. not Visible');
-        Assert.IsFalse(JobList.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsTrue(JobList.PurchasePriceLists.Visible(), 'P.PriceLists. not Visible');
+#if not CLEAN19
+        Assert.IsFalse(JobList.SalesPriceListsDiscounts.Visible(), 'S.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobList.PurchasePriceListsDiscounts.Visible(), 'P.PriceListsDiscounts. Visible');
         Assert.IsFalse(JobList."&Resource".Visible(), '"&Resource". Visible');
         Assert.IsFalse(JobList."&Item".Visible(), '"&Item". Visible');
         Assert.IsFalse(JobList."&G/L Account".Visible(), '"&G/L Account". Visible');
+#endif
     end;
 
+#if not CLEAN19
     [Test]
     procedure T123_JobListPriceListsActionNotVisibleIfFeatureOff()
     var
@@ -2140,7 +2203,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(JobList."&Item".Visible(), '"&Item". not Visible');
         Assert.IsTrue(JobList."&G/L Account".Visible(), '"&G/L Account". not Visible');
     end;
-
+#endif
     [Test]
     procedure T124_JobCardFactBoxPricesIfFeatureOn()
     var
@@ -2373,6 +2436,7 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PurchaseJobPriceLists.Next(), 'found 5th');
     end;
 
+#if not CLEAN19
     [Test]
     procedure T153_PurchaseJobPriceListsDiscountsFromJobList()
     var
@@ -2417,7 +2481,7 @@ codeunit 134117 "Price Lists UI"
         PurchaseJobPriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
         Assert.IsFalse(PurchaseJobPriceLists.Next(), 'found third');
     end;
-
+#endif
     [Test]
     procedure T154_PurchaseJobPricesFromJobsCard()
     var
@@ -3585,7 +3649,6 @@ codeunit 134117 "Price Lists UI"
                 LibraryVariableStorage.Enqueue(PriceListLineReview."Price List Code");
             until not PriceListLineReview.Next();
     end;
-
 
     [ModalPageHandler]
     procedure ResourceListModalHandler(var ResourceList: TestPage "Resource List")

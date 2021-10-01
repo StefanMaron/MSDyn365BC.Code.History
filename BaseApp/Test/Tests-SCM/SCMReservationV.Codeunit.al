@@ -532,7 +532,7 @@ codeunit 137272 "SCM Reservation V"
         PurchaseLine: Record "Purchase Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Item Tracking] [Avail. - Item Tracking Lines]
         // [SCENARIO 155298] Specific lot no. can be reserved from "Avail. - Item Tracking Lines" page
@@ -951,7 +951,7 @@ codeunit 137272 "SCM Reservation V"
         ProdOrderComponent.Init();
         ProdOrderComponent.Insert();
 
-        ReservMgt.SetProdOrderComponent(ProdOrderComponent);
+        ReservMgt.SetReservSource(ProdOrderComponent);
         ReservMgt.UpdateStatistics(EntrySummary, WorkDate, false);
 
         EntrySummary.TestField("Entry No.", 0);
@@ -1374,9 +1374,10 @@ codeunit 137272 "SCM Reservation V"
         ReservationManagement: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
     begin
-        ReservationManagement.SetPurchLine(PurchaseLine);
-        with PurchaseLine do
-            ReservationManagement.AutoReserve(FullAutoReservation, Description, "Promised Receipt Date", Quantity, "Quantity (Base)");
+        ReservationManagement.SetReservSource(PurchaseLine);
+        ReservationManagement.AutoReserve(
+            FullAutoReservation, PurchaseLine.Description, PurchaseLine."Promised Receipt Date",
+            PurchaseLine.Quantity, PurchaseLine."Quantity (Base)");
     end;
 
     local procedure EnqueueTrackingNumbers(SN: array[2] of Code[20])
@@ -1470,7 +1471,7 @@ codeunit 137272 "SCM Reservation V"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure RegisterWarehouseActivity(Type: Option; LocationCode: Code[10])
+    local procedure RegisterWarehouseActivity(Type: Enum "Warehouse Activity Type"; LocationCode: Code[10])
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin

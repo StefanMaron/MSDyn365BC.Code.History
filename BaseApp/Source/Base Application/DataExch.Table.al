@@ -41,7 +41,7 @@ table 1220 "Data Exch."
         field(11; "Related Record"; RecordID)
         {
             Caption = 'Related Record';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
     }
 

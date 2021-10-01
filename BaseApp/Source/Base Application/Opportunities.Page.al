@@ -2,7 +2,7 @@ page 5131 Opportunities
 {
     ApplicationArea = RelationshipMgmt;
     Caption = 'Opportunities';
-    DataCaptionExpression = Format(SelectStr(OutPutOption + 1, Text002));
+    DataCaptionExpression = Format(SelectStr(OutPutOption.AsInteger() + 1, Text002));
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -19,25 +19,22 @@ page 5131 Opportunities
             group(General)
             {
                 Caption = 'General';
-                field(TableOption; TableOption)
+                field(TableOption; TableType)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Show as Lines';
-                    OptionCaption = 'Salesperson,Campaign,Contact';
                     ToolTip = 'Specifies which values you want to show as lines in the window. This allows you to see the same matrix window from various perspectives, especially when you use both the Show as Lines field and the Show as Columns field.';
                 }
                 field(OutPutOption; OutPutOption)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Show';
-                    OptionCaption = 'No of Opportunities,Estimated Value (LCY),Calc. Current Value (LCY),Avg. Estimated Value (LCY),Avg. Calc. Current Value (LCY)';
                     ToolTip = 'Specifies if the selected value is shown in the window.';
                 }
                 field(RoundingFactor; RoundingFactor)
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the factor that is used to round the amounts.';
                 }
             }
@@ -59,7 +56,6 @@ page 5131 Opportunities
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
@@ -105,18 +101,19 @@ page 5131 Opportunities
                     CycleStageFilter: Text;
                 begin
                     Clear(MatrixForm);
-                    CloseOppFilter := GetFilter("Close Opportunity Filter");
-                    SuccesChanceFilter := GetFilter("Chances of Success % Filter");
-                    ProbabilityFilter := GetFilter("Probability % Filter");
-                    CompleteFilter := GetFilter("Completed % Filter");
-                    EstValFilter := GetFilter("Estimated Value Filter");
-                    CaldCurrValFilter := GetFilter("Calcd. Current Value Filter");
-                    SalesCycleFilter := GetFilter("Sales Cycle Filter");
-                    CycleStageFilter := GetFilter("Sales Cycle Stage Filter");
+                    CloseOppFilter := Rec.GetFilter("Close Opportunity Filter");
+                    SuccesChanceFilter := Rec.GetFilter("Chances of Success % Filter");
+                    ProbabilityFilter := Rec.GetFilter("Probability % Filter");
+                    CompleteFilter := Rec.GetFilter("Completed % Filter");
+                    EstValFilter := Rec.GetFilter("Estimated Value Filter");
+                    CaldCurrValFilter := Rec.GetFilter("Calcd. Current Value Filter");
+                    SalesCycleFilter := Rec.GetFilter("Sales Cycle Filter");
+                    CycleStageFilter := Rec.GetFilter("Sales Cycle Stage Filter");
 
-                    MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords, TableOption, OutPutOption, RoundingFactor,
-                      OptionStatusFilter, CloseOppFilter, SuccesChanceFilter, ProbabilityFilter, CompleteFilter, EstValFilter,
-                      CaldCurrValFilter, SalesCycleFilter, CycleStageFilter, Periods);
+                    MatrixForm.LoadMatrix(
+                        MATRIX_CaptionSet, MatrixRecords, TableType, OutPutOption, RoundingFactor,
+                        OptionStatusFilter, CloseOppFilter, SuccesChanceFilter, ProbabilityFilter, CompleteFilter, EstValFilter,
+                        CaldCurrValFilter, SalesCycleFilter, CycleStageFilter, Periods);
 
                     MatrixForm.RunModal;
                 end;
@@ -133,7 +130,7 @@ page 5131 Opportunities
 
                 trigger OnAction()
                 begin
-                    CreateCaptionSet(SetWanted::Previous);
+                    CreateCaptionSet("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -148,7 +145,7 @@ page 5131 Opportunities
 
                 trigger OnAction()
                 begin
-                    CreateCaptionSet(SetWanted::Next);
+                    CreateCaptionSet("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -161,7 +158,7 @@ page 5131 Opportunities
 
     trigger OnOpenPage()
     begin
-        CreateCaptionSet(SetWanted::Initial);
+        CreateCaptionSet("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -169,26 +166,26 @@ page 5131 Opportunities
         MatrixMgt: Codeunit "Matrix Management";
         MATRIX_CaptionSet: array[32] of Text[80];
         MATRIX_CaptionRange: Text[80];
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         OptionStatusFilter: Option "In Progress",Won,Lost;
-        OutPutOption: Option "No of Opportunities","Estimated Value (LCY)","Calc. Current Value (LCY)","Avg. Estimated Value (LCY)","Avg. Calc. Current Value (LCY)";
-        RoundingFactor: Option "None","1","1000","1000000";
-        TableOption: Option SalesPerson,Campaign,Contact;
+        OutPutOption: Enum "Opportunity Output";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        TableType: Enum "Opportunity Table Type";
         Text002: Label 'No of Opportunities,Estimated Value (LCY),Calc. Current Value (LCY),Avg. Estimated Value (LCY),Avg. Calc. Current Value (LCY)';
         Periods: Integer;
         Datefilter: Text[1024];
-        SetWanted: Option Initial,Previous,Same,Next;
         PKFirstRecInCurrSet: Text[100];
 
-    local procedure CreateCaptionSet(SetWanted: Option Initial,Previous,Same,Next)
+    local procedure CreateCaptionSet(StepType: Enum "Matrix Page Step Type")
     begin
-        MatrixMgt.GeneratePeriodMatrixData(SetWanted, ArrayLen(MatrixRecords), false, PeriodType, Datefilter, PKFirstRecInCurrSet,
-          MATRIX_CaptionSet, MATRIX_CaptionRange, Periods, MatrixRecords);
+        MatrixMgt.GeneratePeriodMatrixData(
+            StepType.AsInteger(), ArrayLen(MatrixRecords), false, PeriodType, Datefilter, PKFirstRecInCurrSet,
+            MATRIX_CaptionSet, MATRIX_CaptionRange, Periods, MatrixRecords);
     end;
 
     local procedure PeriodTypeOnAfterValidate()
     begin
-        CreateCaptionSet(SetWanted::Initial);
+        CreateCaptionSet("Matrix Page Step Type"::Initial);
     end;
 }
 

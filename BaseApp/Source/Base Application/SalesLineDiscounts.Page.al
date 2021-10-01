@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 7004 "Sales Line Discounts"
 {
     Caption = 'Sales Line Discounts';
@@ -612,4 +613,4 @@ page 7004 "Sales Line Discounts"
     begin
     end;
 }
-
+#endif

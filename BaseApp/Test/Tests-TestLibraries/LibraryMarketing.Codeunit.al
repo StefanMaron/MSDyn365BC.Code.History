@@ -269,6 +269,7 @@ codeunit 131900 "Library - Marketing"
         CreateBusinessRelationBetweenContactAndVendor(ContactBusinessRelation, Contact."No.", Vendor."No.");
     end;
 
+#if not CLEAN18
     procedure CreateCustomerFromContact(var Customer: Record Customer; Contact: Record Contact)
     var
         ContactBusinessRelation: Record "Contact Business Relation";
@@ -292,7 +293,6 @@ codeunit 131900 "Library - Marketing"
             CustomerTemplate.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup);
             CustomerTemplate.Modify(true);
         end;
-
         Contact.CreateCustomer(CustomerTemplate.Code);
 
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
@@ -301,6 +301,7 @@ codeunit 131900 "Library - Marketing"
 
         Customer.Get(ContactBusinessRelation."No.");
     end;
+#endif
 
     procedure CreateInteractionGroup(var InteractionGroup: Record "Interaction Group")
     begin
@@ -491,7 +492,9 @@ codeunit 131900 "Library - Marketing"
         SalesHeader.Init();
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Contact No.", SellToContactNo);
+#if not CLEAN18
         SalesHeader.Validate("Sell-to Customer Template Code", SellToCustomerTemplateCode);
+#endif
         SalesHeader.Modify(true);
     end;
 
@@ -502,10 +505,13 @@ codeunit 131900 "Library - Marketing"
         SalesHeader.SetHideValidationDialog(true);
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.Validate("Sell-to Contact No.", SellToContactNo);
+#if not CLEAN18
         SalesHeader.Validate("Sell-to Customer Template Code", SellToCustomerTemplateCode);
+#endif
         SalesHeader.Modify(true);
     end;
 
+#if not CLEAN19
     procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CampaignNo: Code[20]; ItemNo: Code[20])
     begin
         SalesLineDiscount.Init();
@@ -524,6 +530,7 @@ codeunit 131900 "Library - Marketing"
         SalesPrice.Validate("Sales Code", CampaignNo);
         SalesPrice.Insert(true);
     end;
+#endif
 
     procedure CreateSegmentHeader(var SegmentHeader: Record "Segment Header")
     var
@@ -632,10 +639,12 @@ codeunit 131900 "Library - Marketing"
         Contact.FindSet();
     end;
 
+#if not CLEAN18
     procedure FindCustomerTemplate(var CustomerTemplate: Record "Customer Template")
     begin
         CustomerTemplate.FindFirst;
     end;
+#endif
 
     procedure FindEmailMergeCustomLayoutNo(): Code[20]
     var

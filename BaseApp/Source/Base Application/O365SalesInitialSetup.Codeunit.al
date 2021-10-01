@@ -27,8 +27,10 @@ codeunit 2110 "O365 Sales Initial Setup"
         TaxableCodeTxt: Label 'TAXABLE', Locked = true;
         TaxableDescriptionTxt: Label 'Taxable';
         DefaultCityTxt: Label 'Default';
+#if not CLEAN18
         CompanyCodeTok: Label 'COMPANY', Locked = true;
         PersonCodeTok: Label 'PERSON', Locked = true;
+#endif
         SalesMailTok: Label 'SALESEMAIL', Locked = true;
         OutOfDateCompanyErr: Label 'You have used this company in Dynamics 365 a long time ago. Please go to Dynamics 365 Business Central and recreate the company. If you have forgotten your login details, the site will help you.\For more information, see https://go.microsoft.com/fwlink/?linkid=860971.', Comment = 'No translation needed for url';
         CannotSendTestInvoiceErr: Label 'You cannot send a test invoice.';
@@ -71,12 +73,14 @@ codeunit 2110 "O365 Sales Initial Setup"
             InitializeNotifications;
             InitializeNoSeries;
             InitializeDefaultBCC;
-            InitializeCustomerTemplate;
 #if not CLEAN18
+            InitializeCustomerTemplate;
             InitializeContactToCustomerTemplate;
 #endif
             InitializePaymentInstructions;
+#if not CLEAN18            
             InitializeItemTemplate;
+#endif
             ClearPaymentMethodsBalAccount;
         end;
 
@@ -137,6 +141,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         SalesReceivablesSetup.Modify(true);
     end;
 
+#if not CLEAN18
     local procedure InitializeCustomerTemplate()
     var
         ConfigTemplateHeader: Record "Config. Template Header";
@@ -172,7 +177,6 @@ codeunit 2110 "O365 Sales Initial Setup"
         ConfigTmplSelectionRules.Modify(true);
     end;
 
-#if not CLEAN18
     local procedure InitializeContactToCustomerTemplate()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -244,7 +248,6 @@ codeunit 2110 "O365 Sales Initial Setup"
         CompanyTemplateRecordRef.Modify(true);
         PersonTemplateRecordRef.Modify(true);
     end;
-#endif
 
     local procedure InitializeItemTemplate()
     var
@@ -267,6 +270,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         Clear(ConfigTmplSelectionRules."Selection Criteria");
         ConfigTmplSelectionRules.Modify(true);
     end;
+#endif
 
     local procedure InitializeReportSelections()
     var
@@ -869,6 +873,8 @@ codeunit 2110 "O365 Sales Initial Setup"
         PaymentMethod.ModifyAll("Bal. Account No.", '');
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure will be deprecated', '19.0')]
     procedure EnsureConfigurationTemplatateSelectionRuleExists(TableId: Integer)
     var
         ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
@@ -911,6 +917,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         ConfigTmplSelectionRules.Validate("Template Code", ExpectedCode);
         ConfigTmplSelectionRules.Insert(true);
     end;
+#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostSalesDoc', '', false, false)]
     local procedure BlockSendingTestInvoices(var SalesHeader: Record "Sales Header")

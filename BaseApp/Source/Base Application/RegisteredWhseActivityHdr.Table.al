@@ -6,11 +6,9 @@ table 5772 "Registered Whse. Activity Hdr."
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Warehouse Activity Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Put-away,Pick,Movement';
-            OptionMembers = " ","Put-away",Pick,Movement;
         }
         field(2; "No."; Code[20])
         {
@@ -52,7 +50,7 @@ table 5772 "Registered Whse. Activity Hdr."
         }
         field(10; Comment; Boolean)
         {
-            CalcFormula = Exist ("Warehouse Comment Line" WHERE("Table Name" = CONST("Rgstrd. Whse. Activity Header"),
+            CalcFormula = Exist("Warehouse Comment Line" WHERE("Table Name" = CONST("Rgstrd. Whse. Activity Header"),
                                                                 Type = FIELD(Type),
                                                                 "No." = FIELD("No.")));
             Caption = 'Comment';

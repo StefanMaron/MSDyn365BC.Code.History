@@ -123,7 +123,7 @@ report 1123 "Cost Acctg. Stmt. per Period"
                 end;
                 NewPage := "New Page";
 
-                LineTypeInt := Type;
+                LineTypeInt := Type.AsInteger();
             end;
 
             trigger OnPreDataItem()

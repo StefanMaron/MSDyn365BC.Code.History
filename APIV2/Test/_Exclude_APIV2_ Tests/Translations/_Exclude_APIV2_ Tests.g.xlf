@@ -73,6 +73,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Automation RS Package - NamedType ActionImportTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4160289061 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
+          <source>JSON should not be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Automation User Groups - NamedType EmptyJSONErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2690411878 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
           <source>balanceSheet</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -373,6 +378,11 @@
           <note from="Developer" annotates="general" priority="2">%1=Property name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Employees E2E - NamedType WrongPropertyValueErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2249702235 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>generalProductPostingGroups</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - GenProdPostGroup E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2199178254 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
           <source>generalLedgerEntries</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -382,6 +392,11 @@
           <source>incomeStatement</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Income Statement E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2857968698 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>inventoryPostingGroups</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - InventoryPostGroup E2E - NamedType ServiceNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3655497036 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
           <source>The JSON should not be blank.</source>
@@ -402,6 +417,11 @@
           <source>Incorrect property value for %1.</source>
           <note from="Developer" annotates="general" priority="2">%1=Property name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Item Categories E2E - NamedType WrongPropertyValueErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2038624660 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>itemLedgerEntries</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Item Ledg. Entries E2E - NamedType ServiceNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1648229854 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
           <source>itemVariants</source>
@@ -502,6 +522,26 @@
           <source>locations</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Locations E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3929001168 - NamedType 1481825406" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "contactNumber of a Won or Lost Opportunity cannot be changed</source>
+          <note from="Developer" annotates="general" priority="2">contactNumber is a field name and should not be translated</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Opportunities E2E - NamedType ContactNoCannotBeChangedWonLostErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3929001168 - NamedType 294092604" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GRAPHOP</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Opportunities E2E - NamedType OpportunityNoPrefixTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3929001168 - NamedType 2208138419" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "salespersonCode" of a Won or Lost Opportunity cannot be changed</source>
+          <note from="Developer" annotates="general" priority="2">salespersonCode is a field name and should not be translated</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Opportunities E2E - NamedType SalespersonCodeCannotBeChangedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3929001168 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>opportunities</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Opportunities E2E - NamedType ServiceNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 508780375 - NamedType 1792205652" size-unit="char" translate="yes" xml:space="preserve">
           <source>The JSON should not be blank.</source>

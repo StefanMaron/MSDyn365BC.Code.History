@@ -1,5 +1,7 @@
 codeunit 1430 "Role Center Notification Mgt."
 {
+    Permissions = tabledata "User Personalization" = r,
+                tabledata "All Profile" = r;
 
     trigger OnRun()
     begin
@@ -17,7 +19,7 @@ codeunit 1430 "Role Center Notification Mgt."
         SandboxNotificationIdTxt: Label 'd82835d9-a005-451a-972b-0d6532de2071', Locked = true;
         ChangeToPremiumExpNotificationIdTxt: Label '58982418-e1d1-4879-bda2-6033ca151b83', Locked = true;
         TrialNotificationDaysSinceStartTxt: Label '15', Locked = true;
-        EvaluationNotificationLinkTxt: Label 'Start trial...';
+        EvaluationNotificationLinkTxt: Label 'Set up a company';
         TrialNotificationLinkTxt: Label 'Subscribe now...';
         TrialNotificationExtendLinkTxt: Label 'Extend trial...';
         TrialSuspendedNotificationLinkTxt: Label 'Subscribe now...';
@@ -28,7 +30,7 @@ codeunit 1430 "Role Center Notification Mgt."
         TrialExtendedSuspendedNotificationPartnerLinkTxt: Label 'Contact a partner...';
         PaidWarningNotificationLinkTxt: Label 'Renew subscription...';
         PaidSuspendedNotificationLinkTxt: Label 'Renew subscription...';
-        EvaluationNotificationMsg: Label 'Want more? Start a free, %1-day trial to unlock advanced features and use your own company data.', Comment = '%1=Trial duration in days';
+        EvaluationNotificationMsg: Label 'Ready to try Business Central with your own company data? We’ll walk you through the setup.';
         TrialNotificationMsg: Label 'Your trial period expires in %1 days. Ready to subscribe, or do you need more time?', Comment = '%1=Count of days until trial expires';
         TrialNotificationPreviewMsg: Label 'Your trial period expires in %1 days.', Comment = '%1=Count of days until trial expires';
         TrialSuspendedNotificationMsg: Label 'Your trial period has expired. You can subscribe or extend the period to get more time.';
@@ -50,6 +52,7 @@ codeunit 1430 "Role Center Notification Mgt."
         ChangeToPremiumExpNotificationNameTok: Label 'Suggest to change the Experience setting.';
         NoAccessToCompanyErr: Label 'Cannot start trial company %1 because you do not have access to the company.', Comment = '%1 = Company name';
         ContactAPartnerURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2038439', Locked = true;
+        BuyThroughPartnerURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=860971', Locked = true;
 
     local procedure CreateAndSendEvaluationNotification()
     var
@@ -58,7 +61,8 @@ codeunit 1430 "Role Center Notification Mgt."
     begin
         TrialTotalDays := GetTrialTotalDays;
         EvaluationNotification.Id := GetEvaluationNotificationId;
-        EvaluationNotification.Message := StrSubstNo(EvaluationNotificationMsg, TrialTotalDays);
+        //EvaluationNotification.Message := StrSubstNo(EvaluationNotificationMsg, TrialTotalDays);
+        EvaluationNotification.Message := EvaluationNotificationMsg; // current message is not meant to reference the trial duration
         EvaluationNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         EvaluationNotification.AddAction(
           EvaluationNotificationLinkTxt, CODEUNIT::"Role Center Notification Mgt.", 'EvaluationNotificationAction');
@@ -288,12 +292,8 @@ codeunit 1430 "Role Center Notification Mgt."
     local procedure AreNotificationsSupported(): Boolean
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
         if not GuiAllowed then
-            exit(false);
-
-        if EnvInfoProxy.IsInvoicing then
             exit(false);
 
         if not EnvironmentInfo.IsSaaS then
@@ -308,12 +308,8 @@ codeunit 1430 "Role Center Notification Mgt."
     local procedure AreSandboxNotificationsSupported(): Boolean
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
         if not GuiAllowed then
-            exit(false);
-
-        if EnvInfoProxy.IsInvoicing then
             exit(false);
 
         if not EnvironmentInfo.IsSaaS then
@@ -744,7 +740,30 @@ codeunit 1430 "Role Center Notification Mgt."
 
         SessionSetting.Init();
         SessionSetting.Company(CompanyName);
+        SetProfileForNewSession(SessionSetting);
         SessionSetting.RequestSessionUpdate(true)
+    end;
+
+    local procedure SetProfileForNewSession(var SessionSettings: SessionSettings)
+    var
+        UserPersonalization: Record "User Personalization";
+        AllProfile: Record "All Profile";
+    begin
+        // if the user is starting the trial from an evaluation company where they were currently on the 'Business Manager Evaluation' 
+        // role center, they should be redirected to the Business Manager role center in the production company
+
+        if not UserPersonalization.Get(UserSecurityId()) then
+            exit;
+
+        if UserPersonalization."Profile ID" <> 'BUSINESS MANAGER EVALUATION' then
+            exit;
+
+        AllProfile.SetRange("Role Center ID", Page::"Business Manager Role Center");
+        if AllProfile.FindFirst() then begin
+            SessionSettings.ProfileId := AllProfile."Profile ID";
+            SessionSettings.ProfileAppId := AllProfile."App ID";
+            SessionSettings.ProfileSystemScope := (AllProfile.Scope = AllProfile.Scope::System);
+        end;
     end;
 
     local procedure FindNonEvaluationCompany(var CompanyName: Text): Boolean
@@ -770,7 +789,7 @@ codeunit 1430 "Role Center Notification Mgt."
     local procedure BuySubscription()
     begin
         DisableBuyNotification;
-        PAGE.Run(PAGE::"Buy Subscription");
+        HyperLink(BuyThroughPartnerURLTxt);
     end;
 
     local procedure ContactAPartner()

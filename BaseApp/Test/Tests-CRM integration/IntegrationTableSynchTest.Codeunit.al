@@ -1488,7 +1488,7 @@ codeunit 139165 "Integration Table Synch. Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.UpdateOneNow(Customer.RecordId);
         // execute the job
-        CRMAccount.SetRecFilter;
+        CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
         LibraryCRMIntegration.RunJobQueueEntry(
           DATABASE::"CRM Account", CRMAccount.GetView, IntegrationTableMapping);
 
@@ -2181,7 +2181,7 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.IsTrue(IntegrationSynchJobErrors.IsEmpty(), 'Expected no sync errors');
 
         // [THEN] the synchronization job is scheduled and executed
-        Customer.SetRecFilter();
+        Customer.SetRange(SystemId, Customer.SystemId);
         //LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
 
         // [THEN] Fax number is correct on both sides
@@ -2254,7 +2254,7 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.IsTrue(IntegrationSynchJobErrors.IsEmpty(), 'Expected no sync errors');
 
         // [THEN] the synchronization job is scheduled and executed
-        CRMAccount.SetRecFilter();
+        CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
         //LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Account", CRMAccount.GetView, IntegrationTableMapping);
 
         // [THEN] Fax number is correct on both sides

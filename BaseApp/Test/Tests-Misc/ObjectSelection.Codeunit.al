@@ -225,6 +225,7 @@ codeunit 134562 "Object Selection"
           SavedSegmentCriteriaLine.FieldNo("Table Caption"));
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure OutlookSynchEntity()
@@ -260,6 +261,7 @@ codeunit 134562 "Object Selection"
           OutlookSynchField.FieldNo("Table No."),
           OutlookSynchField.FieldNo("Table Caption"));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]

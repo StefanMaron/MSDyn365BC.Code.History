@@ -513,6 +513,12 @@
           <note from="Developer" annotates="general" priority="2">%1 = pagecaption (OCR Service Setup)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - NamedType EnableServiceQst</note>
         </trans-unit>
+        <trans-unit id="Page 4268182158 - NamedType 594054157" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This extension uses the Paypal service, a third-party provider. By enabling this extension, you will be subject to the applicable terms, conditions, and privacy policies that Paypal may make available.\\When you establish a connection through the PayPal Payments Standard extension, customer data from the invoice, such as invoice number, due date, amount, and currency, as well as your PayPal account ID, will be inserted into the PayPal payment link on invoices and sent to PayPal when the customer chooses the link to pay. This data is used to ensure that the link contains enough information for your customers to pay the invoice, as well as for PayPal to identify you as the recipient of a payment using the link.</source>
+          <target state="translated">Esta extensión utiliza el servicio de Paypal, un proveedor tercero. Si habilita esta extensión, estará sujeto a los términos, condiciones y directivas de privacidad aplicables que Paypal establezca.\\Al conectarse a través de la extensión de PayPal Payments Standard, los datos del cliente de la factura, como el número de factura, la fecha de vencimiento, el importe y la divisa, así como su id. de cuenta de PayPal, se insertarán en el vínculo de pago de PayPal de las facturas y se enviarán a PayPal cuando el cliente elija el vínculo para pagar. Estos datos se utilizan para garantizar que el vínculo contenga suficiente información para que los clientes paguen la factura, así como para PayPal para identificarle como el destinatario de un pago mediante el vínculo.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - NamedType ExchangeWithExternalServicesMsg</note>
+        </trans-unit>
         <trans-unit id="Page 4268182158 - Control 2445482498 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General</source>
           <target state="translated">General</target>

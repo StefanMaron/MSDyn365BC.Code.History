@@ -105,7 +105,7 @@ table 456 "Posted Approval Entry"
         field(22; "Posted Record ID"; RecordID)
         {
             Caption = 'Posted Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(23; "Delegation Date Formula"; DateFormula)
         {

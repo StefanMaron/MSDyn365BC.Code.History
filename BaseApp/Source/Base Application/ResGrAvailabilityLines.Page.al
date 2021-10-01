@@ -91,7 +91,7 @@ page 362 "Res. Gr. Availability Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -100,7 +100,7 @@ page 362 "Res. Gr. Availability Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -112,16 +112,26 @@ page 362 "Res. Gr. Availability Lines"
     var
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     protected var
         ResGr: Record "Resource Group";
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetLines().', '19.0')]
     procedure Set(var NewResGr: Record "Resource Group"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
+        SetLines(
+            NewResGr,
+            "Analysis Period Type".FromInteger(NewPeriodType), "Analysis Amount Type".FromInteger(NewAmountType));
+    end;
+#endif
+
+    procedure SetLines(var NewResGr: Record "Resource Group"; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type")
+    begin
         ResGr.Copy(NewResGr);
-        DeleteAll();
+        Rec.DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);

@@ -50,12 +50,10 @@ table 5488 "Trial Balance Entity Buffer"
             Caption = 'Total Credit';
             DataClassification = SystemMetadata;
         }
-        field(10; "Account Type"; Option)
+        field(10; "Account Type"; Enum "G/L Account Type")
         {
             Caption = 'Account Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Posting,Heading,Total,Begin-Total,End-Total';
-            OptionMembers = Posting,Heading,Total,"Begin-Total","End-Total";
         }
         field(11; "Account Id"; Guid)
         {

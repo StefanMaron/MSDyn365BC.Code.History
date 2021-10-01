@@ -11,8 +11,8 @@ codeunit 5335 "Integration Table Synch."
         CurrentIntegrationTableMapping: Record "Integration Table Mapping";
         TempIntegrationFieldMapping: Record "Temp Integration Field Mapping" temporary;
         IntegrationTableConnectionType: TableConnectionType;
-        SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete,Uncouple;
-        SynchJobType: Option Synchronization,Ucoupling;
+        SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete,Uncouple,Couple;
+        SynchJobType: Option Synchronization,Ucoupling,Coupling;
         JobState: Option Ready,Created,"In Progress";
         UnableToDetectSynchDirectionErr: Label 'The synchronization direction cannot be determined.';
         MappingDoesNotAllowDirectionErr: Label 'The %1 %2 is not configured for %3 synchronization.', Comment = '%1 = Integration Table Mapping caption, %2 Integration Table Mapping Name, %3 = the calculated synch. direction (FromIntegrationTable|ToIntegrationTable)';
@@ -31,6 +31,11 @@ codeunit 5335 "Integration Table Synch."
         exit(BeginIntegrationSynchJob(ConnectionType, IntegrationTableMapping, SourceTableID, SynchJobType::Ucoupling));
     end;
 
+    procedure BeginIntegrationCoupleJob(ConnectionType: TableConnectionType; var IntegrationTableMapping: Record "Integration Table Mapping"; SourceTableID: Integer) JobID: Guid
+    begin
+        exit(BeginIntegrationSynchJob(ConnectionType, IntegrationTableMapping, SourceTableID, SynchJobType::Coupling));
+    end;
+
     local procedure BeginIntegrationSynchJob(ConnectionType: TableConnectionType; var IntegrationTableMapping: Record "Integration Table Mapping"; SourceTableID: Integer; JobType: Option) JobID: Guid
     var
         DirectionIsDefined: Boolean;
@@ -44,7 +49,10 @@ codeunit 5335 "Integration Table Synch."
         IntegrationTableConnectionType := ConnectionType;
         CurrentIntegrationTableMapping := IntegrationTableMapping;
         JobQueueLogEntryNo := IntegrationTableMapping.GetJobLogEntryNo;
-        DirectionIsDefined := DetermineSynchDirection(SourceTableID, ErrorMessage);
+        if JobType = SynchJobType::Synchronization then
+            DirectionIsDefined := DetermineSynchDirection(SourceTableID, ErrorMessage)
+        else
+            DirectionIsDefined := true;
 
         JobID := InitIntegrationSynchJob(JobType);
         if not IsNullGuid(JobID) then begin
@@ -214,6 +222,76 @@ codeunit 5335 "Integration Table Synch."
         IncrementSynchJobCounters(SynchAction);
 
         exit(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure Couple(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef): Boolean
+    var
+        IntegrationRecordSynch: Codeunit "Integration Record Synch.";
+        IntRecCoupleInvoke: Codeunit "Int. Rec. Couple Invoke";
+        SynchAction: Option;
+        LocalRecordModified: Boolean;
+        IntegrationRecordModified: Boolean;
+        IsHandled: Boolean;
+    begin
+        OnBeforeCouple(LocalRecordRef, IntegrationRecordRef, IsHandled);
+        if IsHandled then
+            exit(true);
+
+        EnsureState(JobState::Created);
+        Commit();
+
+        if JobState = JobState::Created then begin
+            JobState := JobState::"In Progress";
+            CurrentIntegrationSynchJob."Synch. Direction" := CurrentIntegrationTableMapping.Direction;
+            CurrentIntegrationSynchJob.Modify(true);
+            TempIntegrationFieldMapping.Reset();
+            TempIntegrationFieldMapping.DeleteAll();
+            Commit();
+        end else
+            if CurrentIntegrationTableMapping.Direction <> CurrentIntegrationSynchJob."Synch. Direction" then
+                Error(DirectionChangeIsNotSupportedErr);
+
+        SynchAction := SynchActionType::Couple;
+
+        IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping); // set empty field mapping
+        IntRecCoupleInvoke.SetContext(
+            CurrentIntegrationTableMapping, LocalRecordRef, IntegrationRecordRef,
+            SynchAction, LocalRecordModified, IntegrationRecordModified, CurrentIntegrationSynchJob.ID, IntegrationTableConnectionType);
+        if not IntRecCoupleInvoke.Run() then begin
+            SynchAction := SynchActionType::Fail;
+            LogSynchError(LocalRecordRef, IntegrationRecordRef, GetLastErrorText());
+            exit(false);
+        end;
+        IntRecCoupleInvoke.GetContext(
+            CurrentIntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, SynchAction, LocalRecordModified, IntegrationRecordModified);
+        if LocalRecordModified or IntegrationRecordModified then
+            IncrementSynchJobCounters(SynchActionType::Modify);
+        IncrementSynchJobCounters(SynchAction);
+
+        exit(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure LogMatchBasedCouplingError(var LocalRecordRef: RecordRef; ErrorMessage: Text)
+    var
+        IntegrationRecordRef: RecordRef;
+    begin
+        EnsureState(JobState::Created);
+        Commit();
+
+        if JobState = JobState::Created then begin
+            JobState := JobState::"In Progress";
+            CurrentIntegrationSynchJob."Synch. Direction" := CurrentIntegrationTableMapping.Direction;
+            CurrentIntegrationSynchJob.Modify(true);
+            TempIntegrationFieldMapping.Reset();
+            TempIntegrationFieldMapping.DeleteAll();
+            Commit();
+        end else
+            if CurrentIntegrationTableMapping.Direction <> CurrentIntegrationSynchJob."Synch. Direction" then
+                Error(DirectionChangeIsNotSupportedErr);
+
+        LogSynchError(LocalRecordRef, IntegrationRecordRef, ErrorMessage);
     end;
 
     procedure Delete(RecRef: RecordRef): Boolean
@@ -408,7 +486,8 @@ codeunit 5335 "Integration Table Synch."
         exit(LogSynchError(SourceRecordRef, DestinationRecordRef, ErrorMessage, true));
     end;
 
-    local procedure LogSynchError(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; ErrorMessage: Text; UpdateCounter: Boolean): Guid
+    [Scope('OnPrem')]
+    procedure LogSynchError(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; ErrorMessage: Text; UpdateCounter: Boolean): Guid
     var
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         SourceRecordID: RecordID;
@@ -451,6 +530,8 @@ codeunit 5335 "Integration Table Synch."
                     Deleted += Counter;
                 SynchActionType::Uncouple:
                     Uncoupled += Counter;
+                SynchActionType::Couple:
+                    Coupled += Counter;
                 else
                     exit
             end;
@@ -489,6 +570,11 @@ codeunit 5335 "Integration Table Synch."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUncouple(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCouple(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135514 "Sales Order Line E2E Test"
 {
     Subtype = Test;
@@ -1056,4 +1057,4 @@ codeunit 135514 "Sales Order Line E2E Test"
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(DiscountAmount, SalesHeader);
     end;
 }
-
+#endif

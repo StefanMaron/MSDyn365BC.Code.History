@@ -4,6 +4,7 @@ page 602 "IC Dimension List"
     Editable = false;
     PageType = List;
     SourceTable = "IC Dimension";
+    UsageCategory = Administration;
 
     layout
     {

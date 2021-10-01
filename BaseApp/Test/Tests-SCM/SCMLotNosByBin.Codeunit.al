@@ -400,7 +400,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         exit(Bin.Code);
     end;
 
-    local procedure FindWarehouseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
@@ -444,12 +444,12 @@ codeunit 137165 "SCM Lot Nos By Bin"
         LookUpBinContent: Boolean;
     begin
         LookUpBinContent :=
-          (WhseActivityLine."Activity Type" <= WhseActivityLine."Activity Type"::Movement) or
+          (WhseActivityLine."Activity Type".AsInteger() <= WhseActivityLine."Activity Type"::Movement.AsInteger()) or
           (WhseActivityLine."Action Type" <> WhseActivityLine."Action Type"::Place);
         WhseActivityLine.LookUpTrackingSummary(WhseActivityLine, LookUpBinContent, -1, "Item Tracking Type"::"Lot No.");
     end;
 
-    local procedure VerifyLotNosOnBinQuery(SourceNo: Code[20]; ActivityType: Option)
+    local procedure VerifyLotNosOnBinQuery(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WhseEntry: Record "Warehouse Entry";
         WhseActivityLine: Record "Warehouse Activity Line";

@@ -41,7 +41,10 @@ codeunit 1021 "Job Jnl.-Post"
                 if not Confirm(Text001) then
                     exit;
 
+#if not CLEAN19
             OnCodeOnAftreConfirm(JobJnlLine);
+#endif            
+            OnCodeOnAfterConfirm(JobJnlLine);
 
             TempJnlBatchName := "Journal Batch Name";
 
@@ -87,9 +90,17 @@ codeunit 1021 "Job Jnl.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterConfirm(var JobJnlLine: Record "Job Journal Line")
+    begin
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced with OnCodeOnAfterConfirm', '19.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnCodeOnAftreConfirm(var JobJnlLine: Record "Job Journal Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeConfirm(JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)

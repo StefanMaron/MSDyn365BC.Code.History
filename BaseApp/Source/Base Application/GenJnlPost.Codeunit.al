@@ -1,4 +1,4 @@
-﻿codeunit 231 "Gen. Jnl.-Post"
+codeunit 231 "Gen. Jnl.-Post"
 {
     EventSubscriberInstance = Manual;
     TableNo = "Gen. Journal Line";

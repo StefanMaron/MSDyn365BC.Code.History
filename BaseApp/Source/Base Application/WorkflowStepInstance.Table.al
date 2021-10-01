@@ -35,7 +35,7 @@ table 1504 "Workflow Step Instance"
         field(11; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(12; "Created Date-Time"; DateTime)
         {

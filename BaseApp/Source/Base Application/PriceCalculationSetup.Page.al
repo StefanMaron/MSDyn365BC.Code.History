@@ -71,10 +71,14 @@ page 7006 "Price Calculation Setup"
 
     trigger OnOpenPage()
     var
+#if not CLEAN19
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+#endif
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
+#if not CLEAN19
         FeaturePriceCalculation.FailIfFeatureDisabled();
+#endif
         if PriceCalculationMgt.RefreshSetup() then
             Commit();
     end;

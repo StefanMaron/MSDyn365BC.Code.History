@@ -12,12 +12,12 @@ codeunit 448 "Job Queue Dispatcher"
             exit;
 
         SelectLatestVersion();
-        Get(ID);
-        if not IsReadyToStart() then
+        Rec.Get(ID);
+        if not Rec.IsReadyToStart() then
             exit;
 
-        if IsExpired(CurrentDateTime) then
-            DeleteTask()
+        if Rec.IsExpired(CurrentDateTime) then
+            Rec.DeleteTask()
         else
             if WaitForOthersWithSameCategory(Rec) then
                 Reschedule(Rec)
@@ -28,17 +28,11 @@ codeunit 448 "Job Queue Dispatcher"
 
     var
         TestMode: Boolean;
-        JobQueueContextTxt: Label 'Job Queue', Locked = true;
 
     local procedure HandleRequest(var JobQueueEntry: Record "Job Queue Entry")
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";
-        ErrorMessageManagement: Codeunit "Error Message Management";
-        ErrorMessageHandler: Codeunit "Error Message Handler";
-        ErrorContextElement: Codeunit "Error Context Element";
-        WasSuccess: Boolean;
         PrevStatus: Option;
-        ErrorMessageRegisterId: Guid;
         JobQueueStartTime: DateTime;
         JobQueueExecutionTimeInMs: Integer;
     begin
@@ -48,47 +42,48 @@ codeunit 448 "Job Queue Dispatcher"
 
         OnBeforeHandleRequest(JobQueueEntry);
 
-        with JobQueueEntry do begin
-            // Always update the JQE because if the session dies and the task is rerun, it should have the latest information
-            Status := Status::"In Process";
-            "User Session Started" := CurrentDateTime();
-            "User Session ID" := SessionId();
-            "User Service Instance ID" := ServiceInstanceId();
-            Modify(); // Modify incase it fails when inserting Log Entry
+        // Always update the JQE because if the session dies and the task is rerun, it should have the latest information
+        JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
+        JobQueueEntry."User Session Started" := CurrentDateTime();
+        JobQueueEntry."User Session ID" := SessionId();
+        JobQueueEntry."User Service Instance ID" := ServiceInstanceId();
+        JobQueueEntry.Modify(); // Modify incase it fails when inserting Log Entry
 
-            InsertLogEntry(JobQueueLogEntry);
-            ScheduleRecoveryJob();
-            Modify();
-            // Codeunit.Run is limited during write transactions because one or more tables will be locked.
-            // To avoid NavCSideException we have either to add the COMMIT before the call or do not use a returned value.
-            Commit();
-            OnBeforeExecuteJob(JobQueueEntry);
-            ErrorMessageManagement.Activate(ErrorMessageHandler);
-            ErrorMessageManagement.PushContext(ErrorContextElement, RecordId(), 0, JobQueueContextTxt);
-            JobQueueStartTime := CurrentDateTime();
-            WasSuccess := Codeunit.Run(Codeunit::"Job Queue Start Codeunit", JobQueueEntry);
-            JobQueueExecutionTimeInMs := CurrentDateTime() - JobQueueStartTime;
-            if not WasSuccess then
-                ErrorMessageRegisterId := ErrorMessageHandler.RegisterErrorMessages();
-            OnAfterExecuteJob(JobQueueEntry, WasSuccess);
-            PrevStatus := Status;
+        JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
+        JobQueueEntry.Modify();
+        // Codeunit.Run is limited during write transactions because one or more tables will be locked.
+        // To avoid NavCSideException we have either to add the COMMIT before the call or do not use a returned value.
+        Commit();
+        OnBeforeExecuteJob(JobQueueEntry);
 
-            // user may have deleted it in the meantime
-            if DoesExistLocked() then
-                SetResult(WasSuccess, PrevStatus, ErrorMessageRegisterId)
-            else
-                SetResultDeletedEntry();
-            if TaskScheduler.TaskExists("Recovery Task ID") then
-                TaskScheduler.CancelTask("Recovery Task ID");
-            Commit();
+        JobQueueStartTime := CurrentDateTime();
+        Codeunit.Run(Codeunit::"Job Queue Start Codeunit", JobQueueEntry);
+        JobQueueExecutionTimeInMs := CurrentDateTime() - JobQueueStartTime;
 
-            FinalizeLogEntry(JobQueueLogEntry, ErrorMessageHandler.GetErrorCallStack());
+#if not CLEAN19
+        OnAfterExecuteJob(JobQueueEntry, true);
+#else
+        OnAfterSuccessExecuteJob(JobQueueEntry);
+#endif
+        PrevStatus := JobQueueEntry.Status;
 
-            if DoesExistLocked() then
-                FinalizeRun();
-        end;
+        // user may have deleted it in the meantime
+        if JobQueueEntry.DoesExistLocked() then
+            JobQueueEntry.SetResult(PrevStatus)
+        else
+            JobQueueEntry.SetResultDeletedEntry();
+        Commit();
 
-        OnAfterHandleRequest(JobQueueEntry, WasSuccess, JobQueueExecutionTimeInMs);
+        JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);
+
+        if JobQueueEntry.DoesExistLocked() then
+            JobQueueEntry.FinalizeRun();
+
+#if not CLEAN19
+        OnAfterHandleRequest(JobQueueEntry, true, JobQueueExecutionTimeInMs);
+#else
+        OnAfterSuccessHandleRequest(JobQueueEntry, JobQueueExecutionTimeInMs);
+#endif
     end;
 
     local procedure WaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry") Result: Boolean
@@ -120,10 +115,7 @@ codeunit 448 "Job Queue Dispatcher"
                     exit(true)
                 else // stale job queue entry with status in process but no system task behind it.
                     if (JobQueueEntry."User ID" = UserId()) and JobQueueEntryCheck.Get(JobQueueEntry.ID) then
-                        Reschedule(JobQueueEntry)
-                    else
-                        if not DoesSystemTaskExist(JobQueueEntry."Recovery Task Id") then
-                            JobQueueEntry.ScheduleRecoveryJob();
+                        Reschedule(JobQueueEntry);
             until JobQueueEntry.Next() = 0;
     end;
 
@@ -284,10 +276,29 @@ codeunit 448 "Job Queue Dispatcher"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('WasSuccess boolean is always true. In event of error, use OnAfterLogError in JobQueueErrorHandler.', '19.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterHandleRequest(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean; JobQueueExecutionTime: Integer)
+    internal procedure OnAfterHandleRequest(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean; JobQueueExecutionTime: Integer)
     begin
     end;
+
+    [Obsolete('WasSuccess boolean is always true. In event of error, use OnAfterLogError in JobQueueErrorHandler.', '19.0')]
+    [IntegrationEvent(false, false)]
+    internal procedure OnAfterExecuteJob(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean)
+    begin
+    end;
+#else
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSuccessHandleRequest(var JobQueueEntry: Record "Job Queue Entry"; JobQueueExecutionTime: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSuccessExecuteJob(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleRequest(var JobQueueEntry: Record "Job Queue Entry")
@@ -296,11 +307,6 @@ codeunit 448 "Job Queue Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExecuteJob(var JobQueueEntry: Record "Job Queue Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterExecuteJob(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean)
     begin
     end;
 

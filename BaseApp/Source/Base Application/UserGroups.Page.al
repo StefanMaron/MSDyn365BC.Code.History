@@ -35,9 +35,14 @@ page 9830 "User Groups"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         AllProfileTable: Record "All Profile";
+                        Roles: Page Roles;
                     begin
-                        if PAGE.RunModal(PAGE::"Available Roles", AllProfileTable) = ACTION::LookupOK then
+                        Roles.Initialize();
+                        Roles.LookupMode(true);
+                        if Roles.RunModal() = Action::LookupOK then begin
+                            Roles.GetRecord(AllProfileTable);
                             UpdateProfile(AllProfileTable);
+                        end
                     end;
 
                     trigger OnValidate()

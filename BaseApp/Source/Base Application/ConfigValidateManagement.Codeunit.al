@@ -156,7 +156,7 @@ codeunit 8617 "Config. Validate Management"
         end;
     end;
 
-    procedure ValidateFieldRefRelationAgainstCompanyData(FieldRef: FieldRef): Text[250]
+    procedure ValidateFieldRefRelationAgainstCompanyData(FieldRef: FieldRef): Text
     var
         ConfigTryValidate: Codeunit "Config. Try Validate";
         RecRef: RecordRef;
@@ -175,7 +175,7 @@ codeunit 8617 "Config. Validate Management"
 
         Commit();
         if not ConfigTryValidate.Run() then
-            exit(CopyStr(GetLastErrorText, 1, 250));
+            exit(GetLastErrorText());
 
         exit('');
     end;
@@ -195,17 +195,17 @@ codeunit 8617 "Config. Validate Management"
         end;
     end;
 
-    procedure EvaluateValue(var FieldRef: FieldRef; Value: Text[250]; XMLValue: Boolean): Text[250]
+    procedure EvaluateValue(var FieldRef: FieldRef; Value: Text; XMLValue: Boolean): Text
     begin
         exit(EvaluateValueBase(FieldRef, Value, XMLValue, false));
     end;
 
-    procedure EvaluateValueWithValidate(var FieldRef: FieldRef; Value: Text[250]; XMLValue: Boolean): Text[250]
+    procedure EvaluateValueWithValidate(var FieldRef: FieldRef; Value: Text; XMLValue: Boolean): Text
     begin
         exit(EvaluateValueBase(FieldRef, Value, XMLValue, true));
     end;
 
-    local procedure EvaluateValueBase(var FieldRef: FieldRef; Value: Text[250]; XMLValue: Boolean; Validate: Boolean): Text[250]
+    local procedure EvaluateValueBase(var FieldRef: FieldRef; Value: Text; XMLValue: Boolean; Validate: Boolean): Text
     begin
         if (Value <> '') and not IsNormalField(FieldRef) then
             exit(Text002Msg);
@@ -246,7 +246,7 @@ codeunit 8617 "Config. Validate Management"
         end;
     end;
 
-    local procedure EvaluateValueToText(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToText(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         "Field": Record "Field";
         RecordRef: RecordRef;
@@ -256,7 +256,7 @@ codeunit 8617 "Config. Validate Management"
         TypeHelper.TestFieldIsNotObsolete(Field);
 
         if StrLen(Value) > FieldRef.Length then
-            exit(CopyStr(StrSubstNo(Text001Msg, FieldRef.Record.Caption, FieldRef.Caption, FieldRef.Length, Value), 1, 250));
+            exit(StrSubstNo(Text001Msg, FieldRef.Record.Caption, FieldRef.Caption, FieldRef.Length, Value));
 
         if Validate then
             FieldRef.Validate(Value)
@@ -264,13 +264,13 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := Value;
     end;
 
-    local procedure EvaluateValueToCode(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToCode(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         "Field": Record "Field";
         RecordRef: RecordRef;
-        "Code": Code[250];
+        "Code": Code[1024];
     begin
-        Code := Value;
+        Code := CopyStr(Value, 1, 1024);
         RecordRef := FieldRef.Record();
         Field.Get(RecordRef.Number, FieldRef.Number);
         TypeHelper.TestFieldIsNotObsolete(Field);
@@ -284,7 +284,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := Code;
     end;
 
-    local procedure EvaluateValueToOption(var FieldRef: FieldRef; Value: Text[250]; XMLValue: Boolean; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToOption(var FieldRef: FieldRef; Value: Text; XMLValue: Boolean; Validate: Boolean): Text
     var
         "Integer": Integer;
     begin
@@ -296,7 +296,7 @@ codeunit 8617 "Config. Validate Management"
             Integer := GetOptionNo(Value, FieldRef);
 
         if Integer = -1 then
-            exit(CopyStr(StrSubstNo(Text004Msg, Value, FieldRef.OptionCaption), 1, 250));
+            exit(StrSubstNo(Text004Msg, Value, FieldRef.OptionCaption));
 
         if Validate then
             FieldRef.Validate(Integer)
@@ -304,7 +304,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := Integer;
     end;
 
-    local procedure EvaluateValueToDate(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToDate(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         Date: Date;
         Decimal: Decimal;
@@ -319,7 +319,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := Date;
     end;
 
-    local procedure EvaluateValueToDateFormula(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToDateFormula(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         DateFormula: DateFormula;
     begin
@@ -332,7 +332,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := DateFormula;
     end;
 
-    local procedure EvaluateValueToDateTime(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToDateTime(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         DateTime: DateTime;
     begin
@@ -345,7 +345,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := DateTime;
     end;
 
-    local procedure EvaluateValueToTime(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToTime(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         Time: Time;
         Decimal: Decimal;
@@ -360,7 +360,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := Time;
     end;
 
-    local procedure EvaluateValueToDuration(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToDuration(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         Duration: Duration;
     begin
@@ -373,7 +373,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := Duration;
     end;
 
-    local procedure EvaluateValueToInteger(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToInteger(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         "Integer": Integer;
     begin
@@ -386,7 +386,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := Integer;
     end;
 
-    local procedure EvaluateValueToBigInteger(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToBigInteger(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         BigInteger: BigInteger;
     begin
@@ -399,7 +399,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := BigInteger;
     end;
 
-    local procedure EvaluateValueToDecimal(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToDecimal(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         Decimal: Decimal;
     begin
@@ -412,7 +412,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := Decimal;
     end;
 
-    local procedure EvaluateValueToBoolean(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToBoolean(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         Boolean: Boolean;
     begin
@@ -425,7 +425,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := Boolean;
     end;
 
-    local procedure EvaluateValueToGuid(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToGuid(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         Guid: Guid;
     begin
@@ -438,7 +438,7 @@ codeunit 8617 "Config. Validate Management"
             FieldRef.Value := Guid;
     end;
 
-    local procedure EvaluateValueToTableFilter(var FieldRef: FieldRef; Value: Text[250]): Text[250]
+    local procedure EvaluateValueToTableFilter(var FieldRef: FieldRef; Value: Text): Text
     var
         TableFilter: Text;
     begin
@@ -448,7 +448,7 @@ codeunit 8617 "Config. Validate Management"
         Evaluate(FieldRef, TableFilter);
     end;
 
-    local procedure EvaluateValueToRecordID(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    local procedure EvaluateValueToRecordID(var FieldRef: FieldRef; Value: Text; Validate: Boolean): Text
     var
         Field: Record Field;
         RecordID: RecordId;
@@ -490,7 +490,7 @@ codeunit 8617 "Config. Validate Management"
         exit(false);
     end;
 
-    procedure EvaluateTextToFieldRef(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    procedure EvaluateTextToFieldRef(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     begin
         if FieldRef.Class in [FieldClass::FlowField, FieldClass::FlowFilter] then
             exit(true);
@@ -533,7 +533,7 @@ codeunit 8617 "Config. Validate Management"
         exit(true);
     end;
 
-    local procedure EvaluateTextToFieldRefOption(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefOption(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         IntVar: Integer;
         IntVar1: Integer;
@@ -552,7 +552,7 @@ codeunit 8617 "Config. Validate Management"
         exit(true);
     end;
 
-    local procedure EvaluateTextToFieldRefInteger(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefInteger(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         IntVar: Integer;
         IntVar1: Integer;
@@ -570,7 +570,7 @@ codeunit 8617 "Config. Validate Management"
         exit(false);
     end;
 
-    local procedure EvaluateTextToFieldRefDecimal(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefDecimal(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         DecimalVar: Decimal;
         DecimalVar1: Decimal;
@@ -588,7 +588,7 @@ codeunit 8617 "Config. Validate Management"
         exit(false);
     end;
 
-    local procedure EvaluateTextToFieldRefDate(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefDate(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         DateVar: Date;
         DateVar1: Date;
@@ -606,7 +606,7 @@ codeunit 8617 "Config. Validate Management"
         exit(false);
     end;
 
-    local procedure EvaluateTextToFieldRefTime(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefTime(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         TimeVar: Time;
         TimeVar1: Time;
@@ -624,7 +624,7 @@ codeunit 8617 "Config. Validate Management"
         exit(false);
     end;
 
-    local procedure EvaluateTextToFieldRefDateTime(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefDateTime(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         DateTimeVar: DateTime;
         DateTimeVar1: DateTime;
@@ -642,7 +642,7 @@ codeunit 8617 "Config. Validate Management"
         exit(false);
     end;
 
-    local procedure EvaluateTextToFieldRefBoolean(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefBoolean(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         BoolVar: Boolean;
         BoolVar1: Boolean;
@@ -660,7 +660,7 @@ codeunit 8617 "Config. Validate Management"
         exit(false);
     end;
 
-    local procedure EvaluateTextToFieldRefDuration(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefDuration(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         DurationVar: Duration;
         DurationVar1: Duration;
@@ -678,7 +678,7 @@ codeunit 8617 "Config. Validate Management"
         exit(false);
     end;
 
-    local procedure EvaluateTextToFieldRefBigInteger(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefBigInteger(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         BigIntVar: BigInteger;
         BigIntVar1: BigInteger;
@@ -696,7 +696,7 @@ codeunit 8617 "Config. Validate Management"
         exit(false);
     end;
 
-    local procedure EvaluateTextToFieldRefGUID(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefGUID(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         GUIDVar: Guid;
         GUIDVar1: Guid;
@@ -714,7 +714,7 @@ codeunit 8617 "Config. Validate Management"
         exit(false);
     end;
 
-    local procedure EvaluateTextToFieldRefCodeText(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefCodeText(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         TextVar: Text[1024];
         TextVar1: Text[1024];
@@ -738,7 +738,7 @@ codeunit 8617 "Config. Validate Management"
         exit(true);
     end;
 
-    local procedure EvaluateTextToFieldRefDateFormula(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefDateFormula(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         DateFormulaVar: DateFormula;
         DateFormulaVar1: DateFormula;
@@ -756,13 +756,13 @@ codeunit 8617 "Config. Validate Management"
         exit(false);
     end;
 
-    local procedure EvaluateTextToFieldRefTableFilter(InputText: Text[250]; var FieldRef: FieldRef): Boolean
+    local procedure EvaluateTextToFieldRefTableFilter(InputText: Text; var FieldRef: FieldRef): Boolean
     begin
         Evaluate(FieldRef, InputText);
         exit(true);
     end;
 
-    local procedure EvaluateTextToFieldRefRecordID(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRefRecordID(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         RecordIDVar: RecordId;
         RecordIDVar1: RecordId;
@@ -780,7 +780,7 @@ codeunit 8617 "Config. Validate Management"
         EXIT(FALSE);
     end;
 
-    procedure CheckName(FieldName: Text[250]): Text[250]
+    procedure CheckName(FieldName: Text): Text
     var
         FirstChar: Text[1];
     begin

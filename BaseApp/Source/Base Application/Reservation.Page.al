@@ -82,7 +82,7 @@ page 498 Reservation
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownTotalQuantity;
+                        DrillDownTotalQuantity();
                     end;
                 }
                 field(TotalReservedQuantity; ReservMgt.FormatQty("Total Reserved Quantity"))
@@ -96,7 +96,7 @@ page 498 Reservation
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownReservedQuantity;
+                        DrillDownReservedQuantity();
                     end;
                 }
                 field(QtyAllocatedInWarehouse; ReservMgt.FormatQty("Qty. Alloc. in Warehouse"))
@@ -144,7 +144,7 @@ page 498 Reservation
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownReservedThisLine;
+                        DrillDownReservedThisLine();
                     end;
                 }
             }
@@ -219,7 +219,7 @@ page 498 Reservation
 
                     trigger OnAction()
                     begin
-                        DrillDownTotalQuantity;
+                        DrillDownTotalQuantity();
                     end;
                 }
                 action("&Reservation Entries")
@@ -235,7 +235,7 @@ page 498 Reservation
 
                     trigger OnAction()
                     begin
-                        DrillDownReservedThisLine;
+                        DrillDownReservedThisLine();
                     end;
                 }
             }
@@ -423,92 +423,6 @@ page 498 Reservation
         end;
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line")
-    begin
-        SourceRecRef.GetTable(CurrentSalesLine);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
-
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetReqLine(var CurrentReqLine: Record "Requisition Line")
-    begin
-        SourceRecRef.GetTable(CurrentReqLine);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
-
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line")
-    begin
-        SourceRecRef.GetTable(CurrentPurchLine);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
-
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetItemJnlLine(var CurrentItemJnlLine: Record "Item Journal Line")
-    begin
-        SourceRecRef.GetTable(CurrentItemJnlLine);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
-
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderLine);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
-
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderComp);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
-
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
-
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
-
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component")
-    begin
-        SourceRecRef.GetTable(CurrentPlanningComponent);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
-
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetTransLine(CurrentTransLine: Record "Transfer Line"; Direction: Option Outbound,Inbound)
-    begin
-        SourceRecRef.GetTable(CurrentTransLine);
-        SetReservSource(SourceRecRef, "Transfer Direction".FromInteger(Direction));
-    end;
-
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetServiceLine(var CurrentServiceLine: Record "Service Line")
-    begin
-        SourceRecRef.GetTable(CurrentServiceLine);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
-
-    [Obsolete('Replaced by SetReservSource procedure.', '16.0')]
-    procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line")
-    begin
-        SourceRecRef.GetTable(CurrentJobPlanningLine);
-        SetReservSource(SourceRecRef, "Transfer Direction"::Outbound);
-    end;
-#endif
-
     procedure SetReservEntry(ReservEntry2: Record "Reservation Entry")
     begin
         ReservEntry := ReservEntry2;
@@ -590,7 +504,7 @@ page 498 Reservation
         ReservMgt.SetTrackingFromReservEntry(ReservEntry);
     end;
 
-    local procedure DrillDownTotalQuantity()
+    protected procedure DrillDownTotalQuantity()
     var
         Location: Record Location;
         AvailableItemTrackingLines: Page "Avail. - Item Tracking Lines";
@@ -612,7 +526,7 @@ page 498 Reservation
         UpdateReservFrom();
     end;
 
-    local procedure DrillDownReservedQuantity()
+    protected procedure DrillDownReservedQuantity()
     begin
         ReservEntry2.Reset();
 
@@ -626,7 +540,7 @@ page 498 Reservation
         UpdateReservFrom();
     end;
 
-    local procedure DrillDownReservedThisLine()
+    protected procedure DrillDownReservedThisLine()
     var
         ReservEntry3: Record "Reservation Entry";
         TrackingMatch: Boolean;

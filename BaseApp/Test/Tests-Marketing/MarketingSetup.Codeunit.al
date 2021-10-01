@@ -33,7 +33,7 @@ codeunit 136205 "Marketing Setup"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Setup");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -385,7 +385,7 @@ codeunit 136205 "Marketing Setup"
         LibraryMarketing.CreateCompanyContact(Contact);
 
         // 2. Exercise: Create Vendor from Contact.
-        Contact.CreateVendor;
+        Contact.CreateVendorFromTemplate('');
 
         // 3. Verify: Verify Contact Business Relation and Vendor successfully created.
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);

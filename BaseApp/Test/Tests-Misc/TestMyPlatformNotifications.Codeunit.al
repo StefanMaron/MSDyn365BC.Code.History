@@ -26,7 +26,7 @@ codeunit 139034 "Test My Platform Notifications"
         MyNotifications.DeleteAll();
         VerifyNotificationDoesNotExist;
 
-        // [WHEN] Opened page "My Settings"
+        // [WHEN] Opened page "My Notifications"
         MyNotificationsTestPage.OpenView;
 
         // [THEN] The notification is initialized

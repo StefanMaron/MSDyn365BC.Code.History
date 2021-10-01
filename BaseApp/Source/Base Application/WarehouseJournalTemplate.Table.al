@@ -40,11 +40,9 @@ table 7309 "Warehouse Journal Template"
         {
             Caption = 'Force Registering Report';
         }
-        field(9; Type; Option)
+        field(9; Type; Enum "Warehouse Journal Template Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Item,Physical Inventory,Reclassification';
-            OptionMembers = Item,"Physical Inventory",Reclassification;
 
             trigger OnValidate()
             begin
@@ -89,7 +87,7 @@ table 7309 "Warehouse Journal Template"
         }
         field(15; "Test Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Test Report ID")));
             Caption = 'Test Report Caption';
             Editable = false;
@@ -97,7 +95,7 @@ table 7309 "Warehouse Journal Template"
         }
         field(16; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
                                                                            "Object ID" = FIELD("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
@@ -105,7 +103,7 @@ table 7309 "Warehouse Journal Template"
         }
         field(17; "Registering Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Registering Report ID")));
             Caption = 'Registering Report Caption';
             Editable = false;
@@ -133,6 +131,10 @@ table 7309 "Warehouse Journal Template"
                 if ("Registering No. Series" = "No. Series") and ("Registering No. Series" <> '') then
                     FieldError("Registering No. Series", StrSubstNo(Text000, "Registering No. Series"));
             end;
+        }
+        field(30; "Increment Batch Name"; Boolean)
+        {
+            Caption = 'Increment Batch Name';
         }
     }
 

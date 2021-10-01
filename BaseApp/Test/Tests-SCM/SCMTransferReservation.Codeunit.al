@@ -685,7 +685,7 @@ codeunit 137269 "SCM Transfer Reservation"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         WarehouseRequest: Record "Warehouse Request";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
         // [SCENARIO 216549] Transfer Receipt can be posted if "Qty. to Handle" < Quantity on Item Tracking Lines for Transfer Shipment from location set up for required inventory pick.
@@ -953,7 +953,7 @@ codeunit 137269 "SCM Transfer Reservation"
         SalesLine: Record "Sales Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ReservationEntry: Record "Reservation Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
         // [SCENARIO 271087] When you set item tracking on inventory pick line and post it in order to ship a transfer, the item tracking is synchronized with the inbound transfer, which in its turn, is reserved for a sales order.
@@ -1024,7 +1024,7 @@ codeunit 137269 "SCM Transfer Reservation"
         SalesLine: Record "Sales Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ReservationEntry: Record "Reservation Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
         // [SCENARIO 271087] When you set item tracking on inventory put-away and post it in order to receive a transfer, which in its turn, is reserved for a sales order, the tracking for the transfer is deleted, and the sales is reserved from inventory.
@@ -1095,7 +1095,7 @@ codeunit 137269 "SCM Transfer Reservation"
         TransferLine: Record "Transfer Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ReservationEntry: Record "Reservation Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Qty: Decimal;
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
@@ -1160,7 +1160,7 @@ codeunit 137269 "SCM Transfer Reservation"
         SalesLine: Record "Sales Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ReservationEntry: Record "Reservation Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
         // [SCENARIO 271087] When you set item tracking on transfer line, create an inventory pick, decrease the quantity to handle and post the inventory pick, the item tracking is synchronized with the inbound transfer.
@@ -1242,7 +1242,7 @@ codeunit 137269 "SCM Transfer Reservation"
         WarehouseRequest: Record "Warehouse Request";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Qty: Decimal;
         TrackedQty: Decimal;
     begin
@@ -1308,7 +1308,7 @@ codeunit 137269 "SCM Transfer Reservation"
         TransferLine: Record "Transfer Line";
         PurchaseLine: Record "Purchase Line";
         ReservationEntry: Record "Reservation Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
         LotQty: Decimal;
     begin
         // [FEATURE] [Purchase] [Item Tracking] [Order-to-Order Binding]
@@ -1361,7 +1361,7 @@ codeunit 137269 "SCM Transfer Reservation"
         SourceTrackingSpecification: Record "Tracking Specification";
         ReservationEntry: Record "Reservation Entry";
         ItemTrackingLines: Page "Item Tracking Lines";
-        LotNo: Code[20];
+        LotNo: Code[50];
         LotQty: Decimal;
     begin
         // [FEATURE] [Purchase] [Item Tracking] [Order-to-Order Binding]
@@ -1415,7 +1415,7 @@ codeunit 137269 "SCM Transfer Reservation"
         TransferLine: Record "Transfer Line";
         PurchaseLine: Record "Purchase Line";
         ReservationEntry: Record "Reservation Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
         LotQty: Decimal;
     begin
         // [FEATURE] [Purchase] [Item Tracking] [Order-to-Order Binding]
@@ -1472,7 +1472,7 @@ codeunit 137269 "SCM Transfer Reservation"
         TransferLine: Record "Transfer Line";
         PurchaseLine: Record "Purchase Line";
         ReservationEntry: Record "Reservation Entry";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Purchase] [Item Tracking] [Order-to-Order Binding]
         // [SCENARIO 283223] When a user deletes existing item tracking line on purchase line planned to supply transfer, that deletes the item tracking in the inbound transfer.
@@ -2117,7 +2117,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservationManagement: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
     begin
-        ReservationManagement.SetTransferLine(TransferLine, Direction);
+        ReservationManagement.SetReservSource(TransferLine, Direction);
         with TransferLine do
             ReservationManagement.AutoReserve(FullAutoReservation, Description, AvailabilityDate, Quantity, "Quantity (Base)");
     end;
@@ -2127,7 +2127,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservationManagement: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
     begin
-        ReservationManagement.SetSalesLine(SalesLine);
+        ReservationManagement.SetReservSource(SalesLine);
         with SalesLine do
             ReservationManagement.AutoReserve(FullAutoReservation, Description, AvailabilityDate, Quantity, "Quantity (Base)");
     end;
@@ -2137,7 +2137,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservationManagement: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
     begin
-        ReservationManagement.SetPurchLine(PurchaseLine);
+        ReservationManagement.SetReservSource(PurchaseLine);
         with PurchaseLine do
             ReservationManagement.AutoReserve(FullAutoReservation, Description, AvailabilityDate, Quantity, "Quantity (Base)");
     end;
@@ -2329,7 +2329,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateAndPostInventoryPickFromOutboundTransfer(var WarehouseActivityLine: Record "Warehouse Activity Line"; TransferOrderNo: Code[20]; QtyToHandle: Decimal; LotNo: Code[20])
+    local procedure CreateAndPostInventoryPickFromOutboundTransfer(var WarehouseActivityLine: Record "Warehouse Activity Line"; TransferOrderNo: Code[20]; QtyToHandle: Decimal; LotNo: Code[50])
     var
         WarehouseRequest: Record "Warehouse Request";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
@@ -2344,7 +2344,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
     end;
 
-    local procedure CreateAndPostInventoryPutawayFromInboundTransfer(var WarehouseActivityLine: Record "Warehouse Activity Line"; TransferOrderNo: Code[20]; LocationCode: Code[10]; QtyToHandle: Decimal; LotNo: Code[20])
+    local procedure CreateAndPostInventoryPutawayFromInboundTransfer(var WarehouseActivityLine: Record "Warehouse Activity Line"; TransferOrderNo: Code[20]; LocationCode: Code[10]; QtyToHandle: Decimal; LotNo: Code[50])
     var
         Bin: Record Bin;
         WarehouseRequest: Record "Warehouse Request";
@@ -2408,14 +2408,14 @@ codeunit 137269 "SCM Transfer Reservation"
         TransferLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; SourceNo: Code[20])
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; SourceNo: Code[20])
     begin
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindSetWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; SourceNo: Code[20])
+    local procedure FindSetWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; SourceNo: Code[20])
     begin
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -2466,7 +2466,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservationEntry.Insert();
     end;
 
-    local procedure UpdateTrackedInventory(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    local procedure UpdateTrackedInventory(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -2478,7 +2478,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure UpdateTrackedInventoryOnWMSLocation(LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    local procedure UpdateTrackedInventoryOnWMSLocation(LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[50]; Qty: Decimal)
     var
         Bin: Record Bin;
     begin

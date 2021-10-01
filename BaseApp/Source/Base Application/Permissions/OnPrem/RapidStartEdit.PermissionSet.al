@@ -5,7 +5,7 @@ permissionset 2800 "RapidStart - Edit"
     Caption = 'RapidStart Services';
 
     Permissions = tabledata "API Entities Setup" = RIMD,
-                  tabledata "Config. Field Mapping" = RIMD,
+                  tabledata "Config. Field Map" = RIMD,
                   tabledata "Config. Line" = RIMD,
                   tabledata "Config. Media Buffer" = RIMD,
                   tabledata "Config. Package" = RIMD,

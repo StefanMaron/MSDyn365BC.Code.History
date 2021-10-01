@@ -455,6 +455,8 @@ table 7316 "Warehouse Receipt Header"
         exit(OrderStatus);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by platform capabilities.', '19.0')]
     procedure LookupWhseRcptHeader(var WhseRcptHeader: Record "Warehouse Receipt Header")
     begin
         Commit();
@@ -469,7 +471,7 @@ table 7316 "Warehouse Receipt Header"
             WhseRcptHeader.FilterGroup := 0;
         end;
     end;
-
+#endif
     procedure LookupLocation(var WhseRcptHeader: Record "Warehouse Receipt Header")
     var
         Location: Record Location;

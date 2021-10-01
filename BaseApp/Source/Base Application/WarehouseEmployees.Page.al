@@ -36,6 +36,7 @@ page 7328 "Warehouse Employees"
                     ApplicationArea = Warehouse;
                     Caption = 'ADCS User';
                     ToolTip = 'Specifies the ADCS user name of a warehouse employee.';
+                    Visible = false;
                 }
             }
         }

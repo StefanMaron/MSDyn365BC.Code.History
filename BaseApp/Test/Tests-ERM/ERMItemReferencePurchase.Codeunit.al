@@ -22,64 +22,6 @@ codeunit 134464 "ERM Item Reference Purchase"
         isInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('DataUpgradeOverviewModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunFeatureReviewDataOnDemoData()
-    var
-        ItemCrossReference: Record "Item Cross Reference";
-        ItemReference: Record "Item Reference";
-        FeatureItemReference: Codeunit "Feature - Item Reference";
-        Counter: Integer;
-    begin
-        // [FEATURE] [Upgrade] [UI]
-        Initialize();
-        // [GIVEN] "Item Cross Reference" table contains 6 records, "Item Reference" table is empty
-        Counter := ItemCrossReference.Count;
-        Assert.RecordCount(ItemReference, 0);
-
-        // [WHEN] Review data
-        Assert.IsTrue(FeatureItemReference.IsDataUpdateRequired(), 'IsDataUpdateRequired');
-        FeatureItemReference.ReviewData();
-
-        // [THEN] Open page "Data Upgrade Overview", where is the line for "Item Cross Reference" with 6 records
-        Assert.AreEqual(ItemCrossReference.TableCaption, LibraryVariableStorage.DequeueText(), 'Table name in review data page');
-        Assert.AreEqual(Counter, LibraryVariableStorage.DequeueInteger(), 'Record counter in review data page');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure RunFeatureDataUpdateOnDemoData()
-    var
-        ItemCrossReference: Record "Item Cross Reference";
-        ItemReference: Record "Item Reference";
-        JobQueueLogEntry: Record "Job Queue Log Entry";
-        FeatureDataUpdateStatus: Record "Feature Data Update Status";
-        FeatureManagamentFacade: Codeunit "Feature Management Facade";
-        FeatureItemReference: Codeunit "Feature - Item Reference";
-        ItemReferenceManagement: Codeunit "Item Reference Management";
-        Counter: Integer;
-    begin
-        // [FEATURE] [Upgrade]
-        Initialize();
-        // [GIVEN] "Item Cross Reference" table contains 6 records, "Item Reference" table is empty
-        Counter := ItemCrossReference.Count;
-        Assert.RecordCount(ItemReference, 0);
-
-        // [WHEN] Run the data update task
-        if FeatureManagamentFacade.IsEnabled(ItemReferenceManagement.GetFeatureKey()) then;
-        FeatureDataUpdateStatus.Get(ItemReferenceManagement.GetFeatureKey(), CompanyName());
-        Codeunit.Run(Codeunit::"Update Feature Data", FeatureDataUpdateStatus);
-
-        // [THEN] "Item Reference" table contains 6 records
-        Assert.RecordCount(ItemReference, Counter);
-        // [THEN] Added 17 log entries
-        JobQueueLogEntry.SetRange(ID, FeatureDataUpdateStatus."Task Id");
-        Assert.RecordCount(JobQueueLogEntry, 17);
-
-        asserterror error(''); // roll back
-    end;
-
-    [Test]
     [HandlerFunctions('ItemReferenceListModalPageHandler')]
     [Scope('OnPrem')]
     procedure ICRLookupPurchaseItemWhenSameVendorsForSameItemsAndBarCodeShowDialogTrue()
@@ -1521,17 +1463,5 @@ codeunit 134464 "ERM Item Reference Purchase"
     begin
         ItemReferenceList.Cancel.Invoke;
     end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure DataUpgradeOverviewModalPageHandler(var DataUpgradeOverview: TestPage "Data Upgrade Overview")
-    begin
-        DataUpgradeOverview.First();
-        LibraryVariableStorage.Enqueue(DataUpgradeOverview."Table Name".Value);
-        LibraryVariableStorage.Enqueue(DataUpgradeOverview."No. of Records".Value);
-
-        DataUpgradeOverview.OK.Invoke;
-    end;
-
 }
 

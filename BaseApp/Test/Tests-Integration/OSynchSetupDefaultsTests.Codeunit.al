@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 139024 "OSynch Setup Defaults Tests"
 {
     Subtype = Test;
@@ -1942,4 +1943,4 @@ codeunit 139024 "OSynch Setup Defaults Tests"
         Reply := true;
     end;
 }
-
+#endif

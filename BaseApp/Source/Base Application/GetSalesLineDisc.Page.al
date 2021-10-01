@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 7009 "Get Sales Line Disc."
 {
     Caption = 'Get Sales Line Disc.';
@@ -93,4 +94,4 @@ page 7009 "Get Sales Line Disc."
     {
     }
 }
-
+#endif

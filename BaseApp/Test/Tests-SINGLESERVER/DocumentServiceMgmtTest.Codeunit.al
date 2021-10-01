@@ -130,8 +130,8 @@ codeunit 139101 "Document Service Mgmt Test"
         CreateValidDocumentServiceConfig;
 
         // Expect these inputs to fail fast.
-        CallSaveFileAndExpectError('', 'My.txt', false, RequiredSourceErr);
-        CallSaveFileAndExpectError('C:\x\y.z', '', true, RequiredTargetErr);
+        CallSaveFileAndExpectError('', 'My.txt', Enum::"Doc. Service Conflict Behavior"::Rename, RequiredSourceErr);
+        CallSaveFileAndExpectError('C:\x\y.z', '', Enum::"Doc. Service Conflict Behavior"::Replace, RequiredTargetErr);
     end;
 
     [Test]
@@ -152,7 +152,7 @@ codeunit 139101 "Document Service Mgmt Test"
         ExpectedError := DelStr(ExpectedError, StrLen(ExpectedError) - 1);
 
         // Assume SaveFile fails fast before expensive connection operations are done.
-        CallSaveFileAndExpectError(FileName, 'My.txt', false, ExpectedError);
+        CallSaveFileAndExpectError(FileName, 'My.txt', Enum::"Doc. Service Conflict Behavior"::Rename, ExpectedError);
     end;
 
     [Test]
@@ -165,7 +165,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceConfiguration.DeleteAll();
         SampleFile := CreateSampleFile;
 
-        CallSaveFileAndExpectError(SampleFile, 'My.txt', false, NoConfigErr);
+        CallSaveFileAndExpectError(SampleFile, 'My.txt', Enum::"Doc. Service Conflict Behavior"::Rename, NoConfigErr);
     end;
 
     [Test]
@@ -178,7 +178,7 @@ codeunit 139101 "Document Service Mgmt Test"
         InsertDocumentServiceRec('SO2', 'Cassies Service', 'http://sharepoint', 'a@b.c', 'p', 'Shared Documents', 'MyFolder');
         SampleFile := CreateSampleFile;
 
-        CallSaveFileAndExpectError(SampleFile, 'My.txt', false, MultipleConfigsErr);
+        CallSaveFileAndExpectError(SampleFile, 'My.txt', Enum::"Doc. Service Conflict Behavior"::Rename, MultipleConfigsErr);
     end;
 
     [Test]
@@ -190,7 +190,7 @@ codeunit 139101 "Document Service Mgmt Test"
         CreateInvalidDocumentServiceConfig;
         SampleFile := CreateSampleFile;
 
-        CallSaveFileAndExpectError(SampleFile, MockNonExistingTargetFileTok, false, MockConnectOnSaveErr);
+        CallSaveFileAndExpectError(SampleFile, MockNonExistingTargetFileTok, Enum::"Doc. Service Conflict Behavior"::Rename, MockConnectOnSaveErr);
     end;
 
     [Test]
@@ -205,7 +205,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
 
         ClearLastError;
-        DocumentServiceMgt.SaveFile(SampleFile, MockNonExistingTargetFileTok, false);
+        DocumentServiceMgt.SaveFile(SampleFile, MockNonExistingTargetFileTok, Enum::"Doc. Service Conflict Behavior"::Rename);
 
         Erase(SampleFile);
         if GetLastErrorText <> '' then
@@ -224,7 +224,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
 
         ClearLastError;
-        DocumentServiceMgt.SaveFile(SampleFile, MockExistingTargetFileTok, true);
+        DocumentServiceMgt.SaveFile(SampleFile, MockExistingTargetFileTok, Enum::"Doc. Service Conflict Behavior"::Replace);
 
         Erase(SampleFile);
         if GetLastErrorText <> '' then
@@ -240,7 +240,7 @@ codeunit 139101 "Document Service Mgmt Test"
         CreateValidDocumentServiceConfig;
         SampleFile := CreateSampleFile;
 
-        CallSaveFileAndExpectError(SampleFile, MockExistingTargetFileTok, false, MockTargetFileExistsErr);
+        CallSaveFileAndExpectError(SampleFile, MockExistingTargetFileTok, Enum::"Doc. Service Conflict Behavior"::Rename, MockTargetFileExistsErr);
     end;
 
     [Test]
@@ -411,12 +411,12 @@ codeunit 139101 "Document Service Mgmt Test"
         Assert.ExpectedError(ExpectedError);
     end;
 
-    local procedure CallSaveFileAndExpectError(Source: Text; Target: Text; Overwrite: Boolean; ExpectedError: Text[1024])
+    local procedure CallSaveFileAndExpectError(Source: Text; Target: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior"; ExpectedError: Text[1024])
     var
         DocumentServiceMgt: Codeunit "Document Service Management";
     begin
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
-        asserterror DocumentServiceMgt.SaveFile(Source, Target, Overwrite);
+        asserterror DocumentServiceMgt.SaveFile(Source, Target, ConflictBehavior);
         if Exists(Source) then
             Erase(Source);
         Assert.ExpectedError(ExpectedError);

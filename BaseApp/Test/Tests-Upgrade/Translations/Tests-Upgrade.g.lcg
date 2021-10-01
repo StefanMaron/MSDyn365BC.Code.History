@@ -140,22 +140,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Backup/Restore Permissions - NamedType BackupRestoreDataDescription)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 70954770 - NamedType 2752046917" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[D365 Excel Export Action]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Excel Export Action Permission - NamedType ExcelExportActionDescriptionTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2517569495 - NamedType 1064997700" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2400256745 - NamedType 1064997700" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SmartList Designer]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SmartList Designer Permission - NamedType SmartListDesignerDescriptionTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SmartList Designer Upg. Tests - NamedType SmartListDesignerDescriptionTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1809362931 - NamedType 1681599525" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

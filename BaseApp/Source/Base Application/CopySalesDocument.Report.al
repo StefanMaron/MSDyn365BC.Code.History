@@ -195,8 +195,6 @@ report 292 "Copy Sales Document"
     end;
 
     var
-        SalesHeader: Record "Sales Header";
-        FromSalesHeader: Record "Sales Header";
         FromSalesShptHeader: Record "Sales Shipment Header";
         FromSalesInvHeader: Record "Sales Invoice Header";
         FromReturnRcptHeader: Record "Return Receipt Header";
@@ -204,17 +202,21 @@ report 292 "Copy Sales Document"
         FromSalesHeaderArchive: Record "Sales Header Archive";
         SalesSetup: Record "Sales & Receivables Setup";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
-        FromDocType: Enum "Sales Document Type From";
-        FromDocNo: Code[20];
         IncludeHeader: Boolean;
         RecalculateLines: Boolean;
         Text000: Label 'The price information may not be reversed correctly, if you copy a %1. If possible copy a %2 instead or use %3 functionality.';
         Text001: Label 'Undo Shipment';
         Text002: Label 'Undo Return Receipt';
         Text003: Label 'Quote,Blanket Order,Order,Invoice,Return Order,Credit Memo,Posted Shipment,Posted Invoice,Posted Return Receipt,Posted Credit Memo';
+        DocNoNotSerErr: Label 'Select a document number to continue, or choose Cancel to close the page.';
+
+    protected var
+        SalesHeader: Record "Sales Header";
+        FromSalesHeader: Record "Sales Header";
+        FromDocType: Enum "Sales Document Type From";
+        FromDocNo: Code[20];
         FromDocNoOccurrence: Integer;
         FromDocVersionNo: Integer;
-        DocNoNotSerErr: Label 'Select a document number to continue, or choose Cancel to close the page.';
 
     procedure SetSalesHeader(var NewSalesHeader: Record "Sales Header")
     begin

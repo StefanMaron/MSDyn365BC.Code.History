@@ -6,10 +6,14 @@ codeunit 1640 "Add-in Deployment Helper"
     end;
 
     var
+#if not CLEAN19
         ExchangePowerShellRunner: Codeunit "Exchange PowerShell Runner";
+#endif
         AddinManifestMgt: Codeunit "Add-in Manifest Management";
+#if not CLEAN19
         AppNotInstalledErr: Label 'The application %1 did not install as expected. This might be caused by problems with the manifest file, problems connecting to the Exchange PowerShell server, or a version number that is not equal to or higher than the already installed application. You can download the manifest locally and then upload it to the Exchange Administration Center to determine the cause.', Comment = '%1: A GUID identifying the office add-in.';
 
+    [Obsolete('End of support for Exchange PowerShell. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.', '19.0')]
     [Scope('OnPrem')]
     procedure DeployManifest(var NewOfficeAddin: Record "Office Add-in")
     var
@@ -38,6 +42,7 @@ codeunit 1640 "Add-in Deployment Helper"
         UserPreference.DeleteAll();
     end;
 
+    [Obsolete('End of support for Exchange PowerShell. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.', '19.0')]
     [TryFunction]
     local procedure RunManifestDeployer(ManifestText: Text; AppID: Guid)
     var
@@ -66,16 +71,20 @@ codeunit 1640 "Add-in Deployment Helper"
             Error(AppNotInstalledErr, Format(AppID));
     end;
 
+    [Obsolete('End of support for Exchange PowerShell. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.', '19.0')]
     procedure SetManifestDeploymentCredentials(Username: Text[80]; Password: Text[30])
     begin
         ExchangePowerShellRunner.SetCredentials(Username, Password);
     end;
 
+
+    [Obsolete('End of support for Exchange PowerShell. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.', '19.0')]
     procedure SetManifestDeploymentCustomEndpoint(Endpoint: Text[250])
     begin
         ExchangePowerShellRunner.SetEndpoint(Endpoint);
     end;
 
+    [Obsolete('End of support for Exchange PowerShell. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.', '19.0')]
     [Scope('OnPrem')]
     procedure RemoveApp(var OfficeAddin: Record "Office Add-in")
     var
@@ -93,11 +102,13 @@ codeunit 1640 "Add-in Deployment Helper"
         ExchangePowerShellRunner.ValidateCredentials;
     end;
 
+    [Obsolete('End of support for Exchange PowerShell. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.', '19.0')]
     [Scope('OnPrem')]
     procedure InitializeAndValidate()
     begin
         InitializeExchangePSRunner;
     end;
+#endif
 
     procedure CheckVersion(HostType: Text; UserVersion: Text) CanContinue: Boolean
     var

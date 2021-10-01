@@ -15,7 +15,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
         Window: Dialog;
         LineCount: Integer;
     begin
@@ -133,6 +133,8 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                     InvtRcptLine."Inventory Posting Group" := InvtDocLine."Inventory Posting Group";
                     InvtRcptLine."Quantity (Base)" := InvtDocLine."Quantity (Base)";
                     InvtRcptLine."Qty. per Unit of Measure" := InvtDocLine."Qty. per Unit of Measure";
+                    InvtRcptLine."Qty. Rounding Precision" := InvtDocLine."Qty. Rounding Precision";
+                    InvtRcptLine."Qty. Rounding Precision (Base)" := InvtDocLine."Qty. Rounding Precision (Base)";
                     InvtRcptLine."Unit of Measure Code" := InvtDocLine."Unit of Measure Code";
                     InvtRcptLine."Gross Weight" := InvtDocLine."Gross Weight";
                     InvtRcptLine."Net Weight" := InvtDocLine."Net Weight";
@@ -155,12 +157,8 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                 until InvtDocLine.Next() = 0;
 
             InvtSetup.Get();
-            if InvtSetup."Automatic Cost Adjustment" <>
-               InvtSetup."Automatic Cost Adjustment"::Never
-            then begin
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.MakeMultiLevelAdjmt();
-            end;
+            if InvtSetup.AutomaticCostAdjmtRequired() then
+                InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
 
             LockTable();
             Delete(true);
@@ -245,6 +243,8 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         ItemJnlLine."Inventory Posting Group" := InvtRcptLine2."Inventory Posting Group";
         ItemJnlLine."Unit of Measure Code" := InvtRcptLine2."Unit of Measure Code";
         ItemJnlLine."Qty. per Unit of Measure" := InvtRcptLine2."Qty. per Unit of Measure";
+        ItemJnlLine."Qty. Rounding Precision" := InvtRcptLine2."Qty. Rounding Precision";
+        ItemJnlLine."Qty. Rounding Precision (Base)" := InvtRcptLine2."Qty. Rounding Precision (Base)";
         ItemJnlLine."Variant Code" := InvtRcptLine2."Variant Code";
         ItemJnlLine."Bin Code" := InvtDocLine."Bin Code";
         ItemJnlLine."Item Category Code" := InvtRcptLine2."Item Category Code";

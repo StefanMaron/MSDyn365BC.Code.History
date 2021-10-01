@@ -1,4 +1,4 @@
-﻿codeunit 423 "Change Log Management"
+codeunit 423 "Change Log Management"
 {
     Permissions = TableData "Change Log Setup" = r,
                   TableData "Change Log Setup (Table)" = r,

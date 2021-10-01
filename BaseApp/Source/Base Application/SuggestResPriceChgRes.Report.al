@@ -1,3 +1,4 @@
+#if not CLEAN19
 report 1191 "Suggest Res. Price Chg. (Res.)"
 {
     Caption = 'Suggest Res. Price Chg. (Res.)';
@@ -195,4 +196,4 @@ report 1191 "Suggest Res. Price Chg. (Res.)"
         CreateNewPrices := CreateNewPricesFrom;
     end;
 }
-
+#endif

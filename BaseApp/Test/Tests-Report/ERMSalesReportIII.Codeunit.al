@@ -64,69 +64,6 @@ codeunit 134984 "ERM Sales Report III"
         ExpectedCellValueErr: Label 'Cell value expected.';
 
     [Test]
-    [HandlerFunctions('RHSalesCreditMemo')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemo()
-    var
-        Customer: Record Customer;
-        SalesLine: Record "Sales Line";
-    begin
-        // Check Sales Credit Memo Report without any option.
-
-        // Create Sales Credit Memo and Post it and Save Sales Credit Memo Report.
-        Initialize;
-        LibrarySales.CreateCustomer(Customer);
-        PostAndSaveSalesCreditMemo(SalesLine, Customer."No.", false, false);
-
-        // Verify: Verify Saved Report.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('No_SalesCrMemoLine', SalesLine."No.");
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('LineAmt_SalesCrMemoLine', SalesLine."Line Amount");
-    end;
-
-    [Test]
-    [HandlerFunctions('RHSalesCreditMemo')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoInternalInfo()
-    var
-        DimensionValue: Record "Dimension Value";
-        SalesLine: Record "Sales Line";
-    begin
-        // Check Sales Credit Memo Report with Internal Information.
-
-        // Create Sales Credit Memo and Post it and Save Sales Credit Memo Report.
-        Initialize;
-        PostAndSaveSalesCreditMemo(SalesLine, CreateCustomerWithDimension(DimensionValue), true, false);
-        LibraryReportDataset.LoadDataSetFile;
-
-        // Verify: Verify Report Data with Dimension.
-        VerifyInternalInformation(DimensionValue, ' ');
-    end;
-
-    [Test]
-    [HandlerFunctions('RHSalesCreditMemo')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoLogEntry()
-    var
-        InteractionLogEntry: Record "Interaction Log Entry";
-        Customer: Record Customer;
-        SalesLine: Record "Sales Line";
-        DocumentNo: Code[20];
-    begin
-        // Check Sales Credit Memo Report with Log Entry.
-
-        // Create Blanket Sales Order.
-        Initialize;
-        LibrarySales.CreateCustomer(Customer);
-        DocumentNo := PostAndSaveSalesCreditMemo(SalesLine, Customer."No.", false, true);
-        LibraryReportDataset.LoadDataSetFile;
-
-        // Verify: Verify Interaction Log Entry Record.
-        VerifyInteractionLogEntry(InteractionLogEntry."Document Type"::"Sales Cr. Memo", DocumentNo);
-    end;
-
-    [Test]
     [HandlerFunctions('RHBlanketSalesOrder')]
     [Scope('OnPrem')]
     procedure BlanketSalesOrder()
@@ -1208,39 +1145,6 @@ codeunit 134984 "ERM Sales Report III"
 
         // [THEN] File of report exists
         Assert.IsTrue(FileManagement.ServerFileExists(FileName), ReportStandardSalesCreditMemoErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure UI_OpenReportWhenPressPrintOnPostedSalesCreditMemo()
-    var
-        ReportSelections: Record "Report Selections";
-        SalesLine: Record "Sales Line";
-        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
-        DocNo: Code[20];
-    begin
-        // [FEATURE] [UI] [Sales Credit Memo] [Print]
-        // [SCENARIO 376444] "Sales - Credit Memo" report should be opened when press "Print" on "Posted Sales Credit Memo" page
-
-        // [GIVEN] Posted Sales Credit memo with "Document No." = "1000" opened on "Posted Sales Credit Memo Page"
-        Initialize;
-        DocNo :=
-          CreateAndPostSalesDocument(SalesLine, CreateCustomer, SalesLine."Document Type"::"Credit Memo", '', true);
-        UpdateReportSelection(ReportSelections.Usage::"S.Cr.Memo", REPORT::"Sales - Credit Memo");
-        Commit();
-        PostedSalesCreditMemo.OpenView;
-        PostedSalesCreditMemo.FILTER.SetFilter("No.", DocNo);
-
-        // [WHEN] Press "Print" on "Posted Sales Credit Memo" page
-        PostedSalesCreditMemo.Print.Invoke;
-
-        // [THEN] "Sales - Credit Memo" report is opened with "Document No." = 1000
-        // If SalesCreditMemoRequestPageHandler called then test case is passed
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange(SalesCrMemoNoTxt, DocNo);
-        LibraryReportDataset.MoveToRow(2);
-        LibraryReportDataset.AssertCurrentRowValueEquals(TotalAmtSalesCrMemoTxt, SalesLine."Amount Including VAT");
     end;
 
     [Test]
@@ -2747,23 +2651,6 @@ codeunit 134984 "ERM Sales Report III"
           LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), Quantity, '', 0D, CurrencyCode);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify();
-    end;
-
-    local procedure PostAndSaveSalesCreditMemo(var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; InternalInfo: Boolean; LogEntry: Boolean) DocumentNo: Code[20]
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesCreditMemo: Report "Sales - Credit Memo";
-    begin
-        // Setup.
-        DocumentNo := CreateAndPostSalesDocument(SalesLine, CustomerNo, SalesLine."Document Type"::"Credit Memo", '', true);
-
-        // Exercise: Save Blanket Sales Order Report.
-        Clear(SalesCreditMemo);
-        SalesCrMemoHeader.SetRange("No.", DocumentNo);
-        SalesCreditMemo.SetTableView(SalesCrMemoHeader);
-        SalesCreditMemo.InitializeRequest(0, InternalInfo, LogEntry);
-        Commit();
-        SalesCreditMemo.Run;
     end;
 
     local procedure SetupSalesDocumentTest(var SalesLine: Record "Sales Line"; Ship: Boolean; Invoice: Boolean)
@@ -4419,13 +4306,6 @@ codeunit 134984 "ERM Sales Report III"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure RHSalesCreditMemo(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
-    begin
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure RHSalesDocumentTest(var SalesDocumentTest: TestRequestPage "Sales Document - Test")
     begin
         SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -4483,13 +4363,6 @@ codeunit 134984 "ERM Sales Report III"
         StandardStatement."Start Date".SetValue(WorkDate);
         StandardStatement."End Date".SetValue(WorkDate);
         StandardStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
-    begin
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

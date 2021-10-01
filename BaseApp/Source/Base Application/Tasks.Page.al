@@ -93,12 +93,11 @@ page 5099 Tasks
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        CreateCaptionSet(SetWanted::Initial);
+                        CreateCaptionSet("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(ColumnSet; ColumnSet)
@@ -148,7 +147,7 @@ page 5099 Tasks
 
                 trigger OnAction()
                 begin
-                    CreateCaptionSet(SetWanted::Previous);
+                    CreateCaptionSet("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -163,7 +162,7 @@ page 5099 Tasks
 
                 trigger OnAction()
                 begin
-                    CreateCaptionSet(SetWanted::Next);
+                    CreateCaptionSet("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -177,13 +176,13 @@ page 5099 Tasks
     trigger OnOpenPage()
     begin
         CurrSetLength := 32;
-        CreateCaptionSet(SetWanted::Initial);
+        CreateCaptionSet("Matrix Page Step Type"::Initial);
     end;
 
     var
         MatrixRecords: array[32] of Record Date;
         MatrixMgt: Codeunit "Matrix Management";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         OutputOption: Option "No. of Tasks","Contact No.";
         TableOption: Option Salesperson,Team,Campaign,Contact;
         StatusFilter: Option " ","Not Started","In Progress",Completed,Waiting,Postponed;
@@ -197,14 +196,14 @@ page 5099 Tasks
         ColumnDateFilters: array[32] of Text[50];
         MatrixColumnCaptions: array[32] of Text[1024];
         ColumnSet: Text[1024];
-        SetWanted: Option Initial,Previous,Same,Next;
         PKFirstRecInCurrSet: Text[100];
         CurrSetLength: Integer;
 
-    local procedure CreateCaptionSet(SetWanted: Option Initial,Previous,Same,Next)
+    local procedure CreateCaptionSet(StepType: Enum "Matrix Page Step Type")
     begin
-        MatrixMgt.GeneratePeriodMatrixData(SetWanted, 32, false, PeriodType, '',
-          PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
+        MatrixMgt.GeneratePeriodMatrixData(
+            StepType.AsInteger(), 32, false, PeriodType, '',
+            PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
     end;
 }
 

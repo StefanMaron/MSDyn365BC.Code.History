@@ -128,29 +128,30 @@ report 795 "Adjust Cost - Item Entries"
         if ItemCategoryFilter <> '' then
             Item.SetFilter("Item Category Code", ItemCategoryFilter);
 
-        InvtAdjmt.SetProperties(false, PostToGL);
-        InvtAdjmt.SetFilterItem(Item);
-        InvtAdjmt.MakeMultiLevelAdjmt;
+        InvtAdjmtHandler.SetFilterItem(Item);
+        InvtAdjmtHandler.MakeInventoryAdjustment(false, PostToGL);
 
         UpdateItemAnalysisView.UpdateAll(0, true);
 
-        OnAfterPreReport;
+        OnAfterPreReport();
     end;
 
     var
         ResynchronizeInfoMsg: Label 'Your general and item ledgers will no longer be synchronized after running the cost adjustment. You must run the %1 report to synchronize them again.';
         InvtSetup: Record "Inventory Setup";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
-        ItemNoFilter: Text[250];
-        ItemCategoryFilter: Text[250];
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
         Text005: Label 'You must not use Item No. Filter and Item Category Filter at the same time.';
-        PostToGL: Boolean;
         [InDataSet]
         PostEnable: Boolean;
         [InDataSet]
         FilterItemNoEditable: Boolean;
         [InDataSet]
         FilterItemCategoryEditable: Boolean;
+
+    protected var
+        ItemNoFilter: Text[250];
+        ItemCategoryFilter: Text[250];
+        PostToGL: Boolean;
 
     procedure InitializeRequest(NewItemNoFilter: Text[250]; NewItemCategoryFilter: Text[250])
     begin

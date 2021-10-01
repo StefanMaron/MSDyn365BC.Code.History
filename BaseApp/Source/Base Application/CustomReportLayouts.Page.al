@@ -253,8 +253,10 @@ page 9650 "Custom Report Layouts"
     end;
 
     trigger OnOpenPage()
+#if not CLEAN17
     var
         ClientTypeManagement: Codeunit "Client Type Management";
+#endif
     begin
 #if not CLEAN17
         IsWindowsClient := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows;

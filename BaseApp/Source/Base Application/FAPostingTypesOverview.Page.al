@@ -22,7 +22,6 @@ page 5662 "FA Posting Types Overview"
                     ApplicationArea = FixedAssets;
                     AutoFormatType = 1;
                     Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the factor that is used to round the amounts.';
                 }
             }
@@ -33,14 +32,12 @@ page 5662 "FA Posting Types Overview"
                 {
                     ApplicationArea = FixedAssets;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
                 }
                 field(AmountType; AmountType)
                 {
                     ApplicationArea = FixedAssets;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -78,7 +75,7 @@ page 5662 "FA Posting Types Overview"
                     MatrixForm: Page "FA Posting Types Overv. Matrix";
                 begin
                     Clear(MatrixForm);
-                    MatrixForm.Load(
+                    MatrixForm.LoadMatrix(
                       MATRIX_CaptionSet, MatrixRecords, NoOfColumns, GetFilter("FA Posting Date Filter"), RoundingFactor);
                     MatrixForm.RunModal;
                 end;
@@ -96,7 +93,7 @@ page 5662 "FA Posting Types Overview"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -111,7 +108,7 @@ page 5662 "FA Posting Types Overview"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -127,7 +124,7 @@ page 5662 "FA Posting Types Overview"
         AmountType := AmountType::"Balance at Date";
         NoOfColumns := GetMatrixDimension;
         SetStartFilter(' ');
-        MATRIX_GenerateColumnCaptions(SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -138,23 +135,22 @@ page 5662 "FA Posting Types Overview"
         MATRIX_CaptionRange: Text;
         MATRIX_PKFirstRecInCurrSet: Text;
         MATRIX_CurrentNoOfColumns: Integer;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        RoundingFactor: Option "None","1","1000","1000000";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        AmountType: Enum "Analysis Amount Type";
         NoOfColumns: Integer;
-        SetWanted: Option Initial,Previous,Same,Next;
 
     procedure SetStartFilter(SearchString: Code[10])
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         if GetFilter("FA Posting Date Filter") <> '' then begin
             Calendar.SetFilter("Period Start", GetFilter("FA Posting Date Filter"));
-            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
+                PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormMgt.FindDate(SearchString, Calendar, PeriodType);
+        PeriodPageMgt.FindDate(SearchString, Calendar, PeriodType);
         if AmountType = AmountType::"Net Change" then begin
             SetRange("FA Posting Date Filter", Calendar."Period Start", Calendar."Period End");
             if GetRangeMin("FA Posting Date Filter") = GetRangeMax("FA Posting Date Filter") then
@@ -163,7 +159,7 @@ page 5662 "FA Posting Types Overview"
             SetRange("FA Posting Date Filter", 0D, Calendar."Period End");
     end;
 
-    local procedure MATRIX_GenerateColumnCaptions(SetWanted: Option First,Previous,Same,Next)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
         RecRef: RecordRef;
@@ -177,7 +173,7 @@ page 5662 "FA Posting Types Overview"
         RecRef.SetTable(MatrixRecord);
 
         MatrixMgt.GenerateMatrixData(
-          RecRef, SetWanted, ArrayLen(MatrixRecords), 2, MATRIX_PKFirstRecInCurrSet,
+          RecRef, StepType.AsInteger(), ArrayLen(MatrixRecords), 2, MATRIX_PKFirstRecInCurrSet,
           MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
 
         if MATRIX_CurrentNoOfColumns > 0 then begin

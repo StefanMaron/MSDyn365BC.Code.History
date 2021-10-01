@@ -344,9 +344,9 @@ page 841 "Cash Flow Worksheet"
 
                     trigger OnAction()
                     var
-                        ODataUtility: Codeunit ODataUtility;
+                        EditinExcel: Codeunit "Edit in Excel";
                     begin
-                        ODataUtility.EditWorksheetInExcel(CurrPage.Caption, CurrPage.ObjectId(false), '');
+                        EditinExcel.EditPageInExcel(CurrPage.Caption, CurrPage.ObjectId(false), '');
                     end;
                 }
             }

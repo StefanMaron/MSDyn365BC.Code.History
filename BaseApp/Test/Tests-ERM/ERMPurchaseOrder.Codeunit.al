@@ -52,6 +52,7 @@ codeunit 134327 "ERM Purchase Order"
         WrongValuePurchaseHeaderReceiveErr: Label 'The value of field Receive in copied Purchase Order must be ''No''.';
         WrongInvDiscAmountErr: Label 'Wrong Invoice Discount Amount in Purchase Line.';
         QtyToRecvBaseErr: Label 'Qty. to Receive (Base) must be equal to Qty. to Receive in Purchase Line';
+        QtyToInvcBaseErr: Label 'Qty. to Invoice (Base) must be equal to Qty. to Invoice in Purchase Line';
         ReturnQtyToShipBaseErr: Label 'Return Qty. to Ship (Base) must be equal to Return Qty. to Ship in Purchase Line';
         QuantityToRecvBaseErr: Label 'Qty. to Receive (Base) must be equal to Quantity in Purchase Line';
         ReturnQuantitytyToShipBaseErr: Label 'Return Qty. to Ship (Base) must be equal to Quantity in Purchase Line';
@@ -78,6 +79,7 @@ codeunit 134327 "ERM Purchase Order"
         RecreatePurchaseLinesQst: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\\Do you want to continue?';
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         DisposedErr: Label '%1 is disposed.';
+        RoundingTo0Err: Label 'Rounding of the field';
 
     [Test]
     [Scope('OnPrem')]
@@ -508,6 +510,7 @@ codeunit 134327 "ERM Purchase Order"
         Assert.IsTrue(PurchaseOrder."Pay-to Post Code".Editable, PayToAddressFieldsEditableErr);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountOnPurhcaseOrder()
@@ -538,7 +541,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify: Verify Purchase Line and Posted G/L Entry for Line Discount Amount.
         VerifyLineDiscountAmount(PurchaseLine, PostedDocumentNo, DiscountAmount);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure InvoiceDiscountOnPurchaseOrder()
@@ -1311,6 +1314,7 @@ codeunit 134327 "ERM Purchase Order"
           StrSubstNo(AmountError, PurchaseLine.FieldCaption("Job Unit Price"), PurchaseLine."Job Unit Price", PurchaseLine.TableCaption));
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithJobUnitCostFactor()
@@ -1332,6 +1336,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify: Job Unit Price is not cleared after setting Quantity.
         Assert.AreEqual(Item."Unit Cost" * UnitCostFactor, PurchaseLine."Job Unit Price", JobUnitPriceErr);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -1587,6 +1592,415 @@ codeunit 134327 "ERM Purchase Order"
 
         // [THEN] "Qty. To Receive (Base)" in Purchase Order Line is "X"
         Assert.AreEqual(Qty, PurchaseLine."Qty. to Receive (Base)", QtyToRecvBaseErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQuantityIsRoundedTo0OnPurchaseOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Purchase Order Line - Rounding Precision]
+        // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Purchase Line where the unit of measure code is set to the nonbase unit of measure.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+
+        PurchaseLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        PurchaseLine.Modify(true);
+
+        // [Then] Base Quantity rounds to 0 and throws error.
+        asserterror PurchaseLine.Validate(Quantity, 1 / (LibraryRandom.RandIntInRange(100, 1000)));
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyToReceiveRoundedTo0OnPurchaseOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Purchase Order Line - Rounding Precision]
+        // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Purchase Line where the unit of measure code is set to the nonbase unit of measure.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+
+        PurchaseLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        PurchaseLine.Modify(true);
+
+        // [Then] Base "Qty. to Receive" to Order rounds to 0 and throws error.
+        asserterror PurchaseLine.Validate("Qty. to Receive", 1 / (LibraryRandom.RandIntInRange(100, 1000)));
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyToInvoiceRoundedTo0OnPurchaseOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Purchase Order Line - Rounding Precision]
+        // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
+        Initialize;
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Purchase Line where the unit of measure code is set to the nonbase unit of measure.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+
+        PurchaseLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        PurchaseLine.Modify(true);
+
+        // [Then] Base Qty. to Invoice rounds to 0 and throws error.
+        asserterror PurchaseLine.Validate("Qty. to Invoice", 1 / (LibraryRandom.RandIntInRange(100, 1000)));
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseReturnQtyToShipRoundedTo0OnPurchaseOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [FEATURE] [Purchase Order Line - Rounding Precision]
+        // [SCENARIO] Error is thrown when rounding precision causes the base values to be rounded to 0.
+        Initialize;
+        UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Remainder);
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Purchase Line where the unit of measure code is set to the nonbase unit of measure.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+
+        PurchaseLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        PurchaseLine.Modify(true);
+
+        // [Then] Base "Return Qty. to Ship" to Order rounds to 0 and throws error.
+        asserterror PurchaseLine.Validate("Return Qty. to Ship", 1 / (LibraryRandom.RandIntInRange(100, 1000)));
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseValuesAreRoundedWithRoundingPrecisionSpecifiedOnPurchaseOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        QtyToSet: Decimal;
+    begin
+        // [FEATURE] [Purchase Order Line - Rounding Precision]
+        // [SCENARIO] Base values are rounded with the specified rounding precision.
+        Initialize;
+        UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Remainder);
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        QtyToSet := LibraryRandom.RandDec(10, 2);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Validate("Replenishment System", "Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Purchase Line where the unit of measure code is set to the nonbase unit of measure.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+
+        PurchaseLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity
+        PurchaseLine.Validate(Quantity, QtyToSet);
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, QtyRoundingPrecision), PurchaseLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+
+        // [THEN] Qty. to Invoice (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, QtyRoundingPrecision), PurchaseLine."Qty. to Invoice (Base)", 'Qty. to Invoice (Base) is not rounded correctly.');
+
+        // [THEN] "Qty. to Receive (Base)" is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, QtyRoundingPrecision), PurchaseLine."Qty. to Receive (Base)", '"Qty. to Receive (Base)" is not rounded correctly.');
+
+        // [WHEN] "Return Qty. to Ship" is set to a value that rounds the base quantity
+        PurchaseLine.Validate("Return Qty. to Ship", PurchaseLine.Quantity);
+        // [THEN] "Return Qty. to Ship (Base)" is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, QtyRoundingPrecision), PurchaseLine."Return Qty. to Ship (Base)", '"Return Qty. to Ship (Base)" is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseValuesAreRoundedWithRoundingPrecisionUnspecifiedOnPurchaseOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        QtyToSet: Decimal;
+    begin
+        // [FEATURE] [Purchase Order Line - Rounding Precision]
+        // [SCENARIO] Quantity (Base) is rounded with the default rounding precision when rounding precision is not specified.
+        Initialize;
+        UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Remainder);
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
+        BaseQtyPerUOM := 1;
+        QtyToSet := LibraryRandom.RandDec(10, 7);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Validate("Replenishment System", "Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Purchase Line where the unit of measure code is set to the nonbase unit of measure.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+
+        PurchaseLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity
+        PurchaseLine.Validate(Quantity, QtyToSet);
+
+        // [THEN] Quantity (Base) is rounded with the default rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, 0.00001), PurchaseLine."Quantity (Base)", 'Base qty. is not rounded correctly.');
+
+        // [THEN] Qty. to Invoice (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, 0.00001), PurchaseLine."Qty. to Invoice (Base)", 'Qty. to Invoice (Base) is not rounded correctly.');
+
+        // [THEN] "Qty. to Receive (Base)" is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, 0.00001), PurchaseLine."Qty. to Receive (Base)", '"Qty. to Receive (Base)" is not rounded correctly.');
+
+        // [WHEN] "Return Qty. to Ship" is set to a value that rounds the base quantity
+        PurchaseLine.Validate("Return Qty. to Ship", PurchaseLine.Quantity);
+        // [THEN] "Return Qty. to Ship (Base)" is rounded with the specified rounding precision
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * QtyToSet, 0.00001), PurchaseLine."Return Qty. to Ship (Base)", '"Return Qty. to Ship (Base)" is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseValuesAreRoundedWithRoundingPrecisionOnPurchaseOrderLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        QtyToSet: Decimal;
+    begin
+        // [FEATURE] [Purchase Order Line - Rounding Precision]
+        // [SCENARIO] Quantity (Base) is rounded with the default rounding precision when rounding precision is not specified.
+        Initialize;
+        UpdateDefaultQtyToReceive(PurchasesPayablesSetup."Default Qty. to Receive"::Remainder);
+
+        // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
+        NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(5, 10);
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1 / LibraryRandom.RandIntInRange(2, 10);
+        QtyToSet := LibraryRandom.RandDec(10, 7);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Validate("Replenishment System", "Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Purchase Line where the unit of measure code is set to the nonbase unit of measure.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+
+        PurchaseLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity
+        PurchaseLine.Validate(Quantity, (NonBaseQtyPerUOM - 1) / NonBaseQtyPerUOM);
+
+        // [THEN] Quantity (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(NonBaseQtyPerUOM - 1, PurchaseLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+
+        // [THEN] Qty. to Invoice (Base) is rounded with the specified rounding precision
+        Assert.AreEqual(NonBaseQtyPerUOM - 1, PurchaseLine."Qty. to Invoice (Base)", 'Qty. to Invoice (Base) is not rounded correctly.');
+
+        // [THEN] "Qty. to Receive (Base)" is rounded with the specified rounding precision
+        Assert.AreEqual(NonBaseQtyPerUOM - 1, PurchaseLine."Qty. to Receive (Base)", '"Qty. to Receive (Base)" is not rounded correctly.');
+
+        // [WHEN] "Return Qty. to Ship" is set to a value that rounds the base quantity
+        PurchaseLine.Validate("Return Qty. to Ship", PurchaseLine.Quantity);
+        // [THEN] "Return Qty. to Receive (Base)" is rounded with the specified rounding precision
+        Assert.AreEqual(NonBaseQtyPerUOM - 1, PurchaseLine."Return Qty. to Ship (Base)", 'Return Qty. to Ship (Base) is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyToInvoiceBaseIsRoundedToBaseUnitOfMeasure()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        Item: Record Item;
+        ItemUnitOfMeasure1: Record "Item Unit of Measure";
+        ItemUnitOfMeasure2: Record "Item Unit of Measure";
+        LibraryInventory: Codeunit "Library - Inventory";
+        Qty: Decimal;
+        QtyPerUoM: Integer;
+    begin
+        // [FEATURE] [Qty. to Invoice]
+        // [SCENARIO 361537] "Qty. to invoice (Base)" is rounded with the Quantity Rounding Precision from the base UoM
+        Initialize();
+
+        // [GIVEN] Create Item with item unit of measure and set the rounding precision to 1.
+        CreateItemWithUnitPrice(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure1, Item."No.", 1);
+        ItemUnitOfMeasure1.Validate("Qty. Rounding Precision", 1);
+        ItemUnitOfMeasure1.Modify(true);
+
+        // [GIVEN] Set the Base UoM
+        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure1.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create a second item UoM
+        QtyPerUoM := 6;
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure2, Item."No.", QtyPerUoM);
+
+        // [GIVEN] Purchase Line with a Qty.
+        Qty := 1;
+        CreatePurchaseLineWithQty(PurchaseLine, Qty, PurchaseHeader."Document Type"::Order);
+        PurchaseLine.Validate("No.", Item."No.");
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure2.Code);
+
+        // [WHEN] Set "Qty. To Invoice" to a fraction of the quantity
+        Qty := 5 / 6;
+        PurchaseLine.Validate("Qty. to Invoice", Qty);
+
+        // [THEN] "Qty. To Invoice (Base)" is rounded
+        Assert.AreEqual(5, PurchaseLine."Qty. to Invoice (Base)", QtyToInvcBaseErr);
     end;
 
     [Test]
@@ -2210,6 +2624,7 @@ codeunit 134327 "ERM Purchase Order"
         VerifyRemainingAmountLCY(PurchaseHeader."Buy-from Vendor No.", AmountLCY);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CombinedDimOnPurchInvoiceWithItemChargeAssignedOnReceipt()
@@ -2242,7 +2657,7 @@ codeunit 134327 "ERM Purchase Order"
           DimensionMgt.GetCombinedDimensionSetID(DimSetID, ExpShortcutDimCode1, ExpShortcutDimCode2);
         VerifyDimSetIDOnItemLedgEntry(ExpectedDimSetID);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure GetReceiptLinesOnItemChargeAssignedOnMultipleShpts()
@@ -5180,6 +5595,7 @@ codeunit 134327 "ERM Purchase Order"
         VerifyGLEntriesDescription(TempPurchaseLine, InvoiceNo);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure ExtendCopyDocumentLineDescriptionToGLEntry()
@@ -5203,7 +5619,40 @@ codeunit 134327 "ERM Purchase Order"
         CreatePurchOrderWithUniqueDescriptionLines(PurchaseHeader, TempPurchaseLine, TempPurchaseLine.Type::Item);
 
         // [WHEN] Purchase order is being posted
+        SetInvoicePosting("Purchase Invoice Posting"::"Invoice Posting (Default)");
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, TRUE, TRUE);
+
+        // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
+        VerifyGLEntriesDescription(TempPurchaseLine, InvoiceNo);
+    end;
+#endif
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExtendCopyDocumentLineDescriptionToGLEntryV19()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        TempPurchaseLine: Record "Purchase Line" temporary;
+        ERMPurchaseOrder: Codeunit "ERM Purchase Order";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [G/L Entry] [Description] [Event]
+        // [SCENARIO 300843] Event InvoicePostBuffer.OnAfterInvPostBufferPreparePurchase can be used to copy document line Description for line type Item
+        Initialize();
+
+        // [GIVEN] Subscribe on InvoicePostBuffer.OnAfterInvPostBufferPreparePurchase
+        BINDSUBSCRIPTION(ERMPurchaseOrder);
+
+        // [GIVEN] Set PurchaseSetup."Copy Line Descr. to G/L Entry" = "No"
+        SetPurchSetupCopyLineDescrToGLEntry(FALSE);
+
+        // [GIVEN] Create purchase order with 5 "Item" type purchase lines with unique descriptions "Descr1" - "Descr5"
+        CreatePurchOrderWithUniqueDescriptionLines(PurchaseHeader, TempPurchaseLine, TempPurchaseLine.Type::Item);
+
+        // [WHEN] Purchase order is being posted
+        SetInvoicePosting("Purchase Invoice Posting"::"Invoice Posting (v.19)");
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, TRUE, TRUE);
+        SetInvoicePosting("Purchase Invoice Posting"::"Invoice Posting (Default)");
 
         // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
         VerifyGLEntriesDescription(TempPurchaseLine, InvoiceNo);
@@ -5741,6 +6190,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithResourceAndResourceCost()
@@ -5775,7 +6225,6 @@ codeunit 134327 "ERM Purchase Order"
         Assert.AreEqual(PurchaseLine."Direct Unit Cost", ResourceCost."Direct Unit Cost", 'Wrong resource cost');
     end;
 
-#if not CLEAN19
     [Test]
     [HandlerFunctions('ImplementStandardCostChangesHandler,MessageHandler')]
     procedure T280_ImplementResourceStandardCostChanges()
@@ -5824,7 +6273,7 @@ codeunit 134327 "ERM Purchase Order"
         Initialize();
 
         // [GIVEN] Item with resource BOM component
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Resource, LibraryResource.CreateResourceNo(), 1, '');
+        LibraryManufacturing.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Resource.AsInteger(), LibraryResource.CreateResourceNo(), 1, '');
 
         // [GIVEN] Purchase order with item
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
@@ -6094,6 +6543,165 @@ codeunit 134327 "ERM Purchase Order"
           StrSubstNo(GenProdPostingGroupErr, PurchaseLine.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."));
     end;
 
+    [Test]
+    procedure LocationForNonInventoryItemsAllowed()
+    var
+        ServiceItem: Record Item;
+        NonInventoryItem: Record Item;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine1: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [SCENARIO] Create Purchase Order with non-inventory items having a location set is allowed.
+        Initialize();
+
+        // [GIVEN] A non-inventory item and a service item.
+        LibraryInventory.CreateServiceTypeItem(ServiceItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Created Purchase Order for the non-inventory items with locations set.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine1, PurchaseHeader, PurchaseLine1.Type::Item, ServiceItem."No.", 1);
+        PurchaseLine1.Validate("Location Code", Location.Code);
+        PurchaseLine1.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, NonInventoryItem."No.", 1);
+        PurchaseLine2.Validate("Location Code", Location.Code);
+        PurchaseLine2.Modify(true);
+
+        // [WHEN] Posting Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] An item ledger entry is created for non-inventory items with location set.
+        ItemLedgerEntry.SetRange("Item No.", ServiceItem."No.");
+        Assert.AreEqual(1, ItemLedgerEntry.Count, 'Expected only one ILE to be created.');
+        ItemLedgerEntry.FindFirst();
+        Assert.AreEqual(1, ItemLedgerEntry.Quantity, 'Expected quantity to be 1.');
+        Assert.AreEqual(Location.Code, ItemLedgerEntry."Location Code", 'Expected location to be set.');
+
+        ItemLedgerEntry.SetRange("Item No.", NonInventoryItem."No.");
+        Assert.AreEqual(1, ItemLedgerEntry.Count, 'Expected only one ILE to be created.');
+        ItemLedgerEntry.FindFirst();
+        Assert.AreEqual(1, ItemLedgerEntry.Quantity, 'Expected quantity to be 1.');
+        Assert.AreEqual(Location.Code, ItemLedgerEntry."Location Code", 'Expected location to be set.');
+    end;
+
+
+    [Test]
+    procedure BinCodeNotAllowedForNonInventoryItems()
+    var
+        Item: Record Item;
+        ServiceItem: Record Item;
+        NonInventoryItem: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine1: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        PurchaseLine3: Record "Purchase Line";
+    begin
+        // [SCENARIO] Create purchase order with location for item and non-inventory items. 
+        // Bin code should only be possible to set for item.
+        Initialize();
+
+        // [GIVEN] An item, A non-inventory item and a service item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateServiceTypeItem(ServiceItem);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A location with require bin and a default bin code.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        LibraryWarehouse.CreateBinContent(
+            BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure"
+        );
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+        Location.Validate("Default Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] A vendor with default location.
+        LibraryPurchase.CreateVendorWithLocationCode(Vendor, Location.Code);
+
+        // [GIVEN] Created Purchase Order for the item and non-inventory items.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine1, PurchaseHeader, PurchaseLine1.Type::Item, Item."No.", 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, ServiceItem."No.", 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine3, PurchaseHeader, PurchaseLine3.Type::Item, NonInventoryItem."No.", 1);
+
+        // [THEN] Location is set for all lines and bin code is set for item.
+        Assert.AreEqual(Location.Code, PurchaseLine1."Location Code", 'Expected location code to be set');
+        Assert.AreEqual(Bin.Code, PurchaseLine1."Bin Code", 'Expected bin code to be set');
+
+        Assert.AreEqual(Location.Code, PurchaseLine2."Location Code", 'Expected location code to be set');
+        Assert.AreEqual('', PurchaseLine2."Bin Code", 'Expected no bin code set');
+
+        Assert.AreEqual(Location.Code, PurchaseLine3."Location Code", 'Expected location code to be set');
+        Assert.AreEqual('', PurchaseLine3."Bin Code", 'Expected no bin code set');
+
+        // [WHEN] Setting bin code on non-inventory items.
+        asserterror PurchaseLine2.Validate("Bin Code", Bin.Code);
+        asserterror PurchaseLine3.Validate("Bin Code", Bin.Code);
+
+        // [THEN] An error is thrown.
+    end;
+
+    [Test]
+    procedure EditItemGenProdPostGroup()
+    var
+        Item: Record "Item";
+        GenProdPostingGroup: Record "Gen. Product Posting Group";
+        GenProdPostingGroupCode: Code[20];
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO] When the column gen. prod. post. id is edited the column gen. prod. post. code is updated as well
+        // [GIVEN] An item
+        ItemNo := CreateItem();
+        // [GIVEN] A Gen. Prod. Posting Group
+        LibraryERM.CreateGenProdPostingGroup(GenProdPostingGroup);
+        Commit();
+        GenProdPostingGroupCode := GenProdPostingGroup.Code;
+
+        // [WHEN] it's assigned to a gen. prod. post. group through its id.
+        Item.Validate("Gen. Prod. Posting Group Id", GenProdPostingGroup.SystemId);
+        Commit();
+
+        // [THEN] its gen. prod. post. group code is updated as well.
+        GenProdPostingGroup.Get(Item."Gen. Prod. Posting Group");
+        Assert.AreEqual(GenProdPostingGroupCode, GenProdPostingGroup.Code, 'The gen. prod. posting group code is not the same as assigned.');
+    end;
+
+    [Test]
+    procedure EditItemInventoryPostGroup()
+    var
+        Item: Record "Item";
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        InventoryPostingGroupCode: Code[20];
+    begin
+        // [SCENARIO] When the column gen. prod. post. id is edited the column gen. prod. post. code is updated as well
+        // [GIVEN] An item
+        CreateItem();
+        // [GIVEN] A Gen. Prod. Posting Group
+        LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
+        Commit();
+        InventoryPostingGroupCode := InventoryPostingGroup.Code;
+
+        // [WHEN] it's assigned to a gen. prod. post. group through its id.
+        Item.Validate("Inventory Posting Group Id", InventoryPostingGroup.SystemId);
+        Commit();
+
+        // [THEN] its gen. prod. post. group code is updated as well with the corresponding code.
+        InventoryPostingGroup.Get(Item."Inventory Posting Group");
+        Assert.AreEqual(InventoryPostingGroupCode, InventoryPostingGroup.Code, 'The inventory posting group code is not the same as assigned.');
+    end;
+
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -6110,7 +6718,7 @@ codeunit 134327 "ERM Purchase Order"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Order");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
@@ -6576,6 +7184,7 @@ codeunit 134327 "ERM Purchase Order"
         ModifyPurchaseLineJobNo(PurchaseLine, Job."No.", JobTask."Job Task No.", UnitOfMeasureCode);
     end;
 
+#if not CLEAN19
     local procedure CreatePurchOrderWithJobAndJobItemPrice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; var UnitCostFactor: Decimal)
     var
         Job: Record Job;
@@ -6619,7 +7228,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
         exit(PurchLine."Dimension Set ID");
     end;
-
+#endif
     local procedure CreatePostInvoiceWithReceiptLines(ItemChargeDimValue: Record "Dimension Value"; DimensionCode: Code[20]; DimValueCode: Code[20]; OrderPurchHeader: Record "Purchase Header"): Integer
     var
         PurchHeader: Record "Purchase Header";
@@ -7744,6 +8353,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryERM.ClearGenJournalLines(GenJournalBatch)
     end;
 
+#if not CLEAN19
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         Item: Record Item;
@@ -7755,7 +8365,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandInt(10));
         PurchaseLineDiscount.Modify(true);
     end;
-
+#endif
     local procedure SetPurchSetupCopyLineDescrToGLEntry(CopyLineDescrToGLEntry: Boolean)
     var
         PurchSetup: Record "Purchases & Payables Setup";
@@ -8113,6 +8723,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderCharge, true, true);
     end;
 
+#if not CLEAN19
     [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPreparePurchase', '', false, false)]
     local procedure OnAfterInvPostBufferPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -8120,6 +8731,18 @@ codeunit 134327 "ERM Purchase Order"
         IF InvoicePostBuffer.Type = InvoicePostBuffer.Type::Item THEN BEGIN
             InvoicePostBuffer."Fixed Asset Line No." := PurchaseLine."Line No.";
             InvoicePostBuffer."Entry Description" := PurchaseLine.Description;
+        END;
+    end;
+#endif
+
+    [EventSubscriber(ObjectType::table, Database::"Invoice Posting Buffer", 'OnAfterPreparePurchase', '', false, false)]
+    local procedure OnAfterPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
+        IF InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::Item THEN BEGIN
+            InvoicePostingBuffer."Fixed Asset Line No." := PurchaseLine."Line No.";
+            InvoicePostingBuffer."Entry Description" := PurchaseLine.Description;
+            InvoicePostingBuffer.BuildPrimaryKey();
         END;
     end;
 
@@ -8917,6 +9540,15 @@ codeunit 134327 "ERM Purchase Order"
         MyNotifications.Modify();
     end;
 
+    local procedure SetInvoicePosting(InvoicePosting: Enum "Purchase Invoice Posting")
+    var
+        PurchSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchSetup.Get();
+        PurchSetup.Validate("Invoice Posting Setup", InvoicePosting);
+        PurchSetup.Modify();
+    end;
+
     local procedure VerifyResJournalLineCopiedFromPurchaseLine(ResJournalLine: Record "Res. Journal Line"; PurchaseLine: Record "Purchase Line")
     begin
         Assert.AreEqual(PurchaseLine."No.", ResJournalLine."Resource No.", CopyFromPurchaseErr);
@@ -9317,10 +9949,10 @@ codeunit 134327 "ERM Purchase Order"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure TemplateSelectionPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure TemplateSelectionPageHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
     end;
 
     [ReportHandler]

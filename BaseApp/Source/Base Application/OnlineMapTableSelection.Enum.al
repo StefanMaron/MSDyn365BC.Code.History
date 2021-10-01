@@ -1,0 +1,16 @@
+enum 802 "Online Map Table Selection"
+{
+    Extensible = true;
+
+    value(0; " ") { Caption = ' '; }
+    value(1; "Bank") { Caption = 'Bank'; }
+    value(2; "Contact") { Caption = 'Contact'; }
+    value(3; "Customer") { Caption = 'Customer'; }
+    value(4; "Employee") { Caption = 'Employee'; }
+    value(5; "Job") { Caption = 'Job'; }
+    value(6; "Location") { Caption = 'Location'; }
+    value(7; "Resource") { Caption = 'Resource'; }
+    value(8; "Vendor") { Caption = 'Vendor'; }
+    value(9; "Ship-to Address") { Caption = 'Ship-to Address'; }
+    value(10; "Order Address") { Caption = 'Order Address'; }
+}

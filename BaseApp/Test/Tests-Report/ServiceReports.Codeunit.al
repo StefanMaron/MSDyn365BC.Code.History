@@ -43,39 +43,6 @@ codeunit 136900 "Service Reports"
         ServiceTaxInvoiceTxt: Label 'Service - Tax Invoice %1';
 
     [Test]
-    [HandlerFunctions('OrderConfirmationReportHandler')]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationReport()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        OrderConfirmation: Report "Order Confirmation";
-    begin
-        // Test that value of Amount in Order Confirmation matches the value of Amount in corresponding Sales Line.
-
-        // 1. Setup: Create a Sales Order - Sales Header, Sales Line.
-        Initialize;
-        CreateSalesOrder(SalesHeader, SalesLine);
-
-        // 2. Exercise: Generate the Order Confirmation report.
-        Commit();
-        Clear(OrderConfirmation);
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        OrderConfirmation.SetTableView(SalesHeader);
-        OrderConfirmation.Run;
-
-        // 3. Verify: Check that the value of Amount in Order Confirmation is equal to the value of Amount in corresponding Sales Line.
-        // Check that only one row is generated for the Item.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('No2_SalesLine', SalesLine."No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find element with the sales no');
-        LibraryReportDataset.AssertCurrentRowValueEquals('LineAmt_SalesLine', SalesLine."Line Amount");
-
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, 'there should be no more entries for this sales no');
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmHandlerFalse,ServiceContractCustomerReportHandler')]
     [Scope('OnPrem')]
     procedure ServiceContractCustomer()
@@ -3045,13 +3012,6 @@ codeunit 136900 "Service Reports"
     procedure ServiceProfitContractsHandler(var ServiceProfitContracts: TestRequestPage "Service Profit (Contracts)")
     begin
         ServiceProfitContracts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationReportHandler(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    begin
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

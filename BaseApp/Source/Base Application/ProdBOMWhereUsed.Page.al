@@ -109,10 +109,12 @@ page 99000811 "Prod. BOM Where-Used"
         Item: Record Item;
         ProdBOM: Record "Production BOM Header";
         WhereUsedMgt: Codeunit "Where-Used Management";
-        ShowLevel: Option Single,Multi;
         CalculateDate: Date;
         [InDataSet]
         DescriptionIndent: Integer;
+
+    protected var
+        ShowLevel: Option Single,Multi;
 
     procedure SetProdBOM(NewProdBOM: Record "Production BOM Header"; NewCalcDate: Date)
     begin

@@ -5337,6 +5337,56 @@ codeunit 137054 "SCM Supply Planning"
         VerifyRequisitionLineCount(0);
     end;
 
+    [Test]
+    procedure ItemAvailByLocationDoesNotIncludeDropShipment()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        ItemCard: TestPage "Item Card";
+        ItemAvailabilityByLocation: TestPage "Item Availability by Location";
+    begin
+        // [FEATURE] [Item Availability] [Location] [Drop Shipment]
+        // [SCENARIO 407018] Item Availability by Location page does not show drop shipment in either "Gross Requirements" or "Planned Receipts".
+        Initialize();
+
+        CreateItem(Item, Item."Replenishment System"::Purchase);
+
+        // [GIVEN] Sales order for drop shipment.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), LocationBlue.Code, WorkDate);
+        SalesLine.Validate("Drop Shipment", true);
+        SalesLine.Modify(true);
+
+        CreateRequisitionWorksheetName(RequisitionWkshName, RequisitionWkshName."Template Type"::"Req.");
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+
+        // [WHEN] Open requisition worksheet and invoke "Drop Shipment" -> "Get Sales Orders"
+        LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, 0);
+
+        // [THEN] Requisition line is created.
+        // [THEN] "Drop Shipment" = TRUE on the requisition line.
+        FindRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.TestField("Drop Shipment");
+        Assert.IsTrue(RequisitionLine.IsDropShipment(), '');
+
+        // [THEN] "Gross Requirement" = 0 and "Planned Receipts" = 0 on Item Availability by Location page.
+        ItemCard.OpenView();
+        ItemCard.FILTER.SetFilter("No.", Item."No.");
+        ItemAvailabilityByLocation.Trap();
+        ItemCard.Location.Invoke();
+
+        ItemAvailabilityByLocation.FILTER.SetFilter("No.", Item."No.");
+        ItemAvailabilityByLocation.ItemAvailLocLines.FILTER.SetFilter(Code, LocationBlue.Code);
+        ItemAvailabilityByLocation.ItemAvailLocLines.First();
+        ItemAvailabilityByLocation.ItemAvailLocLines.GrossRequirement.AssertEquals(0);
+        ItemAvailabilityByLocation.ItemAvailLocLines.PlannedOrderRcpt.AssertEquals(0);
+        ItemAvailabilityByLocation.ItemAvailLocLines.ProjAvailableBalance.AssertEquals(0);
+        ItemAvailabilityByLocation.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5508,7 +5558,7 @@ codeunit 137054 "SCM Supply Planning"
         AssemblyLine: Record "Assembly Line";
     begin
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, DueDate, ParentItemNo, LocationCode, Quantity, '');
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, ComponentItemNo, '', Quantity, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ComponentItemNo, '', Quantity, 1, '');
     end;
 
     local procedure CreateAssemblyOrderFromPlanningWorksheet(var AssemblyHeader: Record "Assembly Header"; Item: Record Item)
@@ -6924,7 +6974,7 @@ codeunit 137054 "SCM Supply Planning"
         RequisitionLine2.TestField("Variant Code", VariantCode);
     end;
 
-    local procedure VerifyRequisitionLineWithOriginalDueDate(No: Code[20]; ActionMessage: Option; OriginalDueDate: Date; DueDate: Date; OriginalQuantity: Decimal; QuantityValue: Decimal; LocationCode: Code[10])
+    local procedure VerifyRequisitionLineWithOriginalDueDate(No: Code[20]; ActionMessage: Enum "Action Message Type"; OriginalDueDate: Date; DueDate: Date; OriginalQuantity: Decimal; QuantityValue: Decimal; LocationCode: Code[10])
     var
         RequisitionLine: Record "Requisition Line";
     begin

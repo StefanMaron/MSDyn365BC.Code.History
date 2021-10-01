@@ -1,4 +1,4 @@
-﻿codeunit 7018 "Price UX Management"
+codeunit 7018 "Price UX Management"
 {
     var
         MissingAlternateImplementationErr: Label 'You cannot setup exceptions because there is no alternate implementation.';
@@ -526,6 +526,18 @@
         PriceListManagement.SetPriceListLineFilters(PriceListLine, PriceSourceList, AmountType);
     end;
 
+    procedure SetPriceListLineFilters(PriceAssetList: Codeunit "Price Asset List"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"): Boolean;
+    var
+        PriceListLine: Record "Price List Line";
+        PriceSource: Record "Price Source";
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        PriceSource."Price Type" := PriceType;
+        PriceListManagement.FindIfPriceExists();
+        PriceListManagement.SetPriceListLineFilters(PriceListLine, PriceSource, PriceAssetList, AmountType);
+        exit(PriceListManagement.IsPriceFound());
+    end;
+
     procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceAssetList: Codeunit "Price Asset List"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     var
         PriceSource: Record "Price Source";
@@ -574,9 +586,8 @@
             Error(MissingAlternateImplementationErr);
     end;
 
-    /// <summary>
-    /// This is a workaround to avoid the runtime error on running the modal customer list page.
-    /// </summary>
+#if not CLEAN19
+    [Obsolete('Work item 393486 is closed so this function is not necessary anymore.', '19.0')]
     procedure InitSmartListDesigner()
     var
         SmartListDesignerTriggers: codeunit "SmartList Designer Triggers";
@@ -584,6 +595,7 @@
     begin
         SmartListDesignerTriggers.GetEnabled(Enabled);
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPriceLists(FromRecord: Variant; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var Handled: Boolean)

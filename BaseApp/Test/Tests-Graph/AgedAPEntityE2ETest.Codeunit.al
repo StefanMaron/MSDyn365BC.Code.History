@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135524 "Aged AP Entity E2E Test"
 {
     Subtype = Test;
@@ -82,4 +83,4 @@ codeunit 135524 "Aged AP Entity E2E Test"
         AgedReportEntityJSON := JSONManagement.WriteObjectToString;
     end;
 }
-
+#endif

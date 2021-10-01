@@ -22,6 +22,7 @@ codeunit 136135 "Service Order Management"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         ItemNo2: Code[20];
         GlobalItemNo: Code[20];
@@ -60,6 +61,7 @@ codeunit 136135 "Service Order Management"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryTemplates.EnableTemplatesFeature();
 
         LibraryERMCountryData.UpdateAccountInServiceCosts;
         LibraryService.SetupServiceMgtNoSeries;
@@ -699,7 +701,7 @@ codeunit 136135 "Service Order Management"
         ServiceLine: Record "Service Line";
         ServiceItem: Record "Service Item";
         Location: array[2] of Record Location;
-        SerialNo: Code[20];
+        SerialNo: Code[50];
     begin
         // [FEATURE] [Item Tracking] [Location]
         // [SCENARIO 380644] Location code should be updated in service line when selecting a serial no of an item stored on location different than the location of service line
@@ -731,7 +733,7 @@ codeunit 136135 "Service Order Management"
         ServiceLine: Record "Service Line";
         ServiceItem: Record "Service Item";
         Location: array[2] of Record Location;
-        SerialNo: Code[20];
+        SerialNo: Code[50];
     begin
         // [FEATURE] [Item Tracking] [Location]
         // [SCENARIO 380644] Location code should not be updated in service line when selecting a serial no of an item stored on the same location as the location of service line
@@ -1384,9 +1386,10 @@ codeunit 136135 "Service Order Management"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerTemplateListHandler(var CustomerTemplateList: Page "Customer Template List"; var Response: Action)
+    procedure CustomerTemplateListHandler(var CustomerTemplateList: testPage "Select Customer Templ. List")
     begin
-        Response := ACTION::LookupOK;
+        CustomerTemplateList.First();
+        CustomerTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]

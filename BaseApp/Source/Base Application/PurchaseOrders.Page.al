@@ -29,6 +29,13 @@ page 56 "Purchase Orders"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the entry of the product to be purchased. To add a non-transactional text line, fill in the Description field only.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Expected Receipt Date"; "Expected Receipt Date")
                 {
                     ApplicationArea = Suite;

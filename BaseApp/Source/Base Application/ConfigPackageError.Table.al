@@ -36,7 +36,7 @@ table 8617 "Config. Package Error"
         }
         field(5; "Field Name"; Text[30])
         {
-            CalcFormula = Lookup (Field.FieldName WHERE(TableNo = FIELD("Table ID"),
+            CalcFormula = Lookup(Field.FieldName WHERE(TableNo = FIELD("Table ID"),
                                                         "No." = FIELD("Field ID")));
             Caption = 'Field Name';
             Editable = false;
@@ -49,7 +49,7 @@ table 8617 "Config. Package Error"
         }
         field(7; "Field Caption"; Text[250])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table ID"),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table ID"),
                                                               "No." = FIELD("Field ID")));
             Caption = 'Field Caption';
             Editable = false;
@@ -64,11 +64,11 @@ table 8617 "Config. Package Error"
         field(9; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(10; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Table ID")));
             Caption = 'Table Caption';
             Editable = false;

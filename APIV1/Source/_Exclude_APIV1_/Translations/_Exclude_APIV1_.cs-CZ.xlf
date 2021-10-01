@@ -148,6 +148,7 @@
         </trans-unit>
         <trans-unit id="Page 3355667034 - Control 2663178392 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>appId</source>
+          <target state="translated">appId</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Aut. User Permission - Control appId - Property Caption</note>
         </trans-unit>

@@ -1,10 +1,15 @@
 table 7004 "Sales Line Discount"
 {
     Caption = 'Sales Line Discount';
+#if not CLEAN19
     LookupPageID = "Sales Line Discounts";
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
     ObsoleteTag = '16.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif    
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
 
     fields
     {

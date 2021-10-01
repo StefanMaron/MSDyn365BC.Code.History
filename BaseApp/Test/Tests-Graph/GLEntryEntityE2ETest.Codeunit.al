@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135539 "GLEntryEntity E2E Test"
 {
     Subtype = Test;
@@ -150,4 +151,4 @@ codeunit 135539 "GLEntryEntity E2E Test"
         GeneralJournalTemplateHandler.OK.Invoke;
     end;
 }
-
+#endif

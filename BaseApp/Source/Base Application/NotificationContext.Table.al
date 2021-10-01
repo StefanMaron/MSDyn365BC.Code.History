@@ -11,7 +11,7 @@ table 1519 "Notification Context"
         field(2; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(3; "Additional Context ID"; Guid)
         {

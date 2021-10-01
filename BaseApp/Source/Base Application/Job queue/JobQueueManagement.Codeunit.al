@@ -5,6 +5,12 @@ codeunit 456 "Job Queue Management"
         ExecuteBeginMsg: label 'Executing job queue entry...';
         ExecuteEndSuccessMsg: label 'Job finished executing.\Status: %1', Comment = '%1 is a status value, e.g. Success';
         ExecuteEndErrorMsg: label 'Job finished executing.\Status: %1\Error: %2', Comment = '%1 is a status value, e.g. Success, %2=Error message';
+        JobTerminatedUnknownReasonMsg: Label 'The job terminated for an unknown reason.';
+        JobQueueEntriesCategoryTxt: Label 'AL JobQueueEntries', Locked = true;
+        JobQueueStatusChangeTxt: Label 'The status for Job Queue Entry: %1 has changed.', Comment = '%1 is the Job Queue Entry Id', Locked = true;
+        StaleJobQueueEntryTxt: Label 'Stale Job Queue Entry', Locked = true;
+        StaleJobQueueLogEntryTxt: Label 'Stale Job Queue Log Entry', Locked = true;
+        RunJobQueueOnceTxt: Label 'Running job queue once.', Locked = true;
 
     trigger OnRun()
     begin
@@ -143,32 +149,176 @@ codeunit 456 "Job Queue Management"
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueLogEntry: Record "Job Queue Log Entry";
+        SuccessDispatcher: Boolean;
+        SuccessErrorHandler: Boolean;
         Window: Dialog;
+        CurrentLanguage: Integer;
+        Dimensions: Dictionary of [Text, Text];
     begin
         if not Confirm(RunOnceQst, false) then
             exit;
+
         Window.Open(ExecuteBeginMsg);
         SelectedJobQueueEntry.CalcFields(XML);
         JobQueueEntry := SelectedJobQueueEntry;
         JobQueueEntry.ID := CreateGuid();
-        JobQueueEntry."User ID" := copystr(UserId, 1, MaxStrLen(JobQueueEntry."User ID"));
+        JobQueueEntry."User ID" := copystr(UserId(), 1, MaxStrLen(JobQueueEntry."User ID"));
         JobQueueEntry."Recurring Job" := false;
         JobQueueEntry.Status := JobQueueEntry.Status::"Ready";
         JobQueueEntry."Job Queue Category Code" := '';
         clear(JobQueueEntry."Expiration Date/Time");
         clear(JobQueueEntry."System Task ID");
         JobQueueEntry.Insert(true);
-        commit;
-        Codeunit.run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+        Commit();
+
+        CurrentLanguage := GlobalLanguage();
+        GlobalLanguage(1033);
+
+        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
+
+        Dimensions.Add('Id', Format(JobQueueEntry.ID, 0, 4));
+        Dimensions.Add('ObjectType', Format(JobQueueEntry."Object Type to Run"));
+        Dimensions.Add('ObjectId', Format(JobQueueEntry."Object ID to Run"));
+        Dimensions.Add('Status', Format(JobQueueEntry.Status));
+        Dimensions.Add('IsRecurring', Format(JobQueueEntry."Recurring Job"));
+        Dimensions.Add('EarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time"));
+        Dimensions.Add('CompanyName', JobQueueEntry.CurrentCompany());
+
+        Session.LogMessage('0000FMG', RunJobQueueOnceTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
+        GlobalLanguage(CurrentLanguage);
+
+        // Run the job queue
+        SuccessDispatcher := Codeunit.run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+
+        // If JQ fails, run the error handler
+        if not SuccessDispatcher then begin
+            SuccessErrorHandler := Codeunit.run(Codeunit::"Job Queue Error Handler", JobQueueEntry);
+
+            // If the error handler fails, save the error (Non-AL errors will automatically surface to end-user)
+            // If it is unable to save the error (No permission etc), it should also just be surfaced to the end-user.
+            if not SuccessErrorHandler then begin
+                JobQueueEntry.SetError(GetLastErrorText());
+                JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
+                JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry, GetLastErrorCallStack());
+                Commit();
+            end;
+        end;
+
         Window.Close();
-        if JobQueueEntry.find() then
+        if JobQueueEntry.Find() then
             if JobQueueEntry.Delete() then;
-        JobQueueLogEntry.setrange(ID, JobQueueEntry.id);
+        JobQueueLogEntry.SetRange(ID, JobQueueEntry.id);
         if JobQueueLogEntry.FindFirst() then
             if JobQueueLogEntry.Status = JobQueueLogEntry.Status::Success then
                 Message(ExecuteEndSuccessMsg, JobQueueLogEntry.Status)
             else
                 Message(ExecuteEndErrorMsg, JobQueueLogEntry.Status, JobQueueLogEntry."Error Message");
+    end;
+
+    /// <summary>
+    /// To find stale jobs (in process jobs with no scheduled tasks) and set them to error state.
+    /// For both JQE and JQLE
+    /// </summary>
+    internal procedure FindStaleJobsAndSetError()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+    begin
+        if JobQueueEntry.WritePermission() then begin
+            // Find all in process job queue entries
+            JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
+            if JobQueueEntry.FindSet() then
+                repeat
+                    // Check if job is still running or stale
+                    // If stale, set to error
+                    if not TaskScheduler.TaskExists(JobQueueEntry."System Task ID") then begin
+                        JobQueueEntry.SetError(JobTerminatedUnknownReasonMsg);
+
+                        StaleJobQueueEntryTelemetry(JobQueueEntry);
+                    end;
+                until JobQueueEntry.Next() = 0;
+        end;
+
+        if JobQueueLogEntry.WritePermission() then begin
+            // Find all in process job queue log entries
+            JobQueueLogEntry.SetRange(Status, JobQueueLogEntry.Status::"In Process");
+            if JobQueueLogEntry.FindSet() then
+                repeat
+                    // Check if job should be processed
+                    if ShouldProcessStaleJobQueueLogEntries(JobQueueLogEntry) then
+                        // Check if job is still running or stale
+                        // If stale, set to error
+                        if not TaskScheduler.TaskExists(JobQueueLogEntry."System Task ID") then begin
+                            JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
+                            JobQueueLogEntry."Error Message" := JobTerminatedUnknownReasonMsg;
+                            JobQueueLogEntry.Modify();
+
+                            StaleJobQueueLogEntryTelemetry(JobQueueLogEntry);
+                        end;
+                until JobQueueLogEntry.Next() = 0;
+        end;
+    end;
+
+    local procedure StaleJobQueueEntryTelemetry(JobQueueEntry: Record "Job Queue Entry")
+    var
+        CurrentLanguage: Integer;
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        CurrentLanguage := GlobalLanguage();
+        GlobalLanguage(1033);
+
+        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
+
+        Dimensions.Add('Id', Format(JobQueueEntry.ID, 0, 4));
+        Dimensions.Add('ObjectType', Format(JobQueueEntry."Object Type to Run"));
+        Dimensions.Add('ObjectId', Format(JobQueueEntry."Object ID to Run"));
+        Dimensions.Add('Status', Format(JobQueueEntry.Status));
+        Dimensions.Add('IsRecurring', Format(JobQueueEntry."Recurring Job"));
+        Dimensions.Add('EarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time"));
+        Dimensions.Add('CompanyName', JobQueueEntry.CurrentCompany());
+        Dimensions.Add('ScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
+
+        Session.LogMessage('0000FMH', StaleJobQueueEntryTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
+
+        GlobalLanguage(CurrentLanguage);
+    end;
+
+    local procedure StaleJobQueueLogEntryTelemetry(JobQueueLogEntry: Record "Job Queue Log Entry")
+    var
+        CurrentLanguage: Integer;
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        CurrentLanguage := GlobalLanguage();
+        GlobalLanguage(1033);
+
+        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
+
+        Dimensions.Add('Id', Format(JobQueueLogEntry.ID, 0, 4));
+        Dimensions.Add('ObjectType', Format(JobQueueLogEntry."Object Type to Run"));
+        Dimensions.Add('ObjectId', Format(JobQueueLogEntry."Object ID to Run"));
+        Dimensions.Add('Status', Format(JobQueueLogEntry.Status));
+        Dimensions.Add('CompanyName', JobQueueLogEntry.CurrentCompany());
+        Dimensions.Add('ScheduledTaskId', Format(JobQueueLogEntry."System Task ID", 0, 4));
+
+        Session.LogMessage('0000FMI', StaleJobQueueLogEntryTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
+
+        GlobalLanguage(CurrentLanguage);
+    end;
+
+    /// <summary>
+    /// Due to certain usages of JQLE, we need to determine if the log entry is from normal usage
+    /// Abnormal usages like assisted company setup should be ignored
+    /// </summary>
+    local procedure ShouldProcessStaleJobQueueLogEntries(JobQueueLogEntry: Record "Job Queue Log Entry") Process: Boolean
+    begin
+        // Default true, to process stale jobs
+        Process := true;
+
+        if JobQueueLogEntry."Object Type to Run" = JobQueueLogEntry."Object Type to Run"::Codeunit then
+            case JobQueueLogEntry."Object ID to Run" of
+                Codeunit::"Import Config. Package Files":
+                    Process := false;
+            end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'ScheduleReport', '', false, false)]
@@ -177,6 +327,38 @@ codeunit 456 "Job Queue Management"
         ScheduleAReport: Page "Schedule a Report";
     begin
         Scheduled := ScheduleAReport.ScheduleAReport(ReportId, RequestPageXml);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnStatusChanged(Rec: Record "Job Queue Entry"; xRec: Record "Job Queue Entry"; RunTrigger: Boolean)
+    var
+        CurrentLanguage: Integer;
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        if Rec.IsTemporary() then
+            exit;
+
+        if Rec.Status = xRec.Status then
+            exit;
+
+        CurrentLanguage := GlobalLanguage();
+        GlobalLanguage(1033);
+
+        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
+
+        Dimensions.Add('Id', Format(Rec.ID, 0, 4));
+        Dimensions.Add('ObjectType', Format(Rec."Object Type to Run"));
+        Dimensions.Add('ObjectId', Format(Rec."Object ID to Run"));
+        Dimensions.Add('Status', Format(Rec.Status));
+        Dimensions.Add('OldStatus', Format(xRec.Status));
+        Dimensions.Add('IsRecurring', Format(Rec."Recurring Job"));
+        Dimensions.Add('EarliestStartDateTime', Format(Rec."Earliest Start Date/Time"));
+        Dimensions.Add('CompanyName', Rec.CurrentCompany());
+        Dimensions.Add('ScheduledTaskId', Format(Rec."System Task ID", 0, 4));
+
+        Session.LogMessage('0000FNM', JobQueueStatusChangeTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
+
+        GlobalLanguage(CurrentLanguage);
     end;
 }
 

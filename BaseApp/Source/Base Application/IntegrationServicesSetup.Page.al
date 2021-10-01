@@ -5,6 +5,7 @@ page 1876 "Integration Services Setup"
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "API Entities Setup";
+    UsageCategory = Administration;
 
     layout
     {

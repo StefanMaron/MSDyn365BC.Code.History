@@ -138,7 +138,7 @@ page 5799 "Registered Pick Subform"
 
                     trigger OnAction()
                     begin
-                        ShowWhseLine;
+                        WMSMgt.ShowWhseActivityDocLine("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
                     end;
                 }
                 action("Posted Warehouse Shipment Line")
@@ -203,12 +203,6 @@ page 5799 "Registered Pick Subform"
         BinContent: Record "Bin Content";
     begin
         BinContent.ShowBinContents("Location Code", "Item No.", "Variant Code", "Bin Code");
-    end;
-
-    local procedure ShowWhseLine()
-    begin
-        WMSMgt.ShowWhseDocLine(
-          "Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
     end;
 
     local procedure ShowPostedWhseShptLine()

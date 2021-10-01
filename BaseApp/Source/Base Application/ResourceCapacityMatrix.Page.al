@@ -392,7 +392,7 @@ page 9237 "Resource Capacity Matrix"
 
     var
         MatrixRecords: array[32] of Record Date;
-        QtyType: Option "Net Change","Balance at Date";
+        QtyType: Enum "Analysis Amount Type";
         MATRIX_NoOfMatrixColumns: Integer;
         MATRIX_CellData: array[32] of Decimal;
         MATRIX_ColumnCaption: array[32] of Text[1024];
@@ -419,15 +419,24 @@ page 9237 "Resource Capacity Matrix"
             MATRIX_CellData[ColumnID] := 0;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by LoadMatrix().', '19.0')]
     procedure Load(QtyType1: Option "Net Change","Balance at Date"; MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Date; NoOfMatrixColumns1: Integer)
+    begin
+        LoadMatrix(
+            "Analysis Amount Type".FromInteger(QtyType1), MatrixColumns1, MatrixRecords1, NoOfMatrixColumns1);
+    end;
+#endif
+
+    procedure LoadMatrix(NewQtyType: Enum "Analysis Amount Type"; NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record Date; NewNoOfMatrixColumns: Integer)
     var
         i: Integer;
     begin
-        QtyType := QtyType1;
-        CopyArray(MATRIX_ColumnCaption, MatrixColumns1, 1);
+        QtyType := NewQtyType;
+        CopyArray(MATRIX_ColumnCaption, NewMatrixColumns, 1);
         for i := 1 to ArrayLen(MatrixRecords) do
-            MatrixRecords[i].Copy(MatrixRecords1[i]);
-        MATRIX_NoOfMatrixColumns := NoOfMatrixColumns1;
+            MatrixRecords[i].Copy(NewMatrixRecords[i]);
+        MATRIX_NoOfMatrixColumns := NewNoOfMatrixColumns;
     end;
 
     local procedure MatrixOnDrillDown(ColumnID: Integer)

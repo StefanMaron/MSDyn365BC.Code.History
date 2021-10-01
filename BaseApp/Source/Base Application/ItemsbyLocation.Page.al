@@ -71,7 +71,7 @@ page 491 "Items by Location"
 
                 trigger OnAction()
                 begin
-                    SetColumns(MATRIX_SetWanted::Previous);
+                    SetMatrixColumns("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -87,7 +87,7 @@ page 491 "Items by Location"
 
                 trigger OnAction()
                 begin
-                    SetColumns(MATRIX_SetWanted::Next);
+                    SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -100,14 +100,13 @@ page 491 "Items by Location"
 
     trigger OnOpenPage()
     begin
-        SetColumns(MATRIX_SetWanted::Initial);
+        SetMatrixColumns("Matrix Page Step Type"::Initial);
     end;
 
     var
         TempMatrixLocation: Record Location temporary;
         MatrixRecords: array[32] of Record Location;
         MatrixRecordRef: RecordRef;
-        MATRIX_SetWanted: Option Initial,Previous,Same,Next;
         ShowColumnName: Boolean;
         ShowInTransit: Boolean;
         MATRIX_CaptionSet: array[32] of Text[80];
@@ -116,7 +115,15 @@ page 491 "Items by Location"
         MATRIX_CurrSetLength: Integer;
         UnspecifiedLocationCodeTxt: Label 'UNSPECIFIED', Comment = 'Code for unspecified location';
 
-    procedure SetColumns(SetWanted: Option Initial,Previous,Same,Next)
+#if not CLEAN19
+    [Obsolete('Replaced by SetMatrixType().', '19.0')]
+    procedure SetColumns(SetType: Option)
+    begin
+        SetMatrixColumns("Matrix Page Step Type".FromInteger(SetType));
+    end;
+#endif
+
+    local procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
         CaptionFieldNo: Integer;
@@ -137,7 +144,7 @@ page 491 "Items by Location"
         else
             CaptionFieldNo := TempMatrixLocation.FieldNo(Code);
 
-        MatrixMgt.GenerateMatrixData(MatrixRecordRef, SetWanted, ArrayLen(MatrixRecords), CaptionFieldNo, MATRIX_PKFirstRecInCurrSet,
+        MatrixMgt.GenerateMatrixData(MatrixRecordRef, StepType.AsInteger(), ArrayLen(MatrixRecords), CaptionFieldNo, MATRIX_PKFirstRecInCurrSet,
           MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrSetLength);
 
         if MATRIX_CaptionSet[1] = '' then begin
@@ -167,12 +174,12 @@ page 491 "Items by Location"
 
     local procedure ShowColumnNameOnAfterValidate()
     begin
-        SetColumns(MATRIX_SetWanted::Same);
+        SetMatrixColumns("Matrix Page Step Type"::Same);
     end;
 
     local procedure ShowInTransitOnAfterValidate()
     begin
-        SetColumns(MATRIX_SetWanted::Initial);
+        SetMatrixColumns("Matrix Page Step Type"::Initial);
     end;
 
     local procedure UpdateMatrixSubform()

@@ -331,7 +331,9 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
                         end;
                     until not PriceSourceList.Next(PriceSource);
 
-        exit(not TempPriceListLine.IsEmpty());
+        FoundLines := not TempPriceListLine.IsEmpty();
+        if Not FoundLines then
+            PriceCalculationBufferMgt.FillBestLine(AmountType, TempPriceListLine);
     end;
 
     procedure CopyLinesBySource(

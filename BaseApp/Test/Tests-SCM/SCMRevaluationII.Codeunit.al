@@ -37,7 +37,6 @@ codeunit 137011 "SCM Revaluation-II"
         ErrMsgCostAmount: Label 'The amounts must be equal.';
         RevaluationPerEntryNotAllowedErr: Label 'This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
         AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
-        AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
 
     [Test]
@@ -60,7 +59,7 @@ codeunit 137011 "SCM Revaluation-II"
         // Setup: Update Inventory Setup, Create Item and Purchase Order and Post Purchase Order.
         Initialize;
 
-        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         LocationCode := CreateLocationCode(InventoryPostingGroup);
         ItemNo := CreateItem("Costing Method"::Standard, InventoryPostingGroup);
@@ -115,7 +114,7 @@ codeunit 137011 "SCM Revaluation-II"
         // Create and Post Sales Order, Reopen Purchase Order and Post Purchase Order with Less Qty to Invoice.
         Initialize;
 
-        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         LocationCode := CreateLocationCode(InventoryPostingGroup);
         ItemNo := CreateItem("Costing Method"::Standard, InventoryPostingGroup);
@@ -177,7 +176,7 @@ codeunit 137011 "SCM Revaluation-II"
         // Setup: Update Inventory Setup, Create Item and Purchase Order and Post Purchase Order as Receive.
         Initialize;
 
-        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         LocationCode := CreateLocationCode(InventoryPostingGroup);
         ItemNo := CreateItem("Costing Method"::Standard, InventoryPostingGroup);
@@ -246,7 +245,7 @@ codeunit 137011 "SCM Revaluation-II"
         // Setup: Update Inventory Setup, Create Item and Purchase Order and Post Purchase Order as Receive.
         Initialize;
 
-        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         LocationCode := CreateLocationCode(InventoryPostingGroup);
         ItemNo := CreateItem("Costing Method"::Standard, InventoryPostingGroup);
@@ -312,8 +311,8 @@ codeunit 137011 "SCM Revaluation-II"
         // Setup: Update Inventory Setup, Create Item and Purchase Order and Post Purchase Order.
         Initialize;
 
-        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
-        LibraryInventory.SetAverageCostSetupInAccPeriods(AverageCostCalcType::Item, AverageCostPeriod::Day);
+        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+        LibraryInventory.SetAverageCostSetupInAccPeriods("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         LocationCode := CreateLocationCode(InventoryPostingGroup);
         ItemNo := CreateItem("Costing Method"::Average, InventoryPostingGroup);
@@ -376,7 +375,7 @@ codeunit 137011 "SCM Revaluation-II"
         Initialize;
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
-        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+        UpdateInventorySetup(true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         // Create Work Center and Machine Center with required Flushing method and Create Routing.
         CreateRoutingSetup(RoutingNo);
@@ -485,7 +484,7 @@ codeunit 137011 "SCM Revaluation-II"
         // Setup: Update Inventory Setup.
         Initialize;
 
-        UpdateInventorySetup(false, false, AutomaticCostAdjustment::Always, AverageCostCalcType::Item, AverageCostPeriod::Day);
+        UpdateInventorySetup(false, false, AutomaticCostAdjustment::Always, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         // Create child Items with required Costing method and Inventory,Create Production BOM.
         CreateLocationCode(InventoryPostingGroup);
@@ -547,7 +546,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         Initialize;
 
-        UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+        UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         CreateItemWithInventoryValue(Item);
         NewUnitCost := PostItemLedgerEntryRevaluation(Item);
@@ -567,7 +566,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         Initialize;
 
-        UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+        UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         CreateItemWithInventoryValue(Item);
         PostItemRevaluation(Item, WorkDate);
@@ -588,8 +587,8 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         Initialize;
 
-        UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
-        LibraryInventory.SetAverageCostSetupInAccPeriods(AverageCostCalcType::Item, AverageCostPeriod::Day);
+        UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+        LibraryInventory.SetAverageCostSetupInAccPeriods("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         CreateItemWithInventoryValue(Item);
         PostItemLedgerEntryRevaluation(Item);
@@ -716,7 +715,7 @@ codeunit 137011 "SCM Revaluation-II"
 
         Initialize;
 
-        UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+        UpdateInventorySetup(false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         // [GIVEN] Item "I1" with average costing method
         CreateItemWithCostingMethod(Item, Item."Costing Method"::Average);
@@ -784,7 +783,7 @@ codeunit 137011 "SCM Revaluation-II"
         Initialize;
 
         UpdateInventorySetup(
-          false, false, AutomaticCostAdjustment::Never, AverageCostCalcType::"Item & Location & Variant", AverageCostPeriod::Day);
+          false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
 
         // [GIVEN] Item with Costing Method = Average.
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
@@ -824,7 +823,7 @@ codeunit 137011 "SCM Revaluation-II"
         Initialize;
 
         UpdateInventorySetup(
-          false, false, AutomaticCostAdjustment::Never, AverageCostCalcType::"Item & Location & Variant", AverageCostPeriod::Day);
+          false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
 
         // [GIVEN] Item with Costing Method = Average.
         // [GIVEN] Received not invoiced purchase "P1" on location "L1".
@@ -857,7 +856,7 @@ codeunit 137011 "SCM Revaluation-II"
         Initialize;
 
         UpdateInventorySetup(
-          false, false, AutomaticCostAdjustment::Never, AverageCostCalcType::"Item & Location & Variant", AverageCostPeriod::Day);
+          false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
 
         // [GIVEN] Item with Costing Method = Average.
         // [GIVEN] Received not invoiced purchase "P1" on location "L1".
@@ -890,7 +889,7 @@ codeunit 137011 "SCM Revaluation-II"
         Initialize;
 
         UpdateInventorySetup(
-          false, false, AutomaticCostAdjustment::Never, AverageCostCalcType::"Item & Location & Variant", AverageCostPeriod::Day);
+          false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
 
         // [GIVEN] Item with Costing Method = Average.
         // [GIVEN] Received not invoiced purchase "P1" on location "L1".
@@ -928,7 +927,7 @@ codeunit 137011 "SCM Revaluation-II"
         Initialize;
 
         UpdateInventorySetup(
-          false, false, AutomaticCostAdjustment::Never, AverageCostCalcType::"Item & Location & Variant", AverageCostPeriod::Day);
+          false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
 
         // [GIVEN] Item with Costing Method = Average.
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
@@ -976,7 +975,7 @@ codeunit 137011 "SCM Revaluation-II"
 
         // [GIVEN] Set "Average Cost Calc. Type" = "Item & Location & Variant"
         UpdateInventorySetup(
-          false, false, AutomaticCostAdjustment::Never, AverageCostCalcType::"Item & Location & Variant", AverageCostPeriod::Day);
+          false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
 
         // [GIVEN] Item "I" with "Average" costing method
         UnitCost := LibraryRandom.RandIntInRange(100, 200);
@@ -1693,7 +1692,7 @@ codeunit 137011 "SCM Revaluation-II"
         end;
     end;
 
-    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; ExpectedCostPosting: Boolean; AutomaticCostAdjmt: Option; AvgCostCalcType: Option; AvgCostPeriod: Option)
+    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; ExpectedCostPosting: Boolean; AutomaticCostAdjmt: Option; AvgCostCalcType: Enum "Average Cost Calculation Type"; AvgCostPeriod: Option)
     begin
         LibraryInventory.SetAutomaticCostPosting(AutomaticCostPosting);
         LibraryInventory.SetExpectedCostPosting(ExpectedCostPosting);

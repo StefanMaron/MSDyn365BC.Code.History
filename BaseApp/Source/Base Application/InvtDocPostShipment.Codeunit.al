@@ -15,7 +15,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
         Window: Dialog;
         LineCount: Integer;
         HideProgressWindow: Boolean;
@@ -142,6 +142,8 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
                     InvtShptLine."Inventory Posting Group" := InvtDocLine."Inventory Posting Group";
                     InvtShptLine."Quantity (Base)" := InvtDocLine."Quantity (Base)";
                     InvtShptLine."Qty. per Unit of Measure" := InvtDocLine."Qty. per Unit of Measure";
+                    InvtShptLine."Qty. Rounding Precision" := InvtDocLine."Qty. Rounding Precision";
+                    InvtShptLine."Qty. Rounding Precision (Base)" := InvtDocLine."Qty. Rounding Precision (Base)";
                     InvtShptLine."Unit of Measure Code" := InvtDocLine."Unit of Measure Code";
                     InvtShptLine."Gross Weight" := InvtDocLine."Gross Weight";
                     InvtShptLine."Net Weight" := InvtDocLine."Net Weight";
@@ -149,6 +151,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
                     InvtShptLine."Variant Code" := InvtDocLine."Variant Code";
                     InvtShptLine."Units per Parcel" := InvtDocLine."Units per Parcel";
                     InvtShptLine."Location Code" := InvtDocLine."Location Code";
+                    InvtShptLine."Shipment No." := InvtDocLine."Document No.";
                     InvtShptLine."Bin Code" := InvtDocLine."Bin Code";
                     InvtShptLine."Item Category Code" := InvtDocLine."Item Category Code";
                     InvtShptLine."FA No." := InvtDocLine."FA No.";
@@ -166,12 +169,8 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
                 until InvtDocLine.Next() = 0;
 
             InvtSetup.Get();
-            if InvtSetup."Automatic Cost Adjustment" <>
-               InvtSetup."Automatic Cost Adjustment"::Never
-            then begin
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.MakeMultiLevelAdjmt();
-            end;
+            if InvtSetup.AutomaticCostAdjmtRequired() then
+                InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
 
             LockTable();
             Delete(true);
@@ -276,6 +275,8 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
         ItemJnlLine."Inventory Posting Group" := InvtShptLine2."Inventory Posting Group";
         ItemJnlLine."Unit of Measure Code" := InvtShptLine2."Unit of Measure Code";
         ItemJnlLine."Qty. per Unit of Measure" := InvtShptLine2."Qty. per Unit of Measure";
+        ItemJnlLine."Qty. Rounding Precision" := InvtShptLine2."Qty. Rounding Precision";
+        ItemJnlLine."Qty. Rounding Precision (Base)" := InvtShptLine2."Qty. Rounding Precision (Base)";
         ItemJnlLine."Variant Code" := InvtShptLine2."Variant Code";
         ItemJnlLine."Item Category Code" := InvtShptLine2."Item Category Code";
         ItemJnlLine."Applies-to Entry" := InvtShptLine2."Applies-to Entry";

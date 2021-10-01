@@ -425,6 +425,27 @@ codeunit 134231 "ERM Bank Account"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BankAccountListBalance()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountList: TestPage "Bank Account List";
+    begin
+        // [SCENARIO 402879] Bank account list page shows Balance and Balance (LCY) fields
+        // [FEATURE] [UI]
+        Initialize();
+
+        // [GIVEN] Bank Account
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        // [WHEN] Bank Account List page opened
+        // [THEN] Balance and Balance (LCY) fields are visible.
+        BankAccountList.OpenView;
+        Assert.IsTrue(BankAccountList.BalanceAmt.Visible, 'Balance must be visible');
+        Assert.IsTrue(BankAccountList.BalanceLCY.Visible, 'Balance (LCY) must be visible');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Account");

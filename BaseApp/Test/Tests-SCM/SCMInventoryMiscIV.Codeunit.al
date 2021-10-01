@@ -504,6 +504,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Assert.AreEqual(20200214D, NextCountingEndDate, WrongNextCountingEndDateErr);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure DirectUnitCostOnPurchLineFromPurchPrice()
@@ -788,6 +789,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [THEN] Verify Line Discount on Posted Purchase Invoice after posting Purchase Invoice using Copy Document.
         VerifyPstdPurchaseInvoice(DocumentNo, Item."Last Direct Cost", LineDiscountPct);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandler')]
@@ -1015,42 +1017,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
           InventorySetup."Average Cost Period");
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure RequisitionWorksheetDescriptionFromItemCrossReference()
-    var
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        SalesLine: Record "Sales Line";
-        RequisitionWkshName: Record "Requisition Wksh. Name";
-        RequisitionLine: Record "Requisition Line";
-        ReqWkshTemplateName: Code[10];
-    begin
-        // [FEATURE] [Requisition Worksheet] [Item Cross Reference]
-        // [SCENARIO 202830] Description should be copied into a requisition worksheet line from the item cross reference when calculating requisition plan
-
-        Initialize(false);
-
-        // [GIVEN] Item "I". Vendor "V" is setup as the default vendor for the item.
-        CreateItemWithVendor(Item);
-
-        // [GIVEN] Item cross reference "CR" for item "I" with vendor "V". Description in the cross reference is "D".
-        CreateItemCrossReference(ItemCrossReference, Item."No.", Item."Vendor No.");
-        // [GIVEN] Create a sales order for item "I"
-        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, Item."No.", '', LibraryRandom.RandInt(100));
-
-        // [WHEN] Calculate requisition plan for item "I"
-        ReqWkshTemplateName := LibraryPlanning.SelectRequisitionTemplateName;
-        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplateName);
-        LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplateName, RequisitionWkshName.Name);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
-
-        // [THEN] New requisition line is created with "Description" = "D"
-        VerifyDescriptionsOnRequisitionLine(Item."No.", ItemCrossReference.Description, '');
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure RequisitionWorksheetDescriptionFromItemReference()
@@ -1084,39 +1050,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [THEN] New requisition line is created with "Description" = "D"
         VerifyDescriptionsOnRequisitionLine(Item."No.", ItemReference.Description, '');
     end;
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure ReqWorksheetDescriptionFromItemCrossRefForDropShipment()
-    var
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        SalesLine: Record "Sales Line";
-    begin
-        // [FEATURE] [Requisition Worksheet] [Item Cross Reference] [Drop Shipment]
-        // [SCENARIO 214007] Description should be copied into a requisition worksheet line from the item cross reference when running Get Sales Orders function for Drop Shipment.
-        Initialize(false);
-
-        // [GIVEN] Item "I". Vendor "V" is setup as the default vendor for the item.
-        // [GIVEN] Item cross reference "CR" for item "I" with vendor "V". Description in the cross reference is "Desc-CR".
-        CreateItemWithVendor(Item);
-        CreateItemCrossReference(ItemCrossReference, Item."No.", Item."Vendor No.");
-
-        // [GIVEN] Drop shipment sales order line for item "I". Descriptions on the sales line = "Desc-S1" and "Desc-S2".
-        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, Item."No.", '', LibraryRandom.RandInt(100));
-        SalesLine.Validate("Drop Shipment", true);
-        SalesLine.Validate(Description, LibraryUtility.GenerateRandomText(20));
-        SalesLine.Validate("Description 2", LibraryUtility.GenerateRandomText(20));
-        SalesLine.Modify(true);
-
-        // [WHEN] Run Get Sales Orders function in requisition worksheet.
-        GetSalesOrdersInRequisitionWorksheet(SalesLine);
-
-        // [THEN] New requisition line is created with Description = "Desc-CR" and "Description 2" = blank.
-        VerifyDescriptionsOnRequisitionLine(Item."No.", ItemCrossReference.Description, '');
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1177,35 +1110,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         VerifyDescriptionsOnRequisitionLine(Item."No.", SalesLine.Description, SalesLine."Description 2");
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemCrossReferenceGetItemDescriptionCrossRefExists()
-    var
-        Item: Record Item;
-        Vendor: Record Vendor;
-        ItemCrossReference: Record "Item Cross Reference";
-        Description: Text[100];
-        Description2: Text[50];
-    begin
-        // [FEATURE] [Requisition Worksheet] [Item Cross Reference] [UT]
-        // [SCENARIO 202830] Function GetItemDescription in table 5717 "Item Cross Reference" should return description text when a cross reference exists for the given combination of item and vendor
-        Initialize(false);
-
-        LibraryInventory.CreateItem(Item);
-        LibraryPurchase.CreateVendor(Vendor);
-        CreateItemCrossReference(ItemCrossReference, Item."No.", Vendor."No.");
-
-        Description := Item.Description;
-        Assert.IsTrue(
-          ItemCrossReference.FindItemDescription(
-            Description, Description2, Item."No.", '', Item."Base Unit of Measure",
-            ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No."), '');
-
-        Assert.AreEqual(ItemCrossReference.Description, Description, '');
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure ItemReferenceGetItemDescriptionItemRefExists()
@@ -1231,30 +1135,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
             ItemReference."Reference Type"::Vendor, Vendor."No."), '');
 
         Assert.AreEqual(ItemReference.Description, Description, '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemCrossReferenceGetItemDescriptionCrossRefDoesNotExist()
-    var
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        Description: Text[100];
-        Description2: Text[50];
-    begin
-        // [FEATURE] [Requisition Worksheet] [Item Cross Reference] [UT]
-        // [SCENARIO 202830] Function GetItemDescription in table 5717 "Item Cross Reference" should not change description text when no cross references exist for the given combination of item and vendor
-        Initialize(false);
-
-        LibraryInventory.CreateItem(Item);
-
-        Description := Item.Description;
-        Assert.IsFalse(
-          ItemCrossReference.FindItemDescription(
-            Description, Description2, Item."No.", '', Item."Base Unit of Measure",
-            ItemCrossReference."Cross-Reference Type"::Vendor, ''), '');
-
-        Assert.AreEqual(Item.Description, Description, '');
     end;
 
     [Test]
@@ -1629,6 +1509,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item.TestField("Trans. Ord. Receipt (Qty.)", 0);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseVariantZeroLineDiscount()
@@ -1750,6 +1631,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [THEN] "L"."Line Discount %" = 0
         JobJournalLine.TestField("Line Discount %", 0);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1912,6 +1794,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         JobJournalLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreateZeroForVariantPurchaseLineDiscount(ItemVariant: Record "Item Variant"; VendorNo: Code[20])
     var
         ItemBlankVariantPurchaseLineDiscount: Record "Purchase Line Discount";
@@ -1940,6 +1823,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
           ItemWithVariantSalesLineDiscount, ItemWithVariantSalesLineDiscount.Type::Item, ItemVariant."Item No.",
           ItemWithVariantSalesLineDiscount."Sales Type"::Customer, CustomerNo, WorkDate, '', ItemVariant.Code, '', 0);
     end;
+#endif
 
     local procedure AcceptAndCarryOutActionMessage(ItemNo: Code[20])
     var
@@ -2099,18 +1983,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryWarehouse.PostTransferOrder(TransferHeader, false, true);
     end;
 
-#if not CLEAN16
-    local procedure CreateItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; VendorNo: Code[20])
-    var
-        StrLen: Integer;
-    begin
-        StrLen := MaxStrLen(ItemCrossReference.Description);
-        LibraryInventory.CreateItemCrossReference(ItemCrossReference, ItemNo, ItemCrossReference."Cross-Reference Type"::Vendor, VendorNo);
-        ItemCrossReference.Description := CopyStr(LibraryUtility.GenerateRandomText(StrLen), 1, StrLen);
-        ItemCrossReference.Modify(true);
-    end;
-#endif
-
     local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; VendorNo: Code[20])
     var
         StrLen: Integer;
@@ -2203,6 +2075,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         GeneralPostingSetup.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreatePurchaseLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     begin
         LibraryERM.CreateLineDiscForVendor(
@@ -2222,6 +2095,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchasePrice.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // take random for Direct Unit Cost.
         PurchasePrice.Modify(true);
     end;
+#endif
 
     local procedure CreateRoutingSetup(WorkCenterNo: Code[20]; RoutingLinkCode: Code[10]): Code[20]
     var
@@ -2471,12 +2345,14 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure UpdateLineDiscOnPurchLineDisc(PurchaseLineDiscount: Record "Purchase Line Discount"): Decimal
     begin
         PurchaseLineDiscount.Validate("Line Discount %", PurchaseLineDiscount."Line Discount %" + LibraryRandom.RandDec(10, 2));  // Take random to update Line Discount Pct.
         PurchaseLineDiscount.Modify(true);
         exit(PurchaseLineDiscount."Line Discount %");
     end;
+#endif
 
     local procedure UpdatePhysInvCountingPeriodOnItem(var Item: Record Item; CountFrequency: Integer)
     begin
@@ -2494,12 +2370,14 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchaseLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure UpdateUnitCostOnPurchasePrice(PurchasePrice: Record "Purchase Price"): Decimal
     begin
         PurchasePrice.Validate("Direct Unit Cost", PurchasePrice."Direct Unit Cost" + LibraryRandom.RandDec(10, 2));  // Take random value to update Direct Unit Cost.
         PurchasePrice.Modify(true);
         exit(PurchasePrice."Direct Unit Cost");
     end;
+#endif
 
     local procedure UpdateInventory(ItemNo: Code[20]; LocationCode: Code[10]; Quantuty: Decimal)
     var

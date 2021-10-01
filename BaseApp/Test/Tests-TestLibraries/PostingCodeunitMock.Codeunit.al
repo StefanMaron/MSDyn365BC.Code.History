@@ -20,8 +20,7 @@ codeunit 132479 "Posting Codeunit Mock"
             case MsgType of
                 -3: // pop context
                     begin
-                        UnbindSubscription(ErrorContextElement[ContextID]);
-                        ContextID -= 1;
+                        ContextID := ErrorMessageMgt.PopContext(ErrorContextElement[ContextID]);
                     end;
                 -2: // Error in local context
                     LogLocalError("Record ID", Description, "Additional Information");

@@ -27,6 +27,13 @@ page 77 "Resource List"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a description of the resource.';
                 }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = Jobs;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field(Type; Type)
                 {
                     ApplicationArea = Jobs;
@@ -102,6 +109,12 @@ page 77 "Resource List"
                     ApplicationArea = Jobs;
                     Caption = 'Default Deferral Template';
                     ToolTip = 'Specifies the default template that governs how to defer revenues and expenses to the periods when they occurred.';
+                }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the resource is coupled to a product in Dynamics 365 Sales.';
+                    Visible = CRMIntegrationEnabled;
                 }
             }
         }
@@ -320,6 +333,25 @@ page 77 "Resource List"
                             CRMIntegrationManagement.DefineCoupling(RecordId);
                         end;
                     }
+                    action(MatchBasedCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledItem;
+                        ToolTip = 'Couple resources to products in Dynamics 365 Sales based on matching criteria.';
+
+                        trigger OnAction()
+                        var
+                            Resource: Record Resource;
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(Resource);
+                            RecRef.GetTable(Resource);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
+                        end;
+                    }
                     action(DeleteCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = D;
@@ -360,6 +392,7 @@ page 77 "Resource List"
             {
                 Caption = '&Prices';
                 Image = Price;
+#if not CLEAN19
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
@@ -392,6 +425,7 @@ page 77 "Resource List"
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 action(PurchPriceLists)
                 {
                     ApplicationArea = Jobs;
@@ -444,7 +478,7 @@ page 77 "Resource List"
                 }
                 action("Resource Allocated per Service &Order")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Service;
                     Caption = 'Resource Allocated per Service &Order';
                     Image = ViewServiceOrder;
                     RunObject = Page "Res. Alloc. per Service Order";
@@ -523,6 +557,7 @@ page 77 "Resource List"
                 RunObject = Report "Resource - Cost Breakdown";
                 ToolTip = 'View the direct unit costs and the total direct costs for each resource. Only usage postings are considered in this report. Resource usage can be posted in the resource journal or the job journal.';
             }
+#if not CLEAN19
             action("Resource - Price List")
             {
                 ApplicationArea = Jobs;
@@ -537,6 +572,7 @@ page 77 "Resource List"
                 ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                 ObsoleteTag = '17.0';
             }
+#endif
             action("Res. Price List")
             {
                 ApplicationArea = Jobs;

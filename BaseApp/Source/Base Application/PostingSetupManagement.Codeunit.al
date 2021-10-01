@@ -7,6 +7,8 @@ codeunit 48 PostingSetupManagement
 
     var
         MyNotifications: Record "My Notifications";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
         MissingAccountTxt: Label '%1 is missing in %2.', Comment = '%1 = Field caption, %2 = Table caption';
         SetupMissingAccountTxt: Label 'Set up missing account';
         MissingAccountNotificationTxt: Label 'G/L Account is missing in posting group or setup.';
@@ -250,6 +252,81 @@ codeunit 48 PostingSetupManagement
           StrSubstNo(MissingAccountTxt, FieldCaption, GenPostingSetup.TableCaption),
           SetupMissingAccountTxt, 'ShowGenPostingSetup',
           GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
+    end;
+
+    procedure LogVATPostingSetupFieldError(VATPostingSetup: Record "VAT Posting Setup"; FieldNumber: Integer)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(VATPostingSetup);
+
+        LogContextFieldError(RecRef, FieldNumber);
+    end;
+
+    procedure LogGenPostingSetupFieldError(GenPostingSetup: Record "General Posting Setup"; FieldNumber: Integer)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(GenPostingSetup);
+
+        LogContextFieldError(RecRef, FieldNumber);
+    end;
+
+    procedure LogInventoryPostingSetupFieldError(InventoryPostingSetup: Record "Inventory Posting Setup"; FieldNumber: Integer)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(InventoryPostingSetup);
+
+        LogContextFieldError(RecRef, FieldNumber);
+    end;
+
+    procedure LogCustPostingGroupFieldError(CustomerPostingGroup: Record "Customer Posting Group"; FieldNumber: Integer)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(CustomerPostingGroup);
+
+        LogContextFieldError(RecRef, FieldNumber);
+    end;
+
+    procedure LogVendPostingGroupFieldError(VendorPostingGroup: Record "Vendor Posting Group"; FieldNumber: Integer)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(VendorPostingGroup);
+
+        LogContextFieldError(RecRef, FieldNumber);
+    end;
+
+    procedure LogJobPostingGroupFieldError(JobPostingGroup: Record "Job Posting Group"; FieldNumber: Integer)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(JobPostingGroup);
+
+        LogContextFieldError(RecRef, FieldNumber);
+    end;
+
+    procedure LogFAPostingGroupFieldError(FAPostingGroup: Record "FA Posting Group"; FieldNumber: Integer)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(FAPostingGroup);
+
+        LogContextFieldError(RecRef, FieldNumber);
+    end;
+
+    local procedure LogContextFieldError(var RecRef: RecordRef; FieldNumber: Integer)
+    var
+        FldRef: FieldRef;
+    begin
+        FldRef := RecRef.Field(FieldNumber);
+
+        ErrorMessageMgt.LogContextFieldError(
+              0, StrSubstNo(MissingAccountTxt, FldRef.Caption, RecRef.Caption),
+              RecRef.RecordId, FieldNumber,
+              ForwardLinkMgt.GetHelpCodeForEmptyPostingSetupAccount());
     end;
 
     procedure SendVATPostingSetupNotification(VATPostingSetup: Record "VAT Posting Setup"; FieldCaption: Text)

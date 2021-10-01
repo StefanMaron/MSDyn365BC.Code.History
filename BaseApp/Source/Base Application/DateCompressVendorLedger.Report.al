@@ -85,6 +85,8 @@ report 398 "Date Compress Vendor Ledger"
             begin
                 if DateComprReg."No. Records Deleted" > NoOfDeleted then
                     InsertRegisters(GLReg, DateComprReg);
+                if UseDataArchive then
+                    DataArchive.Save();
             end;
 
             trigger OnPreDataItem()
@@ -128,6 +130,9 @@ report 398 "Date Compress Vendor Ledger"
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
                 InitRegisters;
+
+                if UseDataArchive then
+                    DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress Vendor Ledger"));
             end;
         }
     }
@@ -209,6 +214,13 @@ report 398 "Date Compress Vendor Ledger"
                             DimSelectionBuf.SetDimSelectionMultiple(3, REPORT::"Date Compress Vendor Ledger", RetainDimText);
                         end;
                     }
+                    field(UseDataArchiveCtrl; UseDataArchive)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Archive Deleted Entries';
+                        ToolTip = 'Specifies whether the deleted (compressed) entries will be stored in the data archive for later inspection or export.';
+                        Visible = DataArchiveProviderExists;
+                    }
                 }
             }
         }
@@ -230,6 +242,11 @@ report 398 "Date Compress Vendor Ledger"
         trigger OnOpenPage()
         begin
             InitializeParameter;
+        end;
+
+        trigger OnInit()
+        begin
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         end;
     }
 
@@ -280,6 +297,7 @@ report 398 "Date Compress Vendor Ledger"
         DateComprMgt: Codeunit DateComprMgt;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         DimMgt: Codeunit DimensionManagement;
+        DataArchive: Codeunit "Data Archive";
         Window: Dialog;
         VendLedgEntryFilter: Text[250];
         NoOfFields: Integer;
@@ -292,6 +310,9 @@ report 398 "Date Compress Vendor Ledger"
         LastDtldEntryNo: Integer;
         LastTmpDtldEntryNo: Integer;
         GLRegExists: Boolean;
+        UseDataArchive: Boolean;
+        [InDataSet]
+        DataArchiveProviderExists: Boolean;
         i: Integer;
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
@@ -417,6 +438,8 @@ report 398 "Date Compress Vendor Ledger"
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;
+        if UseDataArchive then
+            DataArchive.SaveRecord(VendLedgEntry);
     end;
 
     local procedure ComprCollectedEntries()
@@ -521,6 +544,8 @@ report 398 "Date Compress Vendor Ledger"
         NewEntry: Boolean;
         PostingDate: Date;
     begin
+        if UseDataArchive then
+            DataArchive.SaveRecord(DtldVendLedgEntry);
         DtldVendLedgEntryBuffer.SetFilter(
           "Posting Date",
           DateComprMgt.GetDateFilter(DtldVendLedgEntry."Posting Date", EntrdDateComprReg, true));
@@ -621,9 +646,16 @@ report 398 "Date Compress Vendor Ledger"
         end;
 
         RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compress Vendor Ledger", '');
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists;
     end;
 
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainBuyfromVendorNo: Boolean; RetainPurchaserCode: Boolean; RetainDimensionText: Text[250])
+    begin
+        InitializeRequest(StartingDate, EndingDate, PeriodLength, Description, RetainDocumentNo, RetainBuyfromVendorNo, RetainPurchaserCode, RetainDimensionText, true);
+    end;
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainBuyfromVendorNo: Boolean; RetainPurchaserCode: Boolean; RetainDimensionText: Text[250]; DoUseDataArchive: Boolean)
     begin
         InitializeParameter;
         EntrdDateComprReg."Starting Date" := StartingDate;
@@ -634,25 +666,25 @@ report 398 "Date Compress Vendor Ledger"
         Retain[2] := RetainBuyfromVendorNo;
         Retain[3] := RetainPurchaserCode;
         RetainDimText := RetainDimensionText;
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
     end;
 
     local procedure LogStartTelemetryMessage()
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
         TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
         TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
         TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
-        // TelemetryDimensions.Add('Description', EntrdVendLedgEntry.Description);
         TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[1], 0, 9));
         TelemetryDimensions.Add('RetainBuyFromVendorNo', Format(Retain[2], 0, 9));
         TelemetryDimensions.Add('RetainPurchaserCode', Format(Retain[3], 0, 9));
         TelemetryDimensions.Add('RetainDimensions', RetainDimText);
-        // TelemetryDimensions.Add('Filters', "Vendor Ledger Entry".GetFilters());
+        TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F4Y', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
@@ -661,7 +693,6 @@ report 398 "Date Compress Vendor Ledger"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));

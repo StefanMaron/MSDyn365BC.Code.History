@@ -82,6 +82,7 @@ codeunit 134417 "ERM Delete Documents"
         VerifyPurchaseLineArchive(PurchaseLine, PurchaseHeader."No.");
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -107,7 +108,7 @@ codeunit 134417 "ERM Delete Documents"
         // [THEN] Verify whether Line exist in Purchase Header Archive or not.
         asserterror FindPurchaseHeaderArchive(PurchaseHeaderArchive, PurchaseHeaderArchive."Document Type"::Quote, PurchaseHeader."No.");
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure ReleaseAndArchivePurchaseOrder()
@@ -243,6 +244,7 @@ codeunit 134417 "ERM Delete Documents"
         UpdateStockOutWarning(OldStockOutWarning);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -273,7 +275,7 @@ codeunit 134417 "ERM Delete Documents"
         // 4.Tear Down: Set Stockout Warning to original state.
         UpdateStockOutWarning(OldStockOutWarning);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure ReleaseAndArchiveSalesOrder()
@@ -331,6 +333,7 @@ codeunit 134417 "ERM Delete Documents"
         UpdateStockOutWarning(OldStockOutWarning);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -361,7 +364,7 @@ codeunit 134417 "ERM Delete Documents"
         // 4.Tear Down: Set Stockout Warning to original state.
         UpdateStockOutWarning(OldStockOutWarning);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure DeleteApprovedInvoicedPurchaseOrder()

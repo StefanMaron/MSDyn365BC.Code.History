@@ -17,7 +17,9 @@ codeunit 130028 "License Management Starter"
         ResCapacityEntry: Record "Res. Capacity Entry";
         Job: Record Job;
         JobLedgerEntry: Record "Job Ledger Entry";
+#if not CLEAN19
         ResourceCost: Record "Resource Cost";
+#endif
         JobPostingGroup: Record "Job Posting Group";
         JobJournalTemplate: Record "Job Journal Template";
         JobJournalLine: Record "Job Journal Line";
@@ -61,9 +63,11 @@ codeunit 130028 "License Management Starter"
         JobWIPEntry: Record "Job WIP Entry";
         JobWIPGLEntry: Record "Job WIP G/L Entry";
         JobWIPWarning: Record "Job WIP Warning";
+#if not CLEAN19
         JobResourcePrice: Record "Job Resource Price";
         JobItemPrice: Record "Job Item Price";
         JobGLAccountPrice: Record "Job G/L Account Price";
+#endif
         JobEntryNo: Record "Job Entry No.";
         JobBuffer: Record "Job Buffer";
         JobWIPBuffer: Record "Job WIP Buffer";
@@ -244,7 +248,9 @@ codeunit 130028 "License Management Starter"
         ResCapacityEntry.DeleteAll();
         Job.DeleteAll();
         JobLedgerEntry.DeleteAll();
+#if not CLEAN19
         ResourceCost.DeleteAll();
+#endif
         JobPostingGroup.DeleteAll();
         JobJournalTemplate.DeleteAll();
         JobJournalLine.DeleteAll();
@@ -288,9 +294,11 @@ codeunit 130028 "License Management Starter"
         JobWIPEntry.DeleteAll();
         JobWIPGLEntry.DeleteAll();
         JobWIPWarning.DeleteAll();
+#if not CLEAN19
         JobResourcePrice.DeleteAll();
         JobItemPrice.DeleteAll();
         JobGLAccountPrice.DeleteAll();
+#endif
         JobEntryNo.DeleteAll();
         JobBuffer.DeleteAll();
         JobWIPBuffer.DeleteAll();

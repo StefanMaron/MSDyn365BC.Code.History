@@ -17,6 +17,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
 
     local procedure Initialize()
     var
+        EmployeeTempl: Record "Employee Templ.";
         ExperienceTierSetup: Record "Experience Tier Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LibraryHumanResource: Codeunit "Library - Human Resource";
@@ -27,6 +28,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
+        EmployeeTempl.DeleteAll(true);
 
         // Lazy Setup
         if IsInitialized then
@@ -34,7 +36,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Basic HR Plan-based E2E");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibraryHumanResource.SetupEmployeeNumberSeries;
 
         IsInitialized := true;

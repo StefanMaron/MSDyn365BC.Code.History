@@ -5,7 +5,7 @@ permissionset 5972 "D365 RAPIDSTART"
     Caption = 'Dynamics 365 RapidStart';
 
     Permissions = tabledata "Configuration Package File" = RIMD,
-                  tabledata "Config. Field Mapping" = RIMD,
+                  tabledata "Config. Field Map" = RIMD,
                   tabledata "Config. Line" = RIMD,
                   tabledata "Config. Package" = RIMD,
                   tabledata "Config. Package Data" = RIMD,

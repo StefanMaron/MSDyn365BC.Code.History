@@ -18,11 +18,17 @@ codeunit 7153 "Item Analysis Management"
         PrevItemAnalysisView: Record "Item Analysis View";
         MatrixMgt: Codeunit "Matrix Management";
 
-    local procedure DimCodeNotAllowed(DimCode: Text[30]; ItemAnalysisView: Record "Item Analysis View"): Boolean
+    local procedure DimCodeNotAllowed(DimCode: Text[30]; ItemAnalysisView: Record "Item Analysis View") Result: Boolean
     var
         Item: Record Item;
         Location: Record Location;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDimCodeNotAllowed(DimCode, ItemAnalysisView, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(
           not (UpperCase(DimCode) in
                [UpperCase(Item.TableCaption),
@@ -34,26 +40,32 @@ codeunit 7153 "Item Analysis Management"
                 '']));
     end;
 
-    local procedure DimCodeToOption(DimCode: Text[30]; ItemAnalysisView: Record "Item Analysis View"): Integer
+    local procedure DimCodeToType(DimCode: Text[30]; ItemAnalysisView: Record "Item Analysis View") Result: Enum "Item Analysis Dimension Type"
     var
         Location: Record Location;
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDimCodeToType(DimCode, ItemAnalysisView, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case DimCode of
-            Item.TableCaption:
-                exit(0);
+            Item.TableCaption():
+                exit("Item Analysis Dimension Type"::Item);
             Text000:
-                exit(1);
-            Location.TableCaption:
-                exit(2);
+                exit("Item Analysis Dimension Type"::Period);
+            Location.TableCaption():
+                exit("Item Analysis Dimension Type"::Location);
             ItemAnalysisView."Dimension 1 Code":
-                exit(3);
+                exit("Item Analysis Dimension Type"::"Dimension 1");
             ItemAnalysisView."Dimension 2 Code":
-                exit(4);
+                exit("Item Analysis Dimension Type"::"Dimension 2");
             ItemAnalysisView."Dimension 3 Code":
-                exit(5);
+                exit("Item Analysis Dimension Type"::"Dimension 3");
             else
-                exit(-1);
+                exit("Item Analysis Dimension Type"::Undefined);
         end;
     end;
 
@@ -163,38 +175,50 @@ codeunit 7153 "Item Analysis Management"
         OnAfterFilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
     end;
 
-    local procedure SetDimFilters(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; DimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; DimCodeBuf: Record "Dimension Code Buffer")
+    local procedure SetDimFilters(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; DimType: Enum "Item Analysis Dimension Type"; DimCodeBuf: Record "Dimension Code Buffer")
     begin
         with ItemStatisticsBuffer do
-            case DimOption of
-                DimOption::Item:
+            case DimType of
+                DimType::Item:
                     SetRange("Item Filter", DimCodeBuf.Code);
-                DimOption::Period:
+                DimType::Period:
                     SetRange("Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End");
-                DimOption::Location:
+                DimType::Location:
                     SetRange("Location Filter", DimCodeBuf.Code);
-                DimOption::"Dimension 1":
+                DimType::"Dimension 1":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Dimension 1 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Dimension 1 Filter", DimCodeBuf.Code);
-                DimOption::"Dimension 2":
+                DimType::"Dimension 2":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Dimension 2 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Dimension 2 Filter", DimCodeBuf.Code);
-                DimOption::"Dimension 3":
+                DimType::"Dimension 3":
                     if DimCodeBuf.Totaling <> '' then
                         SetFilter("Dimension 3 Filter", DimCodeBuf.Totaling)
                     else
                         SetRange("Dimension 3 Filter", DimCodeBuf.Code);
             end;
+
+        OnAfterSetDimFilters(ItemStatisticsBuffer, DimType, DimCodeBuf);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetBufferFilters().', '19.0')]
     procedure SetCommonFilters(CurrentAnalysisArea: Option; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentAnalysisViewCode: Code[10]; ItemFilter: Text; LocationFilter: Text; DateFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; BudgetFilter: Text)
     begin
+        SetBufferFilters(
+            "Analysis Area Type".FromInteger(CurrentAnalysisArea), ItemStatisticsBuffer, CurrentAnalysisViewCode,
+            ItemFilter, LocationFilter, DateFilter, Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter);
+    end;
+#endif
+
+    procedure SetBufferFilters(CurrentAnalysisArea: Enum "Analysis Area Type"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentAnalysisViewCode: Code[10]; ItemFilter: Text; LocationFilter: Text; DateFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; BudgetFilter: Text)
+    begin
         with ItemStatisticsBuffer do begin
-            Reset;
+            Reset();
             SetRange("Analysis Area Filter", CurrentAnalysisArea);
             SetRange("Analysis View Filter", CurrentAnalysisViewCode);
 
@@ -213,6 +237,8 @@ codeunit 7153 "Item Analysis Management"
             if BudgetFilter <> '' then
                 SetFilter("Budget Filter", BudgetFilter);
         end;
+
+        OnAfterSetCommonFilters(CurrentAnalysisArea, ItemStatisticsBuffer);
     end;
 
     procedure AnalysisViewSelection(CurrentAnalysisArea: Option; var CurrentItemAnalysisViewCode: Code[10]; var ItemAnalysisView: Record "Item Analysis View"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var Dim1Filter: Code[250]; var Dim2Filter: Code[250]; var Dim3Filter: Code[250])
@@ -281,29 +307,37 @@ codeunit 7153 "Item Analysis Management"
               Dim1Filter, Dim2Filter, Dim3Filter);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by LookypDimCode().', '19.0')]
     procedure LookUpCode(DimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; DimCode: Text[30]; "Code": Text[30])
+    begin
+        LookupDimCode("Item Analysis Dimension Type".FromInteger(DimOption), DimCode, Code);
+    end;
+#endif
+
+    procedure LookupDimCode(DimType: Enum "Item Analysis Dimension Type"; DimCode: Text[30]; "Code": Text[30])
     var
         Item: Record Item;
         Location: Record Location;
         DimVal: Record "Dimension Value";
         DimValList: Page "Dimension Value List";
     begin
-        case DimOption of
-            DimOption::Item:
+        case DimType of
+            DimType::Item:
                 begin
                     Item.Get(Code);
                     PAGE.RunModal(0, Item);
                 end;
-            DimOption::Period:
+            DimType::Period:
                 ;
-            DimOption::Location:
+            DimType::Location:
                 begin
                     Location.Get(Code);
                     PAGE.RunModal(0, Location);
                 end;
-            DimOption::"Dimension 1",
-            DimOption::"Dimension 2",
-            DimOption::"Dimension 3":
+            DimType::"Dimension 1",
+            DimType::"Dimension 2",
+            DimType::"Dimension 3":
                 begin
                     DimVal.SetRange("Dimension Code", DimCode);
                     DimVal.Get(DimCode, Code);
@@ -313,6 +347,8 @@ codeunit 7153 "Item Analysis Management"
                     DimValList.RunModal;
                 end;
         end;
+
+        OnAfterLookupDimCode(DimType, DimCode, Code);
     end;
 
     procedure LookUpDimFilter(Dim: Code[20]; var Text: Text): Boolean
@@ -332,17 +368,31 @@ codeunit 7153 "Item Analysis Management"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by DrillDownAmount().', '19.0')]
     procedure DrillDown(CurrentAnalysisArea: Option; ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; ItemFilter: Text; LocationFilter: Text; DateFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; BudgetFilter: Text; LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; LineDimCodeBuf: Record "Dimension Code Buffer"; ColDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; ColDimCodeBuf: Record "Dimension Code Buffer"; SetColumnFilter: Boolean; ValueType: Option "Sales Amount","Cost Amount","Sales Quantity"; ShowActualBudget: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%")
+    begin
+        DrillDownAmount(
+            "Analysis Area Type".FromInteger(CurrentAnalysisArea), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+            ItemFilter, LocationFilter, DateFilter, Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter,
+            "Item Analysis Dimension Type".FromInteger(LineDimOption), LineDimCodeBuf,
+            "Item Analysis Dimension Type".FromInteger(ColDimOption), ColDimCodeBuf,
+            SetColumnFilter, "Item Analysis Value Type".FromInteger(ValueType),
+            "Item Analysis Show Type".FromInteger(ShowActualBudget));
+    end;
+#endif
+
+    procedure DrillDownAmount(CurrentAnalysisArea: Enum "Analysis Area Type"; ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; ItemFilter: Text; LocationFilter: Text; DateFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; BudgetFilter: Text; LineDimType: Enum "Item Analysis Dimension Type"; LineDimCodeBuf: Record "Dimension Code Buffer"; ColDimType: Enum "Item Analysis Dimension Type"; ColDimCodeBuf: Record "Dimension Code Buffer"; SetColumnFilter: Boolean; ValueType: Enum "Item Analysis Value Type"; ShowActualBudget: Enum "Item Analysis Show Type")
     var
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
         ItemAnalysisViewBudgetEntry: Record "Item Analysis View Budg. Entry";
     begin
-        SetCommonFilters(
+        SetBufferFilters(
           CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
           ItemFilter, LocationFilter, DateFilter, Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter);
-        SetDimFilters(ItemStatisticsBuffer, LineDimOption, LineDimCodeBuf);
+        SetDimFilters(ItemStatisticsBuffer, LineDimType, LineDimCodeBuf);
         if SetColumnFilter then
-            SetDimFilters(ItemStatisticsBuffer, ColDimOption, ColDimCodeBuf);
+            SetDimFilters(ItemStatisticsBuffer, ColDimType, ColDimCodeBuf);
 
         case ShowActualBudget of
             ShowActualBudget::"Actual Amounts",
@@ -356,7 +406,7 @@ codeunit 7153 "Item Analysis Management"
                             PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Sales Amount (Actual)");
                         ValueType::"Cost Amount":
                             PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry."Cost Amount (Actual)");
-                        ValueType::"Sales Quantity":
+                        ValueType::Quantity:
                             PAGE.Run(0, ItemAnalysisViewEntry, ItemAnalysisViewEntry.Quantity);
                     end;
                 end;
@@ -368,14 +418,23 @@ codeunit 7153 "Item Analysis Management"
                             PAGE.Run(0, ItemAnalysisViewBudgetEntry, ItemAnalysisViewBudgetEntry."Sales Amount");
                         ValueType::"Cost Amount":
                             PAGE.Run(0, ItemAnalysisViewBudgetEntry, ItemAnalysisViewBudgetEntry."Cost Amount");
-                        ValueType::"Sales Quantity":
+                        ValueType::Quantity:
                             PAGE.Run(0, ItemAnalysisViewBudgetEntry, ItemAnalysisViewBudgetEntry.Quantity);
                     end;
                 end;
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetLineAndColumnDim().', '19.0')]
     procedure SetLineAndColDim(ItemAnalysisView: Record "Item Analysis View"; var LineDimCode: Text[30]; var LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; var ColumnDimCode: Text[30]; var ColumnDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3")
+    begin
+        SetLineAndColumnDim(
+            ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
+    end;
+#endif
+
+    procedure SetLineAndColumnDim(ItemAnalysisView: Record "Item Analysis View"; var LineDimCode: Text[30]; var LineDimType: Enum "Item Analysis Dimension Type"; var ColumnDimCode: Text[30]; var ColumnDimType: Enum "Item Analysis Dimension Type")
     var
         Item: Record Item;
     begin
@@ -383,8 +442,10 @@ codeunit 7153 "Item Analysis Management"
             LineDimCode := Item.TableCaption;
             ColumnDimCode := Text000;
         end;
-        LineDimOption := DimCodeToOption(LineDimCode, ItemAnalysisView);
-        ColumnDimOption := DimCodeToOption(ColumnDimCode, ItemAnalysisView);
+        LineDimType := DimCodeToType(LineDimCode, ItemAnalysisView);
+        ColumnDimType := DimCodeToType(ColumnDimCode, ItemAnalysisView);
+
+        OnAfterSetLineAndColumnDim(ItemAnalysisView, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
     end;
 
     procedure GetDimSelection(OldDimSelCode: Text[30]; var ItemAnalysisView: Record "Item Analysis View"): Text[30]
@@ -403,21 +464,32 @@ codeunit 7153 "Item Analysis Management"
         if ItemAnalysisView."Dimension 3 Code" <> '' then
             DimSelection.InsertDimSelBuf(false, ItemAnalysisView."Dimension 3 Code", '');
 
+        OnGetDimSelectionOnBeforeDimSelectionRunModal(DimSelection, ItemAnalysisView);
         DimSelection.LookupMode := true;
         if DimSelection.RunModal = ACTION::LookupOK then
             exit(DimSelection.GetDimSelCode);
         exit(OldDimSelCode);
     end;
 
+#if not CLEAN19
     procedure ValidateLineDimCode(ItemAnalysisView: Record "Item Analysis View"; var LineDimCode: Text[30]; var LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; ColumnDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; var InternalDateFilter: Text; var DateFilter: Text; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var PeriodInitialized: Boolean)
+    begin
+        ValidateLineDimTypeAndCode(
+            ItemAnalysisView,
+            LineDimCode, LineDimOption, "Item Analysis Dimension Type".FromInteger(ColumnDimOption),
+            InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
+    end;
+#endif
+
+    procedure ValidateLineDimTypeAndCode(ItemAnalysisView: Record "Item Analysis View"; var LineDimCode: Text[30]; var LineDimType: Enum "Item Analysis Dimension Type"; ColumnDimType: Enum "Item Analysis Dimension Type"; var InternalDateFilter: Text; var DateFilter: Text; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var PeriodInitialized: Boolean)
     begin
         if DimCodeNotAllowed(LineDimCode, ItemAnalysisView) then begin
             Message(Text003, LineDimCode);
             LineDimCode := '';
         end;
-        LineDimOption := DimCodeToOption(LineDimCode, ItemAnalysisView);
+        LineDimType := DimCodeToType(LineDimCode, ItemAnalysisView);
         InternalDateFilter := ItemStatisticsBuffer.GetFilter("Date Filter");
-        if (LineDimOption <> LineDimOption::Period) and (ColumnDimOption <> ColumnDimOption::Period) then begin
+        if (LineDimType <> LineDimType::Period) and (ColumnDimType <> ColumnDimType::Period) then begin
             DateFilter := InternalDateFilter;
             if StrPos(DateFilter, '&') > 1 then
                 DateFilter := CopyStr(DateFilter, 1, StrPos(DateFilter, '&') - 1);
@@ -425,15 +497,25 @@ codeunit 7153 "Item Analysis Management"
             PeriodInitialized := false;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by ValidateColumnDimTypeAndCode()', '19.0')]
     procedure ValidateColumnDimCode(ItemAnalysisView: Record "Item Analysis View"; var ColumnDimCode: Text[30]; var ColumnDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; var InternalDateFilter: Text; var DateFilter: Text; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var PeriodInitialized: Boolean)
+    begin
+        ValidateColumnDimTypeAndCode(
+            ItemAnalysisView, ColumnDimCode, ColumnDimOption, "Item Analysis Dimension Type".FromInteger(LineDimOption),
+            InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
+    end;
+#endif
+
+    procedure ValidateColumnDimTypeAndCode(ItemAnalysisView: Record "Item Analysis View"; var ColumnDimCode: Text[30]; var ColumnDimType: Enum "Item Analysis Dimension Type"; LineDimType: Enum "Item Analysis Dimension Type"; var InternalDateFilter: Text; var DateFilter: Text; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var PeriodInitialized: Boolean)
     begin
         if DimCodeNotAllowed(ColumnDimCode, ItemAnalysisView) then begin
             Message(Text004, ColumnDimCode);
             ColumnDimCode := '';
         end;
-        ColumnDimOption := DimCodeToOption(ColumnDimCode, ItemAnalysisView);
+        ColumnDimType := DimCodeToType(ColumnDimCode, ItemAnalysisView);
         InternalDateFilter := ItemStatisticsBuffer.GetFilter("Date Filter");
-        if (ColumnDimOption <> ColumnDimOption::Period) and (LineDimOption <> LineDimOption::Period) then begin
+        if (ColumnDimType <> ColumnDimType::Period) and (LineDimType <> LineDimType::Period) then begin
             DateFilter := InternalDateFilter;
             if StrPos(DateFilter, '&') > 1 then
                 DateFilter := CopyStr(DateFilter, 1, StrPos(DateFilter, '&') - 1);
@@ -441,36 +523,55 @@ codeunit 7153 "Item Analysis Management"
             PeriodInitialized := false;
     end;
 
-    procedure FormatAmount(var Text: Text[250]; RoundingFactor: Option "None","1","1000","1000000")
+#if not CLEAN19
+    [Obsolete('Replaced by FormatToAmount().', '19.0')]
+    procedure FormatAmount(var AmountAsText: Text[250]; RoundingFactor: Option "None","1","1000","1000000")
+    begin
+        FormatToAmount(AmountAsText, "Analysis Rounding Factor".FromInteger(RoundingFactor));
+    end;
+#endif
+
+    procedure FormatToAmount(var AmountAsText: Text[250]; RoundingFactor: Enum "Analysis Rounding Factor")
     var
         Amount: Decimal;
     begin
-        if (Text = '') or (RoundingFactor = RoundingFactor::None) then
+        if (AmountAsText = '') or (RoundingFactor = RoundingFactor::None) then
             exit;
-        Evaluate(Amount, Text);
-        Amount := MatrixMgt.RoundValue(Amount, RoundingFactor);
+        Evaluate(Amount, AmountAsText);
+        Amount := MatrixMgt.RoundAmount(Amount, RoundingFactor);
         if Amount = 0 then
-            Text := ''
+            AmountAsText := ''
         else
             case RoundingFactor of
                 RoundingFactor::"1":
-                    Text := Format(Amount);
+                    AmountAsText := Format(Amount);
                 RoundingFactor::"1000", RoundingFactor::"1000000":
-                    Text := Format(Amount, 0, Text001);
+                    AmountAsText := Format(Amount, 0, Text001);
             end;
     end;
 
-    procedure FindRec(ItemAnalysisView: Record "Item Analysis View"; DimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]; ItemFilter: Code[250]; LocationFilter: Code[250]; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; var DateFilter: Text[30]; var PeriodInitialized: Boolean; InternalDateFilter: Text[30]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]): Boolean
+#if not CLEAN19
+    [Obsolete('Replaced by FindRecord()', '19.0')]
+    procedure FindRec(ItemAnalysisView: Record "Item Analysis View"; DimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]; ItemFilter: Code[250]; LocationFilter: Code[250]; PeriodType: Enum "Analysis Period Type"; var DateFilter: Text[30]; var PeriodInitialized: Boolean; InternalDateFilter: Text[30]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]): Boolean
+    begin
+        exit(
+            FindRecord(
+                ItemAnalysisView, "Item Analysis Dimension Type".FromInteger(DimOption), DimCodeBuf, Which, ItemFilter, LocationFilter, PeriodType,
+                DateFilter, PeriodInitialized, InternalDateFilter, Dim1Filter, Dim2Filter, Dim3Filter));
+    end;
+#endif
+
+    procedure FindRecord(ItemAnalysisView: Record "Item Analysis View"; DimType: Enum "Item Analysis Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]; ItemFilter: Code[250]; LocationFilter: Code[250]; PeriodType: Enum "Analysis Period Type"; var DateFilter: Text[30]; var PeriodInitialized: Boolean; InternalDateFilter: Text[30]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]): Boolean
     var
         Item: Record Item;
         Location: Record Location;
         Period: Record Date;
         DimVal: Record "Dimension Value";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         Found: Boolean;
     begin
-        case DimOption of
-            DimOption::Item:
+        case DimType of
+            DimType::Item:
                 begin
                     Item."No." := DimCodeBuf.Code;
                     if ItemFilter <> '' then
@@ -479,7 +580,7 @@ codeunit 7153 "Item Analysis Management"
                     if Found then
                         CopyItemToBuf(Item, DimCodeBuf);
                 end;
-            DimOption::Period:
+            DimType::Period:
                 begin
                     if not PeriodInitialized then
                         DateFilter := '';
@@ -490,11 +591,11 @@ codeunit 7153 "Item Analysis Management"
                     else
                         if InternalDateFilter <> '' then
                             Period.SetFilter("Period Start", InternalDateFilter);
-                    Found := PeriodFormMgt.FindDate(Which, Period, PeriodType);
+                    Found := PeriodPageMgt.FindDate(Which, Period, PeriodType);
                     if Found then
                         CopyPeriodToBuf(Period, DimCodeBuf, DateFilter);
                 end;
-            DimOption::Location:
+            DimType::Location:
                 begin
                     Location.Code := CopyStr(DimCodeBuf.Code, 1, MaxStrLen(Location.Code));
                     if LocationFilter <> '' then
@@ -503,7 +604,7 @@ codeunit 7153 "Item Analysis Management"
                     if Found then
                         CopyLocationToBuf(Location, DimCodeBuf);
                 end;
-            DimOption::"Dimension 1":
+            DimType::"Dimension 1":
                 begin
                     if Dim1Filter <> '' then
                         DimVal.SetFilter(Code, Dim1Filter);
@@ -514,7 +615,7 @@ codeunit 7153 "Item Analysis Management"
                     if Found then
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Dimension 2":
+            DimType::"Dimension 2":
                 begin
                     if Dim2Filter <> '' then
                         DimVal.SetFilter(Code, Dim2Filter);
@@ -525,7 +626,7 @@ codeunit 7153 "Item Analysis Management"
                     if Found then
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Dimension 3":
+            DimType::"Dimension 3":
                 begin
                     if Dim3Filter <> '' then
                         DimVal.SetFilter(Code, Dim3Filter);
@@ -536,21 +637,34 @@ codeunit 7153 "Item Analysis Management"
                     if Found then
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
+            else
+                OnFindRecordCaseElse(ItemAnalysisView, DimType, DimCodeBuf, Which, ItemFilter, Found);
         end;
         exit(Found);
     end;
 
-    procedure NextRec(ItemAnalysisView: Record "Item Analysis View"; DimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; ItemFilter: Code[250]; LocationFilter: Code[250]; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; DateFilter: Text[30]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]): Integer
+#if not CLEAN19
+    [Obsolete('Replaced by NextRecord()', '19.0')]
+    procedure NextRec(ItemAnalysisView: Record "Item Analysis View"; DimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; ItemFilter: Code[250]; LocationFilter: Code[250]; PeriodType: Enum "Analysis Period Type"; DateFilter: Text[30]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]): Integer
+    begin
+        exit(
+            NextRecord(
+                ItemAnalysisView, "Item Analysis Dimension Type".FromInteger(DimOption), DimCodeBuf, Steps,
+                ItemFilter, LocationFilter, PeriodType, DateFilter, Dim1Filter, Dim2Filter, Dim3Filter));
+    end;
+#endif
+
+    procedure NextRecord(ItemAnalysisView: Record "Item Analysis View"; DimType: Enum "Item Analysis Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; ItemFilter: Code[250]; LocationFilter: Code[250]; PeriodType: Enum "Analysis Period Type"; DateFilter: Text[30]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]): Integer
     var
         Item: Record Item;
         Location: Record Location;
         Period: Record Date;
         DimVal: Record "Dimension Value";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         ResultSteps: Integer;
     begin
-        case DimOption of
-            DimOption::Item:
+        case DimType of
+            DimType::Item:
                 begin
                     Item."No." := DimCodeBuf.Code;
                     if ItemFilter <> '' then
@@ -559,16 +673,16 @@ codeunit 7153 "Item Analysis Management"
                     if ResultSteps <> 0 then
                         CopyItemToBuf(Item, DimCodeBuf);
                 end;
-            DimOption::Period:
+            DimType::Period:
                 begin
                     if DateFilter <> '' then
                         Period.SetFilter("Period Start", DateFilter);
                     Period."Period Start" := DimCodeBuf."Period Start";
-                    ResultSteps := PeriodFormMgt.NextDate(Steps, Period, PeriodType);
+                    ResultSteps := PeriodPageMgt.NextDate(Steps, Period, PeriodType);
                     if ResultSteps <> 0 then
                         CopyPeriodToBuf(Period, DimCodeBuf, DateFilter);
                 end;
-            DimOption::Location:
+            DimType::Location:
                 begin
                     Location.Code := CopyStr(DimCodeBuf.Code, 1, MaxStrLen(Location.Code));
                     if LocationFilter <> '' then
@@ -577,7 +691,7 @@ codeunit 7153 "Item Analysis Management"
                     if ResultSteps <> 0 then
                         CopyLocationToBuf(Location, DimCodeBuf);
                 end;
-            DimOption::"Dimension 1":
+            DimType::"Dimension 1":
                 begin
                     if Dim1Filter <> '' then
                         DimVal.SetFilter(Code, Dim1Filter);
@@ -588,7 +702,7 @@ codeunit 7153 "Item Analysis Management"
                     if ResultSteps <> 0 then
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Dimension 2":
+            DimType::"Dimension 2":
                 begin
                     if Dim2Filter <> '' then
                         DimVal.SetFilter(Code, Dim2Filter);
@@ -599,7 +713,7 @@ codeunit 7153 "Item Analysis Management"
                     if ResultSteps <> 0 then
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
-            DimOption::"Dimension 3":
+            DimType::"Dimension 3":
                 begin
                     if Dim3Filter <> '' then
                         DimVal.SetFilter(Code, Dim3Filter);
@@ -610,6 +724,8 @@ codeunit 7153 "Item Analysis Management"
                     if ResultSteps <> 0 then
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
+            else
+                OnNextRecordOnCaseElse(ItemAnalysisView, DimType, DimCodeBuf, Steps, ItemFilter, ResultSteps);
         end;
         exit(ResultSteps);
     end;
@@ -638,7 +754,20 @@ codeunit 7153 "Item Analysis Management"
         end;
     end;
 
+#if not CLEAN19
     procedure CalcAmount(ValueType: Option "Sales Amount","Cost Amount",Quantity; SetColumnFilter: Boolean; CurrentAnalysisArea: Option; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; ItemFilter: Code[250]; LocationFilter: Code[250]; DateFilter: Text[30]; BudgetFilter: Code[250]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]; LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; LineDimCodeBuf: Record "Dimension Code Buffer"; ColDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; ColDimCodeBuf: Record "Dimension Code Buffer"; ShowActualBudget: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%"): Decimal
+    begin
+        CalculateAmount(
+            "Item Analysis Value Type".FromInteger(ValueType), SetColumnFilter,
+            "Analysis Area Type".FromInteger(CurrentAnalysisArea), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+            ItemFilter, LocationFilter, DateFilter, BudgetFilter, Dim1Filter, Dim2Filter, Dim3Filter,
+            "Item Analysis Dimension Type".FromInteger(LineDimOption), LineDimCodeBuf,
+            "Item Analysis Dimension Type".FromInteger(ColDimOption), ColDimCodeBuf,
+            "Item Analysis Show Type".FromInteger(ShowActualBudget));
+    end;
+#endif
+
+    procedure CalculateAmount(ValueType: Enum "Item Analysis Value Type"; SetColumnFilter: Boolean; CurrentAnalysisArea: Enum "Analysis Area Type"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; ItemFilter: Code[250]; LocationFilter: Code[250]; DateFilter: Text[30]; BudgetFilter: Code[250]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]; LineDimType: Enum "Item Analysis Dimension Type"; LineDimCodeBuf: Record "Dimension Code Buffer"; ColDimType: Enum "Item Analysis Dimension Type"; ColDimCodeBuf: Record "Dimension Code Buffer"; ShowActualBudget: Enum "Item Analysis Show Type"): Decimal
     var
         Amount: Decimal;
         ActualAmt: Decimal;
@@ -652,8 +781,8 @@ codeunit 7153 "Item Analysis Management"
                     CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                     ItemFilter, LocationFilter, DateFilter, BudgetFilter,
                     Dim1Filter, Dim2Filter, Dim3Filter,
-                    LineDimOption, LineDimCodeBuf,
-                    ColDimOption, ColDimCodeBuf);
+                    LineDimType, LineDimCodeBuf,
+                    ColDimType, ColDimCodeBuf);
             ShowActualBudget::"Budgeted Amounts":
                 Amount :=
                   CalcBudgetAmount(
@@ -661,8 +790,8 @@ codeunit 7153 "Item Analysis Management"
                     CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                     ItemFilter, LocationFilter, DateFilter, BudgetFilter,
                     Dim1Filter, Dim2Filter, Dim3Filter,
-                    LineDimOption, LineDimCodeBuf,
-                    ColDimOption, ColDimCodeBuf);
+                    LineDimType, LineDimCodeBuf,
+                    ColDimType, ColDimCodeBuf);
             ShowActualBudget::Variance:
                 begin
                     ActualAmt :=
@@ -671,16 +800,16 @@ codeunit 7153 "Item Analysis Management"
                         CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                         ItemFilter, LocationFilter, DateFilter, BudgetFilter,
                         Dim1Filter, Dim2Filter, Dim3Filter,
-                        LineDimOption, LineDimCodeBuf,
-                        ColDimOption, ColDimCodeBuf);
+                        LineDimType, LineDimCodeBuf,
+                        ColDimType, ColDimCodeBuf);
                     BudgetAmt :=
                       CalcBudgetAmount(
                         ValueType, SetColumnFilter,
                         CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                         ItemFilter, LocationFilter, DateFilter, BudgetFilter,
                         Dim1Filter, Dim2Filter, Dim3Filter,
-                        LineDimOption, LineDimCodeBuf,
-                        ColDimOption, ColDimCodeBuf);
+                        LineDimType, LineDimCodeBuf,
+                        ColDimType, ColDimCodeBuf);
                     Amount := ActualAmt - BudgetAmt;
                 end;
             ShowActualBudget::"Variance%":
@@ -691,8 +820,8 @@ codeunit 7153 "Item Analysis Management"
                         CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                         ItemFilter, LocationFilter, DateFilter, BudgetFilter,
                         Dim1Filter, Dim2Filter, Dim3Filter,
-                        LineDimOption, LineDimCodeBuf,
-                        ColDimOption, ColDimCodeBuf);
+                        LineDimType, LineDimCodeBuf,
+                        ColDimType, ColDimCodeBuf);
                     if Amount <> 0 then begin
                         ActualAmt :=
                           CalcActualAmount(
@@ -700,8 +829,8 @@ codeunit 7153 "Item Analysis Management"
                             CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                             ItemFilter, LocationFilter, DateFilter, BudgetFilter,
                             Dim1Filter, Dim2Filter, Dim3Filter,
-                            LineDimOption, LineDimCodeBuf,
-                            ColDimOption, ColDimCodeBuf);
+                            LineDimType, LineDimCodeBuf,
+                            ColDimType, ColDimCodeBuf);
                         Amount := Round(100 * (ActualAmt - Amount) / Amount);
                     end;
                 end;
@@ -713,43 +842,43 @@ codeunit 7153 "Item Analysis Management"
                         CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                         ItemFilter, LocationFilter, DateFilter, BudgetFilter,
                         Dim1Filter, Dim2Filter, Dim3Filter,
-                        LineDimOption, LineDimCodeBuf,
-                        ColDimOption, ColDimCodeBuf);
+                        LineDimType, LineDimCodeBuf,
+                        ColDimType, ColDimCodeBuf);
                     ActualAmt :=
                       CalcActualAmount(
                         ValueType, SetColumnFilter,
                         CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                         ItemFilter, LocationFilter, DateFilter, BudgetFilter,
                         Dim1Filter, Dim2Filter, Dim3Filter,
-                        LineDimOption, LineDimCodeBuf,
-                        ColDimOption, ColDimCodeBuf);
+                        LineDimType, LineDimCodeBuf,
+                        ColDimType, ColDimCodeBuf);
                     if Amount <> 0 then
                         Amount := Round(100 * ActualAmt / Amount);
                 end;
         end;
 
-        OnAfterCalcActualAmount(ValueType, ItemStatisticsBuffer, CurrentItemAnalysisViewCode, Amount);
+        OnAfterCalcActualAmount(ValueType.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode, Amount);
         exit(Amount);
     end;
 
-    local procedure CalcActualAmount(ValueType: Option "Sales Amount","Cost Amount",Quantity; SetColumnFilter: Boolean; CurrentAnalysisArea: Option; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; ItemFilter: Code[250]; LocationFilter: Code[250]; DateFilter: Text[30]; BudgetFilter: Code[250]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]; LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; LineDimCodeBuf: Record "Dimension Code Buffer"; ColDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; ColDimCodeBuf: Record "Dimension Code Buffer"): Decimal
+    local procedure CalcActualAmount(ValueType: Enum "Item Analysis Value Type"; SetColumnFilter: Boolean; CurrentAnalysisArea: Enum "Analysis Area Type"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; ItemFilter: Code[250]; LocationFilter: Code[250]; DateFilter: Text[30]; BudgetFilter: Code[250]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]; LineDimType: Enum "Item Analysis Dimension Type"; LineDimCodeBuf: Record "Dimension Code Buffer"; ColDimType: Enum "Item Analysis Dimension Type"; ColDimCodeBuf: Record "Dimension Code Buffer"): Decimal
     var
         Amount: Decimal;
     begin
-        SetCommonFilters(
+        SetBufferFilters(
           CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
           ItemFilter, LocationFilter, DateFilter, Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter);
 
-        SetDimFilters(ItemStatisticsBuffer, LineDimOption, LineDimCodeBuf);
+        SetDimFilters(ItemStatisticsBuffer, LineDimType, LineDimCodeBuf);
         if SetColumnFilter then
-            SetDimFilters(ItemStatisticsBuffer, ColDimOption, ColDimCodeBuf)
+            SetDimFilters(ItemStatisticsBuffer, ColDimType, ColDimCodeBuf)
         else
-            case ColDimOption of
-                ColDimOption::"Dimension 1":
+            case ColDimType of
+                ColDimType::"Dimension 1":
                     ItemStatisticsBuffer.SetRange("Dimension 1 Filter");
-                ColDimOption::"Dimension 2":
+                ColDimType::"Dimension 2":
                     ItemStatisticsBuffer.SetRange("Dimension 2 Filter");
-                ColDimOption::"Dimension 3":
+                ColDimType::"Dimension 3":
                     ItemStatisticsBuffer.SetRange("Dimension 3 Filter");
             end;
 
@@ -782,17 +911,17 @@ codeunit 7153 "Item Analysis Management"
         exit(Amount);
     end;
 
-    local procedure CalcBudgetAmount(ValueType: Option "Sales Amount","Cost Amount",Quantity; SetColumnFilter: Boolean; CurrentAnalysisArea: Option; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; ItemFilter: Code[250]; LocationFilter: Code[250]; DateFilter: Text[30]; BudgetFilter: Code[250]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]; LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; LineDimCodeBuf: Record "Dimension Code Buffer"; ColDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; ColDimCodeBuf: Record "Dimension Code Buffer"): Decimal
+    local procedure CalcBudgetAmount(ValueType: Enum "Item Analysis Value Type"; SetColumnFilter: Boolean; CurrentAnalysisArea: Enum "Analysis Area Type"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; ItemFilter: Code[250]; LocationFilter: Code[250]; DateFilter: Text[30]; BudgetFilter: Code[250]; Dim1Filter: Code[250]; Dim2Filter: Code[250]; Dim3Filter: Code[250]; LineDimType: Enum "Item Analysis Dimension Type"; LineDimCodeBuf: Record "Dimension Code Buffer"; ColDimType: Enum "Item Analysis Dimension Type"; ColDimCodeBuf: Record "Dimension Code Buffer"): Decimal
     var
         Amount: Decimal;
     begin
-        SetCommonFilters(
+        SetBufferFilters(
           CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
           ItemFilter, LocationFilter, DateFilter, Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter);
 
-        SetDimFilters(ItemStatisticsBuffer, LineDimOption, LineDimCodeBuf);
+        SetDimFilters(ItemStatisticsBuffer, LineDimType, LineDimCodeBuf);
         if SetColumnFilter then
-            SetDimFilters(ItemStatisticsBuffer, ColDimOption, ColDimCodeBuf);
+            SetDimFilters(ItemStatisticsBuffer, ColDimType, ColDimCodeBuf);
 
         case ValueType of
             ValueType::"Sales Amount":
@@ -816,7 +945,27 @@ codeunit 7153 "Item Analysis Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLineAndColumnDim(ItemAnalysisView: Record "Item Analysis View"; var LineDimCode: Text[30]; var LineDimType: Enum "Item Analysis Dimension Type"; var ColumnDimCode: Text[30]; var ColumnDimType: Enum "Item Analysis Dimension Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalcActualAmount(ValueType: Option "Sales Amount","Cost Amount",Quantity; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; var Amount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupDimCode(DimType: Enum "Item Analysis Dimension Type"; DimCode: Text[30]; "Code": Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCommonFilters(CurrentAnalysisArea: Enum "Analysis Area Type"; var ItemStatisticsBuffer: Record "Item Statistics Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDimFilters(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; DimType: Enum "Item Analysis Dimension Type"; DimCodeBuffer: Record "Dimension Code Buffer")
     begin
     end;
 
@@ -827,6 +976,31 @@ codeunit 7153 "Item Analysis Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterItemAnalyViewBudgEntry(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDimCodeToType(DimCode: Text[30]; ItemAnalysisView: Record "Item Analysis View"; var Result: Enum "Item Analysis Dimension Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDimCodeNotAllowed(DimCode: Text[30]; ItemAnalysisView: Record "Item Analysis View"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordCaseElse(ItemAnalysisView: Record "Item Analysis View"; DimType: Enum "Item Analysis Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[250]; ItemFilter: Code[250]; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDimSelectionOnBeforeDimSelectionRunModal(var DimSelection: Page "Dimension Selection"; var ItemAnalysisView: Record "Item Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNextRecordOnCaseElse(ItemAnalysisView: Record "Item Analysis View"; DimType: Enum "Item Analysis Dimension Type"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer; ItemFilter: Code[250]; var ResultSteps: Integer)
     begin
     end;
 }

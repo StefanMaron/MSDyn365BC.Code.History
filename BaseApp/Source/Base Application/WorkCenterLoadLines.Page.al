@@ -99,7 +99,7 @@ page 99000888 "Work Center Load Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -108,7 +108,7 @@ page 99000888 "Work Center Load Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -120,13 +120,24 @@ page 99000888 "Work Center Load Lines"
     var
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     protected var
         WorkCenter: Record "Work Center";
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetLines()', '19.0')]
     procedure Set(var NewWorkCenter: Record "Work Center"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
+    begin
+        SetLines(
+            NewWorkCenter, "Analysis Period Type".FromInteger(NewPeriodType), "Analysis Amount Type".FromInteger(NewAmountType));
+
+        OnSet(WorkCenter, PeriodType.AsInteger(), AmountType);
+    end;
+#endif
+
+    procedure SetLines(var NewWorkCenter: Record "Work Center"; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type")
     begin
         WorkCenter.Copy(NewWorkCenter);
         DeleteAll();
@@ -134,7 +145,7 @@ page 99000888 "Work Center Load Lines"
         AmountType := NewAmountType;
         CurrPage.Update(false);
 
-        OnSet(WorkCenter, PeriodType, AmountType);
+        OnAfterSetLines(WorkCenter, PeriodType, AmountType);
     end;
 
     local procedure SetDateFilter()
@@ -165,8 +176,16 @@ page 99000888 "Work Center Load Lines"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by OnafterSetLines().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSet(var WorkCenter: Record "Work Center"; PeriodType: Option; AmountType: Option)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLines(var WorkCenter: Record "Work Center"; PeriodType: Enum "Analysis Period Type"; AmountType: Enum "Analysis Amount Type")
     begin
     end;
 }

@@ -60,12 +60,14 @@ page 1607 "Office Update Available Dlg"
                 Visible = UserCanUpdate;
 
                 trigger OnDrillDown()
+                var
+                    OfficeAddin: Record "Office Add-in";
                 begin
-                    if ExchangeAddinSetup.PromptForCredentials then begin
-                        ExchangeAddinSetup.DeployAddin(Rec);
-                        Message(RestartClientMsg);
-                        CurrPage.Close;
-                    end;
+                    if ExchangeAddinSetup.TryDeployAddins(OfficeAddin) then
+                        Message(RestartClientMsg)
+                    else
+                        Message(UnabletoUpdateMsg);
+                    CurrPage.Close;
                 end;
             }
             field(UpgradeLater; GetLaterLabel)
@@ -96,8 +98,14 @@ page 1607 "Office Update Available Dlg"
     }
 
     trigger OnInit()
+    var
+        User: Record User;
+        Email: Text[250];
     begin
-        UserCanUpdate := not IsAdminDeployed;
+        User.SetRange("User Name", UserId);
+        if User.FindFirst then
+            Email := User."Authentication Email";
+        UserCanUpdate := (Email <> '') and not ExchangeAddinSetup.CredentialsRequired(CopyStr(Email, 1, 80));
         UserCanContinue := not Breaking;
     end;
 
@@ -114,8 +122,9 @@ page 1607 "Office Update Available Dlg"
     end;
 
     var
-        DontDisplayAgainMsg: Label 'To update the add-in later, you must use the Office Add-In assisted setup guide.';
+        DontDisplayAgainMsg: Label 'To update the add-in later, you must use the Outlook Add-In assisted setup guide.';
         RestartClientMsg: Label 'The add-in has been updated. Please close and reopen Outlook.';
+        UnabletoUpdateMsg: Label 'The add-in has not been updated. To update the add-in, please contact your system administrator.';
         ContinueLbl: Label 'Continue';
         UpgradeNowLbl: Label 'Upgrade Now';
         UpgradeLaterLbl: Label 'Upgrade Later';

@@ -19,7 +19,6 @@ codeunit 9027 "Plan Ids"
         TeamMemberPlanGUIDTxt: Label '{d9a6391b-8970-4976-bd94-5f205007c8d8}', Locked = true;
         EssentialPlanGUIDTxt: Label '{920656a2-7dd8-4c83-97b6-a356414dbd36}', Locked = true;
         PremiumPlanGUIDTxt: Label '{8e9002c0-a1d8-4465-b952-817d2948e6e2}', Locked = true;
-        InvoicingPlanGUIDTxt: Label '{39b5c996-467e-4e60-bd62-46066f572726}', Locked = true;
         ViralSignupPlanGUIDTxt: Label '{3F2AFEED-6FB5-4BF9-998F-F2912133AEAD}', Locked = true;
         ExternalAccountantPlanGUIDTxt: Label '{170991d7-b98e-41c5-83d4-db2052e1795f}', Locked = true;
         TeamMemberISVPlanGUIDTxt: Label '{fd1441b8-116b-4fa7-836e-d7956700e0fa}', Locked = true;
@@ -71,16 +70,6 @@ codeunit 9027 "Plan Ids"
     procedure GetPremiumPlanId(): Guid
     begin
         exit(PremiumPlanGUIDTxt);
-    end;
-
-    /// <summary>
-    /// Returns the ID for the Microsoft Invoicing plan.
-    /// </summary>
-    /// <returns>The ID for the Microsoft Invoicing plan.</returns>
-    [Obsolete('Invoicing product has been retired.', '16.0')]
-    procedure GetInvoicingPlanId(): Guid
-    begin
-        exit(InvoicingPlanGUIDTxt);
     end;
 
     /// <summary>

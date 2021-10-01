@@ -24,7 +24,7 @@ table 1511 "Notification Entry"
         field(5; "Triggered By Record"; RecordID)
         {
             Caption = 'Triggered By Record';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(6; "Link Target Page"; Integer)
         {

@@ -183,7 +183,7 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
     begin
         TrackingSpecification.InitFromJobJnlLine(JobJnlLine);
         if IsReclass then
-            ItemTrackingLines.SetFormRunMode(1);
+            ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::Reclass);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, JobJnlLine."Posting Date");
         ItemTrackingLines.SetInbound(JobJnlLine.IsInbound);
         ItemTrackingLines.RunModal;

@@ -59,7 +59,7 @@ table 6300 "Azure AD App Setup"
     procedure GetSecretKeyFromIsolatedStorage() SecretKey: Text
     begin
         if not IsNullGuid("Isolated Storage Secret Key") then
-            if not IsolatedStorage.Get("Isolated Storage Secret Key", DataScope::Company, SecretKey) then;
+            if not IsolatedStorage.Get("Isolated Storage Secret Key", DataScope::Module, SecretKey) then;
 
         exit(SecretKey);
     end;
@@ -71,14 +71,14 @@ table 6300 "Azure AD App Setup"
         NewSecretGuid: Guid;
     begin
         if not IsNullGuid("Isolated Storage Secret Key") then
-            if not IsolatedStorage.Delete("Isolated Storage Secret Key", DataScope::Company) then;
+            if not IsolatedStorage.Delete("Isolated Storage Secret Key", DataScope::Module) then;
 
         NewSecretGuid := CreateGuid();
 
         if (not EncryptionEnabled() or (StrLen(SecretKey) > 215)) then
-            IsolatedStorage.Set(NewSecretGuid, SecretKey, DataScope::Company)
+            IsolatedStorage.Set(NewSecretGuid, SecretKey, DataScope::Module)
         else
-            IsolatedStorage.SetEncrypted(NewSecretGuid, SecretKey, DataScope::Company);
+            IsolatedStorage.SetEncrypted(NewSecretGuid, SecretKey, DataScope::Module);
 
         Rec."Isolated Storage Secret Key" := NewSecretGuid;
     end;

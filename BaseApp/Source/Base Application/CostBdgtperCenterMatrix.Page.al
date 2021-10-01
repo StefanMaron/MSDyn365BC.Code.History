@@ -334,7 +334,7 @@ page 1132 "Cost Bdgt. per Center Matrix"
         MATRIX_ColumnCaption: array[12] of Text[80];
         DateFilter: Text;
         RoundingFactorFormatString: Text;
-        RoundingFactor: Option "None","1","1000","1000000";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         MATRIX_CurrentNoOfMatrixColumn: Integer;
         MATRIX_CellData: array[12] of Decimal;
         [InDataSet]
@@ -343,16 +343,25 @@ page 1132 "Cost Bdgt. per Center Matrix"
         NameIndent: Integer;
         Text000: Label 'Set View As to Net Change before you edit entries.';
 
+#if not CLEAN19
     procedure Load(MatrixColumns1: array[12] of Text[80]; var CostCenterMatrixRecords1: array[12] of Record "Cost Center"; CurrentNoOfMatrixColumns: Integer; DateFilter1: Text; BudgetFilter1: Text; RoundingFactor1: Option)
+    begin
+        LoadMatrix(
+            MatrixColumns1, CostCenterMatrixRecords1, CurrentNoOfMatrixColumns, DateFilter1, BudgetFilter1,
+            "Analysis Rounding Factor".FromInteger(RoundingFactor1));
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[12] of Text[80]; var NewCostCenterMatrixRecords: array[12] of Record "Cost Center"; CurrentNoOfMatrixColumns: Integer; NewDateFilter: Text; NewBudgetFilter: Text; NewRoundingFactor: Enum "Analysis Rounding Factor")
     var
         i: Integer;
     begin
         for i := 1 to 12 do begin
-            if MatrixColumns1[i] = '' then
+            if NewMatrixColumns[i] = '' then
                 MATRIX_ColumnCaption[i] := ' '
             else
-                MATRIX_ColumnCaption[i] := MatrixColumns1[i];
-            CostCenterMatrixRecords[i] := CostCenterMatrixRecords1[i];
+                MATRIX_ColumnCaption[i] := NewMatrixColumns[i];
+            CostCenterMatrixRecords[i] := NewCostCenterMatrixRecords[i];
         end;
         if MATRIX_ColumnCaption[1] = '' then; // To make this form pass preCAL test
 
@@ -360,10 +369,10 @@ page 1132 "Cost Bdgt. per Center Matrix"
             MATRIX_CurrentNoOfMatrixColumn := ArrayLen(MATRIX_CellData)
         else
             MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
-        DateFilter := DateFilter1;
-        BudgetFilter := BudgetFilter1;
-        RoundingFactor := RoundingFactor1;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
+        DateFilter := NewDateFilter;
+        BudgetFilter := NewBudgetFilter;
+        RoundingFactor := NewRoundingFactor;
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(RoundingFactor, false);
 
         CurrPage.Update(false);
     end;
@@ -385,7 +394,7 @@ page 1132 "Cost Bdgt. per Center Matrix"
     begin
         SetFilters(ColumnID);
         CalcFields("Budget Amount");
-        MATRIX_CellData[ColumnID] := MatrixMgt.RoundValue("Budget Amount", RoundingFactor);
+        MATRIX_CellData[ColumnID] := MatrixMgt.RoundAmount("Budget Amount", RoundingFactor);
     end;
 
     local procedure UpdateAmount(ColumnID: Integer)

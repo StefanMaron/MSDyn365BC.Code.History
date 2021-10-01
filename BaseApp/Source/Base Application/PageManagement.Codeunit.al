@@ -175,6 +175,10 @@ codeunit 700 "Page Management"
                 exit(PAGE::"Cash Flow Setup");
             DATABASE::"Production Order":
                 exit(GetProductionOrderPageID(RecRef));
+            Database::User:
+                exit(Page::"User Card");
+            Database::Employee:
+                Exit(Page::"Employee Card");
             else begin
                     OnConditionalCardPageIDNotFound(RecRef, CardPageID);
                     exit(CardPageID);

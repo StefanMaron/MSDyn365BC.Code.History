@@ -2247,15 +2247,10 @@ codeunit 134301 "Workflow Notification Test"
         UpdateDelegationDateFormulaOnApprovalEntry(ApprovalEntry, '-2D');
         NotificationEntry.DeleteAll();
 
-        // [GIVEN] Job Queue Entry "JQ" with Object Report "Delegate Approval Requests" and User ID = "U2".
-        WorkflowSetup.CreateJobQueueEntry(
-            JobQueueEntry."Object Type to Run"::Report, Report::"Delegate Approval Requests",
-            LibraryUtility.GenerateGUID(), CurrentDateTime(), 1440);
-
         // [WHEN] Report "Delegate Approval Requests" is run in background using "JQ".
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Background);
         BindSubscription(TestClientTypeSubscriber);
-        FindAndRunJobQueueEntry(JobQueueEntry."Object Type to Run"::Report, Report::"Delegate Approval Requests");
+        Report.Run(Report::"Delegate Approval Requests");
 
         // [THEN] Approver ID was set to "U2" for Approval Entry.
         VerifyDelegatedApprovalEntry(ApprovalEntry, CurrentUserSetup);
@@ -2305,15 +2300,10 @@ codeunit 134301 "Workflow Notification Test"
         UpdateDelegationDateFormulaOnApprovalEntry(ApprovalEntry, '-2D');
         NotificationEntry.DeleteAll();
 
-        // [GIVEN] Job Queue Entry "JQ" with Object Report "Delegate Approval Requests" and User ID = "U3".
-        WorkflowSetup.CreateJobQueueEntry(
-            JobQueueEntry."Object Type to Run"::Report, Report::"Delegate Approval Requests",
-            LibraryUtility.GenerateGUID(), CurrentDateTime(), 1440);
-
         // [WHEN] Report "Delegate Approval Requests" is run in background using "JQ".
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Background);
         BindSubscription(TestClientTypeSubscriber);
-        FindAndRunJobQueueEntry(JobQueueEntry."Object Type to Run"::Report, Report::"Delegate Approval Requests");
+        Report.Run(Report::"Delegate Approval Requests");
 
         // [THEN] Approver ID was set to "U2" for Approval Entry.
         VerifyDelegatedApprovalEntry(ApprovalEntry, SecondApproverUserSetup);

@@ -107,6 +107,7 @@ codeunit 136905 "Service Reports - II"
     [Scope('OnPrem')]
     procedure ServiceOrderWithQuantity()
     var
+        Item: Record Item;
         ServiceItemLine: Record "Service Item Line";
         ServiceItem: Record "Service Item";
         ServiceLine: Record "Service Line";
@@ -116,10 +117,11 @@ codeunit 136905 "Service Reports - II"
 
         // 1. Setup: Create a Service Order - Service Header, Service Item Line, Service Line and Calculate Amount.
         Initialize;
+        CreateItem(Item);
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.", Item."No.");
 
         // 2. Exercise: Generate Service Order Report.
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type");
@@ -170,6 +172,7 @@ codeunit 136905 "Service Reports - II"
     [Scope('OnPrem')]
     procedure ServiceOrderWithComments()
     var
+        Item: Record Item;
         ServiceCommentLineFault: Record "Service Comment Line";
         ServiceCommentLineResolution: Record "Service Comment Line";
         ServiceItemLine: Record "Service Item Line";
@@ -182,10 +185,11 @@ codeunit 136905 "Service Reports - II"
 
         // 1. Setup: Create a Service Order - Service Header, Service Item Line, Service Line and Comments.
         Initialize;
+        CreateItem(Item);
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.", Item."No.");
         LibraryService.CreateCommentLineForServHeader(
           ServiceCommentLineFault,
           ServiceItemLine,
@@ -339,6 +343,7 @@ codeunit 136905 "Service Reports - II"
     [Scope('OnPrem')]
     procedure ServiceCreditMemo()
     var
+        Item: Record Item;
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
     begin
@@ -347,8 +352,9 @@ codeunit 136905 "Service Reports - II"
 
         // [GIVEN] Posted Service Credit Memo.
         Initialize;
+        CreateItem(Item);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", '');
-        CreateServiceLineWithItem(ServiceLine, ServiceHeader, '');
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, '', Item."No.");
         ExecuteConfirmHandlerInvoiceES;
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
 
@@ -365,6 +371,7 @@ codeunit 136905 "Service Reports - II"
     [Scope('OnPrem')]
     procedure ServiceCreditMemoShowDetail()
     var
+        Item: Record Item;
         DimensionSetEntry: Record "Dimension Set Entry";
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -374,9 +381,10 @@ codeunit 136905 "Service Reports - II"
 
         // [GIVEN] Posted Service Credit Memo with dimension values.
         Initialize;
+        CreateItem(Item);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CreateCustomer(''));
         CreateDimensionForHeader(ServiceHeader);
-        CreateServiceLineWithItem(ServiceLine, ServiceHeader, '');
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, '', Item."No.");
         ExecuteConfirmHandlerInvoiceES;
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, ServiceHeader."Dimension Set ID");
@@ -401,6 +409,7 @@ codeunit 136905 "Service Reports - II"
     [Scope('OnPrem')]
     procedure ServiceShipment()
     var
+        Item: Record Item;
         ServiceItem: Record "Service Item";
         ServiceHeader: Record "Service Header";
         ServiceItemLine: Record "Service Item Line";
@@ -411,10 +420,11 @@ codeunit 136905 "Service Reports - II"
 
         // [GIVEN] Posted Service Order.
         Initialize;
+        CreateItem(Item);
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.", Item."No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // [WHEN] Run report "Service Shipment" with Default Options.
@@ -607,6 +617,7 @@ codeunit 136905 "Service Reports - II"
     [Scope('OnPrem')]
     procedure ServicePricingProfitability()
     var
+        Item: Record Item;
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";
         ServiceLine: Record "Service Line";
@@ -618,12 +629,13 @@ codeunit 136905 "Service Reports - II"
 
         // [GIVEN] Posted Service Order having service price group in item line.
         Initialize;
+        CreateItem(Item);
         LibraryService.CreateServicePriceGroup(ServicePriceGroup);
         CreateServicePriceGroupSetup(ServicePriceGroup.Code);
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer(''));
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         CreateItemLineWithPriceGroup(ServiceHeader, ServiceItem."No.", ServicePriceGroup.Code);
-        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.", Item."No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // [WHEN] Run report "Service Pricing Profitability".
@@ -832,12 +844,14 @@ codeunit 136905 "Service Reports - II"
 
     local procedure CreateAndPostServiceCrMemo(var ServiceLine: Record "Service Line"; CurrencyCode: Code[10]; ShowAmountInLCY: Boolean) DocumentNo: Code[20]
     var
+        Item: Record Item;
         ServiceHeader: Record "Service Header";
         PostedServiceCreditMemo: TestPage "Posted Service Credit Memo";
     begin
         // Setup: Create Service Credit Memo and post.
+        CreateItem(Item);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CreateCustomer(CurrencyCode));
-        CreateServiceLineWithItem(ServiceLine, ServiceHeader, '');
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, '', Item."No.");
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
         LibraryVariableStorage.Enqueue(ShowAmountInLCY);  // Enqueue value for DocumentEntriesRequestPageHandler.
         DocumentNo := ServiceHeader."Last Posting No.";
@@ -962,13 +976,17 @@ codeunit 136905 "Service Reports - II"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateServiceLineWithItem(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceItemNo: Code[20])
+    local procedure CreateServiceLineWithItem(
+        var ServiceLine: Record "Service Line";
+        ServiceHeader: Record "Service Header";
+        ServiceItemNo: Code[20];
+        ItemNo: Code[20]
+    )
     var
         Item: Record Item;
         LibrarySales: Codeunit "Library - Sales";
     begin
-        LibrarySales.FindItem(Item);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
         ServiceLine.Validate("Service Item No.", ServiceItemNo);
         ServiceLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Use Random Quantity.
         ServiceLine.Modify(true);
@@ -992,31 +1010,35 @@ codeunit 136905 "Service Reports - II"
 
     local procedure CreateServiceOrder(var ServiceLine: Record "Service Line"; CurrencyCode: Code[10]; WarrantyStartingDate: Date; WarrantyEndingDate: Date)
     var
+        Item: Record Item;
         ServiceItem: Record "Service Item";
         ServiceItemLine: Record "Service Item Line";
         ServiceHeader: Record "Service Header";
     begin
+        CreateItem(Item);
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer(CurrencyCode));
         ServiceItem.Validate("Warranty Starting Date (Labor)", WarrantyStartingDate);
         ServiceItem.Validate("Warranty Ending Date (Labor)", WarrantyEndingDate);
         ServiceItem.Modify(true);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.", Item."No.");
     end;
 
     local procedure CreateServiceOrderMultiLines(var ServiceLine: Record "Service Line")
     var
+        Item: Record Item;
         ServiceItem: Record "Service Item";
         ServiceItemLine: Record "Service Item Line";
         ServiceHeader: Record "Service Header";
         i: Integer;
     begin
+        CreateItem(Item);
         LibraryService.CreateServiceItem(ServiceItem, CreateCustomer(''));
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         for i := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
-            CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
+            CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.", Item."No.");
             ModifyServiceLineQtyToConsume(ServiceLine, ServiceLine.Quantity / 2);
         end;
     end;
@@ -1556,6 +1578,15 @@ codeunit 136905 "Service Reports - II"
         end;
     end;
 
+    local procedure CreateItem(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItemWithUnitPriceUnitCostAndPostingGroup(
+            Item,
+            LibraryRandom.RandDec(100, 2),
+            LibraryRandom.RandDec(100, 2)
+        );
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure SignContractConfirmHandler(SignContractMessage: Text[1024]; var Result: Boolean)
@@ -1572,7 +1603,10 @@ codeunit 136905 "Service Reports - II"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ServiceContractTemplateHandler(var ServiceContractTemplateList: Page "Service Contract Template List"; var Response: Action)
+    procedure ServiceContractTemplateHandler(var ServiceContractTemplateList: Page "Service Contract Template List";
+
+    var
+        Response: Action)
     begin
         Response := ACTION::LookupOK;
     end;

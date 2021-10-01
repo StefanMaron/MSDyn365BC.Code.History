@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5446 "Automation User Permission"
 {
     Caption = 'userPermission', Locked = true;
@@ -96,4 +97,4 @@ page 5446 "Automation User Permission"
         UserIDNotSpecifiedForLinesErr: Label 'You must specify a User Security ID to access user permissions.';
         LinesLoaded: Boolean;
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 890 "SmartList Designer Setup Part"
 {
     PageType = CardPart;
@@ -5,6 +6,9 @@ page 890 "SmartList Designer Setup Part"
     Extensible = false;
     SourceTable = "SmartList Designer Setup";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -46,3 +50,4 @@ page 890 "SmartList Designer Setup Part"
             PowerAppTenantId := TempId;
     end;
 }
+#endif

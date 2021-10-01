@@ -4,9 +4,6 @@ page 6403 "Sales Document Line Entity"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Sales Line";
-    ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated.';
-    ObsoleteTag = '18.0';
 
     layout
     {
@@ -43,6 +40,11 @@ page 6403 "Sales Document Line Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'No.', Locked = true;
+
+                    trigger OnValidate()
+                    begin
+                        EntityChanged := true;
+                    end;
                 }
                 field(locationCode; "Location Code")
                 {
@@ -908,5 +910,37 @@ page 6403 "Sales Document Line Entity"
     actions
     {
     }
-}
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        if InsertExtendedText() then
+            exit(false);
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        if EntityChanged then
+            if InsertExtendedText() then
+                exit(false);
+    end;
+
+    var
+        EntityChanged: Boolean;
+
+    local procedure InsertExtendedText(): Boolean
+    var
+        SalesLine: Record "Sales Line";
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+    begin
+        if TransferExtendedText.SalesCheckIfAnyExtText(Rec, false) then begin
+            if SalesLine.Get(Rec."Document Type", Rec."Document No.", Rec."Line No.") then
+                Rec.Modify(true)
+            else
+                Rec.Insert(true);
+            Commit();
+            TransferExtendedText.InsertSalesExtText(Rec);
+            exit(true);
+        end;
+        exit(false);
+    end;
+}

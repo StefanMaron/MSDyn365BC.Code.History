@@ -810,15 +810,15 @@ codeunit 139317 "Company Consol. Wizard Tests"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PickCompanyModalHandler(var AllowedCompanies: TestPage "Allowed Companies")
+    procedure PickCompanyModalHandler(var AccessibleCompanies: TestPage "Accessible Companies")
     var
         CompanyNameToPick: Text;
     begin
         CompanyNameToPick := LibraryVariableStorage.DequeueText; // should be set from test
-        AllowedCompanies.GotoKey(CompanyNameToPick);
-        Assert.IsFalse(AllowedCompanies.SetupStatus.Editable, 'SetupStatus.EDITABLE');
-        LibraryVariableStorage.Enqueue(AllowedCompanies.SetupStatus.AsInteger);
-        AllowedCompanies.OK.Invoke;
+        AccessibleCompanies.GotoKey(CompanyNameToPick);
+        Assert.IsFalse(AccessibleCompanies.SetupStatus.Editable, 'SetupStatus.EDITABLE');
+        LibraryVariableStorage.Enqueue(AccessibleCompanies.SetupStatus.AsInteger);
+        AccessibleCompanies.OK().Invoke();
     end;
 
     [ModalPageHandler]

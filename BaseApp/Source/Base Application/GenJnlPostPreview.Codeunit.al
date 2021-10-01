@@ -109,19 +109,34 @@ codeunit 19 "Gen. Jnl.-Post Preview"
 
     local procedure ShowAllEntries()
     var
+        GLSetup: Record "General Ledger Setup";
         TempDocumentEntry: Record "Document Entry" temporary;
         GLPostingPreview: Page "G/L Posting Preview";
+        ExtendedGLPostingPreview: Page "Extended G/L Posting Preview";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShowAllEntries(TempDocumentEntry, IsHandled);
+        OnBeforeShowAllEntries(TempDocumentEntry, IsHandled, PostingPreviewEventHandler);
         if IsHandled then
             exit;
 
         PostingPreviewEventHandler.FillDocumentEntry(TempDocumentEntry);
         if not TempDocumentEntry.IsEmpty() then begin
-            GLPostingPreview.Set(TempDocumentEntry, PostingPreviewEventHandler);
-            GLPostingPreview.Run
+            GLSetup.Get();
+            case GLSetup."Posting Preview Type" of
+                "Posting Preview Type"::Standard:
+                    begin
+                        GLPostingPreview.Set(TempDocumentEntry, PostingPreviewEventHandler);
+                        GLPostingPreview.Run();
+                    end;
+                "Posting Preview Type"::Extended:
+                    begin
+                        ExtendedGLPostingPreview.Set(TempDocumentEntry, PostingPreviewEventHandler);
+                        ExtendedGLPostingPreview.Run();
+                    end;
+                else
+                    OnShowAllEntriesOnCaseElse(TempDocumentEntry, PostingPreviewEventHandler);
+            end;
         end else
             Message(NothingToPostMsg);
 
@@ -174,7 +189,7 @@ codeunit 19 "Gen. Jnl.-Post Preview"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowAllEntries(var TempDocumentEntry: Record "Document Entry" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeShowAllEntries(var TempDocumentEntry: Record "Document Entry" temporary; var IsHandled: Boolean; var PostingPreviewEventHandler: Codeunit "Posting Preview Event Handler")
     begin
     end;
 
@@ -185,6 +200,11 @@ codeunit 19 "Gen. Jnl.-Post Preview"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowAllEntries()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowAllEntriesOnCaseElse(var TempDocumentEntry: Record "Document Entry" temporary; var PostingPreviewEventHandler: Codeunit "Posting Preview Event Handler")
     begin
     end;
 }

@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 134167 "Copy Price Data Test"
 {
     Subtype = Test;
@@ -277,19 +278,19 @@ codeunit 134167 "Copy Price Data Test"
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure, ItemVar."No.", UnitofMeasure.Code, 3);
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateLineDiscForCustomer(
-            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::Customer, Customer."No.",
+            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::Customer.AsInteger(), Customer."No.",
             Today(), '', '', '', 1);
         LibraryERM.CreateLineDiscForCustomer(
-            SalesLineDiscount, "Sales Line Discount Type"::Item, Item."No.", "Sales Price Type"::"All Customers", '',
+            SalesLineDiscount, "Sales Line Discount Type"::Item, Item."No.", "Sales Price Type"::"All Customers".AsInteger(), '',
             Today(), '', '', '', 2);
         LibraryERM.CreateLineDiscForCustomer(
-            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::"All Customers", '',
+            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::"All Customers".AsInteger(), '',
             Today(), '', ItemVariant.Code, '', 3);
         LibraryERM.CreateLineDiscForCustomer(
-            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::"All Customers", '',
+            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::"All Customers".AsInteger(), '',
             Today(), '', '', UnitofMeasure.Code, 4);
         LibraryERM.CreateLineDiscForCustomer(
-            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::"All Customers", '',
+            SalesLineDiscount, "Sales Line Discount Type"::Item, ItemVar."No.", "Sales Price Type"::"All Customers".AsInteger(), '',
             Today(), Currency.Code, '', '', 5);
 
         // [GIVEN] Customer, Item, Variant, Unit of measure, Currency are removed
@@ -2207,3 +2208,4 @@ codeunit 134167 "Copy Price Data Test"
         LibraryVariableStorage.Enqueue(DataUpgradeOverview."No. of Records".AsInteger());
     end;
 }
+#endif

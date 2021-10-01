@@ -1133,7 +1133,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
 
         // [GIVEN] Warehouse Item Journal Line 10000 with Quantity = 6 and Item Tracking Line for Lot No. "L01"
         // [GIVEN] Warehouse Item Journal Line 20000 with Quantity = 3 and Item Tracking Line for Lot No. "L02"
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
         for I := 1 to ArrayLen(LotNo) do begin
             Quantity[I] := LibraryRandom.RandDec(10, 0);
             LotNo[I] := LibraryUtility.GenerateGUID();
@@ -1194,7 +1194,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WarehouseActivityLine: Record "Warehouse Activity Line";
         Item: Record Item;
         ItemJournalBatch: Record "Item Journal Batch";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Quantity: array[2] of Decimal;
         TotalQuantity: Integer;
         I: Integer;
@@ -1211,7 +1211,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
 
         // [GIVEN] Warehouse Item Journal Line 10000 with Quantity = 6 and Item Tracking Line for Lot No. "L01"
         // [GIVEN] Warehouse Item Journal Line 20000 with Quantity = 3 and Item Tracking Line for Lot No. "L01"
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
         LotNo := LibraryUtility.GenerateGUID();
         for I := 1 to ArrayLen(Quantity) do begin
             Quantity[I] := LibraryRandom.RandDec(10, 0);
@@ -1408,7 +1408,8 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
     begin
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::"Physical Inventory", LocationCode);
+        LibraryWarehouse.CreateWarehouseJournalBatch(
+            WarehouseJournalBatch, WarehouseJournalTemplate.Type::"Physical Inventory", LocationCode);
         WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
@@ -1908,21 +1909,13 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
     end;
 
-    local procedure CreateWarehouseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; WarehouseJournalTemplateType: Option; LocationCode: Code[10])
-    var
-        WarehouseJournalTemplate: Record "Warehouse Journal Template";
-    begin
-        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplateType);
-        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode)
-    end;
-
     local procedure CreateWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal)
     var
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
     begin
         // Use Random value for Quantity.
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
         LibraryWarehouse.CreateWhseJournalLine(
           WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
           Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
@@ -2157,7 +2150,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WarehouseActivityLine.FindLast;  // Using Findlast to take value from last line of Activity Type.
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source Type", SourceType);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -2229,7 +2222,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     local procedure PostItemJournalLineFEFO(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal; ExpirationDate: Date): Code[20]
     var
         ItemJournalLine: Record "Item Journal Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         CreateItemJournalLineWithBin(ItemJournalLine, ItemNo, Quantity, LocationCode, BinCode);
         LotNo := AssignLotNoWithExpirationDate(ItemJournalLine, ExpirationDate);
@@ -2238,7 +2231,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         exit(LotNo);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceType: Integer; SourceNo: Code[20]; ActivityType: Option)
+    local procedure RegisterWarehouseActivity(SourceType: Integer; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -2741,7 +2734,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         CreatePickReqPage.OK.Invoke;
     end;
 
-    local procedure VerifyInventoryPickLine(SalesOrderNo: Code[20]; LotNo: Code[20]; PickQty: Decimal)
+    local procedure VerifyInventoryPickLine(SalesOrderNo: Code[20]; LotNo: Code[50]; PickQty: Decimal)
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         SalesHeader: Record "Sales Header";

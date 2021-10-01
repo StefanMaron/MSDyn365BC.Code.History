@@ -6,21 +6,17 @@ table 5936 "Service Document Register"
 
     fields
     {
-        field(1; "Source Document Type"; Option)
+        field(1; "Source Document Type"; Enum "Service Source Document Type")
         {
             Caption = 'Source Document Type';
-            OptionCaption = 'Order,Contract';
-            OptionMembers = "Order",Contract;
         }
         field(2; "Source Document No."; Code[20])
         {
             Caption = 'Source Document No.';
         }
-        field(3; "Destination Document Type"; Option)
+        field(3; "Destination Document Type"; Enum "Service Destination Document Type")
         {
             Caption = 'Destination Document Type';
-            OptionCaption = 'Invoice,Credit Memo,Posted Invoice,Posted Credit Memo';
-            OptionMembers = Invoice,"Credit Memo","Posted Invoice","Posted Credit Memo";
         }
         field(4; "Destination Document No."; Code[20])
         {
@@ -43,7 +39,17 @@ table 5936 "Service Document Register"
     {
     }
 
+#if not CLEAN19
+    [Obsolete('Replaced by InsertServiceSalesDocument().', '19.0')]
     procedure InsertServSalesDocument(ServDocType: Option "Order",Contract; ServDocNo: Code[20]; SalesDocType: Option Invoice,"Credit Memo","Posted Invoice","Posted Credit Memo"; SalesDocNo: Code[20])
+    begin
+        InsertServiceSalesDocument(
+            "Service Source Document Type".FromInteger(ServDocType), ServDocNo,
+            "Service Destination Document Type".FromInteger(SalesDocType), SalesDocNo);
+    end;
+#endif
+
+    procedure InsertServiceSalesDocument(ServDocType: Enum "Service Source Document Type"; ServDocNo: Code[20]; SalesDocType: Enum "Service Destination Document Type"; SalesDocNo: Code[20])
     var
         ServDocReg: Record "Service Document Register";
     begin
@@ -57,7 +63,16 @@ table 5936 "Service Document Register"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by PostServiceSalesDocument().', '19.0')]
     procedure PostServSalesDocument(SalesDocType: Option "Sales Invoice","Posted Sales Invoice","Credit Memo","Posted Credit Memo"; SalesDocNo: Code[20]; InvoiceNo: Code[20])
+    begin
+        PostServiceSalesDocument(
+            "Service Destination Document Type".FromInteger(SalesDocType), SalesDocNo, InvoiceNo);
+    end;
+#endif
+
+    procedure PostServiceSalesDocument(SalesDocType: Enum "Service Destination Document Type"; SalesDocNo: Code[20]; InvoiceNo: Code[20])
     var
         ServDocReg: Record "Service Document Register";
         PostedServDocReg: Record "Service Document Register";

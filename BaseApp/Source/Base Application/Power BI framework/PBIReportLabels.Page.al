@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 6318 "PBI Report Labels"
 {
     Caption = 'PBI Report Labels', Locked = true;
@@ -5,6 +6,9 @@ page 6318 "PBI Report Labels"
     PageType = List;
     SourceTable = "Power BI Report Labels";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by API page "Power BI Label Provider" in APIv2';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -36,5 +40,6 @@ page 6318 "PBI Report Labels"
     begin
         PowerBILabelMgt.GetReportLabelsForUserLanguage(Rec, UserSecurityId());
     end;
-}
 
+}
+#endif

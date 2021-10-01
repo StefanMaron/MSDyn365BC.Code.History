@@ -64,7 +64,7 @@ table 480 "Dimension Set Entry"
         }
         field(8; "Global Dimension No."; Integer)
         {
-            Caption = 'Global Dimension No.';
+            Caption = 'Shortcut Dimension No.';
         }
     }
 

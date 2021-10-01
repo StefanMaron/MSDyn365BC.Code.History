@@ -119,8 +119,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType ThisWillClearTheFieldsTxt</note>
         </trans-unit>
         <trans-unit id="Page 3074962881 - NamedType 143307884" size-unit="char" translate="yes" xml:space="preserve">
-          <source>We could not get access token with the current setup.\\Please verify the values on the page and try again.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>We could not get access token with the current setup. Error: "%1".\\Please verify the values on the page as well as settings of your app registration and try again.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = error message</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType UnsuccessfulTestMsg</note>
         </trans-unit>
         <trans-unit id="Page 3074962881 - NamedType 2108276406" size-unit="char" translate="yes" xml:space="preserve">

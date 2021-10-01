@@ -1,4 +1,4 @@
-﻿page 554 "Analysis by Dimensions"
+page 554 "Analysis by Dimensions"
 {
     Caption = 'Analysis by Dimensions';
     DeleteAllowed = false;
@@ -540,7 +540,7 @@
         AnalysisViewEntry: Record "Analysis View Entry";
         Currency: Record Currency;
         DimensionCodeBuffer: Record "Dimension Code Buffer" temporary;
-        AmountType: Option "Net Change","Balance at Date";
+        AmountType: Enum "Analysis Amount Type";
         [InDataSet]
         GLAccountSource: Boolean;
         LineDimCode: Text[30];
@@ -610,7 +610,7 @@
         CashFlowForecast: Record "Cash Flow Forecast";
         Period: Record Date;
         DimVal: Record "Dimension Value";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         case DimOption of
             DimOption::"G/L Account":
@@ -642,7 +642,7 @@
                     else
                         if InternalDateFilter <> '' then
                             Period.SetFilter("Period Start", InternalDateFilter);
-                    Found := PeriodFormMgt.FindDate(Which, Period, "Period Type");
+                    Found := PeriodPageMgt.FindDate(Which, Period, "Period Type");
                     if Found then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
@@ -721,7 +721,7 @@
         CashFlowForecast: Record "Cash Flow Forecast";
         Period: Record Date;
         DimVal: Record "Dimension Value";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         case DimOption of
             DimOption::"G/L Account":
@@ -747,7 +747,7 @@
                     if "Date Filter" <> '' then
                         Period.SetFilter("Period Start", "Date Filter");
                     Period."Period Start" := DimCodeBuf."Period Start";
-                    ResultSteps := PeriodFormMgt.NextDate(Steps, Period, "Period Type");
+                    ResultSteps := PeriodPageMgt.NextDate(Steps, Period, "Period Type");
                     if ResultSteps <> 0 then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
@@ -897,18 +897,18 @@
     local procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         TempDate: Date;
     begin
         if not PeriodInitialized then
             "Date Filter" := '';
         if ("Date Filter" <> '') and Evaluate(TempDate, "Date Filter") then begin
             Calendar.SetFilter("Period Start", "Date Filter");
-            if not PeriodFormMgt.FindDate('+', Calendar, "Period Type") then
-                PeriodFormMgt.FindDate('+', Calendar, "Period Type"::Day);
+            if not PeriodPageMgt.FindDate('+', Calendar, "Period Type") then
+                PeriodPageMgt.FindDate('+', Calendar, "Period Type"::Day);
             Calendar.SetRange("Period Start");
         end;
-        if PeriodFormMgt.FindDate(SearchText, Calendar, "Period Type") then
+        if PeriodPageMgt.FindDate(SearchText, Calendar, "Period Type") then
             if "Closing Entries" = "Closing Entries"::Include then
                 Calendar."Period End" := ClosingDate(Calendar."Period End");
         if AmountType = AmountType::"Net Change" then begin

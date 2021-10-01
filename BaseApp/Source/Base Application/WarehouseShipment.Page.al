@@ -162,18 +162,24 @@ page 7335 "Warehouse Shipment"
             {
                 Caption = '&Shipment';
                 Image = Shipment;
+#if not CLEAN19
                 action(List)
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'List';
                     Image = OpportunitiesList;
                     ToolTip = 'View all warehouse documents of this type that exist.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by platform capabilities.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     begin
                         LookupWhseShptHeader(Rec);
                     end;
                 }
+#endif
                 action("Co&mments")
                 {
                     ApplicationArea = Comments;

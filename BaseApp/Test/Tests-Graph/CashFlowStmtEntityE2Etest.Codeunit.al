@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135522 "CashFlow Stmt. Entity E2E test"
 {
     Subtype = Test;
@@ -67,4 +68,4 @@ codeunit 135522 "CashFlow Stmt. Entity E2E test"
         IsInitialized := true;
     end;
 }
-
+#endif

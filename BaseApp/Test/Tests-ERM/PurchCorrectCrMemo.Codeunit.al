@@ -21,6 +21,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryErrorMessage: Codeunit "Library - Error Message";
         IsInitialized: Boolean;
         BlockedVendorErr: Label 'You cannot cancel this posted purchase credit memo because vendor %1 is blocked.', Comment = '%1 = Customer No.';
         AlreadyCancelledErr: Label 'You cannot cancel this posted purchase credit memo because it has already been cancelled.';
@@ -34,7 +35,6 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         IncorrectItemApplicationErr: Label 'Incorrect item application.';
         InvRoundingLineDoesNotExistErr: Label 'Invoice rounding line does not exist.';
         DirectPostingErr: Label 'G/L account %1 does not allow direct posting.', Comment = '%1 - g/l account no.';
-        COGSAccountEmptyErr: Label 'COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -895,9 +895,11 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         Commit();
 
         asserterror CancelPostedPurchCrMemo.TestCorrectCrMemoIsAllowed(PurchCrMemoHdr);
-        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(
-          StrSubstNo(COGSAccountEmptyErr, GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group"));
+            LibraryErrorMessage.GetMissingAccountErrorMessage(
+                GeneralPostingSetup.FieldCaption("COGS Account"),
+                GeneralPostingSetup.TableCaption()));
 
         RestoreGenPostingSetup(GeneralPostingSetup);
     end;

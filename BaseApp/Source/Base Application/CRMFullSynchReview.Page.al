@@ -69,6 +69,31 @@ page 5331 "CRM Full Synch. Review"
                         ShowSynchJobLog("From Int. Table Job ID");
                     end;
                 }
+                field("Initial Synchronization Recommendation"; InitialSynchRecommendation)
+                {
+                    Caption = 'Recommendation';
+                    ApplicationArea = Suite;
+                    Enabled = SynchRecommendationDrillDownEnabled;
+                    StyleExpr = InitialSynchRecommendationStyle;
+                    ToolTip = 'Specifies the recommended action for the initial synchronization.';
+
+                    trigger OnDrillDown()
+                    var
+                        IntegrationFieldMapping: Record "Integration Field Mapping";
+                        IntegrationTableMapping: Record "Integration Table Mapping";
+                    begin
+                        if not (InitialSynchRecommendation in [MatchBasedCouplingTxt, CouplingCriteriaSelectedTxt]) then
+                            exit;
+
+                        if not IntegrationTableMapping.Get(Name) then
+                            exit;
+
+                        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+                        IntegrationFieldMapping.SetRange("Constant Value", '');
+                        if Page.RunModal(Page::"Match Based Coupling Criteria", IntegrationFieldMapping) = Action::LookupOK then
+                            CurrPage.Update(false);
+                    end;
+                }
             }
         }
     }
@@ -120,7 +145,7 @@ page 5331 "CRM Full Synch. Review"
                 trigger OnAction()
                 begin
                     Delete();
-                    Generate();
+                    Generate(InitialSynchRecommendations, DeletedLines);
                     Start();
                 end;
             }
@@ -134,29 +159,76 @@ page 5331 "CRM Full Synch. Review"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 PromotedOnly = true;
-                ToolTip = 'Removes all lines and readds all Integration Table Mappings.';
+                ToolTip = 'Removes all lines, readds all Integration Table Mappings and recalculates synchronization recommendations.';
                 trigger OnAction()
                 begin
                     DeleteAll();
+                    Clear(InitialSynchRecommendations);
+                    Clear(DeletedLines);
                     Generate();
+                end;
+            }
+            action(ScheduleFullSynch)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Recommend Full Synchronization';
+                Enabled = ActionRecommendFullSynchEnabled;
+                Image = RefreshLines;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Recommend full synchronization job for the selected line.';
+
+                trigger OnAction()
+                begin
+                    if InitialSynchRecommendations.ContainsKey(Name) then
+                        InitialSynchRecommendations.Remove(Name);
+                    InitialSynchRecommendations.Add(Name, "Initial Synch Recommendation"::"Full Synchronization");
+                    Delete();
+                    Generate(InitialSynchRecommendations, DeletedLines);
                 end;
             }
         }
     }
 
     trigger OnAfterGetRecord()
+    var
+        IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
         ActionStartEnabled := (not IsThereActiveSessionInProgress) and IsThereBlankStatusLine;
         ActionResetEnabled := (not IsThereActiveSessionInProgress());
         ActionRestartEnabled := (not IsThereActiveSessionInProgress()) and (("Job Queue Entry Status" = "Job Queue Entry Status"::Error) or ("Job Queue Entry Status" = "Job Queue Entry Status"::Finished));
+        ActionRecommendFullSynchEnabled := ActionResetEnabled and ("Initial Synch Recommendation" = "Initial Synch Recommendation"::"Couple Records");
         JobQueueEntryStatusStyle := GetStatusStyleExpression(Format("Job Queue Entry Status"));
         ToIntTableJobStatusStyle := GetStatusStyleExpression(Format("To Int. Table Job Status"));
         FromIntTableJobStatusStyle := GetStatusStyleExpression(Format("From Int. Table Job Status"));
+        if not InitialSynchRecommendations.ContainsKey(Name) then
+            InitialSynchRecommendations.Add(Name, "Initial Synch Recommendation");
+
+        if "Initial Synch Recommendation" <> "Initial Synch Recommendation"::"Couple Records" then
+            InitialSynchRecommendation := Format("Initial Synch Recommendation")
+        else begin
+            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Name);
+            IntegrationFieldMapping.SetRange("Use For Match-Based Coupling", true);
+            if IntegrationFieldMapping.IsEmpty() then
+                InitialSynchRecommendation := MatchBasedCouplingTxt
+            else
+                InitialSynchRecommendation := CouplingCriteriaSelectedTxt
+        end;
+        InitialSynchRecommendationStyle := GetInitialSynchRecommendationStyleExpression(Format("Initial Synch Recommendation"));
+        SynchRecommendationDrillDownEnabled := (InitialSynchRecommendation in [MatchBasedCouplingTxt, CouplingCriteriaSelectedTxt]);
     end;
 
     trigger OnOpenPage()
     begin
+        Clear(DeletedLines);
         Generate(SkipEntitiesNotFullSyncReady);
+    end;
+
+    trigger OnDeleteRecord(): Boolean
+    begin
+        DeletedLines.Add(Rec.Name);
     end;
 
     [Scope('OnPrem')]
@@ -170,11 +242,19 @@ page 5331 "CRM Full Synch. Review"
         ActionStartEnabled: Boolean;
         ActionResetEnabled: Boolean;
         ActionRestartEnabled: Boolean;
+        ActionRecommendFullSynchEnabled: Boolean;
         SkipEntitiesNotFullSyncReady: Boolean;
+        SynchRecommendationDrillDownEnabled: Boolean;
+        InitialSynchRecommendations: Dictionary of [Code[20], Integer];
+        DeletedLines: List of [Code[20]];
         JobQueueEntryStatusStyle: Text;
         ToIntTableJobStatusStyle: Text;
         FromIntTableJobStatusStyle: Text;
         StartInitialSynchPersonOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Before running full synchronization, you should couple all %1 salespeople to %2 users.\\Do you want to continue?', Comment = '%1 - product name, %2 = Dataverse service name';
         StartInitialSynchTeamOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Do you want to continue?';
+        InitialSynchRecommendation: Text;
+        InitialSynchRecommendationStyle: Text;
+        MatchBasedCouplingTxt: Label 'Select Coupling Criteria';
+        CouplingCriteriaSelectedTxt: Label 'Coupling Criteria Selected';
 }
 

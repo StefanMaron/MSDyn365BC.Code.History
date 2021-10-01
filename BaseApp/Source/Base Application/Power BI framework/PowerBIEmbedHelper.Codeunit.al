@@ -164,21 +164,16 @@ codeunit 6299 "Power BI Embed Helper"
     [TryFunction]
     local procedure TryGetTargetOrigin(var EmbeddedTargetOrigin: Text)
     var
-        UrlHelper: Codeunit "Url Helper";
+        PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
         UriBuilderFullUrl: DotNet UriBuilder;
         UriBuilderBaseUrl: DotNet UriBuilder;
     begin
-        if not UrlHelper.IsPROD() then begin
-            EmbeddedTargetOrigin := '*';
-            exit;
-        end;
-
         // From documentation about TargetOrigin:
         //   This string is the concatenation of the protocol and "://", the host name if one exists, and ":" followed by a port number if a port is present
         //   and differs from the default port for the given protocol. Examples of typical origins are https://example.org (implying port 443), http://example.net 
         //   (implying port 80), and http://example.com:8080.
 
-        UriBuilderFullUrl := UriBuilderFullUrl.UriBuilder(UrlHelper.GetPowerBIEmbedReportsUrl()); // If this fails, the URL is not valid, meaning we could not load the embed experience in the first place
+        UriBuilderFullUrl := UriBuilderFullUrl.UriBuilder(PowerBIUrlMgt.GetPowerBIEmbedReportsUrl()); // If this fails, the URL is not valid, meaning we could not load the embed experience in the first place
         UriBuilderBaseUrl := UriBuilderBaseUrl.UriBuilder(UriBuilderFullUrl.Scheme, UriBuilderFullUrl.Host, UriBuilderFullUrl.Port);
         EmbeddedTargetOrigin := UriBuilderBaseUrl.Uri().AbsoluteUri();
     end;

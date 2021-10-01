@@ -63,7 +63,7 @@ page 5228 "Misc. Articles Overview"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -78,7 +78,7 @@ page 5228 "Misc. Articles Overview"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -86,7 +86,7 @@ page 5228 "Misc. Articles Overview"
 
     trigger OnOpenPage()
     begin
-        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::First);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -97,9 +97,8 @@ page 5228 "Misc. Articles Overview"
         MATRIX_CaptionRange: Text;
         MATRIX_PKFirstRecInCurrSet: Text;
         MATRIX_CurrentNoOfColumns: Integer;
-        MATRIX_SetWanted: Option First,Previous,Same,Next;
 
-    local procedure MATRIX_GenerateColumnCaptions(SetWanted: Option First,Previous,Same,Next)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         RecRef: RecordRef;
         CurrentMatrixRecordOrdinal: Integer;
@@ -110,8 +109,9 @@ page 5228 "Misc. Articles Overview"
 
         RecRef.GetTable(MATRIX_MatrixRecord);
         RecRef.SetTable(MATRIX_MatrixRecord);
-        MatrixMgt.GenerateMatrixData(RecRef, SetWanted, ArrayLen(MatrixRecords), 1, MATRIX_PKFirstRecInCurrSet, MATRIX_CaptionSet
-          , MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
+        MatrixMgt.GenerateMatrixData(
+            RecRef, StepType.AsInteger(), ArrayLen(MatrixRecords), 1, MATRIX_PKFirstRecInCurrSet, MATRIX_CaptionSet,
+            MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
 
         if MATRIX_CurrentNoOfColumns > 0 then begin
             MATRIX_MatrixRecord.SetPosition(MATRIX_PKFirstRecInCurrSet);

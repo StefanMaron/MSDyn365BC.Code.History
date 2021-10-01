@@ -290,7 +290,8 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             WhseJnlLine3.SetRange("Location Code", "Location Code");
             if not WhseJnlLine3.FindLast then
                 IncrBatchName := IncStr("Journal Batch Name") <> '';
-            IncreaseBatchName(IncrBatchName);
+            if WhseJnlTemplate."Increment Batch Name" then
+                IncreaseBatchName(IncrBatchName);
 
             WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
             if (WhseJnlBatch."No. Series" = '') and not WhseJnlLine3.FindLast then begin

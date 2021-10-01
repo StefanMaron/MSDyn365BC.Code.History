@@ -444,7 +444,7 @@ codeunit 134210 "Charts - Test AL Charts"
         BusChartBuf: Record "Business Chart Buffer";
         TrailingSalesOrdersSetup: Record "Trailing Sales Orders Setup";
         TrailingSalesOrdersMgt: Codeunit "Trailing Sales Orders Mgt.";
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
         XMLDoc: DotNet XmlDocument;
         XMLNode: DotNet XmlNode;
         XMLNode2: DotNet XmlNode;
@@ -467,7 +467,7 @@ codeunit 134210 "Charts - Test AL Charts"
             XMLNode := XMLNodeList1.Item(i - 1);
             XMLNode2 := XMLNode.SelectSingleNode(Format(BusChartBuf."Period Length"));
             Assert.AreEqual(
-              PeriodFormManagement.CreatePeriodFormat(BusChartBuf."Period Length", BusChartBuf.GetXValueAsDate(i - 1)), XMLNode2.InnerXml,
+              PeriodPageManagement.CreatePeriodFormat(BusChartBuf."Period Length", BusChartBuf.GetXValueAsDate(i - 1)), XMLNode2.InnerXml,
               'Expected XAxisLabel is same as date value on the X coordinate');
         end;
     end;

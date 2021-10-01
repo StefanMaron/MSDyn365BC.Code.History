@@ -1,7 +1,5 @@
 codeunit 132864 "User Groups Data Setup"
 {
-    Subtype = Upgrade;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Test Data Setup Mgt.", 'OnSetupDataPerDatabase', '', false, false)]
     local procedure OnSetupDataPerDatabaseSubscriber()
     begin
@@ -64,17 +62,12 @@ codeunit 132864 "User Groups Data Setup"
         UserGroupPermissionSet."App ID" := NonEmptyAppID;
         UserGroupPermissionSet.Insert();
 
-        if UserGroup.Get('EXCEL EXPORT ACTION') then
-            UserGroup.Delete();
-
-        UserGroupPermissionSet.SetRange("User Group Code", 'EXCEL EXPORT ACTION');
-        UserGroupPermissionSet.DeleteAll();
-
-        UserGroup.Code := 'EXCEL EXPORT ACTION';
-        UserGroup.Insert();
-
-        UserGroupPermissionSet."User Group Code" := UserGroup.Code;
-        UserGroupPermissionSet."Role ID" := 'EXCEL EXPORT ACTION';
-        UserGroupPermissionSet.Insert();
+        // set empty "App ID"
+        UserGroupPermissionSet.Reset();
+        UserGroupPermissionSet.FindSet();
+        repeat
+            UserGroupPermissionSetWithoutAppId.Get(UserGroupPermissionSet."User Group Code", UserGroupPermissionSet."Role ID", UserGroupPermissionSet.Scope, UserGroupPermissionSet."App ID");
+            UserGroupPermissionSetWithoutAppId.Rename(UserGroupPermissionSetWithoutAppId."User Group Code", UserGroupPermissionSetWithoutAppId."Role ID", UserGroupPermissionSetWithoutAppId.Scope, EmptyAppID);
+        until UserGroupPermissionSet.Next() = 0;
     end;
 }

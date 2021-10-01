@@ -21,6 +21,7 @@ codeunit 139400 "Permissions Test"
         PermissionSetFinancialReportsTxt: Label 'D365 FINANCIAL REP.';
         PermissionSetJournalsEditTxt: Label 'D365 JOURNALS, EDIT';
         PermissionSetJournalsPostTxt: Label 'D365 JOURNALS, POST';
+        PermissionSetNonExistentTxt: Label 'Non-existent';
         PlanSmallBusinessTxt: Label 'Plan-SmallB-Test';
         PlanOffice365Txt: Label 'Plan-Office365-Test';
         PlanOffice365ExtraTxt: Label 'Plan-Office365Ext-Test';
@@ -33,6 +34,7 @@ codeunit 139400 "Permissions Test"
         UserGroupFinanceTxt: Label 'UserGroup-Finance';
         WrongUserGroupCodeErr: Label 'Wron user group exported.';
         ImportEmptyFileErr: Label 'Cannot import the specified XML document because the file is empty.';
+        ResolvePermissionNotificationIdTxt: Label '3301a843-3a72-4777-83a2-a1eeb2041efa', Locked = true;
         NullGuid: Guid;
 
     [Test]
@@ -390,25 +392,30 @@ codeunit 139400 "Permissions Test"
         PlanningErrorLog: Record "Planning Error Log";
         TimeSheetCommentLine: Record "Time Sheet Comment Line";
         ServiceCue: Record "Service Cue";
+#if not CLEAN19
         OutlookSynchEntity: Record "Outlook Synch. Entity";
-        ReturnsRelatedDocument: Record "Returns-Related Document";
         OutlookSynchSetupDetail: Record "Outlook Synch. Setup Detail";
+        OutlookSynchField: Record "Outlook Synch. Field";
+        OutlookSynchUserSetup: Record "Outlook Synch. User Setup";
+        OutlookSynchLookupName: Record "Outlook Synch. Lookup Name";
+        OutlookSynchDependency: Record "Outlook Synch. Dependency";
+        OutlookSynchLink: Record "Outlook Synch. Link";
+        OutlookSynchEntityElement: Record "Outlook Synch. Entity Element";
+        OutlookSynchFilter: Record "Outlook Synch. Filter";
+        OutlookSynchOptionCorrel: Record "Outlook Synch. Option Correl.";
+#endif
+        ReturnsRelatedDocument: Record "Returns-Related Document";
         ServiceShipmentBuffer: Record "Service Shipment Buffer";
         CauseOfInactivity: Record "Cause of Inactivity";
         MiniformHeader: Record "Miniform Header";
         CurrentSalesperson: Record "Current Salesperson";
         WarehouseWorkerWMSCue: Record "Warehouse Worker WMS Cue";
-        OutlookSynchField: Record "Outlook Synch. Field";
         GroundsForTermination: Record "Grounds for Termination";
-        OutlookSynchUserSetup: Record "Outlook Synch. User Setup";
         InternalMovementHeader: Record "Internal Movement Header";
         UserDefaultStyleSheet: Record "User Default Style Sheet";
-        OutlookSynchLookupName: Record "Outlook Synch. Lookup Name";
-        OutlookSynchDependency: Record "Outlook Synch. Dependency";
         MiscArticle: Record "Misc. Article";
         WarehouseWMSCue: Record "Warehouse WMS Cue";
         ATOSalesBuffer: Record "ATO Sales Buffer";
-        OutlookSynchLink: Record "Outlook Synch. Link";
         JobWIPBuffer: Record "Job WIP Buffer";
         Relative: Record Relative;
         FaultAreaSymptomCode: Record "Fault Area/Symptom Code";
@@ -432,10 +439,8 @@ codeunit 139400 "Permissions Test"
         StandardServiceItemGrCode: Record "Standard Service Item Gr. Code";
         RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr.";
         TimeSheetCmtLineArchive: Record "Time Sheet Cmt. Line Archive";
-        OutlookSynchEntityElement: Record "Outlook Synch. Entity Element";
         JobDifferenceBuffer: Record "Job Difference Buffer";
         JobBuffer: Record "Job Buffer";
-        OutlookSynchFilter: Record "Outlook Synch. Filter";
         EmploymentContract: Record "Employment Contract";
         Qualification: Record Qualification;
         InternalMovementLine: Record "Internal Movement Line";
@@ -443,7 +448,6 @@ codeunit 139400 "Permissions Test"
         MiniformFunctionGroup: Record "Miniform Function Group";
         WhereUsedBaseCalendar: Record "Where Used Base Calendar";
         AssemblyCommentLine: Record "Assembly Comment Line";
-        OutlookSynchOptionCorrel: Record "Outlook Synch. Option Correl.";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
     begin
@@ -457,25 +461,30 @@ codeunit 139400 "Permissions Test"
         Assert.IsTrue(PlanningErrorLog.ReadPermission, 'PlanningErrorLog does not have read permission');
         Assert.IsTrue(TimeSheetCommentLine.ReadPermission, 'TimeSheetCommentLine does not have read permission');
         Assert.IsTrue(ServiceCue.ReadPermission, 'ServiceCue does not have read permission');
+#if not CLEAN19
         Assert.IsTrue(OutlookSynchEntity.ReadPermission, 'OutlookSynchEntity does not have read permission');
-        Assert.IsTrue(ReturnsRelatedDocument.ReadPermission, 'ReturnsRelatedDocument does not have read permission');
         Assert.IsTrue(OutlookSynchSetupDetail.ReadPermission, 'OutlookSynchSetupDetail does not have read permission');
+        Assert.IsTrue(OutlookSynchField.ReadPermission, 'OutlookSynchField does not have read permission');
+        Assert.IsTrue(OutlookSynchUserSetup.ReadPermission, 'OutlookSynchUserSetup does not have read permission');
+        Assert.IsTrue(OutlookSynchLookupName.ReadPermission, 'OutlookSynchLookupName does not have read permission');
+        Assert.IsTrue(OutlookSynchDependency.ReadPermission, 'OutlookSynchDependency does not have read permission');
+        Assert.IsTrue(OutlookSynchLink.ReadPermission, 'OutlookSynchLink does not have read permission');
+        Assert.IsTrue(OutlookSynchEntityElement.ReadPermission, 'OutlookSynchEntityElement does not have read permission');
+        Assert.IsTrue(OutlookSynchFilter.ReadPermission, 'OutlookSynchFilter does not have read permission');
+        Assert.IsTrue(OutlookSynchOptionCorrel.ReadPermission, 'OutlookSynchOptionCorrel does not have read permission');
+#endif
+        Assert.IsTrue(ReturnsRelatedDocument.ReadPermission, 'ReturnsRelatedDocument does not have read permission');
         Assert.IsTrue(ServiceShipmentBuffer.ReadPermission, 'ServiceShipmentBuffer does not have read permission');
         Assert.IsTrue(CauseOfInactivity.ReadPermission, 'CauseofInactivity does not have read permission');
         Assert.IsTrue(MiniformHeader.ReadPermission, 'MiniformHeader does not have read permission');
         Assert.IsTrue(CurrentSalesperson.ReadPermission, 'CurrentSalesperson does not have read permission');
         Assert.IsTrue(WarehouseWorkerWMSCue.ReadPermission, 'WarehouseWorkerWMSCue does not have read permission');
-        Assert.IsTrue(OutlookSynchField.ReadPermission, 'OutlookSynchField does not have read permission');
         Assert.IsTrue(GroundsForTermination.ReadPermission, 'GroundsforTermination does not have read permission');
-        Assert.IsTrue(OutlookSynchUserSetup.ReadPermission, 'OutlookSynchUserSetup does not have read permission');
         Assert.IsTrue(InternalMovementHeader.ReadPermission, 'InternalMovementHeader does not have read permission');
         Assert.IsTrue(UserDefaultStyleSheet.ReadPermission, 'UserDefaultStyleSheet does not have read permission');
-        Assert.IsTrue(OutlookSynchLookupName.ReadPermission, 'OutlookSynchLookupName does not have read permission');
-        Assert.IsTrue(OutlookSynchDependency.ReadPermission, 'OutlookSynchDependency does not have read permission');
         Assert.IsTrue(MiscArticle.ReadPermission, 'MiscArticle does not have read permission');
         Assert.IsTrue(WarehouseWMSCue.ReadPermission, 'WarehouseWMSCue does not have read permission');
         Assert.IsTrue(ATOSalesBuffer.ReadPermission, 'ATOSalesBuffer does not have read permission');
-        Assert.IsTrue(OutlookSynchLink.ReadPermission, 'OutlookSynchLink does not have read permission');
         Assert.IsTrue(JobWIPBuffer.ReadPermission, 'JobWIPBuffer does not have read permission');
         Assert.IsTrue(Relative.ReadPermission, 'Relative does not have read permission');
         Assert.IsTrue(FaultAreaSymptomCode.ReadPermission, 'FaultAreaSymptomCode does not have read permission');
@@ -499,10 +508,8 @@ codeunit 139400 "Permissions Test"
         Assert.IsTrue(StandardServiceItemGrCode.ReadPermission, 'StandardServiceItemGrCode does not have read permission');
         Assert.IsTrue(RegisteredInvtMovementHdr.ReadPermission, 'RegisteredInvtMovementHdr does not have read permission');
         Assert.IsTrue(TimeSheetCmtLineArchive.ReadPermission, 'TimeSheetCmtLineArchive does not have read permission');
-        Assert.IsTrue(OutlookSynchEntityElement.ReadPermission, 'OutlookSynchEntityElement does not have read permission');
         Assert.IsTrue(JobDifferenceBuffer.ReadPermission, 'JobDifferenceBuffer does not have read permission');
         Assert.IsTrue(JobBuffer.ReadPermission, 'JobBuffer does not have read permission');
-        Assert.IsTrue(OutlookSynchFilter.ReadPermission, 'OutlookSynchFilter does not have read permission');
         Assert.IsTrue(EmploymentContract.ReadPermission, 'EmploymentContract does not have read permission');
         Assert.IsTrue(Qualification.ReadPermission, 'Qualification does not have read permission');
         Assert.IsTrue(InternalMovementLine.ReadPermission, 'InternalMovementLine does not have read permission');
@@ -510,7 +517,6 @@ codeunit 139400 "Permissions Test"
         Assert.IsTrue(MiniformFunctionGroup.ReadPermission, 'MiniformFunctionGroup does not have read permission');
         Assert.IsTrue(WhereUsedBaseCalendar.ReadPermission, 'WhereUsedBaseCalendar does not have read permission');
         Assert.IsTrue(AssemblyCommentLine.ReadPermission, 'AssemblyCommentLine does not have read permission');
-        Assert.IsTrue(OutlookSynchOptionCorrel.ReadPermission, 'OutlookSynchOptionCorrel does not have read permission');
     end;
 
 #if not CLEAN17
@@ -797,7 +803,7 @@ codeunit 139400 "Permissions Test"
         ExportFile.Close();
         TenantPermissionSet.Get(ZeroGuid, 'PS11');
         TenantPermissionSet.Delete(true);
-        
+
         // [WHEN] Import permissions
         ImportFile.Open(FileName);
         ImportFile.CreateInStream(FileInStream);
@@ -997,6 +1003,52 @@ codeunit 139400 "Permissions Test"
         RecRef.FindFirst();
         RecRef.Modify();
         RecRef.Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('SendResolveNotificationHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure TestResolvePermissionNotificationAction()
+    var
+        AccessControl: Record "Access Control";
+        AggregatedPermissionSet: Record "Aggregate Permission Set";
+        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+        UsersCreateSuperUser: Codeunit "Users - Create Super User";
+        AppID: Guid;
+        PlanID: Guid;
+        Cassie: Guid;
+        Found: Boolean;
+    begin
+        // [SCENARIO] Test resolve permissions action for resolving permissions sets that no longer exist but still show in Access Control
+        // [Given] Access control record which does not exist in Aggregated Permission Set
+        AppID := CreateGuid();
+
+        AccessControl.Init();
+        AccessControl."App ID" := AppID;
+        AccessControl."Role ID" := PermissionSetNonExistentTxt;
+        AccessControl."User Security ID" := UserSecurityId();
+        AccessControl."Company Name" := CompanyName();
+        AccessControl.Scope := AccessControl.Scope::Tenant;
+        AccessControl.Insert();
+
+        // [When] Show resolve permission notification
+        PermissionPagesMgt.CreateAndSendResolvePermissionNotification();
+
+        // [Then] Validate that the record no longer exists
+        Found := AccessControl.Get(UserSecurityId(), PermissionSetNonExistentTxt, CompanyName(), AccessControl.Scope::Tenant, AppID);
+        Assert.IsFalse(Found, 'Access control still exists.');
+    end;
+
+    [SendNotificationHandler]
+    procedure SendResolveNotificationHandler(var Notification: Notification): Boolean
+    var
+        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+        ResolvePermissionNotificationId: Guid;
+    begin
+        Evaluate(ResolvePermissionNotificationId, ResolvePermissionNotificationIdTxt);
+        Assert.AreEqual(ResolvePermissionNotificationId, Notification.Id, 'The notification ids do not match.');
+
+        PermissionPagesMgt.ResolvePermissionAction(Notification);
     end;
 
     local procedure AddTenantPermissionSetToUserGroup(TenantPermissionSet: Record "Tenant Permission Set"; UserGroupCode: Code[20])

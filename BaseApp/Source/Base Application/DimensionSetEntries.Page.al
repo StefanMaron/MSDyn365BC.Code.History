@@ -1,4 +1,4 @@
-﻿page 479 "Dimension Set Entries"
+page 479 "Dimension Set Entries"
 {
     Caption = 'Dimension Set Entries';
     Editable = false;

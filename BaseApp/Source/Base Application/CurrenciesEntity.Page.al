@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5485 "Currencies Entity"
 {
     Caption = 'currencies', Locked = true;
@@ -127,4 +128,4 @@ page 5485 "Currencies Entity"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

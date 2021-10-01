@@ -849,7 +849,7 @@ codeunit 139056 "Outlook Add-in Commands"
         OfficeAttachmentManager.Done();
 
         if not IsInitialized then begin
-            LibraryTemplates.DisableTemplatesFeature();
+            LibraryTemplates.EnableTemplatesFeature();
             SMBOfficePages.SetupSales;
             SMBOfficePages.SetupMarketing;
             IsInitialized := true;

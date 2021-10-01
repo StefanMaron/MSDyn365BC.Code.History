@@ -57,11 +57,22 @@ page 7352 "Put-away Worksheet"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Whse. Document Type"; "Whse. Document Type")
+                field("Whse. Document Type"; Rec."Whse. Document Type")
                 {
                     ApplicationArea = Warehouse;
-                    OptionCaption = ' ,Receipt,,Internal Put-away';
                     ToolTip = 'Specifies the type of warehouse document this line is associated with.';
+                    Visible = false;
+                }
+                field(WhseDocumentType; WhseDocumentType)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Whse. Document Type';
+                    ToolTip = 'Specifies the type of warehouse document this line is associated with.';
+
+                    trigger OnValidate()
+                    begin
+                        Rec.Validate("Whse. Document Type", WhseDocumentType);
+                    end;
                 }
                 field("Whse. Document No."; "Whse. Document No.")
                 {
@@ -259,8 +270,8 @@ page 7352 "Put-away Worksheet"
 
                     trigger OnAction()
                     begin
-                        WMSMgt.ShowWhseDocLine(
-                          "Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
+                        WMSMgt.ShowWhseActivityDocLine(
+                            Rec."Whse. Document Type", Rec."Whse. Document No.", Rec."Whse. Document Line No.");
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -441,6 +452,7 @@ page 7352 "Put-away Worksheet"
     trigger OnAfterGetCurrRecord()
     begin
         GetItem("Item No.", ItemDescription);
+        WhseDocumentType := "Whse. Document Type";
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -473,6 +485,7 @@ page 7352 "Put-away Worksheet"
         ItemDescription: Text[100];
         Text001: Label 'There is nothing to handle.';
         OpenedFromBatch: Boolean;
+        WhseDocumentType: Enum "Warehouse Putaway Document Type";
 
     protected var
         CurrentSortingMethod: Enum "Whse. Activity Sorting Method";

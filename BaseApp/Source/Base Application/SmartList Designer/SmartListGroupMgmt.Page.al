@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 9891 "SmartList Group Mgmt"
 {
     Caption = 'SmartList Group Management';
     Extensible = false;
     PageType = StandardDialog;
     UsageCategory = None;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -50,3 +54,4 @@ page 9891 "SmartList Group Mgmt"
         UserDoesNotHaveManagementAccessErr: Label 'You do not have permission to manage SmartLists. Contact your system administrator.';
         Group: Text[100];
 }
+#endif

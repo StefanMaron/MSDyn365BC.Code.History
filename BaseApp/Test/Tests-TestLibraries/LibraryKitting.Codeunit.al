@@ -310,13 +310,13 @@ codeunit 132205 "Library - Kitting"
         if not AssemblySetup.Insert() then;
     end;
 
-    procedure CreateBOMComponentLine(var ParentItem: Record Item; Type: Option; No: Code[20]; Quantity: Decimal; UOMCode: Code[10]; "Fixed": Boolean)
+    procedure CreateBOMComponentLine(var ParentItem: Record Item; Type: Enum "BOM Component Type"; No: Code[20]; Quantity: Decimal; UOMCode: Code[10]; "Fixed": Boolean)
     var
         BOMComponent: Record "BOM Component";
     begin
         CreateUnitOfMeasure(UOMCode);
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItem."No.", Type, No, Quantity, UOMCode);
-        if (Type = BOMComponent.Type::Resource) and Fixed then begin
+        if (Type = "BOM Component Type"::Resource) and Fixed then begin
             BOMComponent.Validate("Resource Usage Type", BOMComponent."Resource Usage Type"::Fixed);
             BOMComponent.Modify(true);
         end;
@@ -402,7 +402,7 @@ codeunit 132205 "Library - Kitting"
         AssemblySetup.Modify();
     end;
 
-    procedure AddLine(AsmHeader: Record "Assembly Header"; Type: Option; No: Code[20]; UOMCode: Code[10]; Quantity: Decimal; QtyPer: Integer; Desc: Text[50])
+    procedure AddLine(AsmHeader: Record "Assembly Header"; Type: Enum "BOM Component Type"; No: Code[20]; UOMCode: Code[10]; Quantity: Decimal; QtyPer: Integer; Desc: Text[50])
     var
         AssemblyLine: Record "Assembly Line";
     begin

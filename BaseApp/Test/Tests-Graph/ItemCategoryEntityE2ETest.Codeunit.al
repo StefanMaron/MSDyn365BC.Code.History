@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135508 "Item Category Entity E2E Test"
 {
     Subtype = Test;
@@ -201,4 +202,4 @@ codeunit 135508 "Item Category Entity E2E Test"
         VerifyPropertyInJSON(ItemCategoryJSON, 'displayName', ItemCategory.Description);
     end;
 }
-
+#endif

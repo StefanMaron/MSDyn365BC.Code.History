@@ -445,17 +445,13 @@ page 5915 "Service Tasks"
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetServiceFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetServiceFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
-        SetAllFilters;
+        SetAllFilters();
 
-        if IsEmpty() then begin
+        if Rec.IsEmpty() then begin
             ServOrderFilter := '';
-            SetServOrderFilter;
+            SetServOrderFilter();
         end;
     end;
 
@@ -467,7 +463,6 @@ page 5915 "Service Tasks"
         ServItemLine: Record "Service Item Line";
         Res: Record Resource;
         ResourceGroup: Record "Resource Group";
-        UserMgt: Codeunit "User Setup Management";
         AllocationStatus: Option " ",Nonactive,Active,Finished,Canceled,"Reallocation Needed";
         DocFilter: Option "Order",Quote,All;
         TempTextFilter: Text;

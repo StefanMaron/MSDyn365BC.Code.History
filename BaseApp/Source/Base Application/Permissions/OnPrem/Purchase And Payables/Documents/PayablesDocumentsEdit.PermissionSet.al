@@ -37,7 +37,9 @@ permissionset 7946 "Payables Documents - Edit"
                   tabledata "Item Charge" = R,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = Rm,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = R,
+#endif
                   tabledata "Item Journal Line" = Rm,
                   tabledata "Item Ledger Entry" = Rm,
                   tabledata "Item Reference" = R,
@@ -79,8 +81,10 @@ permissionset 7946 "Payables Documents - Edit"
                   tabledata "Purchase Header Archive" = RIMD,
                   tabledata "Purchase Line" = RIMD,
                   tabledata "Purchase Line Archive" = RIMD,
+#if not CLEAN19
                   tabledata "Purchase Line Discount" = R,
                   tabledata "Purchase Price" = R,
+#endif
                   tabledata "Purchase Price Access" = R,
                   tabledata "Reason Code" = R,
                   tabledata "Report Selections" = R,

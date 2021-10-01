@@ -55,7 +55,6 @@ codeunit 1311 "Activities Mgt."
         exit(Amount);
     end;
 
-    [Scope('OnPrem')]
     procedure SetFilterOverdueSalesInvoice(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalledFromWebService: Boolean)
     var
         IsHandled: Boolean;
@@ -135,7 +134,6 @@ codeunit 1311 "Activities Mgt."
         exit(-Amount);
     end;
 
-    [Scope('OnPrem')]
     procedure SetFilterOverduePurchaseInvoice(var VendorLedgerEntry: Record "Vendor Ledger Entry"; CalledFromWebService: Boolean)
     begin
         VendorLedgerEntry.SetRange(Open, true);

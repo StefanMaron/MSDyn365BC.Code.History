@@ -8,8 +8,6 @@ codeunit 99000792 "Create Prod. Order from Sale"
     var
         Text000: Label '%1 Prod. Order %2 has been created.';
         UOMMgt: Codeunit "Unit of Measure Management";
-
-    protected var
         HideValidationDialog: Boolean;
 
 #if not CLEAN18

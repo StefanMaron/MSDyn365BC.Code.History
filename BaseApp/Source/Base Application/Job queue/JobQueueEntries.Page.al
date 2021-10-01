@@ -308,6 +308,13 @@ page 672 "Job Queue Entries"
         }
     }
 
+    trigger OnOpenPage()
+    var
+        JobQueueManagement: Codeunit "Job Queue Management";
+    begin
+        JobQueueManagement.FindStaleJobsAndSetError();
+    end;
+
     trigger OnAfterGetRecord()
     var
         User: Record User;
@@ -338,5 +345,6 @@ page 672 "Job Queue Entries"
                 JobQueueEntry.Delete(true);
         end;
     end;
+
 }
 

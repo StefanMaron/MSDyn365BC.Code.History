@@ -98,7 +98,12 @@ codeunit 3704 "Url Helper Impl."
             Resource := 'https://outlook.office365.com';
     end;
 
+#if not CLEAN19
+    /// <summary>
+    /// Returns the AAD resource URL for Power BI.
+    /// </summary>
     [Scope('OnPrem')]
+    [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIResourceUrl(): Text
     begin
         if IsPPE then
@@ -107,7 +112,11 @@ codeunit 3704 "Url Helper Impl."
         exit('https://analysis.windows.net/powerbi/api');
     end;
 
+    /// <summary>
+    /// Returns the URL to be used for Power BI report upload.
+    /// </summary>
     [Scope('OnPrem')]
+    [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIApiUrl(): Text
     begin
         if IsPPE then
@@ -116,23 +125,32 @@ codeunit 3704 "Url Helper Impl."
         exit('https://api.powerbi.com');
     end;
 
+    /// <summary>
+    /// Returns the URL to retrieve the Power BI reports in the user's personal workspace.
+    /// </summary>
     [Scope('OnPrem')]
+    [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIReportsUrl(): Text
     begin
         if IsPPE then
-            exit('https://biazure-int-edog-redirect.analysis-df.windows.net/beta/myorg/reports');
+            exit('https://biazure-int-edog-redirect.analysis-df.windows.net/v1.0/myorg/reports');
 
-        exit('https://api.powerbi.com/beta/myorg/reports');
+        exit('https://api.powerbi.com/v1.0/myorg/reports');
     end;
 
+    /// <summary>
+    /// Returns the base URL to embed a Power BI report in Business Central.
+    /// </summary>
     [Scope('OnPrem')]
+    [Obsolete('Use the same function in codeunit 6324 "Power BI Url Mgt" instead.', '19.0')]
     procedure GetPowerBIEmbedReportsUrl(): Text
     begin
         if IsPPE then
-            exit('https://biazure-int-edog-redirect.analysis-df.windows.net/beta/myorg/reports');
+            exit('https://biazure-int-edog-redirect.analysis-df.windows.net/v1.0/myorg/reports');
 
         exit('https://app.powerbi.com/reportEmbed');
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure GetExcelAddinProviderServiceUrl(): Text

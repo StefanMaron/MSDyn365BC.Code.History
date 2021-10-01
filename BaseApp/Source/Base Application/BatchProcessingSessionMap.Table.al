@@ -13,7 +13,7 @@ table 54 "Batch Processing Session Map"
         field(2; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(3; "Batch ID"; Guid)
         {

@@ -1,4 +1,4 @@
-﻿page 9192 "Company Creation Wizard"
+page 9192 "Company Creation Wizard"
 {
     Caption = 'Create New Company';
     PageType = NavigatePage;

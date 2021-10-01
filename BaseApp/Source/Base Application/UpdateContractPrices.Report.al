@@ -62,10 +62,9 @@ report 6031 "Update Contract Prices"
                     ServContract."Last Price Update Date" := WorkDate;
                     ServContract."Next Price Update Date" := CalcDate(ServContract."Price Update Period", ServContract."Next Price Update Date");
                     ServContract."Last Price Update %" := PriceUpdPct;
-                    ContractGainLossEntry.AddEntry(
-                      5,
-                      ServContract."Contract Type",
-                      ServContract."Contract No.",
+                    ContractGainLossEntry.CreateEntry(
+                      "Service Contract Change Type"::"Price Update",
+                      ServContract."Contract Type", ServContract."Contract No.",
                       TotContractLinesAmount - ServContract."Annual Amount", '');
 
                     ServContract."Annual Amount" := TotContractLinesAmount;

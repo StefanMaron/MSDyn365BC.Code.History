@@ -17,7 +17,7 @@ table 7828 "MS-QBO Sync Buffer"
         field(2; "Record Id"; RecordID)
         {
             Caption = 'Record Id';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
     }
 

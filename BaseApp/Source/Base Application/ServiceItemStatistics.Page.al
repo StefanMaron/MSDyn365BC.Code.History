@@ -330,7 +330,7 @@ page 5982 "Service Item Statistics"
         ClearAll;
 
         for i := 1 to 4 do begin
-            if i = "Type Filter"::"Service Cost" then
+            if i = "Type Filter"::"Service Cost".AsInteger() then
                 SetFilter("Type Filter", '%1|%2', "Type Filter"::"Service Cost", "Type Filter"::"G/L Account")
             else
                 SetRange("Type Filter", i);

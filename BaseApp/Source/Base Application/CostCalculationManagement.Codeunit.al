@@ -1,4 +1,4 @@
-﻿codeunit 5836 "Cost Calculation Management"
+codeunit 5836 "Cost Calculation Management"
 {
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Prod. Order Capacity Need" = r,

@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135501 "AccountEntity E2E Test"
 {
     Subtype = Test;
@@ -100,4 +101,4 @@ codeunit 135501 "AccountEntity E2E Test"
         LibraryGraphMgt.VerifyIDInJson(AccountJSON);
     end;
 }
-
+#endif

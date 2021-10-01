@@ -580,7 +580,9 @@ codeunit 139312 "Excel Data Migration Test"
         VendLedgerEntry.DeleteAll();
         ItemJournalLine.DeleteAll();
 
+#if not CLEAN18
         SetupDataMigration;
+#endif
     end;
 
     local procedure CreateAttachmentWithFileName(FileName: Text)
@@ -717,6 +719,7 @@ codeunit 139312 "Excel Data Migration Test"
         LibraryRapidStart.ApplyPackage(ConfigPackage, false);
     end;
 
+#if not CLEAN18
     local procedure SetupDataMigration()
     var
         DataMigrationSetup: Record "Data Migration Setup";
@@ -739,7 +742,7 @@ codeunit 139312 "Excel Data Migration Test"
         Item.Delete();
         exit(TempItemTemplate.Code);
     end;
-
+#endif
     local procedure RunWizardToCompletion(var DataMigrationWizard: TestPage "Data Migration Wizard")
     begin
         CreateAttachmentWithFileName(GetExcelFileName);

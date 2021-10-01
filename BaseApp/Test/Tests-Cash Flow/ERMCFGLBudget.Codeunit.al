@@ -81,7 +81,7 @@ codeunit 134556 "ERM CF GL Budget"
         // Assert.ExpectedError('There is no CashFlowForecast Ledger Entry within the filter.');
     end;
 
-    local procedure GLBudgetIntegration(GLAccountType: Option; Integration: Option)
+    local procedure GLBudgetIntegration(GLAccountType: Enum "G/L Account Type"; Integration: Option)
     var
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowAccount: Record "Cash Flow Account";
@@ -189,7 +189,7 @@ codeunit 134556 "ERM CF GL Budget"
         // Assert.ExpectedError('There is no CashFlowForecast Ledger Entry within the filter.');
     end;
 
-    local procedure GLBalanceIntegration(GLAccountType: Option; Integration: Option)
+    local procedure GLBalanceIntegration(GLAccountType: Enum "G/L Account Type"; Integration: Option)
     var
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowAccount: Record "Cash Flow Account";
@@ -237,7 +237,7 @@ codeunit 134556 "ERM CF GL Budget"
         end;
     end;
 
-    local procedure FindGLAccount(var GLAccount: Record "G/L Account"; AccountType: Option)
+    local procedure FindGLAccount(var GLAccount: Record "G/L Account"; AccountType: Enum "G/L Account Type")
     begin
         // Filter G/L Account so that errors are not generated due to mandatory fields.
         GLAccount.SetRange(Blocked, false);
@@ -245,7 +245,7 @@ codeunit 134556 "ERM CF GL Budget"
         GLAccount.FindFirst;
     end;
 
-    local procedure CreateGLAccountWithBalance(var GLAccount: Record "G/L Account"; AccountType: Option)
+    local procedure CreateGLAccountWithBalance(var GLAccount: Record "G/L Account"; AccountType: Enum "G/L Account Type")
     var
         BeginTotalAccNo: Code[20];
     begin
@@ -288,7 +288,7 @@ codeunit 134556 "ERM CF GL Budget"
         end;
     end;
 
-    local procedure CreateGLAccWithType(AccountType: Option): Code[20]
+    local procedure CreateGLAccWithType(AccountType: Enum "G/L Account Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin

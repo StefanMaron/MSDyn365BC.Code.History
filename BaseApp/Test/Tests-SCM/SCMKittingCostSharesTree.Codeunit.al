@@ -755,7 +755,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         end;
     end;
 
-    local procedure SetQtyPerInTree(ParentBOMBuffer: Record "BOM Buffer"; BOMCompType: Option; Indentation: Integer; IsLeaf: Boolean; NewQtyPer: Decimal)
+    local procedure SetQtyPerInTree(ParentBOMBuffer: Record "BOM Buffer"; BOMCompType: Enum "BOM Component Type"; Indentation: Integer; IsLeaf: Boolean; NewQtyPer: Decimal)
     var
         BOMComponent: Record "BOM Component";
     begin

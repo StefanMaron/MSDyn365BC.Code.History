@@ -21,7 +21,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         NotFoundErr: Label 'could not be found in Salesperson/Purchaser.';
         SkippedRecMsg: Label 'The record will be skipped for further synchronization';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        SyncNowSkippedMsg: Label 'The synchronization has been skipped. The Customer record was marked as skipped before.';
+        SyncNowSkippedMsg: Label 'The synchronization has been skipped. The Customer record is marked as skipped.';
         LibraryUtility: Codeunit "Library - Utility";
         WantToSynchronizeQst: Label 'Are you sure you want to synchronize?';
         DataWillBeOverriddenMsg: Label 'data on one of the records will be lost and replaced with data from the other record';
@@ -441,7 +441,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [WHEN] run action "Synchronize"
         CRMSkippedRecords.CRMSynchronizeNow.Invoke;
         // execute the job
-        CRMSystemuser[1].SetRecFilter;
+        CRMSystemuser[1].SetRange(SystemUserId, CRMSystemuser[1].SystemUserId);
         LibraryCRMIntegration.RunJobQueueEntry(
           DATABASE::"CRM Systemuser", CRMSystemuser[1].GetView, IntegrationTableMapping);
 
@@ -477,7 +477,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [WHEN] run action "Synchronize"
         CRMSkippedRecords.CRMSynchronizeNow.Invoke;
         // execute the job
-        Customer[1].SetRecFilter;
+        Customer[1].SetRange(SystemId, Customer[1].SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
           DATABASE::Customer, Customer[1].GetView, IntegrationTableMapping);
 
@@ -526,32 +526,38 @@ codeunit 139186 "CRM Synch. Skipped Records"
         MarkSelectedRecord(SelectedCRMIntegrationRecord, SalespersonPurchaser[2].RecordId);
         SelectedCRMIntegrationRecord.MarkedOnly(true);
         Assert.AreEqual(3, SelectedCRMIntegrationRecord.Count, 'number of selected records');
+        // [GIVEN] Only base integration table mappings, not child mappings
+        IntegrationTableMapping.SetFilter("Table ID", '%1|%2', Database::Customer, Database::"Salesperson/Purchaser");
+        IntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        IntegrationTableMapping.DeleteAll();
 
         // [WHEN] run action "Synchronize"
         CRMIntegrationManagement.UpdateMultipleNow(SelectedCRMIntegrationRecord);
 
         // [THEN] Menu for picking direction, where Direction "To Integration Table" is picked
         Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'wrong direction.'); // by PickDirectionToCRMHandler
+
         // [THEN] Notification "Synchronization has been scheduled"
         VerifyNotificationMessage(SyncStartedMsg);
-        // [THEN] 2 jobs are created and executed for Customer table with Direction "To Integration Table"
-        Customer[1].SetRecFilter;
-        LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::Customer, Customer[1].GetView, IntegrationTableMapping);
-        Customer[2].SetRecFilter;
-        Clear(IntegrationTableMapping);
-        LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::Customer, Customer[2].GetView, IntegrationTableMapping);
+
+        // [THEN] 1 job is created and executed for Customer table with Direction "To Integration Table"
+        IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        IntegrationTableMapping.SetRange(Direction, IntegrationTableMapping.Direction::ToIntegrationTable);
+        Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Table mapping #1 is not found');
+        LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
+
         // [THEN] Both Customers are not skipped anymore
         CRMIntegrationRecord.FindByRecordID(Customer[1].RecordId);
         Assert.IsFalse(CRMIntegrationRecord.Skipped, 'Customer #1 should not be skipped');
         CRMIntegrationRecord.FindByRecordID(Customer[2].RecordId);
         Assert.IsFalse(CRMIntegrationRecord.Skipped, 'Customer #2 should not be skipped');
-        // [THEN] 1 Job is created and executed for Salesperson 'X' with Direction "From Integration Table"
-        CRMSystemuser[2].SetRecFilter;
-        Clear(IntegrationTableMapping);
-        LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::"CRM Systemuser", CRMSystemuser[2].GetView, IntegrationTableMapping);
+
+        // [THEN] 1 job is created and executed for Salesperson 'X' with Direction "From Integration Table"
+        IntegrationTableMapping.SetRange("Table ID", Database::"Salesperson/Purchaser");
+        IntegrationTableMapping.SetRange(Direction, IntegrationTableMapping.Direction::FromIntegrationTable);
+        Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Table mapping #2 is not found');
+        LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
+
         // [THEN] Salesperson 'X' is not skipped, Salesperson 'Y' is skipped
         CRMIntegrationRecord.FindByCRMID(CRMSystemuser[1].SystemUserId);
         Assert.IsTrue(CRMIntegrationRecord.Skipped, 'CRMSystemuser #1 should be skipped');
@@ -1088,7 +1094,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         TempCRMSynchConflictBuffer.DeleteCoupledRecords;
 
         // [THEN] There is one line for Customer 'B', where both coupled records exist
-        VerifyLoneSkippedRecordInBuffer(TempCRMSynchConflictBuffer, Customer[2].RecordId);
+        VerifyLineSkippedRecordInBuffer(TempCRMSynchConflictBuffer, Customer[2].RecordId);
         // [THEN] the coupled Customer 'A' is removed, its coupling deleted
         Assert.IsFalse(CRMIntegrationRecord.FindByRecordID(Customer[1].RecordId), 'coupling A should be deleted');
         Assert.IsFalse(Customer[1].Find, 'Customer should be deleted');
@@ -1167,7 +1173,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMSkippedRecords.RestoreDeletedRec.Invoke;
 
         // [THEN] the synchronization job is scheduled and executed
-        CRMAccount.SetRecFilter;
+        CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
         JobID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"CRM Account", CRMAccount.GetView, IntegrationTableMapping);
@@ -1209,7 +1215,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMSkippedRecords.RestoreDeletedRec.Invoke;
 
         // [THEN] the synchronization job is scheduled and executed
-        Customer.SetRecFilter;
+        Customer.SetRange(Systemid, Customer.SystemId);
         JobID :=
           LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
         VerifyNotificationMessage(SyncStartedMsg);
@@ -1234,6 +1240,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Customer: array[3] of Record Customer;
         IntegrationTableMapping: Record "Integration Table Mapping";
         TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
+        IntegrationSynchJob: Record "Integration Synch. Job";
         RecID: RecordID;
         RecRef: RecordRef;
         JobID: Guid;
@@ -1249,37 +1256,49 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Customer[3].Delete();
         // [GIVEN] Open CRM Skipped Records page, where are 3 lines, and selected all lines
         MockSelectingAllSkippedLines(TempCRMSynchConflictBuffer, 3);
+        // [GIVEN] Only base integration table mappings, not child mappings
+        IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        IntegrationTableMapping.DeleteAll();
 
         // [WHEN] Run action "Restore Deleted Records"
-        TempCRMSynchConflictBuffer.RestoreDeletedRecords;
+        TempCRMSynchConflictBuffer.RestoreDeletedRecords();
 
-        // [THEN] the synchronization job for Customer 'A' is scheduled and executed
-        Customer[1].SetRecFilter;
-        JobID :=
-          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Customer, Customer[1].GetView, IntegrationTableMapping);
+        // [THEN] The notification is sent
         VerifyNotificationMessage(SyncStartedMsg);
-        // [THEN] the synchronization job for CRM Account 'C' is scheduled and executed
-        CRMAccount[3].SetRecFilter;
-        JobID :=
-          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Account", CRMAccount[3].GetView, IntegrationTableMapping);
-        VerifyNotificationMessage(SyncStartedMsg);
+
+        // [THEN] the synchronization job is scheduled and executed
+        IntegrationTableMapping.SetRange(Direction, IntegrationTableMapping.Direction::Bidirectional);
+        Assert.AreEqual(1, IntegrationTableMapping.Count(), 'Count of table mappings is incorrect');
+        Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Table mapping is not found');
+        Assert.AreEqual(1, IntegrationTableMapping.GetTableFilter().Split('|').Count(), 'Table mapping has incorrect table filter');
+        Assert.AreEqual(1, IntegrationTableMapping.GetIntegrationTableFilter().Split('|').Count(), 'Integration table mapping has incorrect table filter');
+        JobID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
+        IntegrationSynchJob.Inserted := 1;
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
+        LibraryCRMIntegration.VerifySyncJob(JobID, IntegrationTableMapping, IntegrationSynchJob);
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
+        LibraryCRMIntegration.VerifySyncJob(JobID, IntegrationTableMapping, IntegrationSynchJob);
 
         // [THEN] There is one line for Customer 'B', where both coupled records exist
-        VerifyLoneSkippedRecordInBuffer(TempCRMSynchConflictBuffer, Customer[2].RecordId);
+        VerifyLineSkippedRecordInBuffer(TempCRMSynchConflictBuffer, Customer[2].RecordId);
         // [THEN] Customer 'A' is not deleted
-        Assert.IsTrue(Customer[1].Find, 'Customer should not be deleted');
+        Assert.IsTrue(Customer[1].Find(), 'Customer should not be deleted');
         // [THEN] CRM Account is restored with a new "AccountId" and "Name" copied from Customer
-        CRMIntegrationRecord.FindByRecordID(Customer[1].RecordId);
+        CRMIntegrationRecord.FindByRecordID(Customer[1].RecordId());
         CRMAccount[1].Get(CRMIntegrationRecord."CRM ID");
         Assert.AreEqual(Customer[1].Name, CRMAccount[1].Name, 'new CRM Account Name');
 
         // [THEN] CRM Account 'C' is not deleted
-        Assert.IsTrue(CRMAccount[3].Find, 'CRM Account should not be deleted');
+        Assert.IsTrue(CRMAccount[3].Find(), 'CRM Account should not be deleted');
         // [THEN] Customer 'C' is restored with a new "No." and "Name" copied from CRM Account 'C'
-        CRMIntegrationRecord.FindRecordIDFromID(CRMAccount[3].AccountId, DATABASE::Customer, RecID);
+        CRMIntegrationRecord.FindRecordIDFromID(CRMAccount[3].AccountId, Database::Customer, RecID);
         RecRef.Get(RecID);
         RecRef.SetTable(Customer[3]);
         Assert.AreEqual(CopyStr(CRMAccount[3].Name, 1, MaxStrLen(Customer[3].Name)), Customer[3].Name, 'new Customer Name');
+
+        // [THEN] Variable storage is empty
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1678,12 +1697,12 @@ codeunit 139186 "CRM Synch. Skipped Records"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        CRMIntegrationManagement.UpdateOneNow(Customer.RecordId);
+        CRMIntegrationManagement.UpdateOneNow(Customer.RecordId());
         // Executing the Sync Job
-        Customer.SetRecFilter;
+        Customer.SetRange(SystemId, Customer.SystemId);
         JobID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
+            DATABASE::Customer, Customer.GetView(), IntegrationTableMapping);
     end;
 
     local procedure RestoreSkippedCustomer(Customer: Record Customer)
@@ -1861,7 +1880,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
           IntegrationSynchJob[1].Skipped + IntegrationSynchJob[2].Skipped, 'Field: "Skipped"');
     end;
 
-    local procedure VerifyLoneSkippedRecordInBuffer(var TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary; RecID: RecordID)
+    local procedure VerifyLineSkippedRecordInBuffer(var TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary; RecID: RecordID)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin

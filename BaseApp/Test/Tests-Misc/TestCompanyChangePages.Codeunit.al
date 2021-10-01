@@ -15,13 +15,16 @@ codeunit 132908 TestCompanyChangePages
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+#if not CLEAN19
         CompanySetUpInProgressMsg: Label 'Company %1 was just created, and we are still setting it up for you.', Comment = '%1 - a company name';
+#endif
         LibraryPermissions: Codeunit "Library - Permissions";
         SetupStatus: Enum "Company Setup Status";
         NoConfigPackDefinedMsg: Label 'No configuration package file is defined within the specified filter';
         GlobalSessionID: Integer;
         GlobalTaskID: Guid;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('AllowedCompaniesReturnsDisplayNameModalHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -54,13 +57,14 @@ codeunit 132908 TestCompanyChangePages
         // [GIVEN] The current company, where "Name" is 'A', "Display Name" is <blank>
         SetDisplayName('');
         // [GIVEN] "My Settings" page is open
-        MySettings.OpenView;
+        MySettings.OpenView();
         // [WHEN] Click on "Company" control
-        MySettings.Company.AssistEdit;
+        MySettings.Company.AssistEdit();
         // [THEN] Page "Allowed Companies" is open, where "Name" is COMPANYNAME
         ActualName := LibraryVariableStorage.DequeueText; // sent by AllowedCompaniesReturnsDisplayNameModalHandler
-        Assert.AreEqual(CompanyName, ActualName, 'Wrong Name on Allowed Companies page');
+        Assert.AreEqual(CompanyName(), ActualName, 'Wrong Name on Allowed Companies page');
     end;
+#endif
 
     [Test]
     [HandlerFunctions('PickCompanyModalHandler')]
@@ -69,21 +73,21 @@ codeunit 132908 TestCompanyChangePages
     procedure CompletedCompanyCanBeSelected()
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
-        MySettings: TestPage "My Settings";
+        UserSettings: TestPage "User Settings";
     begin
         // [SCENARIO] Company can be selected in My Settings if its setup is completed
-        Initialize;
+        Initialize();
         // [GIVEN] Current company is 'A', "Display Name" is 'X'
         SetDisplayName(CompanyDisplayNameTxt);
         // [GIVEN] There is no Assisted Company Setup Status record
         AssistedCompanySetupStatus.DeleteAll();
         // [GIVEN] "My Settings" page is open
-        MySettings.OpenView;
+        UserSettings.OpenView();
         // [WHEN] Click on "Company" control and pick 'X'
         LibraryVariableStorage.Enqueue(CompanyName); // for PickCompanyModalHandler
-        MySettings.Company.AssistEdit; // handled by PickCompanyModalHandler
+        UserSettings.Company.AssistEdit(); // handled by PickCompanyModalHandler
         // [THEN] "Company" is 'X', no errors/messages
-        MySettings.Company.AssertEquals(CompanyDisplayNameTxt);
+        UserSettings.Company.AssertEquals(CompanyDisplayNameTxt);
     end;
 
     [Test]
@@ -92,51 +96,51 @@ codeunit 132908 TestCompanyChangePages
     [Scope('OnPrem')]
     procedure CompanyCanBeSelectedIfSetupSessionIsZero()
     var
-        MySettings: TestPage "My Settings";
+        UserSettings: TestPage "User Settings";
     begin
         // [SCENARIO] Company can be selected in My Settings if "Company Setup Session ID" is zero
-        Initialize;
+        Initialize();
         // [GIVEN] Current company is 'A', "Display Name" is 'X'
         SetDisplayName(CompanyDisplayNameTxt);
         // [GIVEN] There is Assisted Company Setup Status record, where "Company Setup Session ID" is 0
         SetAssistedCompanySetupStatus(CompanyName, 0, 1);
         // [GIVEN] "My Settings" page is open
-        MySettings.OpenView;
+        UserSettings.OpenView();
 
         // [WHEN] Click on "Company" control and pick 'X'
         LibraryVariableStorage.Enqueue(CompanyName); // for PickCompanyModalHandler
-        MySettings.Company.AssistEdit; // handled by PickCompanyModalHandler
+        UserSettings.Company.AssistEdit(); // handled by PickCompanyModalHandler
 
         // [THEN] "Company" is 'X', no errors/messages
-        MySettings.Company.AssertEquals(CompanyDisplayNameTxt);
+        UserSettings.Company.AssertEquals(CompanyDisplayNameTxt);
     end;
 
-    [Test]
+     [Test]
     [HandlerFunctions('PickCompanyModalHandler,MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CompanyCannotBeSelectedIfSetupSessionIsNotZero()
     var
         Company: Record Company;
-        MySettings: TestPage "My Settings";
+        UserSettings: TestPage "User Settings";
+        SelectedCompany: Text;
         ActualMessage: Text;
     begin
         // [SCENARIO] Company cannot be selected in My Settings if Company Setup Session is active
-        Initialize;
-        // [GIVEN] Current company is 'A',
-        SetDisplayName('');
+        Initialize();
         // [GIVEN] the new company 'B', that is in progress of setup
         Company.Init();
-        Company.Name := LibraryUtility.GenerateGUID;
+        Company.Name := LibraryUtility.GenerateGUID();
         Company.Insert();
         // [GIVEN] There is Assisted Company Setup Status record for 'B', where "Company Setup Session ID" is active
         SetAssistedCompanySetupStatus(Company.Name, SessionId, 0);
 
         // [GIVEN] "My Settings" page is open
-        MySettings.OpenEdit;
+        UserSettings.OpenEdit();
+        SelectedCompany := UserSettings.Company.Value();
         // [GIVEN] Click on "Company" control and see
         LibraryVariableStorage.Enqueue(Company.Name); // for PickCompanyModalHandler
-        MySettings.Company.AssistEdit; // handled by PickCompanyModalHandler
+        UserSettings.Company.AssistEdit(); // handled by PickCompanyModalHandler
         // [GIVEN] page Allowed Companies , where "Setup Status" is 'In Progress' for 'B', and 'No' for 'A'
         Assert.AreEqual(SetupStatus::"In Progress".AsInteger(), LibraryVariableStorage.DequeueInteger(), 'SetupStatus for company B');
 
@@ -144,9 +148,9 @@ codeunit 132908 TestCompanyChangePages
         // handled by PickCompanyModalHandler
 
         // [THEN] "Company" is still 'A'
-        MySettings.Company.AssertEquals(CompanyName);
+        UserSettings.Company.AssertEquals(SelectedCompany);
         // [THEN] the message is shown: 'Company B set up is in progress'
-        ActualMessage := LibraryVariableStorage.DequeueText; // by CompanySetUpInProgressMessageHandler
+        ActualMessage := LibraryVariableStorage.DequeueText(); // by MessageHandler
         Assert.ExpectedMessage(StrSubstNo(CompanySetUpInProgressMsg, Company.Name), ActualMessage);
     end;
 
@@ -478,7 +482,7 @@ codeunit 132908 TestCompanyChangePages
         ApplicationAreaSetup.FindFirst;
         LibraryApplicationArea.VerifyApplicationAreaEssentialExperience(ApplicationAreaSetup);
         Assert.IsTrue(AssistedCompanySetupStatus.Get(CompanyName), 'Expected that record exists.');
-        Assert.AreEqual(AssistedCompanySetupStatus.GetCompanySetupStatus(CompanyName), SetupStatus::Completed,
+        Assert.AreEqual(AssistedCompanySetupStatus.GetCompanySetupStatusValue(CompanyName), SetupStatus::Completed,
           'Expected that Status is completed.');
     end;
 
@@ -628,7 +632,7 @@ codeunit 132908 TestCompanyChangePages
         LibraryApplicationArea.VerifyApplicationAreaEssentialExperience(ApplicationAreaSetup);
         // [THEN] AssistedCompanySetupStatus has a rec for the comapny and status is completed
         Assert.IsTrue(AssistedCompanySetupStatus.Get(CompanyName), 'Expected that record exists.');
-        Assert.AreEqual(AssistedCompanySetupStatus.GetCompanySetupStatus(CompanyName), SetupStatus::Completed,
+        Assert.AreEqual(AssistedCompanySetupStatus.GetCompanySetupStatusValue(CompanyName), SetupStatus::Completed,
           'Expected that Status is completed.');
         LibraryPermissions.SetTestTenantEnvironmentType(false);
     end;
@@ -688,16 +692,16 @@ codeunit 132908 TestCompanyChangePages
         MockJobQueueLogEntries(AssistedCompanySetupStatus."Task ID", JobQueueLogEntry);
 
         // [GIVEN] Allowed Companies page is open
-        AllowedCompaniesPage.Trap;
-        AllowedCompanies.Initialize;
-        AllowedCompanies.Run;
+        AllowedCompaniesPage.Trap();
+        AllowedCompanies.Initialize();
+        AllowedCompanies.Run();
         Company.Get(CompanyName);
         AllowedCompaniesPage.GotoRecord(Company);
         Assert.IsFalse(AllowedCompaniesPage.SetupStatus.Editable, 'SetupStatus.EDITABLE');
         AllowedCompaniesPage.SetupStatus.AssertEquals(JobQueueLogEntry.Status::"In Process" + 1);
 
         // [WHEN] Drill down on "Setup Status" on Allowed Companies page
-        AllowedCompaniesPage.SetupStatus.DrillDown; // handled by JobQueueLogModalHandler
+        AllowedCompaniesPage.SetupStatus.DrillDown(); // handled by JobQueueLogModalHandler
 
         // [THEN] The first entry's "Status" is 'In Process', the second  - 'Success'
         Assert.AreEqual(JobQueueLogEntry.Status::"In Process", LibraryVariableStorage.DequeueInteger, 'the first entry status');
@@ -713,8 +717,8 @@ codeunit 132908 TestCompanyChangePages
         PackageCode: Code[20];
     begin
         // [SCENARIO 217901] Details action from Job Queue Log Entries for apply configuration package error opens the list of package erros
-        Initialize;
-        ClearConfigPackageErrors;
+        Initialize();
+        ClearConfigPackageErrors();
 
         PackageCode := 'XX';
         // [GIVEN] Configuration package error for package XX
@@ -723,10 +727,10 @@ codeunit 132908 TestCompanyChangePages
         MockConfigPackageErrorRecord('YY');
         // [GIVEN] Job Queue Log Entry error record for package XX
         MockJobQueueErrorLogEntry(PackageCode);
-        JobQueueLogEntries.OpenView;
+        JobQueueLogEntries.OpenView();
 
         // [WHEN] User click Details action
-        JobQueueLogEntries.Details.Invoke;
+        JobQueueLogEntries.Details.Invoke();
 
         // [THEN] Page Config. Package Errors page opened with filter for package XX
         Assert.AreEqual(PackageCode, LibraryVariableStorage.DequeueText, 'Wrong filter.');
@@ -741,15 +745,15 @@ codeunit 132908 TestCompanyChangePages
     begin
         // [FEATURE] [Copy Company]
         // [SCENARIO 288739] Stan opens "Companies" page, runs "Copy Company", sets "New Company Name". Leading and trailing spaces are trimmed for "New Company Name" value.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create text string "T1" = "  abc def  " for the new company name.
-        CompanyName := StrSubstNo('%1 %2', LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        CompanyName := StrSubstNo('%1 %2', LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(StrSubstNo('  %1  ', CompanyName));
 
         // [WHEN] Run the report "Copy Company". Set "T1" as "New Company Name".
         Commit();
-        REPORT.Run(REPORT::"Copy Company", true);
+        Report.Run(Report::"Copy Company", true);
 
         // [THEN] All leading and trailing spaces are trimmed for "T1". "New Company Name" = "abc def".
         Assert.AreEqual(CompanyName, LibraryVariableStorage.DequeueText, '');
@@ -822,7 +826,7 @@ codeunit 132908 TestCompanyChangePages
     var
         Company: Record Company;
     begin
-        Company.Get(CompanyName);
+        Company.Get(CompanyName());
         Company."Display Name" := DisplayName;
         Company.Modify();
     end;
@@ -862,14 +866,20 @@ codeunit 132908 TestCompanyChangePages
         JobQueueLogEntry."Entry No." := 0;
         JobQueueLogEntry.ID := CreateGuid;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
+        JobQueueLogEntry."Object Type to Run" := JobQueueLogEntry."Object Type to Run"::Codeunit;
+        JobQueueLogEntry."Object ID to Run" := Codeunit::"Import Config. Package Files";
         JobQueueLogEntry.Insert();
         JobQueueLogEntry."Entry No." := 0;
         JobQueueLogEntry.ID := TaskID;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Success;
+        JobQueueLogEntry."Object Type to Run" := JobQueueLogEntry."Object Type to Run"::Codeunit;
+        JobQueueLogEntry."Object ID to Run" := Codeunit::"Import Config. Package Files";
         JobQueueLogEntry.Insert();
         JobQueueLogEntry."Entry No." := 0;
         JobQueueLogEntry.ID := TaskID;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::"In Process";
+        JobQueueLogEntry."Object Type to Run" := JobQueueLogEntry."Object Type to Run"::Codeunit;
+        JobQueueLogEntry."Object ID to Run" := Codeunit::"Import Config. Package Files";
         JobQueueLogEntry.Insert();
     end;
 
@@ -941,15 +951,15 @@ codeunit 132908 TestCompanyChangePages
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PickCompanyModalHandler(var AllowedCompanies: TestPage "Allowed Companies")
+    procedure PickCompanyModalHandler(var AccessibleCompanies: TestPage "Accessible Companies")
     var
         CompanyNameToPick: Text;
     begin
-        CompanyNameToPick := LibraryVariableStorage.DequeueText; // should be set from test
-        AllowedCompanies.GotoKey(CompanyNameToPick);
-        Assert.IsFalse(AllowedCompanies.SetupStatus.Editable, 'SetupStatus.EDITABLE');
-        LibraryVariableStorage.Enqueue(AllowedCompanies.SetupStatus.AsInteger);
-        AllowedCompanies.OK.Invoke;
+        CompanyNameToPick := LibraryVariableStorage.DequeueText(); // should be set from test
+        AccessibleCompanies.GotoKey(CompanyNameToPick);
+        Assert.IsFalse(AccessibleCompanies.SetupStatus.Editable, 'SetupStatus.EDITABLE');
+        LibraryVariableStorage.Enqueue(AccessibleCompanies.SetupStatus.AsInteger);
+        AccessibleCompanies.OK().Invoke();
     end;
 
     [ModalPageHandler]

@@ -137,7 +137,7 @@ page 6061 "Contract Trend Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -146,7 +146,7 @@ page 6061 "Contract Trend Lines"
         VariantRec: Variant;
     begin
         VariantRec := Rec;
-        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType.AsInteger());
         Rec := VariantRec;
     end;
 
@@ -159,18 +159,28 @@ page 6061 "Contract Trend Lines"
         ServLedgEntry: Record "Service Ledger Entry";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
         ProfitAmount: Decimal;
         ProfitPct: Decimal;
 
     protected var
         ServContract: Record "Service Contract Header";
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetLines().', '19.0')]
     procedure Set(var NewServContract: Record "Service Contract Header"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
+        SetLines(
+            NewServContract,
+             "Analysis Period Type".FromInteger(NewPeriodType), "Analysis Amount Type".FromInteger(NewAmountType));
+    end;
+#endif
+
+    procedure SetLines(var NewServContract: Record "Service Contract Header"; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type")
+    begin
         ServContract.Copy(NewServContract);
-        DeleteAll();
+        Rec.DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);

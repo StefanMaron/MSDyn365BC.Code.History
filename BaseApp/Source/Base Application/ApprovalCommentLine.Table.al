@@ -47,7 +47,7 @@ table 455 "Approval Comment Line"
         field(8; "Record ID to Approve"; RecordID)
         {
             Caption = 'Record ID to Approve';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(9; "Workflow Step Instance ID"; Guid)
         {

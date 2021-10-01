@@ -80,7 +80,7 @@ table 374 "G/L Acc. Budget Buffer"
         field(13; "Budgeted Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Budget Entry".Amount WHERE("Budget Name" = FIELD("Budget Filter"),
+            CalcFormula = Sum("G/L Budget Entry".Amount WHERE("Budget Name" = FIELD("Budget Filter"),
                                                                "G/L Account No." = FIELD("G/L Account Filter"),
                                                                "Business Unit Code" = FIELD("Business Unit Filter"),
                                                                "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -93,19 +93,15 @@ table 374 "G/L Acc. Budget Buffer"
             Caption = 'Budgeted Amount';
             FieldClass = FlowField;
         }
-        field(14; "Income/Balance"; Option)
+        field(14; "Income/Balance"; Enum "G/L Account Income/Balance")
         {
             Caption = 'Income/Balance';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Income Statement,Balance Sheet';
-            OptionMembers = " ","Income Statement","Balance Sheet";
         }
-        field(15; "Account Category"; Option)
+        field(15; "Account Category"; Enum "G/L Account Category")
         {
             Caption = 'Account Category';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Assets,Liabilities,Equity,Income,Cost of Goods Sold,Expense';
-            OptionMembers = " ",Assets,Liabilities,Equity,Income,"Cost of Goods Sold",Expense;
         }
     }
 

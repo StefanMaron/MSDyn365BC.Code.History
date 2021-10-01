@@ -407,13 +407,16 @@ codeunit 6153 "API Webhook Notification Mgt."
         exit(false);
     end;
 
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Use another implementation of TryGetEntityKeyField', '19.0')]
     procedure TryGetEntityKeyField(var ApiWebhookEntity: Record "Api Webhook Entity"; var RecRef: RecordRef; var FieldRef: FieldRef): Boolean
     var
         APIWebhookSubscription: Record "API Webhook Subscription";
     begin
         exit(TryGetEntityKeyField(APIWebhookSubscription, ApiWebhookEntity, RecRef, FieldRef));
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure TryGetEntityKeyField(var APIWebhookSubscription: Record "API Webhook Subscription"; var ApiWebhookEntity: Record "Api Webhook Entity"; var RecRef: RecordRef; var FieldRef: FieldRef): Boolean

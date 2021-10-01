@@ -1,4 +1,4 @@
-codeunit 5895 "Inventory Adjustment"
+codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 {
     Permissions = TableData Item = rm,
                   TableData "Item Ledger Entry" = rm,
@@ -1033,7 +1033,7 @@ codeunit 5895 "Inventory Adjustment"
         TempExcludedValueEntry: Record "Value Entry" temporary;
         TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary;
         AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         RemainingOutbnd: Integer;
         Restart: Boolean;
         EndOfValuationDateReached: Boolean;
@@ -1084,7 +1084,7 @@ codeunit 5895 "Inventory Adjustment"
                         SetAvgCostAjmtFilter(AvgCostAdjmtEntryPoint);
                         Restart := FindFirst and not "Cost Is Adjusted";
                         OnAdjustItemAvgCostOnAfterCalcRestart(TempExcludedValueEntry, Restart);
-                        if "Valuation Date" >= PeriodFormMgt.EndOfPeriod() then
+                        if "Valuation Date" >= PeriodPageMgt.EndOfPeriod() then
                             EndOfValuationDateReached := true
                         else
                             "Valuation Date" := GetNextDate("Valuation Date");
@@ -1117,7 +1117,7 @@ codeunit 5895 "Inventory Adjustment"
         CalendarPeriod: Record Date;
         FiscalYearAccPeriod: Record "Accounting Period";
         ItemApplicationEntry: Record "Item Application Entry";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         FindNextRange: Boolean;
     begin
         with ValueEntry do begin
@@ -1206,7 +1206,7 @@ codeunit 5895 "Inventory Adjustment"
             end;
 
             if FindNextRange then
-                if AvgCostAdjmtEntryPoint."Valuation Date" < PeriodFormMgt.EndOfPeriod() then begin
+                if AvgCostAdjmtEntryPoint."Valuation Date" < PeriodPageMgt.EndOfPeriod() then begin
                     AvgCostAdjmtEntryPoint."Valuation Date" := GetNextDate(AvgCostAdjmtEntryPoint."Valuation Date");
                     AvgValueEntriesToAdjustExist(OutbndValueEntry, ExcludedValueEntry, AvgCostAdjmtEntryPoint);
                 end;

@@ -72,6 +72,8 @@ codeunit 5646 FAReclassJnlManagement
 
     procedure OpenJournal(var CurrentJnlBatchName: Code[10]; var FAReclassJnlLine: Record "FA Reclass. Journal Line")
     begin
+        OnBeforeOpenJournal(CurrentJnlBatchName, FAReclassJnlLine);
+
         CheckTemplateName(FAReclassJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         FAReclassJnlLine.FilterGroup := 2;
         FAReclassJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -185,6 +187,11 @@ codeunit 5646 FAReclassJnlManagement
                     FADescription2 := FA.Description;
             OldFANo2 := FAReclassJnlLine."New FA No.";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJournal(var CurrentJnlBatchName: Code[10]; var FAReclassJournalLine: Record "FA Reclass. Journal Line")
+    begin
     end;
 }
 

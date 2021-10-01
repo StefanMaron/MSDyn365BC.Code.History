@@ -472,13 +472,14 @@ page 7024 "Prices Overview"
         }
     }
 
+#if not CLEAN19
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
         FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
-
+#endif
     trigger OnAfterGetCurrRecord()
     begin
         SetEditableFields();
@@ -492,7 +493,6 @@ page 7024 "Prices Overview"
 
     trigger OnOpenPage()
     begin
-        PriceUXManagement.InitSmartListDesigner();
         GetRecFilters();
         SetRecFilters();
         SetCaption();
@@ -640,7 +640,7 @@ page 7024 "Prices Overview"
             PriceSource."Source Type"::"All Customers":
                 begin
                     SalesSrcTableName := Format(PriceSource."Source Type");
-                    exit(StrSubstNo(Description3Lbl, SalesSrcTableName, SourceTableName, AssetNoFIlter));
+                    exit(StrSubstNo(Description3Lbl, SalesSrcTableName, SourceTableName, AssetNoFilter));
                 end;
         end;
 

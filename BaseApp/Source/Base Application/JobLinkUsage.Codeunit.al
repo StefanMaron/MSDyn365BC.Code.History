@@ -65,10 +65,6 @@ codeunit 1026 "Job Link Usage"
     local procedure MatchUsageSpecified(JobLedgerEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line")
     var
         JobPlanningLine: Record "Job Planning Line";
-        JobUsageLink: Record "Job Usage Link";
-        TotalRemainingQtyPrePostBase: Decimal;
-        PostedQtyBase: Decimal;
-        TotalQtyBase: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -80,6 +76,18 @@ codeunit 1026 "Job Link Usage"
         if not JobPlanningLine."Usage Link" then
             Error(Text001, JobPlanningLine.TableCaption, JobPlanningLine.FieldCaption("Usage Link"));
 
+        HandleMatchUsageSpecifiedJobPlanningLine(JobPlanningLine, JobJournalLine, JobLedgerEntry);
+
+        OnAfterMatchUsageSpecified(JobPlanningLine, JobJournalLine, JobLedgerEntry);
+    end;
+
+    procedure HandleMatchUsageSpecifiedJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobJournalLine: Record "Job Journal Line"; JobLedgerEntry: Record "Job Ledger Entry")
+    var
+        JobUsageLink: Record "Job Usage Link";
+        PostedQtyBase: Decimal;
+        TotalQtyBase: Decimal;
+        TotalRemainingQtyPrePostBase: Decimal;
+    begin
         PostedQtyBase := JobPlanningLine."Quantity (Base)" - JobPlanningLine."Remaining Qty. (Base)";
         TotalRemainingQtyPrePostBase := JobJournalLine."Quantity (Base)" + JobJournalLine."Remaining Qty. (Base)";
         TotalQtyBase := PostedQtyBase + TotalRemainingQtyPrePostBase;
@@ -95,8 +103,6 @@ codeunit 1026 "Job Link Usage"
                 JobLedgerEntry."Quantity (Base)", JobPlanningLine."Qty. per Unit of Measure"),
             JobLedgerEntry."Total Cost", JobLedgerEntry."Line Amount", JobLedgerEntry."Posting Date", JobLedgerEntry."Currency Factor");
         JobUsageLink.Create(JobPlanningLine, JobLedgerEntry);
-
-        OnAfterMatchUsageSpecified(JobPlanningLine, JobJournalLine, JobLedgerEntry);
     end;
 
     procedure FindMatchingJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry"): Boolean

@@ -1,9 +1,14 @@
 table 202 "Resource Cost"
 {
     Caption = 'Resource Cost';
+#if not CLEAN19
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
     ObsoleteTag = '16.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif    
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
 
     fields
     {

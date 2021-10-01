@@ -679,47 +679,47 @@ codeunit 134399 "Test Merge Duplicates"
     var
         Customer: array[2] of Record Customer;
         TempMergeDuplicatesLineBuffer: Record "Merge Duplicates Line Buffer" temporary;
-        ItemCrossReference: array[2] of Record "Item Cross Reference";
+        ItemReference: array[2] of Record "Item Reference";
         TempPKInt: Record "Integer" temporary;
         RecordRef: array[2] of RecordRef;
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Merge record fields get "Can Be Renamed" as 'Yes' if PK field is has any relation
         Initialize;
-        // [GIVEN] 2 Conflicting Item Cross References for Customer 'A' and 'B'
+        // [GIVEN] 2 Conflicting Item References for Customer 'A' and 'B'
         LibrarySales.CreateCustomer(Customer[1]);
-        ItemCrossReference[1].Init();
-        ItemCrossReference[1]."Item No." := LibraryUtility.GenerateGUID;
-        ItemCrossReference[1]."Cross-Reference No." := 'X';
-        ItemCrossReference[1]."Cross-Reference Type" := ItemCrossReference[1]."Cross-Reference Type"::Customer;
-        ItemCrossReference[1]."Cross-Reference Type No." := Customer[1]."No.";
-        ItemCrossReference[1].Insert();
-        RecordRef[1].Get(ItemCrossReference[1].RecordId);
+        ItemReference[1].Init();
+        ItemReference[1]."Item No." := LibraryUtility.GenerateGUID;
+        ItemReference[1]."Reference No." := 'X';
+        ItemReference[1]."Reference Type" := ItemReference[1]."Reference Type"::Customer;
+        ItemReference[1]."Reference Type No." := Customer[1]."No.";
+        ItemReference[1].Insert();
+        RecordRef[1].Get(ItemReference[1].RecordId);
 
         LibrarySales.CreateCustomer(Customer[2]);
-        ItemCrossReference[2] := ItemCrossReference[1];
-        ItemCrossReference[2]."Cross-Reference Type No." := Customer[2]."No.";
-        ItemCrossReference[2].Insert();
-        RecordRef[2].Get(ItemCrossReference[2].RecordId);
+        ItemReference[2] := ItemReference[1];
+        ItemReference[2]."Reference Type No." := Customer[2]."No.";
+        ItemReference[2].Insert();
+        RecordRef[2].Get(ItemReference[2].RecordId);
         TempMergeDuplicatesLineBuffer.GetPrimaryKeyFields(RecordRef[1], TempPKInt);
 
         // [WHEN] AddFieldData("Item No."); "Item No." has tablerelation to Item table
         TempMergeDuplicatesLineBuffer.AddFieldData(
-          RecordRef, ItemCrossReference[1].FieldNo("Cross-Reference Type No."), ItemCrossReference[1].FieldNo("Item No."), true, TempPKInt);
+          RecordRef, ItemReference[1].FieldNo("Reference Type No."), ItemReference[1].FieldNo("Item No."), true, TempPKInt);
         // [THEN] Line Buffer record, where "ID" = 1, "Name" = 'Item No.', "Can Be Renamed" = 'Yes'
         TempMergeDuplicatesLineBuffer.Find;
         TempMergeDuplicatesLineBuffer.TestField(ID, 1);
-        TempMergeDuplicatesLineBuffer.TestField(Name, ItemCrossReference[1].FieldName("Item No."));
+        TempMergeDuplicatesLineBuffer.TestField(Name, ItemReference[1].FieldName("Item No."));
         TempMergeDuplicatesLineBuffer.TestField("Can Be Renamed", true);
 
-        // [WHEN] AddFieldData("Cross-Reference No."); "Cross-Reference No." has no tablerelation
+        // [WHEN] AddFieldData("Reference No."); "Reference No." has no tablerelation
         TempMergeDuplicatesLineBuffer.AddFieldData(
-          RecordRef, ItemCrossReference[1].FieldNo("Cross-Reference Type No."),
-          ItemCrossReference[1].FieldNo("Cross-Reference No."), true, TempPKInt);
-        // [THEN] Line Buffer record, where "ID" = 6, "Name" = 'Cross-Reference No.', "Can Be Renamed" = 'Yes'
+          RecordRef, ItemReference[1].FieldNo("Reference Type No."),
+          ItemReference[1].FieldNo("Reference No."), true, TempPKInt);
+        // [THEN] Line Buffer record, where "ID" = 6, "Name" = 'Reference No.', "Can Be Renamed" = 'Yes'
         TempMergeDuplicatesLineBuffer.Find;
         TempMergeDuplicatesLineBuffer.TestField(ID, 6);
-        TempMergeDuplicatesLineBuffer.TestField(Name, ItemCrossReference[1].FieldName("Cross-Reference No."));
+        TempMergeDuplicatesLineBuffer.TestField(Name, ItemReference[1].FieldName("Reference No."));
         TempMergeDuplicatesLineBuffer.TestField("Can Be Renamed", true);
     end;
 
@@ -1483,7 +1483,7 @@ codeunit 134399 "Test Merge Duplicates"
     procedure T145_CollectTableRecordsWithConditionalRelation()
     var
         Customer: array[2] of Record Customer;
-        ItemCrossReference: Record "Item Cross Reference";
+        ItemReference: Record "Item Reference";
         Item: Record Item;
         GenJournalLine: Record "Gen. Journal Line";
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
@@ -1495,11 +1495,11 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] Table 5717 contains 1 record for Customer 'A' and 2 record for Customer 'B'
         Item.FindFirst;
         LibrarySales.CreateCustomer(Customer[1]);
-        AddItemCrossReference(Item, "Gen. Journal Account Type"::Customer, Customer[1]."No.", 1);
+        AddItemReference(Item, "Item Reference Type"::Customer, Customer[1]."No.", 1);
         LibrarySales.CreateCustomer(Customer[2]);
-        AddItemCrossReference(Item, "Gen. Journal Account Type"::Customer, Customer[2]."No.", 2);
+        AddItemReference(Item, "Item Reference Type"::Customer, Customer[2]."No.", 2);
         // [GIVEN] Table 5717 contains 3 records for Vendor 'B'
-        AddItemCrossReference(Item, "Gen. Journal Account Type"::Vendor, Customer[2]."No.", 3);
+        AddItemReference(Item, "Item Reference Type"::Vendor, Customer[2]."No.", 3);
         // [GIVEN] Table 81 contains 2 record for Customer 'A' and 1 record for Customer 'B'
         AddGenJnlLine("Gen. Journal Account Type"::Customer, Customer[1]."No.", 2);
         AddGenJnlLine("Gen. Journal Account Type"::Customer, Customer[2]."No.", 1);
@@ -1514,7 +1514,7 @@ codeunit 134399 "Test Merge Duplicates"
 
         // [WHEN] AddTableData() to MergeDuplicatesLineBuffer for table 5717
         TempMergeDuplicatesLineBuffer.AddTableData(
-          TempMergeDuplicatesBuffer, DATABASE::"Item Cross Reference", ItemCrossReference.FieldNo("Cross-Reference Type No."));
+          TempMergeDuplicatesBuffer, DATABASE::"Item Reference", ItemReference.FieldNo("Reference Type No."));
 
         // [THEN] MergeDuplicatesLineBuffer, where "Current Count"is '1', "Duplicate Count" is '2'
         TempMergeDuplicatesLineBuffer.TestField("Current Count", 1);
@@ -2295,18 +2295,18 @@ codeunit 134399 "Test Merge Duplicates"
         end;
     end;
 
-    local procedure AddItemCrossReference(Item: Record Item; Type: Enum "Gen. Journal Account Type"; No: Code[20]; Counter: Integer)
+    local procedure AddItemReference(Item: Record Item; Type: Enum "Item Reference Type"; No: Code[20]; Counter: Integer)
     var
-        ItemCrossReference: Record "Item Cross Reference";
+        ItemReference: Record "Item Reference";
         i: Integer;
     begin
         for i := 1 to Counter do begin
-            ItemCrossReference.Init();
-            ItemCrossReference."Item No." := Item."No.";
-            ItemCrossReference."Cross-Reference No." := Format(i);
-            ItemCrossReference."Cross-Reference Type" := Type.AsInteger();
-            ItemCrossReference."Cross-Reference Type No." := No;
-            ItemCrossReference.Insert();
+            ItemReference.Init();
+            ItemReference."Item No." := Item."No.";
+            ItemReference."Reference No." := Format(i);
+            ItemReference."Reference Type" := Type;
+            ItemReference."Reference Type No." := No;
+            ItemReference.Insert();
         end;
     end;
 

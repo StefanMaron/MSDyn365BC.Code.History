@@ -1864,38 +1864,6 @@ codeunit 134776 "Document Attachment Tests"
     [Test]
     [HandlerFunctions('PrintedToAttachmentNotificationHandler')]
     [Scope('OnPrem')]
-    procedure AttachToPFDCustomerReportSelection()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        DocumentAttachment: Record "Document Attachment";
-    begin
-        // [FEATURE] [Print to Attachment] [Posted Sales Invoice]
-        // [SCENARIO 350302] "Attach to PDF" action uses customer's document layout
-        Initialize();
-
-        // [GIVEN] Posted Sales Invoice with "Document No." = "1001" for customer "CUST"
-        LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesInvoiceHeader.Get(
-            LibrarySales.PostSalesDocument(SalesHeader, true, true));
-
-        // [GIVEN] Set sales invoice document layout for customer "CUST" to report 206
-        CreateCustomReportSelection(Database::Customer, SalesInvoiceHeader."Sell-to Customer No.", "Report Selection Usage"::"S.Invoice", Report::"Sales - Invoice");
-
-        // [WHEN] "Print to attachment" function is called
-        SalesInvoiceHeader.SetRecFilter();
-        SalesInvoiceHeader.PrintToDocumentAttachment(SalesInvoiceHeader);
-
-        // [THEN] Attachment file name starts from 206
-        FindDocumentAttachment(DocumentAttachment, Database::"Sales Invoice Header", SalesInvoiceHeader."No.", 0);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Sales - Invoice", SalesInvoiceHeader."No."));
-
-        LibraryNotificationMgt.RecallNotificationsForRecord(SalesInvoiceHeader);
-    end;
-
-    [Test]
-    [HandlerFunctions('PrintedToAttachmentNotificationHandler')]
-    [Scope('OnPrem')]
     procedure AttachToPFDVendorReportSelection()
     var
         PurchaseHeader: Record "Purchase Header";

@@ -272,8 +272,8 @@ page 1130 "Cost Type Balance Matrix"
         CostObjectFilter: Code[20];
         MATRIX_ColumnCaption: array[12] of Text[80];
         RoundingFactorFormatString: Text;
-        AmtType: Option "Balance at Date","Net Change";
-        RoundingFactor: Option "None","1","1000","1000000";
+        AmtType: Enum "Analysis Amount Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         MATRIX_CurrentNoOfMatrixColumn: Integer;
         MATRIX_CellData: array[12] of Decimal;
         [InDataSet]
@@ -292,7 +292,16 @@ page 1130 "Cost Type Balance Matrix"
             SetRange("Date Filter", 0D, MatrixRecords[MATRIX_ColumnOrdinal]."Period End");
     end;
 
+#if not CLEAN19
     procedure Load(MatrixColumns1: array[12] of Text[80]; var MatrixRecords1: array[12] of Record Date; CurrentNoOfMatrixColumns: Integer; CostCenterFilter1: Code[20]; CostObjectFilter1: Code[20]; RoundingFactor1: Option "None","1","1000","1000000"; AmtType1: Option "Balance at Date","Net Change")
+    begin
+        LoadMatrix(
+            MatrixColumns1, MatrixRecords1, CurrentNoOfMatrixColumns, CostCenterFilter1, CostObjectFilter1,
+            "Analysis Rounding Factor".FromInteger(RoundingFactor1), "Analysis Amount Type".FromInteger(AmtType1));
+    end;
+#endif
+
+    procedure LoadMatrix(MatrixColumns1: array[12] of Text[80]; var MatrixRecords1: array[12] of Record Date; CurrentNoOfMatrixColumns: Integer; NewCostCenterFilter: Code[20]; NewCostObjectFilter: Code[20]; NewRoundingFactor: Enum "Analysis Rounding Factor"; NewAmountType: Enum "Analysis Amount Type")
     var
         i: Integer;
     begin
@@ -309,11 +318,11 @@ page 1130 "Cost Type Balance Matrix"
             MATRIX_CurrentNoOfMatrixColumn := ArrayLen(MATRIX_CellData)
         else
             MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
-        CostCenterFilter := CostCenterFilter1;
-        CostObjectFilter := CostObjectFilter1;
-        RoundingFactor := RoundingFactor1;
-        AmtType := AmtType1;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
+        CostCenterFilter := NewCostCenterFilter;
+        CostObjectFilter := NewCostObjectFilter;
+        RoundingFactor := NewRoundingFactor;
+        AmtType := NewAmountType;
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(RoundingFactor, false);
 
         CurrPage.Update(false);
     end;
@@ -337,7 +346,7 @@ page 1130 "Cost Type Balance Matrix"
     begin
         SetFilters(ColumnID);
         CalcFields("Net Change");
-        MATRIX_CellData[ColumnID] := MatrixMgt.RoundValue("Net Change", RoundingFactor);
+        MATRIX_CellData[ColumnID] := MatrixMgt.RoundAmount("Net Change", RoundingFactor);
     end;
 
     local procedure SetFilters(ColumnID: Integer)

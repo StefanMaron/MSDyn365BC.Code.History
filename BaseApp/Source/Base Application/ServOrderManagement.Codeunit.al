@@ -148,7 +148,7 @@ codeunit 5900 ServOrderManagement
             NewServItem.SetRange("Variant Code", ServiceLine."Variant Code");
             NewServItem.SetRange("Serial No.", SerialNo);
             IsHandled := false;
-            OnReplacementCreateServItemAfterNewServItemFilterSet(IsHandled);
+            OnReplacementCreateServItemAfterNewServItemFilterSet(IsHandled, NewServItem);
             if not IsHandled then
                 if NewServItem.FindFirst then
                     Error(
@@ -671,10 +671,6 @@ codeunit 5900 ServOrderManagement
         CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
         CustContUpdate: Codeunit "CustCont-Update";
     begin
-#if not CLEAN18
-        if not CustomerTemplMgt.IsEnabled() then
-            exit(CreateCustFromOldTemplate(Cust, ServHeader));
-#endif
         CustTempl.Reset();
         if not CustTempl.FindFirst() then
             Error(Text004);
@@ -694,33 +690,6 @@ codeunit 5900 ServOrderManagement
 
         exit(false);
     end;
-
-#if not CLEAN18
-    local procedure CreateCustFromOldTemplate(var Cust: Record Customer; ServHeader: Record "Service Header"): Boolean
-    var
-        CustTempl: Record "Customer Template";
-        CustContUpdate: Codeunit "CustCont-Update";
-    begin
-        CustTempl.Reset();
-        if not CustTempl.FindFirst() then
-            Error(Text004);
-        if PAGE.RunModal(PAGE::"Customer Template List", CustTempl) = ACTION::LookupOK then begin
-            CopyCustFromServiceHeader(Cust, ServHeader);
-            Cust.CopyFromCustomerTemplate(CustTempl);
-            Cust.Insert(true);
-
-            if ServHeader."Contact Name" <> '' then begin
-                CustContUpdate.InsertNewContactPerson(Cust, false);
-                Cust.Modify();
-            end;
-            CreateCustDefaultDimFromTemplate(Database::"Customer Template", CustTempl.Code, Cust."No.");
-            CreateCustInvoiceDiscFromTemplate(CustTempl."Invoice Disc. Code", Cust."No.");
-            exit(true);
-        end;
-
-        exit(false);
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcContractDates(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
@@ -743,7 +712,7 @@ codeunit 5900 ServOrderManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReplacementCreateServItemAfterNewServItemFilterSet(var IsHandled: Boolean)
+    local procedure OnReplacementCreateServItemAfterNewServItemFilterSet(var IsHandled: Boolean; var NewServItem: Record "Service Item")
     begin
     end;
 

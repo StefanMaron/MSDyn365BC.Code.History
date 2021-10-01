@@ -25,6 +25,8 @@ codeunit 20 "Posting Preview Event Handler"
         TempMaintenanceLedgerEntry: Record "Maintenance Ledger Entry" temporary;
         TempJobLedgerEntry: Record "Job Ledger Entry" temporary;
         CommitPrevented: Boolean;
+        ShowDocNo: Boolean;
+        TransactionConsistent: Boolean;
 
     procedure GetEntries(TableNo: Integer; var RecRef: RecordRef)
     begin
@@ -66,6 +68,11 @@ codeunit 20 "Posting Preview Event Handler"
             ELSE
                 OnGetEntries(TableNo, RecRef);
         end
+    end;
+
+    procedure IsTransactionConsistent(): Boolean
+    begin
+        exit(TransactionConsistent);
     end;
 
     procedure ShowEntries(TableNo: Integer)
@@ -185,6 +192,11 @@ codeunit 20 "Posting Preview Event Handler"
         CommitPrevented := true;
     end;
 
+    procedure SetShowDocumentNo(NewShowDocNo: Boolean)
+    begin
+        ShowDocNo := NewShowDocNo;
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"G/L Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertGLEntry(var Rec: Record "G/L Entry"; RunTrigger: Boolean)
     begin
@@ -193,7 +205,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempGLEntry := Rec;
-        TempGLEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempGLEntry."Document No." := '***';
         TempGLEntry.Insert();
     end;
 
@@ -204,7 +217,8 @@ codeunit 20 "Posting Preview Event Handler"
             exit;
 
         TempGLEntry := Rec;
-        TempGLEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempGLEntry."Document No." := '***';
 
         OnBeforeModifyTempGLEntry(Rec, TempGLEntry);
 
@@ -220,7 +234,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempVATEntry := Rec;
-        TempVATEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempVATEntry."Document No." := '***';
         TempVATEntry.Insert();
     end;
 
@@ -232,7 +247,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempValueEntry := Rec;
-        TempValueEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempValueEntry."Document No." := '***';
         TempValueEntry.Insert();
     end;
 
@@ -244,7 +260,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempItemLedgerEntry := Rec;
-        TempItemLedgerEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempItemLedgerEntry."Document No." := '***';
         TempItemLedgerEntry.Insert();
     end;
 
@@ -256,7 +273,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempFALedgEntry := Rec;
-        TempFALedgEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempFALedgEntry."Document No." := '***';
         TempFALedgEntry.Insert();
     end;
 
@@ -268,7 +286,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempCustLedgEntry := Rec;
-        TempCustLedgEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempCustLedgEntry."Document No." := '***';
         TempCustLedgEntry.Insert();
     end;
 
@@ -295,7 +314,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempDtldCustLedgEntry := Rec;
-        TempDtldCustLedgEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempDtldCustLedgEntry."Document No." := '***';
         TempDtldCustLedgEntry.Insert();
     end;
 
@@ -306,7 +326,8 @@ codeunit 20 "Posting Preview Event Handler"
             exit;
 
         TempDtldCustLedgEntry := Rec;
-        TempDtldCustLedgEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempDtldCustLedgEntry."Document No." := '***';
 
         OnBeforeModifyTempDtldCustLedgEntry(Rec, TempDtldCustLedgEntry);
 
@@ -322,7 +343,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempVendLedgEntry := Rec;
-        TempVendLedgEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempVendLedgEntry."Document No." := '***';
         TempVendLedgEntry.Insert();
     end;
 
@@ -333,7 +355,8 @@ codeunit 20 "Posting Preview Event Handler"
             exit;
 
         TempVendLedgEntry := Rec;
-        TempVendLedgEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempVendLedgEntry."Document No." := '***';
 
         OnBeforeModifyTempVendLedgEntry(Rec, TempVendLedgEntry);
 
@@ -349,7 +372,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempDtldVendLedgEntry := Rec;
-        TempDtldVendLedgEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempDtldVendLedgEntry."Document No." := '***';
         TempDtldVendLedgEntry.Insert();
     end;
 
@@ -360,7 +384,8 @@ codeunit 20 "Posting Preview Event Handler"
             exit;
 
         TempDtldVendLedgEntry := Rec;
-        TempDtldVendLedgEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempDtldVendLedgEntry."Document No." := '***';
 
         OnBeforeModifyTempDtldVendLedgEntry(Rec, TempDtldVendLedgEntry);
 
@@ -376,7 +401,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempEmplLedgEntry := Rec;
-        TempEmplLedgEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempEmplLedgEntry."Document No." := '***';
         TempEmplLedgEntry.Insert();
     end;
 
@@ -388,7 +414,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempDtldEmplLedgEntry := Rec;
-        TempDtldEmplLedgEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempDtldEmplLedgEntry."Document No." := '***';
         TempDtldEmplLedgEntry.Insert();
     end;
 
@@ -400,7 +427,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempBankAccLedgerEntry := Rec;
-        TempBankAccLedgerEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempBankAccLedgerEntry."Document No." := '***';
         TempBankAccLedgerEntry.Insert();
     end;
 
@@ -412,7 +440,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempResLedgerEntry := Rec;
-        TempResLedgerEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempResLedgerEntry."Document No." := '***';
         TempResLedgerEntry.Insert();
     end;
 
@@ -424,7 +453,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempServiceLedgerEntry := Rec;
-        TempServiceLedgerEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempServiceLedgerEntry."Document No." := '***';
         TempServiceLedgerEntry.Insert();
     end;
 
@@ -436,7 +466,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempServiceLedgerEntry := Rec;
-        TempServiceLedgerEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempServiceLedgerEntry."Document No." := '***';
         if TempServiceLedgerEntry.Insert() then;
     end;
 
@@ -448,7 +479,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempWarrantyLedgerEntry := Rec;
-        TempWarrantyLedgerEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempWarrantyLedgerEntry."Document No." := '***';
         TempWarrantyLedgerEntry.Insert();
     end;
 
@@ -460,7 +492,8 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempMaintenanceLedgerEntry := Rec;
-        TempMaintenanceLedgerEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempMaintenanceLedgerEntry."Document No." := '***';
         TempMaintenanceLedgerEntry.Insert();
     end;
 
@@ -472,8 +505,15 @@ codeunit 20 "Posting Preview Event Handler"
 
         PreventCommit();
         TempJobLedgerEntry := Rec;
-        TempJobLedgerEntry."Document No." := '***';
+        if not ShowDocNo then
+            TempJobLedgerEntry."Document No." := '***';
         TempJobLedgerEntry.Insert();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterFinishPosting', '', false, false)]
+    local procedure OnAfterGenJnlPostLineFinishPosting(var GlobalGLEntry: Record "G/L Entry"; var GLRegister: Record "G/L Register"; var IsTransactionConsistent: Boolean; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        TransactionConsistent := IsTransactionConsistent;
     end;
 
     [IntegrationEvent(false, false)]

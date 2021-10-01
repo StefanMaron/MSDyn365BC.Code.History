@@ -38,7 +38,7 @@ codeunit 7035 "Price Source - Vendor" implements "Price Source"
     begin
         xPriceSource := PriceSource;
         if Vendor.Get(xPriceSource."Source No.") then;
-        if Page.RunModal(Page::"Vendor List", Vendor) = ACTION::LookupOK then begin
+        if Page.RunModal(Page::"Vendor Lookup", Vendor) = ACTION::LookupOK then begin
             xPriceSource.Validate("Source No.", Vendor."No.");
             PriceSource := xPriceSource;
             exit(true);

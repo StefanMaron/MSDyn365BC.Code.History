@@ -11,6 +11,7 @@ codeunit 139313 "Test Sana Interface calls"
     var
         LibraryUtility: Codeunit "Library - Utility";
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure TestSalesPriceCalcMgtInterfaces()
@@ -39,6 +40,7 @@ codeunit 139313 "Test Sana Interface calls"
         SalesPriceCalcMgt.FindSalesLinePrice(SalesHeader, SalesLine, I);
         SalesPriceCalcMgt.FindSalesLineLineDisc(SalesHeader, SalesLine);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -111,7 +113,7 @@ codeunit 139313 "Test Sana Interface calls"
 
         // Verify
         SalesLineReserve.ReservQuantity(SalesLine, Dec, Dec);
-        ReservationManagement.SetSalesLine(SalesLine);
+        ReservationManagement.SetReservSource(SalesLine);
         ReservationManagement.AutoReserve(Bool, Text50, WorkDate, Dec, Dec);
     end;
 

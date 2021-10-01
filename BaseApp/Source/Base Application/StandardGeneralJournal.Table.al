@@ -1,4 +1,4 @@
-﻿table 750 "Standard General Journal"
+table 750 "Standard General Journal"
 {
     Caption = 'Standard General Journal';
     LookupPageID = "Standard General Journals";

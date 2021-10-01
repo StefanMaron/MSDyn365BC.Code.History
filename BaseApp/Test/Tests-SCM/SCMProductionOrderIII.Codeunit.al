@@ -74,6 +74,8 @@ codeunit 137079 "SCM Production Order III"
         SubcItemJnlErr: Label '%1 must be zero', Comment = '%1 - "Subcontractor No."';
         RtngLineBinCodeErr: Label 'Wrong %1 in %2.', Comment = '%1: Field(To-Production Bin Code), %2: TableCaption(Prod. Order Routing Line)';
         ActConsumptionNotZeroErr: Label 'Act. Consumption (Qty) must be equal to ''0''';
+        QuantityImbalanceErr: Label 'out of balance';
+        InvalidPrecisionErr: Label 'field to be incorrect';
 
     [Test]
     [Scope('OnPrem')]
@@ -1648,7 +1650,7 @@ codeunit 137079 "SCM Production Order III"
         WorkCenter: Record "Work Center";
         ProductionOrder: Record "Production Order";
         ItemJournalLine: Record "Item Journal Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
         i: Integer;
     begin
         // [FEATURE] [Item Tracking]
@@ -4114,8 +4116,14 @@ codeunit 137079 "SCM Production Order III"
         // [GIVEN] Set "Qty. to Handle" = 75 on pick lines and register.
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
         WarehouseActivityLine.SetRange("Item No.", CompItem."No.");
+
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", Qty * 3 / 4);
+            WarehouseActivityLine.Modify();
+        until WarehouseActivityLine.Next() = 0;
+
         WarehouseActivityLine.FindFirst();
-        WarehouseActivityLine.ModifyAll("Qty. to Handle", Qty * 3 / 4);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
@@ -4163,8 +4171,14 @@ codeunit 137079 "SCM Production Order III"
         // [GIVEN] Set "Qty. to Handle" = 75 on pick lines and register.
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
         WarehouseActivityLine.SetRange("Item No.", CompItem."No.");
+
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", Qty / 2);
+            WarehouseActivityLine.Modify();
+        until WarehouseActivityLine.Next() = 0;
+
         WarehouseActivityLine.FindFirst();
-        WarehouseActivityLine.ModifyAll("Qty. to Handle", Qty / 2);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
@@ -4177,6 +4191,551 @@ codeunit 137079 "SCM Production Order III"
         SelectItemJournalLine(ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
         ItemJournalLine.TestField("Item No.", CompItem."No.");
         ItemJournalLine.TestField(Quantity, Qty / 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalModalHandler,ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure RoundingIsIgnoredOnNonLastLineOnProductionJournal()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        ItemJournalLine: record "Item Journal Line";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+        ProductionJournal: TestPage "Production Journal";
+    begin
+        // Initialize and create a workcenter
+        Initialize();
+        CreateWorkCenter(WorkCenter, false);
+
+        // Create a routing with 2 routing lines, first line having a 0.1% scrap percentage
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");
+        RoutingLine.Validate("Scrap Factor %", 0.1);
+        RoutingLine.Modify(true);
+        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+
+        // Create Item with replenishment system = production
+        CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+
+        // Create 2 item unit of measures with base having a rounding precision as 1 and assign the base unit of measure to the created item.
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1);
+        ItemUnitOfMeasure.Validate("Qty. Rounding Precision", 1);
+        ItemUnitOfMeasure.Modify(true);
+        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 6);
+
+        // Create a produciton order for the item and assign the non-base item unit of measure
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", 1);
+        LibraryManufacturing.CreateProdOrderLine(ProductionOrderLine, ProductionOrderLine.Status::Released, ProductionOrder."No.", Item."No.", '', '', 1);
+        ProductionOrderLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ProductionOrderLine.Modify(true);
+
+        // Refresh production order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, false, false);
+
+        // 'Released Production Order' and navigate to the created produciton order
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // Setup data to be passed to the Produciton Jounral handler. Journal is partiall posted
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(2); // Number of lines
+        LibraryVariableStorage.Enqueue(1.001); // 'Expected Output Quantity' on first line
+        LibraryVariableStorage.Enqueue(1); // Set 'Expected Output Quantity' value on first line
+        LibraryVariableStorage.Enqueue(1); // 'Expected Output Quantity' on second  line
+        LibraryVariableStorage.Enqueue(0); // Set 'Expected Output Quantity' value on second line
+        LibraryVariableStorage.Enqueue(true); // Post the journal
+        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke();
+
+        // Setup data to be passed to the Production Jounrnal. Data is validated and remaining is posted without errors 
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(2); // Number of lines
+        LibraryVariableStorage.Enqueue(0.001); // 'Expected Output Quantity' on first line. 0.001 is left as rounding does not happen on non-last lines
+        LibraryVariableStorage.Enqueue(0.001); // Set 'Expected Output Quantity' value on first line
+        LibraryVariableStorage.Enqueue(1); // 'Expected Output Quantity' on second  line
+        LibraryVariableStorage.Enqueue(1); // Set 'Expected Output Quantity' value on second line
+        LibraryVariableStorage.Enqueue(true); // Post the journal
+        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke();
+    end;
+
+    [Test]
+    procedure StartAndEndingTimeIsAlignedWhenManufacturingSetupHasNoNormalTimeSetup()
+    var
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionOrder: Record "Production Order";
+    begin
+        Initialize();
+
+        // [GIVEN] An item.
+        CreateItem(Item);
+
+        // [GIVEN] Manufacturing setup with no normal starting/ending time.
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Normal Starting Time" := 0T;
+        ManufacturingSetup."Normal Ending Time" := 0T;
+        ManufacturingSetup.Modify();
+
+        // [WHEN] Creating a new released production order for the item.
+        ProductionOrder.InitRecord();
+        ProductionOrder.Validate("Source No.", Item."No.");
+        ProductionOrder.Insert(true);
+
+        // [THEN] Starting/ending time should be aligned with starting/ending datetime.
+        Assert.AreEqual(
+            DT2Time(ProductionOrder."Starting Date-Time"),
+            ProductionOrder."Starting Time",
+            'Expected starting time to be in aligned with starting date time'
+        );
+        Assert.AreEqual(
+            DT2Time(ProductionOrder."Ending Date-Time"),
+            ProductionOrder."Ending Time",
+            'Expected ending time to be in aligned with ending date time'
+        );
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalcConsumptionConsumesComponentCompletely()
+    var
+        ItemProduct: Record Item;
+        ItemComponent: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        NonBaseUOMComp: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        BaseUOMComp: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemJournalLine: Record "Item Journal Line";
+        Bin: Record Bin;
+    begin
+        // [SCENARIO] Calculate Consumption and posting consume the components completely and does not leave behind anything from rounding
+
+        // [GIVEN] Add yourselves as Warehouse Employee to WHITE location
+        Initialize();
+
+        // [GIVEN] Create ItemProduct. BaseUoM = PCS. Additional UoM = BOX = 6. No rounding.
+        NonBaseQtyPerUOM := 6;
+        SetupUoMTest(ItemProduct, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+
+        // [GIVEN] Create ItemComponent. BaseUoM = PCS. UoM Rounding 1. Consumption rounding = 0.00001
+        QtyRoundingPrecision := 1;
+        SetupUoMTest(ItemComponent, ItemUOM, BaseUOMComp, NonBaseUOMComp, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        ItemComponent."Rounding Precision" := 0.00001;
+        ItemComponent.Modify();
+
+        // [GIVEN] Create and post Warehouse Item Journal for WHITE location for ItemComponent, Qty = 12 PCS.
+        UpdateInventoryWithWhseItemJournal(ItemComponent, LocationWhite, 12);
+
+        // [GIVEN] Create a new Released Production order and add line ItemProduct, Qty 2.00002 BOX, Location = WHITE.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ItemProduct."No.", 2.00002, LocationWhite.Code, LocationWhite."From-Production Bin Code");
+        ProductionOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProductionOrderLine.FindFirst();
+        ProductionOrderLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        ProductionOrderLine.Modify(true);
+
+        // [WHEN] Components are setup. Add line, ItemComponent, Location = WHITE, Qty Per = 72 pcs
+        CreateProdOrderComponentForUoMTest(ProdOrderComponent, ProductionOrder, ProductionOrderLine, ItemComponent, NonBaseUOMComp);
+        ProdOrderComponent.Validate("Quantity per", 12);
+        ProdOrderComponent.Validate("Location Code", LocationWhite.Code);
+        ProdOrderComponent.Modify(true);
+
+        // [THEN] Expected quantity is rounded with the rounding precision defined.
+        ProdOrderComponent.TestField("Expected Quantity", 24);
+        ProdOrderComponent.TestField("Expected Qty. (Base)", 144);
+
+        // [GIVEN] Create and register pick for the production order
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        RegisterWarehouseActivity(ProductionOrder."No.", "Warehouse Activity Type"::Pick);  // Register the Pick created.
+
+        // [WHEN] Consumption is calculated and posted. 
+        CalculateAndPostConsumptionJournal(ProductionOrder."No.");
+
+        // [WHEN] Calculate consumption in consumption journal.
+        LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
+        LibraryManufacturing.CalculateConsumption(
+          ProductionOrder."No.", ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+
+        // [THEN] A consumption journal line for 0 pcs of ItemComponent is created.
+        SelectItemJournalLine(ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+        ItemJournalLine.TestField("Item No.", ItemComponent."No.");
+        ItemJournalLine.TestField(Quantity, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ThrowQtyRoundingErrorWhenExpectedQtyIsOfInvalidPrecision()
+    var
+        ItemProduct: Record Item;
+        ItemComponent: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [SCENARIO] Throw rounding error when setting 'Quantity Per' causes the 'Expected Quantity' to be of a invalid precision
+
+        // [GIVEN] Add yourselves as Warehouse Employee to WHITE location
+        Initialize();
+
+        // [GIVEN] Create ItemProduct. BaseUoM = PCS. Additional UoM = BOX = 6. No rounding.
+        NonBaseQtyPerUOM := 6;
+        SetupUoMTest(ItemProduct, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+
+        // [GIVEN] Create ItemComponent. BaseUoM = PCS. UoM Rounding 1. Consumption rounding = 0.00001
+        QtyRoundingPrecision := 1;
+        SetupUoMTest(ItemComponent, ItemUOM, BaseUOM, NonBaseUOM, 0, QtyRoundingPrecision);
+        ItemComponent."Rounding Precision" := 0.00001;
+        ItemComponent.Modify();
+
+        // [GIVEN] Add ItemComponents to the inventory in WHITE location
+        CreateAndPostItemJournalLine(ItemComponent."No.", 1000, LocationWhite.Code, '');
+
+        // [GIVEN] Create and post Warehouse Item Journal for WHITE location for ItemComponent, Qty = 12 PCS.
+        UpdateInventoryWithWhseItemJournal(ItemComponent, LocationWhite, 12);
+
+        // [GIVEN] Create a new Released Production order and add line ItemProduct, Qty 2.00002 BOX, Location = WHITE.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ItemProduct."No.", 2.00002, LocationWhite.Code, '');
+        ProductionOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProductionOrderLine.FindFirst();
+        ProductionOrderLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        ProductionOrderLine.Modify(true);
+
+        // [WHEN] Components are setup. Add line, ItemComponent, Location = WHITE, Qty Per = 72 pcs
+        CreateProdOrderComponentForUoMTest(ProdOrderComponent, ProductionOrder, ProductionOrderLine, ItemComponent, BaseUOM);
+
+        // [THEN] Error is thrown because the 'Expected Quantity' gets evaluated to an invalid precision-
+        asserterror ProdOrderComponent.Validate("Quantity per", 72);
+        Assert.ExpectedError(InvalidPrecisionErr);
+    end;
+
+    [ModalPageHandler]
+    procedure ProductionJournalModalHandler(var ProductionJournal: TestPage "Production Journal")
+    var
+        NoOfLines: Integer;
+        Index: Integer;
+        OutputQty: Decimal;
+        Post: Boolean;
+    begin
+        NoOfLines := LibraryVariableStorage.DequeueInteger();
+
+        if NoOfLines <> 0 then
+            ProductionJournal.First();
+
+        for Index := 0 to NoOfLines do begin
+            ProductionJournal."Output Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+            ProductionJournal."Output Quantity".SetValue(LibraryVariableStorage.DequeueDecimal());
+            ProductionJournal.Next();
+            Index += 1;
+        end;
+
+        if LibraryVariableStorage.DequeueBoolean() then
+            ProductionJournal.Post.Invoke();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ThrowQtyRoundingErrorOnProdOrdLine()
+    var
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+    begin
+        // [SCENARIO 392869] Throw Error while Rounding Item Quantity on Production Order Line based on UOM Rounding Precision.
+        // [GIVEN] An item with base UoM, rounding precision and non-base UoM.
+        Initialize();
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandIntInRange(2, 10), QtyRoundingPrecision);
+        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity to 0 in production line.
+        CreateProdOrderAndLineForUoMTest(ProductionOrder, ProductionOrderLine, Item, 1, NonBaseUOM, 0);
+
+        // [THEN] Throw error due to rounding of quantity to 0.
+        asserterror ProductionOrderLine.Validate(Quantity, 1 / LibraryRandom.RandIntInRange(101, 1000));
+        Assert.ExpectedError(QuantityImbalanceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionSpecifiedOnProdOrdLine()
+    var
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        QtyToSet: Decimal;
+    begin
+        // [SCENARIO 392869] Item Base Quantity should be Rounded on Prod Order Line based on Specified Rounding Precision.
+        // [GIVEN] An item with base UoM, rounding precision and non-base UoM.
+        Initialize();
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandIntInRange(2, 10), QtyRoundingPrecision);
+        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+
+        // [WHEN] Adding an item with Non Base UoM and quantity to the production order line.
+        QtyToSet := LibraryRandom.RandDec(10, 7);
+        CreateProdOrderAndLineForUoMTest(ProductionOrder, ProductionOrderLine, Item, 1, NonBaseUOM, QtyToSet);
+
+        // [THEN] The base quantity should be rounded with the specified rounding precision.
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * ProductionOrderLine.Quantity, QtyRoundingPrecision),
+                        ProductionOrderLine."Quantity (Base)",
+                        'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionUnspecifiedOnProdOrdLine()
+    var
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        QtyToSet: Decimal;
+    begin
+        // [SCENARIO 392869] Item Base Quantity should be Rounded on Prod Order Line based on default rounding precision.
+        // [GIVEN] An item with base UoM, rounding precision and non-base UoM.
+        Initialize();
+        NonBaseQtyPerUOM := LibraryRandom.RandDec(10, 3);
+        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+
+        // [WHEN] Adding an item with Non Base UoM and quantity to the production order line.
+        QtyToSet := LibraryRandom.RandDec(10, 7);
+        CreateProdOrderAndLineForUoMTest(ProductionOrder, ProductionOrderLine, Item, 1, NonBaseUOM, QtyToSet);
+
+        // [THEN] The quantity is rounded with the default rounding precision.
+        Assert.AreEqual(Round(QtyToSet, 0.00001),
+                        ProductionOrderLine.Quantity,
+                        'Quantity is not rounded correctly.');
+
+        // [THEN] The base quantity is rounded with the default rounding precision.
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * ProductionOrderLine.Quantity, 0.00001),
+                        ProductionOrderLine."Quantity (Base)",
+                        'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ThrowQtyRoundingErrorOnProdOrdComponent()
+    var
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [SCENARIO 392869] Throw Error while Rounding Quantities on Production Order Component based on UOM Rounding Precision.
+        // [GIVEN] An item with base UoM, rounding precision and non-base UoM.
+        Initialize();
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandIntInRange(2, 10), QtyRoundingPrecision);
+        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+
+        // [GIVEN] Released Production order and production line with Non Base UoM and quantities as 1.
+        CreateProdOrderAndLineForUoMTest(ProductionOrder, ProductionOrderLine, Item, 1, NonBaseUOM, 1);
+
+        // [GIVEN] Production Order Component for production order line  with Non Base UoM.
+        CreateProdOrderComponentForUoMTest(ProdOrderComponent, ProductionOrder, ProductionOrderLine, Item, NonBaseUOM);
+
+        // [WHEN] Quantity is set to a value that rounds the base quantity to 0 in production order component.
+        asserterror ProdOrderComponent.Validate("Quantity per", 1 / LibraryRandom.RandIntInRange(101, 1000));
+
+        // [THEN] Throw error due to rounding of quantity to 0.
+        Assert.ExpectedError(QuantityImbalanceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ThrowRoundingErrorOnProdOrdCompRemainingQty()
+    var
+        ItemProdOrderLine: Record Item;
+        ItemProdOrderComp: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [SCENARIO 392869] Throw Error while Rounding Remaining Quantity Base on Production Order Component based on UOM Rounding Precision.
+        Initialize();
+
+        // [GIVEN] Released Production order for source Item with Quantity 1
+        // [GIVEN] Production order line containing an Item with base UoM, UoM rounding precision, non-base UoM and Quantity = "1".
+        QtyRoundingPrecision := 1;
+        NonBaseQtyPerUOM := 1;
+        SetupUoMTest(ItemProdOrderLine, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        CreateProdOrderAndLineForUoMTest(ProductionOrder, ProductionOrderLine, ItemProdOrderLine, 1, BaseUOM, 1);
+
+        // [GIVEN] Production order component for the Production order line containing an item with base UoM, UoM rounding precision, non-base UoM.
+        // [GIVEN] Item's rounding precision = 0.00001.
+        QtyRoundingPrecision := 1;
+        NonBaseQtyPerUOM := 2;
+        SetupUoMTest(ItemProdOrderComp, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        ItemProdOrderComp."Rounding Precision" := 0.00001;
+        ItemProdOrderComp.Modify();
+        CreateProdOrderComponentForUoMTest(ProdOrderComponent, ProductionOrder, ProductionOrderLine, ItemProdOrderComp, NonBaseUOM);
+
+        // [GIVEN] 1000 Quantity of ItemProdOrderComp inventory.
+        CreateAndPostItemJournalLine(ItemProdOrderComp."No.", 1000, '', '');
+
+        // [WHEN] Consumption Quantity for the component item is 1 in base quantity.
+        CreateAndPostConsumptionJournal(ProductionOrder, ProdOrderComponent, 1);
+
+        // [WHEN] Throw error due to rounding of Base Remaining quantity to 0 when "Quantity per" is 0.7.
+        asserterror ProdOrderComponent.Validate("Quantity per", 0.070);
+
+        // [THEN] Verify expected error
+        Assert.ExpectedError(QuantityImbalanceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyAreRoundedWithRoundingPrecisionSpecifiedOnProdOrderComponent()
+    var
+        ItemProduct: Record Item;
+        ItemComponent: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        QtyToSetProdLine: Decimal;
+        QtyPerToSetProdComp: Decimal;
+    begin
+        // [SCENARIO 392869] Quantities should be Rounded on Production Order Component based on Specified Rounding Precision.
+        Initialize();
+        // [GIVEN] Released Production order for source Item with Quantity 1
+        // [GIVEN] Production order line containing an Item with base UoM, UoM rounding precision, non-base UoM and Quantity.
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandIntInRange(2, 10), QtyRoundingPrecision);
+
+        SetupUoMTest(ItemProduct, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        QtyToSetProdLine := LibraryRandom.RandDec(10, 2);
+        CreateProdOrderAndLineForUoMTest(ProductionOrder, ProductionOrderLine, ItemProduct, 1, NonBaseUOM, QtyToSetProdLine);
+
+        // [GIVEN] Production order component for the Production order line containing an item with base UoM, UoM rounding precision, non-base UoM.
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(1, 10), 0.01);
+        NonBaseQtyPerUOM := Round(LibraryRandom.RandDec(10, 3), QtyRoundingPrecision);
+        SetupUoMTest(ItemComponent, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        ItemComponent."Rounding Precision" := 1 / LibraryRandom.RandIntInRange(1, 10);
+        ItemComponent.Modify();
+        CreateProdOrderComponentForUoMTest(ProdOrderComponent, ProductionOrder, ProductionOrderLine, ItemComponent, NonBaseUOM);
+
+        // [WHEN] Adding "Quantity per" on Production order Component.
+        QtyPerToSetProdComp := LibraryRandom.RandDec(10, 7);
+        ProdOrderComponent.Validate("Quantity per", QtyPerToSetProdComp);
+
+        // [THEN] The base quantity should be rounded with production component's rounding precision.
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * ProdOrderComponent.Quantity, QtyRoundingPrecision),
+                        ProdOrderComponent."Quantity (Base)",
+                        'ProdOrderComponent."Quantity (Base)" is not rounded correctly.');
+
+        // [THEN] The expected quantity should be rounded up with item's rounding precision.
+        Assert.AreEqual(Round(ProdOrderComponent."Expected Qty. (Base)" / ProdOrderComponent."Qty. per Unit of Measure", 0.00001), ProdOrderComponent."Expected Quantity", 'ProdOrderComponent."Expected Quantity" is not rounded correctly.');
+
+        // [THEN] The base expected quantity should be rounded with production component's rounding precision.
+        Assert.AreEqual(Round(ProdOrderComponent."Expected Quantity" * NonBaseQtyPerUOM,
+                        QtyRoundingPrecision), ProdOrderComponent."Expected Qty. (Base)",
+                        'ProdOrderComponent."Expected Quantity (Base)" is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyAreRoundedWithRoundingPrecisionUnspecifiedOnProdOrderComponent()
+    var
+        ItemProdOrderLine: Record Item;
+        ItemProdOrderComp: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        QtyToSetProdLine: Decimal;
+        QtyToSetProdComp: Decimal;
+    begin
+        // [SCENARIO 392869] Quantities should be Rounded on Production Order Component based on Unspecified Rounding Precision.
+        Initialize();
+        // [GIVEN] Released Production order for source Item with Quantity 1
+        // [GIVEN] Production order line containing an Item with base UoM, non-base UoM, Quantity and default UoM rounding precision.
+        NonBaseQtyPerUOM := LibraryRandom.RandDec(10, 3);
+        SetupUoMTest(ItemProdOrderLine, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        QtyToSetProdLine := LibraryRandom.RandDec(10, 2);
+        CreateProdOrderAndLineForUoMTest(ProductionOrder, ProductionOrderLine, ItemProdOrderLine, 1, NonBaseUOM, QtyToSetProdLine);
+
+        // [GIVEN] Production order component for the Production order line containing an item with base UoM, unspecified UoM rounding precision, non-base UoM.
+        NonBaseQtyPerUOM := LibraryRandom.RandDec(10, 3);
+        SetupUoMTest(ItemProdOrderComp, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        ItemProdOrderComp."Rounding Precision" := 1 / LibraryRandom.RandIntInRange(1, 10);
+        ItemProdOrderComp.Modify();
+        CreateProdOrderComponentForUoMTest(ProdOrderComponent, ProductionOrder, ProductionOrderLine, ItemProdOrderComp, NonBaseUOM);
+
+        // [WHEN] Adding "Quantity per" on Production order Component.
+        QtyToSetProdComp := LibraryRandom.RandDec(10, 7);
+        ProdOrderComponent.Validate("Quantity per", QtyToSetProdComp);
+
+        // [THEN] The quantity should be rounded with default rounding precision.
+        Assert.AreEqual(Round(QtyToSetProdComp, 0.00001),
+                        ProdOrderComponent.Quantity,
+                        'ProdOrderComponent.Quantity is not rounded correctly.');
+
+        // [THEN] The base quantity should be rounded with default rounding precision.
+        Assert.AreEqual(Round(NonBaseQtyPerUOM * ProdOrderComponent.Quantity, 0.00001),
+                        ProdOrderComponent."Quantity (Base)",
+                        'ProdOrderComponent."Quantity (Base)" is not rounded correctly.');
+
+        // [THEN] The expected quantity should be rounded up with item's rounding precision.
+        Assert.AreEqual(Round(ProdOrderComponent.Quantity * QtyToSetProdLine,
+                        ItemProdOrderComp."Rounding Precision", '>'),
+                        ProdOrderComponent."Expected Quantity", 'ProdOrderComponent."Expected Quantity" is not rounded correctly.');
+
+        // [THEN] The base expected quantity should be rounded with default rounding precision.
+        Assert.AreEqual(Round(ProdOrderComponent."Expected Quantity" * NonBaseQtyPerUOM,
+                        0.00001), ProdOrderComponent."Expected Qty. (Base)",
+                        'ProdOrderComponent."Expected Quantity (Base)" is not rounded correctly.');
     end;
 
     [Test]
@@ -4659,6 +5218,27 @@ codeunit 137079 "SCM Production Order III"
           ProductionOrderNo, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
         SelectItemJournalLine(ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
         LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostConsumptionJournal(
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Consumption);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Consumption, ProdOrderComponent."Item No.", Quantity);
+        ItemJournalLine.Validate("Order No.", ProductionOrder."No.");
+        ItemJournalLine.Validate("Prod. Order Comp. Line No.", ProdOrderComponent."Line No.");
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure CreateAndPostOutputJournalWithExplodeRouting(ProductionOrderNo: Code[20]; Quantity: Decimal)
@@ -5494,7 +6074,7 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine.FindFirst;
     end;
 
-    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Option)
+    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
@@ -5502,14 +6082,14 @@ codeunit 137079 "SCM Production Order III"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceNo: Code[20]; ActionType: Option; ActivityType: Option)
+    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; ActivityType: Enum "Warehouse Activity Type")
     begin
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
         RegisteredWhseActivityLine.SetRange("Activity Type", ActivityType);
@@ -5517,7 +6097,7 @@ codeunit 137079 "SCM Production Order III"
         RegisteredWhseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; ActionType: Option; LocationCode: Code[10])
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5530,7 +6110,7 @@ codeunit 137079 "SCM Production Order III"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        FindWhseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationCode, ProdOrderNo, 0);
+        FindWhseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationCode, ProdOrderNo, "Warehouse Action Type"::" ");
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
@@ -5708,7 +6288,7 @@ codeunit 137079 "SCM Production Order III"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -5830,7 +6410,7 @@ codeunit 137079 "SCM Production Order III"
         CalculateWhseAdjustmentAndPostCreatedItemJournalLine(Item, ItemJournalBatch);
     end;
 
-    local procedure UpdateQuantityOnWarehouseActivityLine(SourceNo: Code[20]; ActionType: Option; Quantity: Decimal; LocationCode: Code[10])
+    local procedure UpdateQuantityOnWarehouseActivityLine(SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; Quantity: Decimal; LocationCode: Code[10])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -6483,6 +7063,68 @@ codeunit 137079 "SCM Production Order III"
         exit(StrPos(Message, Message2) > 0);
     end;
 
+    local procedure SetupUoMTest(
+        var Item: Record Item;
+        var ItemUOM: Record "Item Unit of Measure";
+        var BaseUOM: Record "Unit of Measure";
+        var NonBaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, 1);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        if NonBaseQtyPerUOM = 0 then
+            exit;
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+    end;
+
+    local procedure CreateProdOrderAndLineForUoMTest(
+        var ProductionOrder: Record "Production Order";
+        var ProductionOrderLine: Record "Prod. Order Line";
+        Item: Record Item;
+        ProductionOrderQty: Decimal;
+        ProductionOrderLineUOM: Record "Unit of Measure";
+        ProductionOrderLineQty: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder,
+                                                   ProductionOrder.Status::Released,
+                                                   ProductionOrder."Source Type"::Item,
+                                                   Item."No.",
+                                                   ProductionOrderQty);
+        LibraryManufacturing.CreateProdOrderLine(ProductionOrderLine,
+                                                 ProductionOrderLine.Status::Released,
+                                                 ProductionOrder."No.",
+                                                 Item."No.",
+                                                 '',
+                                                 '',
+                                                 0);
+        ProductionOrderLine.Validate("Unit of Measure Code", ProductionOrderLineUOM.Code);
+        ProductionOrderLine.Validate(Quantity, ProductionOrderLineQty);
+        ProductionOrderLine.Modify(true);
+    end;
+
+    local procedure CreateProdOrderComponentForUoMTest(
+        var ProdOrderComponent: Record "Prod. Order Component";
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        Item: Record Item;
+        UoM: Record "Unit of Measure")
+    begin
+        LibraryManufacturing.CreateProductionOrderComponent(ProdOrderComponent,
+                                                            ProdOrderComponent.Status::Released,
+                                                            ProductionOrder."No.",
+                                                            ProductionOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", Item."No.");
+        ProdOrderComponent.Validate("Unit of Measure Code", UoM.Code);
+        ProdOrderComponent.Modify(true);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -6491,6 +7133,12 @@ codeunit 137079 "SCM Production Order III"
     begin
         LibraryVariableStorage.Dequeue(ExpectedMessage);
         Assert.IsTrue(AreSameMessages(Message, ExpectedMessage), Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerWithoutValidation(Message: Text[1024])
+    begin
     end;
 
     [ConfirmHandler]

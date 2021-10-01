@@ -1289,7 +1289,7 @@ codeunit 137157 "SCM Order Promising II"
 
         // [THEN] Shipment date on reservation entries for the sales line remains WORKDATE.
         ReservationEntry.SetSourceFilter(
-          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", true);
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
         ReservationEntry.FindFirst();
         ReservationEntry.TestField("Shipment Date", WorkDate());
     end;

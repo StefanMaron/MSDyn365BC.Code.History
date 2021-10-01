@@ -64,7 +64,7 @@ table 5332 "Coupling Record Buffer"
         field(8; "NAV Record ID"; RecordID)
         {
             Caption = 'NAV Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(9; "CRM ID"; Guid)
         {

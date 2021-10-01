@@ -21,7 +21,7 @@ codeunit 9016 "Azure AD Plan"
     [NonDebuggable]
     procedure IsPlanAssigned(PlanGUID: Guid): Boolean
     begin
-        EXIT(AzureAdPlanImpl.IsPlanAssigned(PlanGUID));
+        exit(AzureAdPlanImpl.IsPlanAssigned(PlanGUID));
     end;
 
     /// <summary>
@@ -32,7 +32,7 @@ codeunit 9016 "Azure AD Plan"
     [NonDebuggable]
     procedure IsPlanAssignedToUser(PlanGUID: Guid): Boolean
     begin
-        EXIT(AzureAdPlanImpl.IsPlanAssignedToUser(PlanGUID));
+        exit(AzureAdPlanImpl.IsPlanAssignedToUser(PlanGUID));
     end;
 
     /// <summary>
@@ -44,7 +44,7 @@ codeunit 9016 "Azure AD Plan"
     [NonDebuggable]
     procedure IsPlanAssignedToUser(PlanGUID: Guid; UserGUID: Guid): Boolean
     begin
-        EXIT(AzureAdPlanImpl.IsPlanAssignedToUser(PlanGUID, UserGUID));
+        exit(AzureAdPlanImpl.IsPlanAssignedToUser(PlanGUID, UserGUID));
     end;
 
     /// <summary>
@@ -56,7 +56,17 @@ codeunit 9016 "Azure AD Plan"
     [NonDebuggable]
     procedure IsGraphUserEntitledFromServicePlan(var GraphUser: DotNet UserInfo): Boolean
     begin
-        EXIT(AzureAdPlanImpl.IsGraphUserEntitledFromServicePlan(GraphUser));
+        exit(AzureAdPlanImpl.IsGraphUserEntitledFromServicePlan(GraphUser));
+    end;
+
+    /// <summary>
+    /// Assign the delegated admin plan and default user groups to the current user.
+    /// </summary>
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure AssignDelegatedAdminPlanAndUserGroups()
+    begin
+        AzureAdPlanImpl.AssignDelegatedAdminPlanAndUserGroups();
     end;
 
     /// <summary>

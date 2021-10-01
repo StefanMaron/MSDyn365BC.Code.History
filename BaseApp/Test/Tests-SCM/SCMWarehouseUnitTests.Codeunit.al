@@ -19,6 +19,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        UoMMgt: Codeunit "Unit of Measure Management";
         WhseShptCreatedMsg: Label 'Warehouse Shipment Header has been created.';
         WarehouseReceiptHeaderCreatedMsg: Label '1 Warehouse Receipt Header has been created.';
         TrackingAmtNotMachPickErr: Label 'Registered Warehouse Pick amount do not match Item Tracking Line amount. ';
@@ -787,14 +788,14 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ProdOrderComponent: Record "Prod. Order Component";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         PlaceBinCode: Code[10];
-        WhseDocType: Option;
+        WhseDocType: Enum "Warehouse Activity Document Type";
         WhseDocNo: Code[20];
         SourceType: Integer;
         SourceSubtype: Option;
         SourceNo: Code[20];
         SourceLineNo: Integer;
         SourceSubLineNo: Integer;
-        PlaceActionType: Option;
+        PlaceActionType: Enum "Warehouse Action Type";
     begin
         PlaceBinCode := LibraryUtility.GenerateGUID;
         case DemandType of
@@ -817,6 +818,9 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     WarehouseShipmentLine."No." := WarehouseShipmentHeader."No.";
                     WarehouseShipmentLine."Item No." := SalesLine."No.";
                     WarehouseShipmentLine."Qty. (Base)" := SalesLine."Quantity (Base)";
+                    WarehouseShipmentLine.Quantity := SalesLine."Quantity (Base)";
+                    WarehouseShipmentLine."Qty. Outstanding (Base)" := SalesLine."Outstanding Qty. (Base)";
+                    WarehouseShipmentLine."Qty. Outstanding" := SalesLine."Outstanding Qty. (Base)";
                     WarehouseShipmentLine."Location Code" := SalesLine."Location Code";
                     WarehouseShipmentLine."Bin Code" := PlaceBinCode;
                     WarehouseShipmentLine."Source Type" := DATABASE::"Sales Line";
@@ -825,7 +829,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     WarehouseShipmentLine."Source Line No." := SalesLine."Line No.";
                     WarehouseShipmentLine."Shipment Date" := SalesLine."Shipment Date";
                     WarehouseShipmentLine."Due Date" := SalesLine."Shipment Date" + 2; // different from the Shipment Date
-                    WarehouseShipmentLine.Insert();
+                    WarehouseShipmentLine.Insert(true);
 
                     WhseDocType := WarehouseActivityLine."Whse. Document Type"::Shipment;
                     WhseDocNo := WarehouseShipmentLine."No.";
@@ -911,7 +915,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
           WhseDocType, WhseDocNo, SourceType, SourceSubtype, SourceNo, SourceLineNo, SourceSubLineNo);
     end;
 
-    local procedure CreateWarehouseActivityLine(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Option; LocationCode: Code[10]; BinCode: Code[10]; ItemNo: Code[20]; QuantityBase: Decimal; LotNo: Code[50]; WhseDocType: Option; WhseDocNo: Code[20]; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
+    local procedure CreateWarehouseActivityLine(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; BinCode: Code[10]; ItemNo: Code[20]; QuantityBase: Decimal; LotNo: Code[50]; WhseDocType: Enum "Warehouse Activity Document Type"; WhseDocNo: Code[20]; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
         WarehouseActivityLine2: Record "Warehouse Activity Line";
@@ -967,7 +971,6 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemNo: Code[20];
         LocationCode: Code[10];
         Qty: Decimal;
-        QtyBase: Decimal;
     begin
         // Refer VSTF 335595
         Initialize;
@@ -977,8 +980,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemNo := MockItemNoWithBaseUOM;
         VSTF335595CreateUnitOfMeasure(ItemUnitOfMeasureBOX, ItemNo, LibraryUtility.GenerateGUID, 144);
 
-        Qty := 0.13889;
-        QtyBase := 20;
+        Qty := 20 / 144;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."No." := LibraryUtility.GenerateGUID;
         SalesHeader.Insert();
@@ -988,10 +990,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         SalesLine."No." := ItemNo;
         SalesLine."Unit of Measure Code" := ItemUnitOfMeasureBOX.Code;
         SalesLine."Qty. per Unit of Measure" := ItemUnitOfMeasureBOX."Qty. per Unit of Measure";
-        SalesLine.Quantity := Qty;
-        SalesLine."Outstanding Quantity" := SalesLine.Quantity;
-        SalesLine."Quantity (Base)" := QtyBase;
-        SalesLine."Outstanding Qty. (Base)" := SalesLine."Quantity (Base)";
+        SalesLine.Validate(Quantity, Qty);
         SalesLine."Location Code" := LocationCode;
         SalesLine.Insert();
 
@@ -1008,7 +1007,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseShipmentLine.FindFirst;
         Assert.AreEqual(SalesLine.Quantity, WarehouseShipmentLine.Quantity,
           'Quantity must be same as that of sales line.');
-        Assert.AreEqual(SalesLine."Outstanding Quantity", WarehouseShipmentLine."Qty. Outstanding",
+        Assert.AreEqual(UoMMgt.RoundQty(SalesLine."Outstanding Quantity"), WarehouseShipmentLine."Qty. Outstanding",
           'Outstanding Quantity must be same as that of sales line.');
         Assert.AreEqual(SalesLine."Quantity (Base)", WarehouseShipmentLine."Qty. (Base)",
           'Quantity Base must be same as that of sales line.');
@@ -1301,7 +1300,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ItemUnitOfMeasure.Insert();
     end;
 
-    local procedure VSTF330787CreateEntry(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal; LotNo: Code[20]; ItemUnitOfMeasure: Record "Item Unit of Measure")
+    local procedure VSTF330787CreateEntry(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal; LotNo: Code[50]; ItemUnitOfMeasure: Record "Item Unit of Measure")
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         WarehouseEntry: Record "Warehouse Entry";
@@ -1562,7 +1561,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         end;
     end;
 
-    local procedure CreateReservEntryForTransfer(TransLine: Record "Transfer Line"; ItemUOM: Record "Item Unit of Measure"; LotNo: Code[20]; Qty: Decimal; Qty2: Decimal)
+    local procedure CreateReservEntryForTransfer(TransLine: Record "Transfer Line"; ItemUOM: Record "Item Unit of Measure"; LotNo: Code[50]; Qty: Decimal; Qty2: Decimal)
     var
         ReservEntry: Record "Reservation Entry";
     begin
@@ -1683,7 +1682,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         end;
     end;
 
-    local procedure MockWhseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Option; LocationCode: Code[10])
+    local procedure MockWhseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10])
     begin
         with WarehouseActivityHeader do begin
             Init;
@@ -1694,7 +1693,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         end;
     end;
 
-    local procedure MockWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; LineNo: Integer; ActionType: Option)
+    local procedure MockWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; LineNo: Integer; ActionType: Enum "Warehouse Action Type")
     begin
         with WarehouseActivityLine do begin
             Init;
@@ -1710,7 +1709,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         end;
     end;
 
-    local procedure MockWhseActivityLineWithBinAndShelf(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Option; ItemNo: Code[20]; BinCode: Code[20]; ShelfNo: Code[10])
+    local procedure MockWhseActivityLineWithBinAndShelf(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; BinCode: Code[20]; ShelfNo: Code[10])
     begin
         with WarehouseActivityLine do begin
             Init;
@@ -1769,7 +1768,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         end;
     end;
 
-    local procedure GetLastActvHdrCreatedNoSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; LocationCode: Code[10]; ActivityType: Option)
+    local procedure GetLastActvHdrCreatedNoSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; LocationCode: Code[10]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WhseActivityHdr.SetRange("Location Code", LocationCode);
         WhseActivityHdr.SetRange(Type, ActivityType);
@@ -1807,7 +1806,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         end;
     end;
 
-    local procedure SetQtyToHandleOnActivityLines(WhseActivityHdr: Record "Warehouse Activity Header"; LotNo: Code[20]; BinCode: Code[20]; QtyToHandle: Decimal)
+    local procedure SetQtyToHandleOnActivityLines(WhseActivityHdr: Record "Warehouse Activity Header"; LotNo: Code[50]; BinCode: Code[20]; QtyToHandle: Decimal)
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         QtyTaken: Decimal;
@@ -2110,7 +2109,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseEntry.Insert();
     end;
 
-    local procedure VSTF335757CallCreateInvtDoc(ActivityType: Option; ProdOrderComponent: Record "Prod. Order Component"; WarehouseRequest: Record "Warehouse Request")
+    local procedure VSTF335757CallCreateInvtDoc(ActivityType: Enum "Warehouse Activity Type"; ProdOrderComponent: Record "Prod. Order Component"; WarehouseRequest: Record "Warehouse Request")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         CreateInvtPickMovement: Codeunit "Create Inventory Pick/Movement";
@@ -2629,7 +2628,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         end;
     end;
 
-    local procedure VerifySortingOrderWhseActivityLines(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Option; ShelfNo: Code[10]; BinCode: Code[20])
+    local procedure VerifySortingOrderWhseActivityLines(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ShelfNo: Code[10]; BinCode: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin

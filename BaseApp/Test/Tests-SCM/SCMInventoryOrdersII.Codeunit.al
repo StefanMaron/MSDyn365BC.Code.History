@@ -2014,34 +2014,6 @@ codeunit 137068 "SCM Inventory Orders-II"
     end;
 
     [Test]
-    procedure PurchasingCodeDoesNotCopyFromItemToSalesReturnOrderLine()
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        Purchasing: Record Purchasing;
-    begin
-        // [FEATURE] [Sales] [Return Order] [Purchasing Code] [UT]
-        // [SCENARIO 406324] Purchasing code is not copied to sales return order line from item card.
-        Initialize();
-
-        // [GIVEN] Item "I" with Purchasing Code.
-        LibraryPurchase.CreatePurchasingCode(Purchasing);
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Purchasing Code", Purchasing.Code);
-        Item.Modify(true);
-
-        // [GIVEN] Sales return order.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", '');
-
-        // [WHEN] Select item "I" on the sales line.
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
-
-        // [THEN] Sales line has Purchasing Code = <blank>.
-        SalesLine.TestField("Purchasing Code", '');
-    end;
-
-    [Test]
     [HandlerFunctions('PostOrderStrMenuHandler')]
     [Scope('OnPrem')]
     procedure DropShipmentErrorHandling()
@@ -2733,7 +2705,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesLineAndAssignOneLotNo(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Qty: Decimal; UnitPrice: Decimal; LotNo: Code[20])
+    local procedure CreateSalesLineAndAssignOneLotNo(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Qty: Decimal; UnitPrice: Decimal; LotNo: Code[50])
     begin
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty, UnitPrice);
         LibraryVariableStorage.Enqueue(1);
@@ -2887,7 +2859,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         FindPurchaseLineBySpecialOrderSalesLine(PurchaseLine, SalesLine);
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LotNo: Code[20])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LotNo: Code[50])
     begin
         with ItemLedgerEntry do begin
             SetRange("Entry Type", EntryType);
@@ -3275,7 +3247,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
     end;
 
-    local procedure MakeTrackedItemStock(ItemNo: Code[20]; LotNo: Code[20])
+    local procedure MakeTrackedItemStock(ItemNo: Code[20]; LotNo: Code[50])
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -3418,7 +3390,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         end;
     end;
 
-    local procedure VerifyItemLedgEntrySalesAmount(ItemNo: Code[20]; LotNo: Code[20]; ExpectedAmount: Decimal)
+    local procedure VerifyItemLedgEntrySalesAmount(ItemNo: Code[20]; LotNo: Code[50]; ExpectedAmount: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -3499,7 +3471,7 @@ codeunit 137068 "SCM Inventory Orders-II"
             until ItemLedgerEntry.Next = 0;
     end;
 
-    local procedure VerifyValuedQtyAndSalesAmountOnValueEntry(DocumentNo: Code[20]; ItemNo: Code[20]; LotNo: Code[20]; ValuedQty: Decimal; SalesAmount: Decimal)
+    local procedure VerifyValuedQtyAndSalesAmountOnValueEntry(DocumentNo: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; ValuedQty: Decimal; SalesAmount: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";

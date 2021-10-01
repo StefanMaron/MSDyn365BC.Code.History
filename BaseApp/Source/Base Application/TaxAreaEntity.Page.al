@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5504 "Tax Area Entity"
 {
     Caption = 'taxAreas', Locked = true;
@@ -73,4 +74,4 @@ page 5504 "Tax Area Entity"
         LoadRecords;
     end;
 }
-
+#endif

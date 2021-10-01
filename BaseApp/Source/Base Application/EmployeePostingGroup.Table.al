@@ -45,6 +45,7 @@ table 5221 "Employee Posting Group"
     procedure GetPayablesAccount(): Code[20]
     begin
         TestField("Payables Account");
+
         exit("Payables Account");
     end;
 }

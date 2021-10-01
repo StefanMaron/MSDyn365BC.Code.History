@@ -17,7 +17,6 @@ codeunit 5943 "Lock-OpenServContract"
     var
         ServContractHeader: Record "Service Contract Header";
         ServContractLine: Record "Service Contract Line";
-        ConfirmManagement: Codeunit "Confirm Management";
         RaiseError: Boolean;
         IsHandled: Boolean;
     begin
@@ -55,15 +54,12 @@ codeunit 5943 "Lock-OpenServContract"
                 ServContractLine.SetRange("Contract Type", "Contract Type");
                 ServContractLine.SetRange("Contract No.", "Contract No.");
                 ServContractLine.SetRange("New Line", true);
-                if not ServContractLine.IsEmpty() then begin
-                    if not ConfirmManagement.GetResponseOrDefault(Text002, true) then
-                        exit;
-                    SignServContractDoc.AddendumToContract(ServContractHeader);
-                end;
+                if not ServContractLine.IsEmpty() then
+                    SignServContract(ServContractHeader);
             end;
             Get(FromServContractHeader."Contract Type", FromServContractHeader."Contract No.");
             "Change Status" := "Change Status"::Locked;
-            Modify;
+            Modify();
         end;
 
         OnAfterLockServContract(ServContractHeader);
@@ -78,10 +74,29 @@ codeunit 5943 "Lock-OpenServContract"
             if (Status = Status::Canceled) and ("Contract Type" = "Contract Type"::Contract) then
                 Error(Text001, Status);
             "Change Status" := "Change Status"::Open;
-            Modify;
+            Modify();
         end;
 
         OnAfterOpenServContract(ServContractHeader);
+    end;
+
+    local procedure SignServContract(ServContractHeader: Record "Service Contract Header")
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        AutoSign: Boolean;
+        IsHandled: Boolean;
+    begin
+        AutoSign := false;
+        IsHandled := false;
+        OnBeforeSignServContract(ServContractHeader, AutoSign, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not AutoSign then
+            if not ConfirmManagement.GetResponseOrDefault(Text002, true) then
+                exit;
+
+        SignServContractDoc.AddendumToContract(ServContractHeader);
     end;
 
     [IntegrationEvent(false, false)]
@@ -106,6 +121,11 @@ codeunit 5943 "Lock-OpenServContract"
 
     [IntegrationEvent(false, false)]
     local procedure OnLockServContractOnBeforeCheckZeroAnnualAmount(ServContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSignServContract(ServContractHeader: Record "Service Contract Header"; var AutoSign: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -4248,7 +4248,7 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderRoutingLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Option)
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -4256,7 +4256,7 @@ codeunit 137072 "SCM Production Orders II"
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
@@ -4273,7 +4273,7 @@ codeunit 137072 "SCM Production Orders II"
             exit(RoutingLine."Operation No.");
     end;
 
-    local procedure FindRegisteredWarehouseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActionType: Option)
+    local procedure FindRegisteredWarehouseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
         RegisteredWhseActivityLine.SetRange("Source Document", SourceDocument);
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
@@ -4343,7 +4343,7 @@ codeunit 137072 "SCM Production Orders II"
         PlanningWorksheet.CurrentWkshBatchName.SetValue(Name);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -4393,7 +4393,7 @@ codeunit 137072 "SCM Production Orders II"
         ManufacturingSetup.Modify(true);
     end;
 
-    local procedure UpdateQuantityAndLotNoOnWarehouseActivityLine(ItemNo: Code[20]; ProductionOrderNo: Code[20]; ActionType: Option; Quantity: Decimal)
+    local procedure UpdateQuantityAndLotNoOnWarehouseActivityLine(ItemNo: Code[20]; ProductionOrderNo: Code[20]; ActionType: Enum "Warehouse Action Type"; Quantity: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -4636,7 +4636,7 @@ codeunit 137072 "SCM Production Orders II"
         SalesLine.TestField("Reserved Quantity", ReservedQuantity);
     end;
 
-    local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; Quantity: Decimal; ActionType: Option)
+    local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; Quantity: Decimal; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -4662,7 +4662,7 @@ codeunit 137072 "SCM Production Orders II"
         PostedInvtPickLine.TestField("Lot No.", ItemLedgerEntry."Lot No.");
     end;
 
-    local procedure VerifyRegisteredWarehouseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; ActionType: Option)
+    local procedure VerifyRegisteredWarehouseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; ActionType: Enum "Warehouse Action Type")
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin

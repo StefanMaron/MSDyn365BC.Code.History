@@ -120,8 +120,10 @@ page 6327 "Power BI Embed Setup Wizard"
                         ShowCaption = false;
 
                         trigger OnDrillDown()
+                        var
+                            PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
                         begin
-                            Hyperlink(PowerBIServiceMgt.GetPowerBIUrl());
+                            Hyperlink(PowerBIUrlMgt.GetLicenseUrl());
                         end;
                     }
                     label(EmptySpace2)
@@ -375,8 +377,10 @@ page 6327 "Power BI Embed Setup Wizard"
 
         // Ensure user config for context before deployment
         SetPowerBIUserConfig.CreateOrReadUserConfigEntry(DummyPowerBIUserConfiguration, ParentPageContext);
-        if PowerBIReportSynchronizer.UserNeedsToSynchronize(ParentPageContext) then
+        if PowerBIReportSynchronizer.UserNeedsToSynchronize(ParentPageContext) then begin
             IsDeploying := false;
+            exit;
+        end;
 
         IsDeploying := true;
         PowerBIReportSynchronizer.SelectDefaultReports();

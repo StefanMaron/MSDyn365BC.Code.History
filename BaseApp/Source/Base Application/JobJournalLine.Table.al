@@ -1,4 +1,4 @@
-﻿table 210 "Job Journal Line"
+table 210 "Job Journal Line"
 {
     Caption = 'Job Journal Line';
 
@@ -112,7 +112,8 @@
                         "Bin Code" := '';
                         if ("No." <> '') and ("Location Code" <> '') then begin
                             GetLocation("Location Code");
-                            if IsDefaultBin() then
+                            GetItem();
+                            if IsDefaultBin() and Item.IsInventoriableType() then
                                 WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
                         end;
                     end;
@@ -149,9 +150,9 @@
 
             trigger OnValidate()
             begin
-                "Quantity (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 UpdateAllAmounts;
 
                 if "Job Planning Line No." <> 0 then
@@ -248,6 +249,8 @@
                         begin
                             Item.Get("No.");
                             "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                            "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                            "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
                             OnAfterAssignItemUoM(Rec, Item);
                         end;
                     Type::Resource:
@@ -280,6 +283,24 @@
                     Validate(Quantity);
             end;
         }
+        field(19; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(20; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(21; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
@@ -288,17 +309,16 @@
             trigger OnValidate()
             begin
                 "Bin Code" := '';
-                if "Location Code" <> '' then
-                    if IsNonInventoriableItem then
-                        Item.TestField(Type, Item.Type::Inventory);
                 OnValidateLocationCodeOnBeforeGetLocation(Rec);
                 GetLocation("Location Code");
                 Location.TestField("Directed Put-away and Pick", false);
                 Validate(Quantity);
                 if (Type = Type::Item) and ("Location Code" <> xRec."Location Code") then
-                    if ("Location Code" <> '') and ("No." <> '') then
-                        if IsDefaultBin() then
+                    if ("Location Code" <> '') and ("No." <> '') then begin
+                        GetItem();
+                        if IsDefaultBin() and Item.IsInventoriableType() then
                             WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
+                    end;
             end;
         }
         field(22; Chargeable; Boolean)
@@ -865,9 +885,7 @@
                             "Remaining Qty." := 0;
                     end;
                 end;
-                "Remaining Qty. (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "No.", "Variant Code", "Unit of Measure Code", "Remaining Qty.", "Qty. per Unit of Measure");
+                "Remaining Qty. (Base)" := CalcBaseQty("Remaining Qty.", FieldCaption("Remaining Qty."), FieldCaption("Remaining Qty. (Base)"));
 
                 CheckItemAvailable;
             end;
@@ -936,6 +954,8 @@
                     Location.TestField("Bin Mandatory");
                 end;
                 TestField(Type, Type::Item);
+                GetItem();
+                Item.TestField(Type, Item.Type::Inventory);
                 CheckItemAvailable;
                 WMSManagement.FindBinContent("Location Code", "Bin Code", "No.", "Variant Code", '')
             end;
@@ -1315,7 +1335,7 @@
             Job.Get("Job No.");
     end;
 
-    local procedure UpdateCurrencyFactor()
+    procedure UpdateCurrencyFactor()
     begin
         if "Currency Code" <> '' then begin
             if "Posting Date" = 0D then
@@ -1700,12 +1720,13 @@
         end;
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourceFindCost(var ResourceCost: Record "Resource Cost")
     begin
         OnAfterResourceFindCost(Rec, ResourceCost);
     end;
-
+#endif
     procedure ApplyPrice(PriceType: enum "Price Type"; CalledByFieldNo: Integer)
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
@@ -1925,6 +1946,12 @@
         Result := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
     end;
 
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignGLAccountValues(var JobJournalLine: Record "Job Journal Line"; GLAccount: Record "G/L Account")
     begin
@@ -1980,12 +2007,13 @@
     begin
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobJournalLine: Record "Job Journal Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var JobJournalLine: Record "Job Journal Line"; LastJobJournalLine: Record "Job Journal Line"; JobJournalTemplate: Record "Job Journal Template"; JobJournalBatch: Record "Job Journal Batch")
     begin
@@ -2165,7 +2193,7 @@
     local procedure OnAfterCreateDim(var JobJournalLine: Record "Job Journal Line"; CurrFieldNo: Integer)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnValidateUnitOfMeasureCodeOnBeforeOnBeforeValidateQuantity(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin

@@ -41,6 +41,37 @@ page 5345 "CRM TransactionCurrency List"
 
     actions
     {
+        area(processing)
+        {
+            action(ShowOnlyUncoupled)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Hide Coupled Currencies';
+                Image = FilterLines;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Do not show coupled currencies.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(true);
+                end;
+            }
+            action(ShowAll)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Show Coupled Currencies';
+                Image = ClearFilter;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Show coupled currencies.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(false);
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -52,13 +83,16 @@ page 5345 "CRM TransactionCurrency List"
             if CurrentlyCoupledCRMTransactioncurrency.TransactionCurrencyId = TransactionCurrencyId then begin
                 Coupled := 'Current';
                 FirstColumnStyle := 'Strong';
+                Mark(true);
             end else begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
+                Mark(false);
             end
         else begin
             Coupled := 'No';
             FirstColumnStyle := 'None';
+            Mark(true);
         end;
     end;
 

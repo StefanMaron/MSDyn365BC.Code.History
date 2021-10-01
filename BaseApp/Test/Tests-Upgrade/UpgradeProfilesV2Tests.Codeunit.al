@@ -20,7 +20,6 @@ codeunit 135971 "Upgrade Profile V2 Tests"
         UserPersonalization: Record "User Personalization";
         TenantProfile: Record "Tenant Profile";
         Assert: Codeunit "Library Assert";
-        EmptyGuid: Guid;
     begin
         if not UpgradeStatus.UpgradeTriggered() then
             exit;
@@ -62,18 +61,19 @@ codeunit 135971 "Upgrade Profile V2 Tests"
         ApplicationAreaSetup.SetRange(Basic, true);
         ApplicationAreaSetup.SetRange(Suite, true);
         ApplicationAreaSetup.SetRange("Fixed Assets", false);
-        ApplicationAreaSetup.SetRange("User ID", EmptyGuid);
+        ApplicationAreaSetup.SetRange("User ID", '');
         ApplicationAreaSetup.SetRange("Profile ID", '');
         if ApplicationAreaSetup.IsEmpty() then
             Assert.Fail('Empty ApplicationAreaSetup should not have been updated.');
 
         Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup.SetFilter("Profile ID", '<>%1', '');
+        ApplicationAreaSetup.SetFilter("Profile ID", '<>%1&<>%2', '', 'ACCOUNTANT PORTAL');
+        // Accountant Portal does not exist in the tenant profiles because it is installed by an extension but still added as a reference by demotool
         Assert.IsTrue(ApplicationAreaSetup.FindSet(), 'Could not find any Application Area Setup with non-empty profile.');
         repeat
             TenantProfile.SetRange("Profile ID", ApplicationAreaSetup."Profile ID");
             Assert.IsFalse(TenantProfile.IsEmpty(),
-                StrSubstNo('ApplicationAreaSetup should have been updated. Profile ID: %2.', ApplicationAreaSetup."Profile ID"));
+                StrSubstNo('ApplicationAreaSetup should have been updated. Profile ID: %1.', ApplicationAreaSetup."Profile ID"));
         until ApplicationAreaSetup.Next() = 0;
     end;
 

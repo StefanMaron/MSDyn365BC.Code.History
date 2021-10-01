@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135529 "Sales Quote Line E2E Test"
 {
     Subtype = Test;
@@ -757,4 +758,4 @@ codeunit 135529 "Sales Quote Line E2E Test"
         exit(SalesLine.FindFirst);
     end;
 }
-
+#endif

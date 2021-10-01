@@ -1,4 +1,4 @@
-﻿table 7347 "Internal Movement Line"
+table 7347 "Internal Movement Line"
 {
     Caption = 'Internal Movement Line';
     LookupPageID = "Whse. Internal Put-away Lines";
@@ -453,10 +453,9 @@
     begin
         TestField("Item No.");
         TestField("Qty. (Base)");
-        WhseWorksheetLine.InitLineWithItem(
-          WhseWorksheetLine."Whse. Document Type"::"Internal Movement", "No.", "Line No.",
-          "Location Code", "Item No.", "Variant Code",
-          "Qty. (Base)", "Qty. (Base)", "Qty. per Unit of Measure");
+        WhseWorksheetLine.InitNewLineWithItem(
+          "Warehouse Worksheet Document Type"::"Internal Movement", "No.", "Line No.",
+          "Location Code", "Item No.", "Variant Code", "Qty. (Base)", "Qty. (Base)", "Qty. per Unit of Measure");
 
         WhseItemTrackingLinesForm.SetSource(WhseWorksheetLine, DATABASE::"Internal Movement Line");
         WhseItemTrackingLinesForm.RunModal;
@@ -471,10 +470,9 @@
         UndefinedQtyArray: array[2] of Decimal;
     begin
         if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then begin
-            WhseWorksheetLine.InitLineWithItem(
-              WhseWorksheetLine."Whse. Document Type"::"Internal Movement", "No.", "Line No.",
-              "Location Code", "Item No.", "Variant Code",
-              "Qty. (Base)", "Qty. (Base)", "Qty. per Unit of Measure");
+            WhseWorksheetLine.InitNewLineWithItem(
+              "Warehouse Worksheet Document Type"::"Internal Movement", "No.", "Line No.",
+              "Location Code", "Item No.", "Variant Code", "Qty. (Base)", "Qty. (Base)", "Qty. per Unit of Measure");
             exit(
               ItemTrackingMgt.UpdateQuantities(
                 WhseWorksheetLine, TotalWhseItemTrackingLine, SourceQuantityArray, UndefinedQtyArray, DATABASE::"Internal Movement Line"));
@@ -629,10 +627,9 @@
     begin
         TestField("Item No.");
         TestField("Qty. (Base)");
-        WhseWorksheetLine.InitLineWithItem(
-          WhseWorksheetLine."Whse. Document Type"::"Internal Movement", "No.", "Line No.",
-          "Location Code", "Item No.", "Variant Code",
-          "Qty. (Base)", "Qty. (Base)", "Qty. per Unit of Measure");
+        WhseWorksheetLine.InitNewLineWithItem(
+          "Warehouse Worksheet Document Type"::"Internal Movement", "No.", "Line No.",
+          "Location Code", "Item No.", "Variant Code", "Qty. (Base)", "Qty. (Base)", "Qty. per Unit of Measure");
 
         Clear(WhseItemTrackingLinesLines);
         OnSetItemTrackingLinesOnBeforeSetSource(Rec, WhseWorksheetLine);

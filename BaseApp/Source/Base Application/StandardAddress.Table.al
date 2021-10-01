@@ -7,7 +7,7 @@ table 730 "Standard Address"
         field(1; "Related RecordID"; RecordID)
         {
             Caption = 'Related RecordID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(2; "Address Type"; Option)
         {

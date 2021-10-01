@@ -136,6 +136,7 @@ codeunit 5337 "CDS Int. Table Uncouple"
         IntegrationRecordRef: RecordRef;
         CompanyIdFieldRef: FieldRef;
         IntegrationTableFilter: Text;
+        FilterList: List of [Text];
     begin
         if not CDSIntegrationImpl.HasCompanyIdField(IntegrationTableMapping."Integration Table ID") then
             exit;
@@ -154,18 +155,20 @@ codeunit 5337 "CDS Int. Table Uncouple"
         if not CDSIntegrationImpl.TryGetCDSCompany(CDSCompany) then
             exit;
 
-        IntegrationTableFilter := OriginalIntegrationTableMapping.GetIntegrationTableFilter();
-        IntegrationRecordRef.SetView(IntegrationTableFilter);
-        CompanyIdFieldRef.SetRange(CDSCompany.CompanyId);
-        if IntegrationRecordRef.FindSet() then
-            repeat
-                CDSIntegrationImpl.ResetCompanyId(IntegrationRecordRef);
-                if IntegrationRecordRef.IsDirty() then
-                    if not IntegrationRecordRef.Modify(true) then
-                        IntegrationTableSynch.LogSynchError(LocalRecordRef, IntegrationRecordRef, GetLastErrorText())
-                    else
-                        IntegrationTableSynch.IncrementSynchJobCounters(SynchActionType::Modify);
-            until IntegrationRecordRef.Next() = 0;
+        CRMIntegrationTableSynch.SplitIntegrationTableFilter(OriginalIntegrationTableMapping, FilterList);
+        foreach IntegrationTableFilter in FilterList do begin
+            IntegrationRecordRef.SetView(IntegrationTableFilter);
+            CompanyIdFieldRef.SetRange(CDSCompany.CompanyId);
+            if IntegrationRecordRef.FindSet() then
+                repeat
+                    CDSIntegrationImpl.ResetCompanyId(IntegrationRecordRef);
+                    if IntegrationRecordRef.IsDirty() then
+                        if not IntegrationRecordRef.Modify(true) then
+                            IntegrationTableSynch.LogSynchError(LocalRecordRef, IntegrationRecordRef, GetLastErrorText())
+                        else
+                            IntegrationTableSynch.IncrementSynchJobCounters(SynchActionType::Modify);
+                until IntegrationRecordRef.Next() = 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

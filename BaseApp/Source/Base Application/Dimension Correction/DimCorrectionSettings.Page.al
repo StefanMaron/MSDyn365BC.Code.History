@@ -4,6 +4,7 @@ page 2582 "Dim Correction Settings"
     ApplicationArea = All;
     UsageCategory = Administration;
     Caption = 'Dimension Correction Settings';
+    AdditionalSearchTerms = 'dimension correction setup';
 
     layout
     {

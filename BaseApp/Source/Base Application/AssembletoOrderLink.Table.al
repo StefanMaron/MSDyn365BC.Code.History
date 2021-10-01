@@ -366,7 +366,7 @@ table 904 "Assemble-to-Order Link"
                 RecalcAutoReserve(ToAsmOrderHeader);
                 Insert;
             end;
-            OnMakeAsmOrderLinkedToSalesOrderLineOnBeforeCheckDocumentType(Rec, ToAsmOrderHeader, AsmHeader, FromSalesLine, ToSalesOrderLine);
+            OnMakeAsmOrderLinkedToSalesOrderLineOnBeforeCheckDocumentType(Rec, ToAsmOrderHeader, AsmHeader, ToSalesOrderLine, FromSalesLine);
             if FromSalesLine."Document Type" = FromSalesLine."Document Type"::Quote then
                 DeleteAsmFromSalesLine(FromSalesLine);
         end;
@@ -504,7 +504,7 @@ table 904 "Assemble-to-Order Link"
             exit;
 
         if Type = Type::Sale then begin
-            GetAsmHeader;
+            GetAsmHeader();
 
             AsmHeaderReserve.SetBinding(ReservEntry.Binding::"Order-to-Order");
             AsmHeaderReserve.SetDisallowCancellation(true);

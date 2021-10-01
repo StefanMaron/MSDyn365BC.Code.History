@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5490 "Payment Terms Entity"
 {
     Caption = 'paymentTerms', Locked = true;
@@ -145,4 +146,4 @@ page 5490 "Payment Terms Entity"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

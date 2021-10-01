@@ -233,9 +233,9 @@ table 5353 "CRM Salesorder"
             OptionCaption = ' ,Airborne,DHL,FedEx,UPS,Postal Mail,Full Load,Will Call';
             OptionOrdinalValues = -1, 1, 2, 3, 4, 5, 6, 7;
             OptionMembers = " ",Airborne,DHL,FedEx,UPS,PostalMail,FullLoad,WillCall;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'This field is replaced by field 105 ShippingMethodCodeEnum';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(28; PaymentTermsCode; Option)
         {
@@ -247,9 +247,9 @@ table 5353 "CRM Salesorder"
             OptionCaption = ' ,Net 30,2% 10; Net 30,Net 45,Net 60';
             OptionOrdinalValues = -1, 1, 2, 3, 4;
             OptionMembers = " ",Net30,"2%10Net30",Net45,Net60;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'This field is replaced by field 104 PaymentTermsCodeEnum';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(29; FreightTermsCode; Option)
         {
@@ -261,9 +261,9 @@ table 5353 "CRM Salesorder"
             OptionCaption = ' ,FOB,No Charge';
             OptionOrdinalValues = -1, 1, 2;
             OptionMembers = " ",FOB,NoCharge;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'This field is replaced by field 106 FreightTermsCode';
-            ObsoleteTag = '16.0';
+            ObsoleteTag = '19.0';
         }
         field(30; CreatedBy; Guid)
         {
@@ -497,7 +497,7 @@ table 5353 "CRM Salesorder"
         }
         field(60; ContactIdName; Text[160])
         {
-            CalcFormula = Lookup ("CRM Contact".FullName WHERE(ContactId = FIELD(ContactId)));
+            CalcFormula = Lookup("CRM Contact".FullName WHERE(ContactId = FIELD(ContactId)));
             Caption = 'ContactIdName';
             ExternalAccess = Read;
             ExternalName = 'contactidname';
@@ -506,7 +506,7 @@ table 5353 "CRM Salesorder"
         }
         field(61; AccountIdName; Text[160])
         {
-            CalcFormula = Lookup ("CRM Account".Name WHERE(AccountId = FIELD(AccountId)));
+            CalcFormula = Lookup("CRM Account".Name WHERE(AccountId = FIELD(AccountId)));
             Caption = 'AccountIdName';
             ExternalAccess = Read;
             ExternalName = 'accountidname';
@@ -515,7 +515,7 @@ table 5353 "CRM Salesorder"
         }
         field(62; OpportunityIdName; Text[250])
         {
-            CalcFormula = Lookup ("CRM Opportunity".Name WHERE(OpportunityId = FIELD(OpportunityId)));
+            CalcFormula = Lookup("CRM Opportunity".Name WHERE(OpportunityId = FIELD(OpportunityId)));
             Caption = 'OpportunityIdName';
             ExternalAccess = Read;
             ExternalName = 'opportunityidname';
@@ -524,7 +524,7 @@ table 5353 "CRM Salesorder"
         }
         field(63; QuoteIdName; Text[250])
         {
-            CalcFormula = Lookup ("CRM Quote".Name WHERE(QuoteId = FIELD(QuoteId)));
+            CalcFormula = Lookup("CRM Quote".Name WHERE(QuoteId = FIELD(QuoteId)));
             Caption = 'QuoteIdName';
             ExternalAccess = Read;
             ExternalName = 'quoteidname';
@@ -533,7 +533,7 @@ table 5353 "CRM Salesorder"
         }
         field(64; PriceLevelIdName; Text[100])
         {
-            CalcFormula = Lookup ("CRM Pricelevel".Name WHERE(PriceLevelId = FIELD(PriceLevelId)));
+            CalcFormula = Lookup("CRM Pricelevel".Name WHERE(PriceLevelId = FIELD(PriceLevelId)));
             Caption = 'PriceLevelIdName';
             ExternalAccess = Read;
             ExternalName = 'pricelevelidname';
@@ -542,7 +542,7 @@ table 5353 "CRM Salesorder"
         }
         field(65; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -551,7 +551,7 @@ table 5353 "CRM Salesorder"
         }
         field(66; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -720,7 +720,7 @@ table 5353 "CRM Salesorder"
         }
         field(87; TransactionCurrencyIdName; Text[100])
         {
-            CalcFormula = Lookup ("CRM Transactioncurrency".CurrencyName WHERE(TransactionCurrencyId = FIELD(TransactionCurrencyId)));
+            CalcFormula = Lookup("CRM Transactioncurrency".CurrencyName WHERE(TransactionCurrencyId = FIELD(TransactionCurrencyId)));
             Caption = 'TransactionCurrencyIdName';
             ExternalAccess = Read;
             ExternalName = 'transactioncurrencyidname';
@@ -770,7 +770,7 @@ table 5353 "CRM Salesorder"
         }
         field(93; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -788,7 +788,7 @@ table 5353 "CRM Salesorder"
         }
         field(95; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';

@@ -20,6 +20,7 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         IntTableSynchSubscriber: Codeunit "Int. Table Synch. Subscriber";
         CRMProductName: Codeunit "CRM Product Name";
+        LibraryTemplates: Codeunit "Library - Templates";
         SynchDirection: Option Cancel,ToCRM,ToNAV;
         ConfirmReply: Boolean;
         FieldNotUpdatedErr: Label '%1 is not updated', Comment = '%1 = Field No.';
@@ -64,7 +65,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] Notification "Syncronization has been scheduled." is shown.
         // Handled by SyncStartedNotificationHandler
         // execute scheduled job
-        Resource.SetRecFilter;
+        Resource.SetRange(SystemId, Resource.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Resource, Resource.GetView, IntegrationTableMapping);
         // [THEN] Job resulted in one modified record
@@ -88,12 +89,11 @@ codeunit 139180 "CRM Entity Synch Test"
         ScheduledCustomer: array[2] of Record Customer;
         CRMAccount: Record "CRM Account";
         IntegrationTableMapping: Record "Integration Table Mapping";
-        IntegrationTableMappingForJob: array[2] of Record "Integration Table Mapping";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         IntegrationSynchJob: Record "Integration Synch. Job";
         CustomerRecordRef: RecordRef;
         NameFieldRef: FieldRef;
-        JobQueueEntryID: array[2] of Guid;
+        JobQueueEntryID: Guid;
         SyncJobID: Guid;
     begin
         // [FEATURE] [Customer]
@@ -127,6 +127,11 @@ codeunit 139180 "CRM Entity Synch Test"
         MockCRMIntegrationRecordsLastSync(Customer.RecordId, 0DT);
         ScheduledCustomer[2] := Customer;
 
+        // [GIVEN] Only base integration table mappings, not child mappings
+        IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", true);
+        IntegrationTableMapping.DeleteAll();
+
         // [WHEN] Synchronizing the customers to CRM
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CustomerRecordRef := Customer.RecordId.GetRecord;
@@ -140,27 +145,19 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] Notification "The synchronization has been scheduled for 2 of 4 records. 0 records failed. 2 records were skipped." is shown.
         // Handled by MultipleSyncStartedNotificationHandler
 
-        // execute scheduled jobs
+        // execute a scheduled job
         IntegrationSynchJob.DeleteAll();
-        ScheduledCustomer[2].SetRecFilter;
-        JobQueueEntryID[2] :=
-          LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::Customer, ScheduledCustomer[2].GetView, IntegrationTableMappingForJob[2]);
-        Sleep(10); // to ensure order of synch jobs by start datetime
-        ScheduledCustomer[1].SetRecFilter;
-        JobQueueEntryID[1] :=
-          LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::Customer, ScheduledCustomer[1].GetView, IntegrationTableMappingForJob[1]);
+        Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Job is not found');
+        JobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
 
         // [THEN] Job for the 1st customer resulted in one modified record
+        // [THEN] Job for the 4th customer resulted in failure due to a not coupled salesperson
         IntegrationSynchJob.Modified := 1;
-        SyncJobID :=
-          LibraryCRMIntegration.VerifySyncJob(JobQueueEntryID[1], IntegrationTableMappingForJob[1], IntegrationSynchJob);
+        IntegrationSynchJob.Failed := 1;
+        IntegrationSynchJob.Message := StrSubstNo(SalespersonMustBeCoupledErr, SalespersonPurchaser.Code, CRMProductName.CDSServiceName());
+        SyncJobID := LibraryCRMIntegration.VerifySyncJob(JobQueueEntryID, IntegrationTableMapping, IntegrationSynchJob);
         IntegrationSynchJob.Get(SyncJobID);
         IntegrationSynchJob.Delete();
-        // [THEN] Job for the 4th customer resulted in failure due to a not coupled salesperson
-        LibraryCRMIntegration.VerifySyncJobFailedOneRecord(
-          JobQueueEntryID[2], IntegrationTableMappingForJob[2], StrSubstNo(SalespersonMustBeCoupledErr, SalespersonPurchaser.Code, CRMProductName.CDSServiceName()));
     end;
 
     [StrMenuHandler]
@@ -279,7 +276,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] The user is asked to select the synchronization direction
         // [WHEN] The user selects synchronization to CRM
         // Happens in TestSyncSingleRecordStrMenuHandler
-        Customer.SetRecFilter;
+        Customer.SetRange(SystemId, Customer.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
@@ -319,7 +316,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] The user is asked to select the synchronization direction
         // [WHEN] The user selects synchronization to CRM
         // Happens in TestSyncSingleRecordStrMenuHandler
-        Customer.SetRecFilter;
+        Customer.SetRange(SystemId, Customer.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
@@ -367,7 +364,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] The user is asked to select the synchronization direction
         // [WHEN] The user selects synchronization to CRM
         // Happens in TestSyncSingleRecordStrMenuHandler
-        Customer.SetRecFilter;
+        Customer.SetRange(SystemId, Customer.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
@@ -410,7 +407,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] The user is asked to select the synchronization direction
         // [WHEN] The user selects synchronization to CRM
         // Happens in TestSyncSingleRecordStrMenuHandler
-        Customer.SetRecFilter;
+        Customer.SetRange(SystemId, Customer.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
@@ -520,7 +517,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] The user is asked to confirm synch
         // [WHEN] The user confirms
         // Happens in TestSyncSingleSalespersonCRMModifiedConfirmHandler
-        CRMSystemuser.SetRecFilter;
+        CRMSystemuser.SetRange(SystemUserId, CRMSystemuser.SystemUserId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"CRM Systemuser", CRMSystemuser.GetView, IntegrationTableMapping);
@@ -574,7 +571,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] The user is asked to confirm data replacement
         // [WHEN] The user confirms
         // Happens in TestSyncSingleSalespersonNAVModifiedConfirmHandler
-        CRMSystemuser.SetRecFilter;
+        CRMSystemuser.SetRange(SystemUserId, CRMSystemuser.SystemUserId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"CRM Systemuser", CRMSystemuser.GetView, IntegrationTableMapping);
@@ -639,7 +636,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [THEN] The user is asked to confirm data replacement
         // [WHEN] The user confirms
         // Happens in TestSyncSingleSalespersonBothModifiedConfirmHandler
-        CRMSystemuser.SetRecFilter;
+        CRMSystemuser.SetRange(SystemUserId, CRMSystemuser.SystemUserId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"CRM Systemuser", CRMSystemuser.GetView, IntegrationTableMapping);
@@ -674,8 +671,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [GIVEN] "Payment Terms" is empty
         PaymentTerms.DeleteAll();
         // [GIVEN] A default Table Mapping for "Payment Terms"
-        IntegrationTableMapping.SetRange("Table ID", DATABASE::"Payment Terms");
-        IntegrationTableMapping.FindFirst;
+        GetIntegrationTableMapping(Database::"Payment Terms", IntegrationTableMapping);
         // [WHEN] Sync the table
         CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
 
@@ -701,8 +697,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [GIVEN] "Shipment Method" is empty
         ShipmentMethod.DeleteAll();
         // [GIVEN] A default Table Mapping for "Shipment Method"
-        IntegrationTableMapping.SetRange("Table ID", DATABASE::"Shipment Method");
-        IntegrationTableMapping.FindFirst;
+        GetIntegrationTableMapping(Database::"Shipment Method", IntegrationTableMapping);
         // [WHEN] Sync the table
         CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
 
@@ -728,8 +723,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [GIVEN] "Shipping Agent" is empty
         ShippingAgent.DeleteAll();
         // [GIVEN] A default Table Mapping for "Shipping Agent"
-        IntegrationTableMapping.SetRange("Table ID", DATABASE::"Shipping Agent");
-        IntegrationTableMapping.FindFirst;
+        GetIntegrationTableMapping(Database::"Shipping Agent", IntegrationTableMapping);
         // [WHEN] Sync the table
         CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
 
@@ -1486,7 +1480,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [GIVEN] Coupled Customer and Account, Contact only exists in CDS
         LibraryMarketing.CreateCompanyContact(CompanyContact);
         CompanyContact.SetHideValidationDialog(true);
-        CustomerNo := CompanyContact.CreateCustomer('');
+        CustomerNo := CompanyContact.CreateCustomerFromTemplate('');
         Customer.Get(CustomerNo);
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
         CustomerCRMIntegrationRecord[1].CoupleRecordIdToCRMID(Customer.RecordId(), CRMAccount.AccountId);
@@ -1584,6 +1578,7 @@ codeunit 139180 "CRM Entity Synch Test"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomerNo: Code[20];
         SleepDuration: Integer;
+        ContactModifiedAt: DateTime;
     begin
         // [SCENARIO 365486] The last sync timestamp are updated when sync job fixes Account Contact Id on CRM Account through trigger
         StartCRMTimeDiffMock(CRMTimeDiffSeconds);
@@ -1593,7 +1588,7 @@ codeunit 139180 "CRM Entity Synch Test"
         LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
         CompanyContact.Get(Contact."Company No.");
         CompanyContact.SetHideValidationDialog(true);
-        CustomerNo := CompanyContact.CreateCustomer('');
+        CustomerNo := CompanyContact.CreateCustomerFromTemplate('');
         Customer.Get(CustomerNo);
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
         CustomerCRMIntegrationRecord[1].CoupleRecordIdToCRMID(Customer.RecordId(), CRMAccount.AccountId);
@@ -1633,6 +1628,7 @@ codeunit 139180 "CRM Entity Synch Test"
         Contact.GetBySystemId(Contact.SystemId);
         Contact.Surname := 'X';
         Contact.Modify();
+        ContactModifiedAt := Contact.SystemModifiedAt;
 
         // [WHEN] Run sync
         CRMIntegrationTableSynch.Run(ContactIntegrationTableMapping[2]);
@@ -1655,7 +1651,7 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMAccount.TestField(PrimaryContactId, CRMContact.ContactId);
 
         // [THEN] Last sync timestamps are updated correctly in CRM Integration Record for the contact
-        AssertAreEqual(Contact.SystemModifiedAt, ContactCRMIntegrationRecord[2]."Last Synch. Modified On", '#1');
+        AssertAreEqual(ContactModifiedAt, ContactCRMIntegrationRecord[2]."Last Synch. Modified On", '#1');
         AssertAreEqual(CRMContact.ModifiedOn, ContactCRMIntegrationRecord[2]."Last Synch. CRM Modified On", '#2');
 
         // [THEN] Last sync timestamps are updated correctly in CRM Integration Record for the customer
@@ -1668,7 +1664,7 @@ codeunit 139180 "CRM Entity Synch Test"
         AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Modified On Filter", ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#6');
         AssertAreEqual(CRMContact.ModifiedOn, ContactIntegrationTableMapping[2]."Synch. Modified On Filter", '#7');
         AssertAreNotEqual(ContactIntegrationTableMapping[1]."Synch. Int. Tbl. Mod. On Fltr.", ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#8');
-        AssertAreEqual(Contact.SystemModifiedAt, ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#9');
+        AssertAreEqual(ContactModifiedAt, ContactIntegrationTableMapping[2]."Synch. Int. Tbl. Mod. On Fltr.", '#9');
 
         // [THEN] Last sync timestamps are not updated in Integration Table Mapping for the customer
         CustomerIntegrationTableMapping[2].GetBySystemId(CustomerIntegrationTableMapping[1].SystemId);
@@ -1734,6 +1730,7 @@ codeunit 139180 "CRM Entity Synch Test"
         VerifyIntegrationSynchJob(IntegrationTableMapping.Name, 0, 1);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
@@ -1766,7 +1763,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [WHEN] Customer Price Group 'A' is coupled and synched with teh new CRM Price List
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.CreateNewRecordsInCRM(CustomerPriceGroup.RecordId);
-        CustomerPriceGroup.SetRecFilter;
+        CustomerPriceGroup.SetRange(SystemId, CustomerPriceGroup.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Customer Price Group", CustomerPriceGroup.GetView, IntegrationTableMapping[1]);
@@ -1793,6 +1790,7 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.IsTrue(CRMProductpricelevel.FindFirst, 'Missing second price list line.');
         CRMProductpricelevel.TestField(Amount, SalesPrice[2]."Unit Price");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SyncStartedNotificationHandler,RecallNotificationHandler')]
@@ -1829,7 +1827,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [WHEN] Price List Header 'A' is coupled and synched with teh new CRM Price List
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.CreateNewRecordsInCRM(PriceListHeader.RecordId);
-        PriceListHeader.SetRecFilter;
+        PriceListHeader.SetRange(SystemId, PriceListHeader.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Price List Header", PriceListHeader.GetView, IntegrationTableMapping[1]);
@@ -1856,6 +1854,7 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMProductpricelevel.TestField(Amount, PriceListLine[2]."Unit Price");
     end;
 
+#if not CLEAN19
     //[Test]
     //[HandlerFunctions('SyncStartedNotificationHandler,RecallNotificationHandler')]
     // Disabled because after the deprecation of Integration recod, we no longer support the roll-up of the modification from children to parent
@@ -1888,7 +1887,7 @@ codeunit 139180 "CRM Entity Synch Test"
 
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.CreateNewRecordsInCRM(CustomerPriceGroup.RecordId);
-        CustomerPriceGroup.SetRecFilter;
+        CustomerPriceGroup.SetRange(SystemId, CustomerPriceGroup.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Customer Price Group", CustomerPriceGroup.GetView, IntegrationTableMapping);
@@ -1954,7 +1953,7 @@ codeunit 139180 "CRM Entity Synch Test"
           0D, '', '', '', 0, LibraryRandom.RandDecInRange(10, 100, 2));
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.CreateNewRecordsInCRM(CustomerPriceGroup.RecordId);
-        CustomerPriceGroup.SetRecFilter;
+        CustomerPriceGroup.SetRange(SystemId, CustomerPriceGroup.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Customer Price Group", CustomerPriceGroup.GetView, IntegrationTableMapping);
@@ -2029,6 +2028,7 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.ExpectedMessage(
           StrSubstNo(SalesCodeMustBeCoupledErr, CustomerPriceGroup.Code, CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2076,6 +2076,7 @@ codeunit 139180 "CRM Entity Synch Test"
             StrSubstNo(PriceListMustBeCoupledErr, PriceListHeader.Code, CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SyncDuplicateSalesPriceShouldCoupleRecords()
@@ -2118,6 +2119,7 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.IsTrue(IntegrationSynchJob.FindLast, 'No IntegrationSynchJob for ' + IntegrationTableMappingName);
         IntegrationSynchJob.TestField(Modified, 1);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2161,6 +2163,7 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationSynchJob.TestField(Modified, 1);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SyncPriceListForDecoupledItemShouldFail()
@@ -2210,6 +2213,7 @@ codeunit 139180 "CRM Entity Synch Test"
         Assert.ExpectedMessage(
           StrSubstNo(ItemMustBeCoupledErr, SalesPrice[2].FieldCaption("Item No."), SalesPrice[2]."Item No.", CRMProductName.CDSServiceName()), IntegrationSynchJobErrors.Message);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2280,6 +2284,7 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationFieldMapping.TestField(Direction, IntegrationFieldMapping.Direction::Bidirectional);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('TestSyncSingleRecordStrMenuHandler,ConfirmHandler')]
     [Scope('OnPrem')]
@@ -2318,7 +2323,7 @@ codeunit 139180 "CRM Entity Synch Test"
         LibraryCRMIntegration.CreatePricelevelAndCoupleWithPriceGroup(CustomerPriceGroup, CRMPricelevel, SalesPrice."Currency Code");
         CRMIntegrationManagement.UpdateOneNow(CustomerPriceGroup.RecordId);
 
-        CustomerPriceGroup.SetRecFilter;
+        CustomerPriceGroup.SetRange(SystemId, CustomerPriceGroup.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
           DATABASE::"Customer Price Group", CustomerPriceGroup.GetView, IntegrationTableMapping[1]);
 
@@ -2329,7 +2334,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [WHEN] Item is synched with CRM.
         CRMIntegrationManagement.UpdateOneNow(Item.RecordId);
 
-        Item.SetRecFilter;
+        Item.SetRange(SystemId, Item.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
           DATABASE::Item, Item.GetView, IntegrationTableMapping[2]);
 
@@ -2338,6 +2343,7 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMPricelevel.Get(CRMIntegrationRecord."CRM ID");
         VerifyCRMProductPriceLevelAmount(CRMProduct.ProductId, CRMPricelevel.PriceLevelId, SalesPrice."Unit Price");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('TestSyncSingleRecordStrMenuHandler,ConfirmHandler')]
@@ -2378,7 +2384,7 @@ codeunit 139180 "CRM Entity Synch Test"
             PriceListHeader, CRMPricelevel, PriceListHeader."Currency Code");
         CRMIntegrationManagement.UpdateOneNow(PriceListHeader.RecordId);
 
-        PriceListHeader.SetRecFilter;
+        PriceListHeader.SetRange(SystemId, PriceListHeader.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Price List Header", PriceListHeader.GetView, IntegrationTableMapping[1]);
 
@@ -2389,7 +2395,7 @@ codeunit 139180 "CRM Entity Synch Test"
         // [WHEN] Item is synched with CRM.
         CRMIntegrationManagement.UpdateOneNow(Item.RecordId);
 
-        Item.SetRecFilter;
+        Item.SetRange(SystemId, Item.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
           DATABASE::Item, Item.GetView, IntegrationTableMapping[2]);
 
@@ -2423,6 +2429,7 @@ codeunit 139180 "CRM Entity Synch Test"
         CRMConnectionSetup.RefreshDataFromCRM;
         CRMConnectionSetup.Modify();
         ResetDefaultCRMSetupConfiguration;
+        LibraryTemplates.EnableTemplatesFeature();
 
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
     end;
@@ -2454,7 +2461,7 @@ codeunit 139180 "CRM Entity Synch Test"
         LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
         CompanyContact.Get(Contact."Company No.");
         CompanyContact.SetHideValidationDialog(true);
-        CustomerNo := CompanyContact.CreateCustomer('');
+        CustomerNo := CompanyContact.CreateCustomerFromTemplate('');
         Customer.Get(CustomerNo);
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId(), CRMAccount.AccountId);
@@ -2551,17 +2558,18 @@ codeunit 139180 "CRM Entity Synch Test"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        IntegrationTableMapping.SetRange("Table ID", TableID);
-        IntegrationTableMapping.FindFirst;
+        GetIntegrationTableMapping(TableID, IntegrationTableMapping);
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
         IntegrationFieldMapping.SetRange("Field No.", FieldID);
-        IntegrationFieldMapping.FindFirst;
+        IntegrationFieldMapping.FindFirst();
     end;
 
     local procedure GetIntegrationTableMapping(TableNo: Integer; var IntegrationTableMapping: Record "Integration Table Mapping")
     begin
         IntegrationTableMapping.SetRange("Table ID", TableNo);
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.FindFirst();
+        IntegrationTableMapping.Reset();
     end;
 
     local procedure MockCRMIntegrationRecordsLastSync(RecID: RecordID; NewDateTime: DateTime)

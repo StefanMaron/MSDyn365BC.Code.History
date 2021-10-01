@@ -81,6 +81,8 @@ codeunit 270 ResJnlManagement
 
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var ResJnlLine: Record "Res. Journal Line")
     begin
+        OnBeforeOpenJnl(CurrentJnlBatchName, ResJnlLine);
+
         CheckTemplateName(ResJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         ResJnlLine.FilterGroup := 2;
         ResJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -197,6 +199,11 @@ codeunit 270 ResJnlManagement
                     ResName := Res.Name;
             OldResNo := ResNo;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnl(var CurrentJnlBatchName: Code[10]; var ResJournalLine: Record "Res. Journal Line")
+    begin
     end;
 }
 

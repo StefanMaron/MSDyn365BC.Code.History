@@ -127,8 +127,8 @@ table 7321 "Warehouse Shipment Line"
                 if Quantity < "Qty. Shipped" then
                     FieldError(Quantity, StrSubstNo(Text001, "Qty. Shipped"));
 
-                "Qty. (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+                "Qty. (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
                 InitOutstandingQtys;
                 "Completely Picked" := (Quantity = "Qty. Picked") or ("Qty. (Base)" = "Qty. Picked (Base)");
 
@@ -168,8 +168,8 @@ table 7321 "Warehouse Shipment Line"
                 WMSMgt: Codeunit "WMS Management";
             begin
                 GetLocation("Location Code");
-                "Qty. Outstanding (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Outstanding", "Qty. per Unit of Measure");
+                "Qty. Outstanding" := UOMMgt.RoundAndValidateQty("Qty. Outstanding", "Qty. Rounding Precision", FieldCaption("Qty. Outstanding"));
+                "Qty. Outstanding (Base)" := MaxQtyOutstandingBase(CalcBaseQty("Qty. Outstanding", FieldCaption("Qty. Outstanding"), FieldCaption("Qty. Outstanding (Base)")));
                 if Location."Require Pick" then begin
                     if "Assemble to Order" then
                         Validate("Qty. to Ship", 0)
@@ -234,9 +234,13 @@ table 7321 "Warehouse Shipment Line"
                 if not Confirmed then
                     Error('');
 
-                if CurrFieldNo <> FieldNo("Qty. to Ship (Base)") then
-                    "Qty. to Ship (Base)" :=
-                        UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
+                if CurrFieldNo <> FieldNo("Qty. to Ship (Base)") then begin
+                    "Qty. to Ship" := UOMMgt.RoundAndValidateQty("Qty. to Ship", "Qty. Rounding Precision", FieldCaption("Qty. to Ship"));
+                    "Qty. to Ship (Base)" := MaxQtyToShipBase(CalcBaseQty("Qty. to Ship", FieldCaption("Qty. to Ship"), FieldCaption("Qty. to Ship (Base)")));
+
+                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Qty. (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Qty. Shipped", "Qty. Shipped (Base)");
+
+                end;
 
                 if "Assemble to Order" then
                     ATOLink.UpdateQtyToAsmFromWhseShptLine(Rec);
@@ -261,8 +265,8 @@ table 7321 "Warehouse Shipment Line"
 
             trigger OnValidate()
             begin
-                "Qty. Picked (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Picked", "Qty. per Unit of Measure");
+                "Qty. Picked" := UOMMgt.RoundAndValidateQty("Qty. Picked", "Qty. Rounding Precision", FieldCaption("Qty. Picked"));
+                "Qty. Picked (Base)" := CalcBaseQty("Qty. Picked", FieldCaption("Qty. Picked"), FieldCaption("Qty. Picked (Base)"));
             end;
         }
         field(24; "Qty. Picked (Base)"; Decimal)
@@ -279,8 +283,8 @@ table 7321 "Warehouse Shipment Line"
 
             trigger OnValidate()
             begin
-                "Qty. Shipped (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Shipped", "Qty. per Unit of Measure");
+                "Qty. Shipped" := UOMMgt.RoundAndValidateQty("Qty. Shipped", "Qty. Rounding Precision", FieldCaption("Qty. Shipped"));
+                "Qty. Shipped (Base)" := CalcBaseQty("Qty. Shipped", FieldCaption("Qty. Shipped"), FieldCaption("Qty. Shipped (Base)"));
             end;
         }
         field(26; "Qty. Shipped (Base)"; Decimal)
@@ -412,6 +416,24 @@ table 7321 "Warehouse Shipment Line"
         field(49; "Posting from Whse. Ref."; Integer)
         {
             Caption = 'Posting from Whse. Ref.';
+            Editable = false;
+        }
+        field(50; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(51; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
             Editable = false;
         }
         field(900; "Assemble to Order"; Boolean)
@@ -555,7 +577,14 @@ table 7321 "Warehouse Shipment Line"
     procedure CalcQty(QtyBase: Decimal): Decimal
     begin
         TestField("Qty. per Unit of Measure");
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(UOMMgt.RoundQty(QtyBase / "Qty. per Unit of Measure", "Qty. Rounding Precision"));
+    end;
+
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        TestField("Qty. per Unit of Measure");
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -939,7 +968,6 @@ table 7321 "Warehouse Shipment Line"
 
     procedure CreateWhseItemTrackingLines()
     var
-        WhseWkshLine: Record "Whse. Worksheet Line";
         ATOSalesLine: Record "Sales Line";
         AsmHeader: Record "Assembly Header";
         AsmLineMgt: Codeunit "Assembly Line Management";
@@ -952,11 +980,9 @@ table 7321 "Warehouse Shipment Line"
             AsmLineMgt.CreateWhseItemTrkgForAsmLines(AsmHeader);
         end else begin
             if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
-                ItemTrackingMgt.InitItemTrkgForTempWkshLine(
-                  WhseWkshLine."Whse. Document Type"::Shipment, "No.",
-                  "Line No.", "Source Type",
-                  "Source Subtype", "Source No.",
-                  "Source Line No.", 0);
+                ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
+                  "Warehouse Worksheet Document Type"::Shipment, "No.", "Line No.",
+                  "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
         end;
     end;
 
@@ -977,6 +1003,13 @@ table 7321 "Warehouse Shipment Line"
         "Variant Code" := VariantCode;
         "Unit of Measure Code" := UoMCode;
         "Qty. per Unit of Measure" := QtyPerUoM;
+    end;
+
+    procedure SetItemData(ItemNo: Code[20]; ItemDescription: Text[100]; ItemDescription2: Text[50]; LocationCode: Code[10]; VariantCode: Code[10]; UoMCode: Code[10]; QtyPerUoM: Decimal; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
+    begin
+        SetItemData(ItemNo, ItemDescription, ItemDescription2, LocationCode, VariantCode, UoMCode, QtyPerUoM);
+        "Qty. Rounding Precision" := QtyRndPrec;
+        "Qty. Rounding Precision (Base)" := QtyRndPrecBase;
     end;
 
     procedure SetSource(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer)
@@ -1029,6 +1062,20 @@ table 7321 "Warehouse Shipment Line"
                 UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure")
         else
             QuantityBase := "Qty. (Base)";
+    end;
+
+    local procedure MaxQtyToShipBase(QtyToShipBase: Decimal): Decimal
+    begin
+        if Abs(QtyToShipBase) > Abs("Qty. Outstanding (Base)") then
+            exit("Qty. Outstanding (Base)");
+        exit(QtyToShipBase);
+    end;
+
+    local procedure MaxQtyOutstandingBase(QtyOutstandingBase: Decimal): Decimal
+    begin
+        if Abs(QtyOutstandingBase + "Qty. Shipped (Base)") > Abs("Qty. (Base)") then
+            exit("Qty. (Base)" - "Qty. Shipped (Base)");
+        exit(QtyOutstandingBase);
     end;
 
     [IntegrationEvent(false, false)]

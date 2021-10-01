@@ -434,7 +434,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         WarehouseShipmentHeader.FindLast;
     end;
 
-    local procedure GetLastActvHdrCreatedNoSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option)
+    local procedure GetLastActvHdrCreatedNoSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Enum "Warehouse Activity Type")
     begin
         WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);

@@ -62,8 +62,40 @@ page 7208 "CDS Full Synch. Review"
                 {
                     Caption = 'Recommendation';
                     ApplicationArea = Suite;
+                    Enabled = ("Initial Synch Recommendation" = "Initial Synch Recommendation"::"Couple Records");
                     StyleExpr = InitialSynchRecommendationStyle;
                     ToolTip = 'Specifies the recommended action for the initial synchronization.';
+
+                    trigger OnDrillDown()
+                    var
+                        IntegrationFieldMapping: Record "Integration Field Mapping";
+                        IntegrationTableMapping: Record "Integration Table Mapping";
+                    begin
+                        if not (InitialSynchRecommendation in [MatchBasedCouplingTxt, CouplingCriteriaSelectedTxt]) then
+                            exit;
+
+                        case BCPageId of
+                            Page::"Currencies":
+                                IntegrationTableMapping.SetRange("Table ID", Database::Currency);
+                            Page::"Salespersons/Purchasers":
+                                IntegrationTableMapping.SetRange("Table ID", Database::"Salesperson/Purchaser");
+                            Page::"Contact List":
+                                IntegrationTableMapping.SetRange("Table ID", Database::Contact);
+                            Page::"Vendor List":
+                                IntegrationTableMapping.SetRange("Table ID", Database::Vendor);
+                            Page::"Customer List":
+                                IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+                            else
+                                exit;
+                        end;
+                        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+                        if not IntegrationTableMapping.FindFirst() then
+                            exit;
+                        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+                        IntegrationFieldMapping.SetRange("Constant Value", '');
+                        if Page.RunModal(Page::"Match Based Coupling Criteria", IntegrationFieldMapping) = Action::LookupOK then
+                            CurrPage.Update(false);
+                    end;
                 }
             }
         }
@@ -97,16 +129,47 @@ page 7208 "CDS Full Synch. Review"
                     end;
                 }
             }
+            group(Sync)
+            {
+                action(ScheduleFullSynch)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Recommend Full Synchronization';
+                    Enabled = ActionRecommendFullSynchEnabled;
+                    Image = RefreshLines;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    ToolTip = 'Recommend full synchronization job for the selected line.';
+
+                    trigger OnAction()
+                    begin
+                        Rec."Initial Synch Recommendation" := Rec."Initial Synch Recommendation"::"Full Synchronization";
+                        Rec.Modify();
+                        CurrPage.Update();
+                    end;
+                }
+            }
         }
     }
 
     trigger OnAfterGetRecord()
+    var
+        IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
         ActionStartEnabled := (not IsThereActiveSessionInProgress()) and IsThereBlankStatusLine();
-        if "Initial Synch Recommendation" = "Initial Synch Recommendation"::"Couple Records" then
-            InitialSynchRecommendation := 'No Synchronization'
-        else
-            InitialSynchRecommendation := Format("Initial Synch Recommendation");
+        ActionRecommendFullSynchEnabled := (not IsThereActiveSessionInProgress()) and ("Initial Synch Recommendation" = "Initial Synch Recommendation"::"Couple Records");
+        if "Initial Synch Recommendation" <> "Initial Synch Recommendation"::"Couple Records" then
+            InitialSynchRecommendation := Format("Initial Synch Recommendation")
+        else begin
+            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Name);
+            IntegrationFieldMapping.SetRange("Use For Match-Based Coupling", true);
+            if IntegrationFieldMapping.IsEmpty() then
+                InitialSynchRecommendation := MatchBasedCouplingTxt
+            else
+                InitialSynchRecommendation := CouplingCriteriaSelectedTxt
+        end;
 
         InitialSynchRecommendationStyle := GetInitialSynchRecommendationStyleExpression(Format("Initial Synch Recommendation"));
         GetCDSPageId();
@@ -149,15 +212,15 @@ page 7208 "CDS Full Synch. Review"
     begin
         case Name of
             'CONTACT':
-                BCPageId := 5052;
+                BCPageId := Page::"Contact List";
             'CURRENCY':
-                BCPageId := 5;
+                BCPageId := Page::Currencies;
             'CUSTOMER':
-                BCPageId := 22;
+                BCPageId := Page::"Customer List";
             'SALESPEOPLE':
-                BCPageId := 14;
+                BCPageId := Page::"Salespersons/Purchasers";
             'VENDOR':
-                BCPageId := 27;
+                BCPageId := Page::"Vendor List";
         end;
     end;
 
@@ -256,11 +319,14 @@ page 7208 "CDS Full Synch. Review"
         CDSConnectionSetup: Record "CDS Connection Setup";
         UserPassword: Text;
         ActionStartEnabled: Boolean;
+        ActionRecommendFullSynchEnabled: Boolean;
         BCPageId: Integer;
         CDSPageId: Integer;
         CDSPageName: Text;
         BCPageName: Text;
         InitialSynchRecommendation: Text;
         InitialSynchRecommendationStyle: Text;
+        MatchBasedCouplingTxt: Label 'Select Coupling Criteria';
+        CouplingCriteriaSelectedTxt: Label 'Coupling Criteria Selected';
 }
 

@@ -199,7 +199,7 @@ codeunit 2000 "Time Series Management"
     var
         TempTimeSeriesBufferDistinct: Record "Time Series Buffer" temporary;
         DataTypeManagement: Codeunit "Data Type Management";
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
         RecRef: RecordRef;
         GroupIDFieldRef: FieldRef;
         ValueFieldRef: FieldRef;
@@ -225,9 +225,9 @@ codeunit 2000 "Time Series Management"
                 GroupIDFieldRef.SetRange(TempTimeSeriesBufferDistinct."Group ID");
                 for CurrentPeriod := -TimeSeriesObservationPeriods to -1 do begin
                     PeriodStartDate :=
-                      PeriodFormManagement.MoveDateByPeriod(TimeSeriesForecastingStartDate, TimeSeriesPeriodType, CurrentPeriod);
+                      PeriodPageManagement.MoveDateByPeriod(TimeSeriesForecastingStartDate, TimeSeriesPeriodType, CurrentPeriod);
                     PeriodEndDate :=
-                      PeriodFormManagement.MoveDateByPeriodToEndOfPeriod(TimeSeriesForecastingStartDate, TimeSeriesPeriodType, CurrentPeriod);
+                      PeriodPageManagement.MoveDateByPeriodToEndOfPeriod(TimeSeriesForecastingStartDate, TimeSeriesPeriodType, CurrentPeriod);
                     DateFieldRef.SetRange(PeriodStartDate, PeriodEndDate);
                     if ValueFieldRef.Class = FieldClass::Normal then
                         Value := CalculateValueNormal(ValueFieldRef)
@@ -294,7 +294,7 @@ codeunit 2000 "Time Series Management"
     local procedure LoadTimeSeriesForecast()
     var
         TypeHelper: Codeunit "Type Helper";
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
         Value: Variant;
         LineNo: Integer;
         GroupID: Code[50];
@@ -309,7 +309,7 @@ codeunit 2000 "Time Series Management"
             Evaluate(PeriodNo, GetOutput(LineNo, 2));
             TempTimeSeriesForecast."Period No." := PeriodNo;
             TempTimeSeriesForecast."Period Start Date" :=
-              PeriodFormManagement.MoveDateByPeriod(
+              PeriodPageManagement.MoveDateByPeriod(
                 TimeSeriesForecastingStartDate, TimeSeriesPeriodType, PeriodNo - TimeSeriesObservationPeriods - 1);
             Value := TempTimeSeriesForecast.Value;
             TypeHelper.Evaluate(Value, GetOutput(LineNo, 3), '', '');
@@ -398,11 +398,11 @@ codeunit 2000 "Time Series Management"
 
     local procedure CalculatePeriodsWithHistory(HistoryStartDate: Date; HistoryEndDate: Date; PeriodType: Option) NumberOfPeriodsWithHistory: Integer
     var
-        PeriodFormManagement: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
     begin
         while HistoryStartDate <= HistoryEndDate do begin
             NumberOfPeriodsWithHistory += 1;
-            HistoryStartDate := PeriodFormManagement.MoveDateByPeriod(HistoryStartDate, PeriodType, 1);
+            HistoryStartDate := PeriodPageManagement.MoveDateByPeriod(HistoryStartDate, PeriodType, 1);
         end;
     end;
 

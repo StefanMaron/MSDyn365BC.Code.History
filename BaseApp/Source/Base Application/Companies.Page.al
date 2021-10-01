@@ -144,6 +144,7 @@ page 357 Companies
             }
             action(CopyCompany)
             {
+                AccessByPermission = TableData Company = RI;
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy';
                 Image = Copy;

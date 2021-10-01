@@ -258,6 +258,7 @@ codeunit 134329 "ERM Purchase Return Order"
         Location.Modify(true);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -292,7 +293,7 @@ codeunit 134329 "ERM Purchase Return Order"
         VerifyLineDiscountAmount(
           PurchaseHeader."No.", (PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") * PurchaseLineDiscount."Line Discount %" / 100);
     end;
-
+#endif
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -526,10 +527,10 @@ codeunit 134329 "ERM Purchase Return Order"
         RunBatchPostPurchaseReturnOrders(PurchaseHeader);
         JobQueueEntry.SetRange("Record ID to Process", PurchaseHeader.RecordId);
         JobQueueEntry.FindFirst();
-        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId, true);
 
         // [THEN] Error message contains one record for Purchase Header
-        ErrorMessage.SetRange("Context Record ID", JobQueueEntry.RecordId);
+        ErrorMessage.SetRange("Context Record ID", PurchaseHeader.RecordId);
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
         Assert.IsSubstring(ErrorMessage.Description, PurchaseHeader.FieldCaption("Vendor Cr. Memo No."));
@@ -1582,6 +1583,7 @@ codeunit 134329 "ERM Purchase Return Order"
         ModifyPurchaseLine(PurchaseLine, PurchaseHeader);
     end;
 
+#if not CLEAN19
     local procedure SetupLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     var
         Item: Record Item;
@@ -1594,6 +1596,7 @@ codeunit 134329 "ERM Purchase Return Order"
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandInt(10));
         PurchaseLineDiscount.Modify(true);
     end;
+#endif
 
     local procedure UpdatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; VendorCrMemoNo: Code[35])
     begin

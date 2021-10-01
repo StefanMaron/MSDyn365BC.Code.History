@@ -265,7 +265,7 @@ codeunit 134084 "Item Avail. by Lot No Tests"
     var
         Item: Record Item;
         AvailabilityTestPage: TestPage "Item Availability by Lot No.";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
         CalendarDate: Record Date;
         OriginalWorkDate: Date;
     begin
@@ -273,7 +273,7 @@ codeunit 134084 "Item Avail. by Lot No Tests"
         Initialize();
 
         // Set work date to start of week to easen the setup of weekly data.
-        PeriodFormMgt.FindDate('', CalendarDate, PeriodType::Week);
+        PeriodPageManagement.FindDate('', CalendarDate, PeriodType::Week);
         WorkDate(CalendarDate."Period Start");
 
         CreateItem(Item);

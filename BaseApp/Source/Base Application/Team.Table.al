@@ -18,7 +18,7 @@ table 5083 Team
         }
         field(3; "Next Task Date"; Date)
         {
-            CalcFormula = Min ("To-do".Date WHERE("Team Code" = FIELD(Code),
+            CalcFormula = Min("To-do".Date WHERE("Team Code" = FIELD(Code),
                                                   Closed = CONST(false)));
             Caption = 'Next Task Date';
             Editable = false;
@@ -41,12 +41,10 @@ table 5083 Team
             FieldClass = FlowFilter;
             TableRelation = Contact WHERE(Type = CONST(Company));
         }
-        field(7; "Task Status Filter"; Option)
+        field(7; "Task Status Filter"; Enum "Task Status")
         {
             Caption = 'Task Status Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Not Started,In Progress,Completed,Waiting,Postponed';
-            OptionMembers = "Not Started","In Progress",Completed,Waiting,Postponed;
         }
         field(8; "Task Closed Filter"; Boolean)
         {
@@ -74,7 +72,7 @@ table 5083 Team
         }
         field(13; "Task Entry Exists"; Boolean)
         {
-            CalcFormula = Exist ("To-do" WHERE("Team Code" = FIELD(Code),
+            CalcFormula = Exist("To-do" WHERE("Team Code" = FIELD(Code),
                                                "Contact No." = FIELD("Contact Filter"),
                                                "Contact Company No." = FIELD("Contact Company Filter"),
                                                "Salesperson Code" = FIELD("Salesperson Filter"),

@@ -1849,6 +1849,7 @@
         </trans-unit>
         <trans-unit id="Enum 3583765724 - EnumValue 1371923692 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Role - EnumValue   - Property Caption</note>
         </trans-unit>
@@ -1863,6 +1864,18 @@
           <target state="translated">Представитель</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum VAT Group Role - EnumValue Representative - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 594605920 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Member</source>
+          <target state="translated">Участник группы зачета НДС</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet VAT Group Member - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 399216970 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Representative</source>
+          <target state="translated">Представит. группы зачета НДС</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet VAT Group Represent. - Property Caption</note>
         </trans-unit>
       </group>
     </body>

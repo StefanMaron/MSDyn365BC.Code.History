@@ -89,28 +89,6 @@ page 1340 "Config Templates"
         }
         area(processing)
         {
-            action("Edit Template")
-            {
-                ApplicationArea = Basic, Suite, Invoicing;
-                Caption = 'Edit';
-                Image = Edit;
-                Scope = Repeater;
-                ShortCutKey = 'Return';
-                ToolTip = 'Edit the selected template.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This functionality will be replaced by other templates.';
-                ObsoleteTag = '16.0';
-
-                trigger OnAction()
-                begin
-#if not CLEAN18
-                    if "Table ID" in [Database::Customer, Database::Vendor, Database::Item] then
-                        ShowOldTemplates()
-                    else
-#endif
-                    Page.Run(Page::"Config. Template Header", Rec);
-                end;
-            }
             action(Delete)
             {
                 ApplicationArea = Basic, Suite, Invoicing;
@@ -265,32 +243,5 @@ page 1340 "Config Templates"
     begin
         NewMode := true;
     end;
-
-#if not CLEAN18
-    local procedure ShowOldTemplates()
-    var
-        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
-        TempItemTemplate: Record "Item Template" temporary;
-        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
-    begin
-        case "Table ID" of
-            DATABASE::Customer:
-                begin
-                    TempMiniCustomerTemplate.InitializeTempRecordFromConfigTemplate(TempMiniCustomerTemplate, Rec);
-                    PAGE.Run(PAGE::"Cust. Template Card", TempMiniCustomerTemplate);
-                end;
-            DATABASE::Item:
-                begin
-                    TempItemTemplate.InitializeTempRecordFromConfigTemplate(TempItemTemplate, Rec);
-                    PAGE.Run(PAGE::"Item Template Card", TempItemTemplate);
-                end;
-            DATABASE::Vendor:
-                begin
-                    TempMiniVendorTemplate.InitializeTempRecordFromConfigTemplate(TempMiniVendorTemplate, Rec);
-                    PAGE.Run(PAGE::"Vendor Template Card", TempMiniVendorTemplate);
-                end;
-        end;
-    end;
-#endif
 }
 

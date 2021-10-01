@@ -6,12 +6,12 @@ page 9800 Users
     CardPageID = "User Card";
     DelayedInsert = true;
     PageType = List;
-    Editable = false;
     PromotedActionCategories = 'New,Process,Report,Navigate';
     RefreshOnActivate = true;
     SourceTable = User;
     SourceTableView = sorting("User Name");
-    UsageCategory = Lists;
+    UsageCategory = Administration;
+    Editable = false;
 
     AboutTitle = 'About user accounts';
     AboutText = 'Here, you manage who has access, and who can do what. Assign specific permissions to individual users, and organize users in user groups with group-level permissions.';
@@ -125,10 +125,10 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 SubPageLink = "User ID" = field("User Name");
             }
-            part(Control33; "User Personalization FactBox")
+            part(Control33; "User Settings FactBox")
             {
-                ApplicationArea = Basic, Suite;
-                SubPageLink = "User SID" = field("User Security ID");
+                ApplicationArea = All;
+                SubPageLink = "User Security ID" = field("User Security ID");
             }
             part(Control32; "Printer Selections FactBox")
             {
@@ -251,6 +251,26 @@ page 9800 Users
                     ToolTip = 'View or edit the available permission sets and apply permission sets to existing user groups.';
                 }
             }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this user.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::User, Rec.SystemId);
+                    end;
+                }
+            }
             action("User Settings")
             {
                 ApplicationArea = Basic, Suite;
@@ -259,7 +279,7 @@ page 9800 Users
                 Promoted = true;
                 PromotedOnly = true;
                 PromotedCategory = Category4;
-                RunObject = Page "User Personalization List";
+                RunObject = Page "User Settings List";
                 ToolTip = 'Manage the user interface settings for the users.';
             }
             action("User Setup")
@@ -332,25 +352,6 @@ page 9800 Users
                         Codeunit.Run(Codeunit::"Users - Create Super User");
                 end;
             }
-            action("Get Users from Office 365")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Get New Users from Office 365';
-                Image = Users;
-                ToolTip = 'Retrieve new users or new user information from the Office 365 portal. Note that existing, unchanged users will not be updated.';
-                Visible = IsSaaS;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Use the ''Update users from Microsoft 365'' action instead.';
-                ObsoleteTag = '16.0';
-
-                trigger OnAction()
-                var
-                    AzureADUserManagement: Codeunit "Azure AD User Management";
-                begin
-                    AzureADUserManagement.CreateNewUsersFromAzureAD;
-                    CurrPage.Update();
-                end;
-            }
             action("Invite External Accountant")
             {
                 ApplicationArea = Basic, Suite;
@@ -368,39 +369,14 @@ page 9800 Users
                     CurrPage.Update(false);
                 end;
             }
-            action(UpdateUserFromAzureGraph)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Update user information from Office 365';
-                ToolTip = 'Update the names, authentication email addresses, and contact email addresses from Office 365 for the selected users.';
-                Image = Users;
-                Visible = IsSaaS;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Use the ''Update users from Office'' action instead.';
-                ObsoleteTag = '16.0';
-
-                trigger OnAction()
-                var
-                    User: Record User;
-                    AzureADUserManagement: Codeunit "Azure AD User Management";
-                begin
-                    CurrPage.SetSelectionFilter(User);
-
-                    if User.FindSet() then
-                        if Confirm(UpdateAllSelectedUsersQst) then
-                            repeat
-                                AzureADUserManagement.UpdateUserFromGraph(User);
-                            until User.Next() = 0;
-                end;
-            }
             action("Restore User Default User Groups")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Restore User''s Default User Groups';
-                Enabled = CurrentUserIsSuper and RestoreUserGroupsForAnotherUser and (not NoUserExists) and (not IsIntelligentCloud);
+                Enabled = not NoUserExists;
                 Image = UserInterface;
-                ToolTip = 'Restore the default user groups based on changes to the related plan.';
-                Visible = IsSaaS;
+                ToolTip = 'Restore the default user groups based on changes to the related plan. This action is deprecated and will be removed in a future release, use the ''Update users from Office'' action instead.';
+                Visible = IsSaaS and CanManageUsersOnTenant;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Use the ''Update users from Office'' action instead.';
                 ObsoleteTag = '16.0';
@@ -432,39 +408,24 @@ page 9800 Users
                 AboutTitle = 'Keep in sync with Microsoft 365';
                 AboutText = 'When licenses or user accounts change in the Microsoft 365 Admin center, you must sync the changes back to this list.';
             }
-            action("Refresh User Groups")
+            action(Email)
             {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Refresh User Groups';
-                Enabled = CanManageUsers and (not NoUserExists);
-                Image = SKU;
-                ToolTip = 'Refresh selected users'' user groups with changes to the related plan.';
-                Visible = IsSaaS;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Use the ''Update users from Office'' action instead.';
-                ObsoleteTag = '16.0';
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to this user.';
+                Promoted = true;
+                PromotedCategory = Process;
+                Enabled = CanSendEmail;
 
                 trigger OnAction()
                 var
-                    User: Record User;
-                    AzureADPlan: Codeunit "Azure AD Plan";
-                    PlanIds: Codeunit "Plan Ids";
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
                 begin
-                    CurrPage.SetSelectionFilter(User);
-                    User.SetFilter("License Type", '<>%1', User."License Type"::"External User");
-                    User.SetFilter("Windows Security ID", '%1', '');
-
-                    if Confirm(RefreshAllSelectedUserPlansQst) then begin
-                        if User.FindSet() then
-                            repeat
-                                AzureADPlan.UpdateUserPlans(User."User Security ID");
-                            until User.Next() = 0;
-                        if AzureADPlan.MixedPlansExist then begin
-                            if AzureADPlan.DoesPlanExist(PlanIds.GetBasicPlanId) then
-                                Error(MixedSKUsWithBasicErr);
-                            Error(MixedSKUsWithoutBasicErr);
-                        end;
-                    end;
+                    TempEmailItem.AddSourceDocument(Database::User, Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."Contact Email";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
         }
@@ -479,11 +440,18 @@ page 9800 Users
         }
     }
 
+    trigger OnAfterGetCurrRecord()
+    var
+        User: Record User;
+    begin
+        CurrPage.SetSelectionFilter(User);
+        CanSendEmail := User.Count() = 1;
+    end;
+
     trigger OnAfterGetRecord()
     begin
         WindowsUserName := IdentityManagement.UserName("Windows Security ID");
         NoUserExists := false;
-        RestoreUserGroupsForAnotherUser := "User Security ID" <> UserSecurityId;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -501,10 +469,7 @@ page 9800 Users
         UserPermissions: Codeunit "User Permissions";
     begin
         IsSaaS := EnvironmentInfo.IsSaaS();
-        CurrentUserIsSuper := UserPermissions.IsSuper(UserSecurityId);
-        CanManageUsers := PermissionManager.CanCurrentUserManagePlansAndGroups;
         CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
-        IsIntelligentCloud := PermissionManager.IsIntelligentCloud;
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -522,9 +487,13 @@ page 9800 Users
     end;
 
     trigger OnOpenPage()
+    var
+        UserSelection: Codeunit "User Selection";
+        EmailFeature: Codeunit "Email Feature";
     begin
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         NoUserExists := IsEmpty;
-        HideExternalUsers;
+        UserSelection.HideExternalUsers(Rec);
     end;
 
     var
@@ -537,20 +506,12 @@ page 9800 Users
         Text004Err: Label '%1 cannot be empty.', Comment = '%1=user name';
         NoUserExists: Boolean;
         CreateQst: Label 'Do you want to create %1 as super user?', Comment = '%1=user name, e.g. europe\myaccountname';
-        CreateFirstUserYesMsg: Label 'Yes';
-        CreateFirstUserNoMsg: Label 'No';
+        [InDataSet]
+        CanSendEmail: Boolean;
         RestoreUserGroupsToDefaultQst: Label 'Do you want to restore the default user groups to for user %1?', Comment = 'Do you want to restore the default user groups to for user Annie?';
-        CurrentUserIsSuper: Boolean;
-        RestoreUserGroupsForAnotherUser: Boolean;
-        RefreshAllUserPlansQst: Label 'Do you want to refresh plans for all users?';
-        UpdateAllSelectedUsersQst: Label 'Do you want to update details about the selected users with information from Microsoft 365?';
-        RefreshAllSelectedUserPlansQst: Label 'Do you want to refresh plans for all selected users?';
-        MixedSKUsWithoutBasicErr: Label 'You cannot mix plans of type Essential and Premium. Make sure all users are on the same plan.';
-        CanManageUsers: Boolean;
         CanManageUsersOnTenant: Boolean;
-        MixedSKUsWithBasicErr: Label 'You cannot mix plans of type Basic, Essential, and Premium. Make sure all users are on the same plan.';
-        IsIntelligentCloud: Boolean;
         IsSaaS: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure ValidateSid()
     var
@@ -585,20 +546,6 @@ page 9800 Users
     procedure GetSelectionFilter(var User: Record User)
     begin
         CurrPage.SetSelectionFilter(User);
-    end;
-
-    local procedure HideExternalUsers()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
-        OriginalFilterGroup: Integer;
-    begin
-        if not EnvironmentInfo.IsSaaS then
-            exit;
-
-        OriginalFilterGroup := FilterGroup;
-        FilterGroup := 2;
-        SetFilter("License Type", '<>%1&<>%2', "License Type"::"External User", "License Type"::Application);
-        FilterGroup := OriginalFilterGroup;
     end;
 }
 

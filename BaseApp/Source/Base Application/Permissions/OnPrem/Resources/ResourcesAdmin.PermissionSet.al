@@ -17,8 +17,10 @@ permissionset 4969 "Resources - Admin"
                   tabledata "Reason Code" = R,
                   tabledata "Res. Journal Batch" = RIMD,
                   tabledata "Res. Journal Template" = RIMD,
+#if not CLEAN19
                   tabledata "Resource Cost" = RIMD,
                   tabledata "Resource Price" = RIMD,
+#endif
                   tabledata "Resources Setup" = RIMD,
                   tabledata "Source Code" = R,
                   tabledata "Source Code Setup" = R,

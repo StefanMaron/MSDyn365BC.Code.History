@@ -301,16 +301,16 @@ page 7365 "Whse. Reclassification Journal"
     var
         JnlSelected: Boolean;
     begin
-        if IsOpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
-            CurrentLocationCode := "Location Code";
-            OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
+        if Rec.IsOpenedFromBatch then begin
+            CurrentJnlBatchName := Rec."Journal Batch Name";
+            CurrentLocationCode := Rec."Location Code";
+            Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
             exit;
         end;
-        TemplateSelection(PAGE::"Whse. Reclassification Journal", 2, Rec, JnlSelected);
+        JnlSelected := Rec.TemplateSelection(PAGE::"Whse. Reclassification Journal", "Warehouse Journal Template Type"::Reclassification, Rec);
         if not JnlSelected then
             Error('');
-        OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
+        Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
     end;
 
     var

@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135507 "Company Info. Entity E2E Test"
 {
     Subtype = Test;
@@ -203,4 +204,4 @@ codeunit 135507 "Company Info. Entity E2E Test"
         JSON := LibraryGraphMgt.AddComplexTypetoJSON(JSON, 'address', AddressJSON);
     end;
 }
-
+#endif

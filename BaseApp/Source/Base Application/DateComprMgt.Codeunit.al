@@ -1,6 +1,5 @@
 codeunit 356 DateComprMgt
 {
-
     trigger OnRun()
     begin
     end;
@@ -11,6 +10,7 @@ codeunit 356 DateComprMgt
         AccountingPeriodDate: array[2] of Date;
         Date1: Date;
         Date2: Date;
+        ReportNotFoundLbl: Label 'Report not found';
 
     procedure GetDateFilter(Date: Date; DateComprReg: Record "Date Compr. Register"; CheckFiscYearEnd: Boolean): Text[250]
     begin
@@ -77,5 +77,15 @@ codeunit 356 DateComprMgt
         if Date > NewDate then
             Date := NewDate;
     end;
-}
+
+    procedure GetReportName(ReportID: Integer): Text
+    var
+        ReportMetadata: Record "Report Metadata";
+    begin
+        if ReportMetadata.ReadPermission() then
+            if ReportMetadata.Get(ReportID) then
+                exit(ReportMetadata.Caption);
+        exit(ReportNotFoundLbl);
+    end;
+    }
 

@@ -1,4 +1,4 @@
-﻿codeunit 5720 "Item Reference Management"
+codeunit 5720 "Item Reference Management"
 {
 
     trigger OnRun()
@@ -580,9 +580,11 @@
 
     procedure IsEnabled() FeatureEnabled: Boolean
     var
-        FeatureManagementFacade: Codeunit "Feature Management Facade";
+        InventorySetup: Record "Inventory Setup";
     begin
-        FeatureEnabled := FeatureManagementFacade.IsEnabled(ItemReferenceFeatureIdTok);
+        InventorySetup.Get();
+        FeatureEnabled := InventorySetup."Use Item References";
+
         OnAfterIsEnabled(FeatureEnabled);
     end;
 

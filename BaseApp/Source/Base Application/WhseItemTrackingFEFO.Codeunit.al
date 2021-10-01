@@ -169,7 +169,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     begin
         TempGlobalEntrySummary.DeleteAll();
         TempGlobalEntrySummary.Reset();
-        TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
+        TempGlobalEntrySummary.SetTrackingKey();
     end;
 
 #if not CLEAN17

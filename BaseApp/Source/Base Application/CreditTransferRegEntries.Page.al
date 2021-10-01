@@ -56,22 +56,22 @@ page 1206 "Credit Transfer Reg. Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the credit transfer. The ID is defined from the value in the Identifier field in the Credit Transfer Register field plus the value in the Entry No. field, divided by a slash. For example, DABA00113/3.';
                 }
-                field(CreditorName; CreditorName)
+                field(CreditorName; Rec."Recipient Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Recipient Name';
                     ToolTip = 'Specifies the recipient of the exported credit transfer, typically a vendor.';
                 }
-                field(RecipientIBAN; GetRecipientIBANOrBankAccNo(true))
+                field(RecipientIBAN; Rec."Recipient IBAN")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Recipient IBAN';
                     ToolTip = 'Specifies the IBAN of the creditor bank account that was used on the payment journal line that this credit transfer file was exported from.';
                 }
-                field("GetRecipientIBANOrBankAccNo(FALSE)"; GetRecipientIBANOrBankAccNo(false))
+                field("GetRecipientIBANOrBankAccNo(FALSE)"; Rec."Recipient Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Recipient Bank Acc. No.';
+                    Caption = 'Recipient Bank Account No.';
                     ToolTip = 'Specifies the number of the creditor bank account that was used on the payment journal line that this credit transfer file was exported from.';
                 }
                 field("Message to Recipient"; "Message to Recipient")

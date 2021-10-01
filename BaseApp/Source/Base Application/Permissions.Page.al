@@ -3,10 +3,9 @@ page 9803 Permissions
     Caption = 'Permissions';
     DataCaptionFields = "Object Type", "Object Name";
     DeleteAllowed = false;
-    Editable = false;
     InsertAllowed = false;
     ModifyAllowed = false;
-    PageType = List;
+    PageType = Worksheet;
     PopulateAllFields = true;
     PromotedActionCategories = 'New,Process,Report,Read,Insert,Modify,Delete,Execute';
     ShowFilter = false;
@@ -30,12 +29,18 @@ page 9803 Permissions
                         Editable = false;
                         Importance = Promoted;
                         ToolTip = 'Specifies the permission set that the permission belongs to.';
+
+                        trigger OnAssistEdit()
+                        begin
+                            SelectFilterSet();
+                        end;
                     }
                 }
             }
             repeater(Group)
             {
                 Caption = 'AllPermission';
+                Editable = false;
                 field(PermissionSet; "Role ID")
                 {
                     ApplicationArea = Basic, Suite;
@@ -157,31 +162,22 @@ page 9803 Permissions
     {
         area(Processing)
         {
+#if not CLEAN19
             action(FilterPermissionSet)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by AssistEdit trigger on the Permission Set field';
+                ObsoleteTag = '19.0';
                 ApplicationArea = Basic, Suite;
                 Caption = 'Select Permission Set';
                 Image = Filter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Specifies the filter of the permission sets that the object applies to.';
-
                 trigger OnAction()
-                var
-                    AggregatePermissionSet: Record "Aggregate Permission Set";
-                    SelectionFilterManagement: Codeunit SelectionFilterManagement;
-                    PermissionSetList: Page "Permission Set List";
                 begin
-                    PermissionSetList.LookupMode(true);
-                    if PermissionSetList.RunModal() = Action::LookupOK then begin
-                        PermissionSetList.GetSelectionFilter(AggregatePermissionSet);
-                        AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::System);
-                        CurrentRoleID := SelectionFilterManagement.GetSelectionFilterForAggregatePermissionSetRoleId(AggregatePermissionSet);
-                        Reset();
-                        FillTempPermissions();
-                    end;
+                    SelectFilterSet();
                 end;
             }
+#endif
             action(IncludeExclude)
             {
                 AccessByPermission = TableData "Tenant Permission" = ID;
@@ -308,6 +304,22 @@ page 9803 Permissions
                 SetObjectZeroName(TempPermission);
                 if TempPermission.Insert() then;
             until AllObj.Next() = 0;
+    end;
+
+    local procedure SelectFilterSet()
+    var
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        PermissionSetList: Page "Permission Set List";
+    begin
+        PermissionSetList.LookupMode(true);
+        if PermissionSetList.RunModal() = Action::LookupOK then begin
+            PermissionSetList.GetSelectionFilter(AggregatePermissionSet);
+            AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::System);
+            CurrentRoleID := SelectionFilterManagement.GetSelectionFilterForAggregatePermissionSetRoleId(AggregatePermissionSet);
+            Reset();
+            FillTempPermissions();
+        end;
     end;
 
     local procedure ActivateControls()

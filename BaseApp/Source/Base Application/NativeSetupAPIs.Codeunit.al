@@ -41,7 +41,9 @@ codeunit 2800 "Native - Setup APIs"
         InsertNativeInvoicingODataWebService(PAGE::"Native - Payment Terms", ApiPrefixTxt + 'PaymentTerms', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - Payment Methods", ApiPrefixTxt + 'PaymentMethods', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - Attachments", ApiPrefixTxt + 'Attachments', AllTenants);
+#if not CLEAN19
         InsertNativeInvoicingODataWebService(PAGE::"Native - General Setting", ApiPrefixTxt + 'GeneralSettings', AllTenants);
+#endif
         InsertNativeInvoicingODataWebService(PAGE::"Native - SMTP Mail Setup", ApiPrefixTxt + 'SMTPMailSetup', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native - Email Setting", ApiPrefixTxt + 'EmailSetting', AllTenants);
         InsertNativeInvoicingODataWebService(PAGE::"Native Country/Regions Entity", ApiPrefixTxt + 'CountryRegion', AllTenants);

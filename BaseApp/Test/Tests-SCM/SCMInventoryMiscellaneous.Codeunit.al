@@ -140,6 +140,270 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     [Test]
     [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
     [Scope('OnPrem')]
+    procedure ForecastWithVariantCodeCreatesReqLineWithVariantCodeWhenVariantSwitchIsONInManufSetup()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        ProductionForecastEntry2: Record "Production Forecast Entry";
+        RequisitionLine: Record "Requisition Line";
+        Quantity: Decimal;
+    begin
+        // Verify Planning Lines for Production Forecast with Item Variant when 'Use forecast on Variants' is ON and Calculate Regenerative Plan is invoked.
+
+        // Setup: Update Sales Receivables Setup and Manufacturing Setup. 
+        Initialize;
+        Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
+        SetupSalesAndManufacturingSetup;
+
+        // Setup: Create Item with Variants.
+        CreateItem(Item, Item."Replenishment System"::Purchase);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant2, Item."No.");
+
+        // Setup: Create Production Forecast for the first item variant.
+        CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", '', ItemVariant.Code, Quantity);
+
+        // Setup: Create Production Forecast for the second item variant.
+        LibraryManufacturing.CreateProductionForecastEntry(
+                    ProductionForecastEntry2,
+                    ProductionForecastEntry."Production Forecast Name",
+                    Item."No.", '', ProductionForecastEntry."Forecast Date", false);
+        ProductionForecastEntry2.Validate("Variant Code", ItemVariant2.Code);
+        ProductionForecastEntry2.Validate("Forecast Quantity (Base)", Quantity * 2);
+        ProductionForecastEntry2.Modify(true);
+
+        // Exercise: Calculate Regenerative Plan.
+        EnqueueFilters(Item."No.", '', '');
+        OpenPlanWkshPageForCalcRegenPlan(CreateRequisitionWorksheetName(PAGE::"Planning Worksheet"));
+
+        // Verify: Verify Calculated Planning Lines.
+        FindRequisitionLine(RequisitionLine, Item."No.", '');
+        Assert.RecordIsNotEmpty(RequisitionLine);
+
+        // Verify: There are 2 planning lines created
+        Assert.RecordCount(RequisitionLine, 2);
+
+        // Verify: The Planning line creted for the first variant
+        RequisitionLine.SetRange("Variant Code", ItemVariant.Code);
+        Assert.RecordCount(RequisitionLine, 1);
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField(Quantity, Quantity);
+        RequisitionLine.TestField("Ref. Order Type", RequisitionLine."Ref. Order Type"::Purchase);
+        RequisitionLine.TestField("Replenishment System", RequisitionLine."Replenishment System"::Purchase);
+
+        // Verify: The Planning line creted for the second variant
+        RequisitionLine.SetRange("Variant Code", ItemVariant2.Code);
+        Assert.RecordCount(RequisitionLine, 1);
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField(Quantity, Quantity * 2);
+        RequisitionLine.TestField("Ref. Order Type", RequisitionLine."Ref. Order Type"::Purchase);
+        RequisitionLine.TestField("Replenishment System", RequisitionLine."Replenishment System"::Purchase);
+    end;
+
+    [Test]
+    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ForecastWithVariantCodeCreatesReqLineWithoutVariantCodeWhenVariantSwitchIsOFFInManufSetup()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        ProductionForecastEntry2: Record "Production Forecast Entry";
+        RequisitionLine: Record "Requisition Line";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Quantity: Decimal;
+    begin
+        // Verify Planning Lines for Production Forecast with Item Variant when 'Use forecast on Variants' is OFF and Calculate Regenerative Plan is invoked.
+
+        // Setup: Update Sales Receivables Setup and Manufacturing Setup. 
+        Initialize;
+        Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
+        SetupSalesAndManufacturingSetup;
+
+        // Setup: Create Item with Variants.
+        CreateItem(Item, Item."Replenishment System"::Purchase);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant2, Item."No.");
+
+        // Setup: Create Production Forecast for the first item variant.
+        CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", '', ItemVariant.Code, Quantity);
+
+        // Setup: Create Production Forecast for the second item variant.
+        LibraryManufacturing.CreateProductionForecastEntry(
+            ProductionForecastEntry2,
+            ProductionForecastEntry."Production Forecast Name",
+            Item."No.", '', ProductionForecastEntry."Forecast Date", false);
+        ProductionForecastEntry2.Validate("Variant Code", ItemVariant2.Code);
+        ProductionForecastEntry2.Validate("Forecast Quantity (Base)", Quantity * 2);
+        ProductionForecastEntry2.Modify(true);
+
+        // Setup: Switch OFF 'Use forecast on Variants' on Manufacturing Setup
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Use Forecast on Variants", false);
+        ManufacturingSetup.Modify(true);
+
+        // Exercise: Calculate Regenerative Plan.
+        EnqueueFilters(Item."No.", '', '');
+        OpenPlanWkshPageForCalcRegenPlan(CreateRequisitionWorksheetName(PAGE::"Planning Worksheet"));
+
+        // Verify: Verify Calculated Planning Lines.
+        FindRequisitionLine(RequisitionLine, Item."No.", '');
+        Assert.RecordIsNotEmpty(RequisitionLine);
+
+        // Verify: There is 1 planning line created
+        Assert.RecordCount(RequisitionLine, 1);
+
+        // Verify: The Planning line created has empty varint code
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField(Quantity, Quantity + (Quantity * 2));
+        RequisitionLine.TestField("Variant Code", '');
+        RequisitionLine.TestField("Ref. Order Type", RequisitionLine."Ref. Order Type"::Purchase);
+        RequisitionLine.TestField("Replenishment System", RequisitionLine."Replenishment System"::Purchase);
+    end;
+
+    [Test]
+    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoPlanningLinesCreatedWhenVariantForecastingIsONAndNoForecastEntriesWithVariantsExist()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        //ProductionForecastEntry2: Record "Production Forecast Entry";
+        RequisitionLine: Record "Requisition Line";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Location: Record Location;
+        Quantity: Decimal;
+    begin
+        // Verify Planning Lines for Production Forecast with Item Variant when 'Use forecast on Variants' is ON and Calculate Regenerative Plan is invoked.
+
+        // Setup: Update Sales Receivables Setup and Manufacturing Setup. 
+        Initialize;
+        Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
+        SetupSalesAndManufacturingSetup;
+        CreateLocation(Location, false, false, false, false);
+
+        // Setup: Create Item with Variants.
+        CreateItem(Item, Item."Replenishment System"::Purchase);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant2, Item."No.");
+
+        // Setup: Create Production Forecast for item with empty variant.
+        CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", Location.Code, '', Quantity);
+
+        // Setup: Switch ON 'Use forecast on Variants' on Manufacturing Setup
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Use Forecast on Variants", true);
+        ManufacturingSetup.Modify(true);
+
+        // Exercise: Calculate Regenerative Plan.
+        EnqueueFilters(Item."No.", Location.Code, ItemVariant.Code);
+        OpenPlanWkshPageForCalcRegenPlan(CreateRequisitionWorksheetName(PAGE::"Planning Worksheet"));
+
+        // Verify: Verify Calculated Planning Lines.
+        FindRequisitionLine(RequisitionLine, Item."No.", Location.Code);
+        Assert.RecordIsEmpty(RequisitionLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler,MessageHandler,PlanningErrorLogModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoPlanningLinesCreatedWhenVariantForecastingIsOFFAndNoForecastEntriesWithVariantsExist()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        RequisitionLine: Record "Requisition Line";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Location: Record Location;
+        Quantity: Decimal;
+    begin
+        // Verify Planning Lines for Production Forecast with Item Variant when 'Use forecast on Variants' is OFF and Calculate Regenerative Plan is invoked.
+
+        // Setup: Update Sales Receivables Setup and Manufacturing Setup. 
+        Initialize;
+        Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
+        SetupSalesAndManufacturingSetup;
+        CreateLocation(Location, false, false, false, false);
+
+        // Setup: Create Item with Variants.
+        CreateItem(Item, Item."Replenishment System"::Purchase);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant2, Item."No.");
+
+        // Setup: Create Production Forecast for item with empty variant.
+        CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", Location.Code, '', Quantity);
+
+        // Setup: Switch OFF 'Use forecast on Variants' on Manufacturing Setup
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Use Forecast on Variants", false);
+        ManufacturingSetup.Modify(true);
+
+        // Exercise: Calculate Regenerative Plan.
+        EnqueueFilters(Item."No.", Location.Code, ItemVariant.Code);
+        OpenPlanWkshPageForCalcRegenPlan(CreateRequisitionWorksheetName(PAGE::"Planning Worksheet"));
+
+        // Verify: Verify Calculated Planning Lines.
+        FindRequisitionLine(RequisitionLine, Item."No.", Location.Code);
+        Assert.RecordIsEmpty(RequisitionLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PlanningLinesCreatedWhenVariantForecastingIsONAndForecastEntriesWithNoVariantsExist()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        //ProductionForecastEntry2: Record "Production Forecast Entry";
+        RequisitionLine: Record "Requisition Line";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Location: Record Location;
+        Quantity: Decimal;
+    begin
+        // Verify Planning Lines for Production Forecast with Item Variant when 'Use forecast on Variants' is OFF and Calculate Regenerative Plan is invoked.
+
+        // Setup: Update Sales Receivables Setup and Manufacturing Setup. 
+        Initialize;
+        Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
+        SetupSalesAndManufacturingSetup;
+        CreateLocation(Location, false, false, false, false);
+
+        // Setup: Create Item with Variants.
+        CreateItem(Item, Item."Replenishment System"::Purchase);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant2, Item."No.");
+
+        // Setup: Create Production Forecast for the first item variant.
+        CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", Location.Code, '', Quantity);
+
+        // Setup: Switch OFF 'Use forecast on Variants' on Manufacturing Setup
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Use Forecast on Variants", true);
+        ManufacturingSetup.Modify(true);
+
+        // Exercise: Calculate Regenerative Plan.
+        EnqueueFilters(Item."No.", Location.Code, '');
+        OpenPlanWkshPageForCalcRegenPlan(CreateRequisitionWorksheetName(PAGE::"Planning Worksheet"));
+
+        // Verify: Verify Calculated Planning Lines.
+        FindRequisitionLine(RequisitionLine, Item."No.", Location.Code);
+        Assert.RecordIsNotEmpty(RequisitionLine);
+
+        // Verify: There is 1 planning line created
+        Assert.RecordCount(RequisitionLine, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
+    [Scope('OnPrem')]
     procedure PlanningLinesForNonDemandLocationWithPoductionForcast()
     var
         ParentItem: Record Item;
@@ -164,7 +428,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         FindProductionBOMLine(ProductionBOMLine, ParentItem."Production BOM No.");
 
         // Exercise: Calculate Regenerative Plan.
-        EnqueueFilters(StrSubstNo('%1|%2', ParentItem."No.", ProductionBOMLine."No."), Location2.Code);
+        EnqueueFilters(StrSubstNo('%1|%2', ParentItem."No.", ProductionBOMLine."No."), Location2.Code, '');
         OpenPlanWkshPageForCalcRegenPlan(CreateRequisitionWorksheetName(PAGE::"Planning Worksheet"));
 
         // Verify: Verify Calculated Planning Lines.
@@ -201,7 +465,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         CreateItem(ParentItem, ParentItem."Replenishment System"::"Prod. Order");
         CreateDemandAsForecast(ParentItem, LocationCode, Quantity);
         FindProductionBOMLine(ProductionBOMLine, ParentItem."Production BOM No.");
-        EnqueueFilters(StrSubstNo('%1|%2', ParentItem."No.", ProductionBOMLine."No."), LocationCode2);
+        EnqueueFilters(StrSubstNo('%1|%2', ParentItem."No.", ProductionBOMLine."No."), LocationCode2, '');
 
         // Exercise: Calculate Regenerative Plan.
         OpenPlanWkshPageForCalcRegenPlan(CreateRequisitionWorksheetName(PAGE::"Planning Worksheet"));
@@ -707,7 +971,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     var
         TransferLine: Record "Transfer Line";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Verify Tracking on Posted Inventory Pick when Tracking is assigned on Inventory Pick.
 
@@ -735,7 +999,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         WarehouseRequest: Record "Warehouse Request";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Verify Tracking on Posted Inventory Pick when Tracking is assigned on Transfer Order.
 
@@ -1079,7 +1343,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
 
         // [GIVEN] Regenerative plan is calculated for "I1" and "I2".
         PlanWkshtName := CreateRequisitionWorksheetName(PAGE::"Planning Worksheet");
-        EnqueueFilters(ItemFilter, '');
+        EnqueueFilters(ItemFilter, '', '');
         Commit();
         PlanningWorksheet.OpenEdit;
         PlanningWorksheet.CurrentWkshBatchName.SetValue(PlanWkshtName);
@@ -1160,7 +1424,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         TransferHeader: Record "Transfer Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         FileManagement: Codeunit "File Management";
-        LotNo: Code[20];
+        LotNo: Code[50];
         ShipmentFileName: Text;
     begin
         // [FEATURE] [Transfer Order] [Warehouse] [Pick] [Report]
@@ -1395,8 +1659,14 @@ codeunit 137293 "SCM Inventory Miscellaneous"
 
     local procedure CreateAndUpdateProductionForecast(var ProductionForecastEntry: Record "Production Forecast Entry"; Name: Code[10]; Date: Date; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     begin
+        CreateAndUpdateProductionForecast(ProductionForecastEntry, Name, Date, ItemNo, LocationCode, '', Quantity);
+    end;
+
+    local procedure CreateAndUpdateProductionForecast(var ProductionForecastEntry: Record "Production Forecast Entry"; Name: Code[10]; Date: Date; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Quantity: Decimal)
+    begin
         LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, Name, ItemNo, '', Date, false);
         ProductionForecastEntry.Validate("Location Code", LocationCode);
+        ProductionForecastEntry.Validate("Variant Code", VariantCode);
         ProductionForecastEntry.Validate("Forecast Quantity (Base)", Quantity);
         ProductionForecastEntry.Modify(true);
     end;
@@ -1482,6 +1752,20 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     end;
 
     local procedure CreateDemandAsForecast(var ParentItem: Record Item; LocationCode: Code[10]; Quantity: Decimal)
+    var
+        ChildItem: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+    begin
+        CreateItem(ChildItem, ChildItem."Replenishment System"::Purchase);
+        LibraryInventory.CreateItemVariant(ItemVariant, ChildItem."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant2, ChildItem."No.");
+        CreateAndUpdateProductionBOM(ParentItem, ChildItem."No.", ItemVariant.Code);
+        CreateProductionForecastSetup(ProductionForecastEntry, ParentItem."No.", LocationCode, Quantity);
+    end;
+
+    local procedure CreateDemandAsForecast(var ParentItem: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Quantity: Decimal)
     var
         ChildItem: Record Item;
         ItemVariant: Record "Item Variant";
@@ -1585,15 +1869,20 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     end;
 
     local procedure CreateProductionForecastSetup(var ProductionForecastEntry: Record "Production Forecast Entry"; ParentItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    begin
+        CreateProductionForecastSetup(ProductionForecastEntry, ParentItemNo, LocationCode, '', Quantity);
+    end;
+
+    local procedure CreateProductionForecastSetup(var ProductionForecastEntry: Record "Production Forecast Entry"; ParentItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; Quantity: Decimal)
     var
         ProductionForecastName: Record "Production Forecast Name";
     begin
         // Calculate Forecast Date earlier than WORKDATE using Ranndom value.
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true);
+        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true, true);
         CreateAndUpdateProductionForecast(
           ProductionForecastEntry, ProductionForecastName.Name, CalcDate('<' + Format(-LibraryRandom.RandInt(20)) + 'D>', WorkDate),
-          ParentItemNo, LocationCode, Quantity);
+          ParentItemNo, LocationCode, VariantCode, Quantity);
     end;
 
     local procedure CreateRequisitionWorksheetName(PageID: Integer): Code[10]
@@ -1707,7 +1996,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
     end;
 
-    local procedure CreateWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var TransferLine: Record "Transfer Line"; LotNo: Code[20])
+    local procedure CreateWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var TransferLine: Record "Transfer Line"; LotNo: Code[50])
     var
         WarehouseRequest: Record "Warehouse Request";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -1729,10 +2018,12 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         TransferLine.Modify(true);
     end;
 
-    local procedure EnqueueFilters(ItemFilter: Text; LocationFilter: Text)
+    local procedure EnqueueFilters(ItemFilter: Text; LocationFilter: Text; VariantFilter: Text)
     begin
         LibraryVariableStorage.Enqueue(ItemFilter);
         LibraryVariableStorage.Enqueue(LocationFilter);
+        if VariantFilter <> '' then
+            LibraryVariableStorage.Enqueue(VariantFilter);
     end;
 
     local procedure FilterTransferOrder(var TransferHeader: Record "Transfer Header"; TransferFromCode: Code[10]; TransferToCode: Code[10])
@@ -1762,7 +2053,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         SalesLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
@@ -1925,7 +2216,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         CreateItem(Item, Item."Replenishment System"::Purchase);
         CreateAndUpdateStockKeepingUnit(StockkeepingUnit, Item, LocationCode, Location.Code);
         CreateSalesOrder(SalesLine, CreateCustomer(Location.Code, Customer.Reserve::Optional), Item."No.", LocationCode, Quantity);
-        EnqueueFilters(Item."No.", LocationCode);
+        EnqueueFilters(Item."No.", LocationCode, '');
     end;
 
     local procedure SetupSalesAndManufacturingSetup()
@@ -1949,6 +2240,17 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
+        ManufacturingSetup.Modify(true);
+    end;
+
+    local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10]; UseForecastOnLocations: Boolean; UseForecastOnVariants: Boolean)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
+        ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
+        ManufacturingSetup.Validate("Use Forecast on Variants", UseForecastOnVariants);
         ManufacturingSetup.Modify(true);
     end;
 
@@ -2041,7 +2343,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         WhseWorksheetLine.TestField("Destination No.", SalesLine."Sell-to Customer No.");
     end;
 
-    local procedure VerifyPostedInventoryPick(SourceNo: Code[20]; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20])
+    local procedure VerifyPostedInventoryPick(SourceNo: Code[20]; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[50])
     var
         PostedInvtPickLine: Record "Posted Invt. Pick Line";
     begin
@@ -2126,6 +2428,8 @@ codeunit 137293 "SCM Inventory Miscellaneous"
 
         CalculatePlanPlanWksh.Item.SetFilter("No.", LibraryVariableStorage.DequeueText);
         CalculatePlanPlanWksh.Item.SetFilter("Location Filter", LibraryVariableStorage.DequeueText);
+        if LibraryVariableStorage.Length() = 1 then
+            CalculatePlanPlanWksh.Item.SetFilter("Variant Filter", LibraryVariableStorage.DequeueText);
         CalculatePlanPlanWksh.StartingDate.SetValue(CalcDate('<-CM>', WorkDate));
         CalculatePlanPlanWksh.EndingDate.SetValue(CalcDate('<CM>', WorkDate));
         CalculatePlanPlanWksh.OK.Invoke;
@@ -2251,6 +2555,13 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         CurrentSaveValuesId := REPORT::"Create Invt Put-away/Pick/Mvmt";
         CreateInvtPutawayPickMvmt.CreateInventorytPutAway.SetValue(true);
         CreateInvtPutawayPickMvmt.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PlanningErrorLogModalPageHandler(var PlanningErrorLog: TestPage "Planning Error Log")
+    begin
+        PlanningErrorLog.OK.Invoke;
     end;
 
     [MessageHandler]

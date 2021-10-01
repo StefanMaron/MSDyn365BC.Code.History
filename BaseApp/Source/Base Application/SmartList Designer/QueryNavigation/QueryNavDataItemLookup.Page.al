@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 990 "Query Nav. DataItem Lookup"
 {
     PageType = List;
@@ -5,6 +6,9 @@ page 990 "Query Nav. DataItem Lookup"
     Extensible = false;
     SourceTable = "Designed Query Data Item";
     Caption = 'Select Linking Data Item';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -30,3 +34,4 @@ page 990 "Query Nav. DataItem Lookup"
         }
     }
 }
+#endif

@@ -71,7 +71,6 @@ page 520 "Item Availability by Lot No."
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'View by';
-                        OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                         ToolTip = 'Specifies by which period amounts are displayed.';
 
                         trigger OnValidate()
@@ -84,7 +83,6 @@ page 520 "Item Availability by Lot No."
                     {
                         ApplicationArea = ItemTracking;
                         Caption = 'View as';
-                        OptionCaption = 'Net Change,Balance at Date';
                         ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                         trigger OnValidate()
@@ -259,8 +257,8 @@ page 520 "Item Availability by Lot No."
         ItemNo: Text;
         LocationFilter: Text;
         VariantFilter: Text;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     procedure RefreshPage()
     begin
@@ -283,15 +281,15 @@ page 520 "Item Availability by Lot No."
 
     local procedure FindPeriod(SearchText: Code[3])
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         if Rec.GetFilter("Date Filter") <> '' then begin
             CalendarDate.SetFilter("Period Start", Rec.GetFilter("Date Filter"));
-            if not PeriodFormMgt.FindDate('+', CalendarDate, PeriodType) then
-                PeriodFormMgt.FindDate('+', CalendarDate, PeriodType::Day);
+            if not PeriodPageMgt.FindDate('+', CalendarDate, PeriodType) then
+                PeriodPageMgt.FindDate('+', CalendarDate, PeriodType::Day);
             CalendarDate.SetRange("Period Start");
         end;
-        PeriodFormMgt.FindDate(SearchText, CalendarDate, PeriodType);
+        PeriodPageMgt.FindDate(SearchText, CalendarDate, PeriodType);
         if AmountType = AmountType::"Net Change" then begin
             Rec.SetRange("Date Filter", CalendarDate."Period Start", CalendarDate."Period End");
             if Rec.GetRangeMin("Date Filter") = Rec.GetRangeMax("Date Filter") then

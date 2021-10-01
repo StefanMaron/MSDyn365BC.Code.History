@@ -1,3 +1,4 @@
+#if not CLEAN19
 pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Data Update"
 {
     layout
@@ -8,6 +9,9 @@ pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Dat
             {
                 ShowCaption = false;
                 Visible = SalesPrices;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'SalesPrice feature will be enabled by default in version 22.0.';
+                ObsoleteTag = '19.0';
                 field("Use Default Price Lists"; Rec."Use Default Price Lists")
                 {
                     ApplicationArea = All;
@@ -55,3 +59,4 @@ pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Dat
             SplitDataDescription := SplitDescriptionMsg;
     end;
 }
+#endif

@@ -1216,13 +1216,65 @@ codeunit 136603 "ERM RS Package Operations"
 
         // [THEN] The content corresponds to the package that was exported
         TempBlob.CreateInStream(TempBlobInStream);
-        Assert.AreEqual(1476, TempBlob.Length(), 'Wrong length of the exported package.');
+        Assert.AreEqual(1646, TempBlob.Length(), 'Wrong length of the exported package.');
         while not TempBlobInStream.EOS do begin
             TempBlobInStream.Read(SingleLine);
             PackageOutput += SingleLine;
         end;
         Assert.IsSubstring(PackageOutput, '<TableID>136607</TableID>');
         Assert.IsSubstring(PackageOutput, 'Lorem ipsum dolor sit amet');
+    end;
+
+    [Test]
+    procedure TestImportTextFieldsWith2048Characters()
+    var
+        ConfigPackage: Record "Config. Package";
+        DummyRSTable: Record DummyRSTable;
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigXMLExchange: Codeunit "Config. XML Exchange";
+        TempBlob: Codeunit "Temp Blob";
+        TempBlobInStream: InStream;
+        PackageOutStream: OutStream;
+        PackageOutput: Text;
+        SingleLine: Text;
+    begin
+        // [SCENARIO] Text fields larger than 250 characters are not truncated on import.
+        Initialize();
+
+        // [GIVEN] A record of DummyRSTable in the database
+        DummyRSTable.DeleteAll();
+        DummyRSTable."Entry No." := 1;
+        DummyRSTable."Decimal Field" := 3.21;
+        DummyRSTable."Date Field" := 20180325D;
+        DummyRSTable."Text Field" := 'Lorem ipsum dolor sit amet';
+        DummyRSTable."Long Text Field" := GetLongText();
+        DummyRSTable.Insert();
+
+        // [GIVEN] Rapidstart package is created from DummyRSTable table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::DummyRSTable);
+
+        // [GIVEN] No other tables are included in the package
+        ConfigPackage."Exclude Config. Tables" := true;
+        ConfigPackage.Modify();
+
+        // [GIVEN] The package is exported
+        TempBlob.CreateOutStream(PackageOutStream);
+        ConfigXMLExchange.ExportPackageXMLToStream(ConfigPackage, PackageOutStream);
+
+        // Cleanup before import
+        DummyRSTable.DeleteAll();
+        LibraryRapidStart.CleanUp(ConfigPackage.Code);
+
+        // [WHEN] the rapidstart package is imported and applied
+        TempBlob.CreateInStream(TempBlobInStream);
+        ConfigXMLExchange.ImportPackageXMLFromStream(TempBlobInStream);
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] DummyRSTable records are properly applied
+        VerifyDummyRSTableRecords(DummyRSTable);
+        // [THEN] The text field with 2048 characters is filled properly
+        DummyRSTable.FindFirst();
+        Assert.AreEqual(GetLongText(), DummyRSTable."Long Text Field", 'Incorrect content of the long text field.');
     end;
 
     [Test]
@@ -2744,13 +2796,14 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackage.Modify();
     end;
 
+#if not CLEAN19
     [Scope('OnPrem')]
-    [Obsolete('Function Name typo. Replaced with SetFileName')]
+    [Obsolete('Function Name typo. Replaced with SetFileName', '19.0')]
     procedure SetFileHame(FileName: Text)
     begin
         FileNameForHandler := FileName;
     end;
-
+#endif
     [Scope('OnPrem')]
     procedure SetFileName(FileName: Text)
     begin
@@ -4003,6 +4056,11 @@ codeunit 136603 "ERM RS Package Operations"
     procedure ExcelImportPreviewSimpleHandler(var ConfigPackageImportPreview: TestPage "Config. Package Import Preview")
     begin
         ConfigPackageImportPreview.Import.Invoke();
+    end;
+
+    procedure GetLongText(): Text;
+    begin
+        exit('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam eros urna, lobortis a ligula ac, sagittis luctus risus. Praesent vehicula sem vitae mi ornare, et placerat mauris tristique. Nunc hendrerit ornare lacus. Fusce fringilla nec sem id vulputate. Fusce congue lorem sit amet nunc laoreet tincidunt. Donec lacinia cursus felis quis finibus. Praesent quis dui ut libero iaculis tristique quis quis urna. Maecenas elementum, tellus sed mollis ultricies, magna massa pretium quam, eget mattis nisl velit ac metus. Suspendisse finibus tortor sit amet ipsum commodo luctus. Etiam ut tellus ac purus commodo convallis. Suspendisse potenti. Nam vehicula, dolor nec laoreet elementum, nunc augue tristique eros, sed commodo nisl lorem nec mauris. Praesent rhoncus, elit nec tristique blandit, sapien lacus pulvinar lorem, nec aliquet tortor magna vel nunc. Fusce a nibh in magna laoreet ullamcorper eget quis ex. Sed nec odio id augue placerat molestie et at ex. Vivamus pellentesque eleifend imperdiet. Mauris dolor odio, malesuada a vestibulum eu, blandit quis elit. Nullam fringilla metus eu faucibus fringilla. Sed at ipsum tempus, hendrerit leo quis, tempor massa. Ut blandit sapien eget imperdiet sagittis. Nam mattis lobortis magna, at cursus quam hendrerit nec. Suspendisse semper ultrices urna, at fermentum nunc pulvinar sit amet. Morbi sollicitudin purus in arcu mattis, sed malesuada urna ornare. Curabitur pulvinar aliquam quam at sodales. Sed congue lectus fermentum efficitur dapibus. Aenean et velit suscipit, lobortis ipsum non, rutrum dui. Mauris purus nisl, dapibus id consectetur sed, tincidunt vel eros. Proin ultrices felis a sapien vehicula ullamcorper. Nulla laoreet velit et libero faucibus rutrum in a tellus. Praesent quis risus in massa dictum vehicula et nec dolor. Nullam dignissim bibendum vestibulum. Maecenas in tempus tortor, quis maximus urna. Sed aliquam et dui eget congue. In odio velit, dapibus quis ante at, fermentum pellentesque neque. Maecenas viverra fusce.');
     end;
 }
 

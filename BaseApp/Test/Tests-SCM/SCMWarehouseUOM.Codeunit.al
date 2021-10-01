@@ -2902,6 +2902,51 @@ codeunit 137150 "SCM Warehouse UOM"
 
     [Test]
     [Scope('OnPrem')]
+    procedure QtyPerUoMShouldAlignWithRoundingPrecision()
+    var
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        // [SCENARIO 396617] Qty. per Unit of Measure's decimal place should align with Qty. Rounding Precision.
+        // [GIVEN] An item with base UoM and rounding precision.
+        Initialize();
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(10, 1000), 0.0001);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        Commit();
+
+        // [WHEN] Adding a Non Base item UoM with Qty. per Unit of Measure unaligned with Rounding Precision.
+        NonBaseQtyPerUOM := QtyRoundingPrecision / 10000;
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+
+        // [THEN] Error is thrown as the Qty. per Unit of Measure's decimal place does not align with Rounding Precision.
+        asserterror LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [GIVEN] A Non Base item UoM with Qty. per Unit of Measure aligned with Rounding Precision.
+        NonBaseQtyPerUOM := QtyRoundingPrecision;
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        // [WHEN] Changing Qty. Rounding Precision to have number of decimal digits lower than Qty. per Unit of Measure.
+        QtyRoundingPrecision := NonBaseQtyPerUOM * 10;
+        // [THEN] Error is thrown as existing Non Base item's Qty. per Unit of Measure's decimal place does not align with Rounding Precision.
+        asserterror ItemUOM.Validate("Qty. Rounding Precision", QtyRoundingPrecision);
+
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure DeleteItemUnitOfMeasure()
     var
         Item: Record Item;
@@ -4873,7 +4918,7 @@ codeunit 137150 "SCM Warehouse UOM"
         PurchaseLine.OpenItemTrackingLines();
     end;
 
-    local procedure PlaceToBinsAndRegisterWarehouseActivity(var TempWarehouseEntry: Record "Warehouse Entry" temporary; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure PlaceToBinsAndRegisterWarehouseActivity(var TempWarehouseEntry: Record "Warehouse Entry" temporary; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -4942,7 +4987,7 @@ codeunit 137150 "SCM Warehouse UOM"
     local procedure CreateWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; FromBin: Record Bin; ToBin: Record Bin; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryWarehouse.CreateWhseWorksheetLine(
-          WhseWorksheetLine, WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name, LocationWhite.Code, 0);
+          WhseWorksheetLine, WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name, LocationWhite.Code, "Warehouse Worksheet Document Type"::" ");
         WhseWorksheetLine.Validate("Item No.", ItemNo);
         WhseWorksheetLine.Validate("From Zone Code", FromBin."Zone Code");
         WhseWorksheetLine.Validate("From Bin Code", FromBin.Code);
@@ -4988,7 +5033,7 @@ codeunit 137150 "SCM Warehouse UOM"
           WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Place, ItemNo, Bin.Code, QtyBase, 0);
     end;
 
-    local procedure MockWhseActivityLine(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Option; ItemNo: Code[20]; BinCode: Code[20]; QtyBase: Decimal; QtyToHandleBase: Decimal)
+    local procedure MockWhseActivityLine(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; BinCode: Code[20]; QtyBase: Decimal; QtyToHandleBase: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5040,7 +5085,7 @@ codeunit 137150 "SCM Warehouse UOM"
         end;
     end;
 
-    local procedure DeleteWarehouseActivity(ActivityType: Option; No: Code[20])
+    local procedure DeleteWarehouseActivity(ActivityType: Enum "Warehouse Activity Type"; No: Code[20])
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -5165,7 +5210,7 @@ codeunit 137150 "SCM Warehouse UOM"
         ProductionOrder.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLineForPick(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
+    local procedure FindWarehouseActivityLineForPick(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type")
     begin
         with WarehouseActivityLine do begin
             SetRange("Source Document", SourceDocument);
@@ -5186,7 +5231,7 @@ codeunit 137150 "SCM Warehouse UOM"
           WarehouseActivityLinePlace."Action Type"::Place);
     end;
 
-    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
+    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type")
     begin
         RegisteredWhseActivityLine.SetRange("Source Document", SourceDocument);
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
@@ -5203,7 +5248,7 @@ codeunit 137150 "SCM Warehouse UOM"
         Zone.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -5211,13 +5256,13 @@ codeunit 137150 "SCM Warehouse UOM"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLineWithActionType(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
+    local procedure FindWarehouseActivityLineWithActionType(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type")
     begin
         WarehouseActivityLine.SetRange("Action Type", ActionType);
         FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
     end;
 
-    local procedure FindWarehousePickLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehousePickLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         with WarehouseActivityLine do begin
             SetRange("Source Document", SourceDocument);
@@ -5395,7 +5440,7 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, true);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -5497,7 +5542,7 @@ codeunit 137150 "SCM Warehouse UOM"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure UpdateBinOnWarehouseActivityLine(Bin: Record Bin; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option)
+    local procedure UpdateBinOnWarehouseActivityLine(Bin: Record Bin; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5668,7 +5713,7 @@ codeunit 137150 "SCM Warehouse UOM"
         WarehouseActivityLine.Modify(true);
     end;
 
-    local procedure UpdateTrackingNoOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemLedgerEntry: Record "Item Ledger Entry"; DocumentNo: Code[20]; ActionType: Option; Serial: Boolean; Lot: Boolean)
+    local procedure UpdateTrackingNoOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemLedgerEntry: Record "Item Ledger Entry"; DocumentNo: Code[20]; ActionType: Enum "Warehouse Action Type"; Serial: Boolean; Lot: Boolean)
     begin
         FindWarehouseActivityLineForPick(
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Prod. Consumption", DocumentNo,
@@ -5699,7 +5744,7 @@ codeunit 137150 "SCM Warehouse UOM"
         Location.Modify(true);
     end;
 
-    local procedure UpdateQuantityToHandleAndPostInventoryActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; Partial: Boolean)
+    local procedure UpdateQuantityToHandleAndPostInventoryActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; Partial: Boolean)
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -5728,7 +5773,7 @@ codeunit 137150 "SCM Warehouse UOM"
         until WarehouseActivityLine.Next = 0;
     end;
 
-    local procedure UpdateQuantityToHandleOnWarehouseActivityLine2(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocumentType: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActionType: Option; Quantity: Decimal)
+    local procedure UpdateQuantityToHandleOnWarehouseActivityLine2(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocumentType: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; Quantity: Decimal)
     begin
         FindWarehouseActivityLineForPick(
           WarehouseActivityLine, SourceDocumentType, SourceNo, WarehouseActivityLine."Activity Type"::Pick, ActionType);
@@ -5818,7 +5863,7 @@ codeunit 137150 "SCM Warehouse UOM"
         ItemLedgerEntry.Next;
     end;
 
-    local procedure VerifyMovementLine(ActionType: Option; ItemNo: Code[20]; Quantity: Decimal; QtyBase: Decimal; UnitOfMeasureCode: Code[10]; LotNo: Code[50])
+    local procedure VerifyMovementLine(ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; Quantity: Decimal; QtyBase: Decimal; UnitOfMeasureCode: Code[10]; LotNo: Code[50])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5860,7 +5905,7 @@ codeunit 137150 "SCM Warehouse UOM"
         PostedWhseShipmentLine.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyRegisteredMovementLine(Bin: Record Bin; ActionType: Option; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[50])
+    local procedure VerifyRegisteredMovementLine(Bin: Record Bin; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[50])
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -5875,7 +5920,7 @@ codeunit 137150 "SCM Warehouse UOM"
         RegisteredWhseActivityLine.TestField("Lot No.", LotNo);
     end;
 
-    local procedure VerifyRegisteredPickLines(ActionType: Option; SourceNo: Code[20]; ItemNo: Code[20])
+    local procedure VerifyRegisteredPickLines(ActionType: Enum "Warehouse Action Type"; SourceNo: Code[20]; ItemNo: Code[20])
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -5890,7 +5935,7 @@ codeunit 137150 "SCM Warehouse UOM"
         until RegisteredWhseActivityLine.Next = 0;
     end;
 
-    local procedure VerifyRegisteredPickLinesWithData(var TempWarehouseEntry: Record "Warehouse Entry" temporary; ActionType: Option; SourceNo: Code[20])
+    local procedure VerifyRegisteredPickLinesWithData(var TempWarehouseEntry: Record "Warehouse Entry" temporary; ActionType: Enum "Warehouse Action Type"; SourceNo: Code[20])
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
         InitialTotalQty: Decimal;
@@ -5929,7 +5974,7 @@ codeunit 137150 "SCM Warehouse UOM"
         Assert.AreEqual(SalesLine.Quantity, Quantity / SalesLine."Qty. per Unit of Measure", QuantityMustBeSame);
     end;
 
-    local procedure VerifyRegisteredWhseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; ActionType: Option; Quantity: Decimal; QtyBase: Decimal; UnitOfMeasureCode: Code[10])
+    local procedure VerifyRegisteredWhseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; Quantity: Decimal; QtyBase: Decimal; UnitOfMeasureCode: Code[10])
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -5967,7 +6012,7 @@ codeunit 137150 "SCM Warehouse UOM"
         WarehouseEntry.TestField("Qty. (Base)", QtyBase);
     end;
 
-    local procedure VerifyPickLine(ActivityType: Option; ActionType: Option; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; LotNo: Code[50]; Quantity: Decimal)
+    local procedure VerifyPickLine(ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; LotNo: Code[50]; Quantity: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5979,7 +6024,7 @@ codeunit 137150 "SCM Warehouse UOM"
         WarehouseActivityLine.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyPickLines(ActionType: Option; SourceNo: Code[20]; ItemNo: Code[20])
+    local procedure VerifyPickLines(ActionType: Enum "Warehouse Action Type"; SourceNo: Code[20]; ItemNo: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -6005,7 +6050,7 @@ codeunit 137150 "SCM Warehouse UOM"
     end;
 
     [Normal]
-    local procedure VerifyWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; DocumentNo: Code[20]; LotNo: Code[50]; ActionType: Option; ExpQty: Decimal)
+    local procedure VerifyWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; DocumentNo: Code[20]; LotNo: Code[50]; ActionType: Enum "Warehouse Action Type"; ExpQty: Decimal)
     begin
         WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Inbound Transfer");
         WarehouseActivityLine.SetRange("Source No.", DocumentNo);

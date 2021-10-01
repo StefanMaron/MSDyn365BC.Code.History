@@ -45,7 +45,7 @@ codeunit 1011 "Job Jnl.-Check Line"
                 if Location."Directed Put-away and Pick" then
                     TestField("Bin Code", '')
                 else
-                    if Location."Bin Mandatory" then
+                    if Location."Bin Mandatory" and IsInventoriableItem() then
                         TestField("Bin Code");
             end;
 

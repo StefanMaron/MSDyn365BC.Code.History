@@ -17,6 +17,8 @@ page 9801 "User Subform"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Set';
                     ToolTip = 'Specifies the ID of a security role that has been assigned to this Windows login in the current database.';
+                    Style = Unfavorable;
+                    StyleExpr = PermissionSetNotFound;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -115,12 +117,32 @@ page 9801 "User Subform"
         }
     }
 
+    var
+        User: Record User;
+        InUserGroupErr: Label 'You cannot remove this permission set because it is included in user group %1.', Comment = '%1=a user group code, e.g. ADMIN or SALESDEPT';
+        MultipleRoleIDErr: Label 'The permission set %1 is defined multiple times in this context. Use the lookup button to select the relevant permission set.', Comment = '%1 will be replaced with a Role ID code value from the Permission Set table';
+        SkipValidation: Boolean;
+        PermissionScope: Text;
+        [InDataSet]
+        PermissionSetNotFound: Boolean;
+
     trigger OnAfterGetRecord()
+    var
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
     begin
         if User."User Name" <> '' then
             CurrPage.Caption := User."User Name";
 
         PermissionScope := Format(Scope);
+
+        PermissionSetNotFound := false;
+        if not (Rec."Role ID" in ['SUPER', 'SECURITY']) then begin
+            PermissionSetNotFound := not AggregatePermissionSet.Get(Rec.Scope, Rec."App ID", Rec."Role ID");
+
+            if PermissionSetNotFound then
+                PermissionPagesMgt.CreateAndSendResolvePermissionNotification();
+        end;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -152,12 +174,5 @@ page 9801 "User Subform"
         CalcFields("App Name", "Role Name");
         PermissionScope := '';
     end;
-
-    var
-        User: Record User;
-        InUserGroupErr: Label 'You cannot remove this permission set because it is included in user group %1.', Comment = '%1=a user group code, e.g. ADMIN or SALESDEPT';
-        MultipleRoleIDErr: Label 'The permission set %1 is defined multiple times in this context. Use the lookup button to select the relevant permission set.', Comment = '%1 will be replaced with a Role ID code value from the Permission Set table';
-        SkipValidation: Boolean;
-        PermissionScope: Text;
 }
 

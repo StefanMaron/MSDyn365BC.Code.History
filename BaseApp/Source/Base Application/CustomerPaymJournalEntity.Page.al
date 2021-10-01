@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5477 "Customer Paym. Journal Entity"
 {
     Caption = 'customerPaymentJournals', Locked = true;
@@ -78,4 +79,4 @@ page 5477 "Customer Paym. Journal Entity"
     var
         GraphMgtJournal: Codeunit "Graph Mgt - Journal";
 }
-
+#endif

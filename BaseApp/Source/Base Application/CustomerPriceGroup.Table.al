@@ -39,6 +39,11 @@ table 6 "Customer Price Group"
         {
             Caption = 'Description';
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
+        }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
             Caption = 'Price Calculation Method';
@@ -66,6 +71,9 @@ table 6 "Customer Price Group"
             Clustered = true;
         }
         key(Key2; SystemModifiedAt)
+        {
+        }
+        key(Key3; "Coupled to CRM")
         {
         }
     }

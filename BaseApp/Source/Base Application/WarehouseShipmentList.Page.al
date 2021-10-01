@@ -3,6 +3,7 @@ page 7339 "Warehouse Shipment List"
     ApplicationArea = Warehouse;
     Caption = 'Warehouse Shipments';
     CardPageID = "Warehouse Shipment";
+    PromotedActionCategories = 'New,Process,Report,Release';
     DataCaptionFields = "No.";
     Editable = false;
     PageType = List;
@@ -165,10 +166,15 @@ page 7339 "Warehouse Shipment List"
                     ToolTip = 'View the quantity that has been posted as shipped.';
                 }
             }
+#if not CLEAN19
             group("&Line")
             {
                 Caption = '&Line';
                 Image = Line;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by platform capabilities.';
+                ObsoleteTag = '19.0';
                 action(Card)
                 {
                     ApplicationArea = Warehouse;
@@ -176,6 +182,10 @@ page 7339 "Warehouse Shipment List"
                     Image = EditLines;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by platform capabilities.';
+                    ObsoleteTag = '19.0';
 
                     trigger OnAction()
                     begin
@@ -183,6 +193,7 @@ page 7339 "Warehouse Shipment List"
                     end;
                 }
             }
+#endif
         }
         area(processing)
         {
@@ -196,6 +207,8 @@ page 7339 "Warehouse Shipment List"
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     ToolTip = 'Release the document to the next stage of processing. When a document is released, it will be included in all availability calculations from the expected receipt date of the items. You must reopen the document before you can make changes to it.';
 
                     trigger OnAction()
@@ -212,6 +225,8 @@ page 7339 "Warehouse Shipment List"
                     ApplicationArea = Warehouse;
                     Caption = 'Re&open';
                     Image = ReOpen;
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     ToolTip = 'Reopen the document for additional warehouse activity.';
 
                     trigger OnAction()

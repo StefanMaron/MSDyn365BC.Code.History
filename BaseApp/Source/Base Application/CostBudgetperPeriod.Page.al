@@ -23,7 +23,7 @@ page 1117 "Cost Budget per Period"
 
                     trigger OnValidate()
                     begin
-                        UpdateMatrixSubform;
+                        UpdateMatrixSubform();
                     end;
                 }
                 field(CostObjectFilter; CostObjectFilter)
@@ -35,7 +35,7 @@ page 1117 "Cost Budget per Period"
 
                     trigger OnValidate()
                     begin
-                        UpdateMatrixSubform;
+                        UpdateMatrixSubform();
                     end;
                 }
                 field(BudgetFilter; BudgetFilter)
@@ -47,44 +47,41 @@ page 1117 "Cost Budget per Period"
 
                     trigger OnValidate()
                     begin
-                        UpdateMatrixSubform;
+                        UpdateMatrixSubform();
                     end;
                 }
                 field(PeriodType; PeriodType)
                 {
                     ApplicationArea = CostAccounting;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        SetColumns(SetWanted::First);
-                        UpdateMatrixSubform;
+                        SetMatrixColumns("Matrix Page Step Type"::Initial);
+                        UpdateMatrixSubform();
                     end;
                 }
                 field(AmountType; AmountType)
                 {
                     ApplicationArea = CostAccounting;
                     Caption = 'View as';
-                    OptionCaption = 'Balance at Date,Net Change';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
                     begin
-                        UpdateMatrixSubform;
+                        UpdateMatrixSubform();
                     end;
                 }
                 field(RoundingFactor; RoundingFactor)
                 {
                     ApplicationArea = CostAccounting;
                     Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the factor that is used to round the amounts in the columns.';
 
                     trigger OnValidate()
                     begin
-                        UpdateMatrixSubform;
+                        UpdateMatrixSubform();
                     end;
                 }
             }
@@ -149,8 +146,8 @@ page 1117 "Cost Budget per Period"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::Previous);
-                    UpdateMatrixSubform;
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
+                    UpdateMatrixSubform();
                 end;
             }
             action(PreviousColumn)
@@ -165,8 +162,8 @@ page 1117 "Cost Budget per Period"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::PreviousColumn);
-                    UpdateMatrixSubform;
+                    GenerateColumnCaptions("Matrix Page Step Type"::PreviousColumn);
+                    UpdateMatrixSubform();
                 end;
             }
             action(NextColumn)
@@ -181,8 +178,8 @@ page 1117 "Cost Budget per Period"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::NextColumn);
-                    UpdateMatrixSubform;
+                    GenerateColumnCaptions("Matrix Page Step Type"::NextColumn);
+                    UpdateMatrixSubform();
                 end;
             }
             action(NextSet)
@@ -197,8 +194,8 @@ page 1117 "Cost Budget per Period"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(SetWanted::Next);
-                    UpdateMatrixSubform;
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
+                    UpdateMatrixSubform();
                 end;
             }
             separator(Action27)
@@ -247,7 +244,7 @@ page 1117 "Cost Budget per Period"
                         CostBudgetEntry.SetFilter("Budget Name", BudgetFilter);
                         CostBudgetEntry.SetFilter("Cost Center Code", CostCenterFilter);
                         CostBudgetEntry.SetFilter("Cost Object Code", CostObjectFilter);
-                        ExportCostBudgetToExcel.SetParameters(RoundingFactor);
+                        ExportCostBudgetToExcel.SetRoundingFactor(RoundingFactor);
                         ExportCostBudgetToExcel.SetTableView(CostBudgetEntry);
                         ExportCostBudgetToExcel.Run;
                     end;
@@ -275,10 +272,10 @@ page 1117 "Cost Budget per Period"
 
     trigger OnOpenPage()
     begin
-        SetColumns(SetWanted::First);
+        SetMatrixColumns("Matrix Page Step Type"::Initial);
         BudgetFilter := GetFilter("Budget Filter");
-        MATRIX_GenerateColumnCaptions(SetWanted::First);
-        UpdateMatrixSubform;
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+        UpdateMatrixSubform();
     end;
 
     var
@@ -289,27 +286,36 @@ page 1117 "Cost Budget per Period"
         MatrixColumnCaptions: array[32] of Text[80];
         ColumnSet: Text[80];
         PKFirstRecInCurrSet: Text[80];
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Balance at Date","Net Change";
-        RoundingFactor: Option "None","1","1000","1000000";
-        SetWanted: Option First,Previous,Same,Next,PreviousColumn,NextColumn;
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
         CurrSetLength: Integer;
 
-    procedure SetColumns(SetWanted: Option First,Previous,Same,Next,PreviousColumn,NextColumn)
+#if not CLEAN19
+    [Obsolete('Replaced by SetmatrixColumns().', '19.0')]
+    procedure SetColumns(SetType: Option First,Previous,Same,Next,PreviousColumn,NextColumn)
+    begin
+        SetMatrixColumns("Matrix Page Step Type".FromInteger(SetType));
+    end;
+#endif
+
+    local procedure SetMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
-        MatrixMgt.GeneratePeriodMatrixData(SetWanted, 12, false, PeriodType, '',
-          PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
+        MatrixMgt.GeneratePeriodMatrixData(
+            StepType.AsInteger(), 12, false, PeriodType, '',
+            PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
     end;
 
     local procedure UpdateMatrixSubform()
     begin
-        CurrPage.MatrixForm.PAGE.Load(MatrixColumnCaptions, MatrixRecords, CurrSetLength, CostCenterFilter,
-          CostObjectFilter, BudgetFilter, RoundingFactor, AmountType);
+        CurrPage.MatrixForm.PAGE.LoadMatrix(
+            MatrixColumnCaptions, MatrixRecords, CurrSetLength, CostCenterFilter,
+            CostObjectFilter, BudgetFilter, RoundingFactor, AmountType);
     end;
 
-    local procedure MATRIX_GenerateColumnCaptions(MATRIX_SetWanted: Option First,Previous,Same,Next,PreviousColumn,NextColumn)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
@@ -317,7 +323,7 @@ page 1117 "Cost Budget per Period"
         CurrSetLength := 12;
 
         MatrixMgt.GeneratePeriodMatrixData(
-          MATRIX_SetWanted, CurrSetLength, false, PeriodType, '',
+          StepType.AsInteger(), CurrSetLength, false, PeriodType, '',
           PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
     end;
 }

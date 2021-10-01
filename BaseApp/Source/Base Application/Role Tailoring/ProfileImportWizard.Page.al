@@ -201,7 +201,7 @@ page 9199 "Profile Import Wizard"
         if IsNullGuid("App ID") and (Action = Action::Add) then
             Clear(ApplicationName)
         else
-            ApplicationName := ConfPersonalizationMgt.ResolveAppNameFromAppId("App ID");
+            ApplicationName := ExtensionManagement.GetAppName("App ID");
     end;
 
     local procedure CreatePackageUploadDiagnosticsMessage(var DesignerDiagnostic: Record "Designer Diagnostic"): Text
@@ -369,7 +369,7 @@ page 9199 "Profile Import Wizard"
     var
         TempProfileImport: Record "Profile Import" temporary;
         FileManagement: Codeunit "File Management";
-        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+        ExtensionManagement: Codeunit "Extension Management";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         ProfileHelper: Codeunit "Profile Helper";
         DiagnosticsWarningsReportedTxt: Label 'Package scanned successfully with warnings.';

@@ -17,7 +17,7 @@ table 491 "Parallel Session Entry"
         }
         field(3; "Record ID to Process"; RecordId)
         {
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(4; "File Exists"; Boolean)
         {

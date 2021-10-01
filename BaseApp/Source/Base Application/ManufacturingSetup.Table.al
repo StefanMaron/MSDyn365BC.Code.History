@@ -92,6 +92,10 @@ table 99000765 "Manufacturing Setup"
             Caption = 'Current Demand Forecast';
             TableRelation = "Production Forecast Name".Name;
         }
+        field(36; "Use Forecast on Variants"; Boolean)
+        {
+            Caption = 'Use forecast on variants';
+        }
         field(37; "Use Forecast on Locations"; Boolean)
         {
             Caption = 'Use forecast on locations';

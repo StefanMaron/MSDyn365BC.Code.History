@@ -320,7 +320,7 @@ codeunit 134919 "ERM Batch Job II"
 
     [Test]
     [Scope('OnPrem')]
-    procedure LocationCodeNotAllowedOnJobLineForNonInventoryItems()
+    procedure LocationCodeAllowedOnJobLineForNonInventoryItems()
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -352,10 +352,9 @@ codeunit 134919 "ERM Batch Job II"
         JobPlanningLine.Validate("No.", Item."No.");
 
         // [WHEN] Setting the location code on the job planning line.
-        asserterror JobPlanningLine.Validate("Location Code", Location.Code);
+        JobPlanningLine.Validate("Location Code", Location.Code);
 
-        // [THEN] A validation error is thrown.
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        // [THEN] No validation error is thrown.
     end;
 
     local procedure Initialize()

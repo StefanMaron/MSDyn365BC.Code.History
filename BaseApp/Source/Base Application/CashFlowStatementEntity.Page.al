@@ -1,19 +1,24 @@
 page 5493 "Cash Flow Statement Entity"
 {
     Caption = 'cashFlowStatement', Locked = true;
-    DelayedInsert = true;
     DeleteAllowed = false;
     Editable = false;
-    EntityName = 'cashFlowStatement';
-    EntitySetName = 'cashFlowStatement';
     InsertAllowed = false;
     ModifyAllowed = false;
-    PageType = API;
     SourceTable = "Acc. Schedule Line Entity";
-    SourceTableTemporary = true;
+#if not CLEAN18
+    PageType = API;
+    EntityName = 'cashFlowStatement';
+    EntitySetName = 'cashFlowStatement';
+    DelayedInsert = true;
+#else
     ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteReason = 'API version beta will be deprecated. This page will be changed to List type.';
     ObsoleteTag = '18.0';
+    PageType = List;
+#endif    
+    SourceTableTemporary = true;
+
 
     layout
     {
@@ -71,4 +76,3 @@ page 5493 "Cash Flow Statement Entity"
         GraphMgtReports.SetUpAccountScheduleBaseAPIDataWrapper(RecVariant, ReportAPIType::"CashFlow Statement");
     end;
 }
-

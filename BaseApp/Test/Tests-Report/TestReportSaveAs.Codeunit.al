@@ -90,6 +90,8 @@ codeunit 134607 "Test Report SaveAs"
     end;
 
     local procedure SaveAsType(ReportID: Integer; OutputType: Option; var JobQueueEntry: Record "Job Queue Entry")
+    var
+        LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         with JobQueueEntry do begin
             Init;
@@ -100,7 +102,9 @@ codeunit 134607 "Test Report SaveAs"
             "Run in User Session" := true;
             Insert(true);
         end;
-        CODEUNIT.Run(CODEUNIT::"Job Queue Start Codeunit", JobQueueEntry);
+        Commit();
+
+        LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
         VerifyReportOutBox(JobQueueEntry);
     end;
 

@@ -2502,7 +2502,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         WhseShptHeader: Record "Warehouse Shipment Header";
         WhseActivityLine: Record "Warehouse Activity Line";
         BinType: Record "Bin Type";
-        SerialNo: Code[20];
+        SerialNo: Code[50];
     begin
         // Verify that warehouse pick created from sales shipment gets first expiring item if location is set to process picks according to FEFO.
         Initialize;
@@ -3007,7 +3007,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ItemJournalLine: Record "Item Journal Line";
         NoSeriesManagement: Codeunit NoSeriesManagement;
-        SerialNo: Code[20];
+        SerialNo: Code[50];
     begin
         // [FEATURE] [UI] [Serial Item Tracking]
         // [SCENARIO 307444] When Location has no Require Pick option and Warehouse Shipment has Warehouse Pick registered, Item Tracking Lines page closure is not causing Item Tracking Lines to be recreated
@@ -3063,6 +3063,47 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // [WHEN] Item Tracking Lines page closed at ItemTrackingLinesPageHandler
         // [THEN] Item Tracking Lines page closed with no errors
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    procedure RoundingPrecisionIsLostWhenItemTrackingLinesIsReopened()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        BaseItemUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI] [Lot no. Item Tracking]
+        // [SCENARIO] When Item tracking page is reopened from a purchase order, the rounding precision is lost and allows quantity to be set that violates the rounding precision
+        Initialize;
+
+        // [GIVEN] Item with Item Tracking Code populated with enabled Lot Warehouse Tracking.
+        // [GIVEN] Base item unit of measure has the rounding precision set to 1.
+        CreateItemWithAdditionalUOM(Item, ItemUnitOfMeasure, false, true);
+        BaseItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        BaseItemUnitOfMeasure.Validate("Qty. Rounding Precision", 1);
+        BaseItemUnitOfMeasure.Modify(true);
+
+        // [GIVEN] Purchase Order is created.
+        CreatePurchaseOrder(PurchaseLine, Item."No.", '', LibraryRandom.RandInt(20));
+        PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GoToRecord(PurchaseHeader);
+
+        // [GIVEN] Open Item Tracking Lines page and assign lot no.s
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);
+        PurchaseOrder.PurchLines."Item Tracking Lines".Invoke();
+
+        // [WHEN] Quantity is set to a value that is not supported by the quantity rounding precision
+        LibraryVariableStorage.Enqueue(TrackingOption::SetQuantity);
+        LibraryVariableStorage.Enqueue(PurchaseLine.Quantity - 1 / LibraryRandom.RandInt(10));
+
+        // [THEN] Error is thrown
+        asserterror PurchaseOrder.PurchLines."Item Tracking Lines".Invoke();
+        Assert.ExpectedError('is of lesser precision than expected');
     end;
 
     local procedure Initialize()
@@ -3618,7 +3659,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         CODEUNIT.Run(CODEUNIT::"Release Sales Document", SalesHeader);
     end;
 
-    local procedure CreateTrackedItem(LotNo: Code[20]; SerialNo: Code[20]; ItemTrackingCode: Code[10]): Code[20]
+    local procedure CreateTrackedItem(LotNo: Code[50]; SerialNo: Code[50]; ItemTrackingCode: Code[10]): Code[20]
     var
         Item: Record Item;
     begin
@@ -4076,7 +4117,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ReservationEntry: Record "Reservation Entry";
         ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
         NoSeriesManagement: Codeunit NoSeriesManagement;
-        SerialNo: Code[20];
+        SerialNo: Code[50];
     begin
         SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
         LibraryInventory.CreateItemJournalLine(
@@ -4501,7 +4542,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         FindItemLedgerEntry(TopItemLedgerEntry, Item."No.");
     end;
 
-    local procedure SetLotNoAndQtyOnItemTrackingLine(LotNo: Code[20]; Qty: Integer)
+    local procedure SetLotNoAndQtyOnItemTrackingLine(LotNo: Code[50]; Qty: Integer)
     var
         TrackingOption: Option AssignSerialLot,AssignLotNo,SelectEntries,SetLotNo,SetQuantity,SetLotNoAndQty;
     begin

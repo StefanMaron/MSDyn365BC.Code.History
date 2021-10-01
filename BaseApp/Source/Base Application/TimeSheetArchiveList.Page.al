@@ -36,6 +36,11 @@ page 960 "Time Sheet Archive List"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the list of resource numbers associated with an archived time sheet.';
                 }
+                field(Description; Description)
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the description for a time sheet.';
+                }
             }
         }
     }
@@ -96,8 +101,12 @@ page 960 "Time Sheet Archive List"
     var
         TimeSheetLineArchive: Record "Time Sheet Line Archive";
     begin
-        TimeSheetMgt.SetTimeSheetArchiveNo("No.", TimeSheetLineArchive);
-        PAGE.Run(PAGE::"Time Sheet Archive", TimeSheetLineArchive);
+        if TimeSheetMgt.TimeSheetV2Enabled() then
+            Page.Run(Page::"Time Sheet Archive Card", Rec)
+        else begin
+            TimeSheetMgt.SetTimeSheetArchiveNo("No.", TimeSheetLineArchive);
+            Page.Run(Page::"Time Sheet Archive", TimeSheetLineArchive);
+        end;
     end;
 }
 

@@ -155,8 +155,9 @@ codeunit 5944 SignServContractDoc
 
         CopyContractServDiscounts(FromServContractHeader, ToServContractHeader);
 
-        ContractGainLossEntry.AddEntry(
-          2, ToServContractHeader."Contract Type", ToServContractHeader."Contract No.", FromServContractHeader."Annual Amount", '');
+        ContractGainLossEntry.CreateEntry(
+            "Service Contract Change Type"::"Contract Signed",
+            ToServContractHeader."Contract Type", ToServContractHeader."Contract No.", FromServContractHeader."Annual Amount", '');
 
         ToServContractLine.Reset();
         ToServContractLine.SetRange("Contract Type", ToServContractHeader."Contract Type");
@@ -249,10 +250,9 @@ codeunit 5944 SignServContractDoc
             CreateServiceLinesLedgerEntries(ServContractHeader, false);
         end;
 
-        ContractGainLossEntry.AddEntry(
-          2, ServContractHeader."Contract Type",
-          ServContractHeader."Contract No.",
-          ServContractHeader."Annual Amount", '');
+        ContractGainLossEntry.CreateEntry(
+          "Service Contract Change Type"::"Contract Signed",
+          ServContractHeader."Contract Type", ServContractHeader."Contract No.", ServContractHeader."Annual Amount", '');
 
         ServContractHeader.Status := ServContractHeader.Status::Signed;
         ServContractHeader."Change Status" := ServContractHeader."Change Status"::Locked;
@@ -509,20 +509,20 @@ codeunit 5944 SignServContractDoc
                     if ServContractLine.FindSet then
                         repeat
                             if FromServContractHeader."Contract Lines on Invoice" then
-                                ServContractMgt.CreateDetailedServLine(
+                                ServContractMgt.CreateDetailedServiceLine(
                                   ServHeader,
                                   ServContractLine,
                                   FromServContractHeader."Contract Type",
                                   FromServContractHeader."Contract No.");
 
                             AppliedEntry :=
-                              ServContractMgt.CreateServiceLedgerEntry(
+                              ServContractMgt.CreateServiceLedgEntry(
                                 ServHeader, FromServContractHeader."Contract Type",
                                 FromServContractHeader."Contract No.", FirstPrepaidPostingDate,
                                 LastPrepaidPostingDate, false, true,
                                 ServContractLine."Line No.");
 
-                            ServContractMgt.CreateServLine(
+                            ServContractMgt.CreateServiceLine(
                               ServHeader,
                               FromServContractHeader."Contract Type",
                               FromServContractHeader."Contract No.",
@@ -530,18 +530,18 @@ codeunit 5944 SignServContractDoc
                               AppliedEntry, false);
                         until ServContractLine.Next() = 0;
                 end else begin
-                    ServContractMgt.CreateHeadingServLine(
+                    ServContractMgt.CreateHeadingServiceLine(
                       ServHeader,
                       FromServContractHeader."Contract Type",
                       FromServContractHeader."Contract No.");
 
                     AppliedEntry :=
-                      ServContractMgt.CreateServiceLedgerEntry(
+                      ServContractMgt.CreateServiceLedgEntry(
                         ServHeader, FromServContractHeader."Contract Type",
                         FromServContractHeader."Contract No.", FirstPrepaidPostingDate,
                         LastPrepaidPostingDate, false, true, 0);
 
-                    ServContractMgt.CreateServLine(
+                    ServContractMgt.CreateServiceLine(
                       ServHeader,
                       FromServContractHeader."Contract Type",
                       FromServContractHeader."Contract No.",
@@ -600,6 +600,11 @@ codeunit 5944 SignServContractDoc
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin
         HideDialog := NewHideDialog;
+    end;
+
+    procedure GetHideDialog(): Boolean
+    begin
+        exit(HideDialog);
     end;
 
     local procedure SetInvoicing(ServContractHeader: Record "Service Contract Header")
@@ -890,37 +895,37 @@ codeunit 5944 SignServContractDoc
                 ServContractLine.SetRange("New Line", true);
             if ServContractLine.FindSet then
                 repeat
-                    ServContractMgt.CreateDetailedServLine(
+                    ServContractMgt.CreateDetailedServiceLine(
                       ServHeader, ServContractLine,
                       ServContractHeader."Contract Type",
                       ServContractHeader."Contract No.");
 
                     AppliedEntry :=
-                      ServContractMgt.CreateServiceLedgerEntry(
+                      ServContractMgt.CreateServiceLedgEntry(
                         ServHeader, ServContractHeader."Contract Type",
                         ServContractHeader."Contract No.", InvoiceFrom,
                         InvoiceTo, not NewLine, NewLine,
                         ServContractLine."Line No.");
 
-                    ServContractMgt.CreateServLine(
+                    ServContractMgt.CreateServiceLine(
                       ServHeader,
                       ServContractHeader."Contract Type",
                       ServContractHeader."Contract No.",
                       InvoiceFrom, InvoiceTo, AppliedEntry, not NewLine);
                 until ServContractLine.Next() = 0;
         end else begin
-            ServContractMgt.CreateHeadingServLine(
+            ServContractMgt.CreateHeadingServiceLine(
               ServHeader,
               ServContractHeader."Contract Type",
               ServContractHeader."Contract No.");
 
             AppliedEntry :=
-              ServContractMgt.CreateServiceLedgerEntry(
+              ServContractMgt.CreateServiceLedgEntry(
                 ServHeader, ServContractHeader."Contract Type",
                 ServContractHeader."Contract No.", InvoiceFrom,
                 InvoiceTo, not NewLine, NewLine, 0);
 
-            ServContractMgt.CreateServLine(
+            ServContractMgt.CreateServiceLine(
               ServHeader,
               ServContractHeader."Contract Type",
               ServContractHeader."Contract No.",

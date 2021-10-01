@@ -35,7 +35,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         end;
 
         TempAccSchedKPIBuffer2.Reset();
-        if TempAccSchedKPIBuffer2.FindLast then;
+        if TempAccSchedKPIBuffer2.FindLast() then;
         LastDataLineNo := TempAccSchedKPIBuffer2."No.";
 
         AccScheduleLine.CopyFilters(AccSchedLine);
@@ -54,7 +54,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
 
         with TempAccSchedKPIBuffer2 do begin
             Reset;
-            if FindLast then;
+            if FindLast() then;
             if "No." = LastDataLineNo then begin
                 Init;
                 "No." += 1;
@@ -63,7 +63,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                 "Account Schedule Name" := TempAccSchedKPIBuffer."Account Schedule Name";
                 "KPI Code" := TempAccSchedKPIBuffer."KPI Code";
                 "KPI Name" := TempAccSchedKPIBuffer."KPI Name";
-                Insert;
+                Insert();
             end;
         end;
     end;
@@ -207,7 +207,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                             CheckAddDimsToResult(
                               AccSchedKPIBuffer, ColumnLayout, GLEntryDimensions.Dimension_Set_ID, AmountToAdd);
                     end;
-                    GLEntryDimensions.Close;
+                    GLEntryDimensions.Close();
                 end else begin
                     if GLAcc.Totaling = '' then
                         FilterText := GLAcc."No."
@@ -232,7 +232,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                         if PassToResult(AccSchedLine.Show, AnalysisViewEntryDimensions.Sum_Amount) then
                             CheckAddDimsToResult(AccSchedKPIBuffer, ColumnLayout, 0, AmountToAdd);
                     end;
-                    AnalysisViewEntryDimensions.Close;
+                    AnalysisViewEntryDimensions.Close();
                 end;
             ColumnLayout."Ledger Entry Type"::"Budget Entries":
                 if AccSchedName."Analysis View Name" = '' then begin
@@ -278,7 +278,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                             CheckAddDimsToResult(
                               AccSchedKPIBuffer, ColumnLayout, GLBudgetEntryDimensions.Dimension_Set_ID, AmountToAdd);
                     end;
-                    GLBudgetEntryDimensions.Close;
+                    GLBudgetEntryDimensions.Close();
                 end else begin
                     if GLAcc.Totaling = '' then
                         AnalysisViewBudgEntryDims.SetRange(G_L_Account_No, GLAcc."No.")
@@ -331,7 +331,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                         if PassToResult(AccSchedLine.Show, AnalysisViewBudgEntryDims.Sum_Amount) then
                             CheckAddDimsToResult(AccSchedKPIBuffer, ColumnLayout, 0, AmountToAdd);
                     end;
-                    AnalysisViewBudgEntryDims.Close;
+                    AnalysisViewBudgEntryDims.Close();
                 end;
         end;
     end;
@@ -489,7 +489,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                       AccSchedKPIBuffer, ColumnLayout, CFForecastEntryDimensions.Dimension_Set_ID,
                       AmountToAdd);
                 end;
-                CFForecastEntryDimensions.Close;
+                CFForecastEntryDimensions.Close();
             end else begin
                 if CFAccount.Totaling = '' then
                     FilterText := CFAccount."No."
@@ -511,7 +511,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                         AmountToAdd := 0;
                     CheckAddDimsToResult(AccSchedKPIBuffer, ColumnLayout, 0, AmountToAdd);
                 end;
-                AnalysisViewEntryDimensions.Close;
+                AnalysisViewEntryDimensions.Close();
             end;
     end;
 
@@ -524,7 +524,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         SrcAccSchedLineFilter := GetAccSchedLineFormulaFilter(Expression, AccSchedLine);
         GetExpressionDimensions(AccSchedKPIBuffer, TempAccSchedKPIBufferDim, SrcAccSchedLineFilter);
         with TempAccSchedKPIBufferDim do
-            if FindSet then
+            if FindSet() then
                 repeat
                     Value :=
                       EvalExprWithDimFilter("Dimension Set ID", Expression, AccSchedLine, ColumnLayout, AccSchedKPIBuffer);
@@ -537,7 +537,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
     begin
         with TempAccSchedKPIBufferExisting do begin
             SetFilter("KPI Code", LineFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ("Net Change Actual" <> 0) or ("Balance at Date Actual" <> 0) or
                        ("Net Change Budget" <> 0) or ("Balance at Date Budget" <> 0) or
@@ -556,7 +556,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
             SetRange("Account Schedule Name", AccSchedLine."Schedule Name");
             SetRange("KPI Code", AccSchedLine."Row No.");
             SetRange("Dimension Set ID", DimSetID);
-            if FindFirst then
+            if FindFirst() then
                 Result := GetColumnValue(ColumnLayout);
 
             SetRange("Account Schedule Name");
@@ -599,7 +599,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                                StrPos(FilterPart, '&') +
                                StrPos(FilterPart, '=') > 0);
                             if (StrLen(FilterPart) <= 10) or IsFilter then
-                                if AccSchedLine.FindFirst then
+                                if AccSchedLine.FindFirst() then
                                     ResultingFilter := CombineFilters(ResultingFilter, FilterPart, '|');
                             i := j;
                         end else
@@ -731,10 +731,10 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
     begin
         AccSchedLine.SetRange("Schedule Name", AccSchedLine."Schedule Name");
         AccSchedLine.SetRange("Line No.", CallingAccSchedLineID);
-        if AccSchedLine.FindFirst then;
+        if AccSchedLine.FindFirst() then;
         ColumnLayout.SetRange("Column Layout Name", ColumnLayout."Column Layout Name");
         ColumnLayout.SetRange("Line No.", CallingColumnLayoutID);
-        if ColumnLayout.FindFirst then;
+        if ColumnLayout.FindFirst() then;
         Error(GeneralErr,
           MessageLine,
           ErrorOccurredErr,
@@ -742,7 +742,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
           StrSubstNo(ColumnErr, ColumnLayout."Column No.", ColumnLayout."Line No.", ColumnLayout.Formula));
     end;
 
-    local procedure ConflictAmountType(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayoutAmtType: Enum "Account Schedule Amount Type"; var AmountType: Enum "Account Schedule Amount Type"): Boolean
+    procedure ConflictAmountType(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayoutAmtType: Enum "Account Schedule Amount Type"; var AmountType: Enum "Account Schedule Amount Type"): Boolean
     begin
         if (ColumnLayoutAmtType = AccSchedLine."Amount Type") or
            (AccSchedLine."Amount Type" = AccSchedLine."Amount Type"::"Net Amount")
@@ -756,7 +756,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         exit(false);
     end;
 
-    local procedure CombineFilters(FilterPart1: Text; FilterPart2: Text; CombineSymbol: Text[1]): Text
+    procedure CombineFilters(FilterPart1: Text; FilterPart2: Text; CombineSymbol: Text[1]): Text
     begin
         PrepareFilterPart(FilterPart1);
         PrepareFilterPart(FilterPart2);
@@ -773,7 +773,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         exit('');
     end;
 
-    local procedure PrepareFilterPart(var FilterText: Text)
+    procedure PrepareFilterPart(var FilterText: Text)
     begin
         FilterText := DelChr(FilterText, '<>', ' ');
         if FilterText <> '' then
@@ -790,10 +790,10 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
             SetRange("Account Schedule Name", TempAccSchedKPIBuffer."Account Schedule Name");
             SetRange("KPI Code", TempAccSchedKPIBuffer."KPI Code");
             SetRange("Dimension Set ID", DimensionSetID);
-            if not FindFirst then begin
-                Reset;
-                if FindLast then;
-                Init;
+            if not FindFirst() then begin
+                Reset();
+                if FindLast() then;
+                Init();
                 "No." += 1;
                 Date := TempAccSchedKPIBuffer.Date;
                 "Closed Period" := TempAccSchedKPIBuffer."Closed Period";
@@ -802,10 +802,10 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                 "KPI Name" := TempAccSchedKPIBuffer."KPI Name";
                 "Dimension Set ID" := DimensionSetID;
                 AddColumnValue(ColumnLayout, Amount);
-                Insert;
+                Insert();
             end else begin
                 AddColumnValue(ColumnLayout, Amount);
-                Modify;
+                Modify();
             end;
             SetRange("Account Schedule Name");
             SetRange("KPI Code");
@@ -817,12 +817,12 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
     begin
         with TempAccSchedKPIBufferResulting do begin
             SetRange("Dimension Set ID", DimensionSetID);
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Reset;
-                if FindLast then;
+                if FindLast() then;
                 "No." += 1;
                 "Dimension Set ID" := DimensionSetID;
-                Insert;
+                Insert();
             end;
             SetRange("Dimension Set ID");
         end;
@@ -835,7 +835,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         exit(Amount);
     end;
 
-    local procedure PassToResult(AccSchedLineShow: Enum "Acc. Schedule Line Show"; Balance: Decimal) BalanceIsOK: Boolean
+    procedure PassToResult(AccSchedLineShow: Enum "Acc. Schedule Line Show"; Balance: Decimal) BalanceIsOK: Boolean
     var
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
@@ -882,6 +882,11 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                 AccScheduleLine2.GetFilter("Dimension 4 Filter"),
                 AccSchedManagement.GetDimTotalingFilter(4, AccScheduleLine2."Dimension 4 Totaling"), '&'));
         end;
+    end;
+
+    procedure SetTempAccSchedKPIBuffer(var NewTempAccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer" temporary)
+    begin
+        TempAccSchedKPIBuffer.Copy(NewTempAccSchedKPIBuffer, true);
     end;
 
     [IntegrationEvent(false, false)]

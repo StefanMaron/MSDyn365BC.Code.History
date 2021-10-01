@@ -44,20 +44,6 @@ page 193 "Incoming Doc. Attach. FactBox"
     {
         area(processing)
         {
-            action(Export)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'View File';
-                Image = Document;
-                Scope = Repeater;
-                ToolTip = 'View the file that is attached to the incoming document record.';
-                Visible = false;
-
-                trigger OnAction()
-                begin
-                    NameDrillDown;
-                end;
-            }
             action(ImportNew)
             {
                 ApplicationArea = Basic, Suite;
@@ -89,7 +75,7 @@ page 193 "Incoming Doc. Attach. FactBox"
                         if not MainRecordRef.Get(MainRecordRef.RecordId) then
                             Error(CreateMainDocumentFirstErr);
 
-                    if IncomingDocumentAttachment.Import then
+                    if IncomingDocumentAttachment.Import(true) then
                         if IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.") then
                             LoadDataFromIncomingDocument(IncomingDocument);
                 end;
@@ -114,12 +100,61 @@ page 193 "Incoming Doc. Attach. FactBox"
                         LoadDataFromIncomingDocument(IncomingDocument);
                 end;
             }
+            action(OpenInOneDrive)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Open in OneDrive';
+                ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
+                Image = Cloud;
+                Enabled = ShareOptionsEnabled;
+                Promoted = true;
+                Scope = Repeater;
+                trigger OnAction()
+                var
+                    IncomingDocumentAttachment: Record "Incoming Document Attachment";
+                    FileManagement: Codeunit "File Management";
+                    DocumentServiceMgt: Codeunit "Document Service Management";
+                    FileName: Text;
+                    FileExtension: Text;
+                    InStream: InStream;
+                begin
+                    IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No.");
+                    IncomingDocumentAttachment.CalcFields(Content);
+                    IncomingDocumentAttachment.Content.CreateInStream(InStream);
+
+                    FileName := FileManagement.StripNotsupportChrInFileName(Rec.Name);
+                    FileExtension := StrSubstNo(FileExtensionLbl, Rec."File Extension");
+                    DocumentServiceMgt.OpenInOneDrive(FileName, FileExtension, InStream);
+                end;
+            }
+            action(Export)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Download';
+                Image = Download;
+                Enabled = DownloadEnabled;
+                Promoted = true;
+                PromotedCategory = Process;
+                Scope = Repeater;
+                ToolTip = 'Download the file to your device. Depending on the file, you will need an app to view or edit the file.';
+
+                trigger OnAction()
+                begin
+                    NameDrillDown;
+                end;
+            }
         }
     }
 
     trigger OnAfterGetRecord()
+    var
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        DocumentSharing: Codeunit "Document Sharing";
     begin
         StyleExpressionTxt := GetStyleTxt;
+
+        ShareOptionsEnabled := (not Rec.IsGroupOrLink()) and (IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No.")) and (DocumentSharing.ShareEnabled());
+        DownloadEnabled := (not Rec.IsGroupOrLink()) and (IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No."));
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -138,8 +173,11 @@ page 193 "Incoming Doc. Attach. FactBox"
         MainRecordRef: RecordRef;
         GlobalRecordID: RecordID;
         StyleExpressionTxt: Text;
+        FileExtensionLbl: Label '.%1', Locked = true;
         CreateMainDocumentFirstErr: Label 'You must fill in any field to create a main record before you try to attach a document. Refresh the page and try again.';
         LoadedDataFromRecord: Boolean;
+        ShareOptionsEnabled: Boolean;
+        DownloadEnabled: Boolean;
         PreviousViewFilter: text;
         GlobalDocumentNo: text;
         GlobalPostingDate: Date;

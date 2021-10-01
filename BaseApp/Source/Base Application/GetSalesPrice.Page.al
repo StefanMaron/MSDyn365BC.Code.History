@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 7007 "Get Sales Price"
 {
     Caption = 'Get Sales Price';
@@ -112,4 +113,4 @@ page 7007 "Get Sales Price"
     {
     }
 }
-
+#endif

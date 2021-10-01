@@ -12,11 +12,9 @@ table 5770 "Warehouse Comment Line"
             OptionCaption = 'Whse. Activity Header,Whse. Receipt,Whse. Shipment,Internal Put-away,Internal Pick,Rgstrd. Whse. Activity Header,Posted Whse. Receipt,Posted Whse. Shipment,Posted Invt. Put-Away,Posted Invt. Pick,Registered Invt. Movement,Internal Movement';
             OptionMembers = "Whse. Activity Header","Whse. Receipt","Whse. Shipment","Internal Put-away","Internal Pick","Rgstrd. Whse. Activity Header","Posted Whse. Receipt","Posted Whse. Shipment","Posted Invt. Put-Away","Posted Invt. Pick","Registered Invt. Movement","Internal Movement";
         }
-        field(2; Type; Option)
+        field(2; Type; Enum "Warehouse Activity Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Put-away,Pick,Movement,Invt. Put-away,Invt. Pick,Invt. Movement';
-            OptionMembers = " ","Put-away",Pick,Movement,"Invt. Put-away","Invt. Pick","Invt. Movement";
         }
         field(3; "No."; Code[20])
         {

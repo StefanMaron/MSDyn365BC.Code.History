@@ -592,7 +592,7 @@
         </trans-unit>
         <trans-unit id="Page 2572387921 - Control 4232699882 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the description of the sales credit memo line.</source>
-          <target state="translated">Especifica la descripción de la línea del abono de venta.</target>
+          <target state="translated">Especifica la descripción de la línea de la nota de abono de venta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control description - Property ToolTip</note>
         </trans-unit>
@@ -688,7 +688,7 @@
         </trans-unit>
         <trans-unit id="Page 2572387921 - Control 4026315105 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the sales credit memo lines sequence.</source>
-          <target state="translated">Especifica la secuencia de líneas de abonos de venta.</target>
+          <target state="translated">Especifica la secuencia de líneas de notas de abono de venta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control sequence - Property ToolTip</note>
         </trans-unit>
@@ -736,7 +736,7 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 2950861020 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the billing address of the Sales Credit Memo.</source>
-          <target state="translated">Especifica la dirección de facturación del abono de venta.</target>
+          <target state="translated">Especifica la dirección de facturación de la nota de abono de venta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control billingPostalAddress - Property ToolTip</note>
         </trans-unit>
@@ -748,13 +748,13 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 998393528 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the Sales Credit Memo (cancelled, paid, on hold, created).</source>
-          <target state="translated">Especifica el estado del abono de venta (cancelado, pagado, en espera, creado).</target>
+          <target state="translated">Especifica el estado de la nota de abono de venta (cancelado, pagado, en espera, creado).</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control status - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 4101803605 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total tax amount for the sales credit memo.</source>
-          <target state="translated">Especifica el importe de impuesto total del abono de venta.</target>
+          <target state="translated">Especifica el importe de impuesto total de la nota de abono de venta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control totalTaxAmount - Property ToolTip</note>
         </trans-unit>

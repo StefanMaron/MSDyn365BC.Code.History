@@ -236,11 +236,9 @@ table 5907 "Service Ledger Entry"
             Caption = 'Variant Code';
             TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."));
         }
-        field(50; "Entry Type"; Option)
+        field(50; "Entry Type"; Enum "Service Ledger Entry Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = 'Usage,Sale,Consume,Contract';
-            OptionMembers = Usage,Sale,Consume,Contract;
         }
         field(51; Open; Boolean)
         {

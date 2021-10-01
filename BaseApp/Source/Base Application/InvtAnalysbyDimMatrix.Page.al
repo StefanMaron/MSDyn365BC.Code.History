@@ -24,7 +24,7 @@ page 9209 "Invt. Analys by Dim. Matrix"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ItemAnalysisMgt.LookUpCode(LineDimOption, LineDimCode, Code);
+                        ItemAnalysisMgt.LookupDimCode(LineDimType, LineDimCode, Code);
                     end;
                 }
                 field(Name; Name)
@@ -43,13 +43,13 @@ page 9209 "Invt. Analys by Dim. Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        ItemAnalysisMgt.DrillDown(
-                          CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+                        ItemAnalysisMgt.DrillDownAmount(
+                          CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                           ItemFilter, LocationFilter, DateFilter,
                           Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter,
-                          LineDimOption, Rec,
-                          ColumnDimOption, MatrixRecord,
-                          false, 2, ShowActualBudget);
+                          LineDimType, Rec,
+                          ColumnDimType, MatrixRecord,
+                          false, "Item Analysis Value Type"::Quantity, ShowActualBudget);
                         // Line with .. ColumnDimOption,MatrixRecord, might be wrong...
                     end;
                 }
@@ -63,13 +63,13 @@ page 9209 "Invt. Analys by Dim. Matrix"
 
                     trigger OnDrillDown()
                     begin
-                        ItemAnalysisMgt.DrillDown(
-                          CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+                        ItemAnalysisMgt.DrillDownAmount(
+                          CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                           ItemFilter, LocationFilter, DateFilter,
                           Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter,
-                          LineDimOption, Rec,
-                          ColumnDimOption, Rec,
-                          false, 1, ShowActualBudget);
+                          LineDimType, Rec,
+                          ColumnDimType, Rec,
+                          false, "Item Analysis Value Type"::"Cost Amount", ShowActualBudget);
 
                         // Line with might be wrong... ColumnDimOption,Rec,
                     end;
@@ -469,9 +469,9 @@ page 9209 "Invt. Analys by Dim. Matrix"
     trigger OnAfterGetCurrRecord()
     begin
         // IF CurrForm.TotalQuantity.VISIBLE THEN
-        Quantity := CalcAmt(2, false);
+        Quantity := CalcAmt("Item Analysis Value Type"::Quantity, false);
         // IF CurrForm.TotalInvtValue.VISIBLE THEN
-        Amount := CalcAmt(1, false);
+        Amount := CalcAmt("Item Analysis Value Type"::"Cost Amount", false);
     end;
 
     trigger OnAfterGetRecord()
@@ -480,9 +480,9 @@ page 9209 "Invt. Analys by Dim. Matrix"
     begin
         NameIndent := 0;
         // IF CurrForm.TotalQuantity.VISIBLE THEN
-        Quantity := CalcAmt(2, false);
+        Quantity := CalcAmt("Item Analysis Value Type"::Quantity, false);
         // IF CurrForm.TotalQuantity.VISIBLE THEN
-        Amount := CalcAmt(1, false);
+        Amount := CalcAmt("Item Analysis Value Type"::"Cost Amount", false);
         MATRIX_CurrentColumnOrdinal := 0;
         while MATRIX_CurrentColumnOrdinal < MATRIX_CurrentNoOfMatrixColumn do begin
             MATRIX_CurrentColumnOrdinal := MATRIX_CurrentColumnOrdinal + 1;
@@ -497,8 +497,8 @@ page 9209 "Invt. Analys by Dim. Matrix"
     trigger OnFindRecord(Which: Text): Boolean
     begin
         exit(
-          ItemAnalysisMgt.FindRec(
-            ItemAnalysisView, LineDimOption, Rec, Which,
+          ItemAnalysisMgt.FindRecord(
+            ItemAnalysisView, LineDimType, Rec, Which,
             ItemFilter, LocationFilter, PeriodType, DateFilter, PeriodInitialized, InternalDateFilter,
             Dim1Filter, Dim2Filter, Dim3Filter));
     end;
@@ -506,14 +506,21 @@ page 9209 "Invt. Analys by Dim. Matrix"
     trigger OnNextRecord(Steps: Integer): Integer
     begin
         exit(
-          ItemAnalysisMgt.NextRec(
-            ItemAnalysisView, LineDimOption, Rec, Steps,
+          ItemAnalysisMgt.NextRecord(
+            ItemAnalysisView, LineDimType, Rec, Steps,
             ItemFilter, LocationFilter, PeriodType, DateFilter,
             Dim1Filter, Dim2Filter, Dim3Filter));
     end;
 
     trigger OnOpenPage()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnOpenPage(CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer, Dim1Filter, Dim2Filter, Dim3Filter, IsHandled);
+        if IsHandled then
+            exit;
+
         CurrentAnalysisArea := CurrentAnalysisArea::Inventory;
 
         GLSetup.Get();
@@ -534,12 +541,12 @@ page 9209 "Invt. Analys by Dim. Matrix"
         ItemFilter: Code[250];
         LocationFilter: Code[250];
         BudgetFilter: Code[250];
-        ValueType: Option "Sales Amount","Inventory Value","Sales Quantity";
-        ShowActualBudget: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%";
-        RoundingFactor: Option "None","1","1000","1000000";
-        LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3";
-        ColumnDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        ValueType: Enum "Item Analysis Value Type";
+        ShowActualBudget: Enum "Item Analysis Show Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        LineDimType: Enum "Item Analysis Dimension Type";
+        ColumnDimType: Enum "Item Analysis Dimension Type";
+        PeriodType: Enum "Analysis Period Type";
         Dim1Filter: Code[250];
         Dim2Filter: Code[250];
         Dim3Filter: Code[250];
@@ -555,59 +562,77 @@ page 9209 "Invt. Analys by Dim. Matrix"
         [InDataSet]
         NameIndent: Integer;
 
-    local procedure CalcAmt(ValueType: Integer; SetColFilter: Boolean): Decimal
+    local procedure CalcAmt(ValueType: Enum "Item Analysis Value Type"; SetColFilter: Boolean) Amt: Decimal
     var
-        Amt: Decimal;
+        IsHandled: Boolean;
     begin
-        Amt := ItemAnalysisMgt.CalcAmount(
+        IsHandled := false;
+        OnBeforeCalcAmt(
+            Rec, ItemAnalysisView, LineDimType, ColumnDimType, MatrixRecord, SetColFilter,
+            ItemFilter, LocationFilter, DateFilter, ValueType, SetColFilter, ShowOppositeSign, Amt, IsHandled);
+        if IsHandled then
+            exit(Amt);
+
+        Amt := ItemAnalysisMgt.CalculateAmount(
             ValueType, SetColFilter,
-            CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+            CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
             ItemFilter, LocationFilter, DateFilter, BudgetFilter,
             Dim1Filter, Dim2Filter, Dim3Filter,
-            LineDimOption, Rec,
-            ColumnDimOption, MatrixRecord,
+            LineDimType, Rec,
+            ColumnDimType, MatrixRecord,
             ShowActualBudget);
         if ShowOppositeSign then
             Amt := -Amt;
-        exit(Amt);
     end;
 
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; _LineDimOption: Integer; _ColumnDimOption: Integer; _RoundingFactor: Integer; _DateFilter: Text[30]; _ValueType: Integer; _ItemAnalysisView: Record "Item Analysis View"; _CurrentItemAnalysisViewCode: Code[10]; _ItemFilter: Code[250]; _LocationFilter: Code[250]; _BudgetFilter: Code[250]; _Dim1Filter: Code[250]; _Dim2Filter: Code[250]; _Dim3Filter: Code[250]; ShowOppSign: Boolean)
+    begin
+
+    end;
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record "Dimension Code Buffer"; CurrentNoOfMatrixColumns: Integer; NewLineDimType: Enum "Item Analysis Dimension Type"; NewColumnDimType: Enum "Item Analysis Dimension Type"; NewRoundingFactor: Enum "Analysis Rounding Factor"; NewDateFilter: Text[30]; NewValueType: Enum "Item Analysis Value Type"; NewItemAnalysisView: Record "Item Analysis View"; NewCurrentItemAnalysisViewCode: Code[10]; NewItemFilter: Code[250]; NewLocationFilter: Code[250]; NewBudgetFilter: Code[250]; NewDim1Filter: Code[250]; NewDim2Filter: Code[250]; NewDim3Filter: Code[250]; NewShowOppSign: Boolean)
     var
         FilterTokens: Codeunit "Filter Tokens";
         i: Integer;
     begin
-        CopyArray(MATRIX_CaptionSet, MatrixColumns1, 1);
+        CopyArray(MATRIX_CaptionSet, NewMatrixColumns, 1);
         for i := 1 to ArrayLen(MatrixRecords) do
-            MatrixRecords[i].Copy(MatrixRecords1[i]);
+            MatrixRecords[i].Copy(NewMatrixRecords[i]);
         MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
-        LineDimOption := _LineDimOption;
-        ColumnDimOption := _ColumnDimOption;
-        RoundingFactor := _RoundingFactor;
-        ValueType := _ValueType;
-        ItemAnalysisView := _ItemAnalysisView;
-        CurrentItemAnalysisViewCode := _CurrentItemAnalysisViewCode;
-        FilterTokens.MakeDateFilter(_DateFilter);
-        ItemStatisticsBuffer.SetFilter("Date Filter", _DateFilter);
+        LineDimType := NewLineDimType;
+        ColumnDimType := NewColumnDimType;
+        RoundingFactor := NewRoundingFactor;
+        ValueType := NewValueType;
+        ItemAnalysisView := NewItemAnalysisView;
+        CurrentItemAnalysisViewCode := NewCurrentItemAnalysisViewCode;
+        FilterTokens.MakeDateFilter(NewDateFilter);
+        ItemStatisticsBuffer.SetFilter("Date Filter", NewDateFilter);
         DateFilter := ItemStatisticsBuffer.GetFilter("Date Filter");
-        ItemFilter := _ItemFilter;
-        LocationFilter := _LocationFilter;
-        BudgetFilter := _BudgetFilter;
-        Dim1Filter := _Dim1Filter;
-        Dim2Filter := _Dim2Filter;
-        Dim3Filter := _Dim3Filter;
+        ItemFilter := NewItemFilter;
+        LocationFilter := NewLocationFilter;
+        BudgetFilter := NewBudgetFilter;
+        Dim1Filter := NewDim1Filter;
+        Dim2Filter := NewDim2Filter;
+        Dim3Filter := NewDim3Filter;
         InternalDateFilter := DateFilter;
-        ShowOppositeSign := ShowOppSign;
+        ShowOppositeSign := NewShowOppSign;
     end;
 
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)
+    var
+        IsHandled: Boolean;
     begin
-        ItemAnalysisMgt.DrillDown(
-          CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+        IsHandled := false;
+        OnBeforeMATRIX_OnDrillDown(Rec, ItemAnalysisView, LineDimType, ColumnDimType, MatrixRecords[MATRIX_ColumnOrdinal], IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemAnalysisMgt.DrillDownAmount(
+          CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
           ItemFilter, LocationFilter, DateFilter,
           Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter,
-          LineDimOption, Rec,
-          ColumnDimOption, MatrixRecords[MATRIX_ColumnOrdinal],
+          LineDimType, Rec,
+          ColumnDimType, MatrixRecords[MATRIX_ColumnOrdinal],
           true, ValueType, ShowActualBudget);
     end;
 
@@ -625,12 +650,27 @@ page 9209 "Invt. Analys by Dim. Matrix"
 
     local procedure QuantityOnFormat(Text: Text[1024])
     begin
-        ItemAnalysisMgt.FormatAmount(Text, RoundingFactor);
+        ItemAnalysisMgt.FormatToAmount(Text, RoundingFactor);
     end;
 
     local procedure AmountOnFormat(Text: Text[1024])
     begin
-        ItemAnalysisMgt.FormatAmount(Text, RoundingFactor);
+        ItemAnalysisMgt.FormatToAmount(Text, RoundingFactor);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAmt(LineDimCodeBuf: Record "Dimension Code Buffer"; var ItemAnalysisView: Record "Item Analysis View"; LineDimType: Enum "Item Analysis Dimension Type"; ColumnDimType: Enum "Item Analysis Dimension Type"; ColumnDimCodeBuf: Record "Dimension Code Buffer"; SetColumnFilter: Boolean; ItemFilter: Code[250]; LocationFilter: Code[250]; DateFilter: Text[30]; ValueType: Enum "Item Analysis Value Type"; SetColFilter: Boolean; ShowOppositeSign: Boolean; var Amt: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMATRIX_OnDrillDown(LineDimCodeBuf: Record "Dimension Code Buffer"; var ItemAnalysisView: Record "Item Analysis View"; LineDimType: Enum "Item Analysis Dimension Type"; ColumnDimType: Enum "Item Analysis Dimension Type"; ColDimCodeBuf: Record "Dimension Code Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnOpenPage(var CurrentAnalysisArea: Enum "Analysis Area Type"; var CurrentItemAnalysisViewCode: Code[10]; var ItemAnalysisView: Record "Item Analysis View"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var Dim1Filter: Code[250]; var Dim2Filter: Code[250]; var Dim3Filter: Code[250]; var IsHandled: Boolean)
+    begin
     end;
 }
 

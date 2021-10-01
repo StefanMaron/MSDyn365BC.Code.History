@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5494 "Country/Regions Entity"
 {
     Caption = 'countriesRegions', Locked = true;
@@ -114,4 +115,4 @@ page 5494 "Country/Regions Entity"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

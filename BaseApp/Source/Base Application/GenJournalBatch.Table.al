@@ -1,4 +1,4 @@
-﻿table 232 "Gen. Journal Batch"
+table 232 "Gen. Journal Batch"
 {
     Caption = 'Gen. Journal Batch';
     DataCaptionFields = Name, Description;
@@ -195,14 +195,6 @@
         field(9000; "Background Error Check"; Boolean)
         {
             Caption = 'Background Error Check';
-
-            trigger OnValidate()
-            var
-                JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
-            begin
-                if "Background Error Check" then
-                    JournalErrorsMgt.TestIsEnabled();
-            end;
         }
     }
 

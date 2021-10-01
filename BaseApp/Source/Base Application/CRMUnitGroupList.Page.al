@@ -52,24 +52,65 @@ page 5362 "CRM UnitGroup List"
 
     actions
     {
+        area(processing)
+        {
+            action(ShowOnlyUncoupled)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Hide Coupled Unit Groups';
+                Image = FilterLines;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Do not show coupled unit groups.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(true);
+                end;
+            }
+            action(ShowAll)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Show Coupled Unit Groups';
+                Image = ClearFilter;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Show coupled unit groups.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(false);
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         RecordID: RecordID;
+        MappedTableId: Integer;
     begin
-        if CRMIntegrationRecord.FindRecordIDFromID(UoMScheduleId, DATABASE::"Unit of Measure", RecordID) then
+        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
+            MappedTableId := Database::"Unit Group"
+        else
+            MappedTableId := Database::"Unit of Measure";
+
+        if CRMIntegrationRecord.FindRecordIDFromID(UoMScheduleId, MappedTableId, RecordID) then
             if CurrentlyCoupledCRMUomschedule.UoMScheduleId = UoMScheduleId then begin
                 Coupled := 'Current';
                 FirstColumnStyle := 'Strong';
+                Mark(true);
             end else begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
+                Mark(false);
             end
         else begin
             Coupled := 'No';
             FirstColumnStyle := 'None';
+            Mark(true);
         end;
     end;
 

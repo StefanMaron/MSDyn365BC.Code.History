@@ -52,10 +52,6 @@ table 5850 "Invt. Document Header"
             trigger OnValidate()
             begin
                 Location.Get("Location Code");
-                if "Document Type" = "Document Type"::Receipt then
-                    Location.TestField("Require Receive", false)
-                else
-                    Location.TestField("Require Shipment", false);
                 Location.TestField("Directed Put-away and Pick", false);
 
                 UpdateItemDocLines(FieldNo("Location Code"));

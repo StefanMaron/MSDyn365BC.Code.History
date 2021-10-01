@@ -260,6 +260,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         VerifyStatusReport(PurchaseLine, DocumentNo);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('ItemVendorCatalogRequestPageHandler')]
     [Scope('OnPrem')]
@@ -326,6 +327,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // [THEN] Verify row with "Vendor2" have blank "Lead Time Calculation" and "Vendor Item No."
         VerifyItemVendorCatalogReport(Item."No.", VendorNo[2], '', '');
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ItemDimensionTotalRequestPageHandler')]

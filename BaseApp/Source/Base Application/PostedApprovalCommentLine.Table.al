@@ -37,7 +37,7 @@ table 457 "Posted Approval Comment Line"
         field(8; "Posted Record ID"; RecordID)
         {
             Caption = 'Posted Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
     }
 

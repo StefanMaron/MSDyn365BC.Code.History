@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135545 "Attachments E2E Test"
 {
     Subtype = Test;
@@ -1342,4 +1343,4 @@ codeunit 135545 "Attachments E2E Test"
         exit(Name);
     end;
 }
-
+#endif

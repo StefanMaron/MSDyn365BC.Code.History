@@ -259,7 +259,6 @@ page 397 "Sales Invoice Statistics"
         SalesInvLine: Record "Sales Invoice Line";
         Cust: Record Customer;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
-        Currency: Record Currency;
         TotalAdjCostLCY: Decimal;
         CustAmount: Decimal;
         AmountInclVAT: Decimal;
@@ -279,6 +278,7 @@ page 397 "Sales Invoice Statistics"
         VATAmountText: Text[30];
 
     protected var
+        Currency: Record Currency;
         AmountLCY: Decimal;
         CostLCY: Decimal;
 

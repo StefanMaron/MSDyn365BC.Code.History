@@ -1,9 +1,14 @@
+#if not CLEAN19
 page 889 "SmartList Designer Setup"
 {
     PageType = StandardDialog;
     Caption = 'SmartList Designer Setup';
     ShowFilter = false;
     Extensible = false;
+    UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -124,3 +129,4 @@ page 889 "SmartList Designer Setup"
         HowToGetIdLbl: Label 'How to find the SmartList Designer App Id';
         HowToGetIdLinkLbl: Label 'https://go.microsoft.com/fwlink/?linkid=2124500', Locked = true;
 }
+#endif

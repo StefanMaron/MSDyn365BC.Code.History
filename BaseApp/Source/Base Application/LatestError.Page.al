@@ -41,6 +41,7 @@ page 9180 "Latest Error"
                             ShowCaption = false;
                         }
                     }
+#if not CLEAN19
                     group(ErrorObjectLabel)
                     {
                         ObsoleteState = Pending;
@@ -53,8 +54,12 @@ page 9180 "Latest Error"
                         {
                             ApplicationArea = All;
                             ShowCaption = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'The field is always empty.';
+                            ObsoleteTag = '19.0';
                         }
                     }
+#endif
                 }
                 group(Control12)
                 {

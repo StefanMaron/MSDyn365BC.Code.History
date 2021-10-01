@@ -17,32 +17,32 @@ page 99000898 "Available - Prod. Order Comp."
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Prod. Order No."; "Prod. Order No.")
+                field("Prod. Order No."; Rec."Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the related production order.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of the production order to which the component list belongs.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location where the component is stored. It is copied from the corresponding field on the production order line.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date when the production order component must be available for consumption. The date is copied from the Starting Date field on the related production order line.';
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the difference between the finished and planned quantities, or zero if the finished quantity is greater than the remaining quantity.';
                 }
-                field("Reserved Qty. (Base)"; "Reserved Qty. (Base)")
+                field("Reserved Qty. (Base)"; Rec."Reserved Qty. (Base)")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
@@ -56,7 +56,7 @@ page 99000898 "Available - Prod. Order Comp."
                     Editable = false;
                     ToolTip = 'Specifies the quantity of the item that is available.';
                 }
-                field(ReservedQuantity; GetReservedQtyInLine)
+                field(ReservedQuantity; GetReservedQtyInLine())
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Current Reserved Quantity';
@@ -66,11 +66,11 @@ page 99000898 "Available - Prod. Order Comp."
                     trigger OnDrillDown()
                     begin
                         ReservEntry2.Reset();
-                        SetReservationFilters(ReservEntry2);
+                        Rec.SetReservationFilters(ReservEntry2);
                         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
-                        UpdateReservFrom;
+                        UpdateReservFrom();
                         CurrPage.Update();
                     end;
                 }
@@ -109,7 +109,7 @@ page 99000898 "Available - Prod. Order Comp."
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
             }
@@ -130,8 +130,8 @@ page 99000898 "Available - Prod. Order Comp."
                     trigger OnAction()
                     begin
                         ReservEntry.LockTable();
-                        UpdateReservMgt;
-                        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+                        UpdateReservMgt();
+                        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
                         ReservMgt.CalculateRemainingQty(NewQtyReserved, NewQtyReservedBase);
                         ReservMgt.CopySign(NewQtyReserved, QtyToReserve);
                         ReservMgt.CopySign(NewQtyReservedBase, QtyToReserveBase);
@@ -158,14 +158,14 @@ page 99000898 "Available - Prod. Order Comp."
                             exit;
 
                         ReservEntry2.Copy(ReservEntry);
-                        SetReservationFilters(ReservEntry2);
+                        Rec.SetReservationFilters(ReservEntry2);
                         if ReservEntry2.Find('-') then begin
-                            UpdateReservMgt;
+                            UpdateReservMgt();
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
                             until ReservEntry2.Next() = 0;
 
-                            UpdateReservFrom;
+                            UpdateReservFrom();
                         end;
                     end;
                 }
@@ -175,14 +175,14 @@ page 99000898 "Available - Prod. Order Comp."
 
     trigger OnAfterGetRecord()
     begin
-        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
     end;
 
     trigger OnOpenPage()
     begin
         ReservEntry.TestField("Source Type");
 
-        SetFilters;
+        SetFilters();
     end;
 
     var
@@ -194,14 +194,16 @@ page 99000898 "Available - Prod. Order Comp."
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         SourceRecRef: RecordRef;
-        QtyToReserve: Decimal;
-        QtyToReserveBase: Decimal;
         QtyReserved: Decimal;
         QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
         CurrentSubType: Option;
+
+    protected var
+        QtyToReserve: Decimal;
+        QtyToReserveBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var
@@ -222,90 +224,25 @@ page 99000898 "Available - Prod. Order Comp."
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentSalesLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetReqLine(var CurrentReqLine: Record "Requisition Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentReqLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentPurchLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderComp);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentPlanningComponent);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; TransferDirection: Enum "Transfer Direction")
-    begin
-        SourceRecRef.GetTable(CurrentTransLine);
-        SetSource(SourceRecRef, CurrentReservEntry, TransferDirection);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetServiceInvLine(var CurrentServiceLine: Record "Service Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentServiceLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentJobPlanningLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-#endif
-
     local procedure CreateReservation(ReserveQuantity: Decimal; ReserveQuantityBase: Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";
     begin
-        CalcFields("Reserved Qty. (Base)");
-        if "Remaining Qty. (Base)" + "Reserved Qty. (Base)" < ReserveQuantityBase then
-            Error(Text002, "Remaining Qty. (Base)" + "Reserved Qty. (Base)");
+        Rec.CalcFields("Reserved Qty. (Base)");
+        if Rec."Remaining Qty. (Base)" + Rec."Reserved Qty. (Base)" < ReserveQuantityBase then
+            Error(Text002, Rec."Remaining Qty. (Base)" + Rec."Reserved Qty. (Base)");
 
-        TestField("Item No.", ReservEntry."Item No.");
-        TestField("Variant Code", ReservEntry."Variant Code");
-        TestField("Location Code", ReservEntry."Location Code");
+        Rec.TestField("Item No.", ReservEntry."Item No.");
+        Rec.TestField("Variant Code", ReservEntry."Variant Code");
+        Rec.TestField("Location Code", ReservEntry."Location Code");
 
-        UpdateReservMgt;
+        UpdateReservMgt();
         TrackingSpecification.InitTrackingSpecification(
-            DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", '',
-            "Prod. Order Line No.", "Line No.", "Variant Code", "Location Code", "Qty. per Unit of Measure");
+            DATABASE::"Prod. Order Component", Status.AsInteger(), Rec."Prod. Order No.", '',
+            Rec."Prod. Order Line No.", Rec."Line No.", Rec."Variant Code", Rec."Location Code", Rec."Qty. per Unit of Measure");
         ReservMgt.CreateReservation(
-          ReservEntry.Description, "Due Date", ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
-        UpdateReservFrom;
+          ReservEntry.Description, Rec."Due Date", ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
+        UpdateReservFrom();
     end;
 
     local procedure UpdateReservFrom()
@@ -323,10 +260,10 @@ page 99000898 "Available - Prod. Order Comp."
         OnAfterUpdateReservMgt(ReservEntry);
     end;
 
-    local procedure GetReservedQtyInLine(): Decimal
+    protected procedure GetReservedQtyInLine(): Decimal
     begin
         ReservEntry2.Reset();
-        SetReservationFilters(ReservEntry2);
+        Rec.SetReservationFilters(ReservEntry2);
         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
         exit(ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry));
     end;
@@ -336,31 +273,17 @@ page 99000898 "Available - Prod. Order Comp."
         CurrentSubType := SubType;
     end;
 
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
     local procedure SetFilters()
     begin
-        SetRange(Status, CurrentSubType);
-        SetRange("Item No.", ReservEntry."Item No.");
-        SetRange("Variant Code", ReservEntry."Variant Code");
-        SetRange("Location Code", ReservEntry."Location Code");
-        SetFilter("Due Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
-        if ReservMgt.IsPositive then
-            SetFilter("Remaining Qty. (Base)", '<0')
+        Rec.SetRange(Status, CurrentSubType);
+        Rec.SetRange("Item No.", ReservEntry."Item No.");
+        Rec.SetRange("Variant Code", ReservEntry."Variant Code");
+        Rec.SetRange("Location Code", ReservEntry."Location Code");
+        Rec.SetFilter("Due Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
+        if ReservMgt.IsPositive() then
+            Rec.SetFilter("Remaining Qty. (Base)", '<0')
         else
-            SetFilter("Remaining Qty. (Base)", '>0');
+            Rec.SetFilter("Remaining Qty. (Base)", '>0');
 
         OnAfterSetFilters(Rec, ReservEntry);
     end;

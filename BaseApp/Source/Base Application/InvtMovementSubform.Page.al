@@ -435,12 +435,11 @@ page 7383 "Invt. Movement Subform"
         ExpDate: Date;
         EntriesExist: Boolean;
     begin
-        if "Serial No." <> '' then
-            ExpDate :=
-              ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code", "Lot No.", "Serial No.", false, EntriesExist);
+        if Rec."Serial No." <> '' then
+            ExpDate := ItemTrackingMgt.ExistingExpirationDate(Rec, false, EntriesExist);
 
         if ExpDate <> 0D then
-            "Expiration Date" := ExpDate;
+            Rec."Expiration Date" := ExpDate;
     end;
 
     protected procedure LotNoOnAfterValidate()
@@ -449,12 +448,11 @@ page 7383 "Invt. Movement Subform"
         ExpDate: Date;
         EntriesExist: Boolean;
     begin
-        if "Lot No." <> '' then
-            ExpDate :=
-              ItemTrackingMgt.ExistingExpirationDate("Item No.", "Variant Code", "Lot No.", "Serial No.", false, EntriesExist);
+        if Rec."Lot No." <> '' then
+            ExpDate := ItemTrackingMgt.ExistingExpirationDate(Rec, false, EntriesExist);
 
         if ExpDate <> 0D then
-            "Expiration Date" := ExpDate;
+            Rec."Expiration Date" := ExpDate;
     end;
 
     protected procedure BinCodeOnAfterValidate()

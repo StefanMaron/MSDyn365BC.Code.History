@@ -13,6 +13,9 @@ page 9304 "Sales Return Order List"
     SourceTableView = WHERE("Document Type" = CONST("Return Order"));
     UsageCategory = Lists;
 
+    AboutTitle = 'About sales return orders';
+    AboutText = 'Use a sales return order when you want to track receipt and potential refund of items being returned from a customer. If you don’t want to track receipt of items on a return, you can use a sales credit memo instead.';
+
     layout
     {
         area(content)
@@ -350,9 +353,9 @@ page 9304 "Sales Return Order List"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -671,6 +674,7 @@ page 9304 "Sales Return Order List"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category7;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()

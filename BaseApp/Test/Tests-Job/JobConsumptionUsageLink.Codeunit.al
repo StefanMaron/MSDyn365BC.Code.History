@@ -1801,9 +1801,11 @@ codeunit 136303 "Job Consumption - Usage Link"
 
     local procedure Initialize()
     var
+#if not CLEAN19
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
         SalesLineDiscount: Record "Sales Line Discount";
+#endif
         LibrarySales: Codeunit "Library - Sales";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
@@ -1813,10 +1815,12 @@ codeunit 136303 "Job Consumption - Usage Link"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Consumption - Usage Link");
 
+#if not CLEAN19
         // Removing special prices, discounts
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
         SalesLineDiscount.DeleteAll(true);
+#endif
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
@@ -2089,6 +2093,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         exit(JobPlanningLine.Count - LineCount)
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure ResourcePriceWhenWorkTypeCodeMatched()
@@ -2189,6 +2194,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         Assert.AreEqual(
           UnitPrice, CreateJobJournalLineWithWorkTypeCode(JobTask, Resource."No.", WorkTypeCode), UnitPriceErr);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmSpecificMessageHandler,MessageHandler')]
@@ -2300,6 +2306,7 @@ codeunit 136303 "Job Consumption - Usage Link"
             JobPlanningLine2.TableCaption));
     end;
 
+#if not CLEAN19
     local procedure CreateJobResourcePriceWithUnitPrice(JobTask: Record "Job Task"; JobResourcePriceType: Option; "Code": Code[20]; WorkTypeCode: Code[10]; UnitPrice: Decimal)
     var
         JobResourcePrice: Record "Job Resource Price";
@@ -2309,6 +2316,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobResourcePrice.Validate("Unit Price", UnitPrice);
         JobResourcePrice.Modify(true);
     end;
+#endif
 
     local procedure CreateJobPlanningLineWithWorkTypeCode(JobTask: Record "Job Task"; ResourceNo: Code[20]; WorkTypeCode: Code[10]): Decimal
     var

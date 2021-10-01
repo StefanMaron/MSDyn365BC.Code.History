@@ -61,7 +61,7 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = SalesReturnOrder;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
                 }

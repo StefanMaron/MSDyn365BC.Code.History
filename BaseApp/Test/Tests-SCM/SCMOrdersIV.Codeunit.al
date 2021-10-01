@@ -68,6 +68,7 @@ codeunit 137156 "SCM Orders IV"
         ApplFromItemEntryBlankErr: Label 'Appl.-from Item Entry must have a value in Sales Line';
         ApplToItemEntryBlankErr: Label 'Appl.-to Item Entry must have a value in Purchase Line';
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CheckValueOfSalesTypeOnSalesPricesPage()
@@ -155,6 +156,7 @@ codeunit 137156 "SCM Orders IV"
         SalesLineDiscounts.SalesType.AssertEquals(Format(SalesLineDiscount."Sales Type"::Campaign));
         SalesLineDiscounts.SalesTypeFilter.AssertEquals(Format(SalesLineDiscount."Sales Type"::Campaign));
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandler,SendNotificationHandler,RecallNotificationHandler')]
@@ -436,6 +438,7 @@ codeunit 137156 "SCM Orders IV"
         Assert.ExpectedError(StrSubstNo(BlockedItemErrorMsg, Item."No."));
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SalesLineDiscountDeletedAfterDeletingCustomerDiscountGroup()
@@ -501,6 +504,7 @@ codeunit 137156 "SCM Orders IV"
         CopyFromToPriceListLine.CopyFrom(PurchPrice, PriceListLine);
         CopyFromToPriceListLine.CopyFrom(PurchLineDiscount, PriceListLine);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -564,6 +568,7 @@ codeunit 137156 "SCM Orders IV"
         UpdateCreditWarningOnSalesAndReceivablesSetup(OldCreditWarning);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceNegativeQuantityError()
@@ -721,6 +726,7 @@ codeunit 137156 "SCM Orders IV"
         Initialize;
         CarryOutActionMessageOnRequisitionWorksheet(false);  // Special Order as FALSE.
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -878,6 +884,7 @@ codeunit 137156 "SCM Orders IV"
         UpdateCreditWarningOnSalesAndReceivablesSetup(OldCreditWarning);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CreateSalesLineDiscountForTypeItem()
@@ -897,6 +904,7 @@ codeunit 137156 "SCM Orders IV"
         Initialize;
         CreateSalesLineDiscountWithType(SalesLineDiscount.Type::Item);  // Sales Line Discount for Type Item.
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ItemChargeAssignmentSalesPageHandler')]
@@ -1375,6 +1383,7 @@ codeunit 137156 "SCM Orders IV"
         VerifyQuantityOnWarehouseActivityLine(SalesHeaderNo, QtyToHandle + (QtyOnSalesLine - QtyOnPurchLine));
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('MoveNegativeSalesLinesHandler,YesConfirmHandler,SalesOrderHandler')]
     [Scope('OnPrem')]
@@ -1410,6 +1419,7 @@ codeunit 137156 "SCM Orders IV"
         // [THEN] "Unit Price" = "X2", "Line Discount %" = "Y2" on the new sales order line.
         // Verifications are performed in SalesOrderHandler.
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ItemChargeAssignmentPurchPageWithSalesShipSuggestHandler,SalesShipmentLinePageHandler,ItemStatisticsMatrixPageHandler2')]
@@ -2468,6 +2478,7 @@ codeunit 137156 "SCM Orders IV"
         SalesLine.TestField("Line Discount %", LineDiscPercent);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountPercIsZeroWhenAllowLineDiscDisabledOnCustomer()
@@ -2506,6 +2517,7 @@ codeunit 137156 "SCM Orders IV"
         // [THEN] "Line Discount %" on the sales line is zero.
         SalesLine.TestField("Line Discount %", 0);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('DummyMessageHandler')]
@@ -3212,6 +3224,7 @@ codeunit 137156 "SCM Orders IV"
         Item.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreateCustomerAndOpenSalesLineDiscountsPageFromCustomerCard(var SalesLineDiscounts: TestPage "Sales Line Discounts")
     var
         Customer: Record Customer;
@@ -3241,6 +3254,7 @@ codeunit 137156 "SCM Orders IV"
           SalesLineDiscount, Item, SalesLineDiscount."Sales Type"::"Customer Disc. Group", CustomerDiscountGroup.Code, WorkDate,
           LibraryRandom.RandDec(10, 2));
     end;
+#endif
 
     local procedure CreateCustomerWithCustomerDiscountGroup(CustomerDiscountGroupCode: Code[20]) CustomerNo: Code[20]
     var
@@ -3369,12 +3383,14 @@ codeunit 137156 "SCM Orders IV"
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Type, VendorNo, ItemNo, Quantity);
     end;
 
+#if not CLEAN19
     local procedure CreatePurchaseLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount"; Item: Record Item; Quantity: Decimal)
     begin
         LibraryERM.CreateLineDiscForVendor(PurchaseLineDiscount, Item."No.", Item."Vendor No.", 0D, '', '', '', Quantity);
         PurchaseLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         PurchaseLineDiscount.Modify(true);
     end;
+#endif
 
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     begin
@@ -3392,12 +3408,14 @@ codeunit 137156 "SCM Orders IV"
         PurchaseLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreatePurchasePriceForVendor(var PurchasePrice: Record "Purchase Price"; Item: Record Item; Quantity: Decimal)
     begin
         LibraryCosting.CreatePurchasePrice(PurchasePrice, Item."Vendor No.", Item."No.", 0D, '', '', '', Quantity);
         PurchasePrice.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchasePrice.Modify(true);
     end;
+#endif
 
     local procedure CreatePurchasingCode(DropShipment: Boolean; SpecialOrder: Boolean) PurchasingCode: Code[10]
     var
@@ -3620,6 +3638,7 @@ codeunit 137156 "SCM Orders IV"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
     end;
 
+#if not CLEAN19
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; Item: Record Item; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; Quantity: Decimal)
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -3680,6 +3699,7 @@ codeunit 137156 "SCM Orders IV"
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(50, 2));
         SalesPrice.Modify(true);
     end;
+#endif
 
     local procedure CreateServiceOrderByPage(var ServiceOrder: TestPage "Service Order")
     begin
@@ -3747,7 +3767,7 @@ codeunit 137156 "SCM Orders IV"
         CreateItemWithSimpleBOM(AssemblyItem, ItemNo, AssemblyItem."Replenishment System"::Assembly);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, AssemblyItem."No.", '', Quantity, '');
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, ItemNo, AssemblyItem."Base Unit of Measure", Quantity, 1, '');
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ItemNo, AssemblyItem."Base Unit of Measure", Quantity, 1, '');
     end;
 
     local procedure CreateServiceOrderAndShipment(var ServiceOrder: TestPage "Service Order")
@@ -3817,6 +3837,7 @@ codeunit 137156 "SCM Orders IV"
         VerifyPurchaseOrdContainsTwoLines(SalesHeader, false);
     end;
 
+#if not CLEAN19
     local procedure CarryOutActionMessageOnRequisitionWorksheet(SpecialOrder: Boolean)
     var
         Item: Record Item;
@@ -3864,6 +3885,7 @@ codeunit 137156 "SCM Orders IV"
         // Verify: Verify Posted Sales Invoice Line.
         VerifyPostedSalesInvoiceLine(PostedDocumentNo, SalesPrice."Unit Price", SalesLineDiscount."Line Discount %", Quantity);
     end;
+#endif
 
     local procedure EnqueueForChangeOfSellToCustomerOrBuyFromVendor()
     begin
@@ -3922,7 +3944,7 @@ codeunit 137156 "SCM Orders IV"
         ReturnReceiptLine.FindFirst;
     end;
 
-    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         RegisteredWhseActivityLine.SetRange("Source Document", SourceDocument);
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
@@ -3950,7 +3972,7 @@ codeunit 137156 "SCM Orders IV"
         SalesLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -3992,11 +4014,13 @@ codeunit 137156 "SCM Orders IV"
         SalesLine.SetRange("No.", '');
     end;
 
+#if not CLEAN19
     local procedure FilterSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerDiscountGroupCode: Code[20])
     begin
         SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::"Customer Disc. Group");
         SalesLineDiscount.SetRange("Sales Code", CustomerDiscountGroupCode);
     end;
+#endif
 
     local procedure FilterSalesHeader(var SalesHeader: Record "Sales Header")
     begin
@@ -4217,7 +4241,7 @@ codeunit 137156 "SCM Orders IV"
         CustomerCard.FILTER.SetFilter("No.", CustomerNo);
     end;
 
-    local procedure PostInventoryActivity(SourceNo: Code[20]; ActivityType: Option; QuantityToHandle: Decimal)
+    local procedure PostInventoryActivity(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; QuantityToHandle: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
@@ -4403,13 +4427,13 @@ codeunit 137156 "SCM Orders IV"
           WarehouseActivityLine."Activity Type"::"Put-away");
     end;
 
-    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Type: Option)
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
-        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, Type);
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
@@ -4598,7 +4622,7 @@ codeunit 137156 "SCM Orders IV"
         SalesLine.Modify(true);
     end;
 
-    local procedure UpdateZoneAndBinCodeOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Option; SourceNo: Code[20]; BinCode: Code[20]; ZoneCode: Code[10])
+    local procedure UpdateZoneAndBinCodeOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Enum "Warehouse Action Type"; SourceNo: Code[20]; BinCode: Code[20]; ZoneCode: Code[10])
     begin
         WarehouseActivityLine.SetRange("Action Type", ActionType);
         FindWarehouseActivityLine(
@@ -4801,6 +4825,7 @@ codeunit 137156 "SCM Orders IV"
         RegisteredWhseActivityLine.TestField(Quantity, Quantity);
     end;
 
+#if not CLEAN19
     local procedure VerifySalesLineDiscount(SalesLineDiscount: Record "Sales Line Discount")
     var
         SalesLineDiscount2: Record "Sales Line Discount";
@@ -4821,6 +4846,7 @@ codeunit 137156 "SCM Orders IV"
           Round(SalesLine."Line Amount" * SalesLineDiscount."Line Discount %" / 100, LibraryERM.GetAmountRoundingPrecision));
         SalesLine.TestField(Quantity, SalesLineDiscount."Minimum Quantity");
     end;
+#endif
 
     local procedure VerifySalesOrder(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     var
@@ -4865,7 +4891,7 @@ codeunit 137156 "SCM Orders IV"
         PostedWhseReceiptHeader.TestField("No. Series", NoSeries);
     end;
 
-    local procedure VerifyNoSeriesOnRegisteredWhseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; NoSeries: Code[20])
+    local procedure VerifyNoSeriesOnRegisteredWhseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; NoSeries: Code[20])
     var
         RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";

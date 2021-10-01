@@ -141,7 +141,9 @@ report 92 "Import Consolidation from File"
     var
         BusUnit2: Record "Business Unit";
         GLSetup: Record "General Ledger Setup";
+#if not CLEAN17
         FileManagement: Codeunit "File Management";
+#endif
         ConfirmManagement: Codeunit "Confirm Management";
     begin
 #if not CLEAN17
@@ -232,7 +234,9 @@ report 92 "Import Consolidation from File"
     end;
 
     var
+#if not CLEAN17
         Text000: Label 'Enter the file name.';
+#endif
         Text001: Label 'The file to be imported has an unknown format.';
         Text002: Label 'The %1 in the file to be imported (%2) does not match the %1 in the %3 (%4).';
         Text005: Label 'The business unit %1 %2 is not unique.\\';

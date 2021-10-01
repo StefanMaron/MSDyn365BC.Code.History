@@ -8,7 +8,7 @@ codeunit 431 "IC Outbox Export"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnRunOnBeforeConfirmGetResponseOrDefault(IsHandled);
+        OnRunOnBeforeConfirmGetResponseOrDefault(IsHandled, Rec);
         If not IsHandled then
             if not ConfirmManagement.GetResponseOrDefault(Text003, true) then
                 exit;
@@ -352,7 +352,7 @@ codeunit 431 "IC Outbox Export"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeConfirmGetResponseOrDefault(var IsHandled: Boolean)
+    local procedure OnRunOnBeforeConfirmGetResponseOrDefault(var IsHandled: Boolean; var ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
     end;
 

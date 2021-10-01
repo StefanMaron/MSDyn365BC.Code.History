@@ -102,21 +102,18 @@ page 5725 "Catalog Item Card"
 #if not CLEAN18
                 field("Item Template Code"; "Item Template Code")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     ToolTip = 'Specifies the code for the item template used for this catalog item.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This control will be removed with other functionality related to "old" templates. Use "Item Templ. Code" control instead.';
                     ObsoleteTag = '18.0';
-                    Visible = not NewItemTemplateCodeVisible;
+                    Visible = false;
                 }
 #endif
                 field("Item Templ. Code"; "Item Templ. Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for the item template used for this catalog item. 1';
-#if not CLEAN18
-                    Visible = NewItemTemplateCodeVisible;
-#endif
+                    ToolTip = 'Specifies the code for the item template used for this catalog item.';
                 }
             }
         }
@@ -191,21 +188,5 @@ page 5725 "Catalog Item Card"
 
     var
         CatalogItemMgt: Codeunit "Catalog Item Management";
-#if not CLEAN18
-        NewItemTemplateCodeVisible: Boolean;
-
-    trigger OnOpenPage()
-    begin
-        SetItemTemplateCodeVisibility();
-    end;
-
-    local procedure SetItemTemplateCodeVisibility()
-    var
-        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
-    begin
-        NewItemTemplateCodeVisible := ItemTemplMgt.IsEnabled();
-    end;
-#endif
-
 }
 

@@ -22,7 +22,7 @@ table 1797 "Data Migration Error"
         field(4; "Source Staging Table Record ID"; RecordID)
         {
             Caption = 'Source Staging Table Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(5; "Error Message"; Text[250])
         {

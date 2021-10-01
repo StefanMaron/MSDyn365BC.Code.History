@@ -109,15 +109,6 @@ codeunit 1299 "Web Request Helper"
 
     [TryFunction]
     [Scope('OnPrem')]
-    [Obsolete('This function does not consider the encoding of the response. Use GetResponseTextUsingCharset instead. (If you are comparing the response with previous values saved in the database, you might need data upgrade.)', '16.0')]
-    procedure GetResponseText(Method: Text; Url: Text; AccessToken: Text; var ResponseText: Text)
-    begin
-        // REMARK: This MIGHT NOT read the response with the correct encoding. This function is left here just for backwards compatibility.
-        GetResponseTextInternal(Method, Url, AccessToken, ResponseText, true);
-    end;
-
-    [TryFunction]
-    [Scope('OnPrem')]
     procedure GetResponseTextUsingCharset(Method: Text; Url: Text; AccessToken: Text; var ResponseText: Text)
     begin
         GetResponseTextInternal(Method, Url, AccessToken, ResponseText, false);

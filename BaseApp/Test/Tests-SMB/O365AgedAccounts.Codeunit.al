@@ -210,7 +210,7 @@ codeunit 138027 "O365 Aged Accounts"
           BusinessChartBuffer, CustomerNo, TempEntryNoAmountBuffer);
 
         // Verify Data Points
-        Assert.AreEqual(6, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
+        Assert.AreEqual(14, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
     end;
 
     [Test]
@@ -242,7 +242,7 @@ codeunit 138027 "O365 Aged Accounts"
           BusinessChartBuffer, CustomerNo, TempEntryNoAmountBuffer);
 
         // Verify Data Points
-        Assert.AreEqual(5, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
+        Assert.AreEqual(14, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
     end;
 
     [Test]
@@ -274,7 +274,7 @@ codeunit 138027 "O365 Aged Accounts"
           BusinessChartBuffer, CustomerNo, TempEntryNoAmountBuffer);
 
         // Verify Data Points
-        Assert.AreEqual(5, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
+        Assert.AreEqual(7, TempEntryNoAmountBuffer.Count, 'Wrong number of Data Columns in Data Buffer Table');
     end;
 
     [Test]

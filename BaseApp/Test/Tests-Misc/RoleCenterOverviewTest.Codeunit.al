@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 134680 "Role Center Overview Test"
 {
     Subtype = Test;
@@ -121,4 +122,4 @@ codeunit 134680 "Role Center Overview Test"
     begin
     end;
 }
-
+#endif

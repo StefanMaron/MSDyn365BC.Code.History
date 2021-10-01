@@ -174,6 +174,10 @@ table 9178 "Application Area Setup"
         {
             Caption = 'Sales Tax';
         }
+        field(3600; "Item References"; Boolean)
+        {
+            Caption = 'Item References';
+        }
         field(5000; "Basic EU"; Boolean)
         {
             Caption = 'Basic EU';

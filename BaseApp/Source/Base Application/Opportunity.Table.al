@@ -312,19 +312,15 @@ table 5092 Opportunity
         {
             Caption = 'Creation Date';
         }
-        field(10; Status; Option)
+        field(10; Status; Enum "Opportunity Status")
         {
             Caption = 'Status';
             Editable = false;
-            OptionCaption = 'Not Started,In Progress,Won,Lost';
-            OptionMembers = "Not Started","In Progress",Won,Lost;
         }
-        field(11; Priority; Option)
+        field(11; Priority; Enum "Opportunity Priority")
         {
             Caption = 'Priority';
             InitValue = Normal;
-            OptionCaption = 'Low,Normal,High';
-            OptionMembers = Low,Normal,High;
         }
         field(12; Closed; Boolean)
         {
@@ -486,6 +482,11 @@ table 5092 Opportunity
             Editable = false;
             FieldClass = FlowField;
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
+        }
         field(9501; "Wizard Step"; Option)
         {
             Caption = 'Wizard Step';
@@ -547,6 +548,12 @@ table 5092 Opportunity
         {
         }
         key(Key7; Description)
+        {
+        }
+        key(Key8; SystemModifiedAt)
+        {
+        }
+        key(Key9; "Coupled to CRM")
         {
         }
     }
@@ -767,10 +774,6 @@ table 5092 Opportunity
         Cont: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
         SalesHeader: Record "Sales Header";
-#if not CLEAN18
-        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
-        CustTemplateCode: Code[10];
-#endif
         NewCustTemplateCode: Code[20];
     begin
         Cont.Get("Contact No.");
@@ -790,12 +793,7 @@ table 5092 Opportunity
             ContactBusinessRelation.SetRange("Contact No.", Cont."No.");
             ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
             if ContactBusinessRelation.IsEmpty() then
-#if not CLEAN18
-                if not CustomerTemplMgt.IsEnabled() then
-                    CustTemplateCode := GetOldCustomerTemplateCode(Cont)
-                else
-#endif
-                    NewCustTemplateCode := GetNewCustomerTemplateCode(Cont);
+                NewCustTemplateCode := GetNewCustomerTemplateCode(Cont);
         end;
 
         TestField(Status, Status::"In Progress");
@@ -810,14 +808,8 @@ table 5092 Opportunity
         SalesHeader."Opportunity No." := "No.";
         SalesHeader."Order Date" := GetEstimatedClosingDate;
         SalesHeader."Shipment Date" := SalesHeader."Order Date";
-#if not CLEAN18
-        if not CustomerTemplMgt.IsEnabled() then begin
-            if CustTemplateCode <> '' then
-                SalesHeader.Validate("Sell-to Customer Template Code", CustTemplateCode);
-        end else
-#endif
-            if NewCustTemplateCode <> '' then
-                SalesHeader.Validate("Sell-to Customer Templ. Code", NewCustTemplateCode);
+        if NewCustTemplateCode <> '' then
+            SalesHeader.Validate("Sell-to Customer Templ. Code", NewCustTemplateCode);
         SalesHeader.Modify();
         "Sales Document Type" := "Sales Document Type"::Quote;
         "Sales Document No." := SalesHeader."No.";
@@ -827,23 +819,6 @@ table 5092 Opportunity
 
         PAGE.Run(PAGE::"Sales Quote", SalesHeader);
     end;
-
-#if not CLEAN18
-    local procedure GetOldCustomerTemplateCode(Cont: Record Contact) CustTemplateCode: Code[10]
-    var
-        CustTemplate: Record "Customer Template";
-    begin
-        if GuiAllowed then begin
-            CustTemplateCode := Cont.ChooseCustomerTemplate();
-            if CustTemplateCode <> '' then
-                Cont.CreateCustomer(CustTemplateCode)
-            else
-                if Confirm(UpdateSalesQuoteWithCustTemplateQst) then
-                    if PAGE.RunModal(0, CustTemplate) = ACTION::LookupOK then
-                        CustTemplateCode := CustTemplate.Code;
-        end;
-    end;
-#endif
 
     local procedure GetNewCustomerTemplateCode(Cont: Record Contact) CustTemplateCode: Code[20]
     var

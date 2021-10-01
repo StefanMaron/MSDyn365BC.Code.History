@@ -29,13 +29,13 @@ table 5540 "Timeline Event"
         field(9; "Source Line ID"; RecordID)
         {
             Caption = 'Source Line ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(10; "Source Document ID"; RecordID)
         {
             Caption = 'Source Document ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(20; "Original Quantity"; Decimal)

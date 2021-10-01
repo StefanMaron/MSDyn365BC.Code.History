@@ -10,6 +10,7 @@ permissionset 7862 "D365 ACC. RECEIVABLE"
     Permissions = tabledata "Applied Payment Entry" = RIMD,
                   tabledata "Bank Acc. Reconciliation" = RIMD,
                   tabledata "Bank Acc. Reconciliation Line" = RIMD,
+                  tabledata "Bank Acc. Rec. Match Buffer" = RIMD,
                   tabledata "Bank Account Statement" = RimD,
                   tabledata "Bank Account Statement Line" = Rimd,
                   tabledata "Bank Pmt. Appl. Rule" = RIMD,
@@ -34,7 +35,9 @@ permissionset 7862 "D365 ACC. RECEIVABLE"
                   tabledata "Item Charge" = R,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = RIMD,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = RIMD,
+#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Journal Line" = RIMD,
                   tabledata "Item Ledger Entry" = Rimd,

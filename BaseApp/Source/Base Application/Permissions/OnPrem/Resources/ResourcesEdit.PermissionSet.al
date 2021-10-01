@@ -33,10 +33,14 @@ permissionset 6427 "Resources - Edit"
                   tabledata "Res. Journal Line" = Rm,
                   tabledata "Res. Ledger Entry" = Rm,
                   tabledata Resource = RIMD,
+#if not CLEAN19
                   tabledata "Resource Cost" = RIMD,
+#endif
                   tabledata "Resource Group" = RIMD,
                   tabledata "Resource Location" = RIMD,
+#if not CLEAN19
                   tabledata "Resource Price" = RIMD,
+#endif
                   tabledata "Resource Service Zone" = Rid,
                   tabledata "Resource Skill" = Rid,
                   tabledata "Resource Unit of Measure" = RID,

@@ -1651,7 +1651,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         Assert.AreEqual(Qty, Item.Inventory, WrongInventoryErr);
     end;
 
-    local procedure CreateTransferSNTracking(var ReservationEntry: Record "Reservation Entry"; TransferLine: Record "Transfer Line"; SerialNo: Code[10]; LotNo: Code[20]; Quantity: Integer)
+    local procedure CreateTransferSNTracking(var ReservationEntry: Record "Reservation Entry"; TransferLine: Record "Transfer Line"; SerialNo: Code[10]; LotNo: Code[50]; Quantity: Integer)
     var
         i: Integer;
         Serial: Code[20];
@@ -1662,7 +1662,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         end;
     end;
 
-    local procedure CreateJnlLineSNTracking(var ReservationEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line"; SerialNo: Code[10]; LotNo: Code[20]; Quantity: Decimal)
+    local procedure CreateJnlLineSNTracking(var ReservationEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line"; SerialNo: Code[10]; LotNo: Code[50]; Quantity: Decimal)
     var
         i: Integer;
         Serial: Code[20];
@@ -1680,7 +1680,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         TransferHeader.Modify();
     end;
 
-    local procedure CreateDirectTracking(var ReservationEntry: Record "Reservation Entry"; TransferLine: Record "Transfer Line"; SerialNo: Code[20]; LotNo: Code[20]; PackageNo: Code[50]; NewPackageNo: Code[50]; NewSN: Code[20]; NewLot: Code[20]; QtyBase: Integer)
+    local procedure CreateDirectTracking(var ReservationEntry: Record "Reservation Entry"; TransferLine: Record "Transfer Line"; SerialNo: Code[50]; LotNo: Code[50]; PackageNo: Code[50]; NewPackageNo: Code[50]; NewSN: Code[20]; NewLot: Code[20]; QtyBase: Integer)
     begin
         LibraryItemTracking.CreateTransferOrderItemTracking(ReservationEntry, TransferLine, SerialNo, LotNo, QtyBase);
         ReservationEntry.Validate("Package No.", PackageNo);
@@ -1694,7 +1694,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
     var
         AutoReserve: Boolean;
     begin
-        ReservMgt.SetTransferLine(TransferLine, "Transfer Direction"::Outbound);
+        ReservMgt.SetReservSource(TransferLine, "Transfer Direction"::Outbound);
         TransferLine.TestField("Shipment Date");
         ReservMgt.AutoReserveToShip(AutoReserve, '', TransferLine."Shipment Date", Quantity, Quantity);
     end;

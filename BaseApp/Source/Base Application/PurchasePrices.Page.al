@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 7012 "Purchase Prices"
 {
     Caption = 'Purchase Prices';
@@ -5,6 +6,9 @@ page 7012 "Purchase Prices"
     DelayedInsert = true;
     PageType = Worksheet;
     SourceTable = "Purchase Price";
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
 
     layout
     {
@@ -297,4 +301,4 @@ page 7012 "Purchase Prices"
         CurrPage.SetSelectionFilter(PurchasePrice);
     end;
 }
-
+#endif

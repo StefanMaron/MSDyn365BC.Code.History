@@ -324,7 +324,7 @@ codeunit 137270 "SCM Reservation III"
         ErrorUsingCreatePick(WarehouseActivityLine."Action Type"::Take, LibraryUtility.GenerateGUID, BinContentError);
     end;
 
-    local procedure ErrorUsingCreatePick(ActionType: Option; BinCode: Code[20]; ExpectedError: Text[1024])
+    local procedure ErrorUsingCreatePick(ActionType: Enum "Warehouse Action Type"; BinCode: Code[20]; ExpectedError: Text[1024])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -1494,7 +1494,7 @@ codeunit 137270 "SCM Reservation III"
         LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
     end;
 
-    local procedure CreateAndFindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Option)
+    local procedure CreateAndFindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Enum "Warehouse Action Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1916,7 +1916,7 @@ codeunit 137270 "SCM Reservation III"
         exit(WarehouseShipmentHeader."No.");
     end;
 
-    local procedure CreateWhseWkshName(var WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10]; Type: Option)
+    local procedure CreateWhseWkshName(var WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10]; Type: Enum "Warehouse Worksheet Template Type")
     var
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
     begin
@@ -2066,7 +2066,7 @@ codeunit 137270 "SCM Reservation III"
         WarehouseShipmentLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option; LocationCode: Code[10]; ActionType: Option): Code[20]
+    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ActionType: Enum "Warehouse Action Type"): Code[20]
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
@@ -2086,7 +2086,7 @@ codeunit 137270 "SCM Reservation III"
         exit(WarehouseReceiptLine."No.");
     end;
 
-    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Option)
+    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType, LocationCode, ActionType);
         WarehouseActivityLine.FindSet();
@@ -2175,7 +2175,7 @@ codeunit 137270 "SCM Reservation III"
         SalesLine.ShowReservation();
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Option; LocationCode: Code[10])
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10])
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -2240,7 +2240,7 @@ codeunit 137270 "SCM Reservation III"
         WarehouseEntry.TestField("Qty. (Base)", Quantity);
     end;
 
-    local procedure VerifyWhseActivityLine(ActivityType: Option; SourceNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure VerifyWhseActivityLine(ActivityType: Enum "Warehouse Activity Type"; SourceNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin

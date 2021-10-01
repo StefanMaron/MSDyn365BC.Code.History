@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5514 "Dimension Values Entity API"
 {
     Caption = 'dimensionValues', Locked = true;
@@ -51,3 +52,4 @@ page 5514 "Dimension Values Entity API"
     {
     }
 }
+#endif

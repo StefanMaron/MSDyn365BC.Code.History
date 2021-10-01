@@ -901,7 +901,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         Item[3].Modify();
     end;
 
-    local procedure CreateInventoryWithIT(var Item: Record Item; Quantity: Decimal; LotNo: Code[20]; LocationCode: Code[10])
+    local procedure CreateInventoryWithIT(var Item: Record Item; Quantity: Decimal; LotNo: Code[50]; LocationCode: Code[10])
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
@@ -942,7 +942,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         CreateAndPostConsumptionWithIT(ProdOrderLine, ArrayOfItem[2]."No.", ArrayOfItem[2]."No.", Quantity);
     end;
 
-    local procedure CreateAndPostConsumptionWithIT(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; LotNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostConsumptionWithIT(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; LotNo: Code[50]; Quantity: Decimal)
     var
         ProductionOrder: Record "Production Order";
         ItemJournalBatch: Record "Item Journal Batch";

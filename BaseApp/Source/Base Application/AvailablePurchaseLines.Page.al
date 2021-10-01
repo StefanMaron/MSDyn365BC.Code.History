@@ -19,32 +19,32 @@ page 501 "Available - Purchase Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of document that you are about to create.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location where the items on the line will be located.';
                 }
-                field("Expected Receipt Date"; "Expected Receipt Date")
+                field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date you expect the items to be available in your warehouse.';
                 }
-                field("Outstanding Qty. (Base)"; "Outstanding Qty. (Base)")
+                field("Outstanding Qty. (Base)"; Rec."Outstanding Qty. (Base)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the outstanding quantity expressed in the base units of measure.';
                 }
-                field("Reserved Qty. (Base)"; "Reserved Qty. (Base)")
+                field("Reserved Qty. (Base)"; Rec."Reserved Qty. (Base)")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
@@ -58,7 +58,7 @@ page 501 "Available - Purchase Lines"
                     Editable = false;
                     ToolTip = 'Specifies the quantity of the item that is available for reservation.';
                 }
-                field(ReservedQuantity; GetReservedQtyInLine)
+                field(ReservedQuantity; GetReservedQtyInLine())
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Current Reserved Quantity';
@@ -68,11 +68,11 @@ page 501 "Available - Purchase Lines"
                     trigger OnDrillDown()
                     begin
                         ReservEntry2.Reset();
-                        SetReservationFilters(ReservEntry2);
+                        Rec.SetReservationFilters(ReservEntry2);
                         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
-                        UpdateReservFrom;
+                        UpdateReservFrom();
                         CurrPage.Update();
                     end;
                 }
@@ -98,7 +98,7 @@ page 501 "Available - Purchase Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
             }
@@ -119,8 +119,8 @@ page 501 "Available - Purchase Lines"
                     trigger OnAction()
                     begin
                         ReservEntry.LockTable();
-                        UpdateReservMgt;
-                        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+                        UpdateReservMgt();
+                        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
                         ReservMgt.CalculateRemainingQty(NewQtyReserved, NewQtyReservedBase);
                         ReservMgt.CopySign(NewQtyReservedBase, QtyToReserveBase);
                         ReservMgt.CopySign(NewQtyReserved, QtyToReserve);
@@ -149,14 +149,14 @@ page 501 "Available - Purchase Lines"
                             exit;
 
                         ReservEntry2.Copy(ReservEntry);
-                        SetReservationFilters(ReservEntry2);
+                        Rec.SetReservationFilters(ReservEntry2);
                         if ReservEntry2.Find('-') then begin
-                            UpdateReservMgt;
+                            UpdateReservMgt();
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
                             until ReservEntry2.Next() = 0;
 
-                            UpdateReservFrom;
+                            UpdateReservFrom();
                         end;
                     end;
                 }
@@ -173,7 +173,7 @@ page 501 "Available - Purchase Lines"
                         PurchHeader: Record "Purchase Header";
                         PageManagement: Codeunit "Page Management";
                     begin
-                        PurchHeader.Get("Document Type", "Document No.");
+                        PurchHeader.Get(Rec."Document Type", Rec."Document No.");
                         PageManagement.PageRun(PurchHeader);
                     end;
                 }
@@ -190,27 +190,25 @@ page 501 "Available - Purchase Lines"
     begin
         ReservEntry.TestField("Source Type");
 
-        SetRange("Document Type", CurrentSubType);
-        SetRange(Type, Type::Item);
-        SetRange("No.", ReservEntry."Item No.");
-        SetRange("Variant Code", ReservEntry."Variant Code");
-        SetRange("Job No.", '');
-        SetRange("Drop Shipment", false);
-        SetRange("Location Code", ReservEntry."Location Code");
-
-        SetFilter("Expected Receipt Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
-
+        Rec.SetRange("Document Type", CurrentSubType);
+        Rec.SetRange(Type, Rec.Type::Item);
+        Rec.SetRange("No.", ReservEntry."Item No.");
+        Rec.SetRange("Variant Code", ReservEntry."Variant Code");
+        Rec.SetRange("Job No.", '');
+        Rec.SetRange("Drop Shipment", false);
+        Rec.SetRange("Location Code", ReservEntry."Location Code");
+        Rec.SetFilter("Expected Receipt Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
         case CurrentSubType of
             0, 1, 2, 4:
-                if ReservMgt.IsPositive then
-                    SetFilter("Quantity (Base)", '>0')
+                if ReservMgt.IsPositive() then
+                    Rec.SetFilter("Quantity (Base)", '>0')
                 else
-                    SetFilter("Quantity (Base)", '<0');
+                    Rec.SetFilter("Quantity (Base)", '<0');
             3, 5:
                 if ReservMgt.IsPositive then
-                    SetFilter("Quantity (Base)", '<0')
+                    Rec.SetFilter("Quantity (Base)", '<0')
                 else
-                    SetFilter("Quantity (Base)", '>0');
+                    Rec.SetFilter("Quantity (Base)", '>0');
         end;
 
         OnAfterOpenPage(Rec, ReservEntry, ReservMgt, ReservEngineMgt, CaptionText);
@@ -225,8 +223,6 @@ page 501 "Available - Purchase Lines"
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         SourceRecRef: RecordRef;
-        QtyToReserve: Decimal;
-        QtyToReserveBase: Decimal;
         QtyReserved: Decimal;
         QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
@@ -234,6 +230,10 @@ page 501 "Available - Purchase Lines"
         CaptionText: Text;
         Direction: Enum "Transfer Direction";
         CurrentSubType: Option;
+
+    protected var
+        QtyToReserve: Decimal;
+        QtyToReserveBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var
@@ -254,97 +254,32 @@ page 501 "Available - Purchase Lines"
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentSalesLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetReqLine(var CurrentReqLine: Record "Requisition Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentReqLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentPurchLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentProdOrderComp);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentPlanningComponent);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetTransferLine(var CurrentTransLine: Record "Transfer Line"; CurrentReservEntry: Record "Reservation Entry"; TransferDirection: Enum "Transfer Direction")
-    begin
-        SourceRecRef.GetTable(CurrentTransLine);
-        SetSource(SourceRecRef, CurrentReservEntry, TransferDirection);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetServiceInvLine(var CurrentServiceLine: Record "Service Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentServiceLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentJobPlanningLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-#endif
-
     local procedure CreateReservation(ReservedQuantity: Decimal; ReserveQuantityBase: Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";
         IsHandled: Boolean;
     begin
-        CalcFields("Reserved Qty. (Base)");
-        if (Abs("Outstanding Qty. (Base)") - Abs("Reserved Qty. (Base)")) < ReserveQuantityBase then
-            Error(Text003, Abs("Outstanding Qty. (Base)") - "Reserved Qty. (Base)");
+        Rec.CalcFields("Reserved Qty. (Base)");
+        if (Abs(Rec."Outstanding Qty. (Base)") - Abs(Rec."Reserved Qty. (Base)")) < ReserveQuantityBase then
+            Error(Text003, Abs(Rec."Outstanding Qty. (Base)") - Rec."Reserved Qty. (Base)");
 
         IsHandled := false;
         OnCreateReservationOnBeforeTestFields(Rec, ReservEntry, IsHandled);
         if not IsHandled then begin
-            TestField("Job No.", '');
-            TestField("Drop Shipment", false);
-            TestField("No.", ReservEntry."Item No.");
-            TestField("Variant Code", ReservEntry."Variant Code");
-            TestField("Location Code", ReservEntry."Location Code");
+            Rec.TestField("Job No.", '');
+            Rec.TestField("Drop Shipment", false);
+            Rec.TestField("No.", ReservEntry."Item No.");
+            Rec.TestField("Variant Code", ReservEntry."Variant Code");
+            Rec.TestField("Location Code", ReservEntry."Location Code");
         end;
 
         UpdateReservMgt;
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No.",
-          "Variant Code", "Location Code", "Qty. per Unit of Measure");
+          DATABASE::"Purchase Line", "Document Type".AsInteger(), Rec."Document No.", '', 0, Rec."Line No.",
+          Rec."Variant Code", Rec."Location Code", Rec."Qty. per Unit of Measure");
         ReservMgt.CreateReservation(
-          ReservEntry.Description, "Expected Receipt Date", ReservedQuantity, ReserveQuantityBase, TrackingSpecification);
-        UpdateReservFrom;
+          ReservEntry.Description, Rec."Expected Receipt Date", ReservedQuantity, ReserveQuantityBase, TrackingSpecification);
+        UpdateReservFrom();
     end;
 
     local procedure UpdateReservFrom()
@@ -362,13 +297,13 @@ page 501 "Available - Purchase Lines"
         OnAfterUpdateReservMgt(ReservEntry);
     end;
 
-    local procedure GetReservedQtyInLine(): Decimal
+    protected procedure GetReservedQtyInLine(): Decimal
     begin
         ReservEntry2.Reset();
         if ReservEntry."Source Type" = DATABASE::"Transfer Line" then
             ReservEntry."Source Subtype" := Direction.AsInteger();
         OnBeforeFilterReservEntry(ReservEntry, Direction);
-        SetReservationFilters(ReservEntry2);
+        Rec.SetReservationFilters(ReservEntry2);
         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
         exit(ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry));
     end;
@@ -376,20 +311,6 @@ page 501 "Available - Purchase Lines"
     procedure SetCurrentSubType(SubType: Option)
     begin
         CurrentSubType := SubType;
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyLine);
-        SetSource(SourceRecRef, CurrentReservEntry);
-    end;
-
-    [Obsolete('Replaced by SetSource procedure.', '16.0')]
-    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
-    begin
-        SourceRecRef.GetTable(CurrentAssemblyHeader);
-        SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
     [IntegrationEvent(false, false)]

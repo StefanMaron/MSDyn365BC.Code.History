@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1012 "Job Item Prices"
 {
     Caption = 'Job Item Prices';
@@ -105,4 +106,4 @@ page 1012 "Job Item Prices"
         FeaturePriceCalculation.FailIfFeatureEnabled();
     end;
 }
-
+#endif

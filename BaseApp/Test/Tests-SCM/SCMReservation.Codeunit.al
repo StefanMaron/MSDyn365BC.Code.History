@@ -1708,43 +1708,43 @@ codeunit 137049 "SCM Reservation"
             DATABASE::"Sales Line":
                 begin
                     SalesLine.Get(SourceSubType, SourceID, SourceRefNo);
-                    ReservMgt.SetSalesLine(SalesLine);
+                    ReservMgt.SetReservSource(SalesLine);
                 end;
             DATABASE::"Purchase Line":
                 begin
                     PurchaseLine.Get(SourceSubType, SourceID, SourceRefNo);
-                    ReservMgt.SetPurchLine(PurchaseLine);
+                    ReservMgt.SetReservSource(PurchaseLine);
                 end;
             DATABASE::"Transfer Line":
                 begin
                     TransferLine.Get(SourceID, SourceRefNo);
-                    ReservMgt.SetTransferLine(TransferLine, "Transfer Direction"::Outbound); // 0 stands for outbound
+                    ReservMgt.SetReservSource(TransferLine, "Transfer Direction"::Outbound); // 0 stands for outbound
                 end;
             DATABASE::"Prod. Order Component":
                 begin
                     ProdOrderComponent.Get(SourceSubType, SourceID, SourceProdOrderLineNo, SourceRefNo);
-                    ReservMgt.SetProdOrderComponent(ProdOrderComponent);
+                    ReservMgt.SetReservSource(ProdOrderComponent);
                 end;
             DATABASE::"Planning Component":
                 begin
                     PlanningComponent.Get('', SourceID, SourceProdOrderLineNo, SourceRefNo);
-                    ReservMgt.SetPlanningComponent(PlanningComponent);
+                    ReservMgt.SetReservSource(PlanningComponent);
                 end;
             DATABASE::"Assembly Line":
                 begin
                     AsmLine.Get(SourceSubType, SourceID, SourceRefNo);
-                    ReservMgt.SetAssemblyLine(AsmLine);
+                    ReservMgt.SetReservSource(AsmLine);
                 end;
             DATABASE::"Service Line":
                 begin
                     ServiceLine.Get(SourceSubType, SourceID, SourceRefNo);
-                    ReservMgt.SetServLine(ServiceLine);
+                    ReservMgt.SetReservSource(ServiceLine);
                 end;
             DATABASE::"Job Planning Line":
                 begin
                     JobPlanningLine.SetRange("Job No.", SourceID);
-                    JobPlanningLine.FindLast;
-                    ReservMgt.SetJobPlanningLine(JobPlanningLine);
+                    JobPlanningLine.FindLast();
+                    ReservMgt.SetReservSource(JobPlanningLine);
                 end;
         end;
     end;
@@ -2408,13 +2408,13 @@ codeunit 137049 "SCM Reservation"
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, WorkDate, AssemblyItem."No.", '', Quantity, '');
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", Quantity, 1, '');
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", Quantity, 1, '');
 
         // [GIVEN] Create Assembly Order with component of Item "I" of Quantity "Q", set Due Date to Workdate + 7 days
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, CalcDate('<+7D>', WorkDate), LibraryInventory.CreateItemNo, '', Quantity, '');
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, AssemblyItem."No.", Item."Base Unit of Measure", Quantity, 1, '');
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, AssemblyItem."No.", Item."Base Unit of Measure", Quantity, 1, '');
 
         // [WHEN] Reserve from page "Available - Assembly Headers"
         ReservationFromAssemblyOrder(AssemblyHeader."No.");

@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5507 "Sales Credit Memo Entity"
 {
     Caption = 'salesCreditMemos', Locked = true;
@@ -673,4 +674,4 @@ page 5507 "Sales Credit Memo Entity"
         Find;
     end;
 }
-
+#endif

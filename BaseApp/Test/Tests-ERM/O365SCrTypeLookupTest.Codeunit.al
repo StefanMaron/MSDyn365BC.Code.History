@@ -214,7 +214,7 @@ codeunit 134650 "O365 S. Cr. Type Lookup Test"
     var
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
     begin
-        TempOptionLookupBuffer.FillBuffer(LibraryVariableStorage.DequeueInteger);
+        TempOptionLookupBuffer.FillLookupBuffer(LibraryVariableStorage.DequeueInteger);
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");

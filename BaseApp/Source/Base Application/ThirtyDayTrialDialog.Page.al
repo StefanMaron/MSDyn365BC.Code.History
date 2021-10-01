@@ -1,6 +1,6 @@
 page 9193 "Thirty Day Trial Dialog"
 {
-    Caption = '30-Day Trial';
+    Caption = 'Set up a company';
     PageType = NavigatePage;
 
     layout
@@ -13,8 +13,8 @@ page 9193 "Thirty Day Trial Dialog"
                 Visible = FirstStepVisible;
                 group("Get started with a free 30-day trial")
                 {
-                    Caption = 'Get started with a free 30-day trial';
-                    InstructionalText = 'Explore the benefits of Dynamics 365 Business Central with your own company data.';
+                    Caption = 'Try Business Central with your own data';
+                    InstructionalText = 'Explore the benefits of Dynamics 365 Business Central with your own company data for 30 days.';
                 }
                 field(Content1Lbl; Content1Lbl)
                 {
@@ -46,7 +46,14 @@ page 9193 "Thirty Day Trial Dialog"
                 group("We're ready, let's get started")
                 {
                     Caption = 'We''re ready, let''s get started';
-                    InstructionalText = 'Read and accept the terms and conditions, and then choose Start Trial to start your 30-day trial period.';
+                    InstructionalText = 'You can keep using the Cronus demo company for evaluation, also when the trial ends. Just go to My Settings and choose the Cronus company.';
+                }
+                field(Content4Lbl; Content4Lbl)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    MultiLine = true;
+                    ShowCaption = false;
                 }
                 field(LinkControl; LinkLbl)
                 {
@@ -104,7 +111,7 @@ page 9193 "Thirty Day Trial Dialog"
             action(ActionStartTrial)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Start Trial';
+                Caption = 'Get started';
                 Enabled = TermsAndConditionsAccepted;
                 Gesture = None;
                 Image = Approve;
@@ -144,11 +151,12 @@ page 9193 "Thirty Day Trial Dialog"
         TrialWizardCompleted: Boolean;
         TermsAndConditionsAccepted: Boolean;
         IsPreview: Boolean;
-        LinkLbl: Label 'View Terms & Conditions';
+        LinkLbl: Label 'View terms & conditions';
         UrlTxt: Label 'http://go.microsoft.com/fwlink/?LinkId=828977', Locked = true;
         Content1Lbl: Label 'Use the setups that we provide, and import or create items, customers, and vendors to do things like post invoices or use graphs and reports to analyze your finances.';
-        Content2Lbl: Label 'If you decide to subscribe, you can continue using the data and setup that you create during the trial.';
+        Content2Lbl: Label 'If you decide to subscribe to Business Central, you can continue using the data and setup you create during the trial.';
         Content3Lbl: Label 'Choose Next to learn more about how to get started.';
+        Content4Lbl: Label 'Please review the terms and conditions for using Business Central with your own company data.';
         AbortTrialQst: Label 'Are you sure that you want to cancel?';
 
     local procedure EnableControls()

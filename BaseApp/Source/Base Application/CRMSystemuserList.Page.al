@@ -119,7 +119,7 @@ page 5340 "CRM Systemuser List"
                     if not CRMIntegrationManagement.HasUncoupledSelectedUsers(CRMSystemuser) then
                         exit;
 
-                    CRMIntegrationManagement.CreateNewSystemUsersFromCRM(CRMSystemuser);
+                    CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(CRMSystemuser);
                     HasCoupled := true;
 
                     if IsCDSIntegrationEnabled then
@@ -213,6 +213,34 @@ page 5340 "CRM Systemuser List"
                     AddUsersToDefaultOwningTeam(CRMSystemuser, true);
                 end;
             }
+            action(ShowOnlyUncoupled)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Hide Coupled Users';
+                Image = FilterLines;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Do not show coupled users.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(true);
+                end;
+            }
+            action(ShowAll)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Show Coupled Users';
+                Image = ClearFilter;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Show coupled users.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(false);
+                end;
+            }
         }
     }
 
@@ -230,14 +258,17 @@ page 5340 "CRM Systemuser List"
             if CurrentlyCoupledCRMSystemuser.SystemUserId = SystemUserId then begin
                 Coupled := Coupled::Current;
                 FirstColumnStyle := 'Strong';
+                Mark(true);
             end else begin
                 Coupled := Coupled::Yes;
                 FirstColumnStyle := 'Subordinate';
+                Mark(false);
             end
         end else begin
             InsertUpdateTempCRMSystemUser('', false);
             Coupled := Coupled::No;
             FirstColumnStyle := 'None';
+            Mark(true);
         end;
         if IsCDSIntegrationEnabled then begin
             TempCDSTeammembership.SetRange(SystemUserId, SystemUserId);

@@ -6,8 +6,10 @@ permissionset 448 "D365 JOBS, VIEW"
     Permissions = tabledata Job = R,
                   tabledata "Job Cue" = R,
                   tabledata "Job Entry No." = R,
+#if not CLEAN19
                   tabledata "Job G/L Account Price" = R,
                   tabledata "Job Item Price" = R,
+#endif
                   tabledata "Job Journal Batch" = R,
                   tabledata "Job Journal Line" = R,
                   tabledata "Job Journal Quantity" = R,
@@ -19,7 +21,9 @@ permissionset 448 "D365 JOBS, VIEW"
                   tabledata "Job Posting Buffer" = R,
                   tabledata "Job Posting Group" = R,
                   tabledata "Job Register" = R,
+#if not CLEAN19
                   tabledata "Job Resource Price" = R,
+#endif
                   tabledata "Job Task" = R,
                   tabledata "Job Task Dimension" = R,
                   tabledata "Job Usage Link" = R,

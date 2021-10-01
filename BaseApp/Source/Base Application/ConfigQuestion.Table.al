@@ -47,7 +47,7 @@ table 8612 "Config. Question"
                 ConfigPackageManagement: Codeunit "Config. Package Management";
                 RecRef: RecordRef;
                 FieldRef: FieldRef;
-                ValidationError: Text[250];
+                ValidationError: Text;
             begin
                 if ("Field ID" <> 0) and (Answer <> '') then begin
                     RecRef.Open("Table ID", true);
@@ -190,7 +190,7 @@ table 8612 "Config. Question"
             ConfigPackageDataPage.LookupMode := true;
             if ConfigPackageDataPage.RunModal = ACTION::LookupOK then begin
                 ConfigPackageDataPage.GetRecord(ConfigPackageData);
-                Answer := ConfigPackageData.Value;
+                Answer := CopyStr(ConfigPackageData.Value, 1, MaxStrLen(Answer));
             end;
         end;
     end;

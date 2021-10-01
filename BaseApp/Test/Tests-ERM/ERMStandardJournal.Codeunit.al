@@ -87,7 +87,7 @@ codeunit 134921 "ERM Standard Journal"
 
         // 2. Exercise: Get saved standard Journal in General Journal and use a document number for new lines.
         DocumentNo := LibraryUtility.GenerateGUID;
-        StandardGeneralJournal.CreateGenJnlFromStdJnlWithDocNo(StandardGeneralJournal, GenJournalBatch.Name, DocumentNo);
+        StandardGeneralJournal.CreateGenJnlFromStdJnlWithDocNo(StandardGeneralJournal, GenJournalBatch.Name, DocumentNo, 0D);
 
         // 3. Verify: Verify Standard General Journal Lines created match with the General Journal Lines.
         VerifyGeneralJournalLinesWithDocNo(GenJournalLine, StandardGeneralJournal.Code, DocumentNo);
@@ -317,6 +317,69 @@ codeunit 134921 "ERM Standard Journal"
 
         // [THEN] Created general journal lines have empty document number
         VerifyEmptyDocumentNumberForCreatedGenJnlLines(GenJournalBatch);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure SaveStandardJournalWithExtDocNo()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+        StandardGeneralJournalLine: Record "Standard General Journal Line";
+    begin
+        // [SCENARIO 324153] "External Document No." passed to standard gen. jnl. line when save it from gen. jnl. line
+        Initialize;
+
+        // [GIVEN] Gen. jnl. line with "External Document No." = "ED"
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting, '', '');
+        GenJournalLine."External Document No." := LibraryUtility.GenerateGUID();
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Save gen. jnl. line as standard gen. jnl. line
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // [THEN] "Standard General Journal Line"."External Document No." = "ED"
+        StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardGeneralJournal.Code);
+        StandardGeneralJournalLine.FindFirst();
+        StandardGeneralJournalLine.TestField("External Document No.", GenJournalLine."External Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure GetStandardJournalWithExtDocNo()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+        StandardGeneralJournalLine: Record "Standard General Journal Line";
+    begin
+        // [SCENARIO 324153] "External Document No." passed to gen. jnl. line when create it from standard gen. jnl. line
+        Initialize;
+
+        // [GIVEN] Standard gen. jnl. line with "External Document No." = "ED"
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting, '', '');
+        GenJournalLine."External Document No." := LibraryUtility.GenerateGUID();
+        GenJournalLine.Modify(true);
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // [WHEN] Create gen. jnl. line from standard gen. jnl. line
+        DeleteGeneralJournalLine(GenJournalBatch.Name);
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+
+        // [THEN] "Gen. Journal Line"."External Document No." = "ED"
+        StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardGeneralJournal.Code);
+        StandardGeneralJournalLine.FindFirst();
+
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+
+        GenJournalLine.TestField("External Document No.", StandardGeneralJournalLine."External Document No.");
     end;
 
     [Test]

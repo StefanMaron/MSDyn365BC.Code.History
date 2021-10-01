@@ -971,7 +971,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 3558735020 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Workflow Webhook Subscriptions</source>
-          <target state="translated">Подписки на Webhook раб. проц.</target>
+          <target state="translated">Подписки веб-перехв. раб.проц.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WEBHOOK SUBSCRIPTION - Property Caption</note>
         </trans-unit>

@@ -688,7 +688,7 @@
         </trans-unit>
         <trans-unit id="Page 2572387921 - Control 4026315105 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the sales credit memo lines sequence.</source>
-          <target state="translated">Especifica la secuencia de líneas de abonos de venta.</target>
+          <target state="translated">Especifica la secuencia de líneas de nota de crédito de venta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control sequence - Property ToolTip</note>
         </trans-unit>
@@ -754,7 +754,7 @@
         </trans-unit>
         <trans-unit id="Page 1278005506 - Control 4101803605 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the total tax amount for the sales credit memo.</source>
-          <target state="translated">Especifica el importe de impuesto total de la nota de crédito de venta.</target>
+          <target state="translated">Especifica el monto de impuesto total de la nota de crédito de venta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control totalTaxAmount - Property ToolTip</note>
         </trans-unit>

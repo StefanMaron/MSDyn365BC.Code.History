@@ -292,7 +292,7 @@ codeunit 136309 "Job Posting"
         JobJournalLine: Record "Job Journal Line";
         JobTask: Record "Job Task";
         PurchaseLine: Record "Purchase Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Verify Remaining Quantity on Item Ledger Entry after posting Job Journal Line with Item Tracking Lines and Negative Quantity.
 
@@ -906,6 +906,7 @@ codeunit 136309 "Job Posting"
             JobLedgerEntry.TableCaption));
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure JobPlanningLineUnitPriceWithItemSalesPrice()
@@ -936,6 +937,7 @@ codeunit 136309 "Job Posting"
         // 3. Verify: Verify Unit Price on Job Planning Line.
         JobPlanningLine.TestField("Unit Price", SalesPrice."Unit Price");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1586,7 +1588,7 @@ codeunit 136309 "Job Posting"
         JobPlanningLine: Record "Job Planning Line";
         JobLedgEntry: Record "Job Ledger Entry";
         InvNo: Code[20];
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // [FEATURE] [Item Tracking] [Lot No.]
         // [SCENARIO 382364] "Lot No." in Job Planning Line is equal the same field from Job Ledger Entry after posting Purchase Order with Item Tracking and "Job Planning Line No." defined

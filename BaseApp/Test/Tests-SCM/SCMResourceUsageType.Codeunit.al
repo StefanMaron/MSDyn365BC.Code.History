@@ -57,7 +57,7 @@ codeunit 137909 "SCM Resource Usage Type"
         ParentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 10));
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(100, 0));
         LibraryKitting.CreateBOMComponentLine(
-          ParentItem, BOMComp.Type::Resource, resource."No.", 10, resource."Base Unit of Measure", false);
+          ParentItem, "BOM Component Type"::Resource, resource."No.", 10, resource."Base Unit of Measure", false);
         calcThenValidateCost(ParentItem."No.", 1000, 1);
         asserterror Error('') // roll back
     end;
@@ -73,7 +73,7 @@ codeunit 137909 "SCM Resource Usage Type"
         Initialize;
         ParentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 10));
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(100, 0));
-        LibraryKitting.CreateBOMComponentLine(ParentItem, BOMComp.Type::Resource, resource."No.", 5, resource."Base Unit of Measure", true);
+        LibraryKitting.CreateBOMComponentLine(ParentItem, "BOM Component Type"::Resource, resource."No.", 5, resource."Base Unit of Measure", true);
         calcThenValidateCost(ParentItem."No.", 50, 1);
         asserterror Error('') // roll back
     end;
@@ -89,10 +89,10 @@ codeunit 137909 "SCM Resource Usage Type"
         Initialize;
         ParentItem.Get(LibraryKitting.CreateItemWithLotAndNewUOM(500, 700, 10));
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(100, 0));
-        LibraryKitting.CreateBOMComponentLine(ParentItem, BOMComp.Type::Resource, resource."No.", 5, resource."Base Unit of Measure", true);
+        LibraryKitting.CreateBOMComponentLine(ParentItem, "BOM Component Type"::Resource, resource."No.", 5, resource."Base Unit of Measure", true);
         resource.Get(LibraryKitting.CreateResourceWithNewUOM(100, 0));
         LibraryKitting.CreateBOMComponentLine(
-          ParentItem, BOMComp.Type::Resource, resource."No.", 10, resource."Base Unit of Measure", false);
+          ParentItem, "BOM Component Type"::Resource, resource."No.", 10, resource."Base Unit of Measure", false);
         calcThenValidateCost(ParentItem."No.", 1050, 1);
         asserterror Error('') // roll back
     end;

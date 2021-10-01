@@ -894,12 +894,10 @@ table 5940 "Service Item"
             Caption = 'Date Filter';
             FieldClass = FlowFilter;
         }
-        field(101; "Type Filter"; Option)
+        field(101; "Type Filter"; Enum "Service Ledger Entry Type")
         {
             Caption = 'Type Filter';
             FieldClass = FlowFilter;
-            OptionCaption = ' ,Resource,Item,Service Cost,Service Contract,G/L Account';
-            OptionMembers = " ",Resource,Item,"Service Cost","Service Contract","G/L Account";
         }
         field(102; "Contract Filter"; Code[20])
         {

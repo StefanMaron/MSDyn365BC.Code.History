@@ -1,4 +1,4 @@
-﻿table 221 "Gen. Jnl. Allocation"
+table 221 "Gen. Jnl. Allocation"
 {
     Caption = 'Gen. Jnl. Allocation';
 

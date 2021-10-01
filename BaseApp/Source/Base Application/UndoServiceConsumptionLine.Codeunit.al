@@ -39,7 +39,6 @@ codeunit 5819 "Undo Service Consumption Line"
         TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary;
         TempTrkgItemLedgEntry: Record "Item Ledger Entry" temporary;
         TempTrkgItemLedgEntry2: Record "Item Ledger Entry" temporary;
-        InvtSetup: Record "Inventory Setup";
         SourceCodeSetup: Record "Source Code Setup";
         DummyItemJnlLine: Record "Item Journal Line";
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
@@ -51,7 +50,6 @@ codeunit 5819 "Undo Service Consumption Line"
         Text000: Label 'Do you want to undo consumption of the selected shipment line(s)?';
         Text001: Label 'Undo quantity consumed posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
-        InvtAdjmt: Codeunit "Inventory Adjustment";
         TrackingSpecificationExists: Boolean;
         HideDialog: Boolean;
         Text003: Label 'Checking lines...';
@@ -117,14 +115,8 @@ codeunit 5819 "Undo Service Consumption Line"
             until Next() = 0;
             ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
 
-            InvtSetup.Get();
-            if InvtSetup."Automatic Cost Adjustment" <>
-               InvtSetup."Automatic Cost Adjustment"::Never
-            then begin
-                ServShptHeader.Get("Document No.");
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.MakeMultiLevelAdjmt;
-            end;
+            MakeInventoryAdjustment();
+
             WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
         end;
 
@@ -512,6 +504,16 @@ codeunit 5819 "Undo Service Consumption Line"
             ItemLedgEntry."Document Line No." := NewServShptLine."Line No.";
             ItemLedgEntry.Modify();
         end;
+    end;
+
+    local procedure MakeInventoryAdjustment()
+    var
+        InvtSetup: Record "Inventory Setup";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        InvtSetup.Get();
+        if InvtSetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
     end;
 
     [IntegrationEvent(false, false)]

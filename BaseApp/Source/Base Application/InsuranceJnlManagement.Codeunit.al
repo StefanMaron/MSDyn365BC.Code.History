@@ -72,6 +72,8 @@ codeunit 5656 InsuranceJnlManagement
 
     procedure OpenJournal(var CurrentJnlBatchName: Code[10]; var InsuranceJnlLine: Record "Insurance Journal Line")
     begin
+        OnBeforeOpenJournal(CurrentJnlBatchName, InsuranceJnlLine);
+
         CheckTemplateName(InsuranceJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         InsuranceJnlLine.FilterGroup := 2;
         InsuranceJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -186,6 +188,11 @@ codeunit 5656 InsuranceJnlManagement
                     FADescription := FA.Description;
             OldFANo := FA."No.";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJournal(var CurrentJnlBatchName: Code[10]; var InsuranceJournalLine: Record "Insurance Journal Line")
+    begin
     end;
 }
 

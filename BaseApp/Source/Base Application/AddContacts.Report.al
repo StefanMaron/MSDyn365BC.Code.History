@@ -314,7 +314,6 @@ report 5198 "Add Contacts"
         Window: Dialog;
         NextLineNo: Integer;
         ItemFilters: Boolean;
-        ContactOK: Boolean;
         AllowExistingContact: Boolean;
         ExpandCompanies: Boolean;
         AllowCoRepdByContPerson: Boolean;
@@ -326,6 +325,9 @@ report 5198 "Add Contacts"
         NewDateTime: DateTime;
         OldProgress: Integer;
         NewProgress: Integer;
+
+    protected var
+        ContactOK: Boolean;
 
     procedure SetOptions(OptionAllowExistingContact: Boolean; OptionExpandCompanies: Boolean; OptionAllowCoRepdByContPerson: Boolean; OptionIgnoreExclusion: Boolean)
     begin

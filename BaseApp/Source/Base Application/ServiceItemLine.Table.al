@@ -2471,6 +2471,25 @@ table 5901 "Service Item Line"
                 "Loaner No." := '';
     end;
 
+    procedure SetSecurityFilterOnRespCenter()
+    var
+        UserSetupMgt: Codeunit "User Setup Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if UserSetupMgt.GetServiceFilter() <> '' then begin
+            FilterGroup(2);
+            SetRange("Responsibility Center", UserSetupMgt.GetServiceFilter());
+            FilterGroup(0);
+        end;
+
+        SetRange("Date Filter", 0D, WorkDate());
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ServiceItemLine: Record "Service Item Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
@@ -2518,6 +2537,11 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowUpdateExistingServiceLinesMessage(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 

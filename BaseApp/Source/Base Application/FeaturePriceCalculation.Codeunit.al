@@ -1,8 +1,13 @@
+#if not CLEAN19
 /// <summary>
 /// Copies pricing data from old tables to "Price List Line" and "Price List Header" table.
 /// </summary>
 Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
 {
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+    ObsoleteReason = 'The feature will be automatically enabled on version 22.0';
+
     procedure IsDataUpdateRequired(): Boolean;
     begin
         CountRecords();
@@ -352,3 +357,4 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
             error(FeatureIsOnErr)
     end;
 }
+#endif

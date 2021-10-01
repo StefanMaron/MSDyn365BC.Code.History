@@ -68,16 +68,19 @@
         </trans-unit>
         <trans-unit id="Page 1036501575 - Control 2141615146 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control NotDoneIcon - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1036501575 - Control 2141615146 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control NotDoneIcon - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1036501575 - Action 742034285 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Action Back - Property ToolTip</note>
         </trans-unit>
@@ -89,6 +92,7 @@
         </trans-unit>
         <trans-unit id="Page 1036501575 - Action 1235620153 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Action Next - Property ToolTip</note>
         </trans-unit>
@@ -100,6 +104,7 @@
         </trans-unit>
         <trans-unit id="Page 1036501575 - Action 1010501080 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Action Ok - Property ToolTip</note>
         </trans-unit>

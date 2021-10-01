@@ -1,4 +1,4 @@
-﻿codeunit 364 "PostPurch-Delete"
+codeunit 364 "PostPurch-Delete"
 {
     Permissions = TableData "Purch. Rcpt. Header" = i,
                   TableData "Purch. Rcpt. Line" = rid,

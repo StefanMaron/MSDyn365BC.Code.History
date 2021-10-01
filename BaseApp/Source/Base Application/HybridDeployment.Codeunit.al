@@ -12,7 +12,7 @@ codeunit 6060 "Hybrid Deployment"
     var
         SourceProduct: Text;
         FailedToProcessRequestErr: Label 'The request could not be processed due to an unexpected error.';
-        FailedCreatingIRErr: Label 'Failed to create your integration runtime.';
+        FailedCreatingIRErr: Label 'Failed to create your integration runtime. Please try again later. If the problem continues, contact support.';
         FailedDisableReplicationErr: Label 'Failed to disable replication.';
         CloudMigrationFailedContinueTxt: Label 'The request to remove the integration runtime failed. \Do you want to continue with disabling the replication?\\Error:';
         CloudMigrationFailedContinueQst: Label '%1\%2', Locked = true, Comment = '%1 question to user, %2 error message';
@@ -610,6 +610,24 @@ codeunit 6060 "Hybrid Deployment"
             Session.LogMessage('00007HU', 'Received an empty response from the replication service.', Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', 'IntelligentCloud');
             Error(FailedToProcessRequestErr);
         end;
+    end;
+
+    internal procedure VerifyCanStartUpgrade(CompanyName: Text)
+    var
+        IntelligentCloud: Record "Intelligent Cloud";
+    begin
+        if not IntelligentCloud.Get() then
+            exit;
+
+        if not IntelligentCloud.Enabled then
+            exit;
+
+        OnCanStartUpgrade(CompanyName);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCanStartUpgrade(CompanyName: Text)
+    begin
     end;
 }
 

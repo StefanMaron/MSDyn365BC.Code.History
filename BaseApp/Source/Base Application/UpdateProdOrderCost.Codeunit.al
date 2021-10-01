@@ -14,7 +14,7 @@ codeunit 99000757 "Update Prod. Order Cost"
         PlanningComponent: Record "Planning Component";
         ServiceInvLine: Record "Service Line";
 
-    local procedure ModifyFor(ReservEntry: Record "Reservation Entry"; UnitCost: Decimal)
+    procedure ModifySourceLineCost(ReservEntry: Record "Reservation Entry"; UnitCost: Decimal)
     var
         ProdOrderLine: Record "Prod. Order Line";
         ReqLine: Record "Requisition Line";
@@ -372,7 +372,7 @@ codeunit 99000757 "Update Prod. Order Cost"
                 UnitCost := ProdOrderLine."Unit Cost";
             if ReservEntry.Find('-') then
                 repeat
-                    ModifyFor(ReservEntry, UnitCost);
+                    ModifySourceLineCost(ReservEntry, UnitCost);
                 until ReservEntry.Next() = 0;
         end;
     end;

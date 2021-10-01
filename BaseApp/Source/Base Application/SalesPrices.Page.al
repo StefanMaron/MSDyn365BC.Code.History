@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 7002 "Sales Prices"
 {
     Caption = 'Sales Prices';
@@ -618,4 +619,4 @@ page 7002 "Sales Prices"
         CurrPage.SetSelectionFilter(SalesPrice);
     end;
 }
-
+#endif

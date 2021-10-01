@@ -373,7 +373,7 @@ table 5330 "CRM Connection Setup"
         UserHasNoRolesErr: Label 'User %1 has no user roles assigned on server %2.', Comment = '%1 user name, %2 - server address';
         BCIntegrationAdministratorRoleIdTxt: Label '{8c8d4f51-a72b-e511-80d9-3863bb349780}', Locked = true;
         BCIntegrationUserRoleIdTxt: Label '{6f960e32-a72b-e511-80d9-3863bb349780}', Locked = true;
-        CDSConnectionMustBeEnabledErr: Label 'You must enable the connection to Dataverse before you can set up the connection to %1.\\Open the page %2 to enable the connection to Dataverse.', Comment = '%1 = CRM product name, %2 = Dataverse Connection Setup page caption.';
+        CDSConnectionMustBeEnabledErr: Label 'You must enable the connection to Dataverse before you can set up the connection to %1.\\Choose ''Set up Dataverse connection'' in %2 page.', Comment = '%1 = CRM product name, %2 = Assisted Setup page caption.';
         DeploySucceedMsg: Label 'The solution, user roles, and entities have been deployed.';
         DeployFailedMsg: Label 'The deployment of the solution, user roles, and entities failed.';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
@@ -386,7 +386,7 @@ table 5330 "CRM Connection Setup"
     procedure EnsureCDSConnectionIsEnabled();
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
-        CDSConnectionSetupPage: Page "CDS Connection Setup";
+        AssistedSetupPage: Page "Assisted Setup";
     begin
         if Get() then
             if "Is Enabled" then
@@ -396,14 +396,14 @@ table 5330 "CRM Connection Setup"
             if CDSConnectionSetup."Is Enabled" then
                 exit;
 
-        Error(CDSConnectionMustBeEnabledErr, CRMProductName.SHORT(), CDSConnectionSetupPage.Caption());
+        Error(CDSConnectionMustBeEnabledErr, CRMProductName.SHORT(), AssistedSetupPage.Caption());
     end;
 
     [Scope('OnPrem')]
     procedure LoadConnectionStringElementsFromCDSConnectionSetup();
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
-        CDSConnectionSetupPage: Page "CDS Connection Setup";
+        AssistedSetupPage: Page "Assisted Setup";
     begin
         if Get() then
             if "Is Enabled" then
@@ -422,7 +422,7 @@ table 5330 "CRM Connection Setup"
                 exit;
             end;
 
-        Error(CDSConnectionMustBeEnabledErr, CRMProductName.SHORT(), CDSConnectionSetupPage.Caption());
+        Error(CDSConnectionMustBeEnabledErr, CRMProductName.SHORT(), AssistedSetupPage.Caption());
     end;
 
     [Scope('OnPrem')]
@@ -684,12 +684,13 @@ table 5330 "CRM Connection Setup"
     begin
         exit(
           StrSubstNo(
-            '%1|%2|%3|%4|%5',
+            '%1|%2|%3|%4|%5|%6',
             CODEUNIT::"Integration Synch. Job Runner",
             CODEUNIT::"CRM Statistics Job",
             CODEUNIT::"Auto Create Sales Orders",
             CODEUNIT::"Auto Process Sales Quotes",
-            CODEUNIT::"Int. Uncouple Job Runner"));
+            CODEUNIT::"Int. Uncouple Job Runner",
+            CODEUNIT::"Int. Coupling Job Runner"));
     end;
 
     [Scope('OnPrem')]

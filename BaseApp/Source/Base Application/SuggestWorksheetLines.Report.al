@@ -1,4 +1,4 @@
-﻿report 840 "Suggest Worksheet Lines"
+report 840 "Suggest Worksheet Lines"
 {
     Caption = 'Suggest Worksheet Lines';
     Permissions = TableData "Dimension Set ID Filter Line" = rimd,
@@ -749,11 +749,11 @@
         exit(TempCFWorksheetLine."Amount (LCY)" <> 0);
     end;
 
-    local procedure InsertTempCFWorksheetLine(MaxPmtTolerance: Decimal)
+    procedure InsertTempCFWorksheetLine(CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; MaxPmtTolerance: Decimal)
     begin
         with TempCFWorksheetLine do begin
             LineNo := LineNo + 100;
-            TransferFields(CFWorksheetLine2);
+            TransferFields(CashFlowWorksheetLine);
             "Cash Flow Forecast No." := "Cash Flow Forecast"."No.";
             "Line No." := LineNo;
 
@@ -765,8 +765,8 @@
             else
                 "Amount (LCY)" := "Amount (LCY)" - MaxPmtTolerance;
 
-            if InsertConditionMet then
-                Insert
+            if InsertConditionMet() then
+                Insert();
         end;
     end;
 
@@ -830,7 +830,7 @@
             "Shortcut Dimension 2 Code" := GLAcc."Global Dimension 2 Code";
             "Shortcut Dimension 1 Code" := GLAcc."Global Dimension 1 Code";
             MoveDefualtDimToJnlLineDim(DATABASE::"G/L Account", GLAcc."No.", "Dimension Set ID");
-            InsertTempCFWorksheetLine(0);
+            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
         end;
     end;
 
@@ -879,7 +879,7 @@
             else
                 "Payment Terms Code" := '';
 
-            InsertTempCFWorksheetLine(MaxPmtTolerance);
+            InsertTempCFWorksheetLine(CFWorksheetLine2, MaxPmtTolerance);
         end;
     end;
 
@@ -928,7 +928,7 @@
             else
                 "Payment Terms Code" := '';
 
-            InsertTempCFWorksheetLine(MaxPmtTolerance);
+            InsertTempCFWorksheetLine(CFWorksheetLine2, MaxPmtTolerance);
         end;
     end;
 
@@ -977,7 +977,7 @@
                 else
                     "Payment Terms Code" := PurchHeader."Payment Terms Code";
 
-                InsertTempCFWorksheetLine(0);
+                InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
             end;
     end;
 
@@ -1026,7 +1026,7 @@
                 else
                     "Payment Terms Code" := SalesHeader."Payment Terms Code";
 
-                InsertTempCFWorksheetLine(0);
+                InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
             end;
     end;
 
@@ -1048,7 +1048,7 @@
             "Shortcut Dimension 2 Code" := InvestmentFixedAsset."Global Dimension 2 Code";
             "Shortcut Dimension 1 Code" := InvestmentFixedAsset."Global Dimension 1 Code";
             MoveDefualtDimToJnlLineDim(DATABASE::"Fixed Asset", InvestmentFixedAsset."No.", "Dimension Set ID");
-            InsertTempCFWorksheetLine(0);
+            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
         end;
     end;
 
@@ -1070,7 +1070,7 @@
             "Shortcut Dimension 2 Code" := SaleFixedAsset."Global Dimension 2 Code";
             "Shortcut Dimension 1 Code" := SaleFixedAsset."Global Dimension 1 Code";
             MoveDefualtDimToJnlLineDim(DATABASE::"Fixed Asset", SaleFixedAsset."No.", "Dimension Set ID");
-            InsertTempCFWorksheetLine(0);
+            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
         end;
     end;
 
@@ -1163,7 +1163,7 @@
             "Shortcut Dimension 1 Code" := GLBudgEntry."Global Dimension 1 Code";
             "Shortcut Dimension 2 Code" := GLBudgEntry."Global Dimension 2 Code";
             "Dimension Set ID" := GLBudgEntry."Dimension Set ID";
-            InsertTempCFWorksheetLine(0);
+            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
         end;
     end;
 
@@ -1213,7 +1213,7 @@
                 else
                     "Payment Terms Code" := ServiceHeader."Payment Terms Code";
 
-                InsertTempCFWorksheetLine(0);
+                InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
             end;
     end;
 
@@ -1254,7 +1254,7 @@
                 "Document No." := "Job Planning Line"."Document No.";
                 "Amount (LCY)" := GetJobPlanningAmountForCFLine("Job Planning Line");
 
-                InsertTempCFWorksheetLine(0);
+                InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
             end;
     end;
 
@@ -1303,7 +1303,7 @@
                         TotalAmt := 0;
                     end;
 
-                    InsertTempCFWorksheetLine(0);
+                    InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
                 end;
 
         TaxLastSourceTableNumProcessed := SourceTableNum;
@@ -1410,16 +1410,16 @@
             end;
         end;
 
-        InsertTempCFWorksheetLine(0);
+        InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
     end;
 
     local procedure InsertOrModifyCFLine(InsertConditionHasBeenMetAlready: Boolean)
     begin
         CFWorksheetLine2."Amount (LCY)" += TempCFWorksheetLine."Amount (LCY)";
         if InsertConditionHasBeenMetAlready then
-            TempCFWorksheetLine.Modify
+            TempCFWorksheetLine.Modify()
         else
-            InsertTempCFWorksheetLine(0);
+            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
     end;
 
     local procedure GetSubPostingGLAccounts(var GLAccount: Record "G/L Account"; var TempGLAccount: Record "G/L Account" temporary)
@@ -1556,7 +1556,7 @@
         with CFWorksheetLine2 do begin
             SetCashFlowDate(CFWorksheetLine2, ExecutionDate);
             "Amount (LCY)" := ManualAmount;
-            InsertTempCFWorksheetLine(0);
+            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
         end;
     end;
 
@@ -1656,6 +1656,16 @@
         CashFlowSetup: Record "Cash Flow Setup";
     begin
         exit(Date < CashFlowSetup.GetCurrentPeriodStartDate);
+    end;
+
+    procedure SetSummarized(NewSummarized: Boolean)
+    begin
+        Summarized := NewSummarized;
+    end;
+
+    procedure GetSummarized(): Boolean
+    begin
+        exit(Summarized);
     end;
 
     [IntegrationEvent(false, false)]

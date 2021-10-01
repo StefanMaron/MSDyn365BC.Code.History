@@ -154,21 +154,6 @@ codeunit 2107 "O365 Sales Management"
         exit(O365CountryRegion.Code);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Conf./Personalization Mgt.", 'OnBeforeOpenSettings', '', false, false)]
-    local procedure OpenFullInvoicingSettingsPage(var Handled: Boolean)
-    var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
-    begin
-        if Handled then
-            exit;
-
-        if not EnvInfoProxy.IsInvoicing then
-            exit;
-
-        Handled := true;
-        PAGE.RunModal(PAGE::"BC O365 My Settings");
-    end;
-
     [Scope('OnPrem')]
     [Obsolete('Quickbooks integration to Invoicing is discontinued.', '17.0')]
     procedure GetQuickBooksVisible(): Boolean

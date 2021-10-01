@@ -97,6 +97,34 @@ page 5341 "CRM Account List"
                     CRMIntegrationManagement.CreateNewRecordsFromSelectedCRMRecords(CRMAccount);
                 end;
             }
+            action(ShowOnlyUncoupled)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Hide Coupled Accounts';
+                Image = FilterLines;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Do not show coupled accounts.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(true);
+                end;
+            }
+            action(ShowAll)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Show Coupled Accounts';
+                Image = ClearFilter;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Show coupled accounts.';
+
+                trigger OnAction()
+                begin
+                    MarkedOnly(false);
+                end;
+            }
         }
     }
 
@@ -110,9 +138,11 @@ page 5341 "CRM Account List"
             if CurrentlyCoupledCRMAccount.AccountId = AccountId then begin
                 Coupled := 'Current';
                 FirstColumnStyle := 'Strong';
+                Mark(true);
             end else begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
+                Mark(false);
             end;
 
         if RecordID = EmptyRecordID then
@@ -120,14 +150,17 @@ page 5341 "CRM Account List"
                 if CurrentlyCoupledCRMAccount.AccountId = AccountId then begin
                     Coupled := 'Current';
                     FirstColumnStyle := 'Strong';
+                    Mark(true);
                 end else begin
                     Coupled := 'Yes';
                     FirstColumnStyle := 'Subordinate';
+                    Mark(false);
                 end;
 
         if RecordID = EmptyRecordID then begin
             Coupled := 'No';
             FirstColumnStyle := 'None';
+            Mark(true);
         end;
     end;
 

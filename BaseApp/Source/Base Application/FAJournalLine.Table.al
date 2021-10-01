@@ -1,4 +1,4 @@
-﻿table 5621 "FA Journal Line"
+table 5621 "FA Journal Line"
 {
     Caption = 'FA Journal Line';
 
