@@ -74,7 +74,6 @@ codeunit 5058 "BankCont-Update"
     var
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -88,17 +87,7 @@ codeunit 5058 "BankCont-Update"
         end;
 
         with Cont do begin
-            Init;
-            TransferFields(BankAcc);
-            Validate(Name);
-            Validate("E-Mail");
-            "No." := '';
-            "No. Series" := '';
-            RMSetup.TestField("Contact Nos.");
-            NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
-            Type := Type::Company;
-            TypeChange;
-            SetSkipDefault;
+            InitContactFromBankAccount(Cont, BankAcc);
             OnBeforeContactInsert(Cont, BankAcc);
             Insert(true);
         end;
@@ -110,6 +99,31 @@ codeunit 5058 "BankCont-Update"
             "Link to Table" := "Link to Table"::"Bank Account";
             "No." := BankAcc."No.";
             Insert(true);
+        end;
+    end;
+
+    local procedure InitContactFromBankAccount(var Contact: Record Contact; BankAcc: Record "Bank Account")
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitContactFromBankAccount(Contact, BankAcc, RMSetup, IsHandled);
+        if IsHandled then
+            exit;
+
+        with Contact do begin
+            Init();
+            TransferFields(BankAcc);
+            Validate(Name);
+            Validate("E-Mail");
+            "No." := '';
+            "No. Series" := '';
+            RMSetup.TestField("Contact Nos.");
+            NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
+            Type := Type::Company;
+            TypeChange();
+            SetSkipDefault();
         end;
     end;
 
@@ -132,6 +146,11 @@ codeunit 5058 "BankCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFieldsFromBankAccToCont(var Contact: Record Contact; BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitContactFromBankAccount(var Contact: Record Contact; BankAcc: Record "Bank Account"; RMSetup: Record "Marketing Setup"; var IsHandled: Boolean)
     begin
     end;
 

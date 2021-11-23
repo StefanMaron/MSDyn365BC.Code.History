@@ -220,7 +220,13 @@ codeunit 8614 "Config. XML Exchange"
         StepCount: Integer;
         ExportMetadata: Boolean;
         ShowDialog: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateRecordNodes(ConfigPackageTable, ConfigPackageField, TypeHelper, XMLDOMMgt, WorkingFolder, ExcelMode, Advanced, HideDialog, IsHandled);
+        if IsHandled then
+            exit;
+
         if ConfigMgt.IsSystemTable(ConfigPackageTable."Table ID") then
             exit;
 
@@ -292,7 +298,7 @@ codeunit 8614 "Config. XML Exchange"
                 if ShowDialog then
                     ConfigProgressBarRecord.Update(StrSubstNo(ProgressStatusTxt, ConfigPackageTable."Table Name", ProcessedRecordCount, RecordCount));
             until RecRef.Next() = 0;
-            // Tag used for analytics - DO NOT MODIFY
+            // Tag used for analytics
             Session.LogMessage('0000BV0', StrSubstNo(ExportedTableContentTxt, RecRef.Name, RecordCount, ConfigPackageField.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
             if ShowDialog then
                 ConfigProgressBarRecord.Close();
@@ -304,6 +310,7 @@ codeunit 8614 "Config. XML Exchange"
             ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
             ConfigPackageField.SetRange("Include Field", true);
             ConfigPackageField.SetRange(Dimension, false);
+            OnCreateRecordNodesOnNotFoundOnAfterConfigPackageFieldSetFilters(ConfigPackageTable, ConfigPackageField);
             if ConfigPackageField.FindSet then
                 repeat
                     FieldRef := RecRef.Field(ConfigPackageField."Field ID");
@@ -412,7 +419,7 @@ codeunit 8614 "Config. XML Exchange"
         Dimensions.Add('ExecutionTimeInMs', Format(DurationAsInt));
         Session.LogMessage('0000E3G', StrSubstNo(PackageExportFinishScopeAllMsg, ConfigPackage.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
 
-        // Tag used for analytics - DO NOT MODIFY
+        // Tag used for analytics
         Session.LogMessage('00009Q5', StrSubstNo(PackageExportFinishMsg, DurationAsInt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         if not CalledFromCode then begin
@@ -428,9 +435,11 @@ codeunit 8614 "Config. XML Exchange"
     [Scope('OnPrem')]
     procedure ExportPackageXMLDocument(var PackageXML: DotNet XmlDocument; var ConfigPackageTable: Record "Config. Package Table"; ConfigPackage: Record "Config. Package"; Advanced: Boolean)
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         DocumentElement: DotNet XmlElement;
         LocXML: Text[1024];
     begin
+        FeatureTelemetry.LogUptake('0000E3X', 'Configuration packages', Enum::"Feature Uptake Status"::"Used");
         ConfigPackage.TestField(Code);
         ConfigPackage.TestField("Package Name");
 
@@ -550,13 +559,14 @@ codeunit 8614 "Config. XML Exchange"
     end;
 
     [Scope('OnPrem')]
-    procedure ImportPackageXMLDocument(PackageXML: DotNet XmlDocument; PackageCode: Code[20]): Boolean
+    procedure ImportPackageXMLDocument(PackageXML: DotNet XmlDocument; PackageCode: Code[20]) Result: Boolean
     var
         ConfigPackage: Record "Config. Package";
         ConfigPackageRecord: Record "Config. Package Record";
         ConfigPackageData: Record "Config. Package Data";
         TempBlob: Codeunit "Temp Blob";
         ParallelSessionManagement: Codeunit "Parallel Session Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         DurationAsInt: BigInteger;
         DocumentElement: DotNet XmlElement;
         TableNodes: DotNet XmlNodeList;
@@ -581,6 +591,7 @@ codeunit 8614 "Config. XML Exchange"
     begin
         StartTime := CurrentDateTime();
         Session.LogMessage('00009Q6', PackageImportStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+        FeatureTelemetry.LogUptake('0000E3D', 'Configuration packages', Enum::"Feature Uptake Status"::"Set up");
 
         FileSize := PackageXML.OuterXml.Length() * 2; // due to UTF-16 encoding
         DocumentElement := PackageXML.DocumentElement;
@@ -648,7 +659,6 @@ codeunit 8614 "Config. XML Exchange"
             TableNode := TableNodes.Item(NodeCount);
             if Evaluate(TableID, Format(TableNode.FirstChild.InnerText)) then begin
                 if GetTableStatisticsForTelemetry(TableNode, CurrTableName, CurrRecordCount, TotalTableFields, ImportedTableFields) then
-                    // Tag used for analytics - DO NOT MODIFY
                     Session.LogMessage('0000BV1', StrSubstNo(ImportedTableContentTxt, CurrTableName, CurrRecordCount, TotalTableFields, ImportedTableFields), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
                 NoOfChildNodes := TableNode.ChildNodes.Count();
@@ -708,7 +718,10 @@ codeunit 8614 "Config. XML Exchange"
         // autoapply configuration lines
         ConfigPackageMgt.ApplyConfigTables(ConfigPackage);
 
-        exit(true);
+        ConfigPackageMgt.SentPackageImportedNotification(PackageCode);
+
+        Result := true;
+        OnAfterImportPackageXMLDocument(PackageCode, ExcelMode, Result);
     end;
 
     [TryFunction]
@@ -945,6 +958,8 @@ codeunit 8614 "Config. XML Exchange"
         RecordCount: Integer;
         StepCount: Integer;
         ErrorText: Text[250];
+        ShouldAssignValue: Boolean;
+        ShouldShowTableContainsRecordsQst: Boolean;
     begin
         if ConfigMgt.IsSystemTable(TableID) then
             exit;
@@ -953,7 +968,9 @@ codeunit 8614 "Config. XML Exchange"
             ExcludeRemovedFields(ConfigPackageTable);
             if ExcelMode then begin
                 ConfigPackageTable.CalcFields("No. of Package Records");
-                if ConfigPackageTable."No. of Package Records" > 0 then
+                ShouldShowTableContainsRecordsQst := ConfigPackageTable."No. of Package Records" > 0;
+                OnFillPackageDataFromXMLOnAfterCalcShouldShowTableContainsRecordsQst(ConfigPackageTable, PackageCode, TableID, HideDialog, ShouldShowTableContainsRecordsQst);
+                if ShouldShowTableContainsRecordsQst then
                     if Confirm(TableContainsRecordsQst, true, TableID, PackageCode, ConfigPackageTable."No. of Package Records") then
                         ConfigPackageTable.DeletePackageData
                     else
@@ -1002,7 +1019,9 @@ codeunit 8614 "Config. XML Exchange"
                             OnFillPackageDataFromXMLOnAfterConfigPackageDataInsert(ConfigPackageData, TempConfigPackageField, ExcelMode);
                             ConfigPackageData.Insert();
 
-                            if not TempConfigPackageField.Dimension then begin
+                            ShouldAssignValue := not TempConfigPackageField.Dimension;
+                            OnFillPackageDataFromXMLOnAfterCalcShouldAssignValue(ConfigPackageField, ConfigPackageData, ConfigPackageRecord, TempConfigPackageField, ShouldAssignValue);
+                            if ShouldAssignValue then begin
                                 FieldRef := RecRef.Field(ConfigPackageData."Field ID");
                                 if ConfigPackageData.Value <> '' then begin
                                     ErrorText := CopyStr(ConfigValidateMgt.EvaluateValue(FieldRef, ConfigPackageData.Value, not ExcelMode), 1, MaxStrLen(ErrorText));
@@ -1507,6 +1526,16 @@ codeunit 8614 "Config. XML Exchange"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterImportPackageXMLDocument(PackageCode: Code[20]; ExcelMode: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateRecordNodes(var ConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field"; var TypeHelper: Codeunit "Type Helper"; var XMLDOMManagement: Codeunit "XML DOM Management"; var WorkingFolder: Text; var ExcelMode: Boolean; var Advanced: Boolean; var HideDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeEvaluateMinCountForAsyncImport(var ConfigPackage: Record "Config. Package"; var Value: Text; var IsHandled: Boolean)
     begin
     end;
@@ -1527,6 +1556,11 @@ codeunit 8614 "Config. XML Exchange"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateRecordNodesOnNotFoundOnAfterConfigPackageFieldSetFilters(ConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateRecordNodesOnAfterNotFoundRecordProcessed(ConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field"; var RecRef: RecordRef; var PackageXML: DotNet XmlDocument; var RecordNode: DotNet XmlNode; var FieldNode: DotNet XmlNode; ExcelMode: Boolean)
     begin
     end;
@@ -1543,6 +1577,16 @@ codeunit 8614 "Config. XML Exchange"
 
     [IntegrationEvent(false, false)]
     local procedure OnFillPackageDataFromXMLOnAfterConfigPackageDataInit(var ConfigPackageData: Record "Config. Package Data"; var ConfigPackageField: Record "Config. Package Field")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillPackageDataFromXMLOnAfterCalcShouldShowTableContainsRecordsQst(var ConfigPackageTable: Record "Config. Package Table"; PackageCode: Code[20]; TableID: Integer; var HideDialog: Boolean; var ShouldShowTableContainsRecordsQst: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillPackageDataFromXMLOnAfterCalcShouldAssignValue(var ConfigPackageField: Record "Config. Package Field"; var ConfigPackageData: Record "Config. Package Data"; var ConfigPackageRecord: Record "Config. Package Record"; var TempConfigPackageField: Record "Config. Package Field" temporary; var ShouldAssignValue: Boolean)
     begin
     end;
 

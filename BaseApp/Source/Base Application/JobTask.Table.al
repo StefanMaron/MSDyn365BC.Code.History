@@ -22,7 +22,13 @@ table 1001 "Job Task"
             var
                 Job: Record Job;
                 Cust: Record Customer;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobTaskNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Job Task No." = '' then
                     exit;
                 Job.Get("Job No.");
@@ -582,6 +588,11 @@ table 1001 "Job Task"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnInsert(var JobTask: Record "Job Task"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobTaskNo(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task"; FieldNumber: Integer; var IsHandled: Boolean)
     begin
     end;
 

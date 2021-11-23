@@ -81,6 +81,7 @@ codeunit 1501 "Workflow Management"
             end;
         end;
 
+        WorkflowStepInstanceLoop.SetLoadFields("Sequence No.", "Previous Workflow Step ID");
         WorkflowStepInstanceLoop.Reset();
         WorkflowStepInstanceLoop.SetRange(Type, WorkflowStepInstanceLoop.Type::"Event");
         WorkflowStepInstanceLoop.SetRange(Status, WorkflowStepInstanceLoop.Status::Active);
@@ -89,6 +90,7 @@ codeunit 1501 "Workflow Management"
 
         if WorkflowStepInstanceLoop.FindSet() then
             repeat
+                WorkflowStepInstance2.SetLoadFields(Status, "Record ID");
                 if WorkflowStepInstance2.Get(WorkflowStepInstanceLoop.ID, WorkflowStepInstanceLoop."Workflow Code", WorkflowStepInstanceLoop."Previous Workflow Step ID") then
                     if (Format(WorkflowStepInstance2."Record ID") = Format(RecRef.RecordId)) and
                        (WorkflowStepInstance2.Status in [WorkflowStepInstance2.Status::Completed, WorkflowStepInstance2.Status::Processing])
@@ -242,6 +244,7 @@ codeunit 1501 "Workflow Management"
     var
         WorkflowRule: Record "Workflow Rule";
     begin
+        WorkflowStepInstance.SetLoadFields(Argument, "Original Workflow Code", "Original Workflow Step ID");
         WorkflowStepInstance.SetRange("Function Name", FunctionName);
         WorkflowStepInstance.SetRange(Type, WorkflowStepInstance.Type::"Event");
         WorkflowStepInstance.SetFilter(Status, '%1|%2', WorkflowStepInstance.Status::Active, WorkflowStepInstance.Status::Processing);

@@ -193,10 +193,16 @@ table 5777 "Item Reference"
         exit(not ItemReference2.IsEmpty);
     end;
 
-    procedure FindItemDescription(var ItemDescription: Text[100]; var ItemDescription2: Text[50]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[20]): Boolean
+    procedure FindItemDescription(var ItemDescription: Text[100]; var ItemDescription2: Text[50]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[20]) Result: Boolean
     var
         ItemReference: Record "Item Reference";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindItemDescription(ItemDescription, ItemDescription2, ItemNo, VariantCode, UnitOfMeasureCode, ReferenceType, ReferenceTypeNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ItemReference.SetRange("Item No.", ItemNo);
         ItemReference.SetRange("Variant Code", VariantCode);
         ItemReference.SetRange("Unit of Measure", UnitOfMeasureCode);
@@ -227,6 +233,11 @@ table 5777 "Item Reference"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateItemVendor(var ItemReference: Record "Item Reference"; ItemVendor: Record "Item Vendor")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindItemDescription(var ItemDescription: Text[100]; var ItemDescription2: Text[50]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

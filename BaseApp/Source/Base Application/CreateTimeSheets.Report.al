@@ -1,4 +1,4 @@
-report 950 "Create Time Sheets"
+﻿report 950 "Create Time Sheets"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Create Time Sheets';
@@ -32,11 +32,13 @@ report 950 "Create Time Sheets"
                         TimeSheetHeader."Ending Date" := EndingDate;
                         TimeSheetHeader.Validate("Resource No.", "No.");
                         TimeSheetHeader.Description := StrSubstNo(DescriptionTxt, GetWeekNumber(StartingDate));
+                        OnResourceOnAfterGerRecordOnBeforeTimeSheetHeaderInsert(TimeSheetHeader, Resource);
                         TimeSheetHeader.Insert(true);
                         TimeSheetCounter += 1;
 
                         if CreateLinesFromJobPlanning then
                             TimeSheetMgt.CreateLinesFromJobPlanning(TimeSheetHeader);
+                        OnResourceOnAfterGerRecordOnAfterTimeSheetHeaderInserted(TimeSheetHeader, Resource);
                     end;
                 end;
 
@@ -263,6 +265,16 @@ report 950 "Create Time Sheets"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResourceOnAfterGerRecord(var Resource: Record Resource; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResourceOnAfterGerRecordOnBeforeTimeSheetHeaderInsert(var TimeSheetHeader: Record "Time Sheet Header"; Resource: Record Resource)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResourceOnAfterGerRecordOnAfterTimeSheetHeaderInserted(TimeSheetHeader: Record "Time Sheet Header"; Resource: Record Resource)
     begin
     end;
 }

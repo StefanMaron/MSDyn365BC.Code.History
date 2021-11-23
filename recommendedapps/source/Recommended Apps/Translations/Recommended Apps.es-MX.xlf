@@ -99,6 +99,12 @@
           <note from="Developer" annotates="general" priority="2">%1 = App Id; %2 = App Source URL created with app info provided by the partner; %3 = Http StatusCode</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recommended Apps Impl. - NamedType URLNotReachableErrLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4114294211 - NamedType 2804436831" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot add the recommended app with ID %1. The URL %2 is not formatted correctly. Are you sure that the information about the app is correct?</source>
+          <target state="translated">No se puede agregar la aplicación recomendada con id. %1. La dirección URL %2 no tiene el formato correcto. ¿Seguro que la información sobre la aplicación es correcta?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = App Id; %2 = App Source URL created with app info provided by the partner</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recommended Apps Impl. - NamedType URLNotWellFormattedErrLbl</note>
+        </trans-unit>
         <trans-unit id="Page 4105953020 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Recommended App Card</source>
           <target state="translated">Tarjeta de aplicación recomendada</target>

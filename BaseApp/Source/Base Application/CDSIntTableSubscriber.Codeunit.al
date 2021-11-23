@@ -322,7 +322,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
                         if IsClearValueOnFailedSync then begin
                             DestinationRecRef := DestinationFieldRef.Record();
-                            DestinationFieldRef.SetRange(NewValue);
+                            DestinationFieldRef.SetRange(OriginalDestinationFieldValue);
                             if DestinationRecRef.IsEmpty() then
                                 NewValue := OriginalDestinationFieldValue;
                         end;
@@ -352,6 +352,8 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                     SetCompanyId(DestinationRecordRef);
                     SetOwnerId(SourceRecordRef, DestinationRecordRef);
                 end;
+            'Currency-CRM Transactioncurrency':
+                SetDefaultSymbolOnCRMTransactioncurrencyIfEmpty(DestinationRecordRef);
         end;
 
         if DestinationRecordRef.Number() = DATABASE::"Salesperson/Purchaser" then
@@ -376,6 +378,8 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             'Contact-CRM Contact',
             'Vendor-CRM Account':
                 SetCompanyId(DestinationRecordRef);
+            'Currency-CRM Transactioncurrency':
+                SetDefaultSymbolOnCRMTransactioncurrencyIfEmpty(DestinationRecordRef);
         end;
     end;
 
@@ -1012,6 +1016,19 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             exit(Vendor.Get(VendorRecordID));
 
         exit(false);
+    end;
+
+    local procedure SetDefaultSymbolOnCRMTransactioncurrencyIfEmpty(var DestinationRecordRef: RecordRef)
+    var
+        TempCRMTransactionCurrency: Record "CRM Transactioncurrency" temporary;
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CurrencySymbol: Text[10];
+    begin
+        if not CRMIntegrationManagement.IsCurrencySymbolMappingEnabled() then
+            exit;
+        CurrencySymbol := DestinationRecordRef.Field(TempCRMTransactionCurrency.FieldNo(CurrencySymbol)).Value();
+        if CurrencySymbol = '' then
+            DestinationRecordRef.Field(TempCRMTransactionCurrency.FieldNo(CurrencySymbol)).Value := DestinationRecordRef.Field(TempCRMTransactionCurrency.FieldNo(ISOCurrencyCode)).Value();
     end;
 
     local procedure UpdateSalesPersOnBeforeInsertRecord(var DestinationRecordRef: RecordRef)

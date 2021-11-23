@@ -9,8 +9,9 @@ codeunit 360 "Accounting Period Mgt."
         PeriodTxt: Label 'PERIOD', Comment = 'Must be uppercase. Reuse the translation from COD1 for 2009 SP1.';
         YearTxt: Label 'YEAR', Comment = 'Must be uppercase. Reuse the translation from COD1 for 2009 SP1.';
         NumeralTxt: Label '0123456789', Comment = 'Numerals';
+        ReservedCharsTxt: Label '-+|. ', Locked = true;
+        CombineTok: Label '%1%2', Locked = true;
         NumeralOutOfRangeErr: Label 'When you specify periods and years, you can use numbers from 1 - 999, such as P-1, P1, Y2 or Y+3.';
-        AlphabetTxt: Label 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', Comment = 'Uppercase - translate into entire alphabet.';
 
     procedure GetPeriodStartingDate(): Date
     var
@@ -310,12 +311,22 @@ codeunit 360 "Accounting Period Mgt."
     end;
 
     [Scope('OnPrem')]
+    procedure GetPositionMatchingCharacter(Character: Text[50]; Text: Text; var Position: Integer)
+    var
+        Length: Integer;
+    begin
+        Length := StrLen(Text);
+        while (Position <= Length) and (StrPos(Character, UpperCase(CopyStr(Text, Position, 1))) = 0) do
+            Position := Position + 1;
+    end;
+
+    [Scope('OnPrem')]
     procedure FindText(var PartOfText: Text; Text: Text; Position: Integer): Boolean
     var
         Position2: Integer;
     begin
         Position2 := Position;
-        GetPositionDifferentCharacter(AlphabetTxt, Text, Position);
+        GetPositionMatchingCharacter(StrSubstNo(CombineTok, NumeralTxt, ReservedCharsTxt), Text, Position);
         if Position = Position2 then
             exit(false);
         PartOfText := UpperCase(CopyStr(Text, Position2, Position - Position2));

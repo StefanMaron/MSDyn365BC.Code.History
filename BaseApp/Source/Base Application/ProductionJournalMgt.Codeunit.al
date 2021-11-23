@@ -207,7 +207,7 @@ codeunit 5510 "Production Journal Mgt"
             end;
 
             ItemJnlLine.Init();
-            OnInsertConsumptionJnlLineOnAfterItemJnlLineInit(ItemJnlLine);
+            OnInsertConsumptionJnlLineOnAfterItemJnlLineInit(ItemJnlLine, ItemJnlTemplate, ItemJnlBatch);
             ItemJnlLine."Journal Template Name" := ToTemplateName;
             ItemJnlLine."Journal Batch Name" := ToBatchName;
             ItemJnlLine."Line No." := NextLineNo;
@@ -331,7 +331,7 @@ codeunit 5510 "Production Journal Mgt"
                 QtyToPost := 0;
 
             ItemJnlLine.Init();
-            OnInsertOutputItemJnlLineOnAfterItemJnlLineInit(ItemJnlLine, ProdOrderLine);
+            OnInsertOutputItemJnlLineOnAfterItemJnlLineInit(ItemJnlLine, ProdOrderLine, ItemJnlTemplate, ItemJnlBatch);
             ItemJnlLine."Journal Template Name" := ToTemplateName;
             ItemJnlLine."Journal Batch Name" := ToBatchName;
             ItemJnlLine."Line No." := NextLineNo;
@@ -634,7 +634,7 @@ codeunit 5510 "Production Journal Mgt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertConsumptionJnlLineOnAfterItemJnlLineInit(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnInsertConsumptionJnlLineOnAfterItemJnlLineInit(var ItemJournalLine: Record "Item Journal Line"; ItemJournalTemplate: Record "Item Journal Template"; ItemJournalBatch: Record "Item Journal Batch")
     begin
     end;
 
@@ -674,7 +674,7 @@ codeunit 5510 "Production Journal Mgt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertOutputItemJnlLineOnAfterItemJnlLineInit(var ItemJnlLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnInsertOutputItemJnlLineOnAfterItemJnlLineInit(var ItemJnlLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; ItemJournalTemplate: Record "Item Journal Template"; ItemJournalBatch: Record "Item Journal Batch")
     begin
     end;
 

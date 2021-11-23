@@ -334,13 +334,16 @@ table 249 "VAT Registration Log"
           PostCodeMatch, AccountPostCode, ResponsePostCode);
 
         if TotalCount > 0 then
-            if TotalCount = ValidCount then
-                "Details Status" := "Details Status"::Valid
+            if VATRegNoSrvTemplate."Ignore Details" then
+                "Details Status" := "Details Status"::Ignored
             else
-                if ValidCount > 0 then
-                    "Details Status" := "Details Status"::"Partially Valid"
+                if TotalCount = ValidCount then
+                    "Details Status" := "Details Status"::Valid
                 else
-                    "Details Status" := "Details Status"::"Not Valid";
+                    if ValidCount > 0 then
+                        "Details Status" := "Details Status"::"Partially Valid"
+                    else
+                        "Details Status" := "Details Status"::"Not Valid";
 
         exit(TotalCount > 0);
     end;

@@ -143,6 +143,7 @@ table 7311 "Warehouse Journal Line"
 
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
                 "Qty. (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
+                OnValidateQuantityOnAfterCalcBaseQty(Rec, xRec);
 
                 "Qty. (Absolute)" := Abs(Quantity);
                 "Qty. (Absolute, Base)" := Abs("Qty. (Base)");
@@ -175,7 +176,14 @@ table 7311 "Warehouse Journal Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate(Quantity, "Qty. (Base)");
             end;
@@ -1627,6 +1635,11 @@ table 7311 "Warehouse Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyBase(var WarehouseJournalLine: Record "Warehouse Journal Line"; xWarehouseJournalLine: Record "Warehouse Journal Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckBinOnBeforeCheckOutboundBin(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1648,6 +1661,11 @@ table 7311 "Warehouse Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnTemplateSelectionOnAfterSetFilters(var WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseJnlTemplate: Record "Warehouse Journal Template"; OpenFromBatch: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterCalcBaseQty(var WarehouseJournalLine: Record "Warehouse Journal Line"; xWarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 

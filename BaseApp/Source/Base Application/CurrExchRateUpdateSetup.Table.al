@@ -148,7 +148,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
         end;
     end;
 
-    local procedure CreateDataExchangeDefinition(DataExchCode: Code[20])
+    procedure CreateDataExchangeDefinition(DataExchCode: Code[20])
     var
         DataExchDef: Record "Data Exch. Def";
         DataExchLineDef: Record "Data Exch. Line Def";

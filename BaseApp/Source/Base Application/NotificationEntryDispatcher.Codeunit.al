@@ -183,6 +183,7 @@ codeunit 1509 "Notification Entry Dispatcher"
                 RecRefLink.SetRecFilter;
             "Record ID" := RecRefLink.RecordId;
             Link := GetUrl(DefaultClientType, CompanyName, OBJECTTYPE::Page, PageManagement.GetPageID(RecRefLink), RecRefLink, true);
+            OnAddNoteOnAfterGetUrl(Link, NotificationEntry, RecRefLink);
             URL1 := CopyStr(Link, 1, MaxStrLen(URL1));
             Description := CopyStr(Format(NotificationEntry."Triggered By Record"), 1, 250);
             Type := Type::Note;
@@ -342,6 +343,11 @@ codeunit 1509 "Notification Entry Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateMailAndDispatch(var NotificationEntry: Record "Notification Entry"; Email: Text; IsEmailedSuccessfully: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddNoteOnAfterGetUrl(var Link: Text; NotificationEntry: Record "Notification Entry"; RecRefLink: RecordRef)
     begin
     end;
 

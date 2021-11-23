@@ -102,7 +102,13 @@ codeunit 1247 "Process Gen. Journal  Lines"
     var
         GenJournalLine: Record "Gen. Journal Line";
         DocNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateGenJnlLinesProcedure(GenJournalLineTemplate, IsHandled);
+        if IsHandled then
+            exit;
+
         OnBeforeUpdateGenJnlLines(GenJournalLineTemplate);
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalLineTemplate."Journal Template Name");
@@ -133,8 +139,14 @@ codeunit 1247 "Process Gen. Journal  Lines"
     begin
     end;
 
+    [Obsolete('Replaced by local OnBeforeUpdateGenJnlLinesProcedure().', '20.0')]
     [IntegrationEvent(false, false)]
     procedure OnBeforeUpdateGenJnlLines(var GenJournalLineTemplate: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateGenJnlLinesProcedure(var GenJournalLineTemplate: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

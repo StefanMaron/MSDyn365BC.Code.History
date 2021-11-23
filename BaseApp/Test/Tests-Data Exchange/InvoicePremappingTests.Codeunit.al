@@ -1302,6 +1302,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('DataExchDefCardHandler')]
     procedure TestMissingDocumentTypeInDataExchangeDefinition()
     var
         DataExch: Record "Data Exch.";
@@ -1324,6 +1325,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('DataExchDefCardHandler')]
     procedure TestUnsupportedDocumentTypeInDataExchangeDefinition()
     var
         DataExch: Record "Data Exch.";
@@ -1775,6 +1777,12 @@ codeunit 139157 "Invoice Premapping Tests"
     begin
         LibraryVariableStorage.Dequeue(VendorInvoiceNoVar);
         Assert.AreEqual(VendorInvoiceNoVar, PurchaseInvoice."Vendor Invoice No.".Value, '');
+    end;
+
+    [PageHandler]
+    procedure DataExchDefCardHandler(var DataExchDefCard: TestPage "Data Exch Def Card")
+    begin
+        DataExchDefCard.Close();
     end;
 
     [PageHandler]

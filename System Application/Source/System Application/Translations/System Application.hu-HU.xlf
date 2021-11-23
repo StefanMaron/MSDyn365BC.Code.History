@@ -168,21 +168,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Cue Setup - Field Field No. - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 2488342448 - Field 3850109114 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2">The Style to use if the cue's value is above Threshold 2</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Cue Setup - Field High Range Style - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2488342448 - Field 2051953352 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2">The Style to use if the cue's value is below Threshold 1</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Cue Setup - Field Low Range Style - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2488342448 - Field 1593335407 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2">The Style to use if the cue's value is between Threshold 1 and Threshold 2</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Cue Setup - Field Middle Range Style - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Table 2488342448 - Field 1380338462 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Personalized</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1407,11 +1392,6 @@
           <source>Specifies the extension which has added this setup.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Assisted Setup - Control Extension Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 799089619 - Control 1575635115 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Help</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Assisted Setup - Control Help - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 799089619 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name.</source>
@@ -2657,11 +2637,6 @@
           <source>v. %1</source>
           <note from="Developer" annotates="general" priority="2">v=version abbr, %1=Version string</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - NamedType VersionFormatTxt</note>
-        </trans-unit>
-        <trans-unit id="Page 2005578726 - Control 2565932393 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies, in case of on-premises, either the person or company who provided the extension and, in case of SaaS, whether the extension is installed or not.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Control AdditionalInfo - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2005578726 - Control 3594686602 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a spacer for 'Brick' view mode.</source>

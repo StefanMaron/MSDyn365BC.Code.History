@@ -4,7 +4,12 @@ codeunit 104030 "Upgrade Plan Permissions"
     Permissions = TableData "User Group Plan" = rimd;
 
     trigger OnUpgradePerDatabase()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade('') then
+            exit;
+
         SetBackupRestorePermissions();
         SetExcelExportActionPermissions();
         RemoveExtensionManagementFromPlan();

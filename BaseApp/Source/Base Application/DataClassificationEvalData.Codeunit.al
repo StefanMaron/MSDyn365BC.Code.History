@@ -3331,7 +3331,9 @@ codeunit 1751 "Data Classification Eval. Data"
         TableNo := DATABASE::"Job Queue Log Entry";
         SetTableFieldsToNormal(TableNo);
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueLogEntry.FieldNo("Job Queue Category Code"));
+#if not CLEAN20
         SetFieldToPersonal(TableNo, DummyJobQueueLogEntry.FieldNo("Processed by User ID"));
+#endif
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueLogEntry.FieldNo("Error Message"));
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueLogEntry.FieldNo(Description));
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueLogEntry.FieldNo(Status));

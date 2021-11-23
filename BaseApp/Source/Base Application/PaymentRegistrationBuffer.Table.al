@@ -200,7 +200,10 @@ table 981 "Payment Registration Buffer"
                     "Original Remaining Amount" := CustLedgerEntry."Remaining Amount";
                     "Pmt. Discount Date" := CustLedgerEntry."Pmt. Discount Date";
                     "Rem. Amt. after Discount" := "Remaining Amount" - CustLedgerEntry."Remaining Pmt. Disc. Possible";
-                    "Payment Method Code" := GetO365DefalutPaymentMethodCode;
+                    if CustLedgerEntry."Payment Method Code" <> '' then
+                        "Payment Method Code" := CustLedgerEntry."Payment Method Code"
+                    else
+                        "Payment Method Code" := GetO365DefalutPaymentMethodCode;
                     "Bal. Account Type" := "Payment Balance Account Type".FromInteger(PaymentRegistrationSetup."Bal. Account Type");
                     "Bal. Account No." := PaymentRegistrationSetup."Bal. Account No.";
                     OnPopulateTableOnBeforeInsert(Rec, CustLedgerEntry);

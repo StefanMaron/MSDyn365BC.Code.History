@@ -34,22 +34,24 @@ codeunit 5340 "CRM Integration Table Synch."
     end;
 
     var
+        CRMIntTableSubscriber: Codeunit "CRM Int. Table. Subscriber";
+        CRMProductName: Codeunit "CRM Product Name";
+        TypeHelper: Codeunit "Type Helper";
+        MappedFieldDictionary: Dictionary of [Text, Boolean];
+        SupportedSourceType: Option ,RecordID,GUID;
+        DateType: Option ,Integration,Local;
+        OutOfMapFilter: Boolean;
         ConnectionNotEnabledErr: Label 'The %1 connection is not enabled.', Comment = '%1 = CRM product name';
         RecordNotFoundErr: Label 'Cannot find %1 record %2.', Comment = '%1 = Source table caption, %2 = The lookup value when searching for the source record';
         SourceRecordIsNotInMappingErr: Label 'Cannot find the mapping %2 in table %1.', Comment = '%1 Integration Table Mapping caption, %2 Integration Table Mapping Name';
         CannotDetermineSourceOriginErr: Label 'Cannot determine the source origin: %1.', Comment = '%1 the value of the source id';
         SynchronizeEmptySetErr: Label 'Attempted to synchronize an empty set of records.';
-        CRMIntTableSubscriber: Codeunit "CRM Int. Table. Subscriber";
-        CRMProductName: Codeunit "CRM Product Name";
-        TypeHelper: Codeunit "Type Helper";
-        SupportedSourceType: Option ,RecordID,GUID;
-        DateType: Option ,Integration,Local;
         NoMappingErr: Label 'No mapping is set for %1.', Comment = '%1=Table Caption';
-        OutOfMapFilter: Boolean;
         ModifiedByFieldMustBeGUIDErr: Label 'The field %1 in the table %2 must be of type GUID.', Comment = '%1 - a field name, %2 - a table name';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         ClearCacheTxt: Label 'Clear cache.', Locked = true;
         CopyRecordRefFailedTxt: Label 'Copy record reference failed. Dataverse ID: %1', Locked = true, Comment = '%1 - Dataverse record id';
+        FieldKeyTxt: Label '%1-%2', Locked = true;
 
     internal procedure InitConnection() ConnectionName: Text
     var
@@ -234,7 +236,7 @@ codeunit 5340 "CRM Integration Table Synch."
                 repeat
                     CRMID := CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value();
                     if not FailedNotSkippedIdDictionary.ContainsKey(CRMID) then
-                        if not TryCopyRecordReference(CRMRecordRef, TempCRMRecordRef, false) then
+                        if not TryCopyRecordReference(IntegrationTableMapping, CRMRecordRef, TempCRMRecordRef, false) then
                             Session.LogMessage('0000ECC', StrSubstNo(CopyRecordRefFailedTxt, CRMID), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 until CRMRecordRef.Next() = 0;
         end;
@@ -242,13 +244,14 @@ codeunit 5340 "CRM Integration Table Synch."
     end;
 
     [TryFunction]
-    local procedure TryCopyRecordReference(FromRec: RecordRef; var ToRec: RecordRef; ValidateOnInsert: Boolean)
+    local procedure TryCopyRecordReference(var IntegrationTableMapping: Record "Integration Table Mapping"; FromRec: RecordRef; var ToRec: RecordRef; ValidateOnInsert: Boolean)
     begin
-        CopyRecordReference(FromRec, ToRec, ValidateOnInsert);
+        CopyRecordReference(IntegrationTableMapping, FromRec, ToRec, ValidateOnInsert);
     end;
 
-    local procedure CopyRecordReference(FromRec: RecordRef; var ToRec: RecordRef; ValidateOnInsert: Boolean)
+    local procedure CopyRecordReference(var IntegrationTableMapping: Record "Integration Table Mapping"; FromRec: RecordRef; var ToRec: RecordRef; ValidateOnInsert: Boolean)
     var
+        TempBlob: Codeunit "Temp Blob";
         FromField: FieldRef;
         ToField: FieldRef;
         Counter: Integer;
@@ -259,12 +262,37 @@ codeunit 5340 "CRM Integration Table Synch."
         ToRec.Init();
         for Counter := 1 to FromRec.FieldCount do begin
             FromField := FromRec.FieldIndex(Counter);
-            if not (FromField.Type in [FieldType::BLOB, FieldType::TableFilter]) then begin
-                ToField := ToRec.Field(FromField.Number);
-                ToField.Value := FromField.Value;
-            end;
+            if FromField.Type <> FieldType::TableFilter then
+                if FromField.Type <> FieldType::Blob then begin
+                    ToField := ToRec.Field(FromField.Number);
+                    ToField.Value := FromField.Value;
+                end else
+                    if IsFieldMapped(IntegrationTableMapping, FromRec.Number(), FromField.Number()) then begin
+                        ToField := ToRec.Field(FromField.Number);
+                        TempBlob.FromFieldRef(FromField);
+                        TempBlob.ToFieldRef(ToField);
+                    end;
         end;
         ToRec.Insert(ValidateOnInsert);
+    end;
+
+    local procedure IsFieldMapped(var IntegrationTableMapping: Record "Integration Table Mapping"; TableNo: Integer; FieldNo: Integer): Boolean
+    var
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        FieldKey: Text;
+        IsMapped: Boolean;
+    begin
+        FieldKey := StrSubstNo(FieldKeyTxt, TableNo, FieldNo);
+        if not MappedFieldDictionary.ContainsKey(FieldKey) then begin
+            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+            if TableNo = IntegrationTableMapping."Integration Table ID" then
+                IntegrationFieldMapping.SetRange("Integration Table Field No.", FieldNo)
+            else
+                IntegrationFieldMapping.SetRange("Field No.", FieldNo);
+            IsMapped := not IntegrationFieldMapping.IsEmpty();
+            MappedFieldDictionary.Add(FieldKey, IsMapped);
+        end;
+        exit(MappedFieldDictionary.Get(FieldKey));
     end;
 
     local procedure SetIntRecordRefFilter(var IntRecordRef: RecordRef; TableFilter: Text; ModifiedByFilterNeeded: Boolean; IntegrationTableMapping: Record "Integration Table Mapping")
@@ -335,7 +363,7 @@ codeunit 5340 "CRM Integration Table Synch."
                 CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").SetFilter(CRMIDFilter);
                 if CRMRecordRef.FindSet() then
                     repeat
-                        CopyRecordReference(CRMRecordRef, TempCRMRecordRef, false);
+                        CopyRecordReference(IntegrationTableMapping, CRMRecordRef, TempCRMRecordRef, false);
                         Cached := true;
                     until CRMRecordRef.Next() = 0;
                 CRMRecordRef.Close();
@@ -674,7 +702,7 @@ codeunit 5340 "CRM Integration Table Synch."
         if SourceRecordRef.FindSet() then
             repeat
                 CloneSourceRecordRef.Open(IntegrationTableMapping."Integration Table ID", true);
-                CopyRecordReference(SourceRecordRef, CloneSourceRecordRef, false);
+                CopyRecordReference(IntegrationTableMapping, SourceRecordRef, CloneSourceRecordRef, false);
                 IgnoreRecord := false;
                 OnQueryPostFilterIgnoreRecord(CloneSourceRecordRef, IgnoreRecord);
                 if not IgnoreRecord then begin

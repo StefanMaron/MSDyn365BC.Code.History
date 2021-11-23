@@ -2839,8 +2839,10 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         ReportInbox: Record "Report Inbox";
         LibraryWorkflow: Codeunit "Library - Workflow";
         EmailFeature: Codeunit "Email Feature";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         CustomerCard: TestPage "Customer Card";
     begin
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         if EmailFeature.IsEnabled() then
             LibraryWorkflow.SetUpEmailAccount();
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Rep. Selections - Std. Stmt.");

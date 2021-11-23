@@ -564,9 +564,6 @@ table 8613 "Config. Package Table"
     end;
 
     procedure ShowFilteredPackageFields(FilterValue: Text)
-    var
-        ConfigPackageField: Record "Config. Package Field";
-        ConfigPackageFields: Page "Config. Package Fields";
     begin
         if InitPackageFields then
             Commit();
@@ -579,6 +576,15 @@ table 8613 "Config. Package Table"
                 Commit();
             end;
 
+        SetFiltersAndRunConfigPackageFields(FilterValue);
+    end;
+
+    local procedure SetFiltersAndRunConfigPackageFields(FilterValue: Text)
+    var
+        ConfigPackageField: Record "Config. Package Field";
+        ConfigPackageFields: Page "Config. Package Fields";
+    begin
+        OnBeforeSetFiltersAndRunConfigPackageFields(Rec);
         ConfigPackageField.FilterGroup(2);
         ConfigPackageField.SetRange("Package Code", "Package Code");
         ConfigPackageField.SetRange("Table ID", "Table ID");
@@ -753,6 +759,11 @@ table 8613 "Config. Package Table"
             childrenFound += 1;
         end;
         exit(childrenFound);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetFiltersAndRunConfigPackageFields(var ConfigPackageTable: Record "Config. Package Table")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

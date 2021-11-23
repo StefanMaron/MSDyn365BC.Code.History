@@ -298,6 +298,8 @@ report 2502 "Day Book Vendor Ledger Entry"
                 }
 
                 trigger OnAfterGetRecord()
+                var
+                    TempVATEntry: Record "VAT Entry" temporary;
                 begin
                     SecondStep := true;
                     if "Document Type" <> PreviousVendorLedgerEntry."Document Type" then begin
@@ -320,11 +322,29 @@ report 2502 "Day Book Vendor Ledger Entry"
                     VATBase := 0;
                     VATEntry.SetCurrentKey("Transaction No.");
                     VATEntry.SetRange("Transaction No.", "Transaction No.");
-                    if VATEntry.Find('-') then
-                        repeat
-                            VATAmount := VATAmount - VATEntry.Amount;
-                            VATBase := VATBase - VATEntry.Base;
-                        until VATEntry.Next() = 0;
+                    if VATEntry.FindSet() then
+                        if VATEntry."Tax Liable" then begin
+                            repeat
+                                TempVATEntry.SetRange("Tax Area Code", VATEntry."Tax Area Code");
+                                TempVATEntry.SetRange("Tax Group Code", VATEntry."Tax Group Code");
+                                if TempVATEntry.FindFirst() then begin
+                                    TempVATEntry.Amount += VATEntry.Amount;
+                                    TempVATEntry.Modify();
+                                end else begin
+                                    TempVATEntry := VATEntry;
+                                    TempVATEntry.Insert();
+                                end;
+                            until VATEntry.Next() = 0;
+                            TempVATEntry.Reset();
+                            TempVATEntry.CalcSums(Amount, Base);
+                            VATAmount := -TempVATEntry.Amount;
+                            VATBase := -TempVATEntry.Base;
+                            TempVATEntry.DeleteAll();
+                        end else begin
+                            VATEntry.CalcSums(Amount, Base);
+                            VATAmount := -VATEntry.Amount;
+                            VATBase := -VATEntry.Base;
+                        end;
 
                     PmtDiscRcd := 0;
                     VendLedgEntry.SetCurrentKey("Closed by Entry No.");

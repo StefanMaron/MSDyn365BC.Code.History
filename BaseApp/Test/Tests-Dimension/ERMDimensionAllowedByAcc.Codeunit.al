@@ -257,7 +257,7 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         DimensionValue: array[2] of Record "Dimension Value";
         DimValuePerAccount: Record "Dim. Value per Account";
     begin
-        // [SCENARIO 356543] New dimension value for default dimension with nonempty "Allowed Values Filter"
+        // [SCENARIO 407861] New dimension value for default dimension with nonempty "Allowed Values Filter" does not change existent "Allowed Values Filter"
         Initialize();
 
         // [GIVEN] Created Dimension "DIM01" with Value "DV01" and "DV02"
@@ -276,9 +276,9 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         // [WHEN] New dimension value "DV03" is being created
         LibraryDimension.CreateDimensionValue(DimensionValue[2], DimensionValue[2]."Dimension Code");
 
-        // [THEN] Allowed dimension for account "DV03" creaetd with "Allowed" = "Yes"
+        // [THEN] Allowed dimension for account "DV03" creaetd with "Allowed" = "No"
         DimValuePerAccount.Get(Database::"G/L Account", GLAccount."No.", DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
-        DimValuePerAccount.TestField(Allowed, true);
+        DimValuePerAccount.TestField(Allowed, false);
     end;
 
     [Test]

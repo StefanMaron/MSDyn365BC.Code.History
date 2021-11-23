@@ -133,7 +133,14 @@ table 7004 "Sales Line Discount"
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD(Code));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateUnitofMeasureCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Type, Type::Item);
             end;
         }
@@ -188,5 +195,11 @@ table 7004 "Sales Line Discount"
         Text001: Label '%1 must be blank.';
         Campaign: Record Campaign;
         Text003: Label 'You can only change the %1 and %2 from the Campaign Card when %3 = %4.';
+
+    [Obsolete('This table is replaced by the new implementation (V16) of price calculation: table Price List Line', '22.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUnitofMeasureCode(var SalesLineDiscount: Record "Sales Line Discount"; xSalesLineDiscount: Record "Sales Line Discount"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

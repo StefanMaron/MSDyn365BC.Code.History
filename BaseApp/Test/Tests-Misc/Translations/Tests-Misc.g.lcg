@@ -8690,4 +8690,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Report Sales Processing Only - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";EnumExtension 4000267206 - EnumValue 1634683813 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test_Custom1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1710557762)(LookupHint=EnumExtension Mock Sales Line Type - Custom - EnumValue Test_Custom1 - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 4000267206 - EnumValue 996987196 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test_Custom2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1710557762)(LookupHint=EnumExtension Mock Sales Line Type - Custom - EnumValue Test_Custom2 - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

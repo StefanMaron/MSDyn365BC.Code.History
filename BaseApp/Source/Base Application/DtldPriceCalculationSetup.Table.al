@@ -67,7 +67,7 @@ table 7008 "Dtld. Price Calculation Setup"
         }
         field(7; "Source Group"; Enum "Price Source Group")
         {
-            Caption = 'Applies-to Group';
+            Caption = 'Assign-to Group';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -82,7 +82,7 @@ table 7008 "Dtld. Price Calculation Setup"
         field(8; "Source Type"; Enum "Price Source Type")
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to Type';
+            Caption = 'Assign-to Type';
             Editable = false;
             trigger OnValidate()
             begin
@@ -95,7 +95,7 @@ table 7008 "Dtld. Price Calculation Setup"
         field(9; "Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to No.';
+            Caption = 'Assign-to';
             trigger OnValidate()
             begin
                 xRec.CopyTo(PriceSource);

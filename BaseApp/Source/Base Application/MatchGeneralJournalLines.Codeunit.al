@@ -45,11 +45,13 @@ codeunit 1250 "Match General Journal Lines"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
+        OnBeforeFindMatchingCustEntries(TempBankStatementMatchingBuffer, TempGenJournalLine);
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.SetFilter("Document Type", '<>%1&<>%2',
           CustLedgerEntry."Document Type"::Payment, CustLedgerEntry."Document Type"::Refund);
         CustLedgerEntry.SetRange("Applies-to ID", '');
         CustLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)");
+        OnFindMatchingCustEntriesOnAfterCustLedgerEntrySetFilters(CustLedgerEntry, TempBankStatementMatchingBuffer, TempGenJournalLine);
         if CustLedgerEntry.FindSet then
             repeat
                 FindMatchingCustEntry(TempBankStatementMatchingBuffer, CustLedgerEntry, TempGenJournalLine);
@@ -82,6 +84,7 @@ codeunit 1250 "Match General Journal Lines"
           VendorLedgerEntry."Document Type"::Payment, VendorLedgerEntry."Document Type"::Refund);
         VendorLedgerEntry.SetRange("Applies-to ID", '');
         VendorLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)");
+        OnFindMatchingVendorEntriesOnAfterSetVendorLedgerEntryFilters(VendorLedgerEntry, TempBankStatementMatchingBuffer, TempGenJournalLine);
         if VendorLedgerEntry.FindSet then
             repeat
                 FindMatchingVendorEntry(TempBankStatementMatchingBuffer, VendorLedgerEntry, TempGenJournalLine);
@@ -422,7 +425,22 @@ codeunit 1250 "Match General Journal Lines"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindMatchingCustEntries(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempGenJournalLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindMatchingVendorEntriesOnAfterSetVendorLedgerEntryFilters(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempGenJournalLine: Record "Gen. Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFindMatchingCustEntryOnAfterGetMatchScore(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var Score: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindMatchingCustEntriesOnAfterCustLedgerEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempGenJournalLine: Record "Gen. Journal Line" temporary)
     begin
     end;
 

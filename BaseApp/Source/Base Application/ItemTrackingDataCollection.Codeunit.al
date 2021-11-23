@@ -131,7 +131,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
             TempTrackingSpecification.Validate("Quantity (Base)", NewQtyOnLine);
 
-            OnAfterAssistEditTrackingNo(TempTrackingSpecification, TempGlobalEntrySummary);
+            OnAfterAssistEditTrackingNo(TempTrackingSpecification, TempGlobalEntrySummary, CurrentSignFactor, MaxQuantity);
         end;
     end;
 
@@ -624,6 +624,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
     procedure TrackingAvailable(TempTrackingSpecification: Record "Tracking Specification" temporary; LookupMode: Enum "Item Tracking Type"): Boolean
     var
+        ItemTrackingSetup: Record "Item Tracking Setup";
         IsHandled: Boolean;
         Result: Boolean;
     begin
@@ -651,9 +652,12 @@ codeunit 6501 "Item Tracking Data Collection"
         if not (PartialGlobalDataSetExists or FullGlobalDataSetExists) then
             RetrieveLookupData(TempTrackingSpecification, true);
 
+        ItemTrackingSetup.CopyTrackingFromItemTrackingCodeSpecificTracking(CurrItemTrackingCode);
+        ItemTrackingSetup.CopyTrackingFromTrackingSpec(TempTrackingSpecification);
+
         TempGlobalEntrySummary.Reset();
         TempGlobalEntrySummary.SetTrackingKey();
-        TempGlobalEntrySummary.SetTrackingFilterFromSpec(TempTrackingSpecification);
+        TempGlobalEntrySummary.SetTrackingFilterFromItemTrackingSetupIfRequired(ItemTrackingSetup);
         TempGlobalEntrySummary.CalcSums("Total Available Quantity");
         if CheckJobInPurchLine(TempTrackingSpecification) then
             exit(TempGlobalEntrySummary.FindFirst);
@@ -1248,7 +1252,7 @@ codeunit 6501 "Item Tracking Data Collection"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssistEditTrackingNo(var TrackingSpecification: Record "Tracking Specification"; var TempGlobalEntrySummary: Record "Entry Summary" temporary)
+    local procedure OnAfterAssistEditTrackingNo(var TrackingSpecification: Record "Tracking Specification"; var TempGlobalEntrySummary: Record "Entry Summary" temporary; CurrentSignFactor: Integer; MaxQuantity: Decimal)
     begin
     end;
 

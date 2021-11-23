@@ -235,7 +235,7 @@ table 349 "Dimension Value"
         Text002: Label '(CONFLICT)';
         Text003: Label '%1 can not be (CONFLICT). This name is used internally by the system.';
         Text004: Label '%1\You cannot change the type.';
-        Text005: Label 'This dimension value has been used in posted or budget entries.';
+        Text005: Label 'This dimension value has been used in posted or budget entries and is included in a dimension set.';
         DimSetEntry: Record "Dimension Set Entry";
         DimValueComb: Record "Dimension Value Combination";
         DefaultDim: Record "Default Dimension";

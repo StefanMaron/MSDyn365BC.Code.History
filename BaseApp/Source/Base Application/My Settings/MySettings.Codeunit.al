@@ -74,9 +74,10 @@ codeunit 9275 "My Settings"
     internal procedure CheckPermissions(var UserPersonalization: Record "User Personalization")
     var
         AzureADUserManagement: Codeunit "Azure AD User Management";
+        AzureADGraphUser: Codeunit "Azure AD Graph User";
     begin
         if (UserPersonalization.Count() > 1) or (UserPersonalization."User SID" <> UserSecurityId()) then
-            if not AzureADUserManagement.IsUserTenantAdmin() then
+            if not (AzureADUserManagement.IsUserTenantAdmin() or AzureADGraphUser.IsUserDelegatedAdmin()) then
                 Error(NotEnoughPermissionsErr);
     end;
 

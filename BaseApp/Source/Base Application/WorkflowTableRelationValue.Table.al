@@ -9,18 +9,14 @@ table 1506 "Workflow Table Relation Value"
         field(1; "Workflow Step Instance ID"; Guid)
         {
             Caption = 'Workflow Step Instance ID';
-            TableRelation = "Workflow Step Instance".ID;
         }
         field(2; "Workflow Code"; Code[20])
         {
             Caption = 'Workflow Code';
-            TableRelation = "Workflow Step Instance"."Workflow Code" WHERE(ID = FIELD("Workflow Step Instance ID"));
         }
         field(3; "Workflow Step ID"; Integer)
         {
             Caption = 'Workflow Step ID';
-            TableRelation = "Workflow Step Instance"."Workflow Step ID" WHERE(ID = FIELD("Workflow Step Instance ID"),
-                                                                               "Workflow Code" = FIELD("Workflow Code"));
         }
         field(4; "Table ID"; Integer)
         {
@@ -73,9 +69,9 @@ table 1506 "Workflow Table Relation Value"
         FieldRef: FieldRef;
     begin
         Init;
-        Validate("Workflow Step Instance ID", WorkflowStepInstance.ID);
-        Validate("Workflow Code", WorkflowStepInstance."Workflow Code");
-        Validate("Workflow Step ID", NextStepId);
+        "Workflow Step Instance ID" := WorkflowStepInstance.ID;
+        "Workflow Code" := WorkflowStepInstance."Workflow Code";
+        "Workflow Step ID" := NextStepId;
         "Table ID" := WorkflowTableRelation."Table ID";
         "Field ID" := WorkflowTableRelation."Field ID";
         "Related Table ID" := WorkflowTableRelation."Related Table ID";

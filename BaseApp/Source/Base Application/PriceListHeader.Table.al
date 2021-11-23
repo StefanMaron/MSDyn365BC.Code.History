@@ -27,12 +27,12 @@ table 7000 "Price List Header"
         field(3; "Source Group"; Enum "Price Source Group")
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to Group';
+            Caption = 'Assign-to Group';
         }
         field(4; "Source Type"; Enum "Price Source Type")
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to Type';
+            Caption = 'Assign-to Type';
             trigger OnValidate()
             begin
                 if xRec."Source Type" = "Source Type" then
@@ -48,15 +48,17 @@ table 7000 "Price List Header"
         field(5; "Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to No.';
+            Caption = 'Assign-to';
             trigger OnValidate()
             begin
                 if xRec."Source No." = "Source No." then
                     exit;
 
                 CheckIfLinesExist(FieldCaption("Source No."));
-                xRec.CopyTo(PriceSource);
-                PriceSource.Validate("Source No.", "Source No.");
+                if not PriceSourceLookedUp then begin
+                    xRec.CopyTo(PriceSource);
+                    PriceSource.Validate("Source No.", "Source No.");
+                end;
                 CopyFrom(PriceSource);
             end;
 
@@ -68,7 +70,7 @@ table 7000 "Price List Header"
         field(6; "Parent Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to Parent No.';
+            Caption = 'Assign-to Parent No.';
             trigger OnValidate()
             begin
                 if xRec."Parent Source No." = "Parent Source No." then
@@ -83,7 +85,7 @@ table 7000 "Price List Header"
         field(7; "Source ID"; Guid)
         {
             DataClassification = CustomerContent;
-            Caption = 'Applies-to ID';
+            Caption = 'Assign-to ID';
             trigger OnValidate()
             begin
                 if xRec."Source ID" = "Source ID" then
@@ -275,6 +277,7 @@ table 7000 "Price List Header"
         LinesExistErr: Label 'You cannot change %1 because one or more lines exist.', Comment = '%1 - the field caption';
         StatusUpdateQst: Label 'Do you want to update status to %1?', Comment = '%1 - status value: Draft, Active, or Inactive';
         CannotDeleteActivePriceListErr: Label 'You cannot delete the active price list %1.', Comment = '%1 - the price list code.';
+        PriceSourceLookedUp: Boolean;
 
     procedure IsEditable() Result: Boolean;
     begin
@@ -510,10 +513,12 @@ table 7000 "Price List Header"
 
     procedure LookupSourceNo() Result: Boolean;
     begin
+        PriceSourceLookedUp := false;
         CopyTo(PriceSource);
         if PriceSource.LookupNo() then begin
-            CheckIfLinesExist(FieldCaption("Source No."));
-            CopyFrom(PriceSource);
+            PriceSourceLookedUp := true;
+            Validate("Source No.", PriceSource."Source No.");
+            PriceSourceLookedUp := false;
             Result := true;
         end;
     end;

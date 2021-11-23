@@ -451,7 +451,13 @@
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestIfAnyFreeNumberSeries(SalesInvoiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         PostingDate := WorkDate;
         SalesReceivablesSetup.Get();
 
@@ -906,6 +912,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestSalesInvoiceHeaderAmount(var SalesInvoiceHeader: Record "Sales Invoice Header"; Cancelling: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfAnyFreeNumberSeries(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 

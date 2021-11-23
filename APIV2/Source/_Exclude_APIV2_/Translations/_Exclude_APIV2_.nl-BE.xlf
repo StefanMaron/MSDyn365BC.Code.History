@@ -4049,13 +4049,13 @@
         </trans-unit>
         <trans-unit id="Page 3402555058 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>APIV2 - Opportunities</source>
-          <target state="translated">APIV2 - opportunities</target>
+          <target state="translated">APIV2 - Opportuniteiten</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Opportunities - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3402555058 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opportunity</source>
-          <target state="translated">Opportunity</target>
+          <target state="translated">Opportuniteit</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Opportunities - Property EntityCaption</note>
         </trans-unit>
@@ -4067,13 +4067,13 @@
         </trans-unit>
         <trans-unit id="Page 3402555058 - NamedType 1481825406" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "contactNumber of a Won or Lost Opportunity cannot be changed</source>
-          <target state="translated">Het 'contactNumber' van een gewonnen of gemiste opportunity kan niet worden gewijzigd</target>
+          <target state="translated">Het 'contactNumber' van een gewonnen of gemiste opportuniteit kan niet worden gewijzigd</target>
           <note from="Developer" annotates="general" priority="2">contactNumber is a field name and should not be translated</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Opportunities - NamedType ContactNoCannotBeChangedWonLostErr</note>
         </trans-unit>
         <trans-unit id="Page 3402555058 - NamedType 2208138419" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "salespersonCode" of a Won or Lost Opportunity cannot be changed</source>
-          <target state="translated">De 'salespersonCode' van een gewonnen of verloren opportunity kan niet worden gewijzigd</target>
+          <target state="translated">De 'salespersonCode' van een gewonnen of verloren opportuniteit kan niet worden gewijzigd</target>
           <note from="Developer" annotates="general" priority="2">salespersonCode is a field name and should not be translated</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Opportunities - NamedType SalespersonCodeCannotBeChangedErr</note>
         </trans-unit>
@@ -5462,6 +5462,12 @@
           <target state="translated">De 'pricesIncludeTax' kan niet op waar worden ingesteld als het soort btw-berekening Btw is.</target>
           <note from="Developer" annotates="general" priority="2">pricesIncludeTax is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CannotEnablePricesIncludeTaxErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 983217553" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The order cannot be found.</source>
+          <target state="translated">De order kan niet worden gevonden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CannotFindOrderErr</note>
         </trans-unit>
         <trans-unit id="Page 825103897 - NamedType 259424556" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The buy-from vendor cannot be found.</source>

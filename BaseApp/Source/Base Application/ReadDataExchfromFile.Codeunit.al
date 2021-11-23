@@ -15,6 +15,7 @@ codeunit 1240 "Read Data Exch. from File"
                 FileMgt.BLOBImportWithFilter(TempBlob, ImportBankStmtTxt, '', FileFilterTxt, FileFilterExtensionTxt), 1, 250);
 
         if "File Name" <> '' then begin
+            OnRunOnBeforeGetTable(TempBlob, Rec);
             RecordRef.GetTable(Rec);
             TempBlob.ToRecordRef(RecordRef, FieldNo("File Content"));
             RecordRef.SetTable(Rec);
@@ -28,6 +29,11 @@ codeunit 1240 "Read Data Exch. from File"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFileImport(var TempBlob: Codeunit "Temp Blob"; var FileName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeGetTable(var TempBlob: Codeunit "Temp Blob"; DataExch: Record "Data Exch.")
     begin
     end;
 }

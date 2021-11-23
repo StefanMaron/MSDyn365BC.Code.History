@@ -477,13 +477,17 @@ codeunit 5817 "Undo Posting Management"
 
     procedure CheckItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; LineRef: Integer; InvoicedEntry: Boolean)
     var
-        ValueEntry: Record "Value Entry";
         ItemRec: Record Item;
         PostedATOLink: Record "Posted Assemble-to-Order Link";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemLedgEntries(TempItemLedgEntry, LineRef, InvoicedEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         with TempItemLedgEntry do begin
             Find('-'); // Assertion: will fail if not found.
-            ValueEntry.SetCurrentKey("Item Ledger Entry No.");
             ItemRec.Get("Item No.");
             if ItemRec.IsNonInventoriableType then
                 exit;
@@ -508,19 +512,33 @@ codeunit 5817 "Undo Posting Management"
                 CalcFields("Reserved Quantity");
                 TestField("Reserved Quantity", 0);
 
-                ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-                if ValueEntry.Find('-') then
-                    repeat
-                        if ValueEntry."Item Charge No." <> '' then
-                            Error(Text012, LineRef);
-                        if ValueEntry."Entry Type" = ValueEntry."Entry Type"::Revaluation then
-                            Error(Text014, LineRef);
-                    until ValueEntry.Next() = 0;
+                CheckValueEntries(TempItemLedgEntry, LineRef, InvoicedEntry);
 
                 if ItemRec."Costing Method" = ItemRec."Costing Method"::Specific then
                     TestField("Serial No.");
             until Next() = 0;
         end; // WITH
+    end;
+
+    local procedure CheckValueEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; LineRef: Integer; InvoicedEntry: Boolean)
+    var
+        ValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckValueEntries(TempItemLedgEntry, LineRef, InvoicedEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", TempItemLedgEntry."Entry No.");
+        if ValueEntry.FindSet() then
+            repeat
+                if ValueEntry."Item Charge No." <> '' then
+                    Error(Text012, LineRef);
+                if ValueEntry."Entry Type" = ValueEntry."Entry Type"::Revaluation then
+                    Error(Text014, LineRef);
+            until ValueEntry.Next() = 0;
     end;
 
     procedure PostItemJnlLineAppliedToList(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary)
@@ -536,7 +554,7 @@ codeunit 5817 "Undo Posting Management"
     begin
         if InvoicedEntry then begin
             TempApplyToItemLedgEntry.SetRange("Completely Invoiced", false);
-            if TempApplyToItemLedgEntry.IsEmpty() then begin
+            if AreAllItemEntriesCompletelyInvoiced(TempApplyToItemLedgEntry) then begin
                 TempApplyToItemLedgEntry.SetRange("Completely Invoiced");
                 exit;
             end;
@@ -575,6 +593,15 @@ codeunit 5817 "Undo Posting Management"
             TempItemLedgEntry := TempApplyToItemLedgEntry;
             TempItemLedgEntry.Insert();
         until TempApplyToItemLedgEntry.Next() = 0;
+    end;
+
+    procedure AreAllItemEntriesCompletelyInvoiced(var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary): Boolean
+    var
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+    begin
+        TempItemLedgerEntry.Copy(TempApplyToItemLedgEntry, true);
+        TempItemLedgerEntry.SetRange("Completely Invoiced", false);
+        exit(TempItemLedgerEntry.IsEmpty());
     end;
 
     local procedure AdjustQuantityRounding(var ItemJnlLine: Record "Item Journal Line"; var NonDistrQuantity: Decimal; NonDistrQuantityBase: Decimal)
@@ -1116,6 +1143,16 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckMissingItemLedgers(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; LineRef: Integer; InvoicedEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckValueEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; LineRef: Integer; InvoicedEntry: Boolean; var IsHandled: Boolean)
     begin
     end;
 

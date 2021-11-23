@@ -1,4 +1,4 @@
-page 1651 "Curr. Exch. Rate Service Card"
+﻿page 1651 "Curr. Exch. Rate Service Card"
 {
     Caption = 'Currency Exch. Rate Service';
     PromotedActionCategories = 'New,Process,Report,Setup';
@@ -138,18 +138,9 @@ page 1651 "Curr. Exch. Rate Service Card"
     }
 
     trigger OnAfterGetCurrRecord()
-    var
-        ServiceURL: Text;
     begin
-        WebServiceURL := GetWebServiceURL(ServiceURL);
-        if WebServiceURL <> '' then
-            if not GenerateXMLStructure() then begin
-                if PreviousWebServiceURL <> ServiceUrl then
-                    Message(TheXMLStructureCannotBeReadMsg);
-                PreviousWebServiceURL := ServiceURL;
-                ClearLastError();
-                exit;
-            end;
+        if not MakeWebServiceURL() then
+            exit;
 
         UpdateSimpleMappingsPart;
         UpdateBasedOnEnable;
@@ -203,6 +194,29 @@ page 1651 "Curr. Exch. Rate Service Card"
         CurrPage.SimpleDataExchSetup.PAGE.UpdateData;
         CurrPage.SimpleDataExchSetup.PAGE.Update(false);
         CurrPage.SimpleDataExchSetup.PAGE.SetSourceToBeMandatory("Web Service URL".HasValue);
+    end;
+
+    local procedure MakeWebServiceURL() Result: Boolean
+    var
+        ServiceURL: Text;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeMakeWebServiceURL(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        WebServiceURL := GetWebServiceURL(ServiceURL);
+        if WebServiceURL <> '' then
+            if not GenerateXMLStructure() then begin
+                if PreviousWebServiceURL <> ServiceUrl then
+                    Message(TheXMLStructureCannotBeReadMsg);
+                PreviousWebServiceURL := ServiceURL;
+                ClearLastError();
+                exit(false);
+            end;
+
+        exit(true);
     end;
 
     [TryFunction]
@@ -262,6 +276,11 @@ page 1651 "Curr. Exch. Rate Service Card"
         ErrorText := XmlStructureIsNotSupportedErr;
 
         Error(ErrorText);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeWebServiceURL(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -9,6 +9,8 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
     end;
 
     var
+        LibraryERM: Codeunit "Library - ERM";
+        Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
 
     [Test]
@@ -49,6 +51,40 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
 
         GLAccount.Get(GLAccount."No.");
         Assert.AreEqual(PreviousIndentation + 1, GLAccount.Indentation, 'Account was not indented correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLAccountIndentOverwriteTotalingValue()
+    var
+        GLAccount: Array[3] of Record "G/L Account";
+        GLAccountType: Enum "G/L Account Type";
+        GLAccountIndent: Codeunit "G/L Account-Indent";
+    begin
+        // [SCENARIO 409314] G/L Account Indentation should overwrite exisiting Totaling value
+
+        // [GIVEN] 3 G/L Accounts GL1, GL2, GL3 with types "Begin-Total", "Posting", "End-Total"
+        GLAccount[1].GET(CreateGLAccountNo(GLAccountType::"Begin-Total"));
+        GLAccount[2].GET(CreateGLAccountNo(GLAccountType::Posting));
+        GLAccount[3].GET(CreateGLAccountNo(GLAccountType::"End-Total"));
+
+        // [WHEN] G/L Account Indentation is invoked
+        GLAccountIndent.Indent;
+        GLAccount[3].Find();
+
+        // [THEN] GL3 Totaling = 'GL1..GL3'
+        Assert.AreEqual(GLAccount[1]."No." + '..' + GLAccount[3]."No.", GLAccount[3].Totaling, '');
+
+        // [GIVEN] GL3 Totaling manually changed to "I"
+        GLAccount[3].Totaling := 'I';
+        GLAccount[3].Modify();
+
+        // [WHEN] G/L Account Indentation is invoked
+        GLAccountIndent.Indent;
+        GLAccount[3].Find();
+
+        // [THEN] GL3 Totaling = 'GL1..GL3'
+        Assert.AreEqual(GLAccount[1]."No." + '..' + GLAccount[3]."No.", GLAccount[3].Totaling, '');
     end;
 
     [Normal]
@@ -93,6 +129,16 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount);
+    end;
+
+    local procedure CreateGLAccountNo(GLAccountType: Enum "G/L Account Type"): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Account Type" := GLAccountType;
+        GLAccount.Modify();
+        exit(GLAccount."No.");
     end;
 }
 

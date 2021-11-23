@@ -1,4 +1,4 @@
-codeunit 70 "Purch.-Calc.Discount"
+﻿codeunit 70 "Purch.-Calc.Discount"
 {
     TableNo = "Purchase Line";
 
@@ -116,6 +116,7 @@ codeunit 70 "Purch.-Calc.Discount"
                     PurchLine2.Validate("No.", VendPostingGr.GetServiceChargeAccount);
                     PurchLine2.Description := Text000;
                     PurchLine2.Validate(Quantity, 1);
+                    OnCalculateInvoiceDiscountOnAfterPurchLine2ValidateQuantity(PurchHeader, PurchLine2, VendInvDisc);
                     if PurchLine2."Document Type" in
                        [PurchLine2."Document Type"::"Return Order", PurchLine2."Document Type"::"Credit Memo"]
                     then
@@ -251,6 +252,11 @@ codeunit 70 "Purch.-Calc.Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetVendInvDisc(var PurchaseHeader: Record "Purchase Header"; CurrencyDate: Date; ChargeBase: Decimal; InvDiscBase: Decimal; BaseAmount: Decimal; var IsHandled: Boolean; var VendInvDisc: Record "Vendor Invoice Disc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnAfterPurchLine2ValidateQuantity(var PurchHeader: Record "Purchase Header"; var PurchLine2: Record "Purchase Line"; var VendInvDisc: Record "Vendor Invoice Disc.")
     begin
     end;
 

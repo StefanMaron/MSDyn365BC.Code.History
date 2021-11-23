@@ -20,4 +20,8 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
     {
         Implementation = "Feature Data Update" = "Feature - Unit Group Mapping";
     }
+    value(5405; CurrencySymbolMapping)
+    {
+        Implementation = "Feature Data Update" = "Feature Map Currency Symbol";
+    }
 }

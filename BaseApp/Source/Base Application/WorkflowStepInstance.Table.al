@@ -322,6 +322,7 @@ table 1504 "Workflow Step Instance"
         if OriginalStepId <> 0 then
             CreateNode(TempWorkflowStepInstance, WorkflowInstanceId, OriginalStepId, NewStepId);
 
+        WorkflowStepInstance.SetLoadFields("Workflow Step ID");
         WorkflowStepInstance.SetRange(ID, WorkflowInstanceId);
         WorkflowStepInstance.SetRange("Previous Workflow Step ID", OriginalStepId);
         WorkflowStepInstance.SetCurrentKey("Sequence No.");

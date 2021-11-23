@@ -62,9 +62,8 @@ codeunit 448 "Job Queue Dispatcher"
 
 #if not CLEAN19
         OnAfterExecuteJob(JobQueueEntry, true);
-#else
-        OnAfterSuccessExecuteJob(JobQueueEntry);
 #endif
+        OnAfterSuccessExecuteJob(JobQueueEntry);
         PrevStatus := JobQueueEntry.Status;
 
         // user may have deleted it in the meantime
@@ -81,9 +80,8 @@ codeunit 448 "Job Queue Dispatcher"
 
 #if not CLEAN19
         OnAfterHandleRequest(JobQueueEntry, true, JobQueueExecutionTimeInMs);
-#else
-        OnAfterSuccessHandleRequest(JobQueueEntry, JobQueueExecutionTimeInMs);
 #endif
+        OnAfterSuccessHandleRequest(JobQueueEntry, JobQueueExecutionTimeInMs);
     end;
 
     local procedure WaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry") Result: Boolean
@@ -207,9 +205,8 @@ codeunit 448 "Job Queue Dispatcher"
         exit(EarliestPossibleRunTime);
     end;
 
-    local procedure CalcRunTimeForRecurringJob(var JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime): DateTime
+    local procedure CalcRunTimeForRecurringJob(var JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime) NewRunDateTime: DateTime
     var
-        NewRunDateTime: DateTime;
         RunOnDate: array[7] of Boolean;
         StartingWeekDay: Integer;
         NoOfExtraDays: Integer;
@@ -253,7 +250,8 @@ codeunit 448 "Job Queue Dispatcher"
             if Found then
                 NewRunDateTime := CreateDateTime(DT2Date(NewRunDateTime) + NoOfDays, DT2Time(NewRunDateTime));
         end;
-        exit(NewRunDateTime);
+
+        OnAfterCalcRunTimeForRecurringJob(JobQueueEntry, Found, StartingDateTime, NewRunDateTime);
     end;
 
     local procedure IsNextRecurringRunTimeCalculated(JobQueueEntry: Record "Job Queue Entry"; StartingDateTime: DateTime; var NewRunDateTime: DateTime) IsHandled: Boolean
@@ -269,6 +267,11 @@ codeunit 448 "Job Queue Dispatcher"
         MillisecondsToAdd := NoOfMinutes;
         MillisecondsToAdd := MillisecondsToAdd * 60000;
         NewDateTime := SourceDateTime + MillisecondsToAdd;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcRunTimeForRecurringJob(var JobQueueEntry: Record "Job Queue Entry"; Found: Boolean; StartingDateTime: DateTime; var NewRunDateTime: DateTime)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -288,7 +291,8 @@ codeunit 448 "Job Queue Dispatcher"
     internal procedure OnAfterExecuteJob(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean)
     begin
     end;
-#else
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSuccessHandleRequest(var JobQueueEntry: Record "Job Queue Entry"; JobQueueExecutionTime: Integer)
     begin
@@ -298,7 +302,6 @@ codeunit 448 "Job Queue Dispatcher"
     local procedure OnAfterSuccessExecuteJob(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleRequest(var JobQueueEntry: Record "Job Queue Entry")

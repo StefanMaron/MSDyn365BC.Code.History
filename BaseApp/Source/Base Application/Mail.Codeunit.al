@@ -1,4 +1,4 @@
-codeunit 397 Mail
+﻿codeunit 397 Mail
 {
 
     trigger OnRun()
@@ -44,6 +44,7 @@ codeunit 397 Mail
 
         CreateMessage(ToAddresses, CcAddresses, BccAddresses, Subject, Body, ShowNewMailDialogOnSend, RunModal);
         AttachFile(AttachFilename);
+        OnCreateAndSendMessageOnAfterAttachFile();
 
         exit(Send);
     end;
@@ -365,6 +366,11 @@ codeunit 397 Mail
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateAndSendMessage(ToAddresses: Text; CcAddresses: Text; BccAddresses: Text; Subject: Text; Body: Text; AttachFilename: Text; ShowNewMailDialogOnSend: Boolean; var MailSent: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateAndSendMessageOnAfterAttachFile()
     begin
     end;
 }

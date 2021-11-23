@@ -47,6 +47,24 @@ codeunit 5338 "Integration Record Management"
         end;
     end;
 
+    procedure FindIntegrationTableUIdByRecordRef(IntegrationTableConnectionType: TableConnectionType; SourceRecordRef: RecordRef; var IntegrationTableUid: Variant): Boolean
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        GraphIntegrationRecord: Record "Graph Integration Record";
+        ExtTxtIDIntegrationRecord: Record "Ext Txt ID Integration Record";
+    begin
+        case IntegrationTableConnectionType of
+            TABLECONNECTIONTYPE::CRM:
+                exit(CRMIntegrationRecord.FindIDFromRecordRef(SourceRecordRef, IntegrationTableUid));
+            TABLECONNECTIONTYPE::MicrosoftGraph:
+                exit(GraphIntegrationRecord.FindIDFromRecordID(SourceRecordRef.RecordId(), IntegrationTableUid));
+            TABLECONNECTIONTYPE::ExternalSQL:
+                exit(ExtTxtIDIntegrationRecord.FindIDFromRecordID(SourceRecordRef.RecordId(), IntegrationTableUid));
+            else
+                Error(UnsupportedTableConnectionTypeErr, Format(IntegrationTableConnectionType));
+        end;
+    end;
+
     procedure MarkLastSynchAsFailure(IntegrationTableConnectionType: TableConnectionType; SourceRecRef: RecordRef; DirectionToIntTable: Boolean; JobID: Guid)
     var
         MarkedAsSkipped: Boolean;
@@ -104,11 +122,40 @@ codeunit 5338 "Integration Record Management"
         end;
     end;
 
+    procedure UpdateIntegrationTableCoupling(IntegrationTableConnectionType: TableConnectionType; IntegrationTableUid: Variant; RecordRef: RecordRef)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        ExtTxtIDIntegrationRecord: Record "Ext Txt ID Integration Record";
+        GraphIntegrationRecord: Record "Graph Integration Record";
+    begin
+        if RecordRef.Number() = 0 then
+            exit;
+        if IsNullGuid(RecordRef.Field(RecordRef.SystemIdNo()).Value()) then
+           exit;
+        case IntegrationTableConnectionType of
+            TABLECONNECTIONTYPE::CRM:
+                CRMIntegrationRecord.CoupleCRMIDToRecordRef(IntegrationTableUid, RecordRef);
+            TABLECONNECTIONTYPE::MicrosoftGraph:
+                GraphIntegrationRecord.CoupleGraphIDToRecordID(IntegrationTableUid, RecordRef.RecordId());
+            TABLECONNECTIONTYPE::ExternalSQL:
+                ExtTxtIDIntegrationRecord.CoupleExternalIDToRecordID(IntegrationTableUid, RecordRef.RecordId());
+            else
+                Error(UnsupportedTableConnectionTypeErr, Format(IntegrationTableConnectionType));
+        end;
+    end;
+
     procedure RemoveIntegrationTableCoupling(IntegrationTableConnectionType: TableConnectionType; IntegrationTableUid: Variant; DestinationTableID: Integer; RecordId: RecordID)
     var
         Removed: Boolean;
     begin
         RemoveIntegrationTableCoupling(IntegrationTableConnectionType, IntegrationTableUid, DestinationTableID, RecordId, Removed);
+    end;
+
+    procedure RemoveIntegrationTableCoupling(IntegrationTableConnectionType: TableConnectionType; IntegrationTableUid: Variant; DestinationTableID: Integer; RecordRef: RecordRef)
+    var
+        Removed: Boolean;
+    begin
+        RemoveIntegrationTableCoupling(IntegrationTableConnectionType, IntegrationTableUid, DestinationTableID, RecordRef, Removed);
     end;
 
     internal procedure RemoveIntegrationTableCoupling(IntegrationTableConnectionType: TableConnectionType; IntegrationTableUid: Variant; DestinationTableID: Integer; RecordId: RecordID; var Removed: Boolean)
@@ -131,6 +178,37 @@ codeunit 5338 "Integration Record Management"
             TABLECONNECTIONTYPE::ExternalSQL:
                 if RecordId.TableNo() <> 0 then
                     Removed := ExtTxtIDIntegrationRecord.RemoveCouplingToRecord(RecordId)
+                else
+                    Removed := ExtTxtIDIntegrationRecord.RemoveCouplingToExternalID(IntegrationTableUid, DestinationTableID);
+            else
+                Error(UnsupportedTableConnectionTypeErr, Format(IntegrationTableConnectionType));
+        end;
+    end;
+
+    internal procedure RemoveIntegrationTableCoupling(IntegrationTableConnectionType: TableConnectionType; IntegrationTableUid: Variant; DestinationTableID: Integer; RecordRef: RecordRef; var Removed: Boolean)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        ExtTxtIDIntegrationRecord: Record "Ext Txt ID Integration Record";
+        GraphIntegrationRecord: Record "Graph Integration Record";
+        IsNotNull: Boolean;
+    begin
+        if RecordRef.Number() <> 0 then
+            if not IsNullGuid(RecordRef.Field(RecordRef.SystemIdNo()).Value()) then
+               IsNotNull := true;
+        case IntegrationTableConnectionType of
+            TABLECONNECTIONTYPE::CRM:
+                if IsNotNull then
+                    Removed := CRMIntegrationRecord.RemoveCouplingToRecord(RecordRef)
+                else
+                    Removed := CRMIntegrationRecord.RemoveCouplingToCRMID(IntegrationTableUid, DestinationTableID);
+            TABLECONNECTIONTYPE::MicrosoftGraph:
+                if IsNotNull then
+                    Removed := GraphIntegrationRecord.RemoveCouplingToRecord(RecordRef.RecordId())
+                else
+                    Removed := GraphIntegrationRecord.RemoveCouplingToGraphID(IntegrationTableUid, DestinationTableID);
+            TABLECONNECTIONTYPE::ExternalSQL:
+                if IsNotNull then
+                    Removed := ExtTxtIDIntegrationRecord.RemoveCouplingToRecord(RecordRef.RecordId())
                 else
                     Removed := ExtTxtIDIntegrationRecord.RemoveCouplingToExternalID(IntegrationTableUid, DestinationTableID);
             else
@@ -191,6 +269,24 @@ codeunit 5338 "Integration Record Management"
                 exit(GraphIntegrationRecord.IsModifiedAfterLastSynchronizedRecord(SourceRecordID, LastModifiedOn));
             TABLECONNECTIONTYPE::ExternalSQL:
                 exit(ExtTxtIDIntegrationRecord.IsModifiedAfterLastSynchronizedRecord(SourceRecordID, LastModifiedOn));
+            else
+                Error(UnsupportedTableConnectionTypeErr, Format(IntegrationTableConnectionType));
+        end;
+    end;
+
+    procedure IsModifiedAfterRecordLastSynch(IntegrationTableConnectionType: TableConnectionType; SourceRecordRef: RecordRef; LastModifiedOn: DateTime): Boolean
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        GraphIntegrationRecord: Record "Graph Integration Record";
+        ExtTxtIDIntegrationRecord: Record "Ext Txt ID Integration Record";
+    begin
+        case IntegrationTableConnectionType of
+            TABLECONNECTIONTYPE::CRM:
+                exit(CRMIntegrationRecord.IsModifiedAfterLastSynchronizedRecord(SourceRecordRef, LastModifiedOn));
+            TABLECONNECTIONTYPE::MicrosoftGraph:
+                exit(GraphIntegrationRecord.IsModifiedAfterLastSynchronizedRecord(SourceRecordRef.RecordId(), LastModifiedOn));
+            TABLECONNECTIONTYPE::ExternalSQL:
+                exit(ExtTxtIDIntegrationRecord.IsModifiedAfterLastSynchronizedRecord(SourceRecordRef.RecordId(), LastModifiedOn));
             else
                 Error(UnsupportedTableConnectionTypeErr, Format(IntegrationTableConnectionType));
         end;

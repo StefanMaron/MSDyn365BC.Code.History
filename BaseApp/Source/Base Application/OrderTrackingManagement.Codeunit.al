@@ -310,7 +310,7 @@ codeunit 99000778 OrderTrackingManagement
 
     procedure SetSourceRecord(var SourceRecordVar: Variant)
     begin
-        OnAfterSetSoucreRecord(SourceRecordVar, ReservEntry, CaptionText);
+        OnAfterSetSoucreRecord(SourceRecordVar, ReservEntry, CaptionText, ItemLedgEntry2);
     end;
 
     procedure TrackedQuantity(): Decimal
@@ -918,7 +918,7 @@ codeunit 99000778 OrderTrackingManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetSoucreRecord(var SourceRecordVar: Variant; var ReservationEntry: Record "Reservation Entry"; var CaptionText: Text)
+    local procedure OnAfterSetSoucreRecord(var SourceRecordVar: Variant; var ReservationEntry: Record "Reservation Entry"; var CaptionText: Text; var ItemLedgerEntry2: Record "Item Ledger Entry")
     begin
     end;
 
@@ -933,7 +933,7 @@ codeunit 99000778 OrderTrackingManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertOrderTrackingEntry(OrderTrackingEntry: Record "Order Tracking Entry"; Type: Option; Subtype: Integer; ID: Code[20]; RefNo: Integer; BatchName: Code[20]; ProdOrderLineNo: Integer)
+    local procedure OnInsertOrderTrackingEntry(var OrderTrackingEntry: Record "Order Tracking Entry"; Type: Option; Subtype: Integer; ID: Code[20]; RefNo: Integer; BatchName: Code[20]; ProdOrderLineNo: Integer)
     begin
     end;
 

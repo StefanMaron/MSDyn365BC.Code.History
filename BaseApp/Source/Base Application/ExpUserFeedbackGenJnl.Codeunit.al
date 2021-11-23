@@ -39,16 +39,21 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
         GenJnlLine2.CopyFilters(GenJnlLine);
         if GenJnlLine2.FindSet then
             repeat
-                case GenJnlLine2."Account Type" of
-                    GenJnlLine2."Account Type"::Vendor:
-                        SetExportFlagOnAppliedVendorLedgerEntry(GenJnlLine2, Flag);
-                    GenJnlLine2."Account Type"::Customer:
-                        SetExportFlagOnAppliedCustLedgerEntry(GenJnlLine2, Flag);
-                end;
+                SetExportFlagOnAppliedCustVendLedgerEntry(GenJnlLine2, Flag);
                 GenJnlLine2.Validate("Check Exported", Flag);
                 GenJnlLine2.Validate("Exported to Payment File", Flag);
                 GenJnlLine2.Modify(true);
             until GenJnlLine2.Next() = 0;
+    end;
+
+    procedure SetExportFlagOnAppliedCustVendLedgerEntry(var GenJnlLine: Record "Gen. Journal Line"; Flag: Boolean)
+    begin
+        case GenJnlLine."Account Type" of
+            GenJnlLine."Account Type"::Vendor:
+                SetExportFlagOnAppliedVendorLedgerEntry(GenJnlLine, Flag);
+            GenJnlLine."Account Type"::Customer:
+                SetExportFlagOnAppliedCustLedgerEntry(GenJnlLine, Flag);
+        end;
     end;
 
     local procedure SetExportFlagOnAppliedVendorLedgerEntry(GenJnlLine: Record "Gen. Journal Line"; Flag: Boolean)

@@ -983,19 +983,19 @@
         </trans-unit>
         <trans-unit id="PermissionSet 1486052532 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Read posted put away, etc.</source>
-          <target state="translated">Leer ubicac. regis., etc.</target>
+          <target state="translated">Leer almac. regis., etc.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-POSTED PA/P - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 2141954922 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create receipt, put away, etc.</source>
-          <target state="translated">Crear recep., ubicac., etc.</target>
+          <target state="translated">Crear recep., almac., etc.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-R/PA/A/P/S - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 187964102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Post receipt, put away,etc.</source>
-          <target state="translated">Alb. regis., ubicar,etc.</target>
+          <target state="translated">Alb. regis., almacenamiento,etc.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet WM-R/PA/A/P/S, POST - Property Caption</note>
         </trans-unit>

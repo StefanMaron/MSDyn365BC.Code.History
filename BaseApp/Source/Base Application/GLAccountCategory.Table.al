@@ -305,7 +305,13 @@ table 570 "G/L Account Category"
     var
         GLAccount: Record "G/L Account";
         OldTotaling: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateTotaling(Rec, NewTotaling, IsHandled);
+        if IsHandled then
+            exit;
+
         OldTotaling := GetTotaling;
         if NewTotaling = OldTotaling then
             exit;
@@ -459,6 +465,11 @@ table 570 "G/L Account Category"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePresentationOrder(var GLAccountCategory: Record "G/L Account Category"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTotaling(var GLAccountCategory: Record "G/L Account Category"; NewTotaling: Text; var IsHandled: Boolean)
     begin
     end;
 

@@ -44,6 +44,11 @@
         UsingBigRSPackageTxt: Label 'The user is shown a warning for action: %1. reason: %2', Locked = true;
         AcknowledgePerformanceImpactTxt: Label 'The user was informed about the potential of poor perfomance and decided to continue. Process: %1', Locked = true;
         LearnMoreTok: Label 'Learn more';
+        ApplyPackageLbl: Label 'Apply Package';
+        DisableNotificationLbl: Label 'Don''t show this again';
+        PackagageImportedNotificationNameLbl: Label 'Configuration Package Imported';
+        PackagageImportedNotificationDescriptionLbl: Label 'Notify user when a configuration package has been imported.';
+        PackageImportedNotificationTxt: Label 'Configuration package %1 has been imported, now you need to apply it.', Comment = '%1 - package code';
         RapidStartDocumentationUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2121629';
         ConfigurationPackageApplyDataStartMsg: Label 'Configuration package apply started: %1', Comment = '%1 - package code', Locked = true;
         ConfigurationPackageApplyDataFinishMsg: Label 'Configuration package applied successfully: %1', Locked = true;
@@ -704,6 +709,9 @@
             // "Document No." conditional relation
             DATABASE::"Sales Line", DATABASE::"Purchase Line":
                 exit(FieldID = 3);
+            // "Code"/"City" fields of Post Code record
+            Database::"Post Code":
+                exit(FieldID in [1, 2]);
         end;
         exit(false);
     end;
@@ -758,6 +766,56 @@
             exit(ConfigPackageWarning.GetAction());
         end;
         exit(Action::OK);
+    end;
+
+    internal procedure SentPackageImportedNotification(ConfigPackageCode: Code[20])
+    var
+        MyNotifications: Record "My Notifications";
+        PackageImportedNotification: Notification;
+    begin
+        if not GuiAllowed() then
+            exit;
+
+        if not MyNotifications.IsEnabled(GetPackageImportedNotificationId()) then
+            exit;
+
+        PackageImportedNotification.Id := GetPackageImportedNotificationId();
+        PackageImportedNotification.Message(StrSubstNo(PackageImportedNotificationTxt, ConfigPackageCode));
+        PackageImportedNotification.SetData('PackageCode', ConfigPackageCode);
+        PackageImportedNotification.Scope(NotificationScope::LocalScope);
+        PackageImportedNotification.AddAction(ApplyPackageLbl, Codeunit::"Config. Package Management", 'ApplyPackageFromNotification');
+        PackageImportedNotification.AddAction(DisableNotificationLbl, Codeunit::"Config. Package Management", 'DisableNotification');
+
+        PackageImportedNotification.Send();
+    end;
+
+    local procedure GetPackageImportedNotificationId(): Guid
+    begin
+        exit('bf856162-cfac-4b73-94b5-ea744bc531a2');
+    end;
+
+    internal procedure ApplyPackageFromNotification(var PackageImportedNotification: Notification)
+    var
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageMgt: Codeunit "Config. Package Management";
+        PackageCode: Code[20];
+    begin
+        PackageCode := CopyStr(PackageImportedNotification.GetData('PackageCode'), 1, MaxStrLen(PackageCode));
+
+        if not ConfigPackage.Get(PackageCode) then
+            exit;
+
+        ConfigPackageTable.SetRange("Package Code", PackageCode);
+        ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, true);
+    end;
+
+    internal procedure DisableNotification(var PackageImportedNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.InsertDefault(PackageImportedNotification.Id, PackagageImportedNotificationNameLbl, PackagageImportedNotificationDescriptionLbl, false);
+        MyNotifications.Disable(PackageImportedNotification.Id)
     end;
 
     internal procedure ShowRapidStartNotification()
@@ -1009,6 +1067,7 @@
         LocalConfigPackageField: Record "Config. Package Field";
         IntegrationService: Codeunit "Integration Service";
         IntegrationManagement: Codeunit "Integration Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         TableCount: Integer;
         RSApplyDataStartMsg: Label 'Apply of data started.', Locked = true;
         RSApplyDataFinishMsg: Label 'Apply of data finished. Error count: %1. Duration: %2 milliseconds. Total Records: %3. Total Fields: %4.', Locked = true;
@@ -1020,6 +1079,8 @@
         ExecutionId: Guid;
         Dimensions: Dictionary of [Text, Text];
     begin
+        FeatureTelemetry.LogUptake('0000E3E', 'Configuration packages', Enum::"Feature Uptake Status"::"Used");
+
         LocalConfigPackageRecord.SetRange("Package Code", ConfigPackage.Code);
         RecordCount := LocalConfigPackageRecord.Count();
         LocalConfigPackageField.SetRange("Package Code", ConfigPackage.code);
@@ -1122,8 +1183,9 @@
         Dimensions.Add('RecordCount', Format(RecordCount));
         Dimensions.Add('FieldCount', Format(FieldCount));
         Session.LogMessage('0000E3O', StrSubstNo(ConfigurationPackageApplyDataFinishMsg, ConfigPackage.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
-        // Tag used for analytics - DO NOT MODIFY
+        // Tag used for analytics
         Session.LogMessage('00009Q9', StrSubstNo(RSApplyDataFinishMsg, ErrorCount, DurationAsInt, RecordCount, FieldCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
+        FeatureTelemetry.LogUsage('0000E3B', 'Configuration packages', 'Package applied');
 
         if not HideDialog then
             Message(NoTablesAndErrorsMsg, TableCount, ErrorCount, RecordsInsertedCount, RecordsModifiedCount);
@@ -1177,7 +1239,13 @@
         StepCount: Integer;
         Counter: Integer;
         ProcessingRuleIsSet: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeApplyPackageRecords(ConfigPackageRecord, PackageCode, TableNo, ApplyMode, ConfigPackageMgt, TempAppliedConfigPackageRecord, ProcessingRuleIsSet, TempConfigRecordForProcessing, ConfigTableProcessingRule, RecordsInsertedCount, RecordsModifiedCount, HideDialog, IsHandled);
+        if IsHandled then
+            exit;
+
         ConfigPackageTable.Get(PackageCode, TableNo);
         ProcessingRuleIsSet := ConfigTableProcessingRule.FindTableRules(ConfigPackageTable);
 
@@ -2469,6 +2537,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetFieldFilter(var "Field": Record "Field"; TableID: Integer; FieldID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyPackageRecords(var ConfigPackageRecord: Record "Config. Package Record"; var PackageCode: Code[20]; var TableNo: Integer; var ApplyMode: Option; var ConfigPackageManagement: Codeunit "Config. Package Management"; var TempAppliedConfigPackageRecord: Record "Config. Package Record" temporary; var ProcessingRuleIsSet: Boolean; var TempConfigRecordForProcessing: Record "Config. Record For Processing" temporary; var ConfigTableProcessingRule: Record "Config. Table Processing Rule"; var RecordsInsertedCount: Integer; var RecordsModifiedCount: Integer; var HideDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

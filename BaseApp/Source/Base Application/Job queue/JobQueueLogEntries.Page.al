@@ -80,12 +80,17 @@ page 674 "Job Queue Log Entries"
                         ShowErrorMessage;
                     end;
                 }
+#if not CLEAN20
                 field("Processed by User ID"; "Processed by User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the user ID of the job queue entry processor. The user ID comes from the job queue entry card.';
                     Visible = false;
+                    ObsoleteTag = '20.0';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The Processed by User ID is the same as User ID';
                 }
+#endif
                 field("Job Queue Category Code"; "Job Queue Category Code")
                 {
                     ApplicationArea = Basic, Suite;

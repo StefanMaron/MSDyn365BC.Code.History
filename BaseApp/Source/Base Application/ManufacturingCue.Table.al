@@ -49,14 +49,16 @@ table 9056 "Manufacturing Cue"
         field(8; "Prod. Orders Routings-in Queue"; Integer)
         {
             CalcFormula = Count ("Prod. Order Routing Line" WHERE("Starting Date" = FIELD("Date Filter"),
-                                                                  "Routing Status" = FILTER(" " | Planned)));
+                                                                  "Routing Status" = FILTER(" " | Planned),
+                                                                  Status = FILTER(<> Finished)));
             Caption = 'Prod. Orders Routings-in Queue';
             FieldClass = FlowField;
         }
         field(9; "Prod. Orders Routings-in Prog."; Integer)
         {
             CalcFormula = Count ("Prod. Order Routing Line" WHERE("Ending Date" = FIELD("Date Filter"),
-                                                                  "Routing Status" = FILTER("In Progress")));
+                                                                  "Routing Status" = FILTER("In Progress"),
+                                                                  Status = CONST(Released)));
             Caption = 'Prod. Orders Routings-in Prog.';
             FieldClass = FlowField;
         }

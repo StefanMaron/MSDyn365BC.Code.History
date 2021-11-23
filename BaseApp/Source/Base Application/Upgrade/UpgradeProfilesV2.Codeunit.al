@@ -12,7 +12,11 @@ codeunit 104040 "Upgrade Profiles V2"
         AppProfile: Record "Profile";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDef: Codeunit "Upgrade Tag Definitions";
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+
         if UpgradeTag.HasUpgradeTag(UpgradeTagDef.GetUpdateProfileReferencesForCompanyTag(), CompanyName) then
             exit;
 

@@ -26,7 +26,7 @@ page 9070 "Accounting Services Activities"
             }
             cuegroup(Camera)
             {
-                Caption = 'Camera';
+                Caption = 'Scan documents';
                 Visible = HasCamera;
 
                 actions

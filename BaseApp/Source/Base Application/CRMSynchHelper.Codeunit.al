@@ -122,6 +122,21 @@ codeunit 5342 "CRM Synch. Helper"
         end;
     end;
 
+    local procedure CreateCRMProductpricelevelForProductAndUom(CRMProduct: Record "CRM Product"; NewPriceLevelId: Guid; CRMUom: Record "CRM Uom")
+    var
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+    begin
+        CRMProductpricelevel.Init();
+        CRMProductpricelevel.PriceLevelId := NewPriceLevelId;
+        CRMProductpricelevel.UoMId := CRMUom.UoMId;
+        CRMProductpricelevel.UoMScheduleId := CRMProduct.DefaultUoMScheduleId;
+        CRMProductpricelevel.ProductId := CRMProduct.ProductId;
+        CRMProductpricelevel.Amount := CRMProduct.Price * CRMUom.Quantity;
+        CRMProductpricelevel.TransactionCurrencyId := CRMProduct.TransactionCurrencyId;
+        CRMProductpricelevel.ProductNumber := CRMProduct.ProductNumber;
+        CRMProductpricelevel.Insert();
+    end;
+
     procedure CreateCRMProductpriceIfAbsent(CRMInvoicedetail: Record "CRM Invoicedetail")
     begin
         if not IsNullGuid(CRMInvoicedetail.ProductId) then
@@ -636,6 +651,33 @@ codeunit 5342 "CRM Synch. Helper"
         exit(true);
     end;
 
+    procedure UpdateCRMPriceListItems(var CRMProduct: Record "CRM Product") AdditionalFieldsWereModified: Boolean
+    var
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+        CRMUom: Record "CRM Uom";
+    begin
+        if IsNullGuid(CRMProduct.ProductId) then
+            exit(false);
+
+        AdditionalFieldsWereModified := SetCRMDefaultPriceListOnProduct(CRMProduct);
+        CRMUom.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
+        if CRMUom.FindSet() then
+            repeat
+                CRMProductpricelevel.SetRange(ProductId, CRMProduct.ProductId);
+                CRMProductpricelevel.SetRange(PriceLevelId, CRMProduct.PriceLevelId);
+                CRMProductpricelevel.SetRange(UoMScheduleId, CRMProduct.DefaultUoMScheduleId);
+                CRMProductpricelevel.SetRange(UoMId, CRMUom.UoMId);
+                if CRMProductpricelevel.FindFirst() then begin
+                    if UpdateCRMProductpricelevelWithUom(CRMProductpricelevel, CRMProduct, CRMUom) then
+                        AdditionalFieldsWereModified := true
+                end else begin
+                    CreateCRMProductpricelevelForProductAndUom(CRMProduct, CRMProduct.PriceLevelId, CRMUom);
+                    AdditionalFieldsWereModified := true;
+                end;
+            until CRMUom.Next() = 0;
+        exit(AdditionalFieldsWereModified);
+    end;
+
     procedure UpdateCRMProductPriceIfNegative(var CRMProduct: Record "CRM Product"): Boolean
     begin
         // CRM doesn't allow negative prices. Update the price to zero, if negative (this preserves the behavior of the old CRM Connector)
@@ -694,6 +736,42 @@ codeunit 5342 "CRM Synch. Helper"
             if AdditionalFieldsWereModified then
                 Modify();
         end;
+    end;
+
+    local procedure UpdateCRMProductpricelevelWithUom(var CRMProductpricelevel: Record "CRM Productpricelevel"; CRMProduct: Record "CRM Product"; CRMUom: Record "CRM Uom") AdditionalFieldsWereModified: Boolean
+    begin
+        if CRMProductpricelevel.PriceLevelId <> CRMProduct.PriceLevelId then begin
+            CRMProductpricelevel.PriceLevelId := CRMProduct.PriceLevelId;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        if CRMProductpricelevel.UoMId <> CRMUom.UoMId then begin
+            CRMProductpricelevel.UoMId := CRMUom.UoMId;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        if CRMProductpricelevel.UoMScheduleId <> CRMProduct.DefaultUoMScheduleId then begin
+            CRMProductpricelevel.UoMScheduleId := CRMProduct.DefaultUoMScheduleId;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        if CRMProductpricelevel.Amount <> CRMProduct.Price * CRMUom.Quantity then begin
+            CRMProductpricelevel.Amount := CRMProduct.Price * CRMUom.Quantity;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        if CRMProductpricelevel.TransactionCurrencyId <> CRMProduct.TransactionCurrencyId then begin
+            CRMProductpricelevel.TransactionCurrencyId := CRMProduct.TransactionCurrencyId;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        if CRMProductpricelevel.ProductNumber <> CRMProduct.ProductNumber then begin
+            CRMProductpricelevel.ProductNumber := CRMProduct.ProductNumber;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        if AdditionalFieldsWereModified then
+            CRMProductpricelevel.Modify();
     end;
 
     procedure UpdateCRMProductTypeCodeIfChanged(var CRMProduct: Record "CRM Product"; NewProductTypeCode: Integer): Boolean

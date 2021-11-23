@@ -658,17 +658,20 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Cue Setup - Field Field No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2488342448 - Field 3850109114 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
+          <source>High Range Style</source>
+          <target state="translated">Hochbereichsstil</target>
           <note from="Developer" annotates="general" priority="2">The Style to use if the cue's value is above Threshold 2</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Cue Setup - Field High Range Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2488342448 - Field 2051953352 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
+          <source>Low Range Style</source>
+          <target state="translated">Niedrigbereichsstil</target>
           <note from="Developer" annotates="general" priority="2">The Style to use if the cue's value is below Threshold 1</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Cue Setup - Field Low Range Style - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2488342448 - Field 1593335407 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
+          <source>Middle Range Style</source>
+          <target state="translated">Mittelbereichsstil</target>
           <note from="Developer" annotates="general" priority="2">The Style to use if the cue's value is between Threshold 1 and Threshold 2</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Cue Setup - Field Middle Range Style - Property Caption</note>
         </trans-unit>
@@ -1487,6 +1490,36 @@
           <target state="translated">Aufgaben-ID</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Feature Data Update Status - Field Task Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2547370934 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Feature Uptake</source>
+          <target state="translated">Funktionsaufnahme</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Feature Uptake - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2547370934 - Field 650817197 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Feature Name</source>
+          <target state="translated">Funktionsname</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Feature Uptake - Field Feature Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2547370934 - Field 1052746434 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Feature Uptake Status</source>
+          <target state="translated">Status der Funktionsaufnahme</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Feature Uptake - Field Feature Uptake Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2547370934 - Field 1772640682 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Publisher</source>
+          <target state="translated">Herausgeber</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Feature Uptake - Field Publisher - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2547370934 - Field 3021697414 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Security ID</source>
+          <target state="translated">Benutzersicherheits-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Feature Uptake - Field User Security ID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2257524325 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Field Content Buffer</source>
@@ -4476,6 +4509,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Viewer - NamedType EmailWasQueuedForSendingMsg</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3994404507 - NamedType 1085765764" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "%1" element was not found.</source>
+          <target state="translated">Das Element „%1“ wurde nicht gefunden.</target>
+          <note from="Developer" annotates="general" priority="2">%1: The name of the xml element that could not be found.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit EncryptedXml Impl. - NamedType ElementNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3994404507 - NamedType 1435382528" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unsupported symmetric algorithm.</source>
+          <target state="translated">Nicht unterstützter symmetrischer Algorithmus.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit EncryptedXml Impl. - NamedType UnsupportedSymmetricAlgorithmErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1128445799 - NamedType 4090787537" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 is already installed.</source>
           <target state="translated">Die Erweiterung %1 ist bereits installiert.</target>
@@ -4841,6 +4886,11 @@
           <target state="translated">Eingabetext %1 enthält ungültige Zeichen für den ausgewählten Anbieter %2 und Kodierungssymbolik %3</target>
           <note from="Developer" annotates="general" priority="2">%1 = Input String, %2 = Provider Caption, %3 = Symbology Caption</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit IDAutomation 1D Provider - NamedType InvalidTextErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3635256207 - NamedType 94485731" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Provider %1: 2D Barcode symbol encoder %2 is not implemented by this provider!</source>
+          <note from="Developer" annotates="general" priority="2">%1 Provider Caption, %2 = Symbology Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit IDAutomation 2D Provider - NamedType CannotFindBarcodeEncoderErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3256925099 - NamedType 1468028954" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Image is not in valid format</source>
@@ -5749,8 +5799,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Assisted Setup - Control Help - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 799089619 - Control 1575635115 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Help</source>
-          <target state="translated">Hilfe</target>
+          <source>Learn more</source>
+          <target state="translated">Weitere Informationen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Assisted Setup - Control Help - Property Caption</note>
         </trans-unit>
@@ -8356,6 +8406,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Editor - Control Attachments - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2282749623 - Control 840308226 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Details</source>
+          <target state="translated">E-Mail-Details</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Editor - Control Email Details - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2282749623 - Control 1267408499 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the account to send the email from.</source>
           <target state="translated">Gibt das Konto an, von dem die E-Mail gesendet werden soll.</target>
@@ -9864,18 +9920,6 @@
           <note from="Developer" annotates="general" priority="2">v=version abbr, %1=Version string</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - NamedType VersionFormatTxt</note>
         </trans-unit>
-        <trans-unit id="Page 2005578726 - Control 2565932393 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies, in case of on-premises, either the person or company who provided the extension and, in case of SaaS, whether the extension is installed or not.</source>
-          <target state="translated">Gibt bei einer lokalen Version entweder die Person oder das Unternehmen an, die/das die Erweiterung zur Verfügung gestellt hat und im Falle von SaaS, ob die Erweiterung installiert wurde.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Control AdditionalInfo - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2005578726 - Control 2565932393 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Publisher</source>
-          <target state="translated">Herausgeber</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Control AdditionalInfo - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 2005578726 - Control 3594686602 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a spacer for 'Brick' view mode.</source>
           <target state="translated">Legt einen Abstandhalter für den Anzeigemodus „Ziegel“ fest.</target>
@@ -9886,6 +9930,18 @@
           <source></source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Control Control18 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2005578726 - Control 2296483502 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the extension is installed.</source>
+          <target state="translated">Gibt an, ob die Erweiterung installiert ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Control Is Installed - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2005578726 - Control 2296483502 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Is Installed</source>
+          <target state="translated">Ist installiert</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Control Is Installed - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2005578726 - Control 1123305005 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the logo of the extension, such as the logo of the service provider.</source>
@@ -9916,6 +9972,12 @@
           <target state="translated">Veröffentlicht als</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Control Published As - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2005578726 - Control 1772640682 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the publisher of the extension.</source>
+          <target state="translated">Gibt den Herausgeber der Erweiterung an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Control Publisher - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2005578726 - Control 237762718 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the version of the extension.</source>
@@ -10854,8 +10916,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Media Upload - Control UploadingNotSupported - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 906691248 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Waiting for a response - do not close this page</source>
-          <target state="translated">Warten auf eine Antwort-schließen Sie diese Seite nicht</target>
+          <source>Waiting for a response. Do not close this page.</source>
+          <target state="translated">Warten auf eine Antwort. Schließen Sie diese Seite nicht.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - Property Caption</note>
         </trans-unit>
@@ -10876,6 +10938,12 @@
           <target state="translated">Der Statusparameterwert stimmt nicht überein.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - NamedType NotMatchingStateErr</note>
+        </trans-unit>
+        <trans-unit id="Page 906691248 - Control 579552529 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A sign in window is open. To continue, pick the account you want to use and accept the conditions. This message will close when you are done.</source>
+          <target state="translated">Ein Anmeldefenster ist geöffnet. Um fortzufahren, wählen Sie das Konto aus, das Sie verwenden möchten, und akzeptieren Sie die Bedingungen. Diese Meldung wird geschlossen, wenn Sie fertig sind.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page OAuth2ControlAddIn - Control BodyGroup - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 4035890834 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Objects</source>
@@ -14409,6 +14477,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Barcode Font Provider - EnumValue IDAutomation1D - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Enum 3599687820 - EnumValue 3740728832 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IDAutomation 2D Barcode Provider</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Barcode Font Provider 2D - EnumValue IDAutomation2D - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Enum 3362773080 - EnumValue 670344902 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Anyone with roles</source>
           <target state="translated">Jeder mit Rollen</target>
@@ -14474,6 +14547,36 @@
           <target state="translated">Übersprungen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Checklist Status - EnumValue Skipped - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3510216895 - EnumValue 2792882736 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ambiguous</source>
+          <target state="translated">Nicht eindeutig</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Cues And KPIs Style - EnumValue Ambiguous - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3510216895 - EnumValue 1842024162 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Favorable</source>
+          <target state="translated">Günstig</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Cues And KPIs Style - EnumValue Favorable - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3510216895 - EnumValue 3371220206 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>None</source>
+          <target state="translated">Keine</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Cues And KPIs Style - EnumValue None - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3510216895 - EnumValue 2463722134 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Subordinate</source>
+          <target state="translated">Untergeordnet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Cues And KPIs Style - EnumValue Subordinate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3510216895 - EnumValue 2997326431 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unfavorable</source>
+          <target state="translated">Ungünstig</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Cues And KPIs Style - EnumValue Unfavorable - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 4060300230 - EnumValue 2229726827 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Primary Source</source>

@@ -139,14 +139,26 @@ page 785 "Customer Picture"
         SelectPictureTxt: Label 'Select a picture to upload';
         DeleteExportEnabled: Boolean;
         MustSpecifyNameErr: Label 'You must specify a customer name before you can import a picture.';
+        MimeTypeTok: Label 'image/jpeg', Locked = true;
 
     procedure TakeNewPicture()
+    var
+        PictureInstream: InStream;
+        PictureDescription: Text;
     begin
-        Find;
-        TestField("No.");
-        TestField(Name);
+        Rec.Find();
+        Rec.TestField("No.");
+        Rec.TestField(Name);
 
-        Camera.AddPicture(Rec, Rec.FieldNo(Image));
+        if Rec.Image.HasValue() then
+            if not Confirm(OverrideImageQst) then
+                exit;
+
+        if Camera.GetPicture(PictureInstream, PictureDescription) then begin
+            Clear(Rec.Image);
+            Rec.Image.ImportStream(PictureInstream, PictureDescription, MimeTypeTok);
+            Rec.Modify(true)
+        end;
     end;
 
     local procedure SetEditableOnPictureActions()

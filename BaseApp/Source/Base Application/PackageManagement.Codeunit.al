@@ -673,6 +673,14 @@ codeunit 6516 "Package Management"
         ToEntrySummary.SetRange("Package No.", ItemTrackingSetup."Package No.");
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Entry Summary", 'OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired', '', false, false)]
+    local procedure EntrySummarySetTrackingFilterFromItemTrackingSetupIfRequired(var ToEntrySummary: Record "Entry Summary"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        ToEntrySummary.SetRange("Package No.");
+        if ItemTrackingSetup."Package No. Required" then
+            ToEntrySummary.SetRange("Package No.", ItemTrackingSetup."Package No.");
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Entry Summary", 'OnAfterSetTrackingFilterFromReservEntry', '', false, false)]
     local procedure EntrySummarySetTrackingFilterFromReservEntry(var ToEntrySummary: Record "Entry Summary"; FromReservEntry: Record "Reservation Entry")
     begin
@@ -872,6 +880,29 @@ codeunit 6516 "Package Management"
     local procedure ItemTrackingSetupCopyTrackingFromWhseItemTrackingLine(var ItemTrackingSetup: Record "Item Tracking Setup"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
         ItemTrackingSetup."Package No." := WhseItemTrackingLine."Package No.";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Item Tracking Setup", 'OnAfterGetNonWarehouseTrackingRequirements', '', false, false)]
+    local procedure ItemTrackingSetupGetNonWarehouseTrackingRequirements(var NonWhseItemTrackingSetup: Record "Item Tracking Setup";
+                                                                         WhseItemTrackingSetup: Record "Item Tracking Setup";
+                                                                         ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if IsEnabled() then begin
+            NonWhseItemTrackingSetup."Serial No. Required" :=
+                ItemTrackingSetup."Serial No. Required" and
+                not WhseItemTrackingSetup."Serial No. Required" and
+                (WhseItemTrackingSetup."Lot No. Required" or WhseItemTrackingSetup."Package No. Required");
+
+            NonWhseItemTrackingSetup."Lot No. Required" :=
+                ItemTrackingSetup."Lot No. Required" and
+                not WhseItemTrackingSetup."Lot No. Required" and
+                (WhseItemTrackingSetup."Serial No. Required" or WhseItemTrackingSetup."Package No. Required");
+
+            NonWhseItemTrackingSetup."Package No. Required" :=
+                ItemTrackingSetup."Package No. Required" and
+                not WhseItemTrackingSetup."Package No. Required" and
+                (WhseItemTrackingSetup."Serial No. Required" or WhseItemTrackingSetup."Lot No. Required");
+        end;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Item Tracking Setup", 'OnAfterSetTrackingFilterForItem', '', false, false)]

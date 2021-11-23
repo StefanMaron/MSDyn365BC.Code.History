@@ -229,7 +229,13 @@ codeunit 99000787 "Create Prod. Order Lines"
     local procedure InitProdOrderLine(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitProdOrderLine(ProdOrder, SalesLine, ItemNo, VariantCode, LocationCode, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdOrderLine.Init();
         ProdOrderLine.SetIgnoreErrors;
         ProdOrderLine.Status := ProdOrder.Status;
@@ -631,6 +637,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderLine3: Record "Prod. Order Line"; var InsertNew: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitProdOrderLine(ProductionOrder: Record "Production Order"; SalesLine: Record "Sales Line"; var ItemNo: Code[20]; var VariantCode: Code[10]; var LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

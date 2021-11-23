@@ -29,6 +29,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         ErrorAmount: Label 'Amount must be %1 in %2.';
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
         LineDscPctErr: Label 'Wrong value of Line Discount %.';
+        LineAmountInvalidErr: Label 'You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit cost instead.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1375,7 +1376,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         Initialize;
         CreatePurchaseOrderWithQuantityAndDirectUnitCost(PurchaseLine, 1, 100);
         asserterror PurchaseLine.Validate("Line Amount", PurchaseLine.Amount * 2);
-        Assert.ExpectedError(LineDiscountPctErr);
+        Assert.ExpectedError(LineAmountInvalidErr);
     end;
 
     [Test]
@@ -1403,7 +1404,7 @@ codeunit 134039 "ERM Inv Disc VAT Sale/Purchase"
         Initialize;
         CreatePurchaseOrderWithQuantityAndDirectUnitCost(PurchaseLine, 1, 100);
         asserterror PurchaseLine.Validate("Line Amount", -PurchaseLine.Amount);
-        Assert.ExpectedError(LineDiscountPctErr);
+        Assert.ExpectedError(LineAmountInvalidErr);
     end;
 
     [Test]

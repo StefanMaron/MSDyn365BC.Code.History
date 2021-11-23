@@ -15,13 +15,11 @@ codeunit 342 "Currency CaptionClass Mgmt"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Caption Class", 'OnResolveCaptionClass', '', true, true)]
     local procedure ResolveCaptionClass(CaptionArea: Text; CaptionExpr: Text; Language: Integer; var Caption: Text; var Resolved: Boolean)
     begin
-        if CaptionArea = '101' then begin
-            Caption := CurCaptionClassTranslate(CaptionExpr);
-            Resolved := true;
-        end;
+        if CaptionArea = '101' then
+            Caption := CurCaptionClassTranslate(CaptionExpr, Resolved);
     end;
 
-    local procedure CurCaptionClassTranslate(CaptionExpr: Text): Text
+    local procedure CurCaptionClassTranslate(CaptionExpr: Text; var Resolved: Boolean): Text
     var
         Currency: Record Currency;
         CurrencyResult: Text[30];
@@ -43,6 +41,7 @@ codeunit 342 "Currency CaptionClass Mgmt"
         // This string is the actual string making up the Caption.
         // It will contain a '%1', and the Currency Result will substitute for it.
 
+        Resolved := false;
         CommaPosition := StrPos(CaptionExpr, ',');
         if CommaPosition > 0 then begin
             CurCaptionType := CopyStr(CaptionExpr, 1, CommaPosition - 1);
@@ -68,6 +67,7 @@ codeunit 342 "Currency CaptionClass Mgmt"
                                     CurrencyResult := Currency.Code
                                 else
                                     CurrencyResult := Currency.Description;
+                        Resolved := true;
                         exit(CopyStr(StrSubstNo(CurCaptionRef, CurrencyResult), 1, MaxStrLen(CurCaptionRef)));
                     end;
                 '2', '3':
@@ -81,6 +81,7 @@ codeunit 342 "Currency CaptionClass Mgmt"
                                 CurrencyResult := Currency.Code
                             else
                                 CurrencyResult := Currency.Description;
+                        Resolved := true;
                         exit(CopyStr(StrSubstNo(CurCaptionRef, CurrencyResult), 1, MaxStrLen(CurCaptionRef)));
                     end;
                 else

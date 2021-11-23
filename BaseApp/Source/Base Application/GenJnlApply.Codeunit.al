@@ -211,6 +211,7 @@ codeunit 225 "Gen. Jnl.-Apply"
         PurchSetup: Record "Purchases & Payables Setup";
         CurrencyAppln: Option No,EMU,All;
     begin
+        OnBeforeCheckAgainstApplnCurrency(ApplnCurrencyCode, CompareCurrencyCode);
         if ApplnCurrencyCode = CompareCurrencyCode then
             exit(true);
 
@@ -520,6 +521,7 @@ codeunit 225 "Gen. Jnl.-Apply"
 
             SetJournalLineFieldsFromApplication;
 
+            OnApplyVendorLedgerEntryOnBeforeModify(GenJnlLine, TempVendorLedgerEntry);
             if Modify then;
             if Amount <> 0 then
                 if not PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine) then
@@ -684,12 +686,22 @@ codeunit 225 "Gen. Jnl.-Apply"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyVendorLedgerEntryOnBeforeModify(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyEmployeeLedgerEntryOnBeforeUpdateAmount(var GenJournalLine: Record "Gen. Journal Line"; EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAgainstApplnCurrency(var ApplnCurrencyCode: Code[10]; var CompareCurrencyCode: Code[10])
     begin
     end;
 

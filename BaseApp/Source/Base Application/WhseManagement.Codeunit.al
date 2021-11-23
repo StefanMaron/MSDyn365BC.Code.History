@@ -97,22 +97,8 @@ codeunit 5775 "Whse. Management"
     end;
 
     procedure GetSourceDocument(SourceType: Integer; SourceSubtype: Integer): Integer
-    var
-        SourceDocument: Option;
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
-        if IsHandled then
-            exit(SourceDocument);
-
-        SourceDocument := GetSourceDocumentType(SourceType, SourceSubtype).AsInteger();
-
-        OnAfterGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
-        if IsHandled then
-            exit(SourceDocument);
-
-        Error(Text000);
+        exit(GetSourceDocumentType(SourceType, SourceSubtype).AsInteger());
     end;
 
     procedure GetJournalSourceDocument(SourceType: Integer; SourceSubtype: Integer) SourceDocument: Enum "Warehouse Journal Source Document"

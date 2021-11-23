@@ -149,6 +149,7 @@ codeunit 9651 "Document Report Mgt."
         NAVWordXMLMerger: DotNet WordReportManager;
     begin
         OutStrWordDoc := NAVWordXMLMerger.MergeWordDocument(InStrWordDoc, InStrXmlData, OutStrWordDoc);
+        OnAfterTryXmlMergeWordDocument(OutStrWordDoc);
     end;
 
     procedure ValidateWordLayout(ReportID: Integer; DocumentStream: InStream; useConfirm: Boolean; updateContext: Boolean): Boolean
@@ -555,6 +556,11 @@ codeunit 9651 "Document Report Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMergeWordDocument(ReportID: Integer; InStrXmlData: InStream; var TempBlob: Codeunit "Temp Blob")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTryXmlMergeWordDocument(var OutStrWordDoc: OutStream)
     begin
     end;
 

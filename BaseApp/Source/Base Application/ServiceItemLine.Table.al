@@ -945,19 +945,13 @@ table 5901 "Service Item Line"
             var
                 FaultReasonCode: Record "Fault Reason Code";
                 ConfirmManagement: Codeunit "Confirm Management";
-                RecR: RecordRef;
-                TypeR: FieldRef;
-                TypeStr: Text[50];
             begin
                 ServLine.Reset();
                 ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
                 ServLine.SetRange("Document Type", "Document Type");
                 ServLine.SetRange("Document No.", "Document No.");
                 ServLine.SetRange("Service Item Line No.", "Line No.");
-                if FaultReasonCode.Get("Fault Reason Code") then begin
-                    RecR.GetTable(ServLine);
-                    TypeR := RecR.FieldIndex(ServLine.FieldNo(Type));
-                    TypeStr := TypeR.OptionCaption;
+                if FaultReasonCode.Get("Fault Reason Code") then
                     if FaultReasonCode."Exclude Warranty Discount" then begin
                         ServLine.SetFilter(Type, '%1|%2', ServLine.Type::Cost, ServLine.Type::"G/L Account");
                         if ServLine.Find('-') then
@@ -968,8 +962,8 @@ table 5901 "Service Item Line"
                                    FieldCaption("Document No."), "Document No.",
                                    FieldCaption("Line No."), "Line No.",
                                    ServLine.FieldCaption(Type),
-                                   SelectStr(ServLine.Type::"G/L Account".AsInteger() + 1, TypeStr),
-                                   SelectStr(ServLine.Type::Cost.AsInteger() + 1, TypeStr),
+                                   ServLine.Type::"G/L Account",
+                                   ServLine.Type::Cost,
                                    FaultReasonCode.FieldCaption("Exclude Warranty Discount"),
                                    FaultReasonCode.TableCaption, FaultReasonCode.Code),
                                  true)
@@ -978,7 +972,6 @@ table 5901 "Service Item Line"
                         ServLine.SetRange(Type, ServLine.Type::Item, ServLine.Type::Resource);
                     end else
                         ServLine.SetRange(Type, ServLine.Type::Item, ServLine.Type::"G/L Account");
-                end;
                 if ServLine.Find('-') then
                     repeat
                         ServLine.Validate("Fault Reason Code", "Fault Reason Code");

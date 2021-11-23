@@ -536,6 +536,8 @@ codeunit 5069 "Word Template Interactions"
         DataSource.Add(CompanyInfo.TableCaption + ' ' + CompanyInfo.FieldCaption("Giro No."), CompanyInfo."Giro No.");
         DataSource.Add(FaxMailToTxt, FaxMailToValue);
 
+        OnGetDataSourceOnBeforeRestoreGlobalLanguage(DataSource, InteractLogEntry, SegLine);
+
         GlobalLanguage := MainLanguage;
 
         exit(DataSource);
@@ -601,4 +603,9 @@ codeunit 5069 "Word Template Interactions"
         TransferringDataToMergeTxt: Label 'Transferring data to merge...';
         MergingTxt: Label 'Merging...';
         DownloadAttachmentQst: Label 'Download merged attachment?';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDataSourceOnBeforeRestoreGlobalLanguage(var DataSource: Dictionary of [Text, Text]; var InteractLogEntry: Record "Interaction Log Entry"; var SegLine: Record "Segment Line")
+    begin
+    end;
 }

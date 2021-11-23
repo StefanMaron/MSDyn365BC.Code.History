@@ -388,8 +388,11 @@ page 8625 "Config. Package Subform"
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
-        CheckFieldsMultiRelations;
+        FeatureTelemetry.LogUptake('0000E3C', 'Configuration packages', Enum::"Feature Uptake Status"::"Set up");
+        CheckFieldsMultiRelations();
     end;
 
     trigger OnOpenPage()

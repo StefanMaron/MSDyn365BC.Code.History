@@ -5463,6 +5463,12 @@
           <note from="Developer" annotates="general" priority="2">pricesIncludeTax is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CannotEnablePricesIncludeTaxErr</note>
         </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 983217553" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The order cannot be found.</source>
+          <target state="translated">Заказ не найден.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CannotFindOrderErr</note>
+        </trans-unit>
         <trans-unit id="Page 825103897 - NamedType 259424556" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The buy-from vendor cannot be found.</source>
           <target state="translated">Поставщик не найден.</target>

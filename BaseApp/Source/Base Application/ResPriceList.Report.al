@@ -238,13 +238,13 @@ report 7054 "Res. Price List"
                     field(SourceTypeCtrl; SourceType)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Applies-to Type';
-                        ToolTip = 'Specifies the price source type for which the price list should be valid.';
+                        Caption = 'Assign-to Type';
+                        ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                         trigger OnValidate()
                         begin
-                            SourceNoCtrlEnable := SourceType <> SourceType::"All Jobs";
                             PriceSource.Validate("Source Type", SourceType.AsInteger());
+                            SourceNoCtrlEnable := PriceSource.IsSourceNoAllowed();
                             ParentSourceNo := PriceSource."Parent Source No.";
                             SourceNo := PriceSource."Source No.";
                         end;
@@ -252,16 +252,16 @@ report 7054 "Res. Price List"
                     field(ParentSourceNoCtrl; ParentSourceNo)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Applies-to Parent No.';
+                        Caption = 'Assign-to Job No.';
                         Editable = false;
-                        ToolTip = 'Specifies the job number which is the parent for the job task to be selected.';
+                        ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                     }
                     field(SourceNoCtrl; SourceNo)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Applies-to No.';
+                        Caption = 'Assign-to';
                         Enabled = SourceNoCtrlEnable;
-                        ToolTip = 'Specifies code for the price source type for which the price list should be valid.';
+                        ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
 
                         trigger OnLookup(var Text: Text) Result: Boolean
                         begin
@@ -279,7 +279,7 @@ report 7054 "Res. Price List"
                                 SourceNo := PriceSource."Source No.";
                                 ParentSourceNo := PriceSource."Parent Source No.";
                             end;
-                            if (SourceNo = '') and (SourceType <> SourceType::"All Jobs") then
+                            if (SourceNo = '') and SourceNoCtrlEnable then
                                 Error(MissSourceNoErr);
 
                             PriceSource.Validate("Source No.", SourceNo);
@@ -312,7 +312,8 @@ report 7054 "Res. Price List"
             if DateReq = 0D then
                 DateReq := WorkDate();
 
-            SourceNoCtrlEnable := SourceType <> SourceType::"All Jobs";
+            PriceSource.Validate("Source Type", SourceType);
+            SourceNoCtrlEnable := PriceSource.IsSourceNoAllowed();
         end;
 
         trigger OnAfterGetCurrRecord()
@@ -329,14 +330,14 @@ report 7054 "Res. Price List"
 
     trigger OnPreReport()
     begin
-        if (SourceNo = '') and (SourceType <> SourceType::"All Jobs") then
+        if (SourceNo = '') and SourceNoCtrlEnable then
             Error(MissSourceNoErr);
         CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
         if Currency.Code <> '' then
             CurrencyText := ' (' + Currency.Code + ')';
 
-        PriceSource.Validate("Source Type", SourceType.AsInteger());
+        PriceSource.Validate("Source Type", SourceType);
         PriceSource.Validate("Parent Source No.", ParentSourceNo);
         PriceSource.Validate("Source No.", SourceNo);
         PriceSource."Currency Code" := Currency.Code;
@@ -356,7 +357,7 @@ report 7054 "Res. Price List"
         FormatAddr: Codeunit "Format Address";
         PriceCalcMethod: Enum "Price Calculation Method";
         PriceCalculationHandler: Enum "Price Calculation Handler";
-        SourceType: Enum "Job Price Source Type";
+        SourceType: Enum "Price Source Type";
         CompanyAddr: array[8] of Text[100];
         LookupIsComplete: Boolean;
         Ok: Boolean;
@@ -377,7 +378,7 @@ report 7054 "Res. Price List"
         WorkTypeCaptionLbl: Label 'Work Type';
         ResourceNameCaptionLbl: Label 'Resource Name';
         WorkTypeDescriptionCaptionLbl: Label 'Work Type Description';
-        MissSourceNoErr: Label 'You must specify an Applies-to No., if the Applies-to Type is different from All Jobs.';
+        MissSourceNoErr: Label 'You must specify an Assign-to, if the Assign-to Type is different from All Jobs.';
 
     local procedure FindPrice(WorkTypeCode: Code[10]): Boolean;
     var
@@ -412,6 +413,7 @@ report 7054 "Res. Price List"
 
     local procedure GetSourceList(var PriceSourceList: Codeunit "Price Source List")
     begin
+        PriceSourceList.Add("Price Source Type"::"All Customers");
         PriceSourceList.Add("Price Source Type"::"All Jobs");
         if SourceType = SourceType::Job then begin
             PriceSourceList.IncLevel();
@@ -466,11 +468,11 @@ report 7054 "Res. Price List"
     procedure InitializeRequest(NewDateReq: Date; NewSourceType: Enum "Job Price Source Type"; NewSourceNo: Code[20]; NewCurrencyCode: Code[10])
     begin
         DateReq := NewDateReq;
-        SourceType := NewSourceType;
+        SourceType := NewSourceType.AsInteger();
         SourceNo := NewSourceNo;
         Currency.Code := NewCurrencyCode;
 
-        PriceSource.Validate("Source Type", SourceType.AsInteger());
+        PriceSource.Validate("Source Type", SourceType);
         PriceSource.Validate("Source No.", SourceNo);
         PriceSource."Currency Code" := Currency.Code;
     end;

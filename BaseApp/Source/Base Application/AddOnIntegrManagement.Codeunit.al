@@ -35,7 +35,13 @@ codeunit 5403 AddOnIntegrManagement
         Item: Record Item;
         ProdOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateProdOrderOnPurchLine(PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchLine do begin
             TestField(Type, Type::Item);
 
@@ -157,6 +163,11 @@ codeunit 5403 AddOnIntegrManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferFromReqLineToPurchLine(var PurchOrderLine: Record "Purchase Line"; var ReqLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateProdOrderOnPurchLine(var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -18,6 +18,7 @@ codeunit 136213 "Marketing Segment"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUtility: Codeunit "Library - Utility";
         NoOfCriteriaActions: Label 'No Of Criteria Actions Must be %1 in Segment %2.';
         SalesPersonCode2: Code[20];
         SegmentLineNotExist: Label 'Segment Line with Sales Person Code %1 must not exist.';
@@ -467,6 +468,86 @@ codeunit 136213 "Marketing Segment"
         Attachment.Get(SegmentLine."Attachment No.");
 
         Assert.AreNotEqual(ReportId, Attachment.Read(), 'Custom report code is not set.');
+    end;
+
+    [Test]
+    procedure PersonContactInfoInSegmentLine()
+    var
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+        Contact: Record Contact;
+    begin
+        // [FEATURE] [UT] [Segment Line] [Contact]
+        // [SCENARIO 408657] Segment Line contains contact information from Contact with type = Person
+        Initialize();
+
+        // [GIVEN] Contact "C1" with "Phone No." = "999-999-99-99"
+        // [GIVEN] "Mobile Phone No." = "888-888-88-88"
+        // [GIVEN] "E-Mail" = "user@contoso.com"
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact.Validate("Phone No.", LibraryUtility.GenerateGUID());
+        Contact.Validate("Mobile Phone No.", LibraryUtility.GenerateGUID());
+        Contact.Validate("E-Mail", StrSubstNo('%1@%1', LibraryUtility.GenerateGUID()));
+        Contact.Modify(true);
+
+        // [GIVEN] Segment Line with "Contact No." = "C1"
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+        LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeader."No.");
+        SegmentLine.Validate("Contact No.", Contact."No.");
+        SegmentLine.Modify(true);
+
+        // [WHEN] Calculate fields "Contact Phone No.", "Contact Mobile Phone No." and "Contact Email"
+        SegmentLine.CalcFields(
+            "Contact Phone No.", "Contact Mobile Phone No.", "Contact Email");
+
+        // [THEN] "Segment Line"."Contact Phone No." = "999-999-99-99"
+        SegmentLine.TestField("Contact Phone No.", Contact."Phone No.");
+
+        // [THEN] "Segment Line"."Contact Mobile Phone No." = "888-888-88-88"
+        SegmentLine.TestField("Contact Mobile Phone No.", Contact."Mobile Phone No.");
+
+        // [THEN] "Segment Line"."Contact Email" = "user@contoso.com"
+        SegmentLine.TestField("Contact Email", Contact."E-Mail");
+    end;
+
+    [Test]
+    procedure CompanyContactInfoInSegmentLine()
+    var
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+        Contact: Record Contact;
+    begin
+        // [FEATURE] [UT] [Segment Line] [Contact]
+        // [SCENARIO 408657] Segment Line contains contact information from Contact with type = Company
+        Initialize();
+
+        // [GIVEN] Contact "C1" with "Phone No." = "999-999-99-99"
+        // [GIVEN] "Mobile Phone No." = "888-888-88-88"
+        // [GIVEN] "E-Mail" = "user@contoso.com"
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact.Validate("Phone No.", LibraryUtility.GenerateGUID());
+        Contact.Validate("Mobile Phone No.", LibraryUtility.GenerateGUID());
+        Contact.Validate("E-Mail", StrSubstNo('%1@%1', LibraryUtility.GenerateGUID()));
+        Contact.Modify(true);
+
+        // [GIVEN] Segment Line with "Contact No." = "C1"
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+        LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeader."No.");
+        SegmentLine.Validate("Contact No.", Contact."No.");
+        SegmentLine.Modify(true);
+
+        // [WHEN] Calculate fields "Contact Phone No.", "Contact Mobile Phone No." and "Contact Email"
+        SegmentLine.CalcFields(
+            "Contact Phone No.", "Contact Mobile Phone No.", "Contact Email");
+
+        // [THEN] "Segment Line"."Contact Phone No." = "999-999-99-99"
+        SegmentLine.TestField("Contact Phone No.", Contact."Phone No.");
+
+        // [THEN] "Segment Line"."Contact Mobile Phone No." = "888-888-88-88"
+        SegmentLine.TestField("Contact Mobile Phone No.", Contact."Mobile Phone No.");
+
+        // [THEN] "Segment Line"."Contact Email" = "user@contoso.com"
+        SegmentLine.TestField("Contact Email", Contact."E-Mail");
     end;
 
     local procedure Initialize()

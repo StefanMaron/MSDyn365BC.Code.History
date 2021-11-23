@@ -86,6 +86,8 @@ codeunit 368 "Format Document"
             TotalInclVATText := StrSubstNo(TotalInclVATTxt, CurrencyCode);
             TotalExclVATText := StrSubstNo(TotalExclVATTxt, CurrencyCode);
         end;
+
+        OnAfterSetTotalLabels(CurrencyCode, TotalText, TotalInclVATText, TotalExclVATText);
     end;
 
     procedure SetLogoPosition(LogoPosition: Option "No Logo",Left,Center,Right; var CompanyInfo1: Record "Company Information"; var CompanyInfo2: Record "Company Information"; var CompanyInfo3: Record "Company Information")
@@ -294,6 +296,11 @@ codeunit 368 "Format Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTotalLabels(CurrencyCode: Code[10]; var TotalText: Text[50]; var TotalInclVATText: Text[50]; var TotalExclVATText: Text[50])
     begin
     end;
 

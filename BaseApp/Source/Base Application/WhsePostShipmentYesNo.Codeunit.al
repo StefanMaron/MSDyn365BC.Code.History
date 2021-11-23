@@ -44,10 +44,17 @@ codeunit 5764 "Whse.-Post Shipment (Yes/No)"
             WhsePostShipment.GetResultMessage;
             Clear(WhsePostShipment);
         end;
+
+        OnAfterCode(WhseShptLine);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterConfirmPost(WhseShipmentLine: Record "Warehouse Shipment Line"; Invoice: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 

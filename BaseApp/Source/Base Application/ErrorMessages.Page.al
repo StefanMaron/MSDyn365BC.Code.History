@@ -18,12 +18,12 @@ page 700 "Error Messages"
         {
             repeater(Group)
             {
-                field("Message Type"; "Message Type")
+                field("Message Type"; Rec."Message Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the message is an error, a warning, or information.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
                     DrillDown = true;
@@ -31,24 +31,24 @@ page 700 "Error Messages"
                     StyleExpr = StyleText;
                     ToolTip = 'Specifies the message.';
                 }
-                field(Context; Format("Context Record ID"))
+                field(Context; Format(Rec."Context Record ID"))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Context';
                     ToolTip = 'Specifies the context record.';
                     trigger OnDrillDown()
                     begin
-                        HandleDrillDown(FieldNo("Context Record ID"));
+                        HandleDrillDown(Rec.FieldNo("Context Record ID"));
                     end;
                 }
-                field("Context Field Name"; "Context Field Name")
+                field("Context Field Name"; Rec."Context Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Context Field Name';
                     DrillDown = false;
                     ToolTip = 'Specifies the field where the error occurred.';
                 }
-                field(Source; Format("Record ID"))
+                field(Source; Format(Rec."Record ID"))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source';
@@ -56,22 +56,22 @@ page 700 "Error Messages"
 
                     trigger OnDrillDown()
                     begin
-                        HandleDrillDown(FieldNo("Record ID"));
+                        HandleDrillDown(Rec.FieldNo("Record ID"));
                     end;
                 }
-                field("Field Name"; "Field Name")
+                field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source Field Name';
                     DrillDown = false;
                     ToolTip = 'Specifies the field where the error occurred.';
                 }
-                field("Additional Information"; "Additional Information")
+                field("Additional Information"; Rec."Additional Information")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies more information than the information shown in the Description field.';
                 }
-                field("Support Url"; "Support Url")
+                field("Support Url"; Rec."Support Url")
                 {
                     Caption = 'Support URL';
                     ApplicationArea = Basic, Suite, Invoicing;
@@ -88,6 +88,12 @@ page 700 "Error Messages"
                     begin
                         ShowErrorCallStack();
                     end;
+                }
+                field(TimeOfError; Rec."Created On")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Time of Error';
+                    ToolTip = 'The time of error occurence.';
                 }
             }
         }
@@ -149,11 +155,11 @@ page 700 "Error Messages"
 
     local procedure SetStyle()
     begin
-        case "Message Type" of
-            "Message Type"::Error:
+        case Rec."Message Type" of
+            Rec."Message Type"::Error:
                 StyleText := 'Attention';
-            "Message Type"::Warning,
-          "Message Type"::Information:
+            Rec."Message Type"::Warning,
+          Rec."Message Type"::Information:
                 StyleText := 'None';
         end;
     end;

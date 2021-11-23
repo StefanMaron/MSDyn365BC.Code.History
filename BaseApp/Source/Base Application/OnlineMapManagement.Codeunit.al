@@ -434,8 +434,9 @@ codeunit 802 "Online Map Management"
 
         ServiceConnection.Status := ServiceConnection.Status::Enabled;
         with OnlineMapSetup do begin
-            if "Map Parameter Setup Code" = '' then
-                ServiceConnection.Status := ServiceConnection.Status::Disabled;
+            ServiceConnection.Status := ServiceConnection.Status::Disabled;
+            if OnlineMapSetup.Enabled then
+                ServiceConnection.Status := ServiceConnection.Status::Enabled;
             ServiceConnection.InsertServiceConnection(
               ServiceConnection, RecRef.RecordId, TableCaption, '', PAGE::"Online Map Setup");
         end;

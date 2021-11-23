@@ -133,7 +133,13 @@ page 5197 "Attendee Subform"
     var
         Cont: Record Contact;
         Salesperson: Record "Salesperson/Purchaser";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowCard(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Attendee Type" = "Attendee Type"::Contact then begin
             if Cont.Get("Attendee No.") then
                 PAGE.Run(PAGE::"Contact Card", Cont);
@@ -159,6 +165,11 @@ page 5197 "Attendee Subform"
             TempSegmentLine."Campaign No." := Task."Campaign No.";
             TempSegmentLine.CreatePhoneCall;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowCard(var Attendee: Record Attendee; var IsHandled: Boolean)
+    begin
     end;
 }
 

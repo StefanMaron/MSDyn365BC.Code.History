@@ -10,6 +10,8 @@ report 9200 "Void/Transmit Elec. Pmnts"
             DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.") WHERE("Document Type" = FILTER(Payment | Refund), "Bank Payment Type" = FILTER("Electronic Payment" | "Electronic Payment-IAT"), "Exported to Payment File" = CONST(true), "Check Transmitted" = CONST(false));
 
             trigger OnAfterGetRecord()
+            var
+                ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
             begin
                 if SkipReport("Account Type", "Bal. Account Type", "Account No.", "Bal. Account No.", BankAccount."No.") then
                     CurrReport.Skip();
@@ -31,23 +33,18 @@ report 9200 "Void/Transmit Elec. Pmnts"
                     end;
                     FirstTime := false;
                 end;
+                if UsageType = UsageType::Void then
+                    ExpUserFeedbackGenJnl.SetExportFlagOnAppliedCustVendLedgerEntry("Gen. Journal Line", false);
                 CheckManagement.ProcessElectronicPayment("Gen. Journal Line", UsageType);
 
                 if UsageType = UsageType::Void then begin
                     "Check Printed" := false;
+                    "Check Exported" := false;
                     "Document No." := '';
+                    "Exported to Payment File" := false;
                 end else
                     "Check Transmitted" := true;
-
-                Modify;
-            end;
-
-            trigger OnPostDataItem()
-            var
-                ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
-            begin
-                if UsageType = UsageType::Void then
-                    ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine("Gen. Journal Line", false);
+                Modify();
             end;
 
             trigger OnPreDataItem()

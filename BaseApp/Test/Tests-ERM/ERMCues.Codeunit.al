@@ -533,6 +533,46 @@ codeunit 134924 "ERM Cues"
         Assert.AreEqual(StrSubstNo('%1|%2', '''''', Location.Code), WarehouseWMSCue.GetEmployeeLocation(UserId), '');
     end;
 
+    [Test]
+    procedure ProdOrderRoutingsInQueueCue()
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ManufacturingCue: Record "Manufacturing Cue";
+    begin
+        // [FEATURE] [Manufacturing] [Routing]
+        // [SCENARIO 406130] "Prod. Order Routings - in Queue" cue excludes prod. order routing lines for finished production orders.
+        Initialize();
+        ProdOrderRoutingLine.DeleteAll();
+
+        MockProdOrderRoutingLine(ProdOrderRoutingLine.Status::"Firm Planned", ProdOrderRoutingLine."Routing Status"::Planned);
+        MockProdOrderRoutingLine(ProdOrderRoutingLine.Status::Released, ProdOrderRoutingLine."Routing Status"::Planned);
+        MockProdOrderRoutingLine(ProdOrderRoutingLine.Status::Finished, ProdOrderRoutingLine."Routing Status"::Planned);
+
+        ManufacturingCue.CalcFields("Prod. Orders Routings-in Queue");
+
+        ManufacturingCue.TestField("Prod. Orders Routings-in Queue", 2);
+    end;
+
+    [Test]
+    procedure ProdOrderRoutingsInProgressCue()
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ManufacturingCue: Record "Manufacturing Cue";
+    begin
+        // [FEATURE] [Manufacturing] [Routing]
+        // [SCENARIO 406130] "Prod. Order Routings - in Queue" cue includes only prod. order routing lines for released production orders.
+        Initialize();
+        ProdOrderRoutingLine.DeleteAll();
+
+        MockProdOrderRoutingLine(ProdOrderRoutingLine.Status::"Firm Planned", ProdOrderRoutingLine."Routing Status"::"In Progress");
+        MockProdOrderRoutingLine(ProdOrderRoutingLine.Status::Released, ProdOrderRoutingLine."Routing Status"::"In Progress");
+        MockProdOrderRoutingLine(ProdOrderRoutingLine.Status::Finished, ProdOrderRoutingLine."Routing Status"::"In Progress");
+
+        ManufacturingCue.CalcFields("Prod. Orders Routings-in Prog.");
+
+        ManufacturingCue.TestField("Prod. Orders Routings-in Prog.", 1);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -742,6 +782,20 @@ codeunit 134924 "ERM Cues"
             Open := true;
             Insert;
         end;
+    end;
+
+    local procedure MockProdOrderRoutingLine(ProdOrderStatus: Enum "Production Order Status"; RoutingStatus: Option)
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        ProdOrderRoutingLine.Init();
+        ProdOrderRoutingLine.Status := ProdOrderStatus;
+        ProdOrderRoutingLine."Prod. Order No." := LibraryUtility.GenerateGUID();
+        ProdOrderRoutingLine."Routing Reference No." := LibraryRandom.RandInt(10);
+        ProdOrderRoutingLine."Routing No." := LibraryUtility.GenerateGUID();
+        ProdOrderRoutingLine."Operation No." := LibraryUtility.GenerateGUID();
+        ProdOrderRoutingLine."Routing Status" := RoutingStatus;
+        ProdOrderRoutingLine.Insert();
     end;
 
     local procedure Maximum(a: Decimal; b: Decimal): Decimal

@@ -727,6 +727,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         ErrorHandlingParameters: Record "Error Handling Parameters";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        Args: Dictionary of [Text, Text];
     begin
         // [FEATURE] [UT]
         // [SCENARIO 355641] Errors for deleted journal lines removed from error messages
@@ -753,6 +754,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         GenJournalLine[2].Delete();
 
         // [WHEN] Run CleanTempErrorMessages 
+        BackgroundErrorHandlingMgt.PackDeletedDocumentsToArgs(Args); // Mock call from "Journal Errors Factbox".CheckErrorsInBackground
         SetErrorHandlingParameters(ErrorHandlingParameters, GenJournalLine[1], GenJournalLine[1]."Document No.", GenJournalLine[1]."Posting Date",
             GenJournalLine[1]."Document No.", GenJournalLine[1]."Posting Date", false, false);
         BackgroundErrorHandlingMgt.CleanTempErrorMessages(TempErrorMessage, ErrorHandlingParameters);
@@ -777,6 +779,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         xDocumentNo: Code[20];
+        Args: Dictionary of [Text, Text];
     begin
         // [FEATURE] 
         // [SCENARIO 355641] Balance checked for deleted lines 
@@ -810,6 +813,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         ExtraGenJournalLine[2].Delete();
 
         // [WHEN] Run CleanTempErrorMessages 
+        BackgroundErrorHandlingMgt.PackDeletedDocumentsToArgs(Args); // Mock call from "Journal Errors Factbox".CheckErrorsInBackground
         SetErrorHandlingParameters(ErrorHandlingParameters, GenJournalLine[1], GenJournalLine[1]."Document No.", GenJournalLine[1]."Posting Date",
             GenJournalLine[1]."Document No.", GenJournalLine[1]."Posting Date", false, false);
         BackgroundErrorHandlingMgt.CleanTempErrorMessages(TempErrorMessage, ErrorHandlingParameters);

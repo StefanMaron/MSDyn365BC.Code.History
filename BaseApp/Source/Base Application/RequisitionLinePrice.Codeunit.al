@@ -153,6 +153,8 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
     begin
         PriceSourceList.Init();
         PriceSourceList.Add(SourceType::Vendor, RequisitionLine."Vendor No.");
+
+        OnAfterAddSources(RequisitionLine, CurrPriceType, PriceSourceList);
     end;
 
     procedure SetPrice(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line")
@@ -180,6 +182,11 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
     begin
         if not DiscountIsAllowed then
             RequisitionLine."Line Discount %" := 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddSources(RequisitionLine: Record "Requisition Line"; PriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

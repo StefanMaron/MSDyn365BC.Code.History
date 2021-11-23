@@ -206,7 +206,7 @@ page 6505 "Lot No. Information Card"
 
     trigger OnOpenPage()
     begin
-        SetFilter("Date Filter", '..%1', WorkDate);
+        Rec.SetFilter("Date Filter", '>%1&<=%2', 0D, WorkDate());
         if ShowButtonFunctions then
             ButtonFunctionsVisible := true;
     end;

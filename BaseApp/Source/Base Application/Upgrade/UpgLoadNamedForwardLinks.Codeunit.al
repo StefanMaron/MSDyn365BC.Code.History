@@ -7,7 +7,12 @@ codeunit 104050 "Upg Load Named Forward Links"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+
         LoadForwardLinks();
     end;
 

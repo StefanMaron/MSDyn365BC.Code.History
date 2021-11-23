@@ -1,7 +1,7 @@
 page 9257 "Opportunities Matrix"
 {
     Caption = 'Opportunities Matrix';
-    DataCaptionExpression = Format(SelectStr(OutPutOption.AsInteger() + 1, Text002));
+    DataCaptionExpression = Format(OutPutOption);
     Editable = false;
     LinksAllowed = false;
     PageType = List;
@@ -693,7 +693,6 @@ page 9257 "Opportunities Matrix"
         OutputOption: Enum "Opportunity Output";
         RoundingFactor: Enum "Analysis Rounding Factor";
         TableType: Enum "Opportunity Table Type";
-        Text002: Label 'No of Opportunities,Estimated Value (LCY),Calc. Current Value (LCY),Avg. Estimated Value (LCY),Avg. Calc. Current Value (LCY)';
         MATRIX_CurrentNoOfMatrixColumn: Integer;
         MATRIX_CellData: array[32] of Text[80];
         MATRIX_CaptionSet: array[32] of Text[80];
@@ -1068,8 +1067,8 @@ page 9257 "Opportunities Matrix"
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Date; TableOptionLocal: Option SalesPerson,Campaign,Contact; OutPutOptionLocal: Option "No of Opportunities","Estimated Value (LCY)","Calc. Current Value (LCY)","Avg. Estimated Value (LCY)","Avg. Calc. Current Value (LCY)"; RoundingFactorLocal: Option "None","1","1000","1000000"; OptionStatusFilterLocal: Option "In Progress",Won,Lost; CloseOpportunityFilterLocal: Text; SuccessChanceFilterLocal: Text; ProbabilityFilterLocal: Text; CompletedFilterLocal: Text; EstimatedValueFilterLocal: Text; CalcdCurrentValueFilterLocal: Text; SalesCycleFilterLocal: Text; SalesCycleStageFilterLocal: Text; NoOfColumns: Integer)
     begin
         LoadMatrix(
-            MatrixColumns1, MatrixRecords1, "Opportunity Table Type".FromInteger(TableOptionLocal), 
-            "Opportunity Output".FromInteger(OutPutOptionLocal), "Analysis Rounding Factor".FromInteger(RoundingFactorLocal), 
+            MatrixColumns1, MatrixRecords1, "Opportunity Table Type".FromInteger(TableOptionLocal),
+            "Opportunity Output".FromInteger(OutPutOptionLocal), "Analysis Rounding Factor".FromInteger(RoundingFactorLocal),
             OptionStatusFilterLocal, CloseOpportunityFilterLocal, SuccessChanceFilterLocal, ProbabilityFilterLocal, CompletedFilterLocal,
             EstimatedValueFilterLocal, CalcdCurrentValueFilterLocal, SalesCycleFilterLocal, SalesCycleStageFilterLocal, NoOfColumns);
     end;

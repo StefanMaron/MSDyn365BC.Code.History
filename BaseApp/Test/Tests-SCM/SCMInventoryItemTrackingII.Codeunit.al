@@ -1246,7 +1246,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           LotNoInformationList.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('..%1', WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('>%1&<=%2', '''''', WorkDate), 'Incorrect Date Filter');
     end;
 
     [Test]
@@ -1277,7 +1277,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           SerialNoInformationList.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('..%1', WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('>%1&<=%2', '''''', WorkDate), 'Incorrect Date Filter');
     end;
 
     [Test]
@@ -1308,7 +1308,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           LotNoInformationCard.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('..%1', WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('>%1&<=%2', '''''', WorkDate), 'Incorrect Date Filter');
     end;
 
     [Test]
@@ -1339,7 +1339,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] "Date Filter" is "01.01.0000..05.01.2017"
         Assert.AreEqual(
           SerialNoInformationCard.FILTER.GetFilter("Date Filter"),
-          StrSubstNo('..%1', WorkDate), 'Incorrect Date Filter');
+          StrSubstNo('>%1&<=%2', '''''', WorkDate), 'Incorrect Date Filter');
     end;
 
     [Test]

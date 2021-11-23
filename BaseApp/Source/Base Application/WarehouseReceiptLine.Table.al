@@ -184,7 +184,14 @@ table 7317 "Warehouse Receipt Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToReceiveBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate("Qty. to Receive", "Qty. to Receive (Base)");
             end;
@@ -788,6 +795,11 @@ table 7317 "Warehouse Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQtyToReceive(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToReceiveBase(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; xWarehouseReceiptLine: Record "Warehouse Receipt Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

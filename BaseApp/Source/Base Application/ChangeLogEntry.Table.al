@@ -4,6 +4,7 @@ table 405 "Change Log Entry"
     DrillDownPageID = "Change Log Entries";
     LookupPageID = "Change Log Entries";
     ReplicateData = true;
+    ColumnStoreIndex = "Field Log Entry Feature";
 
     fields
     {

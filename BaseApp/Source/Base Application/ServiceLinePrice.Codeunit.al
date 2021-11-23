@@ -181,8 +181,6 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         PriceSourceList.Add(SourceType::Contact, ServiceHeader."Bill-to Contact No.");
         PriceSourceList.Add(SourceType::"Customer Price Group", ServiceLine."Customer Price Group");
         PriceSourceList.Add(SourceType::"Customer Disc. Group", ServiceLine."Customer Disc. Group");
-        if ServiceLine.Type = ServiceLine.Type::Resource then
-            PriceSourceList.Add(SourceType::"All Jobs");
 
         OnAfterAddSources(ServiceHeader, ServiceLine, CurrPriceType, PriceSourceList);
     end;
@@ -204,7 +202,14 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
     end;
 
     procedure SetPrice(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPrice(ServiceLine, PriceListLine, AmountType, IsHandled);
+        if IsHandled then
+            exit;
+
         case AmountType of
             AmountType::Price:
                 case CurrPriceType of
@@ -284,6 +289,11 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPrice(var ServiceLine: Record "Service Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPrice(var ServiceLine: Record "Service Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
     begin
     end;
 }

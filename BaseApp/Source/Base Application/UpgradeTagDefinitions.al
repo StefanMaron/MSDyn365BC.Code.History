@@ -56,6 +56,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetIntegrationTableMappingFilterForOpportunitiesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetIntegrationFieldMappingForOpportunitiesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetIntegrationFieldMappingForContactsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetIntegrationFieldMappingForInvoicesUpgradeTag());
         PerCompanyUpgradeTags.Add(WorkflowStepArgumentUpgradeTag());
         PerCompanyUpgradeTags.Add(GetMoveAzureADAppSetupSecretToIsolatedStorageTag());
         PerCompanyUpgradeTags.Add(GetDefaultDimensionParentTypeUpgradeTag());
@@ -100,6 +101,7 @@ codeunit 9998 "Upgrade Tag Definitions"
 #endif
         PerCompanyUpgradeTags.Add(GetAzureADSetupFixTag());
         PerCompanyUpgradeTags.Add(GetDocumentDefaultLineTypeUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetEnableOnlineMapUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -119,8 +121,8 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetCreateDefaultAADApplicationTag());
         PerDatabaseUpgradeTags.Add(GetDefaultAADApplicationDescriptionTag());
         PerDatabaseUpgradeTags.Add(GetMonitorSensitiveFieldPermissionUpgradeTag());
-#if not CLEAN19
         PerDatabaseUpgradeTags.Add(GetDataOutOfGeoAppUpgradeTag());
+#if not CLEAN19
         PerDatabaseUpgradeTags.Add(GetExportExcelReportUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetUserSettingsUpgradeTag());
 #endif
@@ -552,6 +554,11 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-387286-IntegrationFieldMappingForContacts-20210125');
     end;
 
+    internal procedure GetIntegrationFieldMappingForInvoicesUpgradeTag(): Code[250];
+    begin
+        exit('MS-3411596-IntegrationFieldMappingForInvoices-20210916');
+    end;
+
     [Obsolete('Function will be removed', '17.0')]
     procedure WorkflowStepArgumentUpgradeTag(): Code[250];
     begin
@@ -663,14 +670,12 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-379473-DefaultAADApplicationDescriptionTag-20201217');
     end;
 
-#if not CLEAN19
-    [Obsolete('Function will be removed', '19.0')]
     procedure GetDataOutOfGeoAppUpgradeTag(): Code[250]
     begin
         exit('MS-370438-DataOutOfGeoAppTag-20210121');
     end;
-
-    [Obsolete('Function will be removed', '19.0')]
+#if not CLEAN19
+    [Obsolete('Function will be removed or moved to internal', '19.0')]
     procedure GetExportExcelReportUpgradeTag(): Code[250]
     begin
         exit('MS-390522-ExportExcelReport-20210611')
@@ -726,6 +731,12 @@ codeunit 9998 "Upgrade Tag Definitions"
     var
     begin
         exit('MS-388025-PriceSourceGroup-20210331');
+    end;
+
+    procedure GetAllJobsResourcePriceUpgradeTag(): Code[250]
+    var
+    begin
+        exit('MS-412932-AllJobsResourcePrice-20210929');
     end;
 
     procedure GetPriceSourceGroupFixedUpgradeTag(): Code[250]
@@ -850,6 +861,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetDocumentDefaultLineTypeUpgradeTag(): Code[250]
     begin
         exit('MS-410225-DocumentDefaultLineType');
+    end;
+
+    internal procedure GetEnableOnlineMapUpgradeTag(): Code[250];
+    begin
+        exit('MS-413441-EnableOnlineMap-20211005');
     end;
 }
 

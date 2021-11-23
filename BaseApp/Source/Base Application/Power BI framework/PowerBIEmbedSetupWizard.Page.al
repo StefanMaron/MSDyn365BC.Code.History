@@ -377,7 +377,7 @@ page 6327 "Power BI Embed Setup Wizard"
 
         // Ensure user config for context before deployment
         SetPowerBIUserConfig.CreateOrReadUserConfigEntry(DummyPowerBIUserConfiguration, ParentPageContext);
-        if PowerBIReportSynchronizer.UserNeedsToSynchronize(ParentPageContext) then begin
+        if not PowerBIReportSynchronizer.UserNeedsToSynchronize(ParentPageContext) then begin
             IsDeploying := false;
             exit;
         end;

@@ -1,7 +1,8 @@
+#if not CLEAN17
 codeunit 1882 "Sandbox Deploymt. Cleanup"
 {
     ObsoleteState = Pending;
-    ObsoleteReason = 'Codeunit will be made internal. Use OnClearConfiguration in "Sandbox Cleanup" instead.';
+    ObsoleteReason = 'Codeunit replaced by Environment Cleanup.';
     ObsoleteTag = '17.0';
 
     trigger OnRun()
@@ -84,4 +85,4 @@ codeunit 1882 "Sandbox Deploymt. Cleanup"
         OnClearConfiguration('');
     end;
 }
-
+#endif

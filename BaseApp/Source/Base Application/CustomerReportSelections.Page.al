@@ -17,28 +17,27 @@ page 9657 "Customer Report Selections"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Usage';
-                    OptionCaption = 'Quote,Confirmation Order,Invoice,Credit Memo,Customer Statement,Job Quote,Reminder,Shipment';
                     ToolTip = 'Specifies which type of document the report is used for.';
 
                     trigger OnValidate()
                     begin
                         case Usage2 of
-                            Usage2::Quote:
-                                Usage := Usage::"S.Quote";
-                            Usage2::"Confirmation Order":
-                                Usage := Usage::"S.Order";
-                            Usage2::Invoice:
-                                Usage := Usage::"S.Invoice";
-                            Usage2::"Credit Memo":
-                                Usage := Usage::"S.Cr.Memo";
-                            Usage2::"Customer Statement":
-                                Usage := Usage::"C.Statement";
-                            Usage2::"Job Quote":
-                                Usage := Usage::JQ;
-                            Usage2::Reminder:
-                                Usage := Usage::Reminder;
-                            Usage2::Shipment:
-                                Usage := Usage::"S.Shipment";
+                            "Custom Report Selection Sales"::Quote:
+                                Rec.Usage := "Report Selection Usage"::"S.Quote";
+                            "Custom Report Selection Sales"::"Confirmation Order":
+                                Rec.Usage := "Report Selection Usage"::"S.Order";
+                            "Custom Report Selection Sales"::Invoice:
+                                Rec.Usage := "Report Selection Usage"::"S.Invoice";
+                            "Custom Report Selection Sales"::"Credit Memo":
+                                Rec.Usage := "Report Selection Usage"::"S.Cr.Memo";
+                            "Custom Report Selection Sales"::"Customer Statement":
+                                Rec.Usage := "Report Selection Usage"::"C.Statement";
+                            "Custom Report Selection Sales"::"Job Quote":
+                                Rec.Usage := "Report Selection Usage"::JQ;
+                            "Custom Report Selection Sales"::Reminder:
+                                Rec.Usage := "Report Selection Usage"::Reminder;
+                            "Custom Report Selection Sales"::Shipment:
+                                Rec.Usage := "Report Selection Usage"::"S.Shipment";
                             else
                                 OnValidateUsage2OnCaseElse(Rec, Usage2);
                         end;
@@ -198,49 +197,49 @@ page 9657 "Customer Report Selections"
     end;
 
     var
-        Usage2: Option Quote,"Confirmation Order",Invoice,"Credit Memo","Customer Statement","Job Quote",Reminder,Shipment;
         CouldNotFindCustomReportLayoutErr: Label 'There is no custom report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
+
+    protected var
+        Usage2: Enum "Custom Report Selection Sales";
 
     local procedure MapTableUsageValueToPageValue()
     var
         CustomReportSelection: Record "Custom Report Selection";
     begin
         case Usage of
-            CustomReportSelection.Usage::"S.Quote":
-                Usage2 := Usage2::Quote;
-            CustomReportSelection.Usage::"S.Order":
-                Usage2 := Usage2::"Confirmation Order";
-            CustomReportSelection.Usage::"S.Invoice":
-                Usage2 := Usage2::Invoice;
-            CustomReportSelection.Usage::"S.Cr.Memo":
-                Usage2 := Usage2::"Credit Memo";
-            CustomReportSelection.Usage::"C.Statement":
-                Usage2 := Usage2::"Customer Statement";
-            CustomReportSelection.Usage::JQ:
-                Usage2 := Usage2::"Job Quote";
-            CustomReportSelection.Usage::Reminder:
-                Usage2 := Usage2::Reminder;
-            CustomReportSelection.Usage::"S.Shipment":
-                Usage2 := Usage2::Shipment;
+            "Report Selection Usage"::"S.Quote":
+                Usage2 := "Custom Report Selection Sales"::Quote;
+            "Report Selection Usage"::"S.Order":
+                Usage2 := "Custom Report Selection Sales"::"Confirmation Order";
+            "Report Selection Usage"::"S.Invoice":
+                Usage2 := "Custom Report Selection Sales"::Invoice;
+            "Report Selection Usage"::"S.Cr.Memo":
+                Usage2 := "Custom Report Selection Sales"::"Credit Memo";
+            "Report Selection Usage"::"C.Statement":
+                Usage2 := "Custom Report Selection Sales"::"Customer Statement";
+            "Report Selection Usage"::JQ:
+                Usage2 := "Custom Report Selection Sales"::"Job Quote";
+            "Report Selection Usage"::Reminder:
+                Usage2 := "Custom Report Selection Sales"::Reminder;
+            "Report Selection Usage"::"S.Shipment":
+                Usage2 := "Custom Report Selection Sales"::Shipment;
             else
                 OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, Usage2);
         end;
     end;
 
     local procedure FilterCustomerUsageReportSelections(var ReportSelections: Record "Report Selections")
-    var
-        CustomReportSelection: Record "Custom Report Selection";
     begin
         ReportSelections.SetFilter(
             Usage, '%1|%2|%3|%4|%5|%6|%7|%8',
-            CustomReportSelection.Usage::"S.Quote",
-            CustomReportSelection.Usage::"S.Order",
-            CustomReportSelection.Usage::"S.Invoice",
-            CustomReportSelection.Usage::"S.Cr.Memo",
-            CustomReportSelection.Usage::"C.Statement",
-            CustomReportSelection.Usage::JQ,
-            CustomReportSelection.Usage::Reminder,
-            CustomReportSelection.Usage::"S.Shipment");
+            "Report Selection Usage"::"S.Quote",
+            "Report Selection Usage"::"S.Order",
+            "Report Selection Usage"::"S.Invoice",
+            "Report Selection Usage"::"S.Cr.Memo",
+            "Report Selection Usage"::"C.Statement",
+            "Report Selection Usage"::JQ,
+            "Report Selection Usage"::Reminder,
+            "Report Selection Usage"::"S.Shipment");
     end;
 
     [IntegrationEvent(false, false)]

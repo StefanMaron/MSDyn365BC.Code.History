@@ -281,7 +281,6 @@ page 99000914 "Change Production Order Status"
                         NoOfRecords: Integer;
                         POCount: Integer;
                         IsHandled: Boolean;
-                        LocalText000: Label 'Simulated,Planned,Firm Planned,Released,Finished';
                     begin
                         ChangeStatusForm.Set(Rec);
 
@@ -292,9 +291,7 @@ page 99000914 "Change Production Order Status"
 
                         NoOfRecords := Count;
 
-                        Window.Open(
-                          StrSubstNo(Text000, SelectStr(NewStatus.AsInteger() + 1, LocalText000)) +
-                          Text001);
+                        Window.Open(StrSubstNo(Text000, NewStatus) + Text001);
 
                         POCount := 0;
 

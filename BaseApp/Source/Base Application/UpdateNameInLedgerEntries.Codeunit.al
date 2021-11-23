@@ -9,12 +9,14 @@ codeunit 104 "Update Name In Ledger Entries"
 
     trigger OnRun()
     begin
-        Update("Parameter String");
+        Update(Rec."Parameter String");
     end;
 
     var
-        JobQueueDescrTxt: Label 'Update %1 name in %1 ledger entries.', Comment = '%1 - text: Customer or Vendor';
-        ParameterNotSupportedErr: Label 'The Parameter String field must contain ''Customer'',''Vendor'', or ''Item''. The current value ''%1'' is not supported.', Comment = '%1 - any text value';
+        CustomerJobQueueDescrTxt: Label 'Update customer name in customer ledger entries.';
+        ItemJobQueueDescrTxt: Label 'Update item name in item ledger entries.';
+        VendorJobQueueDescrTxt: Label 'Update vendor name in vendor ledger entries.';
+        ParameterNotSupportedErr: Label 'The Parameter String field must contain 18 for ''Customer'', 23 for ''Vendor'', or 27 for ''Item''. The current value ''%1'' is not supported.', Comment = '%1 - any text value';
         CustomerNamesUpdateMsg: Label '%1 customer ledger entries with empty Customer Name field were found. Do you want to update these entries by inserting the name from the customer cards?', Comment = '%1 = number of entries';
         VendorNamesUpdateMsg: Label '%1 vendor ledger entries with empty Vendor Name field were found. Do you want to update these entries by inserting the name from the vendor cards?', Comment = '%1 = number of entries';
         ItemDescriptionUpdateMsg: Label '%1 ledger entries with empty Description field were found. Do you want to update these entries by inserting the description from the item cards?', Comment = '%1 = number of entries';
@@ -25,20 +27,32 @@ codeunit 104 "Update Name In Ledger Entries"
         JobQueueEntry: Record "Job Queue Entry";
         ScheduleAJob: Page "Schedule a Job";
     begin
-        InsertJobQueueEntry(JobQueueEntry, Notification.GetData('Type'));
+        InsertJobQueueEntry(JobQueueEntry, Notification.GetData('TableNo'));
         ScheduleAJob.SetJob(JobQueueEntry);
         Commit();
-        ScheduleAJob.RunModal;
+        ScheduleAJob.RunModal();
     end;
 
-    local procedure InsertJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; Type: Text)
+    local procedure InsertJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; TableNo: Text)
     begin
         JobQueueEntry.Init();
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
-        JobQueueEntry.Description := StrSubstNo(JobQueueDescrTxt, LowerCase(Type));
+        JobQueueEntry.Description := CopyStr(GetJobQueueDescrTxt(TableNo), 1, MaxStrLen(JobQueueEntry.Description));
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Update Name In Ledger Entries";
-        JobQueueEntry."Parameter String" := CopyStr(Type, 1, MaxStrLen(JobQueueEntry."Parameter String"));
+        JobQueueEntry."Parameter String" := CopyStr(TableNo, 1, MaxStrLen(JobQueueEntry."Parameter String"));
+    end;
+
+    local procedure GetJobQueueDescrTxt(TableNo: Text): Text;
+    begin
+        case TableNo of
+            Format(Database::Customer):
+                exit(CustomerJobQueueDescrTxt);
+            Format(Database::Item):
+                exit(ItemJobQueueDescrTxt);
+            Format(Database::Vendor):
+                exit(VendorJobQueueDescrTxt);
+        end;
     end;
 
     procedure NotifyAboutBlankNamesInLedgerEntries(SetupRecordID: RecordID)
@@ -54,17 +68,17 @@ codeunit 104 "Update Name In Ledger Entries"
             DATABASE::"Sales & Receivables Setup":
                 begin
                     Notification.Message(StrSubstNo(CustomerNamesUpdateMsg, Counter));
-                    Notification.SetData('Type', 'Customer');
+                    Notification.SetData('TableNo', Format(Database::Customer));
                 end;
             DATABASE::"Purchases & Payables Setup":
                 begin
                     Notification.Message(StrSubstNo(VendorNamesUpdateMsg, Counter));
-                    Notification.SetData('Type', 'Vendor');
+                    Notification.SetData('TableNo', Format(Database::Vendor));
                 end;
             DATABASE::"Inventory Setup":
                 begin
                     Notification.Message(StrSubstNo(ItemDescriptionUpdateMsg, Counter));
-                    Notification.SetData('Type', 'Item');
+                    Notification.SetData('TableNo', Format(Database::Item));
                 end;
         end;
         Notification.AddAction(ScheduleUpdateMsg, CODEUNIT::"Update Name In Ledger Entries", 'ScheduleUpdate');
@@ -152,13 +166,13 @@ codeunit 104 "Update Name In Ledger Entries"
 
     local procedure Update(Param: Text)
     begin
-        case LowerCase(Param) of
-            'customer':
-                UpdateCustNamesInLedgerEntries;
-            'item':
-                UpdateItemDescrInLedgerEntries;
-            'vendor':
-                UpdateVendNamesInLedgerEntries;
+        case Param of
+            Format(Database::Customer):
+                UpdateCustNamesInLedgerEntries();
+            Format(Database::Item):
+                UpdateItemDescrInLedgerEntries();
+            Format(Database::Vendor):
+                UpdateVendNamesInLedgerEntries();
             else
                 Error(StrSubstNo(ParameterNotSupportedErr, Param));
         end;

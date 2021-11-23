@@ -198,6 +198,55 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         VerifyACYAmountIsZero(AddCurrency."Realized Losses Acc.");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure PostPrepmtSalesCrMemoWhenAdjmtAndDifferentProdPostingGroups()
+    var
+        LineGLAccount: array[2] of Record "G/L Account";
+        AddCurrency: Record Currency;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        PrepmtGLAccountNo: array[2] of Code[20];
+        LineAmount: array[2] of Decimal;
+    begin
+        // [SCENARIO 409863] Post Prepayment Sales Credit Memo with currency adjustment for order with two sales lines with different Production Posting Groups that have different Prepayment Accounts.
+        Initialize();
+
+        // [GIVEN] Two General Posting Setup records with one Bus. Posing Group "B" and different Prod. Posting Groups "P1" and "P2". Sales Prepayments Accounts are 1111 and 2222.
+        // [GIVEN] Two G/L Accounts "GU1" and "GU2" with one Bus. Posting Group "B" and different Prod. Posting Groups "P1" and "P2".
+        CreateTwoPrepaymentVATGLSetupsOneBusPostingGroup(LineGLAccount, PrepmtGLAccountNo);
+
+        // [GIVEN] Currency "CUR" with Exchange Rate = 100 on date 10.01.2021 and Exchange Rate = 120 on date 10.03.2021 (+2M).
+        CreateAddReportingCurrency(AddCurrency);
+
+        // [GIVEN] Customer with Currency Code = "CUR" and Gen. Bus. Posting Group = "B".
+        CreateCustomer(Customer, LineGLAccount[1]."Gen. Bus. Posting Group", LineGLAccount[1]."VAT Bus. Posting Group", AddCurrency.Code);
+
+        // [GIVEN] Sales Order with Prepayment = 100%, Posting Date = 10.01.2021 and with two lines for G/L Accounts "GU1" and "GU2".
+        // [GIVEN] Sales Lines have Amount FCY 1000 and 2000 respectively.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        UpdatePrepaymentPctOnSalesHeader(SalesHeader, 100);
+        CreateSalesLineForGLAccount(SalesLine[1], SalesHeader, LineGLAccount[1]."No.");
+        CreateSalesLineForGLAccount(SalesLine[2], SalesHeader, LineGLAccount[2]."No.");
+        LineAmount[1] := SalesLine[1].Amount;
+        LineAmount[2] := SalesLine[2].Amount;
+
+        // [GIVEN] Posted Prepayment Sales Invoice.
+        PostSalesPrepayment(SalesHeader);
+
+        // [GIVEN] Posting Date is updated from 10.01.2021 to 10.03.2021 on Sales Order.
+        UpdatePostingDateOnSalesHeader(SalesHeader, CalcDate('<+2M>', WorkDate()));
+
+        // [WHEN] Post Prepayment Credit Memo.
+        PostSalesPrepmtCreditMemo(SalesHeader);
+
+        // [THEN] Three adjustment General Ledger Entries were created.
+        // [THEN] First posted on G/L Account 1111 and has Amount = -1000 * (120 - 100). Second posted on G/L Account 2222 and has Amount = -2000 * (120 - 100).
+        // [THEN] Third posted on G/L Account = Currency."Realized Losses Acc." and has Amount = (1000 + 2000) * (120 - 100), i.e. with sum of adjustment amounts with opposite sign.
+        VerifyAdjustmentAmountsOnCreditMemo(AddCurrency.Code, PrepmtGLAccountNo, WorkDate(), SalesHeader."Posting Date", LineAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -338,6 +387,32 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         SalesLine.Modify(true);
     end;
 
+    local procedure CreateSalesLineForGLAccount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; GLAccountNo: Code[20])
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateTwoPrepaymentVATGLSetupsOneBusPostingGroup(var LineGLAccount: array[2] of Record "G/L Account"; var PrepmtGLAccountNo: array[2] of Code[20])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        PrepmtGLAccountNo[1] := LibrarySales.CreatePrepaymentVATSetup(LineGLAccount[1], VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        PrepmtGLAccountNo[2] := LibrarySales.CreatePrepaymentVATSetup(LineGLAccount[2], VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        VATPostingSetup.Get(LineGLAccount[2]."VAT Bus. Posting Group", LineGLAccount[2]."VAT Prod. Posting Group");
+        VATPostingSetup."VAT Bus. Posting Group" := LineGLAccount[1]."VAT Bus. Posting Group";
+        VATPostingSetup.SetRecFilter();
+        VATPostingSetup.DeleteAll();    // remove excessive VAT Posting Setup in some countries
+        VATPostingSetup.Insert();
+
+        GeneralPostingSetup.Get(LineGLAccount[2]."Gen. Bus. Posting Group", LineGLAccount[2]."Gen. Prod. Posting Group");
+        GeneralPostingSetup."Gen. Bus. Posting Group" := LineGLAccount[1]."Gen. Bus. Posting Group";
+        GeneralPostingSetup.Insert();
+    end;
+
     local procedure FindPostedPurchaseInvoiceForVendor(VendorNo: Code[20]): Code[20]
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -456,6 +531,13 @@ codeunit 134110 "ERM Prepayment ACY Posting"
     begin
         LibrarySales.ReopenSalesDocument(SalesHeader);
         SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Document Date", PostingDate);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure UpdatePrepaymentPctOnSalesHeader(var SalesHeader: Record "Sales Header"; PrepaymentPercent: Decimal)
+    begin
+        SalesHeader.Validate("Prepayment %", PrepaymentPercent);
         SalesHeader.Modify(true);
     end;
 
@@ -515,6 +597,53 @@ codeunit 134110 "ERM Prepayment ACY Posting"
                 Assert.AreEqual(0, "Additional-Currency Amount", LCYAmtMustBeZeroErr);
             until Next = 0;
         end;
+    end;
+
+    local procedure VerifyAdjustmentAmountsOnCreditMemo(CurrencyCode: Code[10]; PrepmtGLAccountNo: array[2] of Code[20]; FirstPostingDate: Date; LastPostingDate: Date; AmountFCY: array[2] of Decimal)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        Currency: Record Currency;
+        GLEntry: Record "G/L Entry";
+        ExchangeRateOnFirstDate: Decimal;
+        ExchangeRateOnLastDate: Decimal;
+        AmountLCYBeforeAdj: array[2] of Decimal;
+        AmountLCYAfterAdj: array[2] of Decimal;
+        AdjustmentAmountLCY: array[2] of Decimal;
+        TotalRealizedLossAmt: Decimal;
+    begin
+        ExchangeRateOnFirstDate := CurrencyExchangeRate.ExchangeRate(FirstPostingDate, CurrencyCode);
+        ExchangeRateOnLastDate := CurrencyExchangeRate.ExchangeRate(LastPostingDate, CurrencyCode);
+
+        AmountLCYBeforeAdj[1] := CurrencyExchangeRate.ExchangeAmtFCYToLCY(FirstPostingDate, CurrencyCode, AmountFCY[1], ExchangeRateOnFirstDate);
+        AmountLCYAfterAdj[1] := CurrencyExchangeRate.ExchangeAmtFCYToLCY(LastPostingDate, CurrencyCode, AmountFCY[1], ExchangeRateOnLastDate);
+        AdjustmentAmountLCY[1] := AmountLCYAfterAdj[1] - AmountLCYBeforeAdj[1];
+
+        AmountLCYBeforeAdj[2] := CurrencyExchangeRate.ExchangeAmtFCYToLCY(FirstPostingDate, CurrencyCode, AmountFCY[2], ExchangeRateOnFirstDate);
+        AmountLCYAfterAdj[2] := CurrencyExchangeRate.ExchangeAmtFCYToLCY(LastPostingDate, CurrencyCode, AmountFCY[2], ExchangeRateOnLastDate);
+        AdjustmentAmountLCY[2] := AmountLCYAfterAdj[2] - AmountLCYBeforeAdj[2];
+
+        GLEntry.SetRange("Posting Date", LastPostingDate);
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Credit Memo");
+        GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::" ");
+        GLEntry.SetFilter("Gen. Bus. Posting Group", '');
+        GLEntry.SetFilter("Gen. Prod. Posting Group", '');
+
+        // Adjustment amount for the first Sales Line.
+        GLEntry.SetRange("G/L Account No.", PrepmtGLAccountNo[1]);
+        GLEntry.FindFirst();
+        Assert.AreNearlyEqual(-AdjustmentAmountLCY[1], GLEntry.Amount, 10 * LibraryERM.GetAmountRoundingPrecision, '');
+
+        // Adjustment amount for the second Sales Line.
+        GLEntry.SetRange("G/L Account No.", PrepmtGLAccountNo[2]);
+        GLEntry.FindFirst();
+        Assert.AreNearlyEqual(-AdjustmentAmountLCY[2], GLEntry.Amount, 10 * LibraryERM.GetAmountRoundingPrecision, '');
+
+        // Sum of adjustment amounts with opposite sign posted on Realized Losses Account.
+        Currency.Get(CurrencyCode);
+        GLEntry.SetRange("G/L Account No.", Currency."Realized Losses Acc.");
+        GLEntry.FindFirst();
+        TotalRealizedLossAmt := AdjustmentAmountLCY[1] + AdjustmentAmountLCY[2];
+        Assert.AreNearlyEqual(TotalRealizedLossAmt, GLEntry.Amount, 10 * LibraryERM.GetAmountRoundingPrecision, '');
     end;
 
     [ConfirmHandler]

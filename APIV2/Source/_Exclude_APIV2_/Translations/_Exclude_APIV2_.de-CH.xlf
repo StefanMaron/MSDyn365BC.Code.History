@@ -11,7 +11,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1345440638 - NamedType 3903114897" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Thank you for your business. Your %1 has been cancelled.</source>
-          <target state="translated">Vielen Dank für Ihren Auftrag. Ihre Rechnung %1 wurde storniert.</target>
+          <target state="translated">Ihre Rechnung %1 wurde storniert.</target>
           <note from="Developer" annotates="general" priority="2">%1 - document type</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - NamedType CancelationEmailBodyTxt</note>
         </trans-unit>
@@ -5462,6 +5462,12 @@
           <target state="translated">„pricesIncludeTax“ kann nicht auf „wahr“ festgelegt werden, wenn die MwSt.-Berechnungsart „Salestax“ ist.</target>
           <note from="Developer" annotates="general" priority="2">pricesIncludeTax is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CannotEnablePricesIncludeTaxErr</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - NamedType 983217553" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The order cannot be found.</source>
+          <target state="translated">Die Bestellung kann nicht gefunden werden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - NamedType CannotFindOrderErr</note>
         </trans-unit>
         <trans-unit id="Page 825103897 - NamedType 259424556" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The buy-from vendor cannot be found.</source>

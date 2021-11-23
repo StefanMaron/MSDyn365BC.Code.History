@@ -52,6 +52,11 @@ page 246 "VAT Reg. No. Srv. Templates"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the post code value is validated.';
                 }
+                field("Ignore Details"; Rec."Ignore Details")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want to exclude any detailed information that the validation service returns. Choose the field to view all validation details.';
+                }
             }
         }
     }

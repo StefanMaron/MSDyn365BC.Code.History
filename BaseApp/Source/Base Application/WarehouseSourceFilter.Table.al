@@ -461,6 +461,8 @@ table 5771 "Warehouse Source Filter"
         GetSourceBatch.SetTableView(ServiceHeader);
         GetSourceBatch.SetTableView(ServiceLine);
         GetSourceBatch.SetDoNotFillQtytoHandle("Do Not Fill Qty. to Handle");
+
+        OnAfterSetFilters(GetSourceBatch, Rec);
     end;
 
     local procedure AddFilter(var CodeField: Code[250]; NewFilter: Text[100])
@@ -481,6 +483,11 @@ table 5771 "Warehouse Source Filter"
     begin
         if not ("Sales Orders" or "Purchase Return Orders" or "Outbound Transfers" or "Service Orders") then
             Error(Text000, FieldCaption("Source Document"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilters(var GetSourceBatch: Report "Get Source Documents"; var WarehouseSourceFilter: Record "Warehouse Source Filter")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

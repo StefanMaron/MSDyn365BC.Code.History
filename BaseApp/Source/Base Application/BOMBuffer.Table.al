@@ -630,6 +630,7 @@ table 5870 "BOM Buffer"
     var
         SKU: Record "Stockkeeping Unit";
         VersionMgt: Codeunit VersionManagement;
+        ProductionBOMCheck: Codeunit "Production BOM-Check";
         VersionCode: Code[20];
         IsHandled: Boolean;
     begin
@@ -652,6 +653,7 @@ table 5870 "BOM Buffer"
         if "Replenishment System" = "Replenishment System"::"Prod. Order" then begin
             VersionCode := VersionMgt.GetBOMVersion("Production BOM No.", WorkDate, true);
             "BOM Unit of Measure Code" := VersionMgt.GetBOMUnitOfMeasure("Production BOM No.", VersionCode);
+            ProductionBOMCheck.CheckBOM("Production BOM No.", VersionCode);
         end;
 
         "Lot Size" := Item."Lot Size";

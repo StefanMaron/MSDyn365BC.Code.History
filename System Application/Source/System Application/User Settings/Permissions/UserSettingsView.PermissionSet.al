@@ -7,13 +7,15 @@ permissionset 9176 "User Settings - View"
 {
     Assignable = false;
 
-    IncludedPermissionSets = "Language - View",
+    IncludedPermissionSets = "User Settings - Objects",
+                             "Language - View",
                              "Tenant License State - Read",
                              "Time Zone Selection - Read",
                              "User Selection - Read",
                              "User Login Times - View",
                              "User Permissions - Read",
-                             "AAD User Management - Exec";
+                             "AAD User Management - Exec",
+                             "Azure AD User - View";
 
     Permissions = tabledata "All Profile" = r,
                   tabledata Company = r,

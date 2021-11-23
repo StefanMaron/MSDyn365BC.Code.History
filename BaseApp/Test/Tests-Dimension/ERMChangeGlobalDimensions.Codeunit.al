@@ -1105,11 +1105,10 @@ codeunit 134483 "ERM Change Global Dimensions"
         JobQueueLogEntry.TestField(Status, JobQueueLogEntry.Status::Error);
         JobQueueLogEntry.TestField(Description, ChangeGlobalDimLogEntry."Table Name");
         Assert.AreEqual(ExpectedErrorMsg, JobQueueLogEntry."Error Message", 'Error message');
-        // [THEN] "Start Date/Time" and "End Date/Time" are equal, "User ID" and "Processed by User ID" are the current user id.
+        // [THEN] "Start Date/Time" and "End Date/Time" are equal, "User ID" is the current user id.
         JobQueueLogEntry.TestField("Start Date/Time");
         JobQueueLogEntry.TestField("End Date/Time", JobQueueLogEntry."Start Date/Time");
         JobQueueLogEntry.TestField("User ID", UserId);
-        JobQueueLogEntry.TestField("Processed by User ID", UserId);
     end;
 
     [Test]

@@ -24,7 +24,9 @@ codeunit 2614 "Feature Data Update Mgt."
         JobQueueLogEntry."Start Date/Time" := FeatureDataUpdateStatus."Start Date/Time";
         JobQueueLogEntry."End Date/Time" := CurrentDateTime;
         JobQueueLogEntry."User ID" := CopyStr(UserId, 1, MaxStrLen(JobQueueLogEntry."User ID"));
+#if not CLEAN20
         JobQueueLogEntry."Processed by User ID" := CopyStr(UserId, 1, MaxStrLen(JobQueueLogEntry."Processed by User ID"));
+#endif
         JobQueueLogEntry.Insert(true);
     end;
 
@@ -45,7 +47,9 @@ codeunit 2614 "Feature Data Update Mgt."
         JobQueueLogEntry."Start Date/Time" := StartDateTime;
         JobQueueLogEntry."End Date/Time" := CurrentDateTime();
         JobQueueLogEntry."User ID" := CopyStr(UserId, 1, MaxStrLen(JobQueueLogEntry."User ID"));
+#if not CLEAN20
         JobQueueLogEntry."Processed by User ID" := CopyStr(UserId, 1, MaxStrLen(JobQueueLogEntry."Processed by User ID"));
+#endif
         JobQueueLogEntry.Insert(true);
     end;
 

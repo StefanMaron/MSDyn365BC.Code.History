@@ -31,7 +31,7 @@ codeunit 9079 "Background Error Handling Mgt."
     var
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
     begin
-        if JournalErrorsMgt.GetDeletedGenJnlLine(TempGenJnlLine, false) then begin
+        if JournalErrorsMgt.GetDeletedGenJnlLine(TempGenJnlLine, true) then begin
             TempErrorMessage.Reset();
             if TempGenJnlLine.FindSet() then
                 repeat
@@ -92,7 +92,7 @@ codeunit 9079 "Background Error Handling Mgt."
     var
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
     begin
-        if JournalErrorsMgt.GetDeletedGenJnlLine(TempGenJnlLine, true) then begin
+        if JournalErrorsMgt.GetDeletedGenJnlLine(TempGenJnlLine, false) then begin
             TempGenJnlLine.FindSet();
             repeat
                 Args.Add(Format(TempGenJnlLine."Line No."), DeletedDocumentToJson(TempGenJnlLine));

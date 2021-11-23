@@ -225,7 +225,8 @@ page 9191 "User Page Personalization List"
                 "Personalization ID" := UserMetadata."Personalization ID";
                 Date := UserMetadata.Date;
                 Time := UserMetadata.Time;
-                Insert;
+                if IncludedUser("User SID") then
+                    Insert;
             until UserMetadata.Next() = 0;
 
         if UserPageMetadata.FindSet then
@@ -233,7 +234,8 @@ page 9191 "User Page Personalization List"
                 "User SID" := UserPageMetadata."User SID";
                 "Page ID" := UserPageMetadata."Page ID";
                 "Personalization ID" := ExtensionMetadataTxt;
-                Insert;
+                if IncludedUser("User SID") then
+                    Insert;
             until UserPageMetadata.Next() = 0;
     end;
 
@@ -250,6 +252,17 @@ page 9191 "User Page Personalization List"
         else
             Message(ScanCompletedSuccessfullyMsg);
     end;
+
+    local procedure IncludedUser(UserSID: Guid): Boolean
+    var
+        User: Record User;
+        UserSelection: Codeunit "User Selection";
+    begin
+        UserSelection.HideExternalUsers(User);
+        User.SetRange("User Security ID", UserSID);
+        exit(not User.IsEmpty);
+    end;
+
 
     local procedure CountNumberOfUsersWithinFilter(var UserMetadata: Record "User Metadata" temporary) TotalUsers: Integer
     var

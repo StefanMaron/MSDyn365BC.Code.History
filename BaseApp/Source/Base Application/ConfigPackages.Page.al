@@ -166,7 +166,7 @@ page 8615 "Config. Packages"
                     Caption = 'Export to Excel';
                     Image = ExportToExcel;
                     Promoted = true;
-                    PromotedCategory = Category5;
+                    PromotedCategory = Process;
                     ToolTip = 'Export the data in the package to Excel.';
 
                     trigger OnAction()
@@ -188,7 +188,7 @@ page 8615 "Config. Packages"
                     Caption = 'Import from Excel';
                     Image = ImportExcel;
                     Promoted = true;
-                    PromotedCategory = Category5;
+                    PromotedCategory = Process;
                     ToolTip = 'Begin the migration of legacy data.';
 
                     trigger OnAction()
@@ -323,7 +323,9 @@ page 8615 "Config. Packages"
     var
         ConfigurationPackageFile: Record "Configuration Package File";
         ConfigPackageMgt: Codeunit "Config. Package Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000E3A', 'Configuration packages', Enum::"Feature Uptake Status"::Discovered);
         ImportPredefinedPackageVisible := not ConfigurationPackageFile.IsEmpty;
         ConfigPackageMgt.ShowRapidStartNotification();
     end;

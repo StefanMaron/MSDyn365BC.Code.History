@@ -301,9 +301,13 @@ table 5911 "Service Mgt. Setup"
             trigger OnValidate()
             var
                 AllObjWithCaption: Record AllObjWithCaption;
+                EnvironmentInfo: Codeunit "Environment Information";
                 InvoicePostingInterface: Interface "Invoice Posting";
             begin
                 if "Invoice Posting Setup" <> "Service Invoice Posting"::"Invoice Posting (Default)" then begin
+                    if EnvironmentInfo.IsProduction() then
+                        error(InvoicePostingNotAllowedErr);
+
                     AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Codeunit, "Invoice Posting Setup".AsInteger());
                     InvoicePostingInterface := "Invoice Posting Setup";
                     InvoicePostingInterface.Check(Database::"Service Header");
@@ -338,6 +342,9 @@ table 5911 "Service Mgt. Setup"
     fieldgroups
     {
     }
+
+    var
+        InvoicePostingNotAllowedErr: Label 'Use of alternative invoice posting interfaces in production environment is currently not allowed.';
 
     trigger OnInsert()
     begin

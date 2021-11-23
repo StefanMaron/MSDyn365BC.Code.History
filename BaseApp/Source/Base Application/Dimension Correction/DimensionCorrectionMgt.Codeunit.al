@@ -466,6 +466,33 @@ codeunit 2580 "Dimension Correction Mgt"
         DimensionCorrection.Modify();
     end;
 
+    procedure CreateCorrectionFromGLRegister(var GLRegister: Record "G/L Register"; var DimensionCorrection: Record "Dimension Correction")
+    var
+        LastDimensionCorrection: Record "Dimension Correction";
+        DimCorrectSelectionCriteria: Record "Dim Correct Selection Criteria";
+        GLEntry: Record "G/L Entry";
+        GLEntryRecordRef: RecordRef;
+        NewEntryNo: Integer;
+    begin
+        GLRegister.FindSet();
+
+        NewEntryNo := 1;
+        if LastDimensionCorrection.FindLast() then
+            NewEntryNo := LastDimensionCorrection."Entry No." + 1;
+
+        DimensionCorrection."Entry No." := NewEntryNo;
+        DimensionCorrection.Insert(true);
+
+        repeat
+            GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+            TransferSelectionFilterToRecordRef(GLEntry, GLEntryRecordRef);
+            InsertNewDimCorrectSelectionCriteria(GLEntryRecordRef, DimCorrectSelectionCriteria."Filter Type"::Manual, DimCorrectSelectionCriteria, NewEntryNo);
+            Clear(DimCorrectSelectionCriteria);
+        until GLRegister.Next() = 0;
+
+        ReloadDimensionChangesTable(NewEntryNo);
+    end;
+
     procedure CreateCorrectionFromSelection(var GLEntry: Record "G/L Entry"; var DimensionCorrection: Record "Dimension Correction")
     var
         LastDimensionCorrection: Record "Dimension Correction";
@@ -521,12 +548,36 @@ codeunit 2580 "Dimension Correction Mgt"
     procedure GetSelectedDimensionSetIDsFilter(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary): Text
     var
         TempFoundDimensionSetIDInteger: Record "Integer" temporary;
-        SelectionFilterManagement: Codeunit SelectionFilterManagement;
-        TempFoundDimSetIDRecordRef: RecordRef;
+        SelectedDimensionSetFilter: Text;
+        LastAddedNumber: Integer;
+        CurrentNumber: Integer;
     begin
         GetSelectedDimensionSetIDs(TempDimensionSetEntry, TempFoundDimensionSetIDInteger);
-        TempFoundDimSetIDRecordRef.GetTable(TempFoundDimensionSetIDInteger);
-        exit(SelectionFilterManagement.GetSelectionFilter(TempFoundDimSetIDRecordRef, TempFoundDimensionSetIDInteger.FieldNo(TempFoundDimensionSetIDInteger.Number)))
+        TempFoundDimensionSetIDInteger.SetCurrentKey(Number);
+        TempFoundDimensionSetIDInteger.Ascending(true);
+        if not TempFoundDimensionSetIDInteger.FindSet() then
+            exit('');
+
+        LastAddedNumber := TempFoundDimensionSetIDInteger.Number;
+        SelectedDimensionSetFilter += Format(LastAddedNumber);
+        CurrentNumber := LastAddedNumber;
+
+        repeat
+            if TempFoundDimensionSetIDInteger.Number > CurrentNumber + 1 then begin
+                if LastAddedNumber <> CurrentNumber then
+                    SelectedDimensionSetFilter += '..' + Format(CurrentNumber) + '|' + Format(TempFoundDimensionSetIDInteger.Number)
+                else
+                    SelectedDimensionSetFilter += '|' + Format(TempFoundDimensionSetIDInteger.Number);
+
+                LastAddedNumber := TempFoundDimensionSetIDInteger.Number;
+            end;
+            CurrentNumber := TempFoundDimensionSetIDInteger.Number;
+        until TempFoundDimensionSetIDInteger.Next() = 0;
+
+        if LastAddedNumber <> CurrentNumber then
+            SelectedDimensionSetFilter += '..' + Format(CurrentNumber);
+
+        exit(SelectedDimensionSetFilter);
     end;
 
     procedure GetSelectedDimensionSetIDs(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary; var TempFoundDimensionSetIDInteger: Record "Integer" temporary)

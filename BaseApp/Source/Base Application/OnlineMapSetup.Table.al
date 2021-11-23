@@ -25,6 +25,18 @@ table 800 "Online Map Setup"
             OptionCaption = 'Quickest,Shortest';
             OptionMembers = Quickest,Shortest;
         }
+        field(13; Enabled; Boolean)
+        {
+            Caption = 'Enabled';
+
+            trigger OnValidate()
+            var
+                CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+            begin
+                if not xRec."Enabled" and Rec."Enabled" then
+                    Rec."Enabled" := CustomerConsentMgt.ConfirmUserConsentToMicrosoftService();
+            end;
+        }
     }
 
     keys

@@ -34,6 +34,7 @@ codeunit 63 "Sales-Explode BOM"
 
         FromBOMComp.SetRange("Parent Item No.", "No.");
         OnAfterFromBOMCompSetFilters(FromBOMComp, Rec);
+        OnRunOnBeforeCalcNoOfBOMComp(FromBOMComp, Rec);
         NoOfBOMComp := FromBOMComp.Count();
 
         OnBeforeConfirmExplosion(Rec, Selection, HideDialog);
@@ -55,6 +56,7 @@ codeunit 63 "Sales-Explode BOM"
             FromBOMComp.SetRange(Type, FromBOMComp.Type::Item);
             FromBOMComp.SetFilter("No.", '<>%1', '');
             OnAfterFromBOMCompSetFilters(FromBOMComp, Rec);
+            OnRunOnAfterFromBOMCompSetFilters(FromBOMComp, Rec);
             if FromBOMComp.FindSet then
                 repeat
                     FromBOMComp.TestField(Type, FromBOMComp.Type::Item);
@@ -241,7 +243,7 @@ codeunit 63 "Sales-Explode BOM"
 
         OnAfterExplodeBOMCompLines(SalesLine, Selection);
     end;
-
+    [Obsolete('Replaced with OnRunOnBeforeCalcNoOfBOMComp and OnRunOnAfterFromBOMCompSetFilters', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterFromBOMCompSetFilters(var BOMComponent: Record "BOM Component"; SalesLine: Record "Sales Line")
     begin
@@ -299,6 +301,16 @@ codeunit 63 "Sales-Explode BOM"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCalcNoOfBOMComp(var BOMComponent: Record "BOM Component"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterFromBOMCompSetFilters(var BOMComponent: Record "BOM Component"; SalesLine: Record "Sales Line")
     begin
     end;
 }

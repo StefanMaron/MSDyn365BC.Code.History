@@ -3779,6 +3779,34 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShippingAgentAndAgentServiceCodeCopiedFromSalesOrderToWhseShipment()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        Quantity: Decimal;
+    begin
+        // Setup: Create Item. Create and release Sales Order with 'Shipping Agent Code' and 'Shipping Agent Service Code' 
+        Initialize;
+        LibraryInventory.CreateItem(Item);
+        Quantity := LibraryRandom.RandDec(10, 2);  // Taking Random Quantity.
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), LocationWhite.Code, Item."No.", Quantity);
+        UpdateShippingAgentCodeAndShippingAgentServiceCode(SalesHeader);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // Exercise: Invoke Create Warehouse Shipment from Sales Order
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // Validation: 'Shipping Agent Code' and 'Shipping Agent Services Code' is copied from Sales Header to Warehouse Shipment Header
+        FindWarehouseShipmentHeaderBySalesHeader(WarehouseShipmentHeader, SalesHeader);
+        WarehouseShipmentHeader.TestField("Shipping Agent Code", SalesHeader."Shipping Agent Code");
+        WarehouseShipmentHeader.TestField("Shipping Agent Service Code", SalesHeader."Shipping Agent Service Code");
+    end;
+
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

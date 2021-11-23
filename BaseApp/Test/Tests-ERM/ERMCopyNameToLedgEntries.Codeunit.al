@@ -22,8 +22,10 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         CustNamesUpdateMsg: Label '%1 customer ledger entries with empty Customer Name field were found. Do you want to update these entries by inserting the name from the customer cards?', Comment = '%1 = number of entries';
         VendNamesUpdateMsg: Label '%1 vendor ledger entries with empty Vendor Name field were found. Do you want to update these entries by inserting the name from the vendor cards?', Comment = '%1 = number of entries';
         ItemDescrUpdateMsg: Label '%1 ledger entries with empty Description field were found. Do you want to update these entries by inserting the description from the item cards?', Comment = '%1 = number of entries';
-        ParameterNotSupportedErr: Label 'The Parameter String field must contain ''Customer'',''Vendor'', or ''Item''. The current value ''%1'' is not supported.', Comment = '%1 - any text value';
-        JobQueueDescrTxt: Label 'Update %1 name in %1 ledger entries.', Comment = '%1 - text: Customer or Vendor';
+        ParameterNotSupportedErr: Label 'The Parameter String field must contain 18 for ''Customer'', 23 for ''Vendor'', or 27 for ''Item''. The current value ''%1'' is not supported.', Comment = '%1 - any text value';
+        CustomerJobQueueDescrTxt: Label 'Update customer name in customer ledger entries.';
+        ItemJobQueueDescrTxt: Label 'Update item name in item ledger entries.';
+        VendorJobQueueDescrTxt: Label 'Update vendor name in vendor ledger entries.';
         GlobalTaskID: Guid;
 
     [Test]
@@ -127,7 +129,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
 
         // [WHEN] Run action 'Schedule Update'
         // [THEN] Open modal page "Schedule a Report", where Description is not enabled, "Earliest Start Date/Time" is <blank> and editable
-        VerifyScheduleAJobPage('customer');
+        VerifyScheduleAJobPage(CustomerJobQueueDescrTxt);
         // [WHEN] Push 'OK'
         // by ScheduleAJobModalPageHandler
         // [THEN] Job Queue Entry is executed
@@ -179,8 +181,8 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
 
         // [THEN] Open modal page "Schedule a Report", where set "Earliest Start Date/Time" as '05.05.19 13:00' and push OK
         // [THEN] Job Queue Entry is executed,where "Object ID to Run" is Codeunit 104,
-        // [THEN] "Parameter String" is 'Customer', "Earliest Start Date/Time" is '05.05.19 13:00'
-        VerifyScheduledJobQueueEntryPage(ExpectedTaskID, 'Customer');
+        // [THEN] "Parameter String" is '18', "Earliest Start Date/Time" is '05.05.19 13:00'
+        VerifyScheduledJobQueueEntryPage(ExpectedTaskID, '18', CustomerJobQueueDescrTxt);
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -339,7 +341,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
 
         // [WHEN] Run action 'Schedule Update'
         // [THEN] Open modal page "Schedule a Report", where Description is not enabled, "Earliest Start Date/Time" is <blank> and editable
-        VerifyScheduleAJobPage('vendor');
+        VerifyScheduleAJobPage(VendorJobQueueDescrTxt);
         // [WHEN] Push 'OK'
         // by ScheduleAJobModalPageHandler
         // [THEN] Job Queue Entry is executed
@@ -391,8 +393,8 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
 
         // [THEN] Open modal page "Schedule a Report", where set "Earliest Start Date/Time" as '05.05.19 13:00' and push OK
         // [THEN] Job Queue Entry is executed, where "Object ID to Run" is Codeunit 104,
-        // [THEN] "Parameter String" is 'Vendor', "Earliest Start Date/Time" is '05.05.19 13:00'
-        VerifyScheduledJobQueueEntryPage(ExpectedTaskID, 'Vendor');
+        // [THEN] "Parameter String" is '23', "Earliest Start Date/Time" is '05.05.19 13:00'
+        VerifyScheduledJobQueueEntryPage(ExpectedTaskID, '23', VendorJobQueueDescrTxt);
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -579,7 +581,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
 
         // [WHEN] Run action 'Schedule Update'
         // [THEN] Open modal page "Schedule a Report", where Description is not enabled, "Earliest Start Date/Time" is <blank> and editable
-        VerifyScheduleAJobPage('item');
+        VerifyScheduleAJobPage(ItemJobQueueDescrTxt);
         // [WHEN] Push 'OK'
         // by ScheduleAJobModalPageHandler
         // [THEN] Job Queue Entry is executed
@@ -616,7 +618,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         // [WHEN] Run action 'Schedule Update'
 
         // [THEN] Open modal page "Schedule a Report", where Description is not enabled, "Earliest Start Date/Time" is <blank> and editable
-        VerifyScheduleAJobPage('item');
+        VerifyScheduleAJobPage(ItemJobQueueDescrTxt);
         // [WHEN] Push 'OK'
         // by ScheduleAJobModalPageHandler
         // [THEN] Job Queue Entry is executed
@@ -659,8 +661,8 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
 
         // [THEN] Open modal page "Schedule a Report", where set "Earliest Start Date/Time" as '05.05.19 13:00' and push OK
         // [THEN] Job Queue Entry is executed, where "Object ID to Run" is Codeunit 104,
-        // [THEN] "Parameter String" is 'Vendor', "Earliest Start Date/Time" is '05.05.19 13:00'
-        VerifyScheduledJobQueueEntryPage(ExpectedTaskID, 'Item');
+        // [THEN] "Parameter String" is '27', "Earliest Start Date/Time" is '05.05.19 13:00'
+        VerifyScheduledJobQueueEntryPage(ExpectedTaskID, '27', ItemJobQueueDescrTxt);
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -1001,15 +1003,15 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         Assert.RecordIsEmpty(ValueEntry);
     end;
 
-    local procedure VerifyScheduleAJobPage(Type: Text)
+    local procedure VerifyScheduleAJobPage(Descr: Text)
     begin
-        Assert.AreEqual(StrSubstNo(JobQueueDescrTxt, Type), LibraryVariableStorage.DequeueText, 'Description value');
+        Assert.AreEqual(Descr, LibraryVariableStorage.DequeueText, 'Description value');
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Description enabled');
         Assert.AreEqual(0DT, LibraryVariableStorage.DequeueDateTime, 'Earliest Start Date/Time value');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Earliest Start Date/Time enabled');
     end;
 
-    local procedure VerifyScheduledJobQueueEntryPage(ExpectedTaskID: Guid; Param: Text)
+    local procedure VerifyScheduledJobQueueEntryPage(ExpectedTaskID: Guid; Param: Text; Descr: Text[250])
     var
         JobQueueEntry: Record "Job Queue Entry";
         ExpectedDateTime: DateTime;
@@ -1021,7 +1023,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         JobQueueEntry.TestField("Object ID to Run", CODEUNIT::"Update Name In Ledger Entries");
         JobQueueEntry.TestField("Earliest Start Date/Time", ExpectedDateTime);
         JobQueueEntry.TestField("Parameter String", Param);
-        JobQueueEntry.TestField(Description, StrSubstNo(JobQueueDescrTxt, LowerCase(Param)));
+        JobQueueEntry.TestField(Description, Descr);
     end;
 
     [SendNotificationHandler]

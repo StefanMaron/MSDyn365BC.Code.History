@@ -22,6 +22,7 @@ codeunit 99000769 "Production BOM-Check"
         Window: Dialog;
         NoOfItems: Integer;
         ItemCounter: Integer;
+        CircularRefInBOMErr: Label 'The production BOM %1 has a circular reference. Pay attention to the production BOM %2 that closes the loop.', Comment = '%1 = Production BOM No., %2 = Production BOM No.';
 
     procedure "Code"(var ProdBOMHeader: Record "Production BOM Header"; VersionCode: Code[20])
     var
@@ -34,7 +35,8 @@ codeunit 99000769 "Production BOM-Check"
             ProdBOMHeader."Low-Level Code" := CalcLowLevel.CalcLevels(2, ProdBOMHeader."No.", ProdBOMHeader."Low-Level Code", 1);
             CalcLowLevel.RecalcLowerLevels(ProdBOMHeader."No.", ProdBOMHeader."Low-Level Code", false);
             ProdBOMHeader.Modify();
-        end;
+        end else
+            CheckBOM(ProdBOMHeader."No.", VersionCode);
 
         Item.SetCurrentKey("Production BOM No.");
         Item.SetRange("Production BOM No.", ProdBOMHeader."No.");
@@ -141,6 +143,45 @@ codeunit 99000769 "Production BOM-Check"
             ProdBOMLine.FieldError("No.");
 
         OnAfterProdBomLineCheck(ProdBOMLine, VersionCode);
+    end;
+
+    procedure CheckBOM(ProductionBOMNo: Code[20]; VersionCode: Code[20])
+    var
+        TempProductionBOMHeader: Record "Production BOM Header" temporary;
+    begin
+        TempProductionBOMHeader."No." := ProductionBOMNo;
+        TempProductionBOMHeader.Insert();
+        CheckCircularReferencesInProductionBOM(TempProductionBOMHeader, VersionCode);
+    end;
+
+    local procedure CheckCircularReferencesInProductionBOM(var TempProductionBOMHeader: Record "Production BOM Header" temporary; VersionCode: Code[20])
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        NextVersionCode: Code[20];
+        CheckNextLevel: Boolean;
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", TempProductionBOMHeader."No.");
+        ProductionBOMLine.SetRange("Version Code", VersionCode);
+        ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::"Production BOM");
+        ProductionBOMLine.SetFilter("No.", '<>%1', '');
+        if ProductionBOMLine.FindSet() then
+            repeat
+                TempProductionBOMHeader."No." := ProductionBOMLine."No.";
+                if not TempProductionBOMHeader.Insert() then
+                    Error(CircularRefInBOMErr, ProductionBOMLine."No.", ProductionBOMLine."Production BOM No.");
+
+                NextVersionCode := VersionMgt.GetBOMVersion(ProductionBOMLine."No.", WorkDate(), true);
+                if NextVersionCode <> '' then
+                    CheckNextLevel := true
+                else begin
+                    ProductionBOMHeader.Get(ProductionBOMLine."No.");
+                    CheckNextLevel := ProductionBOMHeader.Status = ProductionBOMHeader.Status::Certified;
+                end;
+
+                if CheckNextLevel then
+                    CheckCircularReferencesInProductionBOM(TempProductionBOMHeader, NextVersionCode);
+            until ProductionBOMLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

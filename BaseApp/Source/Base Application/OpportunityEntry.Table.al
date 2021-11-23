@@ -1,4 +1,4 @@
-table 5093 "Opportunity Entry"
+﻿table 5093 "Opportunity Entry"
 {
     Caption = 'Opportunity Entry';
     DrillDownPageID = "Opportunity Entries";
@@ -417,7 +417,13 @@ table 5093 "Opportunity Entry"
     var
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestCust(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Cont.Get("Contact No.");
 
         if Cont.Type = Cont.Type::Person then
@@ -439,6 +445,8 @@ table 5093 "Opportunity Entry"
         "Contact Company No." := Opp."Contact Company No.";
         "Salesperson Code" := Opp."Salesperson Code";
         "Campaign No." := Opp."Campaign No.";
+
+        OnAfterInitOpportunityEntry(Opp, Rec);
     end;
 
     procedure CloseOppFromOpp(var Opp: Record Opportunity)
@@ -453,6 +461,7 @@ table 5093 "Opportunity Entry"
         "Salesperson Code" := Opp."Salesperson Code";
         "Campaign No." := Opp."Campaign No.";
 
+        OnCloseOppFromOppOnBeforeStartWizard(Opp, Rec);
         StartWizard;
     end;
 
@@ -504,6 +513,7 @@ table 5093 "Opportunity Entry"
         "Salesperson Code" := Opp."Salesperson Code";
         "Campaign No." := Opp."Campaign No.";
 
+        OnUpdateOppFromOppOnBeforeStartWizard2(Opp, Rec);
         StartWizard2;
     end;
 
@@ -819,6 +829,7 @@ table 5093 "Opportunity Entry"
 
     procedure ValidateSalesCycleStage()
     begin
+        OnBeforeValidateSalesCycleStage(Rec);
         case "Action Type" of
             "Action Type"::First:
                 TempSalesCycleStageFirst.Get("Sales Cycle Code", "Sales Cycle Stage");
@@ -873,12 +884,37 @@ table 5093 "Opportunity Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitOpportunityEntry(Opportunity: Record Opportunity; var OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestCust(OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSalesCycleStage(var OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCloseOppFromOppOnBeforeStartWizard(Opportunity: Record Opportunity; var OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFinishWizardOnAfterInsertEntry(OpportunityEntry: Record "Opportunity Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnFinishWizard2OnAfterInsertEntry(OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOppFromOppOnBeforeStartWizard2(Opportunity: Record Opportunity; var OpportunityEntry: Record "Opportunity Entry")
     begin
     end;
 }

@@ -102,10 +102,11 @@ page 5337 "CRM Coupled Fields"
 
     local procedure GetFieldValue(RecordRef: RecordRef; FieldNo: Integer): Text[250]
     var
+        IntegrationRecordSynch: Codeunit "Integration Record Synch.";
         FieldRef: FieldRef;
     begin
         FieldRef := RecordRef.Field(FieldNo);
-        exit(CopyStr(Format(FieldRef.Value), 1, 250));
+        exit(CopyStr(IntegrationRecordSynch.GetTextValue(FieldRef), 1, 250));
     end;
 
     local procedure FindCRMRecRefByPK(var RecordRef: RecordRef; CRMId: Guid): Boolean

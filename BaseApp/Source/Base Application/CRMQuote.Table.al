@@ -86,7 +86,7 @@ table 5351 "CRM Quote"
             ExternalType = 'Integer';
             MinValue = 0;
         }
-        field(10; Name; Text[250])
+        field(10; Name; Text[2048])
         {
             Caption = 'Name';
             Description = 'Type a descriptive name for the quote.';
@@ -499,7 +499,8 @@ table 5351 "CRM Quote"
             ExternalType = 'String';
             FieldClass = FlowField;
         }
-        field(61; OpportunityIdName; Text[250])
+#pragma warning disable AS0086
+        field(61; OpportunityIdName; Text[2048])
         {
             CalcFormula = Lookup("CRM Opportunity".Name WHERE(OpportunityId = FIELD(OpportunityId)));
             Caption = 'OpportunityIdName';
@@ -508,6 +509,7 @@ table 5351 "CRM Quote"
             ExternalType = 'String';
             FieldClass = FlowField;
         }
+#pragma warning restore AS0086
         field(62; PriceLevelIdName; Text[100])
         {
             CalcFormula = Lookup("CRM Pricelevel".Name WHERE(PriceLevelId = FIELD(PriceLevelId)));

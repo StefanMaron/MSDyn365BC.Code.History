@@ -422,6 +422,7 @@ page 7378 "Invt. Pick Subform"
         WhseActivLine: Record "Warehouse Activity Line";
     begin
         WhseActivLine.Copy(Rec);
+        OnPostPickYesNoOnBeforeRunWhseActivPostYesNo(WhseActivLine);
         CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Post (Yes/No)", WhseActivLine);
         CurrPage.Update(false);
     end;
@@ -433,6 +434,7 @@ page 7378 "Invt. Pick Subform"
     begin
         WhseActivLine.Copy(Rec);
         WhseActivPostYesNo.PrintDocument(true);
+        OnPostAndPrintOnBeforeRunWhseActivPostYesNo(WhseActivLine);
         WhseActivPostYesNo.Run(WhseActivLine);
         CurrPage.Update(false);
     end;
@@ -483,6 +485,16 @@ page 7378 "Invt. Pick Subform"
         PackageMgt: Codeunit "Package Management";
     begin
         PackageTrackingVisible := PackageMgt.IsEnabled();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPickYesNoOnBeforeRunWhseActivPostYesNo(var WhseActivLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostAndPrintOnBeforeRunWhseActivPostYesNo(var WhseActivLine: Record "Warehouse Activity Line")
+    begin
     end;
 }
 

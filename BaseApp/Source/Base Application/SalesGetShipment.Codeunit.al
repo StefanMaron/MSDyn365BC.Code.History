@@ -78,7 +78,7 @@ codeunit 64 "Sales-Get Shipment"
                         OnBeforeTransferLineToSalesDoc(SalesShptHeader, SalesShptLine2, SalesHeader, TransferLine);
                     end;
                     InsertInvoiceLineFromShipmentLine(SalesShptLine2, TransferLine, PrepmtAmtToDeductRounding);
-                    OnAfterInsertLine(SalesShptLine, SalesLine, SalesShptLine2, TransferLine);
+                    OnAfterInsertLine(SalesShptLine, SalesLine, SalesShptLine2, TransferLine, SalesHeader);
                 until Next() = 0;
 
                 UpdateItemChargeLines();
@@ -299,7 +299,7 @@ codeunit 64 "Sales-Get Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertLine(var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; SalesShptLine2: Record "Sales Shipment Line"; TransferLine: Boolean)
+    local procedure OnAfterInsertLine(var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; SalesShptLine2: Record "Sales Shipment Line"; TransferLine: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 

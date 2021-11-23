@@ -7,7 +7,12 @@ codeunit 104011 "Upg Advanced Checklist Setup"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+            
         BaseDemoDataSetup();
     end;
 

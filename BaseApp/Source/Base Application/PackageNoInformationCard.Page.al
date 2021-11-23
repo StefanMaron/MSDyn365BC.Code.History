@@ -167,7 +167,7 @@ page 6526 "Package No. Information Card"
     trigger OnOpenPage()
     begin
         SetCaption();
-        Rec.SetFilter("Date Filter", '..%1', WorkDate());
+        Rec.SetFilter("Date Filter", '>%1&<=%2', 0D, WorkDate());
         if ShowButtonFunctions then
             ButtonFunctionsVisible := true;
     end;

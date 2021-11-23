@@ -384,6 +384,7 @@ table 1706 "Deferral Posting Buffer"
         SetRange("Posting Date", DeferralPostBuffer."Posting Date");
         SetRange("Partial Deferral", DeferralPostBuffer."Partial Deferral");
         SetRange("Deferral Line No.", DeferralPostBuffer."Deferral Line No.");
+        OnUpdateOnAfterSetFilters(Rec, DeferralPostBuffer);
         if FindFirst() then begin
             Amount += DeferralPostBuffer.Amount;
             "Amount (LCY)" += DeferralPostBuffer."Amount (LCY)";
@@ -437,6 +438,10 @@ table 1706 "Deferral Posting Buffer"
     begin
     end;
 #endif
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOnAfterSetFilters(var DeferralPostingBufferRec: Record "Deferral Posting Buffer"; DeferralPostBuffer: Record "Deferral Posting Buffer")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateOnBeforeDeferralPostBufferInsert(var ToDeferralPostingBuffer: Record "Deferral Posting Buffer"; FromDeferralPostingBuffer: Record "Deferral Posting Buffer")

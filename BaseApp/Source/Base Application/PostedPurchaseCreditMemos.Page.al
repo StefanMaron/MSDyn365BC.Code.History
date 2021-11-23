@@ -83,10 +83,10 @@ page 147 "Posted Purchase Credit Memos"
                 field(Cancelled; Cancelled)
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDownPageID = "Posted Sales Invoices";
+                    DrillDownPageID = "Posted Purchase Invoices";
                     Editable = false;
                     HideValue = NOT Cancelled;
-                    LookupPageID = "Posted Sales Invoices";
+                    LookupPageID = "Posted Purchase Invoices";
                     Style = Unfavorable;
                     StyleExpr = Cancelled;
                     ToolTip = 'Specifies if the posted purchase invoice that relates to this purchase credit memo has been either corrected or canceled.';
@@ -99,10 +99,10 @@ page 147 "Posted Purchase Credit Memos"
                 field(Corrective; Corrective)
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDownPageID = "Posted Sales Invoices";
+                    DrillDownPageID = "Posted Purchase Invoices";
                     Editable = false;
                     HideValue = NOT Corrective;
-                    LookupPageID = "Posted Sales Invoices";
+                    LookupPageID = "Posted Purchase Invoices";
                     Style = Unfavorable;
                     StyleExpr = Corrective;
                     ToolTip = 'Specifies if the posted purchase invoice has been either corrected or canceled by this purchase credit memo .';
@@ -416,7 +416,7 @@ page 147 "Posted Purchase Credit Memos"
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     Scope = Repeater;
-                    ToolTip = 'Open the posted sales invoice that was created when you canceled the posted sales credit memo. If the posted sales credit memo is the result of a canceled sales invoice, then canceled invoice will open.';
+                    ToolTip = 'Open the posted purchase invoice that was created when you canceled the posted purchase credit memo. If the posted purchase credit memo is the result of a canceled purchase invoice, then canceled invoice will open.';
                     Visible = Cancelled OR Corrective;
 
                     trigger OnAction()

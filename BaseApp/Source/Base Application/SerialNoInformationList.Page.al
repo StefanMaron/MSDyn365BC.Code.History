@@ -172,7 +172,7 @@ page 6509 "Serial No. Information List"
 
     trigger OnOpenPage()
     begin
-        SetFilter("Date Filter", '..%1', WorkDate);
+        Rec.SetFilter("Date Filter", '>%1&<=%2', 0D, WorkDate);
     end;
 
     procedure GetSelectionFilter(): Text

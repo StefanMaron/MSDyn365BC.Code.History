@@ -13,7 +13,11 @@ codeunit 104060 "Upgrade App ID Permissions"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         ServerSettings: Codeunit "Server Setting";
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade('') then
+            exit;
+
         if not ServerSettings.GetUsePermissionSetsFromExtensions() then
             exit;
 

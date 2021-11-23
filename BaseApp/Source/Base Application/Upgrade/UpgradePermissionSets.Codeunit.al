@@ -6,7 +6,12 @@ codeunit 104042 "Upgrade Permission Sets"
     Subtype = Upgrade;
 
     trigger OnUpgradePerDatabase()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade('') then
+            exit;
+
         ReplaceObsoletePermissionSets();
         ReplaceObsoletePermissionSetsForEditInExcel();
 #if not CLEAN19
@@ -31,7 +36,7 @@ codeunit 104042 "Upgrade Permission Sets"
 
         if UserGroupPermissionSet.Get('EXCEL EXPORT ACTION', 'Export Report Excel', UserGroupPermissionSet.Scope::System, AggregatePermissionSet."App ID") then
             exit;
-        
+
         UserGroupPermissionSet."User Group Code" := 'EXCEL EXPORT ACTION';
         UserGroupPermissionSet."Role ID" := 'Export Report Excel';
         UserGroupPermissionSet.Scope := UserGroupPermissionSet.Scope::System;
@@ -80,7 +85,7 @@ codeunit 104042 "Upgrade Permission Sets"
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::System);
         AggregatePermissionSet.SetRange("Role ID", NewPermissionSet);
         if not AggregatePermissionSet.FindFirst() then begin
-            Session.LogMessage('0000FGT', 
+            Session.LogMessage('0000FGT',
                 StrSubstNo(NewPermissionSetNotFoundTxt, OldPermissionSet, NewPermissionSet),
                 Verbosity::Normal,
                 DataClassification::SystemMetadata,

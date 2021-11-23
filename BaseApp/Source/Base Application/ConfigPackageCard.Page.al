@@ -73,7 +73,7 @@ page 8614 "Config. Package Card"
             group(Package)
             {
                 Caption = 'Package';
-                
+
                 action(GetTables)
                 {
                     ApplicationArea = Basic, Suite;
@@ -134,7 +134,7 @@ page 8614 "Config. Package Card"
                     Caption = 'Export to Excel';
                     Image = ExportToExcel;
                     Promoted = true;
-                    PromotedCategory = Category5;
+                    PromotedCategory = Process;
                     ToolTip = 'Export the data in the package to Excel.';
 
                     trigger OnAction()
@@ -156,7 +156,7 @@ page 8614 "Config. Package Card"
                     Caption = 'Import from Excel';
                     Image = ImportExcel;
                     Promoted = true;
-                    PromotedCategory = Category5;
+                    PromotedCategory = Process;
                     ToolTip = 'Begin the migration of legacy data.';
 
                     trigger OnAction()
@@ -286,6 +286,13 @@ page 8614 "Config. Package Card"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        FeatureTelemetry.LogUptake('0000E3C', 'Configuration packages', Enum::"Feature Uptake Status"::Discovered);
+    end;
 
     trigger OnAfterGetRecord()
     begin

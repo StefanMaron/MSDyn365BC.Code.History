@@ -454,7 +454,7 @@ table 5802 "Value Entry"
         }
         key(Key7; "Item No.", "Valuation Date", "Location Code", "Variant Code")
         {
-            SumIndexFields = "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)", "Item Ledger Entry Quantity";
+            SumIndexFields = "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)", "Item Ledger Entry Quantity", "Invoiced Quantity";
         }
         key(Key8; "Source Type", "Source No.", "Item No.", "Posting Date", "Entry Type", Adjustment, "Item Ledger Entry Type")
         {
@@ -589,6 +589,7 @@ table 5802 "Value Entry"
               "Cost Amount (Expected) (ACY)" * QtyFactor + PrevValueEntrySum."Cost Amount (Expected) (ACY)";
             "Cost Amount (Actual) (ACY)" :=
               "Cost Amount (Actual) (ACY)" * QtyFactor + PrevValueEntrySum."Cost Amount (Actual) (ACY)";
+            OnSumCostsTillValuationDateOnAfterSetCostAmounts(Rec, PrevValueEntrySum, QtyFactor);
             PrevValueEntrySum := Rec;
 
             if FromDate <> 0D then
@@ -817,7 +818,10 @@ table 5802 "Value Entry"
     local procedure OnSumCostsTillValuationDateOnAfterSetFilters(var ValueEntryRec: Record "Value Entry"; var ValueEntry: Record "Value Entry"; var Item: Record Item)
     begin
     end;
-
+    [IntegrationEvent(false, false)]
+    local procedure OnSumCostsTillValuationDateOnAfterSetCostAmounts(var ValueEntry: Record "Value Entry"; PrevValueEntrySum: Record "Value Entry"; QtyFactor: Decimal)
+    begin
+    end;
     [IntegrationEvent(false, false)]
     local procedure OnShowGLOnBeforeCopyToTempGLEntry(var GLEntry: Record "G/L Entry"; var GLItemLedgRelation: Record "G/L - Item Ledger Relation");
     begin

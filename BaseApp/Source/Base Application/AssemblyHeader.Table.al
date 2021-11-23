@@ -310,7 +310,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 TestField("Qty. per Unit of Measure", 1);
                 Validate(Quantity, "Quantity (Base)");
@@ -1008,6 +1015,8 @@
         SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Remaining Quantity (Base)", '<>0');
         SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
+
+        OnAfterSetItemToPlanFilters(Rec, Item, DocumentType);
     end;
 
 #if not CLEAN17
@@ -1658,7 +1667,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckIsNotAsmToOrder(Rec, IsHandled);
+        OnBeforeCheckIsNotAsmToOrder(Rec, IsHandled, xRec, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -1840,6 +1849,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItemToPlanFilters(var AssemblyHeader: Record "Assembly Header"; var Item: Record Item; AssemblyDocumentType: Enum "Assembly Document Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header");
     begin
     end;
@@ -1900,6 +1914,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityBase(var AssemblyHeader: Record "Assembly Header"; var xAssemblyHeader: Record "Assembly Header"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnBeforeUpdateAssemblyLines(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; CurrentFieldNo: Integer; CurrentFieldNum: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -1925,7 +1944,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckIsNotAsmToOrder(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckIsNotAsmToOrder(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean; xAssemblyHeader: Record "Assembly Header"; CurrentFieldNo: Integer)
     begin
     end;
 

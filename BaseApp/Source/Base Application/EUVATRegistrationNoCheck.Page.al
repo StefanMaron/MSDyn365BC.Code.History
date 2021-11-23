@@ -27,7 +27,7 @@ page 1339 "EU VAT Registration No Check"
                 field("Vat Registration No"; VATRegNo)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Vat Registration No.';
+                    Caption = 'VAT Registration No.';
 
                     trigger OnValidate()
                     begin

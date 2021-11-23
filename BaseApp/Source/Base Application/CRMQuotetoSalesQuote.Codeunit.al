@@ -28,10 +28,13 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CannotCreateSalesQuoteInNAVTxt: Label 'The sales quote cannot be created.';
         CannotFindCRMAccountForQuoteErr: Label 'The %2 account for %2 sales quote %1 does not exist.', Comment = '%1=Dataverse Sales Order Name, %2 - Dataverse service name';
         ItemDoesNotExistErr: Label '%1 The item %2 does not exist.', Comment = '%1= the text: "The sales order cannot be created.", %2=product name';
+        ItemUnitOfMeasureDoesNotExistErr: Label '%1 The item unit of measure %2 does not exist.', Comment = '%1= the text: "The sales order cannot be created.", %2=item unit of measure name';
+        ResourceUnitOfMeasureDoesNotExistErr: Label '%1 The resource unit of measure %2 does not exist.', Comment = '%1= the text: "The sales order cannot be created.", %2=resource unit of measure name';
         NoCustomerErr: Label '%1 There is no potential customer defined on the %3 sales quote %2.', Comment = '%1= the text: "The sales quote cannot be created.", %2=sales order title, %3 - Dataverse service name';
         NotCoupledCustomerErr: Label '%1 There is no customer coupled to %3 account %2.', Comment = '%1= the text: "The sales quote cannot be created.", %2=account name, %3 - Dataverse service name';
         NotCoupledCRMProductErr: Label '%1 The %3 product %2 is not coupled to an item.', Comment = '%1= the text: "The sales quote cannot be created.", %2=product name, %3 - Dataverse service name';
         NotCoupledCRMResourceErr: Label '%1 The %3 resource %2 is not coupled to a resource.', Comment = '%1= the text: "The sales quote cannot be created.", %2=resource name, %3 - Dataverse service name';
+        NotCoupledCRMUomErr: Label '%1 The %3 unit %2 is not coupled to a unit of measure.', Comment = '%1= the text: "The sales quote cannot be created.", %2=unit name, %3 - Dataverse service name';
         AccountNotCustomerErr: Label '%1 The selected type of the %2 %3 account is not customer.', Comment = '%1= the text: "The sales order cannot be created.", %2=account name, %3=Dataverse service name';
         AccountNotCustomerTelemetryMsg: Label '%1 The selected type of the %2 %3 account is not customer.', Locked = true;
         ResourceDoesNotExistErr: Label '%1 The resource %2 does not exist.', Comment = '%1= the text: "The sales quote cannot be created.", %2=product name';
@@ -183,6 +186,11 @@ codeunit 5348 "CRM Quote to Sales Quote"
     local procedure CreateOrUpdateSalesQuoteHeader(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header"; OpType: Option Create,Update)
     var
         Customer: Record Customer;
+        IntegrationRecordSynch: Codeunit "Integration Record Synch.";
+        SourceRecordRef: RecordRef;
+        DestinationRecordRef: RecordRef;
+        SourceFieldRef: FieldRef;
+        DestinationFieldRef: FieldRef;
     begin
         if OpType = OpType::Create then begin
             SalesHeader.Init();
@@ -204,6 +212,12 @@ codeunit 5348 "CRM Quote to Sales Quote"
         SalesHeader.Validate("Payment Discount %", CRMQuote.DiscountPercentage);
         SalesHeader.Validate("External Document No.", CopyStr(CRMQuote.Name, 1, MaxStrLen(SalesHeader."External Document No.")));
         SalesHeader.Validate("Quote Valid Until Date", CRMQuote.EffectiveTo);
+        SourceRecordRef.GetTable(CRMQuote);
+        DestinationRecordRef.GetTable(SalesHeader);
+        SourceFieldRef := SourceRecordRef.Field(CRMQuote.FieldNo(Description));
+        DestinationFieldRef := DestinationRecordRef.Field(SalesHeader.FieldNo("Work Description"));
+        IntegrationRecordSynch.SetTextValue(DestinationFieldRef, IntegrationRecordSynch.GetTextValue(SourceFieldRef));
+        DestinationRecordRef.SetTable(SalesHeader);
 
         if OpType = OpType::Create then
             SalesHeader.Insert(true)
@@ -400,6 +414,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
     local procedure InitializeSalesQuoteLine(CRMQuotedetail: Record "CRM Quotedetail"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         CRMProduct: Record "CRM Product";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         InitNewSalesLine(SalesHeader, SalesLine);
 
@@ -419,6 +434,9 @@ codeunit 5348 "CRM Quote to Sales Quote"
         end;
         SetLineDescription(SalesHeader, SalesLine, CRMQuoteDetail);
 
+        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
+            UpdateSalesLineUnitOfMeasure(CRMQuotedetail, CRMProduct, SalesLine);
+
         SalesLine.Validate(Quantity, CRMQuotedetail.Quantity);
         SalesLine.Validate("Unit Price", CRMQuotedetail.PricePerUnit);
         SalesLine.Validate(Amount, CRMQuotedetail.BaseAmount);
@@ -426,6 +444,38 @@ codeunit 5348 "CRM Quote to Sales Quote"
           "Line Discount Amount",
           CRMQuotedetail.Quantity * CRMQuotedetail.VolumeDiscountAmount +
           CRMQuotedetail.ManualDiscountAmount);
+    end;
+
+    local procedure UpdateSalesLineUnitOfMeasure(CRMQuotedetail: Record "CRM Quotedetail"; CRMProduct: Record "CRM Product"; var SalesLine: Record "Sales Line")
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        NAVItemUomRecordId: RecordID;
+        NAVResourceUomRecordId: RecordID;
+    begin
+        case CRMProduct.ProductTypeCode of
+            CRMProduct.ProductTypeCode::SalesInventory:
+                begin
+                    if not CRMIntegrationRecord.FindRecordIDFromID(CRMQuotedetail.UoMId, Database::"Item Unit of Measure", NAVItemUomRecordId) then
+                        Error(NotCoupledCRMUomErr, CannotCreateSalesQuoteInNAVTxt, CRMQuotedetail.UoMIdName, CRMProductName.CDSServiceName());
+
+                    if not ItemUnitOfMeasure.Get(NAVItemUomRecordId) then
+                        Error(ItemUnitOfMeasureDoesNotExistErr, CannotCreateSalesQuoteInNAVTxt, CRMQuotedetail.UoMIdName);
+
+                    SalesLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+                end;
+            CRMProduct.ProductTypeCode::Services:
+                begin
+                    if not CRMIntegrationRecord.FindRecordIDFromID(CRMQuotedetail.UoMId, Database::"Resource Unit of Measure", NAVResourceUomRecordId) then
+                        Error(NotCoupledCRMUomErr, CannotCreateSalesQuoteInNAVTxt, CRMQuotedetail.UoMIdName, CRMProductName.CDSServiceName());
+
+                    if not ResourceUnitOfMeasure.Get(NAVResourceUomRecordId) then
+                        Error(ResourceUnitOfMeasureDoesNotExistErr, CannotCreateSalesQuoteInNAVTxt, CRMQuotedetail.UoMIdName);
+
+                    SalesLine.Validate("Unit of Measure Code", ResourceUnitOfMeasure.Code);
+                end;
+        end;
     end;
 
     local procedure CopyShipToInformationIfNotEmpty(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header")

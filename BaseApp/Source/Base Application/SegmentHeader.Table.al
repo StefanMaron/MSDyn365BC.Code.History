@@ -467,6 +467,11 @@ table 5076 "Segment Header"
         "Campaign Response" := InteractionTemplate."Campaign Response";
         "Correspondence Type (Default)" := InteractionTemplate."Correspondence Type (Default)";
         "Ignore Contact Corres. Type" := InteractionTemplate."Ignore Contact Corres. Type";
+        "Word Template Code" := InteractionTemplate."Word Template Code";
+
+        UpdateSegLinesByFieldNo(FieldNo("Correspondence Type (Default)"), false);
+        UpdateSegLinesByFieldNo(FieldNo("Language Code (Default)"), false);
+        UpdateSegLinesByFieldNo(FieldNo("Word Template Code"), false);
     end;
 
     procedure UpdateSegLinesByFieldNo(ChangedFieldNo: Integer; AskQuestion: Boolean)
@@ -617,7 +622,13 @@ table 5076 "Segment Header"
         AddContacts: Report "Add Contacts";
         ReduceContacts: Report "Remove Contacts - Reduce";
         RefineContacts: Report "Remove Contacts - Refine";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReuseCriteria(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFields("No. of Criteria Actions");
         if "No. of Criteria Actions" <> 0 then
             if not Confirm(
@@ -923,6 +934,11 @@ table 5076 "Segment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSegLinesByFieldNo(var SegmentHeader: Record "Segment Header"; CalledByFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReuseCriteria(var SegmentHeader: Record "Segment Header"; var IsHandled: Boolean)
     begin
     end;
 

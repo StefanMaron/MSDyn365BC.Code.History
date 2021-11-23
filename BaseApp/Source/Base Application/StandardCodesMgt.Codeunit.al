@@ -58,10 +58,16 @@ codeunit 170 "Standard Codes Mgt."
         exit(StandardCustomerSalesCode.FindFirst());
     end;
 
-    procedure CanCreatePurchRecurringLines(var PurchHeader: Record "Purchase Header"): Boolean
+    procedure CanCreatePurchRecurringLines(var PurchHeader: Record "Purchase Header") Result: Boolean
     var
         StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCanCreatePurchRecurringLines(PurchHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if PurchHeader.IsTemporary then
             exit(false);
 
@@ -390,6 +396,11 @@ codeunit 170 "Standard Codes Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetPurchRecurringLines(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCanCreatePurchRecurringLines(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

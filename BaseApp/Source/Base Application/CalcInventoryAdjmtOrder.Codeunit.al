@@ -324,6 +324,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
               "Entry Type"::"Assembly Output");
             if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
                 SetRange("Order Line No.", InvtAdjmtEntryOrder."Order Line No.");
+            OnCalcOutputQtyOnAfterSetFilters(ItemLedgEntry, InvtAdjmtEntryOrder);
             if Find('-') then
                 repeat
                     OutputQty += Quantity;
@@ -385,6 +386,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
             SetFilter("Entry Type", '%1|%2', "Entry Type"::Output, "Entry Type"::"Assembly Output");
             if SourceInvtAdjmtEntryOrder."Order Type" = SourceInvtAdjmtEntryOrder."Order Type"::Production then
                 SetRange("Order Line No.", SourceInvtAdjmtEntryOrder."Order Line No.");
+            OnOutputItemLedgEntryExistOnAfterSetFilters(FromItemLedgEntry, SourceInvtAdjmtEntryOrder);
             CopyILEToILE(FromItemLedgEntry, ToItemLedgEntry);
             exit(ToItemLedgEntry.FindFirst);
         end;
@@ -438,7 +440,17 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcOutputQtyOnAfterSetFilters(var ItemLedgEntry: Record "Item Ledger Entry"; var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalculateOnAfterGetItem(var Item: Record Item; var SourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOutputItemLedgEntryExistOnAfterSetFilters(var FromItemLedgEntry: Record "Item Ledger Entry"; var SourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     begin
     end;
 }

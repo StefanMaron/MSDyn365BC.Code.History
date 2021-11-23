@@ -5,7 +5,7 @@
       <group id="body">
         <trans-unit id="Codeunit 2349943443 - NamedType 3903114897" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Thank you for your business. Your %1 has been cancelled.</source>
-          <target state="translated">Vielen Dank für Ihren Auftrag. Ihre Rechnung %1 wurde storniert.</target>
+          <target state="translated">Ihre Rechnung %1 wurde storniert.</target>
           <note from="Developer" annotates="general" priority="2">%1 - document type</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV1 - Send Sales Document - NamedType CancelationEmailBodyTxt</note>
         </trans-unit>
